@@ -1677,9 +1677,13 @@
     <span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">webhook</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">webhook</span><span class="o">.</span><span class="n">webhook_url</span><span class="p">)</span>
 </code></pre></div>
-<p>Notes:
-- Affinity limits webhook subscriptions (see <code>WebhookService</code> docs).
-- Affinity may attempt to contact your <code>webhook_url</code> during creation/updates; ensure your endpoint is reachable and responds quickly.</p>
+<div class="admonition note">
+<p class="admonition-title">Notes</p>
+<ul>
+<li>Affinity limits webhook subscriptions (see <code>WebhookService</code> docs).</li>
+<li>Affinity may attempt to contact your <code>webhook_url</code> during creation/updates; ensure your endpoint is reachable and responds quickly.</li>
+</ul>
+</div>
 <h2 id="verify-inbound-requests-recommended">Verify inbound requests (recommended)<a class="headerlink" href="#verify-inbound-requests-recommended" title="Permanent link">&para;</a></h2>
 <p>Affinity’s public V1 docs do not describe a standard signature scheme. If your account includes a signature header/mechanism, validate it per Affinity’s documentation.</p>
 <p>If you do not have a signature mechanism, treat the webhook endpoint like a public entry point and add your own verification controls:</p>
@@ -1734,6 +1738,10 @@
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Disclaimer: Unofficial community project; not affiliated with, endorsed by, or sponsored by Affinity. "Affinity" and related marks are trademarks of their respective owners. Use of the Affinity API is subject to Affinity Terms of Service.
+    </div>
   
   
     Made with
