@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../authentication/">
+        <link rel="prev" href="../configuration/">
       
       
-        <link rel="next" href="../performance/">
+        <link rel="next" href="../api-versions-and-routing/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Configuration - Affinity Python SDK</title>
+        <title>Performance tuning - Affinity Python SDK</title>
       
     
     
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#configuration" class="md-skip">
+        <a href="#performance-tuning" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Configuration
+              Performance tuning
             
           </span>
         </div>
@@ -437,6 +437,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -456,7 +484,7 @@
   <span class="md-ellipsis">
     
   
-    Configuration
+    Performance tuning
   
 
     
@@ -474,7 +502,7 @@
   <span class="md-ellipsis">
     
   
-    Configuration
+    Performance tuning
   
 
     
@@ -500,10 +528,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#load-from-environment" class="md-nav__link">
+  <a href="#pagination-sizing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Load from environment
+        Pagination sizing
       
     </span>
   </a>
@@ -511,10 +539,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#timeouts" class="md-nav__link">
+  <a href="#concurrency-async" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Timeouts
+        Concurrency (async)
       
     </span>
   </a>
@@ -522,10 +550,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#retries" class="md-nav__link">
+  <a href="#connection-pooling" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retries
+        Connection pooling
       
     </span>
   </a>
@@ -533,10 +561,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#download-redirects-files" class="md-nav__link">
+  <a href="#http2" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Download redirects (files)
+        HTTP/2
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timeouts-and-deadlines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timeouts and deadlines
       
     </span>
   </a>
@@ -554,82 +593,10 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#logging-and-hooks" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Logging and hooks
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#v1v2-urls-and-auth-mode" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        V1/V2 URLs and auth mode
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#beta-endpoints-and-version-diagnostics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Beta endpoints and version diagnostics
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next steps
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../performance/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Performance tuning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1700,10 +1667,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#load-from-environment" class="md-nav__link">
+  <a href="#pagination-sizing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Load from environment
+        Pagination sizing
       
     </span>
   </a>
@@ -1711,10 +1678,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#timeouts" class="md-nav__link">
+  <a href="#concurrency-async" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Timeouts
+        Concurrency (async)
       
     </span>
   </a>
@@ -1722,10 +1689,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#retries" class="md-nav__link">
+  <a href="#connection-pooling" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retries
+        Connection pooling
       
     </span>
   </a>
@@ -1733,10 +1700,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#download-redirects-files" class="md-nav__link">
+  <a href="#http2" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Download redirects (files)
+        HTTP/2
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timeouts-and-deadlines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timeouts and deadlines
       
     </span>
   </a>
@@ -1748,50 +1726,6 @@
     <span class="md-ellipsis">
       
         Caching
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#logging-and-hooks" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Logging and hooks
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#v1v2-urls-and-auth-mode" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        V1/V2 URLs and auth mode
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#beta-endpoints-and-version-diagnostics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Beta endpoints and version diagnostics
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next steps
       
     </span>
   </a>
@@ -1818,102 +1752,47 @@
   
 
 
-<h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h1>
-<p>This guide documents the knobs exposed on <code>Affinity</code> / <code>AsyncAffinity</code>.</p>
-<h2 id="load-from-environment">Load from environment<a class="headerlink" href="#load-from-environment" title="Permanent link">&para;</a></h2>
+<h1 id="performance-tuning">Performance tuning<a class="headerlink" href="#performance-tuning" title="Permanent link">&para;</a></h1>
+<p>This guide covers practical knobs and patterns for high-volume usage.</p>
+<h2 id="pagination-sizing">Pagination sizing<a class="headerlink" href="#pagination-sizing" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Prefer larger <code>limit</code> values for throughput (fewer requests), but keep response sizes reasonable for your workload.</li>
+<li>If you hit 429s, lower concurrency first (see below), then consider reducing <code>limit</code>.</li>
+</ul>
+<h2 id="concurrency-async">Concurrency (async)<a class="headerlink" href="#concurrency-async" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Run independent reads concurrently, but cap concurrency (e.g., 5–20 in flight depending on rate limits and payload size).</li>
+<li>When you see 429s, reduce concurrency and let the SDK respect <code>Retry-After</code>.</li>
+</ul>
+<h2 id="connection-pooling">Connection pooling<a class="headerlink" href="#connection-pooling" title="Permanent link">&para;</a></h2>
+<p>The SDK uses httpx connection pooling. For high-throughput clients:</p>
+<ul>
+<li>Reuse a single client instance for many calls (don’t create a new <code>Affinity</code> per request).</li>
+<li>Close clients when done (use a context manager).</li>
+</ul>
+<h2 id="http2">HTTP/2<a class="headerlink" href="#http2" title="Permanent link">&para;</a></h2>
+<p>If your environment supports it, enabling HTTP/2 can improve performance for many small concurrent requests:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">http2</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
-<p>To load a local <code>.env</code> file, install the optional extra and set <code>load_dotenv=True</code>:</p>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;affinity-sdk[dotenv]&quot;</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">load_dotenv</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</code></pre></div>
-<h2 id="timeouts">Timeouts<a class="headerlink" href="#timeouts" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
-</code></pre></div>
-<p>For file downloads, you can override timeouts per call, and (for streaming downloads) set a total time budget:</p>
+<h2 id="timeouts-and-deadlines">Timeouts and deadlines<a class="headerlink" href="#timeouts-and-deadlines" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Use the global <code>timeout</code> to set a sensible default for API requests.</li>
+<li>For large file downloads, use per-call <code>timeout</code> and <code>deadline_seconds</code> to bound total time spent (including retries/backoff).</li>
+</ul>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileId</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">30.0</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">download_stream</span><span class="p">(</span><span class="n">FileId</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span> <span class="n">deadline_seconds</span><span class="o">=</span><span class="mi">300</span><span class="p">):</span>
         <span class="o">...</span>
 </code></pre></div>
-<h2 id="retries">Retries<a class="headerlink" href="#retries" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Retries apply to safe/idempotent methods (by default <code>GET</code>/<code>HEAD</code>).</li>
-<li>Tune with <code>max_retries</code>.</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-</code></pre></div>
-<h2 id="download-redirects-files">Download redirects (files)<a class="headerlink" href="#download-redirects-files" title="Permanent link">&para;</a></h2>
-<p>Affinity file downloads may redirect to externally-hosted signed URLs. By default, the SDK refuses <code>http://</code> redirects.</p>
-<p>If you must allow insecure redirects (not recommended), opt in explicitly:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">allow_insecure_download_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</code></pre></div>
 <h2 id="caching">Caching<a class="headerlink" href="#caching" title="Permanent link">&para;</a></h2>
-<p>Caching is optional and currently targets metadata-style responses (e.g., field metadata).</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">enable_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache_ttl</span><span class="o">=</span><span class="mf">300.0</span><span class="p">)</span>
-</code></pre></div>
-<h2 id="logging-and-hooks">Logging and hooks<a class="headerlink" href="#logging-and-hooks" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">on_request</span><span class="p">(</span><span class="n">req</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&gt;&quot;</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">on_response</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;-&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
-
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span>
-    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span>
-    <span class="n">log_requests</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">on_request</span><span class="o">=</span><span class="n">on_request</span><span class="p">,</span>
-    <span class="n">on_response</span><span class="o">=</span><span class="n">on_response</span><span class="p">,</span>
-<span class="p">)</span>
-</code></pre></div>
-<h2 id="v1v2-urls-and-auth-mode">V1/V2 URLs and auth mode<a class="headerlink" href="#v1v2-urls-and-auth-mode" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span>
-    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span>
-    <span class="n">v1_base_url</span><span class="o">=</span><span class="s2">&quot;https://api.affinity.co&quot;</span><span class="p">,</span>
-    <span class="n">v2_base_url</span><span class="o">=</span><span class="s2">&quot;https://api.affinity.co/v2&quot;</span><span class="p">,</span>
-    <span class="n">v1_auth_mode</span><span class="o">=</span><span class="s2">&quot;bearer&quot;</span><span class="p">,</span>  <span class="c1"># or &quot;basic&quot;</span>
-<span class="p">)</span>
-</code></pre></div>
-<h2 id="beta-endpoints-and-version-diagnostics">Beta endpoints and version diagnostics<a class="headerlink" href="#beta-endpoints-and-version-diagnostics" title="Permanent link">&para;</a></h2>
-<p>If you opt into beta endpoints or want stricter diagnostics around v2 response shapes:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span>
-    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span>
-    <span class="n">enable_beta_endpoints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">expected_v2_version</span><span class="o">=</span><span class="s2">&quot;2024-01-01&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-</code></pre></div>
-<p>See also:</p>
+<p>Caching is optional and currently targets metadata-style responses (for example, field metadata). If you enable it:</p>
 <ul>
-<li><a href="../api-versions-and-routing/">API versions &amp; routing</a></li>
-<li><a href="../errors-and-retries/">Errors &amp; retries</a></li>
-</ul>
-<h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="../../getting-started/">Getting started</a></li>
-<li><a href="../debugging-hooks/">Debugging hooks</a></li>
-<li><a href="../rate-limits/">Rate limits</a></li>
-<li><a href="../../reference/client/">API reference</a></li>
+<li>Choose a TTL that matches how often you expect metadata to change.</li>
+<li>Consider clearing cache after known metadata changes (e.g., list/field configuration changes).</li>
 </ul>
 
 
