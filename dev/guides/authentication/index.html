@@ -1371,7 +1371,7 @@
 
 with Affinity(api_key=&quot;your-api-key&quot;) as client:
     me = client.auth.whoami()
-    print(me.user_id)
+    print(me.user.email)
 </code></pre>
 <h2 id="environment-variables">Environment variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
 <p>If you prefer reading from the environment:</p>
