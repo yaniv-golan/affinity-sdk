@@ -701,6 +701,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#field-value-type-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field value type mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -819,6 +830,34 @@
     
   
     Debugging hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../webhooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
   
 
     
@@ -1622,6 +1661,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#field-value-type-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field value type mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1688,6 +1738,55 @@
 <li><code>entity.fields.requested == False</code>: you didn’t request fields (or the API omitted them)</li>
 <li><code>entity.fields.requested == True</code>: field data was requested and returned (possibly empty)</li>
 </ul>
+<h2 id="field-value-type-mapping">Field value type mapping<a class="headerlink" href="#field-value-type-mapping" title="Permanent link">&para;</a></h2>
+<p>When you read <code>entity.fields.data</code>, values are typed as <code>Any</code>. The expected shape depends on the field’s <code>valueType</code>
+(<code>FieldValueType</code>) and whether the field allows multiple values.</p>
+<table>
+<thead>
+<tr>
+<th>Affinity <code>FieldValueType</code></th>
+<th>Typical Python value</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TEXT</code> / <code>FILTERABLE_TEXT</code></td>
+<td><code>str</code></td>
+<td>Plain text</td>
+</tr>
+<tr>
+<td><code>NUMBER</code></td>
+<td><code>int \| float</code></td>
+<td>JSON number</td>
+</tr>
+<tr>
+<td><code>DATE</code></td>
+<td><code>str</code> / <code>datetime.date</code></td>
+<td>Typically ISO-8601 date strings on read; <code>date</code> is convenient on write</td>
+</tr>
+<tr>
+<td><code>PERSON</code></td>
+<td><code>PersonId</code> / <code>list[PersonId]</code></td>
+<td>Under the hood: <code>int</code> or <code>list[int]</code></td>
+</tr>
+<tr>
+<td><code>ORGANIZATION</code></td>
+<td><code>CompanyId</code> / <code>list[CompanyId]</code></td>
+<td>Under the hood: <code>int</code> or <code>list[int]</code></td>
+</tr>
+<tr>
+<td><code>DROPDOWN</code></td>
+<td><code>int</code> / <code>list[int]</code></td>
+<td>Dropdown option IDs (ranked dropdown)</td>
+</tr>
+<tr>
+<td><code>LOCATION</code></td>
+<td><code>dict[str, str]</code></td>
+<td>Typically a structured object (shape varies by API)</td>
+</tr>
+</tbody>
+</table>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../filtering/">Filtering</a></li>

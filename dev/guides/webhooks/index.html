@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../field-types-and-values/">
+        <link rel="prev" href="../debugging-hooks/">
       
       
-        <link rel="next" href="../ids-and-types/">
+        <link rel="next" href="../../troubleshooting/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Models - Affinity Python SDK</title>
+        <title>Webhooks - Affinity Python SDK</title>
       
     
     
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#models" class="md-skip">
+        <a href="#webhooks" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Models
+              Webhooks
             
           </span>
         </div>
@@ -633,37 +633,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Models
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../models/" class="md-nav__link">
         
   
   
@@ -679,70 +652,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#dumping-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dumping data
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#aliases-camelcase-vs-snake_case" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Aliases (camelCase vs snake_case)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#field-values-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Field values container
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next steps
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -836,10 +745,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../webhooks/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -855,6 +791,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-subscription" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create a subscription
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-inbound-requests-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verify inbound requests (recommended)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#minimal-receiver-example-fastapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimal receiver example (FastAPI)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1617,10 +1606,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#dumping-data" class="md-nav__link">
+  <a href="#create-a-subscription" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dumping data
+        Create a subscription
       
     </span>
   </a>
@@ -1628,10 +1617,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#aliases-camelcase-vs-snake_case" class="md-nav__link">
+  <a href="#verify-inbound-requests-recommended" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Aliases (camelCase vs snake_case)
+        Verify inbound requests (recommended)
       
     </span>
   </a>
@@ -1639,21 +1628,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#field-values-container" class="md-nav__link">
+  <a href="#minimal-receiver-example-fastapi" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Field values container
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next steps
+        Minimal receiver example (FastAPI)
       
     </span>
   </a>
@@ -1680,36 +1658,55 @@
   
 
 
-<h1 id="models">Models<a class="headerlink" href="#models" title="Permanent link">&para;</a></h1>
-<p>Models are Pydantic v2 models. They validate API responses and give you typed attributes.</p>
-<h2 id="dumping-data">Dumping data<a class="headerlink" href="#dumping-data" title="Permanent link">&para;</a></h2>
-<p>Use <code>model_dump()</code> for Python objects and <code>model_dump(mode="json")</code> for JSON-safe output:</p>
+<h1 id="webhooks">Webhooks<a class="headerlink" href="#webhooks" title="Permanent link">&para;</a></h1>
+<p>The SDK supports managing webhook subscriptions via the V1 API (<code>client.webhooks</code>). Receiving webhooks is handled by <strong>your</strong> web server/app.</p>
+<h2 id="create-a-subscription">Create a subscription<a class="headerlink" href="#create-a-subscription" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">PersonId</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">WebhookCreate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">WebhookEvent</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-    <span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">PersonId</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">model_dump</span><span class="p">())</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">))</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="n">webhook</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">webhooks</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">WebhookCreate</span><span class="p">(</span>
+            <span class="n">webhook_url</span><span class="o">=</span><span class="s2">&quot;https://example.com/webhooks/affinity/&lt;random-secret&gt;&quot;</span><span class="p">,</span>
+            <span class="n">subscriptions</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">WebhookEvent</span><span class="o">.</span><span class="n">FIELD_VALUE_UPDATED</span><span class="p">,</span>
+                <span class="n">WebhookEvent</span><span class="o">.</span><span class="n">LIST_ENTRY_CREATED</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">webhook</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">webhook</span><span class="o">.</span><span class="n">webhook_url</span><span class="p">)</span>
 </code></pre></div>
-<h2 id="aliases-camelcase-vs-snake_case">Aliases (camelCase vs snake_case)<a class="headerlink" href="#aliases-camelcase-vs-snake_case" title="Permanent link">&para;</a></h2>
-<p>The SDK accepts and populates both API-style keys (camelCase) and Python attribute names (snake_case) when parsing.</p>
-<h2 id="field-values-container">Field values container<a class="headerlink" href="#field-values-container" title="Permanent link">&para;</a></h2>
-<p>Entities like <code>Person</code>, <code>Company</code>, and <code>Opportunity</code> expose <code>fields</code>, which preserves whether you requested field data:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FieldType</span>
-
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-    <span class="n">page</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">field_types</span><span class="o">=</span><span class="p">[</span><span class="n">FieldType</span><span class="o">.</span><span class="n">GLOBAL</span><span class="p">])</span>
-    <span class="n">company</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">company</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">requested</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">company</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-</code></pre></div>
-<h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<p>Notes:
+- Affinity limits webhook subscriptions (see <code>WebhookService</code> docs).
+- Affinity may attempt to contact your <code>webhook_url</code> during creation/updates; ensure your endpoint is reachable and responds quickly.</p>
+<h2 id="verify-inbound-requests-recommended">Verify inbound requests (recommended)<a class="headerlink" href="#verify-inbound-requests-recommended" title="Permanent link">&para;</a></h2>
+<p>Affinity’s public V1 docs do not describe a standard signature scheme. If your account includes a signature header/mechanism, validate it per Affinity’s documentation.</p>
+<p>If you do not have a signature mechanism, treat the webhook endpoint like a public entry point and add your own verification controls:</p>
 <ul>
-<li><a href="../field-types-and-values/">Field types &amp; values</a></li>
-<li><a href="../../reference/models/">Models reference</a></li>
+<li><strong>Use HTTPS only</strong> (terminate TLS at a load balancer/reverse proxy if needed).</li>
+<li><strong>Use an unguessable URL</strong> (include a random secret in the path) and reject requests missing it.</li>
+<li><strong>Validate method/content-type</strong> and parse JSON defensively.</li>
+<li><strong>Respond fast</strong> (2xx) and enqueue work; assume retries can happen.</li>
+<li><strong>Avoid logging raw payloads</strong> unless you have a PII-safe pipeline.</li>
 </ul>
+<h2 id="minimal-receiver-example-fastapi">Minimal receiver example (FastAPI)<a class="headerlink" href="#minimal-receiver-example-fastapi" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">Request</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+
+<span class="n">WEBHOOK_SECRET</span> <span class="o">=</span> <span class="s2">&quot;replace-with-a-long-random-string&quot;</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/webhooks/affinity/</span><span class="si">{secret}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">affinity_webhook</span><span class="p">(</span><span class="n">secret</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">secret</span> <span class="o">!=</span> <span class="n">WEBHOOK_SECRET</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;invalid secret&quot;</span><span class="p">)</span>
+
+    <span class="n">payload</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="c1"># Process `payload` (shape is defined by Affinity)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;ok&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">}</span>
+</code></pre></div>
 
 
 

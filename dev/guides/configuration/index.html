@@ -533,6 +533,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#download-redirects-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Download redirects (files)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#caching" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -863,6 +874,34 @@
     
   
     Debugging hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../webhooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
   
 
     
@@ -1666,6 +1705,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#download-redirects-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Download redirects (files)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#caching" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1767,6 +1817,13 @@
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="download-redirects-files">Download redirects (files)<a class="headerlink" href="#download-redirects-files" title="Permanent link">&para;</a></h2>
+<p>Affinity file downloads may redirect to externally-hosted signed URLs. By default, the SDK refuses <code>http://</code> redirects.</p>
+<p>If you must allow insecure redirects (not recommended), opt in explicitly:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">allow_insecure_download_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="caching">Caching<a class="headerlink" href="#caching" title="Permanent link">&para;</a></h2>
 <p>Caching is optional and currently targets metadata-style responses (e.g., field metadata).</p>
