@@ -830,6 +830,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#defense-in-depth-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defense in depth (recommended)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Defense in depth (recommended)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ip-allowlisting-when-possible" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IP allowlisting (when possible)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signature-verification-when-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signature verification (when available)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#replay-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Replay protection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parse-inbound-payloads-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parse inbound payloads (optional)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#minimal-receiver-example-fastapi" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1628,6 +1689,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#defense-in-depth-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defense in depth (recommended)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Defense in depth (recommended)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ip-allowlisting-when-possible" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IP allowlisting (when possible)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signature-verification-when-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signature verification (when available)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#replay-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Replay protection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parse-inbound-payloads-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parse inbound payloads (optional)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#minimal-receiver-example-fastapi" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1691,11 +1813,52 @@
 <li><strong>Use HTTPS only</strong> (terminate TLS at a load balancer/reverse proxy if needed).</li>
 <li><strong>Use an unguessable URL</strong> (include a random secret in the path) and reject requests missing it.</li>
 <li><strong>Validate method/content-type</strong> and parse JSON defensively.</li>
+<li><strong>Optionally enforce a replay window</strong> using <code>sent_at</code> (e.g., reject events older than N seconds).</li>
 <li><strong>Respond fast</strong> (2xx) and enqueue work; assume retries can happen.</li>
 <li><strong>Avoid logging raw payloads</strong> unless you have a PII-safe pipeline.</li>
 </ul>
+<h2 id="defense-in-depth-recommended">Defense in depth (recommended)<a class="headerlink" href="#defense-in-depth-recommended" title="Permanent link">&para;</a></h2>
+<p>Even with a secret URL path, you should assume the endpoint can become discoverable (logs, referrers, misconfiguration, shared links). Add additional layers:</p>
+<h3 id="ip-allowlisting-when-possible">IP allowlisting (when possible)<a class="headerlink" href="#ip-allowlisting-when-possible" title="Permanent link">&para;</a></h3>
+<ul>
+<li>If Affinity provides stable egress IP ranges for webhook delivery, enforce them at your load balancer / WAF.</li>
+<li>If Affinity does not publish IP ranges for your account, you can still:</li>
+<li>restrict by geography/ASN where appropriate,</li>
+<li>alert on unexpected source IPs,</li>
+<li>rate-limit and apply bot protections at the edge.</li>
+</ul>
+<h3 id="signature-verification-when-available">Signature verification (when available)<a class="headerlink" href="#signature-verification-when-available" title="Permanent link">&para;</a></h3>
+<p>If your Affinity account includes a signature header, validate it before parsing the body.</p>
+<p>The exact header names and signing scheme are account/tenant-specific; follow Affinity’s documentation. A common pattern is HMAC over <code>(timestamp + "." + raw_body)</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">hmac</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">verify_hmac_signature</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">secret</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">raw_body</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">signature</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="n">signed</span> <span class="o">=</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="sa">b</span><span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">raw_body</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span> <span class="n">signed</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">hmac</span><span class="o">.</span><span class="n">compare_digest</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">signature</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="replay-protection">Replay protection<a class="headerlink" href="#replay-protection" title="Permanent link">&para;</a></h3>
+<p>Even with signatures, protect against replay:</p>
+<ul>
+<li>Enforce a timestamp window (e.g., reject events where <code>sent_at</code> is older than N seconds).</li>
+<li>Optionally store a short-lived dedupe key (e.g., <code>(type, sent_at, sha256(body))</code>) for a few minutes and reject repeats.</li>
+</ul>
+<h2 id="parse-inbound-payloads-optional">Parse inbound payloads (optional)<a class="headerlink" href="#parse-inbound-payloads-optional" title="Permanent link">&para;</a></h2>
+<p>The SDK includes small, framework-agnostic helpers to parse the webhook envelope and (optionally) dispatch to a typed body for a few common events.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_webhook</span><span class="p">,</span> <span class="n">parse_webhook</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">WebhookEvent</span>
+
+<span class="n">envelope</span> <span class="o">=</span> <span class="n">parse_webhook</span><span class="p">(</span><span class="n">raw_body_bytes</span><span class="p">)</span>  <span class="c1"># or raw str / dict</span>
+<span class="n">event</span> <span class="o">=</span> <span class="n">dispatch_webhook</span><span class="p">(</span><span class="n">envelope</span><span class="p">)</span>  <span class="c1"># typed for some events, dict otherwise</span>
+
+<span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">WebhookEvent</span><span class="o">.</span><span class="n">LIST_ENTRY_CREATED</span><span class="p">:</span>
+    <span class="c1"># event.body may be typed (or a dict, depending on the event)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">sent_at</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+</code></pre></div>
 <h2 id="minimal-receiver-example-fastapi">Minimal receiver example (FastAPI)<a class="headerlink" href="#minimal-receiver-example-fastapi" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">Request</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_webhook</span><span class="p">,</span> <span class="n">parse_webhook</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
 
@@ -1707,8 +1870,10 @@
     <span class="k">if</span> <span class="n">secret</span> <span class="o">!=</span> <span class="n">WEBHOOK_SECRET</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;invalid secret&quot;</span><span class="p">)</span>
 
-    <span class="n">payload</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-    <span class="c1"># Process `payload` (shape is defined by Affinity)</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">()</span>
+    <span class="n">envelope</span> <span class="o">=</span> <span class="n">parse_webhook</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+    <span class="n">event</span> <span class="o">=</span> <span class="n">dispatch_webhook</span><span class="p">(</span><span class="n">envelope</span><span class="p">)</span>
+    <span class="c1"># Process `event` (shape is defined by Affinity)</span>
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;ok&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">}</span>
 </code></pre></div>
 

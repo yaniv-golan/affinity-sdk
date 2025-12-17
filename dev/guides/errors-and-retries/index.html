@@ -606,6 +606,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#download-deadlines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Download deadlines
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#diagnostics" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -613,6 +624,67 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#production-playbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Production playbook
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Production playbook">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recommended-handling-by-error-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended handling by error type
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retrying-writes-safely-idempotency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retrying writes safely (idempotency)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#circuit-breaker-fail-fast-during-outages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Circuit breaker (fail fast during outages)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alerting-guidance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alerting guidance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1661,6 +1733,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#download-deadlines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Download deadlines
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#diagnostics" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1668,6 +1751,67 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#production-playbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Production playbook
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Production playbook">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recommended-handling-by-error-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended handling by error type
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retrying-writes-safely-idempotency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retrying writes safely (idempotency)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#circuit-breaker-fail-fast-during-outages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Circuit breaker (fail fast during outages)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alerting-guidance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alerting guidance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1747,6 +1891,8 @@
 <li>transient server errors (e.g., 5xx) for <code>GET</code>/<code>HEAD</code></li>
 </ul>
 <p>Retries are controlled by <code>max_retries</code> (default: 3).</p>
+<h2 id="download-deadlines">Download deadlines<a class="headerlink" href="#download-deadlines" title="Permanent link">&para;</a></h2>
+<p>For large file downloads, <code>timeout</code> controls per-request timeouts, and <code>deadline_seconds</code> enforces a total time budget for streaming downloads (including retries/backoff). When exceeded, the SDK raises <code>TimeoutError</code>.</p>
 <h2 id="diagnostics">Diagnostics<a class="headerlink" href="#diagnostics" title="Permanent link">&para;</a></h2>
 <p>Many errors include diagnostics (method/URL/status and more). When you catch an <code>AffinityError</code>, you can log it and inspect attached context.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
@@ -1765,6 +1911,65 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Status:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Request ID:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">request_id</span><span class="p">)</span>
 </code></pre></div>
+<h2 id="production-playbook">Production playbook<a class="headerlink" href="#production-playbook" title="Permanent link">&para;</a></h2>
+<p>The SDK retries some failures for safe reads (<code>GET</code>/<code>HEAD</code>), but production systems typically need additional policies: alerting, bounded retries, idempotency for writes, and circuit breaking during outages.</p>
+<h3 id="recommended-handling-by-error-type">Recommended handling by error type<a class="headerlink" href="#recommended-handling-by-error-type" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>AuthenticationError (401), AuthorizationError (403)</strong>: do not retry; fix credentials/permissions; alert immediately.</li>
+<li><strong>ValidationError (400/422)</strong>: do not retry; treat as a bug or bad input; log the response body snippet for debugging.</li>
+<li><strong>NotFoundError (404)</strong>: do not retry; treat as “missing” and handle at the business layer (or alert if it indicates data drift).</li>
+<li><strong>RateLimitError (429)</strong>: retry only after <code>retry_after</code> (when present), reduce concurrency, and consider queueing/batching to smooth bursts.</li>
+<li><strong>Server errors (5xx) / transient network errors / timeouts</strong>:</li>
+<li><strong>Reads (<code>GET</code>/<code>HEAD</code>)</strong>: retry with backoff (the SDK already does).</li>
+<li><strong>Writes (<code>POST</code>/<code>PATCH</code>/<code>PUT</code>/<code>DELETE</code>)</strong>: only retry if you can make the operation idempotent.</li>
+<li><strong>VersionCompatibilityError</strong>: do not retry; fix API-version configuration (see below).</li>
+</ul>
+<h3 id="retrying-writes-safely-idempotency">Retrying writes safely (idempotency)<a class="headerlink" href="#retrying-writes-safely-idempotency" title="Permanent link">&para;</a></h3>
+<p>By default, the SDK does <strong>not</strong> retry non-<code>GET</code>/<code>HEAD</code> requests, because a retry can duplicate side effects (e.g., “create note” twice).</p>
+<p>If you implement retries around writes, make them idempotent:</p>
+<ul>
+<li>Prefer endpoints that are naturally idempotent (e.g., “set field value to X” rather than “append note”).</li>
+<li>If the API supports an idempotency key header, use it (store the key per logical operation and reuse it on retry).</li>
+<li>If the API does not support idempotency keys, consider application-level deduping (e.g., deterministic external IDs, or checking for an existing resource before creating a new one).</li>
+</ul>
+<h3 id="circuit-breaker-fail-fast-during-outages">Circuit breaker (fail fast during outages)<a class="headerlink" href="#circuit-breaker-fail-fast-during-outages" title="Permanent link">&para;</a></h3>
+<p>For sustained 5xx/timeout/network failures, a circuit breaker can protect your system (and Affinity) from retry storms.</p>
+<p>Minimal pattern:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SimpleCircuitBreaker</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">failure_threshold</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">open_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failure_threshold</span> <span class="o">=</span> <span class="n">failure_threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">open_seconds</span> <span class="o">=</span> <span class="n">open_seconds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_failures</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_open_until</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">allow</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_until</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_until</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_open_until</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_failures</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">record_success</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_failures</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_open_until</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">record_failure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_failures</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_failures</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">failure_threshold</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_open_until</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_seconds</span>
+</code></pre></div>
+<h3 id="alerting-guidance">Alerting guidance<a class="headerlink" href="#alerting-guidance" title="Permanent link">&para;</a></h3>
+<p>Common triggers:</p>
+<ul>
+<li>Any sustained 401/403 (credentials/permissions regressions).</li>
+<li>Sustained 429s (rate-limit pressure): alert and reduce concurrency / increase backoff.</li>
+<li>Elevated 5xx/timeouts/network errors (provider outage or network problem).</li>
+</ul>
+<p>When alerting, include <code>e.diagnostics.request_id</code> (when present) to speed up support/debugging.</p>
 <h2 id="rate-limits">Rate limits<a class="headerlink" href="#rate-limits" title="Permanent link">&para;</a></h2>
 <p>If you are consistently hitting 429s, see <a href="../rate-limits/">Rate limits</a> for strategies and the rate limit APIs.</p>
 <h2 id="api-versions-and-beta-endpoints">API versions and beta endpoints<a class="headerlink" href="#api-versions-and-beta-endpoints" title="Permanent link">&para;</a></h2>

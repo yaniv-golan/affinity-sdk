@@ -1198,6 +1198,61 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#affinity.exceptions.WebhookInvalidJsonError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebhookInvalidJsonError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#affinity.exceptions.WebhookInvalidPayloadError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebhookInvalidPayloadError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#affinity.exceptions.WebhookInvalidSentAtError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebhookInvalidSentAtError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#affinity.exceptions.WebhookMissingKeyError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebhookMissingKeyError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#affinity.exceptions.WebhookParseError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebhookParseError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#affinity.exceptions.error_from_response" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2083,6 +2138,61 @@
     <span class="md-ellipsis">
       
         VersionCompatibilityError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#affinity.exceptions.WebhookInvalidJsonError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebhookInvalidJsonError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#affinity.exceptions.WebhookInvalidPayloadError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebhookInvalidPayloadError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#affinity.exceptions.WebhookInvalidSentAtError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebhookInvalidSentAtError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#affinity.exceptions.WebhookMissingKeyError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebhookMissingKeyError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#affinity.exceptions.WebhookParseError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebhookParseError
       
     </span>
   </a>
@@ -3845,6 +3955,305 @@ v2 Default API Version differs from what the SDK expects.</p>
         <span class="k">if</span> <span class="n">hints</span><span class="p">:</span>
             <span class="n">base</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hints</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
         <span class="k">return</span> <span class="n">base</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="affinity.exceptions.WebhookInvalidJsonError" class="doc doc-heading">
+            <code>WebhookInvalidJsonError</code>
+
+
+<a href="#affinity.exceptions.WebhookInvalidJsonError" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="WebhookParseError (affinity.exceptions.WebhookParseError)" href="#affinity.exceptions.WebhookParseError">WebhookParseError</a></code></p>
+
+
+
+        <p>Raised when a webhook payload cannot be decoded as JSON.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>affinity/exceptions.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidJsonError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a webhook payload cannot be decoded as JSON.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="affinity.exceptions.WebhookInvalidPayloadError" class="doc doc-heading">
+            <code>WebhookInvalidPayloadError</code>
+
+
+<a href="#affinity.exceptions.WebhookInvalidPayloadError" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="WebhookParseError (affinity.exceptions.WebhookParseError)" href="#affinity.exceptions.WebhookParseError">WebhookParseError</a></code></p>
+
+
+
+        <p>Raised when a decoded webhook payload is not in the expected envelope shape.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>affinity/exceptions.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidPayloadError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a decoded webhook payload is not in the expected envelope shape.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="affinity.exceptions.WebhookInvalidSentAtError" class="doc doc-heading">
+            <code>WebhookInvalidSentAtError</code>
+
+
+<a href="#affinity.exceptions.WebhookInvalidSentAtError" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="WebhookParseError (affinity.exceptions.WebhookParseError)" href="#affinity.exceptions.WebhookParseError">WebhookParseError</a></code></p>
+
+
+
+        <p>Raised when a webhook <code>sent_at</code> field is missing or invalid.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>affinity/exceptions.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidSentAtError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a webhook `sent_at` field is missing or invalid.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="affinity.exceptions.WebhookMissingKeyError" class="doc doc-heading">
+            <code>WebhookMissingKeyError</code>
+
+
+<a href="#affinity.exceptions.WebhookMissingKeyError" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="WebhookParseError (affinity.exceptions.WebhookParseError)" href="#affinity.exceptions.WebhookParseError">WebhookParseError</a></code></p>
+
+
+
+        <p>Raised when a webhook payload is missing a required key.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>affinity/exceptions.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookMissingKeyError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a webhook payload is missing a required key.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="affinity.exceptions.WebhookParseError" class="doc doc-heading">
+            <code>WebhookParseError</code>
+
+
+<a href="#affinity.exceptions.WebhookParseError" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="AffinityError (affinity.exceptions.AffinityError)" href="#affinity.exceptions.AffinityError">AffinityError</a></code></p>
+
+
+
+        <p>Base error for inbound webhook parsing/validation failures.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>affinity/exceptions.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookParseError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base error for inbound webhook parsing/validation failures.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
