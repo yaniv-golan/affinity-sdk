@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../pagination/">
+        <link rel="prev" href="../errors-and-retries/">
       
       
-        <link rel="next" href="../rate-limits/">
+        <link rel="next" href="../filtering/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Errors & retries - Affinity Python SDK</title>
+        <title>Rate limits - Affinity Python SDK</title>
       
     
     
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#errors-and-retries" class="md-skip">
+        <a href="#rate-limits" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Errors & retries
+              Rate limits
             
           </span>
         </div>
@@ -494,6 +494,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../errors-and-retries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors & retries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -513,7 +541,7 @@
   <span class="md-ellipsis">
     
   
-    Errors & retries
+    Rate limits
   
 
     
@@ -531,7 +559,7 @@
   <span class="md-ellipsis">
     
   
-    Errors & retries
+    Rate limits
   
 
     
@@ -557,10 +585,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#exception-taxonomy-common" class="md-nav__link">
+  <a href="#local-tracking" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Exception taxonomy (common)
+        Local tracking
       
     </span>
   </a>
@@ -568,10 +596,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#retry-policy-what-is-retried" class="md-nav__link">
+  <a href="#query-current-limits" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retry policy (what is retried)
+        Query current limits
       
     </span>
   </a>
@@ -579,21 +607,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#diagnostics" class="md-nav__link">
+  <a href="#handling-429s" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Diagnostics
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rate-limits" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rate limits
+        Handling 429s
       
     </span>
   </a>
@@ -604,34 +621,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../rate-limits/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Rate limits
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1507,10 +1496,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#exception-taxonomy-common" class="md-nav__link">
+  <a href="#local-tracking" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Exception taxonomy (common)
+        Local tracking
       
     </span>
   </a>
@@ -1518,10 +1507,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#retry-policy-what-is-retried" class="md-nav__link">
+  <a href="#query-current-limits" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retry policy (what is retried)
+        Query current limits
       
     </span>
   </a>
@@ -1529,21 +1518,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#diagnostics" class="md-nav__link">
+  <a href="#handling-429s" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Diagnostics
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rate-limits" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rate limits
+        Handling 429s
       
     </span>
   </a>
@@ -1570,47 +1548,25 @@
   
 
 
-<h1 id="errors-and-retries">Errors and retries<a class="headerlink" href="#errors-and-retries" title="Permanent link">&para;</a></h1>
-<p>The SDK raises typed exceptions (subclasses of <code>AffinityError</code>) and retries some transient failures for safe methods (<code>GET</code>/<code>HEAD</code>).</p>
-<h2 id="exception-taxonomy-common">Exception taxonomy (common)<a class="headerlink" href="#exception-taxonomy-common" title="Permanent link">&para;</a></h2>
-<ul>
-<li><code>AuthenticationError</code> (401): invalid/missing API key</li>
-<li><code>AuthorizationError</code> (403): insufficient permissions</li>
-<li><code>NotFoundError</code> (404): entity or endpoint not found</li>
-<li><code>ValidationError</code> (400/422): invalid parameters/payload</li>
-<li><code>RateLimitError</code> (429): you are being rate limited (may include <code>retry_after</code>)</li>
-<li><code>ServerError</code> (500/503): transient server-side errors</li>
-</ul>
-<p>See <a href="../../reference/exceptions/">Exceptions</a> for the full hierarchy.</p>
-<h2 id="retry-policy-what-is-retried">Retry policy (what is retried)<a class="headerlink" href="#retry-policy-what-is-retried" title="Permanent link">&para;</a></h2>
-<p>By default, retries apply to:</p>
-<ul>
-<li><code>GET</code>/<code>HEAD</code> only (safe/idempotent methods)</li>
-<li>429 responses (rate limits): respects <code>Retry-After</code> when present</li>
-<li>transient network/timeouts for <code>GET</code>/<code>HEAD</code></li>
-<li>transient server errors (e.g., 5xx) for <code>GET</code>/<code>HEAD</code></li>
-</ul>
-<p>Retries are controlled by <code>max_retries</code> (default: 3).</p>
-<h2 id="diagnostics">Diagnostics<a class="headerlink" href="#diagnostics" title="Permanent link">&para;</a></h2>
-<p>Many errors include diagnostics (method/URL/status and more). When you catch an <code>AffinityError</code>, you can log it and inspect attached context.</p>
+<h1 id="rate-limits">Rate limits<a class="headerlink" href="#rate-limits" title="Permanent link">&para;</a></h1>
+<p>The SDK tracks rate-limit state from responses and can also query rate-limit status via the API.</p>
+<h2 id="local-tracking">Local tracking<a class="headerlink" href="#local-tracking" title="Permanent link">&para;</a></h2>
 <pre><code class="language-python">from affinity import Affinity
-from affinity.exceptions import AffinityError, RateLimitError
 
-try:
-    with Affinity(api_key=&quot;your-key&quot;) as client:
-        client.companies.list()
-except RateLimitError as e:
-    print(&quot;Rate limited:&quot;, e)
-    print(&quot;Retry after:&quot;, e.retry_after)
-except AffinityError as e:
-    print(&quot;Affinity error:&quot;, e)
-    if e.diagnostics:
-        print(&quot;Request:&quot;, e.diagnostics.method, e.diagnostics.url)
-        print(&quot;Status:&quot;, e.status_code)
-        print(&quot;Request ID:&quot;, e.diagnostics.request_id)
+with Affinity(api_key=&quot;your-key&quot;) as client:
+    client.companies.list()
+    print(client.rate_limit_state)
 </code></pre>
-<h2 id="rate-limits">Rate limits<a class="headerlink" href="#rate-limits" title="Permanent link">&para;</a></h2>
-<p>If you are consistently hitting 429s, see <a href="../rate-limits/">Rate limits</a> for strategies and the rate limit APIs.</p>
+<h2 id="query-current-limits">Query current limits<a class="headerlink" href="#query-current-limits" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">from affinity import Affinity
+
+with Affinity(api_key=&quot;your-key&quot;) as client:
+    limits = client.auth.get_rate_limits()
+    print(limits)
+</code></pre>
+<h2 id="handling-429s">Handling 429s<a class="headerlink" href="#handling-429s" title="Permanent link">&para;</a></h2>
+<p>When the API returns 429, the SDK raises <code>RateLimitError</code> (and may retry safe methods).
+See <a href="../errors-and-retries/">Errors &amp; retries</a>.</p>
 
 
 

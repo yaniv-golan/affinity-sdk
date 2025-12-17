@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../pagination/">
+        <link rel="prev" href="../authentication/">
       
       
-        <link rel="next" href="../rate-limits/">
+        <link rel="next" href="../v1-v2-routing/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Errors & retries - Affinity Python SDK</title>
+        <title>Configuration - Affinity Python SDK</title>
       
     
     
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#errors-and-retries" class="md-skip">
+        <a href="#configuration" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Errors & retries
+              Configuration
             
           </span>
         </div>
@@ -410,10 +410,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../configuration/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -429,6 +456,103 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#load-from-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Load from environment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timeouts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timeouts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caching
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging-and-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logging and hooks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v1v2-urls-and-auth-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        V1/V2 URLs and auth mode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#beta-endpoints-and-version-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Beta endpoints and version diagnostics
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -494,37 +618,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Errors & retries
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../errors-and-retries/" class="md-nav__link">
         
   
   
@@ -540,70 +637,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#exception-taxonomy-common" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Exception taxonomy (common)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#retry-policy-what-is-retried" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Retry policy (what is retried)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#diagnostics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Diagnostics
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rate-limits" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rate limits
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1507,10 +1540,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#exception-taxonomy-common" class="md-nav__link">
+  <a href="#load-from-environment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Exception taxonomy (common)
+        Load from environment
       
     </span>
   </a>
@@ -1518,10 +1551,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#retry-policy-what-is-retried" class="md-nav__link">
+  <a href="#timeouts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retry policy (what is retried)
+        Timeouts
       
     </span>
   </a>
@@ -1529,10 +1562,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#diagnostics" class="md-nav__link">
+  <a href="#retries" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Diagnostics
+        Retries
       
     </span>
   </a>
@@ -1540,10 +1573,43 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#rate-limits" class="md-nav__link">
+  <a href="#caching" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Rate limits
+        Caching
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging-and-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logging and hooks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v1v2-urls-and-auth-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        V1/V2 URLs and auth mode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#beta-endpoints-and-version-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Beta endpoints and version diagnostics
       
     </span>
   </a>
@@ -1570,47 +1636,81 @@
   
 
 
-<h1 id="errors-and-retries">Errors and retries<a class="headerlink" href="#errors-and-retries" title="Permanent link">&para;</a></h1>
-<p>The SDK raises typed exceptions (subclasses of <code>AffinityError</code>) and retries some transient failures for safe methods (<code>GET</code>/<code>HEAD</code>).</p>
-<h2 id="exception-taxonomy-common">Exception taxonomy (common)<a class="headerlink" href="#exception-taxonomy-common" title="Permanent link">&para;</a></h2>
-<ul>
-<li><code>AuthenticationError</code> (401): invalid/missing API key</li>
-<li><code>AuthorizationError</code> (403): insufficient permissions</li>
-<li><code>NotFoundError</code> (404): entity or endpoint not found</li>
-<li><code>ValidationError</code> (400/422): invalid parameters/payload</li>
-<li><code>RateLimitError</code> (429): you are being rate limited (may include <code>retry_after</code>)</li>
-<li><code>ServerError</code> (500/503): transient server-side errors</li>
-</ul>
-<p>See <a href="../../reference/exceptions/">Exceptions</a> for the full hierarchy.</p>
-<h2 id="retry-policy-what-is-retried">Retry policy (what is retried)<a class="headerlink" href="#retry-policy-what-is-retried" title="Permanent link">&para;</a></h2>
-<p>By default, retries apply to:</p>
-<ul>
-<li><code>GET</code>/<code>HEAD</code> only (safe/idempotent methods)</li>
-<li>429 responses (rate limits): respects <code>Retry-After</code> when present</li>
-<li>transient network/timeouts for <code>GET</code>/<code>HEAD</code></li>
-<li>transient server errors (e.g., 5xx) for <code>GET</code>/<code>HEAD</code></li>
-</ul>
-<p>Retries are controlled by <code>max_retries</code> (default: 3).</p>
-<h2 id="diagnostics">Diagnostics<a class="headerlink" href="#diagnostics" title="Permanent link">&para;</a></h2>
-<p>Many errors include diagnostics (method/URL/status and more). When you catch an <code>AffinityError</code>, you can log it and inspect attached context.</p>
+<h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h1>
+<p>This guide documents the knobs exposed on <code>Affinity</code> / <code>AsyncAffinity</code>.</p>
+<h2 id="load-from-environment">Load from environment<a class="headerlink" href="#load-from-environment" title="Permanent link">&para;</a></h2>
 <pre><code class="language-python">from affinity import Affinity
-from affinity.exceptions import AffinityError, RateLimitError
 
-try:
-    with Affinity(api_key=&quot;your-key&quot;) as client:
-        client.companies.list()
-except RateLimitError as e:
-    print(&quot;Rate limited:&quot;, e)
-    print(&quot;Retry after:&quot;, e.retry_after)
-except AffinityError as e:
-    print(&quot;Affinity error:&quot;, e)
-    if e.diagnostics:
-        print(&quot;Request:&quot;, e.diagnostics.method, e.diagnostics.url)
-        print(&quot;Status:&quot;, e.status_code)
-        print(&quot;Request ID:&quot;, e.diagnostics.request_id)
+client = Affinity.from_env()
 </code></pre>
-<h2 id="rate-limits">Rate limits<a class="headerlink" href="#rate-limits" title="Permanent link">&para;</a></h2>
-<p>If you are consistently hitting 429s, see <a href="../rate-limits/">Rate limits</a> for strategies and the rate limit APIs.</p>
+<p>To load a local <code>.env</code> file, install the optional extra and set <code>load_dotenv=True</code>:</p>
+<pre><code class="language-bash">pip install &quot;affinity-sdk[dotenv]&quot;
+</code></pre>
+<pre><code class="language-python">from affinity import Affinity
+
+client = Affinity.from_env(load_dotenv=True)
+</code></pre>
+<h2 id="timeouts">Timeouts<a class="headerlink" href="#timeouts" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">from affinity import Affinity
+
+client = Affinity(api_key=&quot;your-key&quot;, timeout=60.0)
+</code></pre>
+<h2 id="retries">Retries<a class="headerlink" href="#retries" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Retries apply to safe/idempotent methods (by default <code>GET</code>/<code>HEAD</code>).</li>
+<li>Tune with <code>max_retries</code>.</li>
+</ul>
+<pre><code class="language-python">from affinity import Affinity
+
+client = Affinity(api_key=&quot;your-key&quot;, max_retries=5)
+</code></pre>
+<h2 id="caching">Caching<a class="headerlink" href="#caching" title="Permanent link">&para;</a></h2>
+<p>Caching is optional and currently targets metadata-style responses (e.g., field metadata).</p>
+<pre><code class="language-python">from affinity import Affinity
+
+client = Affinity(api_key=&quot;your-key&quot;, enable_cache=True, cache_ttl=300.0)
+</code></pre>
+<h2 id="logging-and-hooks">Logging and hooks<a class="headerlink" href="#logging-and-hooks" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">from affinity import Affinity
+
+def on_request(req) -&gt; None:
+    print(&quot;-&gt;&quot;, req.method, req.url)
+
+def on_response(res) -&gt; None:
+    print(&quot;&lt;-&quot;, res.status_code, res.request.url)
+
+client = Affinity(
+    api_key=&quot;your-key&quot;,
+    log_requests=True,
+    on_request=on_request,
+    on_response=on_response,
+)
+</code></pre>
+<h2 id="v1v2-urls-and-auth-mode">V1/V2 URLs and auth mode<a class="headerlink" href="#v1v2-urls-and-auth-mode" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">from affinity import Affinity
+
+client = Affinity(
+    api_key=&quot;your-key&quot;,
+    v1_base_url=&quot;https://api.affinity.co&quot;,
+    v2_base_url=&quot;https://api.affinity.co/v2&quot;,
+    v1_auth_mode=&quot;bearer&quot;,  # or &quot;basic&quot;
+)
+</code></pre>
+<h2 id="beta-endpoints-and-version-diagnostics">Beta endpoints and version diagnostics<a class="headerlink" href="#beta-endpoints-and-version-diagnostics" title="Permanent link">&para;</a></h2>
+<p>If you opt into beta endpoints or want stricter diagnostics around v2 response shapes:</p>
+<pre><code class="language-python">from affinity import Affinity
+
+client = Affinity(
+    api_key=&quot;your-key&quot;,
+    enable_beta_endpoints=True,
+    expected_v2_version=&quot;2024-01-01&quot;,
+)
+</code></pre>
+<p>See also:</p>
+<ul>
+<li><a href="../v1-v2-routing/">V1 vs V2 routing</a></li>
+<li><a href="../errors-and-retries/">Errors &amp; retries</a></li>
+</ul>
 
 
 

@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../pagination/">
+        <link rel="prev" href="../configuration/">
       
       
-        <link rel="next" href="../rate-limits/">
+        <link rel="next" href="../pagination/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Errors & retries - Affinity Python SDK</title>
+        <title>V1 vs V2 routing - Affinity Python SDK</title>
       
     
     
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#errors-and-retries" class="md-skip">
+        <a href="#v1-vs-v2-routing" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Errors & retries
+              V1 vs V2 routing
             
           </span>
         </div>
@@ -438,10 +438,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../v1-v2-routing/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V1 vs V2 routing
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -457,6 +484,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-this-means-in-practice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What this means in practice
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#beta-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Beta endpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-compatibility-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version compatibility errors
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -494,37 +574,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Errors & retries
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../errors-and-retries/" class="md-nav__link">
         
   
   
@@ -540,70 +593,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#exception-taxonomy-common" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Exception taxonomy (common)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#retry-policy-what-is-retried" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Retry policy (what is retried)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#diagnostics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Diagnostics
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rate-limits" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rate limits
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1507,10 +1496,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#exception-taxonomy-common" class="md-nav__link">
+  <a href="#what-this-means-in-practice" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Exception taxonomy (common)
+        What this means in practice
       
     </span>
   </a>
@@ -1518,10 +1507,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#retry-policy-what-is-retried" class="md-nav__link">
+  <a href="#beta-endpoints" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retry policy (what is retried)
+        Beta endpoints
       
     </span>
   </a>
@@ -1529,21 +1518,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#diagnostics" class="md-nav__link">
+  <a href="#version-compatibility-errors" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Diagnostics
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rate-limits" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rate limits
+        Version compatibility errors
       
     </span>
   </a>
@@ -1570,47 +1548,27 @@
   
 
 
-<h1 id="errors-and-retries">Errors and retries<a class="headerlink" href="#errors-and-retries" title="Permanent link">&para;</a></h1>
-<p>The SDK raises typed exceptions (subclasses of <code>AffinityError</code>) and retries some transient failures for safe methods (<code>GET</code>/<code>HEAD</code>).</p>
-<h2 id="exception-taxonomy-common">Exception taxonomy (common)<a class="headerlink" href="#exception-taxonomy-common" title="Permanent link">&para;</a></h2>
+<h1 id="v1-vs-v2-routing">V1 vs V2 routing<a class="headerlink" href="#v1-vs-v2-routing" title="Permanent link">&para;</a></h1>
+<p>The SDK prefers V2 endpoints where available and falls back to V1 for operations not yet supported in V2.</p>
+<h2 id="what-this-means-in-practice">What this means in practice<a class="headerlink" href="#what-this-means-in-practice" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>AuthenticationError</code> (401): invalid/missing API key</li>
-<li><code>AuthorizationError</code> (403): insufficient permissions</li>
-<li><code>NotFoundError</code> (404): entity or endpoint not found</li>
-<li><code>ValidationError</code> (400/422): invalid parameters/payload</li>
-<li><code>RateLimitError</code> (429): you are being rate limited (may include <code>retry_after</code>)</li>
-<li><code>ServerError</code> (500/503): transient server-side errors</li>
+<li><strong>Reads</strong> (list/get/search) are typically <strong>V2</strong>.</li>
+<li><strong>Writes</strong> (create/update/delete) are often <strong>V1</strong> today.</li>
 </ul>
-<p>See <a href="../../reference/exceptions/">Exceptions</a> for the full hierarchy.</p>
-<h2 id="retry-policy-what-is-retried">Retry policy (what is retried)<a class="headerlink" href="#retry-policy-what-is-retried" title="Permanent link">&para;</a></h2>
-<p>By default, retries apply to:</p>
+<p>Example: companies</p>
 <ul>
-<li><code>GET</code>/<code>HEAD</code> only (safe/idempotent methods)</li>
-<li>429 responses (rate limits): respects <code>Retry-After</code> when present</li>
-<li>transient network/timeouts for <code>GET</code>/<code>HEAD</code></li>
-<li>transient server errors (e.g., 5xx) for <code>GET</code>/<code>HEAD</code></li>
+<li><code>client.companies.get(...)</code> uses V2</li>
+<li><code>client.companies.create(...)</code> uses V1</li>
 </ul>
-<p>Retries are controlled by <code>max_retries</code> (default: 3).</p>
-<h2 id="diagnostics">Diagnostics<a class="headerlink" href="#diagnostics" title="Permanent link">&para;</a></h2>
-<p>Many errors include diagnostics (method/URL/status and more). When you catch an <code>AffinityError</code>, you can log it and inspect attached context.</p>
-<pre><code class="language-python">from affinity import Affinity
-from affinity.exceptions import AffinityError, RateLimitError
-
-try:
-    with Affinity(api_key=&quot;your-key&quot;) as client:
-        client.companies.list()
-except RateLimitError as e:
-    print(&quot;Rate limited:&quot;, e)
-    print(&quot;Retry after:&quot;, e.retry_after)
-except AffinityError as e:
-    print(&quot;Affinity error:&quot;, e)
-    if e.diagnostics:
-        print(&quot;Request:&quot;, e.diagnostics.method, e.diagnostics.url)
-        print(&quot;Status:&quot;, e.status_code)
-        print(&quot;Request ID:&quot;, e.diagnostics.request_id)
-</code></pre>
-<h2 id="rate-limits">Rate limits<a class="headerlink" href="#rate-limits" title="Permanent link">&para;</a></h2>
-<p>If you are consistently hitting 429s, see <a href="../rate-limits/">Rate limits</a> for strategies and the rate limit APIs.</p>
+<h2 id="beta-endpoints">Beta endpoints<a class="headerlink" href="#beta-endpoints" title="Permanent link">&para;</a></h2>
+<p>Some V2 endpoints are gated behind <code>enable_beta_endpoints=True</code>. If you call a beta endpoint without opt-in, the SDK raises <code>BetaEndpointDisabledError</code>.</p>
+<h2 id="version-compatibility-errors">Version compatibility errors<a class="headerlink" href="#version-compatibility-errors" title="Permanent link">&para;</a></h2>
+<p>If Affinity changes V2 response shapes (or your API key is pinned to an unexpected V2 version), parsing can fail with <code>VersionCompatibilityError</code>.</p>
+<p>Suggested steps:</p>
+<ol>
+<li>Check your API key’s “Default API Version” in the Affinity dashboard.</li>
+<li>Set <code>expected_v2_version=...</code> if you want that mismatch called out in errors.</li>
+</ol>
 
 
 

@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../pagination/">
+        <link rel="prev" href="../filtering/">
       
       
-        <link rel="next" href="../rate-limits/">
+        <link rel="next" href="../ids-and-types/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Errors & retries - Affinity Python SDK</title>
+        <title>Field types & values - Affinity Python SDK</title>
       
     
     
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#errors-and-retries" class="md-skip">
+        <a href="#field-types-and-values" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Errors & retries
+              Field types & values
             
           </span>
         </div>
@@ -494,37 +494,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Errors & retries
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../errors-and-retries/" class="md-nav__link">
         
   
   
@@ -540,70 +513,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#exception-taxonomy-common" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Exception taxonomy (common)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#retry-policy-what-is-retried" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Retry policy (what is retried)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#diagnostics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Diagnostics
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rate-limits" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rate limits
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -669,10 +578,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../field-types-and-values/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field types & values
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -688,6 +624,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#field-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#field-ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field IDs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requested-vs-not-requested" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requested vs not requested
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1507,10 +1496,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#exception-taxonomy-common" class="md-nav__link">
+  <a href="#field-types" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Exception taxonomy (common)
+        Field types
       
     </span>
   </a>
@@ -1518,10 +1507,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#retry-policy-what-is-retried" class="md-nav__link">
+  <a href="#field-ids" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retry policy (what is retried)
+        Field IDs
       
     </span>
   </a>
@@ -1529,21 +1518,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#diagnostics" class="md-nav__link">
+  <a href="#requested-vs-not-requested" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Diagnostics
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rate-limits" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rate limits
+        Requested vs not requested
       
     </span>
   </a>
@@ -1570,47 +1548,42 @@
   
 
 
-<h1 id="errors-and-retries">Errors and retries<a class="headerlink" href="#errors-and-retries" title="Permanent link">&para;</a></h1>
-<p>The SDK raises typed exceptions (subclasses of <code>AffinityError</code>) and retries some transient failures for safe methods (<code>GET</code>/<code>HEAD</code>).</p>
-<h2 id="exception-taxonomy-common">Exception taxonomy (common)<a class="headerlink" href="#exception-taxonomy-common" title="Permanent link">&para;</a></h2>
-<ul>
-<li><code>AuthenticationError</code> (401): invalid/missing API key</li>
-<li><code>AuthorizationError</code> (403): insufficient permissions</li>
-<li><code>NotFoundError</code> (404): entity or endpoint not found</li>
-<li><code>ValidationError</code> (400/422): invalid parameters/payload</li>
-<li><code>RateLimitError</code> (429): you are being rate limited (may include <code>retry_after</code>)</li>
-<li><code>ServerError</code> (500/503): transient server-side errors</li>
-</ul>
-<p>See <a href="../../reference/exceptions/">Exceptions</a> for the full hierarchy.</p>
-<h2 id="retry-policy-what-is-retried">Retry policy (what is retried)<a class="headerlink" href="#retry-policy-what-is-retried" title="Permanent link">&para;</a></h2>
-<p>By default, retries apply to:</p>
-<ul>
-<li><code>GET</code>/<code>HEAD</code> only (safe/idempotent methods)</li>
-<li>429 responses (rate limits): respects <code>Retry-After</code> when present</li>
-<li>transient network/timeouts for <code>GET</code>/<code>HEAD</code></li>
-<li>transient server errors (e.g., 5xx) for <code>GET</code>/<code>HEAD</code></li>
-</ul>
-<p>Retries are controlled by <code>max_retries</code> (default: 3).</p>
-<h2 id="diagnostics">Diagnostics<a class="headerlink" href="#diagnostics" title="Permanent link">&para;</a></h2>
-<p>Many errors include diagnostics (method/URL/status and more). When you catch an <code>AffinityError</code>, you can log it and inspect attached context.</p>
+<h1 id="field-types-and-values">Field types and values<a class="headerlink" href="#field-types-and-values" title="Permanent link">&para;</a></h1>
+<p>Many endpoints can return “field values” in addition to the core entity shape.</p>
+<h2 id="field-types">Field types<a class="headerlink" href="#field-types" title="Permanent link">&para;</a></h2>
+<p>Use <code>FieldType</code> to request which field scopes you want:</p>
 <pre><code class="language-python">from affinity import Affinity
-from affinity.exceptions import AffinityError, RateLimitError
+from affinity.types import FieldType, PersonId
 
-try:
-    with Affinity(api_key=&quot;your-key&quot;) as client:
-        client.companies.list()
-except RateLimitError as e:
-    print(&quot;Rate limited:&quot;, e)
-    print(&quot;Retry after:&quot;, e.retry_after)
-except AffinityError as e:
-    print(&quot;Affinity error:&quot;, e)
-    if e.diagnostics:
-        print(&quot;Request:&quot;, e.diagnostics.method, e.diagnostics.url)
-        print(&quot;Status:&quot;, e.status_code)
-        print(&quot;Request ID:&quot;, e.diagnostics.request_id)
+with Affinity(api_key=&quot;your-key&quot;) as client:
+    person = client.persons.get(PersonId(123), field_types=[FieldType.ENRICHED, FieldType.GLOBAL])
+    if person.fields.requested:
+        print(person.fields.data)
 </code></pre>
-<h2 id="rate-limits">Rate limits<a class="headerlink" href="#rate-limits" title="Permanent link">&para;</a></h2>
-<p>If you are consistently hitting 429s, see <a href="../rate-limits/">Rate limits</a> for strategies and the rate limit APIs.</p>
+<p>Common values include:</p>
+<ul>
+<li><code>FieldType.ENRICHED</code></li>
+<li><code>FieldType.GLOBAL</code></li>
+<li><code>FieldType.LIST</code></li>
+<li><code>FieldType.LIST_SPECIFIC</code></li>
+</ul>
+<h2 id="field-ids">Field IDs<a class="headerlink" href="#field-ids" title="Permanent link">&para;</a></h2>
+<p>If you know specific field IDs, you can request only those:</p>
+<pre><code class="language-python">from affinity import Affinity
+from affinity.types import FieldId, FieldType
+
+with Affinity(api_key=&quot;your-key&quot;) as client:
+    page = client.companies.list(field_ids=[FieldId(101)], field_types=[FieldType.GLOBAL])
+    for company in page.data:
+        if company.fields.requested:
+            print(company.fields.data.get(&quot;101&quot;))
+</code></pre>
+<h2 id="requested-vs-not-requested">Requested vs not requested<a class="headerlink" href="#requested-vs-not-requested" title="Permanent link">&para;</a></h2>
+<p>Entities expose a <code>fields</code> container that preserves whether the API returned field data:</p>
+<ul>
+<li><code>entity.fields.requested == False</code>: you didn’t request fields (or the API omitted them)</li>
+<li><code>entity.fields.requested == True</code>: field data was requested and returned (possibly empty)</li>
+</ul>
 
 
 
