@@ -1550,18 +1550,13 @@
 <p>All notable changes to this project will be documented in this file.</p>
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
-<h2 id="unreleased"><a href="https://github.com/yaniv-golan/affinity-sdk/compare/HEAD...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h2 id="unreleased"><a href="https://github.com/yaniv-golan/affinity-sdk/compare/v0.2.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h2 id="020-2025-12-17"><a href="https://github.com/yaniv-golan/affinity-sdk/releases/tag/v0.2.0">0.2.0</a> - 2025-12-17<a class="headerlink" href="#020-2025-12-17" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>client.files.download_stream(...)</code> and <code>client.files.download_to(...)</code> for chunked file downloads.</li>
-<li><code>client.files.upload_path(...)</code> and <code>client.files.upload_bytes(...)</code> for ergonomic uploads.</li>
-<li><code>client.files.all(...)</code> / <code>client.files.iter(...)</code> for auto-pagination over files.</li>
+<li>Initial public release.</li>
 </ul>
 <h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
-<ul>
-<li>File downloads now follow redirects without forwarding credentials and use the standard retry/diagnostics policy.</li>
-<li><code>client.files.list(...)</code> and <code>client.files.upload(...)</code> now require exactly one of <code>person_id</code>, <code>organization_id</code>, or <code>opportunity_id</code> (per API contract).</li>
-</ul>
 
 
 
