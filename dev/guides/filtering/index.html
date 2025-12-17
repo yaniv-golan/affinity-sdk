@@ -640,6 +640,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#operator-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operator reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1584,6 +1595,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#operator-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operator reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1620,6 +1642,69 @@
 <li>a raw filter string, or</li>
 <li>a <code>FilterExpression</code> built with <code>affinity.F</code></li>
 </ul>
+<h2 id="operator-reference">Operator reference<a class="headerlink" href="#operator-reference" title="Permanent link">&para;</a></h2>
+<p>The builder outputs Affinity’s V2 filtering language:</p>
+<table>
+<thead>
+<tr>
+<th>Meaning</th>
+<th>Operator</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>and</td>
+<td><code>&amp;</code></td>
+<td><code>foo = 1 &amp; bar = 2</code></td>
+</tr>
+<tr>
+<td>or</td>
+<td><code>|</code></td>
+<td><code>foo = 1 | bar = 2</code></td>
+</tr>
+<tr>
+<td>not</td>
+<td><code>!</code></td>
+<td><code>!(foo = 1)</code></td>
+</tr>
+<tr>
+<td>equals</td>
+<td><code>=</code></td>
+<td><code>name = "Acme"</code></td>
+</tr>
+<tr>
+<td>not equals</td>
+<td><code>!=</code></td>
+<td><code>status != "inactive"</code></td>
+</tr>
+<tr>
+<td>starts with</td>
+<td><code>=^</code></td>
+<td><code>name =^ "Ac"</code></td>
+</tr>
+<tr>
+<td>ends with</td>
+<td><code>=$</code></td>
+<td><code>name =$ "me"</code></td>
+</tr>
+<tr>
+<td>contains</td>
+<td><code>=~</code></td>
+<td><code>name =~ "cm"</code></td>
+</tr>
+<tr>
+<td>is NULL</td>
+<td><code>!= *</code></td>
+<td><code>email != *</code></td>
+</tr>
+<tr>
+<td>is not NULL</td>
+<td><code>= *</code></td>
+<td><code>email = *</code></td>
+</tr>
+</tbody>
+</table>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span><span class="p">,</span> <span class="n">F</span>
 
 <span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
