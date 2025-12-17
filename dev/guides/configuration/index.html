@@ -1716,73 +1716,73 @@
 <h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h1>
 <p>This guide documents the knobs exposed on <code>Affinity</code> / <code>AsyncAffinity</code>.</p>
 <h2 id="load-from-environment">Load from environment<a class="headerlink" href="#load-from-environment" title="Permanent link">&para;</a></h2>
-<pre><code class="language-python">from affinity import Affinity
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-client = Affinity.from_env()
-</code></pre>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+</code></pre></div>
 <p>To load a local <code>.env</code> file, install the optional extra and set <code>load_dotenv=True</code>:</p>
-<pre><code class="language-bash">pip install &quot;affinity-sdk[dotenv]&quot;
-</code></pre>
-<pre><code class="language-python">from affinity import Affinity
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;affinity-sdk[dotenv]&quot;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-client = Affinity.from_env(load_dotenv=True)
-</code></pre>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">load_dotenv</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
 <h2 id="timeouts">Timeouts<a class="headerlink" href="#timeouts" title="Permanent link">&para;</a></h2>
-<pre><code class="language-python">from affinity import Affinity
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-client = Affinity(api_key=&quot;your-key&quot;, timeout=60.0)
-</code></pre>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
+</code></pre></div>
 <h2 id="retries">Retries<a class="headerlink" href="#retries" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Retries apply to safe/idempotent methods (by default <code>GET</code>/<code>HEAD</code>).</li>
 <li>Tune with <code>max_retries</code>.</li>
 </ul>
-<pre><code class="language-python">from affinity import Affinity
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-client = Affinity(api_key=&quot;your-key&quot;, max_retries=5)
-</code></pre>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</code></pre></div>
 <h2 id="caching">Caching<a class="headerlink" href="#caching" title="Permanent link">&para;</a></h2>
 <p>Caching is optional and currently targets metadata-style responses (e.g., field metadata).</p>
-<pre><code class="language-python">from affinity import Affinity
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-client = Affinity(api_key=&quot;your-key&quot;, enable_cache=True, cache_ttl=300.0)
-</code></pre>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">enable_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache_ttl</span><span class="o">=</span><span class="mf">300.0</span><span class="p">)</span>
+</code></pre></div>
 <h2 id="logging-and-hooks">Logging and hooks<a class="headerlink" href="#logging-and-hooks" title="Permanent link">&para;</a></h2>
-<pre><code class="language-python">from affinity import Affinity
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-def on_request(req) -&gt; None:
-    print(&quot;-&gt;&quot;, req.method, req.url)
+<span class="k">def</span><span class="w"> </span><span class="nf">on_request</span><span class="p">(</span><span class="n">req</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&gt;&quot;</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
 
-def on_response(res) -&gt; None:
-    print(&quot;&lt;-&quot;, res.status_code, res.request.url)
+<span class="k">def</span><span class="w"> </span><span class="nf">on_response</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;-&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
 
-client = Affinity(
-    api_key=&quot;your-key&quot;,
-    log_requests=True,
-    on_request=on_request,
-    on_response=on_response,
-)
-</code></pre>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span>
+    <span class="n">log_requests</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">on_request</span><span class="o">=</span><span class="n">on_request</span><span class="p">,</span>
+    <span class="n">on_response</span><span class="o">=</span><span class="n">on_response</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
 <h2 id="v1v2-urls-and-auth-mode">V1/V2 URLs and auth mode<a class="headerlink" href="#v1v2-urls-and-auth-mode" title="Permanent link">&para;</a></h2>
-<pre><code class="language-python">from affinity import Affinity
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-client = Affinity(
-    api_key=&quot;your-key&quot;,
-    v1_base_url=&quot;https://api.affinity.co&quot;,
-    v2_base_url=&quot;https://api.affinity.co/v2&quot;,
-    v1_auth_mode=&quot;bearer&quot;,  # or &quot;basic&quot;
-)
-</code></pre>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span>
+    <span class="n">v1_base_url</span><span class="o">=</span><span class="s2">&quot;https://api.affinity.co&quot;</span><span class="p">,</span>
+    <span class="n">v2_base_url</span><span class="o">=</span><span class="s2">&quot;https://api.affinity.co/v2&quot;</span><span class="p">,</span>
+    <span class="n">v1_auth_mode</span><span class="o">=</span><span class="s2">&quot;bearer&quot;</span><span class="p">,</span>  <span class="c1"># or &quot;basic&quot;</span>
+<span class="p">)</span>
+</code></pre></div>
 <h2 id="beta-endpoints-and-version-diagnostics">Beta endpoints and version diagnostics<a class="headerlink" href="#beta-endpoints-and-version-diagnostics" title="Permanent link">&para;</a></h2>
 <p>If you opt into beta endpoints or want stricter diagnostics around v2 response shapes:</p>
-<pre><code class="language-python">from affinity import Affinity
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-client = Affinity(
-    api_key=&quot;your-key&quot;,
-    enable_beta_endpoints=True,
-    expected_v2_version=&quot;2024-01-01&quot;,
-)
-</code></pre>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span>
+    <span class="n">enable_beta_endpoints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">expected_v2_version</span><span class="o">=</span><span class="s2">&quot;2024-01-01&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
 <p>See also:</p>
 <ul>
 <li><a href="../v1-v2-routing/">V1 vs V2 routing</a></li>

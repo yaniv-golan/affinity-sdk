@@ -1649,45 +1649,45 @@
 <p>Requires Python 3.10+.</p>
 <h2 id="provide-your-api-key">Provide your API key<a class="headerlink" href="#provide-your-api-key" title="Permanent link">&para;</a></h2>
 <p>Set <code>AFFINITY_API_KEY</code>:</p>
-<pre><code class="language-bash">export AFFINITY_API_KEY=&quot;your-api-key&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span>
+</code></pre></div>
 <p>Then create a client from the environment:</p>
-<pre><code class="language-python">from affinity import Affinity
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-client = Affinity.from_env()
-</code></pre>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+</code></pre></div>
 <p>To load a local <code>.env</code> file, install the optional extra and set <code>load_dotenv=True</code>:</p>
-<pre><code class="language-bash">pip install &quot;affinity-sdk[dotenv]&quot;
-</code></pre>
-<pre><code class="language-python">from affinity import Affinity
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;affinity-sdk[dotenv]&quot;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-client = Affinity.from_env(load_dotenv=True)
-</code></pre>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">load_dotenv</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
 <h2 id="create-a-client">Create a client<a class="headerlink" href="#create-a-client" title="Permanent link">&para;</a></h2>
-<pre><code class="language-python">from affinity import Affinity
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-client = Affinity(api_key=&quot;your-api-key&quot;)
-</code></pre>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span>
+</code></pre></div>
 <p>Prefer the context manager to ensure resources are closed:</p>
-<pre><code class="language-python">from affinity import Affinity
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-with Affinity(api_key=&quot;your-api-key&quot;) as client:
-    ...
-</code></pre>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
 <h2 id="make-your-first-request">Make your first request<a class="headerlink" href="#make-your-first-request" title="Permanent link">&para;</a></h2>
 <p>This snippet covers authentication, a first request, and common failures:</p>
-<pre><code class="language-python">from affinity import Affinity
-from affinity.exceptions import AuthenticationError, RateLimitError
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">AuthenticationError</span><span class="p">,</span> <span class="n">RateLimitError</span>
 
-try:
-    with Affinity.from_env() as client:
-        me = client.auth.whoami()
-        print(f&quot;Authenticated as: {me.user.email}&quot;)
-except AuthenticationError:
-    print(&quot;Check AFFINITY_API_KEY is set correctly&quot;)
-except RateLimitError as e:
-    print(f&quot;Rate limited. Retry after: {e.retry_after}&quot;)
-</code></pre>
+<span class="k">try</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="n">me</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">whoami</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Authenticated as: </span><span class="si">{</span><span class="n">me</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">AuthenticationError</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Check AFFINITY_API_KEY is set correctly&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">RateLimitError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rate limited. Retry after: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">retry_after</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">SDK-specific gotchas</p>
 <ul>

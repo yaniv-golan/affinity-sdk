@@ -2284,34 +2284,34 @@ for operations not yet supported in V2.</p>
 
 <details class="example" open>
   <summary>Example</summary>
-  <pre><code class="language-python">from affinity import Affinity
+  <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-# Initialize with API key
-client = Affinity(api_key=&quot;your-api-key&quot;)
+<span class="c1"># Initialize with API key</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span>
 
-# Use as context manager for automatic cleanup
-with Affinity(api_key=&quot;your-api-key&quot;) as client:
-    # Get all companies
-    for company in client.companies.all():
-        print(company.name)
+<span class="c1"># Use as context manager for automatic cleanup</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="c1"># Get all companies</span>
+    <span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">company</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-    # Get a specific person with field data
-    person = client.persons.get(
-        PersonId(12345),
-        field_types=[&quot;enriched&quot;, &quot;global&quot;]
-    )
+    <span class="c1"># Get a specific person with field data</span>
+    <span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="n">PersonId</span><span class="p">(</span><span class="mi">12345</span><span class="p">),</span>
+        <span class="n">field_types</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;enriched&quot;</span><span class="p">,</span> <span class="s2">&quot;global&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
 
-    # Add a company to a list
-    entries = client.lists.entries(ListId(789))
-    entry = entries.add_company(CompanyId(456))
+    <span class="c1"># Add a company to a list</span>
+    <span class="n">entries</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">lists</span><span class="o">.</span><span class="n">entries</span><span class="p">(</span><span class="n">ListId</span><span class="p">(</span><span class="mi">789</span><span class="p">))</span>
+    <span class="n">entry</span> <span class="o">=</span> <span class="n">entries</span><span class="o">.</span><span class="n">add_company</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">456</span><span class="p">))</span>
 
-    # Update field values
-    entries.update_field_value(
-        entry.id,
-        FieldId(101),
-        &quot;New value&quot;
-    )
-</code></pre>
+    <span class="c1"># Update field values</span>
+    <span class="n">entries</span><span class="o">.</span><span class="n">update_field_value</span><span class="p">(</span>
+        <span class="n">entry</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">FieldId</span><span class="p">(</span><span class="mi">101</span><span class="p">),</span>
+        <span class="s2">&quot;New value&quot;</span>
+    <span class="p">)</span>
+</code></pre></div>
 </details>
 
 <p><span class="doc-section-title">Attributes:</span></p>
@@ -3960,10 +3960,10 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
 
 <details class="example" open>
   <summary>Example</summary>
-  <pre><code class="language-python">async with AsyncAffinity(api_key=&quot;your-key&quot;) as client:
-    async for company in client.companies.all():
-        print(company.name)
-</code></pre>
+  <div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">with</span> <span class="n">AsyncAffinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">company</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</code></pre></div>
 </details>
 
 

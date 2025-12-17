@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#v1-vs-v2-routing" class="md-skip">
+        <a href="#api-versions-sdk-routing" class="md-skip">
           Skip to content
         </a>
       
@@ -1625,7 +1625,17 @@
   
 
 
-<h1 id="v1-vs-v2-routing">V1 vs V2 routing<a class="headerlink" href="#v1-vs-v2-routing" title="Permanent link">&para;</a></h1>
+<h1 id="api-versions-sdk-routing">API versions &amp; SDK routing<a class="headerlink" href="#api-versions-sdk-routing" title="Permanent link">&para;</a></h1>
+<details class="info">
+<summary>Quick glossary</summary>
+<ul>
+<li><strong>V1 API</strong>: legacy endpoints at <code>https://api.affinity.co</code></li>
+<li><strong>V2 API</strong>: newer endpoints at <code>https://api.affinity.co/v2</code></li>
+<li><strong>V2 API version</strong>: dated versions like <code>2024-01-01</code> within V2 (configured in Affinity)</li>
+<li><strong>Default API Version</strong>: your Affinity setting that selects the V2 version</li>
+<li><strong>Beta endpoints</strong>: newer V2 endpoints that require opt-in</li>
+</ul>
+</details>
 <p>The SDK prefers V2 endpoints where available and falls back to V1 for operations not yet supported in V2.</p>
 <h2 id="what-this-means-in-practice">What this means in practice<a class="headerlink" href="#what-this-means-in-practice" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1646,6 +1656,12 @@
 <li>Check your API key’s “Default API Version” in the Affinity dashboard.</li>
 <li>Set <code>expected_v2_version=...</code> if you want that mismatch called out in errors.</li>
 </ol>
+<p>References:</p>
+<ul>
+<li>V1 docs: https://api-docs.affinity.co/</li>
+<li>V2 portal: https://developer.affinity.co/</li>
+<li>V2 versioning: https://developer.affinity.co/#section/Getting-Started/Versioning</li>
+</ul>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../configuration/">Configuration</a></li>

@@ -1628,21 +1628,21 @@
 <h1 id="sync-vs-async">Sync vs async<a class="headerlink" href="#sync-vs-async" title="Permanent link">&para;</a></h1>
 <h2 id="sync">Sync<a class="headerlink" href="#sync" title="Permanent link">&para;</a></h2>
 <p>Use <code>Affinity</code>:</p>
-<pre><code class="language-python">from affinity import Affinity
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-with Affinity(api_key=&quot;your-key&quot;) as client:
-    for person in client.persons.all():
-        print(person.first_name)
-</code></pre>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">first_name</span><span class="p">)</span>
+</code></pre></div>
 <h2 id="async">Async<a class="headerlink" href="#async" title="Permanent link">&para;</a></h2>
 <p>Use <code>AsyncAffinity</code>:</p>
-<pre><code class="language-python">from affinity import AsyncAffinity
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncAffinity</span>
 
-async def main() -&gt; None:
-    async with AsyncAffinity(api_key=&quot;your-key&quot;) as client:
-        async for company in client.companies.all():
-            print(company.name)
-</code></pre>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">AsyncAffinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">company</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</code></pre></div>
 <h2 id="parity">Parity<a class="headerlink" href="#parity" title="Permanent link">&para;</a></h2>
 <p><code>AsyncAffinity</code> currently exposes a smaller service surface area than <code>Affinity</code>.</p>
 <table>

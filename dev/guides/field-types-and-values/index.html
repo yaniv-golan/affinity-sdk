@@ -1629,14 +1629,14 @@
 <p>Many endpoints can return “field values” in addition to the core entity shape.</p>
 <h2 id="field-types">Field types<a class="headerlink" href="#field-types" title="Permanent link">&para;</a></h2>
 <p>Use <code>FieldType</code> to request which field scopes you want:</p>
-<pre><code class="language-python">from affinity import Affinity
-from affinity.types import FieldType, PersonId
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FieldType</span><span class="p">,</span> <span class="n">PersonId</span>
 
-with Affinity(api_key=&quot;your-key&quot;) as client:
-    person = client.persons.get(PersonId(123), field_types=[FieldType.ENRICHED, FieldType.GLOBAL])
-    if person.fields.requested:
-        print(person.fields.data)
-</code></pre>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">PersonId</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span> <span class="n">field_types</span><span class="o">=</span><span class="p">[</span><span class="n">FieldType</span><span class="o">.</span><span class="n">ENRICHED</span><span class="p">,</span> <span class="n">FieldType</span><span class="o">.</span><span class="n">GLOBAL</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">requested</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</code></pre></div>
 <p>Common values include:</p>
 <ul>
 <li><code>FieldType.ENRICHED</code></li>
@@ -1646,15 +1646,15 @@ with Affinity(api_key=&quot;your-key&quot;) as client:
 </ul>
 <h2 id="field-ids">Field IDs<a class="headerlink" href="#field-ids" title="Permanent link">&para;</a></h2>
 <p>If you know specific field IDs, you can request only those:</p>
-<pre><code class="language-python">from affinity import Affinity
-from affinity.types import FieldId, FieldType
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FieldId</span><span class="p">,</span> <span class="n">FieldType</span>
 
-with Affinity(api_key=&quot;your-key&quot;) as client:
-    page = client.companies.list(field_ids=[FieldId(101)], field_types=[FieldType.GLOBAL])
-    for company in page.data:
-        if company.fields.requested:
-            print(company.fields.data.get(&quot;101&quot;))
-</code></pre>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="n">page</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">field_ids</span><span class="o">=</span><span class="p">[</span><span class="n">FieldId</span><span class="p">(</span><span class="mi">101</span><span class="p">)],</span> <span class="n">field_types</span><span class="o">=</span><span class="p">[</span><span class="n">FieldType</span><span class="o">.</span><span class="n">GLOBAL</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">page</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">company</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">requested</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">company</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;101&quot;</span><span class="p">))</span>
+</code></pre></div>
 <h2 id="requested-vs-not-requested">Requested vs not requested<a class="headerlink" href="#requested-vs-not-requested" title="Permanent link">&para;</a></h2>
 <p>Entities expose a <code>fields</code> container that preserves whether the API returned field data:</p>
 <ul>
