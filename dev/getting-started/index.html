@@ -1786,7 +1786,7 @@
 
 <span class="k">try</span><span class="p">:</span>
     <span class="k">with</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-        <span class="n">me</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">whoami</span><span class="p">()</span>
+        <span class="n">me</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">whoami</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Authenticated as: </span><span class="si">{</span><span class="n">me</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="k">except</span> <span class="n">AuthenticationError</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Check AFFINITY_API_KEY is set correctly&quot;</span><span class="p">)</span>
