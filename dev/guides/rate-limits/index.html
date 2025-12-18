@@ -640,10 +640,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#local-tracking" class="md-nav__link">
+  <a href="#snapshot-no-network" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Local tracking
+        Snapshot (no network)
       
     </span>
   </a>
@@ -651,10 +651,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#query-current-limits" class="md-nav__link">
+  <a href="#refresh-one-request" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Query current limits
+        Refresh (one request)
       
     </span>
   </a>
@@ -1645,10 +1645,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#local-tracking" class="md-nav__link">
+  <a href="#snapshot-no-network" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Local tracking
+        Snapshot (no network)
       
     </span>
   </a>
@@ -1656,10 +1656,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#query-current-limits" class="md-nav__link">
+  <a href="#refresh-one-request" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Query current limits
+        Refresh (one request)
       
     </span>
   </a>
@@ -1709,19 +1709,21 @@
 
 
 <h1 id="rate-limits">Rate limits<a class="headerlink" href="#rate-limits" title="Permanent link">&para;</a></h1>
-<p>The SDK tracks rate-limit state from responses and can also query rate-limit status via the API.</p>
-<h2 id="local-tracking">Local tracking<a class="headerlink" href="#local-tracking" title="Permanent link">&para;</a></h2>
+<p>The SDK exposes a version-agnostic rate limit surface via <code>client.rate_limits</code>:
+- <code>snapshot()</code> is best-effort and does not make network calls.
+- <code>refresh()</code> makes one request and returns the best available snapshot.</p>
+<h2 id="snapshot-no-network">Snapshot (no network)<a class="headerlink" href="#snapshot-no-network" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
 <span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">rate_limit_state</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">rate_limits</span><span class="o">.</span><span class="n">snapshot</span><span class="p">())</span>
 </code></pre></div>
-<h2 id="query-current-limits">Query current limits<a class="headerlink" href="#query-current-limits" title="Permanent link">&para;</a></h2>
+<h2 id="refresh-one-request">Refresh (one request)<a class="headerlink" href="#refresh-one-request" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
 <span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-    <span class="n">limits</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">get_rate_limits</span><span class="p">()</span>
+    <span class="n">limits</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">rate_limits</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">limits</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="handling-429s">Handling 429s<a class="headerlink" href="#handling-429s" title="Permanent link">&para;</a></h2>
