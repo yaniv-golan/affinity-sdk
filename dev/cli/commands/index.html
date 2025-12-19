@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../sync-vs-async/">
+        <link rel="prev" href="../">
       
       
-        <link rel="next" href="../webhooks/">
+        <link rel="next" href="../scripting/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Debugging hooks - Affinity Python SDK</title>
+        <title>Commands - Affinity Python SDK</title>
       
     
     
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#debugging-hooks" class="md-skip">
+        <a href="#commands" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Debugging hooks
+              Commands
             
           </span>
         </div>
@@ -360,18 +360,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -392,7 +394,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -410,7 +412,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cli/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -418,454 +420,6 @@
     
   
     Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../cli/commands/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Commands
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../cli/scripting/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Scripting
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Guides
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_7">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Guides
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../authentication/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Authentication
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../configuration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Configuration
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../performance/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Performance tuning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../api-versions-and-routing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    API versions & routing
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../pagination/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Pagination
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../errors-and-retries/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Errors & retries
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../rate-limits/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Rate limits
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../filtering/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Filtering
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../field-types-and-values/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Field types & values
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../models/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Models
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../ids-and-types/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    IDs & types
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../sync-vs-async/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Sync vs async
   
 
     
@@ -902,7 +456,7 @@
   <span class="md-ellipsis">
     
   
-    Debugging hooks
+    Commands
   
 
     
@@ -920,7 +474,7 @@
   <span class="md-ellipsis">
     
   
-    Debugging hooks
+    Commands
   
 
     
@@ -946,13 +500,197 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
+  <a href="#no-network-commands" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Next steps
+        No-network commands
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identity
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Identity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity-whoami" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity whoami
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#url-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        URL resolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="URL resolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity-resolve-url-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity resolve-url &lt;url&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#people" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        People
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="People">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity-person-search-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity person search &lt;query&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-person-files-dump-personid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity person files dump &lt;personId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#companies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Companies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Companies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity-company-search-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity company search &lt;query&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-company-files-dump-companyid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity company files dump &lt;companyId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lists
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Lists">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity-list-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity list ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-list-view-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity list view &lt;list&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-list-export-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity list export &lt;list&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -972,7 +710,453 @@
   
   
     <li class="md-nav__item">
-      <a href="../webhooks/" class="md-nav__link">
+      <a href="../scripting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scripting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/api-versions-and-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API versions & routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pagination/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pagination
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/errors-and-retries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors & retries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rate-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rate limits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/filtering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/field-types-and-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field types & values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/ids-and-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IDs & types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/sync-vs-async/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sync vs async
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/debugging-hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debugging hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/webhooks/" class="md-nav__link">
         
   
   
@@ -1750,13 +1934,197 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
+  <a href="#no-network-commands" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Next steps
+        No-network commands
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identity
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Identity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity-whoami" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity whoami
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#url-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        URL resolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="URL resolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity-resolve-url-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity resolve-url &lt;url&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#people" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        People
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="People">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity-person-search-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity person search &lt;query&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-person-files-dump-personid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity person files dump &lt;personId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#companies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Companies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Companies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity-company-search-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity company search &lt;query&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-company-files-dump-companyid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity company files dump &lt;companyId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lists
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Lists">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity-list-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity list ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-list-view-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity list view &lt;list&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-list-export-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity list export &lt;list&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1780,25 +2148,62 @@
   
 
 
-<h1 id="debugging-hooks">Debugging hooks<a class="headerlink" href="#debugging-hooks" title="Permanent link">&para;</a></h1>
-<p>You can attach request/response hooks for debugging and observability.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">on_request</span><span class="p">(</span><span class="n">req</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&gt;&quot;</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">on_response</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;-&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
-
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">on_request</span><span class="o">=</span><span class="n">on_request</span><span class="p">,</span> <span class="n">on_response</span><span class="o">=</span><span class="n">on_response</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-    <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
-</code></pre></div>
-<h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<h1 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h1>
+<h2 id="no-network-commands">No-network commands<a class="headerlink" href="#no-network-commands" title="Permanent link">&para;</a></h2>
+<p>These commands never call the Affinity API:</p>
 <ul>
-<li><a href="../configuration/">Configuration</a></li>
-<li><a href="../../troubleshooting/">Troubleshooting</a></li>
-<li><a href="../errors-and-retries/">Errors &amp; retries</a></li>
+<li><code>affinity --help</code></li>
+<li><code>affinity completion bash|zsh|fish</code></li>
+<li><code>affinity version</code> (also <code>affinity --version</code>)</li>
+<li><code>affinity config path</code></li>
+<li><code>affinity config init</code></li>
 </ul>
+<h2 id="identity">Identity<a class="headerlink" href="#identity" title="Permanent link">&para;</a></h2>
+<h3 id="affinity-whoami"><code>affinity whoami</code><a class="headerlink" href="#affinity-whoami" title="Permanent link">&para;</a></h3>
+<p>Validates credentials and prints tenant/user context.</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>whoami
+affinity<span class="w"> </span>whoami<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+</code></pre></div>
+<h2 id="url-resolution">URL resolution<a class="headerlink" href="#url-resolution" title="Permanent link">&para;</a></h2>
+<h3 id="affinity-resolve-url-url"><code>affinity resolve-url &lt;url&gt;</code><a class="headerlink" href="#affinity-resolve-url-url" title="Permanent link">&para;</a></h3>
+<p>Parses an Affinity UI URL (including tenant hosts like <code>https://&lt;tenant&gt;.affinity.co/...</code>) and validates it by fetching the referenced object.</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>resolve-url<span class="w"> </span><span class="s2">&quot;https://app.affinity.co/companies/263169568&quot;</span>
+affinity<span class="w"> </span>resolve-url<span class="w"> </span><span class="s2">&quot;https://lool.affinity.co/companies/263169568&quot;</span><span class="w"> </span>--json
+</code></pre></div>
+<h2 id="people">People<a class="headerlink" href="#people" title="Permanent link">&para;</a></h2>
+<h3 id="affinity-person-search-query"><code>affinity person search &lt;query&gt;</code><a class="headerlink" href="#affinity-person-search-query" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;alice@example.com&quot;</span>
+affinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--all<span class="w"> </span>--json
+</code></pre></div>
+<h3 id="affinity-person-files-dump-personid"><code>affinity person files dump &lt;personId&gt;</code><a class="headerlink" href="#affinity-person-files-dump-personid" title="Permanent link">&para;</a></h3>
+<p>Downloads all files attached to a person into a folder bundle with a <code>manifest.json</code>.</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>files<span class="w"> </span>dump<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--out<span class="w"> </span>./bundle
+</code></pre></div>
+<h2 id="companies">Companies<a class="headerlink" href="#companies" title="Permanent link">&para;</a></h2>
+<h3 id="affinity-company-search-query"><code>affinity company search &lt;query&gt;</code><a class="headerlink" href="#affinity-company-search-query" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>company<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;example.com&quot;</span>
+affinity<span class="w"> </span>company<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Example&quot;</span><span class="w"> </span>--json
+</code></pre></div>
+<h3 id="affinity-company-files-dump-companyid"><code>affinity company files dump &lt;companyId&gt;</code><a class="headerlink" href="#affinity-company-files-dump-companyid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>company<span class="w"> </span>files<span class="w"> </span>dump<span class="w"> </span><span class="m">9876</span><span class="w"> </span>--out<span class="w"> </span>./bundle
+</code></pre></div>
+<h2 id="lists">Lists<a class="headerlink" href="#lists" title="Permanent link">&para;</a></h2>
+<h3 id="affinity-list-ls"><code>affinity list ls</code><a class="headerlink" href="#affinity-list-ls" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>list<span class="w"> </span>ls
+affinity<span class="w"> </span>list<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--json
+</code></pre></div>
+<h3 id="affinity-list-view-list"><code>affinity list view &lt;list&gt;</code><a class="headerlink" href="#affinity-list-view-list" title="Permanent link">&para;</a></h3>
+<p>Accepts a list ID or an exact list name.</p>
+<p>The Fields table includes a <code>valueType</code> column using V2 string types (e.g., <code>dropdown-multi</code>, <code>ranked-dropdown</code>).</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>list<span class="w"> </span>view<span class="w"> </span><span class="m">123</span>
+affinity<span class="w"> </span>list<span class="w"> </span>view<span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span>--json
+</code></pre></div>
+<h3 id="affinity-list-export-list"><code>affinity list export &lt;list&gt;</code><a class="headerlink" href="#affinity-list-export-list" title="Permanent link">&para;</a></h3>
+<p>Exports list entries with selected fields.</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>out.csv
+affinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span>--saved-view<span class="w"> </span><span class="s2">&quot;Board&quot;</span><span class="w"> </span>--csv<span class="w"> </span>out.csv
+affinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--field<span class="w"> </span>Stage<span class="w"> </span>--field<span class="w"> </span>Amount<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;&quot;Stage&quot; = &quot;Active&quot;&#39;</span><span class="w"> </span>--csv<span class="w"> </span>out.csv
+</code></pre></div>
 
 
 

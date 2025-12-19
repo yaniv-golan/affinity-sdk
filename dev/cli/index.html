@@ -11,25 +11,25 @@
       
       
       
-        <link rel="prev" href="../sync-vs-async/">
+        <link rel="prev" href="../changelog/">
       
       
-        <link rel="next" href="../webhooks/">
+        <link rel="next" href="commands/">
       
       
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
-        <title>Debugging hooks - Affinity Python SDK</title>
+        <title>Overview - Affinity Python SDK</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
       
 
@@ -48,9 +48,9 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#debugging-hooks" class="md-skip">
+        <a href="#cli" class="md-skip">
           Skip to content
         </a>
       
@@ -88,7 +88,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Affinity Python SDK" class="md-header__button md-logo" aria-label="Affinity Python SDK" data-md-component="logo">
+    <a href=".." title="Affinity Python SDK" class="md-header__button md-logo" aria-label="Affinity Python SDK" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Debugging hooks
+              Overview
             
           </span>
         </div>
@@ -198,7 +198,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Affinity Python SDK" class="md-nav__button md-logo" aria-label="Affinity Python SDK" data-md-component="logo">
+    <a href=".." title="Affinity Python SDK" class="md-nav__button md-logo" aria-label="Affinity Python SDK" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -228,7 +228,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -255,7 +255,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/" class="md-nav__link">
+      <a href="../getting-started/" class="md-nav__link">
         
   
   
@@ -282,7 +282,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/" class="md-nav__link">
+      <a href="../examples/" class="md-nav__link">
         
   
   
@@ -309,7 +309,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../glossary/" class="md-nav__link">
+      <a href="../glossary/" class="md-nav__link">
         
   
   
@@ -336,7 +336,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../changelog/" class="md-nav__link">
+      <a href="../changelog/" class="md-nav__link">
         
   
   
@@ -360,18 +360,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -392,7 +394,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -407,10 +409,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../cli/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -426,6 +455,92 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Install
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#progress-quiet-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Progress + quiet mode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logging
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exit-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exit codes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -438,7 +553,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cli/commands/" class="md-nav__link">
+      <a href="commands/" class="md-nav__link">
         
   
   
@@ -466,7 +581,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cli/scripting/" class="md-nav__link">
+      <a href="scripting/" class="md-nav__link">
         
   
   
@@ -498,20 +613,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
         
           
           <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
@@ -532,7 +645,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -550,7 +663,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../authentication/" class="md-nav__link">
+      <a href="../guides/authentication/" class="md-nav__link">
         
   
   
@@ -578,7 +691,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configuration/" class="md-nav__link">
+      <a href="../guides/configuration/" class="md-nav__link">
         
   
   
@@ -606,7 +719,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../performance/" class="md-nav__link">
+      <a href="../guides/performance/" class="md-nav__link">
         
   
   
@@ -634,7 +747,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-versions-and-routing/" class="md-nav__link">
+      <a href="../guides/api-versions-and-routing/" class="md-nav__link">
         
   
   
@@ -662,7 +775,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../pagination/" class="md-nav__link">
+      <a href="../guides/pagination/" class="md-nav__link">
         
   
   
@@ -690,7 +803,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../errors-and-retries/" class="md-nav__link">
+      <a href="../guides/errors-and-retries/" class="md-nav__link">
         
   
   
@@ -718,7 +831,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rate-limits/" class="md-nav__link">
+      <a href="../guides/rate-limits/" class="md-nav__link">
         
   
   
@@ -746,7 +859,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../filtering/" class="md-nav__link">
+      <a href="../guides/filtering/" class="md-nav__link">
         
   
   
@@ -774,7 +887,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../field-types-and-values/" class="md-nav__link">
+      <a href="../guides/field-types-and-values/" class="md-nav__link">
         
   
   
@@ -802,7 +915,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/" class="md-nav__link">
+      <a href="../guides/models/" class="md-nav__link">
         
   
   
@@ -830,7 +943,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ids-and-types/" class="md-nav__link">
+      <a href="../guides/ids-and-types/" class="md-nav__link">
         
   
   
@@ -858,7 +971,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sync-vs-async/" class="md-nav__link">
+      <a href="../guides/sync-vs-async/" class="md-nav__link">
         
   
   
@@ -883,37 +996,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Debugging hooks
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../guides/debugging-hooks/" class="md-nav__link">
         
   
   
@@ -929,37 +1015,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next steps
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -972,7 +1027,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../webhooks/" class="md-nav__link">
+      <a href="../guides/webhooks/" class="md-nav__link">
         
   
   
@@ -1007,7 +1062,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../troubleshooting/" class="md-nav__link">
+      <a href="../troubleshooting/" class="md-nav__link">
         
   
   
@@ -1081,7 +1136,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/client/" class="md-nav__link">
+      <a href="../reference/client/" class="md-nav__link">
         
   
   
@@ -1109,7 +1164,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/exceptions/" class="md-nav__link">
+      <a href="../reference/exceptions/" class="md-nav__link">
         
   
   
@@ -1137,7 +1192,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/types/" class="md-nav__link">
+      <a href="../reference/types/" class="md-nav__link">
         
   
   
@@ -1165,7 +1220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/filters/" class="md-nav__link">
+      <a href="../reference/filters/" class="md-nav__link">
         
   
   
@@ -1193,7 +1248,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/models/" class="md-nav__link">
+      <a href="../reference/models/" class="md-nav__link">
         
   
   
@@ -1268,7 +1323,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/services/companies/" class="md-nav__link">
+      <a href="../reference/services/companies/" class="md-nav__link">
         
   
   
@@ -1296,7 +1351,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/services/persons/" class="md-nav__link">
+      <a href="../reference/services/persons/" class="md-nav__link">
         
   
   
@@ -1324,7 +1379,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/services/lists/" class="md-nav__link">
+      <a href="../reference/services/lists/" class="md-nav__link">
         
   
   
@@ -1352,7 +1407,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/services/opportunities/" class="md-nav__link">
+      <a href="../reference/services/opportunities/" class="md-nav__link">
         
   
   
@@ -1380,7 +1435,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/services/tasks/" class="md-nav__link">
+      <a href="../reference/services/tasks/" class="md-nav__link">
         
   
   
@@ -1455,7 +1510,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/services/v1/notes/" class="md-nav__link">
+      <a href="../reference/services/v1/notes/" class="md-nav__link">
         
   
   
@@ -1483,7 +1538,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/services/v1/reminders/" class="md-nav__link">
+      <a href="../reference/services/v1/reminders/" class="md-nav__link">
         
   
   
@@ -1511,7 +1566,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/services/v1/webhooks/" class="md-nav__link">
+      <a href="../reference/services/v1/webhooks/" class="md-nav__link">
         
   
   
@@ -1539,7 +1594,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/services/v1/interactions/" class="md-nav__link">
+      <a href="../reference/services/v1/interactions/" class="md-nav__link">
         
   
   
@@ -1567,7 +1622,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/services/v1/fields/" class="md-nav__link">
+      <a href="../reference/services/v1/fields/" class="md-nav__link">
         
   
   
@@ -1595,7 +1650,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/services/v1/field-values/" class="md-nav__link">
+      <a href="../reference/services/v1/field-values/" class="md-nav__link">
         
   
   
@@ -1623,7 +1678,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/services/v1/files/" class="md-nav__link">
+      <a href="../reference/services/v1/files/" class="md-nav__link">
         
   
   
@@ -1651,7 +1706,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/services/v1/relationships/" class="md-nav__link">
+      <a href="../reference/services/v1/relationships/" class="md-nav__link">
         
   
   
@@ -1679,7 +1734,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/services/v1/auth/" class="md-nav__link">
+      <a href="../reference/services/v1/auth/" class="md-nav__link">
         
   
   
@@ -1750,10 +1805,65 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
+  <a href="#install" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Next steps
+        Install
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#progress-quiet-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Progress + quiet mode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logging
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exit-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exit codes
       
     </span>
   </a>
@@ -1780,24 +1890,57 @@
   
 
 
-<h1 id="debugging-hooks">Debugging hooks<a class="headerlink" href="#debugging-hooks" title="Permanent link">&para;</a></h1>
-<p>You can attach request/response hooks for debugging and observability.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">on_request</span><span class="p">(</span><span class="n">req</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&gt;&quot;</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">on_response</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;-&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
-
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">on_request</span><span class="o">=</span><span class="n">on_request</span><span class="p">,</span> <span class="n">on_response</span><span class="o">=</span><span class="n">on_response</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-    <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+<h1 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h1>
+<p>The SDK ships an optional <code>affinity</code> CLI that dogfoods the SDK. Install it as an extra so library-only users don’t pay the dependency cost.</p>
+<h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
+<p>Recommended for end-users:</p>
+<div class="highlight"><pre><span></span><code>pipx<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;affinity-sdk[cli]&quot;</span>
 </code></pre></div>
-<h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<p>Or in a virtualenv:</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;affinity-sdk[cli]&quot;</span>
+</code></pre></div>
+<h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
+<p>The CLI never makes “background” requests. It only calls the API for commands that require it.</p>
+<p>API key sources (highest precedence first):</p>
+<ol>
+<li><code>--api-key-file &lt;path&gt;</code> (use <code>-</code> to read from stdin)</li>
+<li><code>--api-key-stdin</code> (alias for <code>--api-key-file -</code>)</li>
+<li><code>AFFINITY_API_KEY</code></li>
+<li><code>api_key</code> in the config profile (discouraged for shared machines; the CLI warns on unsafe permissions where feasible)</li>
+</ol>
+<p>Optional local development: <code>.env</code> loading is <strong>opt-in</strong>:</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>--dotenv<span class="w"> </span>whoami
+affinity<span class="w"> </span>--dotenv<span class="w"> </span>--env-file<span class="w"> </span>./dev.env<span class="w"> </span>whoami
+</code></pre></div>
+<h2 id="output-contract">Output contract<a class="headerlink" href="#output-contract" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="../configuration/">Configuration</a></li>
-<li><a href="../../troubleshooting/">Troubleshooting</a></li>
-<li><a href="../errors-and-retries/">Errors &amp; retries</a></li>
+<li><code>--json</code> is supported on every command.</li>
+<li>In <code>--json</code> mode, JSON is written to <strong>stdout</strong>. Progress/logging go to <strong>stderr</strong>.</li>
+<li>Human/table output goes to <strong>stdout</strong>; diagnostics go to <strong>stderr</strong>.</li>
+<li>Commands build a single structured result and then render it as either JSON or table output (no “double implementations”).</li>
+</ul>
+<h2 id="progress-quiet-mode">Progress + quiet mode<a class="headerlink" href="#progress-quiet-mode" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Long operations show progress bars/spinners on <strong>stderr</strong> when interactive.</li>
+<li><code>-q/--quiet</code> disables progress and suppresses non-essential stderr output.</li>
+</ul>
+<h2 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h2>
+<p>The CLI writes logs to platform-standard locations (via <code>platformdirs</code>), with rotation and redaction.</p>
+<p>Override with:</p>
+<ul>
+<li><code>--log-file &lt;path&gt;</code></li>
+<li><code>--no-log-file</code></li>
+</ul>
+<h2 id="exit-codes">Exit codes<a class="headerlink" href="#exit-codes" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>0</code>: success</li>
+<li><code>1</code>: general error</li>
+<li><code>2</code>: usage/validation error (including ambiguous name resolution)</li>
+<li><code>3</code>: auth/permission error (401/403)</li>
+<li><code>4</code>: not found</li>
+<li><code>5</code>: rate limited or temporary upstream failure (429/5xx after retries)</li>
+<li><code>130</code>: interrupted (Ctrl+C)</li>
+<li><code>143</code>: terminated (SIGTERM)</li>
 </ul>
 
 
@@ -1852,10 +1995,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
