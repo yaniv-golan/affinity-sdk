@@ -704,10 +704,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#read-only-mode" class="md-nav__link">
+  <a href="#disable-writes-policy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Read-only mode
+        Disable writes (policy)
       
     </span>
   </a>
@@ -1926,10 +1926,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#read-only-mode" class="md-nav__link">
+  <a href="#disable-writes-policy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Read-only mode
+        Disable writes (policy)
       
     </span>
   </a>
@@ -2051,26 +2051,41 @@
 </code></pre></div>
 <h2 id="logging-and-hooks">Logging and hooks<a class="headerlink" href="#logging-and-hooks" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">HookEvent</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">on_request</span><span class="p">(</span><span class="n">req</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&gt;&quot;</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">on_response</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;-&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_event</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="n">HookEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span>
     <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span>
     <span class="n">log_requests</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">on_request</span><span class="o">=</span><span class="n">on_request</span><span class="p">,</span>
-    <span class="n">on_response</span><span class="o">=</span><span class="n">on_response</span><span class="p">,</span>
+    <span class="n">on_event</span><span class="o">=</span><span class="n">on_event</span><span class="p">,</span>
+    <span class="n">hook_error_policy</span><span class="o">=</span><span class="s2">&quot;swallow&quot;</span><span class="p">,</span>  <span class="c1"># or &quot;raise&quot;</span>
 <span class="p">)</span>
 </code></pre></div>
-<h2 id="read-only-mode">Read-only mode<a class="headerlink" href="#read-only-mode" title="Permanent link">&para;</a></h2>
-<p>To guarantee the SDK does not perform write operations (POST/PUT/PATCH/DELETE, including uploads),
-use read-only mode:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+<p>Notes:</p>
+<ul>
+<li>For the synchronous client (<code>Affinity</code>), <code>on_event</code> must be a synchronous function. If it returns an awaitable, the SDK raises <code>ConfigurationError</code>.</li>
+<li>For the async client (<code>AsyncAffinity</code>), <code>on_event</code> can be sync or async.</li>
+</ul>
+<p>Affinity downloads may redirect to externally-hosted signed URLs; external URLs are redacted in events by default.
+If you want to change that behavior, configure <code>Policies(external_hooks=...)</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span><span class="p">,</span> <span class="n">ExternalHookPolicy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.policies</span><span class="w"> </span><span class="kn">import</span> <span class="n">Policies</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;readonly&quot;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span>
+    <span class="n">on_event</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">type</span><span class="p">),</span>
+    <span class="n">policies</span><span class="o">=</span><span class="n">Policies</span><span class="p">(</span><span class="n">external_hooks</span><span class="o">=</span><span class="n">ExternalHookPolicy</span><span class="o">.</span><span class="n">REDACT</span><span class="p">),</span>  <span class="c1"># or SUPPRESS / EMIT_UNSAFE</span>
+<span class="p">)</span>
+</code></pre></div>
+<h2 id="disable-writes-policy">Disable writes (policy)<a class="headerlink" href="#disable-writes-policy" title="Permanent link">&para;</a></h2>
+<p>To guarantee the SDK does not perform write operations (POST/PUT/PATCH/DELETE, including uploads),
+disable writes via policy:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.policies</span><span class="w"> </span><span class="kn">import</span> <span class="n">Policies</span><span class="p">,</span> <span class="n">WritePolicy</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">policies</span><span class="o">=</span><span class="n">Policies</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="n">WritePolicy</span><span class="o">.</span><span class="n">DENY</span><span class="p">))</span>
 </code></pre></div>
 <h2 id="http-transport-injection-advanced">HTTP transport injection (advanced)<a class="headerlink" href="#http-transport-injection-advanced" title="Permanent link">&para;</a></h2>
 <p>For testing/mocking without real network calls, inject an <code>httpx</code> transport:</p>

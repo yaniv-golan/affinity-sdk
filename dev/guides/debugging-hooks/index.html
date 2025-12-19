@@ -946,6 +946,39 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#common-event-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common event types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#external-signed-download-urls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        External (signed) download URLs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1750,6 +1783,39 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#common-event-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common event types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#external-signed-download-urls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        External (signed) download URLs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1781,23 +1847,73 @@
 
 
 <h1 id="debugging-hooks">Debugging hooks<a class="headerlink" href="#debugging-hooks" title="Permanent link">&para;</a></h1>
-<p>You can attach request/response hooks for debugging and observability.</p>
+<p>You can attach hooks for debugging and observability.</p>
+<p>Recommended: use <code>on_event</code>, which provides richer lifecycle events (retries, redirects, streaming).</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">HookEvent</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">on_event</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="n">HookEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># Each event has a `.type` discriminator (e.g., &quot;request_started&quot;, &quot;request_failed&quot;, ...)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">on_event</span><span class="o">=</span><span class="n">on_event</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+</code></pre></div>
+<h2 id="common-event-types">Common event types<a class="headerlink" href="#common-event-types" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Requests: <code>request_started</code>, <code>request_retrying</code>, <code>request_succeeded</code>, <code>request_failed</code></li>
+<li>Redirects (downloads): <code>redirect_followed</code></li>
+<li>Responses: <code>response_headers_received</code></li>
+<li>Streaming downloads: <code>stream_completed</code>, <code>stream_aborted</code>, <code>stream_failed</code></li>
+</ul>
+<p>For streaming downloads, <code>response_headers_received</code> fires when headers arrive; one terminal stream event is emitted when iteration ends:</p>
+<ul>
+<li><code>stream_completed</code>: the full body was consumed</li>
+<li><code>stream_aborted</code>: iteration was interrupted (e.g., cancellation, keyboard interrupt, iterator closed)</li>
+<li><code>stream_failed</code>: an error occurred mid-stream</li>
+</ul>
+<p>The older <code>on_request/on_response/on_error</code> hooks are still supported:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">on_request</span><span class="p">(</span><span class="n">req</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&gt;&quot;</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">on_response</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;-&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">cache</span> <span class="o">=</span> <span class="s2">&quot; (cache hit)&quot;</span> <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">cache_hit</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;-&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">on_request</span><span class="o">=</span><span class="n">on_request</span><span class="p">,</span> <span class="n">on_response</span><span class="o">=</span><span class="n">on_response</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_error</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">error</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">err</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">on_request</span><span class="o">=</span><span class="n">on_request</span><span class="p">,</span> <span class="n">on_response</span><span class="o">=</span><span class="n">on_response</span><span class="p">,</span> <span class="n">on_error</span><span class="o">=</span><span class="n">on_error</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+</code></pre></div>
+<h2 id="external-signed-download-urls">External (signed) download URLs<a class="headerlink" href="#external-signed-download-urls" title="Permanent link">&para;</a></h2>
+<p>File downloads may redirect to externally-hosted signed URLs. By default, the SDK redacts external URLs in hook events (query/fragment are removed).
+You can change this behavior with <code>Policies(external_hooks=...)</code>:</p>
+<ul>
+<li><code>ExternalHookPolicy.REDACT</code> (default): emit events, but redact external URLs</li>
+<li><code>ExternalHookPolicy.SUPPRESS</code>: do not emit events for external hops</li>
+<li><code>ExternalHookPolicy.EMIT_UNSAFE</code>: emit full external URLs (unsafe; may leak signed query params)</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span><span class="p">,</span> <span class="n">ExternalHookPolicy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.policies</span><span class="w"> </span><span class="kn">import</span> <span class="n">Policies</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span>
+    <span class="n">on_event</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">type</span><span class="p">),</span>
+    <span class="n">policies</span><span class="o">=</span><span class="n">Policies</span><span class="p">(</span><span class="n">external_hooks</span><span class="o">=</span><span class="n">ExternalHookPolicy</span><span class="o">.</span><span class="n">REDACT</span><span class="p">),</span>
+<span class="p">)</span>
 </code></pre></div>
 <p>If you need request interception for tests (without real network calls), use transport injection:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">transport</span><span class="o">=</span><span class="n">httpx</span><span class="o">.</span><span class="n">MockTransport</span><span class="p">(</span><span class="k">lambda</span> <span class="n">req</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="mi">200</span><span class="p">)))</span>
+</code></pre></div>
+<h2 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h2>
+<p>The <code>affinity</code> CLI can also trace requests/responses/errors:</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>--trace<span class="w"> </span>--no-progress<span class="w"> </span>whoami
 </code></pre></div>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>

@@ -3975,13 +3975,15 @@
 <span class="normal">286</span>
 <span class="normal">287</span>
 <span class="normal">288</span>
-<span class="normal">289</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EntityFile</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">289</span>
+<span class="normal">290</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EntityFile</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A file attached to an entity.&quot;&quot;&quot;</span>
 
     <span class="nb">id</span><span class="p">:</span> <span class="n">FileId</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;contentType&quot;</span><span class="p">)</span>
+    <span class="c1"># Observed missing in some V1 responses; treat as optional for robustness.</span>
+    <span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;contentType&quot;</span><span class="p">)</span>
 
     <span class="c1"># Associated entity</span>
     <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;personId&quot;</span><span class="p">)</span>
@@ -4510,8 +4512,7 @@
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/secondary.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">327</span>
-<span class="normal">328</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">328</span>
 <span class="normal">329</span>
 <span class="normal">330</span>
 <span class="normal">331</span>
@@ -4538,7 +4539,8 @@
 <span class="normal">352</span>
 <span class="normal">353</span>
 <span class="normal">354</span>
-<span class="normal">355</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Grant</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">355</span>
+<span class="normal">356</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Grant</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;API key grant information.&quot;&quot;&quot;</span>
 
     <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span>
@@ -6753,13 +6755,13 @@
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/secondary.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">371</span>
-<span class="normal">372</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">372</span>
 <span class="normal">373</span>
 <span class="normal">374</span>
 <span class="normal">375</span>
 <span class="normal">376</span>
-<span class="normal">377</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RateLimitInfo</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">377</span>
+<span class="normal">378</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RateLimitInfo</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Rate limit information for an API key.&quot;&quot;&quot;</span>
 
     <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span>
@@ -6913,11 +6915,11 @@
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/secondary.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">380</span>
-<span class="normal">381</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">381</span>
 <span class="normal">382</span>
 <span class="normal">383</span>
-<span class="normal">384</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RateLimits</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">384</span>
+<span class="normal">385</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RateLimits</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Current rate limit status.&quot;&quot;&quot;</span>
 
     <span class="n">org_monthly</span><span class="p">:</span> <span class="n">RateLimitInfo</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;orgMonthly&quot;</span><span class="p">)</span>
@@ -6974,12 +6976,12 @@
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/secondary.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">297</span>
-<span class="normal">298</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">298</span>
 <span class="normal">299</span>
 <span class="normal">300</span>
 <span class="normal">301</span>
-<span class="normal">302</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RelationshipStrength</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">302</span>
+<span class="normal">303</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RelationshipStrength</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Relationship strength between internal and external persons.&quot;&quot;&quot;</span>
 
     <span class="n">internal_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;internalId&quot;</span><span class="p">)</span>
@@ -7365,12 +7367,12 @@
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/secondary.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">310</span>
-<span class="normal">311</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">311</span>
 <span class="normal">312</span>
 <span class="normal">313</span>
 <span class="normal">314</span>
-<span class="normal">315</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Tenant</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">315</span>
+<span class="normal">316</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Tenant</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Affinity tenant (organization/team) information.&quot;&quot;&quot;</span>
 
     <span class="nb">id</span><span class="p">:</span> <span class="n">TenantId</span>
@@ -7619,12 +7621,12 @@
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/secondary.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">358</span>
-<span class="normal">359</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">359</span>
 <span class="normal">360</span>
 <span class="normal">361</span>
 <span class="normal">362</span>
-<span class="normal">363</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WhoAmI</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">363</span>
+<span class="normal">364</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WhoAmI</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Response from whoami endpoint.&quot;&quot;&quot;</span>
 
     <span class="n">tenant</span><span class="p">:</span> <span class="n">Tenant</span>

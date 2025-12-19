@@ -2044,7 +2044,7 @@
 <li><code>ValidationError</code> (400/422): invalid parameters/payload</li>
 <li><code>RateLimitError</code> (429): you are being rate limited (may include <code>retry_after</code>)</li>
 <li><code>ServerError</code> (500/503): transient server-side errors</li>
-<li><code>ReadOnlyModeError</code>: you attempted a write while <code>mode="readonly"</code></li>
+<li><code>WriteNotAllowedError</code>: you attempted a write while writes are disabled by policy</li>
 <li><code>BetaEndpointDisabledError</code>: you called a beta V2 endpoint without <code>enable_beta_endpoints=True</code></li>
 <li><code>VersionCompatibilityError</code>: response parsing failed, often due to V2 API version mismatch</li>
 </ul>

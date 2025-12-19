@@ -505,6 +505,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#progress-quiet-mode" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -520,6 +531,17 @@
     <span class="md-ellipsis">
       
         Logging
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sdk-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SDK controls
       
     </span>
   </a>
@@ -1838,6 +1860,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#progress-quiet-mode" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1853,6 +1886,17 @@
     <span class="md-ellipsis">
       
         Logging
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sdk-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SDK controls
       
     </span>
   </a>
@@ -1919,6 +1963,8 @@ affinity<span class="w"> </span>--dotenv<span class="w"> </span>--env-file<span 
 <li>Human/table output goes to <strong>stdout</strong>; diagnostics go to <strong>stderr</strong>.</li>
 <li>Commands build a single structured result and then render it as either JSON or table output (no “double implementations”).</li>
 </ul>
+<h2 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>
+<p>The CLI enables SDK in-memory caching for cacheable metadata requests (e.g., field metadata) automatically.</p>
 <h2 id="progress-quiet-mode">Progress + quiet mode<a class="headerlink" href="#progress-quiet-mode" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Long operations show progress bars/spinners on <strong>stderr</strong> when interactive.</li>
@@ -1930,6 +1976,13 @@ affinity<span class="w"> </span>--dotenv<span class="w"> </span>--env-file<span 
 <ul>
 <li><code>--log-file &lt;path&gt;</code></li>
 <li><code>--no-log-file</code></li>
+</ul>
+<h2 id="sdk-controls">SDK controls<a class="headerlink" href="#sdk-controls" title="Permanent link">&para;</a></h2>
+<p>These flags expose useful SDK behaviors directly from the CLI:</p>
+<ul>
+<li><code>--readonly</code>: disallow write operations (guard rail for scripts).</li>
+<li><code>--max-retries N</code>: tune rate-limit retry behavior.</li>
+<li><code>--trace</code>: trace request/response/error events to stderr (safe redaction).</li>
 </ul>
 <h2 id="exit-codes">Exit codes<a class="headerlink" href="#exit-codes" title="Permanent link">&para;</a></h2>
 <ul>
