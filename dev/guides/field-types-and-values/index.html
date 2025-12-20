@@ -1887,6 +1887,11 @@
 <li><code>FieldType.LIST</code></li>
 <li><code>FieldType.LIST_SPECIFIC</code></li>
 </ul>
+<p>Notes:</p>
+<ul>
+<li><code>FieldType.LIST_SPECIFIC</code> is an alternate string value the API uses for list-scoped fields (you may see
+  it in responses as <code>"list-specific"</code>). Treat it as equivalent to <code>FieldType.LIST</code> for most use cases.</li>
+</ul>
 <h2 id="field-ids">Field IDs<a class="headerlink" href="#field-ids" title="Permanent link">&para;</a></h2>
 <p>If you know specific field IDs, you can request only those:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
