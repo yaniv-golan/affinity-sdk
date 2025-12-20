@@ -1833,16 +1833,16 @@
 <p>Some commands include resume tokens in <code>meta.pagination</code>.</p>
 <ul>
 <li><code>meta.pagination</code> is keyed by section name.</li>
-<li>v2 cursor pagination: <code>meta.pagination.&lt;section&gt;.nextUrl</code> (resume with <code>--cursor &lt;nextUrl&gt;</code> for commands that support it)</li>
-<li>v1 token pagination: <code>meta.pagination.&lt;section&gt;.nextPageToken</code> (resume with <code>--page-token &lt;token&gt;</code>)</li>
+<li>Resume cursor: <code>meta.pagination.&lt;section&gt;.nextCursor</code> (resume with <code>--cursor &lt;cursor&gt;</code>)</li>
+<li>Treat cursors as opaque strings (some may look like URLs); don’t parse them.</li>
 </ul>
-<p>Example (v1 search):</p>
-<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;alice&quot;</span><span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.meta.pagination.persons.nextPageToken&#39;</span>
-affinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;alice&quot;</span><span class="w"> </span>--page-token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span>--json
+<p>Example (search):</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;alice&quot;</span><span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.meta.pagination.persons.nextCursor&#39;</span>
+affinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;alice&quot;</span><span class="w"> </span>--cursor<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$CURSOR</span><span class="s2">&quot;</span><span class="w"> </span>--json
 </code></pre></div>
-<p>Example (v2 list inventory):</p>
-<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>list<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.meta.pagination.lists.nextUrl&#39;</span>
-affinity<span class="w"> </span>list<span class="w"> </span>ls<span class="w"> </span>--cursor<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$NEXT_URL</span><span class="s2">&quot;</span><span class="w"> </span>--json
+<p>Example (list inventory):</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>list<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.meta.pagination.lists.nextCursor&#39;</span>
+affinity<span class="w"> </span>list<span class="w"> </span>ls<span class="w"> </span>--cursor<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$CURSOR</span><span class="s2">&quot;</span><span class="w"> </span>--json
 </code></pre></div>
 <p>Note: if you use <code>--max-results</code> and it truncates results mid-page, the CLI may omit pagination to avoid producing an unsafe resume token.</p>
 <h2 id="artifacts-csv">Artifacts (CSV)<a class="headerlink" href="#artifacts-csv" title="Permanent link">&para;</a></h2>

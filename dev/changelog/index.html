@@ -1728,7 +1728,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <ul>
 <li><code>FieldValueType</code> is now V2-first and string-based (e.g. <code>dropdown-multi</code>, <code>ranked-dropdown</code>, <code>interaction</code>), and <code>affinity list view</code> shows readable <code>valueType</code> values.</li>
 <li>CLI: human/table output renders dict-shaped results as sections/tables (no JSON-looking panels) and hides pagination mechanics in expanded sections.</li>
-<li>CLI: <code>--json</code> output now uses section-keyed <code>data</code> and <code>meta.pagination</code> (e.g. <code>data.lists</code>, <code>meta.pagination.lists.nextUrl</code>); pagination may be omitted when <code>--max-results</code> truncates mid-page to avoid unsafe resume tokens.</li>
+<li>CLI: <code>--json</code> output now uses section-keyed <code>data</code> and <code>meta.pagination</code> (e.g. <code>data.lists</code>, <code>meta.pagination.lists.nextCursor</code>); pagination may be omitted when <code>--max-results</code> truncates mid-page to avoid unsafe resume tokens.</li>
 </ul>
 <h2 id="020-2025-12-17">0.2.0 - 2025-12-17<a class="headerlink" href="#020-2025-12-17" title="Permanent link">&para;</a></h2>
 <h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
