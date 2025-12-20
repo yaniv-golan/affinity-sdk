@@ -1962,6 +1962,8 @@ affinity<span class="w"> </span>--dotenv<span class="w"> </span>--env-file<span 
 <li>In <code>--json</code> mode, JSON is written to <strong>stdout</strong>. Progress/logging go to <strong>stderr</strong>.</li>
 <li>Human/table output goes to <strong>stdout</strong>; diagnostics go to <strong>stderr</strong>.</li>
 <li>Commands build a single structured result and then render it as either JSON or table output (no “double implementations”).</li>
+<li>In <code>--json</code> mode, <code>data</code> is an object keyed by section name (even for single-section commands), and pagination tokens/URLs live in <code>meta.pagination.&lt;section&gt;</code>.</li>
+<li>If <code>--max-results</code> truncates results mid-page, the CLI may omit <code>meta.pagination.&lt;section&gt;</code> to avoid producing an unsafe resume token.</li>
 </ul>
 <h2 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>
 <p>The CLI enables SDK in-memory caching for cacheable metadata requests (e.g., field metadata) automatically.</p>

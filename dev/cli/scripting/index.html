@@ -1832,13 +1832,19 @@
 <h2 id="pagination-and-resume">Pagination and resume<a class="headerlink" href="#pagination-and-resume" title="Permanent link">&para;</a></h2>
 <p>Some commands include resume tokens in <code>meta.pagination</code>.</p>
 <ul>
-<li>v2 endpoints: <code>meta.pagination.nextCursor</code> (resume with <code>--cursor</code>)</li>
-<li>v1 search: <code>meta.pagination.nextPageToken</code> (resume with <code>--page-token</code>)</li>
+<li><code>meta.pagination</code> is keyed by section name.</li>
+<li>v2 cursor pagination: <code>meta.pagination.&lt;section&gt;.nextUrl</code> (resume with <code>--cursor &lt;nextUrl&gt;</code> for commands that support it)</li>
+<li>v1 token pagination: <code>meta.pagination.&lt;section&gt;.nextPageToken</code> (resume with <code>--page-token &lt;token&gt;</code>)</li>
 </ul>
 <p>Example (v1 search):</p>
-<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;alice&quot;</span><span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.meta.pagination.nextPageToken&#39;</span>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;alice&quot;</span><span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.meta.pagination.persons.nextPageToken&#39;</span>
 affinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;alice&quot;</span><span class="w"> </span>--page-token<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span>--json
 </code></pre></div>
+<p>Example (v2 list inventory):</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>list<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.meta.pagination.lists.nextUrl&#39;</span>
+affinity<span class="w"> </span>list<span class="w"> </span>ls<span class="w"> </span>--cursor<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$NEXT_URL</span><span class="s2">&quot;</span><span class="w"> </span>--json
+</code></pre></div>
+<p>Note: if you use <code>--max-results</code> and it truncates results mid-page, the CLI may omit pagination to avoid producing an unsafe resume token.</p>
 <h2 id="artifacts-csv">Artifacts (CSV)<a class="headerlink" href="#artifacts-csv" title="Permanent link">&para;</a></h2>
 <p>When a command writes a CSV file in <code>--json</code> mode, the JSON output includes a reference to the artifact path (and does not duplicate row data).</p>
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>out.csv<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.artifacts&#39;</span>

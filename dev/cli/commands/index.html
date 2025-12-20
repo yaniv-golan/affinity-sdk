@@ -640,6 +640,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#affinity-company-get-companyselector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity company get &lt;companySelector&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#affinity-company-files-dump-companyid" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2085,6 +2096,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#affinity-company-get-companyselector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity company get &lt;companySelector&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#affinity-company-files-dump-companyid" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2194,9 +2216,9 @@ affinity<span class="w"> </span>whoami<span class="w"> </span>--json<span class=
 </code></pre></div>
 <h2 id="url-resolution">URL resolution<a class="headerlink" href="#url-resolution" title="Permanent link">&para;</a></h2>
 <h3 id="affinity-resolve-url-url"><code>affinity resolve-url &lt;url&gt;</code><a class="headerlink" href="#affinity-resolve-url-url" title="Permanent link">&para;</a></h3>
-<p>Parses an Affinity UI URL (including tenant hosts like <code>https://&lt;tenant&gt;.affinity.co/...</code>) and validates it by fetching the referenced object.</p>
+<p>Parses an Affinity UI URL (including tenant hosts like <code>https://&lt;tenant&gt;.affinity.co/...</code> or <code>https://&lt;tenant&gt;.affinity.com/...</code>) and validates it by fetching the referenced object.</p>
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>resolve-url<span class="w"> </span><span class="s2">&quot;https://app.affinity.co/companies/263169568&quot;</span>
-affinity<span class="w"> </span>resolve-url<span class="w"> </span><span class="s2">&quot;https://lool.affinity.co/companies/263169568&quot;</span><span class="w"> </span>--json
+affinity<span class="w"> </span>resolve-url<span class="w"> </span><span class="s2">&quot;https://mydomain.affinity.com/companies/263169568&quot;</span><span class="w"> </span>--json
 </code></pre></div>
 <h2 id="people">People<a class="headerlink" href="#people" title="Permanent link">&para;</a></h2>
 <h3 id="affinity-person-search-query"><code>affinity person search &lt;query&gt;</code><a class="headerlink" href="#affinity-person-search-query" title="Permanent link">&para;</a></h3>
@@ -2214,9 +2236,40 @@ affinity<span class="w"> </span>person<span class="w"> </span>search<span class=
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>company<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;example.com&quot;</span>
 affinity<span class="w"> </span>company<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Example&quot;</span><span class="w"> </span>--json
 </code></pre></div>
+<h3 id="affinity-company-get-companyselector"><code>affinity company get &lt;companySelector&gt;</code><a class="headerlink" href="#affinity-company-get-companyselector" title="Permanent link">&para;</a></h3>
+<p>Fetch a company by id, UI URL (including tenant hosts), or a resolver selector.</p>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span>
+affinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="s2">&quot;https://mydomain.affinity.com/companies/224925494&quot;</span>
+affinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span>domain:wellybox.com
+affinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="s1">&#39;name:&quot;WellyBox&quot;&#39;</span>
+</code></pre></div>
+<p>Field selection:</p>
+<ul>
+<li><code>--all-fields</code>: include all supported (non-list-specific) fields.</li>
+<li><code>--field &lt;id-or-exact-name&gt;</code> (repeatable)</li>
+<li><code>--field-type &lt;type&gt;</code> (repeatable)</li>
+<li><code>--no-fields</code>: skip fields entirely.</li>
+</ul>
+<p>Expansions:</p>
+<ul>
+<li><code>--expand lists</code>: include lists the company is on (auto-paginates up to a safe cap; use <code>--max-results</code> / <code>--all</code> to adjust).</li>
+<li><code>--expand list-entries</code>: include list entries for the company (first page by default; use <code>--max-results</code> / <code>--all</code> to fetch more).</li>
+<li><code>--list &lt;id-or-exact-name&gt;</code>: filter list entries to a specific list (requires <code>--expand list-entries</code>).</li>
+<li><code>--list-entry-field &lt;id-or-exact-name&gt;</code> (repeatable): project list-entry fields into columns (requires <code>--expand list-entries</code>). Field names are only allowed with <code>--list</code>.</li>
+<li><code>--show-list-entry-fields</code>: render per-list-entry Fields tables in human output (requires <code>--expand list-entries</code> and <code>--max-results &lt;= 3</code>). Mutually exclusive with <code>--list-entry-field</code>.</li>
+</ul>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--all-fields<span class="w"> </span>--expand<span class="w"> </span>lists
+affinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--max-results<span class="w"> </span><span class="m">200</span>
+affinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--list-entry-field<span class="w"> </span>Stage<span class="w"> </span>--list-entry-field<span class="w"> </span>Amount
+affinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--max-results<span class="w"> </span><span class="m">1</span><span class="w"> </span>--show-list-entry-fields
+affinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--all-fields<span class="w"> </span>--expand<span class="w"> </span>lists<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.company.name&#39;</span>
+</code></pre></div>
 <h3 id="affinity-company-files-dump-companyid"><code>affinity company files dump &lt;companyId&gt;</code><a class="headerlink" href="#affinity-company-files-dump-companyid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>company<span class="w"> </span>files<span class="w"> </span>dump<span class="w"> </span><span class="m">9876</span><span class="w"> </span>--out<span class="w"> </span>./bundle
 </code></pre></div>
+<p>Notes:
+- Saved files use the original filename when possible; if multiple files share the same name, the CLI disambiguates by appending the file id.</p>
 <h2 id="lists">Lists<a class="headerlink" href="#lists" title="Permanent link">&para;</a></h2>
 <h3 id="affinity-list-ls"><code>affinity list ls</code><a class="headerlink" href="#affinity-list-ls" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>list<span class="w"> </span>ls
