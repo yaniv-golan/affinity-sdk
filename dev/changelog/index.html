@@ -1723,9 +1723,11 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>CLI: <code>affinity company get</code> (id/URL/resolver selectors) with <code>--all-fields</code> and <code>--expand lists|list-entries</code>.</li>
 <li>CLI: <code>affinity company get --expand people</code> for associated people (v1-backed exception).</li>
 <li>CLI: <code>affinity person get</code> (id/URL/resolver selectors) with <code>--all-fields</code> and <code>--expand lists|list-entries</code>.</li>
+<li>CLI: <code>affinity opportunity</code> command group with <code>ls/get/create/update/delete</code>.</li>
 <li>CLI: <code>--max-results</code> and <code>--all</code> controls for pagination and expansions (where supported).</li>
 <li>File downloads: <code>client.files.download_stream_with_info(...)</code> exposes headers/filename/size alongside streamed bytes.</li>
 <li>SDK: v1-only company association helpers <code>get_associated_person_ids(...)</code> and <code>get_associated_people(...)</code>.</li>
+<li>SDK: list-scoped opportunity resolution helpers <code>resolve(...)</code> and <code>resolve_all(...)</code>.</li>
 </ul>
 <h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
 <ul>

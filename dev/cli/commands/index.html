@@ -678,6 +678,78 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#opportunities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opportunities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Opportunities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity-opportunity-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity opportunity ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-opportunity-get-opportunityselector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity opportunity get &lt;opportunitySelector&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-opportunity-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity opportunity create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-opportunity-update-opportunityid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity opportunity update &lt;opportunityId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-opportunity-delete-opportunityid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity opportunity delete &lt;opportunityId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#lists" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2145,6 +2217,78 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#opportunities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opportunities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Opportunities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity-opportunity-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity opportunity ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-opportunity-get-opportunityselector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity opportunity get &lt;opportunitySelector&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-opportunity-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity opportunity create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-opportunity-update-opportunityid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity opportunity update &lt;opportunityId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-opportunity-delete-opportunityid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity opportunity delete &lt;opportunityId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#lists" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2327,6 +2471,33 @@ affinity<span class="w"> </span>company<span class="w"> </span>get<span class="w
 </code></pre></div>
 <p>Notes:
 - Saved files use the original filename when possible; if multiple files share the same name, the CLI disambiguates by appending the file id.</p>
+<h2 id="opportunities">Opportunities<a class="headerlink" href="#opportunities" title="Permanent link">&para;</a></h2>
+<h3 id="affinity-opportunity-ls"><code>affinity opportunity ls</code><a class="headerlink" href="#affinity-opportunity-ls" title="Permanent link">&para;</a></h3>
+<p>List opportunities (basic v2 representation).</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>opportunity<span class="w"> </span>ls
+affinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--page-size<span class="w"> </span><span class="m">200</span><span class="w"> </span>--all<span class="w"> </span>--json
+</code></pre></div>
+<h3 id="affinity-opportunity-get-opportunityselector"><code>affinity opportunity get &lt;opportunitySelector&gt;</code><a class="headerlink" href="#affinity-opportunity-get-opportunityselector" title="Permanent link">&para;</a></h3>
+<p>Fetch an opportunity by id or UI URL (including tenant hosts).</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>opportunity<span class="w"> </span>get<span class="w"> </span><span class="m">123</span>
+affinity<span class="w"> </span>opportunity<span class="w"> </span>get<span class="w"> </span><span class="s2">&quot;https://mydomain.affinity.com/opportunities/123&quot;</span>
+affinity<span class="w"> </span>opportunity<span class="w"> </span>get<span class="w"> </span><span class="m">123</span><span class="w"> </span>--details
+</code></pre></div>
+<p>Notes:
+- <code>--details</code> fetches a fuller payload with associations and list entries.</p>
+<h3 id="affinity-opportunity-create"><code>affinity opportunity create</code><a class="headerlink" href="#affinity-opportunity-create" title="Permanent link">&para;</a></h3>
+<p>Create a new opportunity (V1 write path).</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>opportunity<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Series A&quot;</span><span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span>
+affinity<span class="w"> </span>opportunity<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Series A&quot;</span><span class="w"> </span>--list<span class="w"> </span><span class="m">123</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">1</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">2</span>
+</code></pre></div>
+<h3 id="affinity-opportunity-update-opportunityid"><code>affinity opportunity update &lt;opportunityId&gt;</code><a class="headerlink" href="#affinity-opportunity-update-opportunityid" title="Permanent link">&para;</a></h3>
+<p>Update an opportunity (replaces association arrays when provided).</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>opportunity<span class="w"> </span>update<span class="w"> </span><span class="m">123</span><span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Series A (Closed)&quot;</span>
+affinity<span class="w"> </span>opportunity<span class="w"> </span>update<span class="w"> </span><span class="m">123</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">1</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">2</span>
+</code></pre></div>
+<h3 id="affinity-opportunity-delete-opportunityid"><code>affinity opportunity delete &lt;opportunityId&gt;</code><a class="headerlink" href="#affinity-opportunity-delete-opportunityid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>opportunity<span class="w"> </span>delete<span class="w"> </span><span class="m">123</span>
+</code></pre></div>
 <h2 id="lists">Lists<a class="headerlink" href="#lists" title="Permanent link">&para;</a></h2>
 <h3 id="affinity-list-ls"><code>affinity list ls</code><a class="headerlink" href="#affinity-list-ls" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>list<span class="w"> </span>ls
