@@ -1721,14 +1721,18 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <ul>
 <li>Inbound webhook parsing helpers: <code>parse_webhook(...)</code>, <code>dispatch_webhook(...)</code>, and <code>BodyRegistry</code>.</li>
 <li>CLI: <code>affinity company get</code> (id/URL/resolver selectors) with <code>--all-fields</code> and <code>--expand lists|list-entries</code>.</li>
+<li>CLI: <code>affinity company get --expand people</code> for associated people (v1-backed exception).</li>
+<li>CLI: <code>affinity person get</code> (id/URL/resolver selectors) with <code>--all-fields</code> and <code>--expand lists|list-entries</code>.</li>
 <li>CLI: <code>--max-results</code> and <code>--all</code> controls for pagination and expansions (where supported).</li>
 <li>File downloads: <code>client.files.download_stream_with_info(...)</code> exposes headers/filename/size alongside streamed bytes.</li>
+<li>SDK: v1-only company association helpers <code>get_associated_person_ids(...)</code> and <code>get_associated_people(...)</code>.</li>
 </ul>
 <h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>FieldValueType</code> is now V2-first and string-based (e.g. <code>dropdown-multi</code>, <code>ranked-dropdown</code>, <code>interaction</code>), and <code>affinity list view</code> shows readable <code>valueType</code> values.</li>
 <li>CLI: human/table output renders dict-shaped results as sections/tables (no JSON-looking panels) and hides pagination mechanics in expanded sections.</li>
 <li>CLI: <code>--json</code> output now uses section-keyed <code>data</code> and <code>meta.pagination</code> (e.g. <code>data.lists</code>, <code>meta.pagination.lists.nextCursor</code>); pagination may be omitted when <code>--max-results</code> truncates mid-page to avoid unsafe resume tokens.</li>
+<li>CLI: list-entry fields tables default to list-only fields; use <code>--list-entry-fields-scope all</code> for full payloads.</li>
 </ul>
 <h2 id="020-2025-12-17">0.2.0 - 2025-12-17<a class="headerlink" href="#020-2025-12-17" title="Permanent link">&para;</a></h2>
 <h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>

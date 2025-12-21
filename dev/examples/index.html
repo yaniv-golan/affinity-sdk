@@ -385,6 +385,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#v1-only-exception-company-people-associations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        V1-only exception: company -&gt; people associations
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1824,6 +1835,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#v1-only-exception-company-people-associations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        V1-only exception: company -&gt; people associations
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1871,6 +1893,17 @@
 <li><a href="https://github.com/yaniv-golan/affinity-sdk/blob/main/examples/resolve_helpers.py"><code>examples/resolve_helpers.py</code></a> — resolve helpers (IDs from external identifiers)</li>
 <li><a href="https://github.com/yaniv-golan/affinity-sdk/blob/main/examples/task_polling.py"><code>examples/task_polling.py</code></a> — polling long-running tasks</li>
 </ul>
+<h2 id="v1-only-exception-company-people-associations">V1-only exception: company -&gt; people associations<a class="headerlink" href="#v1-only-exception-company-people-associations" title="Permanent link">&para;</a></h2>
+<p>V2 does not expose a company -&gt; people association endpoint yet. These helpers use the v1
+organizations API and are documented as exceptions:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompanyId</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+
+<span class="n">person_ids</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">get_associated_person_ids</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">224925494</span><span class="p">))</span>
+<span class="n">people</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">get_associated_people</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">224925494</span><span class="p">),</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</code></pre></div>
 
 
 
