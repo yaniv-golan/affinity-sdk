@@ -2390,7 +2390,9 @@
 <span class="normal">1039</span>
 <span class="normal">1040</span>
 <span class="normal">1041</span>
-<span class="normal">1042</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EntityFileService</span><span class="p">:</span>
+<span class="normal">1042</span>
+<span class="normal">1043</span>
+<span class="normal">1044</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EntityFileService</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Service for managing files attached to entities.&quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">HTTPClient</span><span class="p">):</span>
@@ -2466,12 +2468,14 @@
         <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">timeout</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Timeout</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">deadline_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Download file content.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+            <span class="n">deadline_seconds</span><span class="o">=</span><span class="n">deadline_seconds</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">download_stream</span><span class="p">(</span>
@@ -2764,9 +2768,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1003</span>
-<span class="normal">1004</span>
-<span class="normal">1005</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1005</span>
 <span class="normal">1006</span>
 <span class="normal">1007</span>
 <span class="normal">1008</span>
@@ -2789,7 +2791,9 @@
 <span class="normal">1025</span>
 <span class="normal">1026</span>
 <span class="normal">1027</span>
-<span class="normal">1028</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">all</span><span class="p">(</span>
+<span class="normal">1028</span>
+<span class="normal">1029</span>
+<span class="normal">1030</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">all</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2825,7 +2829,7 @@
 
 
 <h2 id="affinity.services.v1_only.EntityFileService.download" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">download</span><span class="p">(</span><span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Timeout</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span></code>
+            <code class="highlight language-python"><span class="n">download</span><span class="p">(</span><span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Timeout</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">deadline_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span></code>
 
 <a href="#affinity.services.v1_only.EntityFileService.download" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -2848,17 +2852,21 @@
 <span class="normal">780</span>
 <span class="normal">781</span>
 <span class="normal">782</span>
-<span class="normal">783</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span>
+<span class="normal">783</span>
+<span class="normal">784</span>
+<span class="normal">785</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">timeout</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Timeout</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">deadline_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Download file content.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+        <span class="n">deadline_seconds</span><span class="o">=</span><span class="n">deadline_seconds</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2882,9 +2890,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">785</span>
-<span class="normal">786</span>
-<span class="normal">787</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">787</span>
 <span class="normal">788</span>
 <span class="normal">789</span>
 <span class="normal">790</span>
@@ -2899,7 +2905,9 @@
 <span class="normal">799</span>
 <span class="normal">800</span>
 <span class="normal">801</span>
-<span class="normal">802</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download_stream</span><span class="p">(</span>
+<span class="normal">802</span>
+<span class="normal">803</span>
+<span class="normal">804</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download_stream</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -2943,9 +2951,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">804</span>
-<span class="normal">805</span>
-<span class="normal">806</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">806</span>
 <span class="normal">807</span>
 <span class="normal">808</span>
 <span class="normal">809</span>
@@ -2967,7 +2973,9 @@
 <span class="normal">825</span>
 <span class="normal">826</span>
 <span class="normal">827</span>
-<span class="normal">828</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download_stream_with_info</span><span class="p">(</span>
+<span class="normal">828</span>
+<span class="normal">829</span>
+<span class="normal">830</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download_stream_with_info</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -3116,9 +3124,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">830</span>
-<span class="normal">831</span>
-<span class="normal">832</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">832</span>
 <span class="normal">833</span>
 <span class="normal">834</span>
 <span class="normal">835</span>
@@ -3153,7 +3159,9 @@
 <span class="normal">864</span>
 <span class="normal">865</span>
 <span class="normal">866</span>
-<span class="normal">867</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download_to</span><span class="p">(</span>
+<span class="normal">867</span>
+<span class="normal">868</span>
+<span class="normal">869</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download_to</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
@@ -3242,9 +3250,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1030</span>
-<span class="normal">1031</span>
-<span class="normal">1032</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1032</span>
 <span class="normal">1033</span>
 <span class="normal">1034</span>
 <span class="normal">1035</span>
@@ -3254,7 +3260,9 @@
 <span class="normal">1039</span>
 <span class="normal">1040</span>
 <span class="normal">1041</span>
-<span class="normal">1042</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter</span><span class="p">(</span>
+<span class="normal">1042</span>
+<span class="normal">1043</span>
+<span class="normal">1044</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3492,9 +3500,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">869</span>
-<span class="normal">870</span>
-<span class="normal">871</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">871</span>
 <span class="normal">872</span>
 <span class="normal">873</span>
 <span class="normal">874</span>
@@ -3535,7 +3541,9 @@
 <span class="normal">909</span>
 <span class="normal">910</span>
 <span class="normal">911</span>
-<span class="normal">912</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload</span><span class="p">(</span>
+<span class="normal">912</span>
+<span class="normal">913</span>
+<span class="normal">914</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">files</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
     <span class="o">*</span><span class="p">,</span>
@@ -3604,9 +3612,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 960</span>
-<span class="normal"> 961</span>
-<span class="normal"> 962</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 962</span>
 <span class="normal"> 963</span>
 <span class="normal"> 964</span>
 <span class="normal"> 965</span>
@@ -3645,7 +3651,9 @@
 <span class="normal"> 998</span>
 <span class="normal"> 999</span>
 <span class="normal">1000</span>
-<span class="normal">1001</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload_bytes</span><span class="p">(</span>
+<span class="normal">1001</span>
+<span class="normal">1002</span>
+<span class="normal">1003</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload_bytes</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span>
     <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -3712,9 +3720,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">914</span>
-<span class="normal">915</span>
-<span class="normal">916</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">916</span>
 <span class="normal">917</span>
 <span class="normal">918</span>
 <span class="normal">919</span>
@@ -3756,7 +3762,9 @@
 <span class="normal">955</span>
 <span class="normal">956</span>
 <span class="normal">957</span>
-<span class="normal">958</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload_path</span><span class="p">(</span>
+<span class="normal">958</span>
+<span class="normal">959</span>
+<span class="normal">960</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload_path</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
