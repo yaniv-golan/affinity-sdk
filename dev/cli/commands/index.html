@@ -601,6 +601,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#affinity-person-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity person ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#affinity-person-get-personselector" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -666,6 +677,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#affinity-person-files-upload-personid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity person files upload &lt;personId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -688,6 +710,17 @@
     <span class="md-ellipsis">
       
         affinity company search &lt;query&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-company-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity company ls
       
     </span>
   </a>
@@ -760,6 +793,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#affinity-company-files-upload-companyid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity company files upload &lt;companyId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -826,6 +870,17 @@
     <span class="md-ellipsis">
       
         affinity opportunity delete &lt;opportunityId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-opportunity-files-upload-opportunityid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity opportunity files upload &lt;opportunityId&gt;
       
     </span>
   </a>
@@ -2677,6 +2732,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#affinity-person-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity person ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#affinity-person-get-personselector" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2742,6 +2808,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#affinity-person-files-upload-personid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity person files upload &lt;personId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2764,6 +2841,17 @@
     <span class="md-ellipsis">
       
         affinity company search &lt;query&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-company-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity company ls
       
     </span>
   </a>
@@ -2836,6 +2924,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#affinity-company-files-upload-companyid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity company files upload &lt;companyId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2902,6 +3001,17 @@
     <span class="md-ellipsis">
       
         affinity opportunity delete &lt;opportunityId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity-opportunity-files-upload-opportunityid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity opportunity files upload &lt;opportunityId&gt;
       
     </span>
   </a>
@@ -3464,8 +3574,30 @@ affinity<span class="w"> </span>resolve-url<span class="w"> </span><span class="
 <h2 id="people">People<a class="headerlink" href="#people" title="Permanent link">&para;</a></h2>
 <h3 id="affinity-person-search-query"><code>affinity person search &lt;query&gt;</code><a class="headerlink" href="#affinity-person-search-query" title="Permanent link">&para;</a></h3>
 <p><code>&lt;query&gt;</code> is a free-text term (typically a name or email address) passed to Affinity's person search.</p>
+<p>Options:</p>
+<ul>
+<li><code>--with-interaction-dates</code>: include interaction date data</li>
+<li><code>--with-interaction-persons</code>: include persons for interactions</li>
+<li><code>--with-opportunities</code>: include associated opportunity IDs</li>
+<li><code>--page-size</code>, <code>--cursor</code>, <code>--max-results</code>, <code>--all</code>: pagination options</li>
+</ul>
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;alice@example.com&quot;</span>
 affinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--all<span class="w"> </span>--json
+affinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--with-interaction-dates
+</code></pre></div>
+<h3 id="affinity-person-ls"><code>affinity person ls</code><a class="headerlink" href="#affinity-person-ls" title="Permanent link">&para;</a></h3>
+<p>List persons with V2 pagination. Supports field selection and V2 filter expressions.</p>
+<p>Options:</p>
+<ul>
+<li><code>--field &lt;id-or-name&gt;</code> (repeatable): field ID or name to include</li>
+<li><code>--field-type &lt;type&gt;</code> (repeatable): field type to include (global, enriched, relationship-intelligence)</li>
+<li><code>--filter &lt;expression&gt;</code>: V2 filter expression</li>
+<li><code>--page-size</code>, <code>--cursor</code>, <code>--max-results</code>, <code>--all</code>: pagination options</li>
+</ul>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>ls
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--page-size<span class="w"> </span><span class="m">50</span>
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;field(&quot;Email&quot;).contains(&quot;@acme.com&quot;)&#39;</span>
 </code></pre></div>
 <h3 id="affinity-person-get-personselector"><code>affinity person get &lt;personSelector&gt;</code><a class="headerlink" href="#affinity-person-get-personselector" title="Permanent link">&para;</a></h3>
 <p>Fetch a person by id, UI URL (including tenant hosts), or a resolver selector.</p>
@@ -3516,11 +3648,38 @@ affinity<span class="w"> </span>person<span class="w"> </span>update<span class=
 <p>Downloads all files attached to a person into a folder bundle with a <code>manifest.json</code>.</p>
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>files<span class="w"> </span>dump<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--out<span class="w"> </span>./bundle
 </code></pre></div>
+<h3 id="affinity-person-files-upload-personid"><code>affinity person files upload &lt;personId&gt;</code><a class="headerlink" href="#affinity-person-files-upload-personid" title="Permanent link">&para;</a></h3>
+<p>Uploads one or more files to a person.</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--file<span class="w"> </span>doc.pdf
+affinity<span class="w"> </span>person<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--file<span class="w"> </span>a.pdf<span class="w"> </span>--file<span class="w"> </span>b.pdf
+</code></pre></div>
 <h2 id="companies">Companies<a class="headerlink" href="#companies" title="Permanent link">&para;</a></h2>
 <h3 id="affinity-company-search-query"><code>affinity company search &lt;query&gt;</code><a class="headerlink" href="#affinity-company-search-query" title="Permanent link">&para;</a></h3>
 <p><code>&lt;query&gt;</code> is a free-text term (typically a company name or domain) passed to Affinity's company search.</p>
+<p>Options:</p>
+<ul>
+<li><code>--with-interaction-dates</code>: include interaction date data</li>
+<li><code>--with-interaction-persons</code>: include persons for interactions</li>
+<li><code>--with-opportunities</code>: include associated opportunity IDs</li>
+<li><code>--page-size</code>, <code>--cursor</code>, <code>--max-results</code>, <code>--all</code>: pagination options</li>
+</ul>
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>company<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;example.com&quot;</span>
 affinity<span class="w"> </span>company<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Example&quot;</span><span class="w"> </span>--json
+affinity<span class="w"> </span>company<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Example&quot;</span><span class="w"> </span>--with-interaction-dates
+</code></pre></div>
+<h3 id="affinity-company-ls"><code>affinity company ls</code><a class="headerlink" href="#affinity-company-ls" title="Permanent link">&para;</a></h3>
+<p>List companies with V2 pagination. Supports field selection and V2 filter expressions.</p>
+<p>Options:</p>
+<ul>
+<li><code>--field &lt;id-or-name&gt;</code> (repeatable): field ID or name to include</li>
+<li><code>--field-type &lt;type&gt;</code> (repeatable): field type to include (global, enriched, relationship-intelligence)</li>
+<li><code>--filter &lt;expression&gt;</code>: V2 filter expression</li>
+<li><code>--page-size</code>, <code>--cursor</code>, <code>--max-results</code>, <code>--all</code>: pagination options</li>
+</ul>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>company<span class="w"> </span>ls
+affinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--page-size<span class="w"> </span><span class="m">50</span>
+affinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
+affinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;field(&quot;Industry&quot;).equals(&quot;Software&quot;)&#39;</span>
 </code></pre></div>
 <h3 id="affinity-company-get-companyselector"><code>affinity company get &lt;companySelector&gt;</code><a class="headerlink" href="#affinity-company-get-companyselector" title="Permanent link">&para;</a></h3>
 <p>Fetch a company by id, UI URL (including tenant hosts), or a resolver selector.</p>
@@ -3574,6 +3733,11 @@ affinity<span class="w"> </span>company<span class="w"> </span>update<span class
 </code></pre></div>
 <p>Notes:
 - Saved files use the original filename when possible; if multiple files share the same name, the CLI disambiguates by appending the file id.</p>
+<h3 id="affinity-company-files-upload-companyid"><code>affinity company files upload &lt;companyId&gt;</code><a class="headerlink" href="#affinity-company-files-upload-companyid" title="Permanent link">&para;</a></h3>
+<p>Uploads one or more files to a company.</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>company<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">9876</span><span class="w"> </span>--file<span class="w"> </span>doc.pdf
+affinity<span class="w"> </span>company<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">9876</span><span class="w"> </span>--file<span class="w"> </span>a.pdf<span class="w"> </span>--file<span class="w"> </span>b.pdf
+</code></pre></div>
 <h2 id="opportunities">Opportunities<a class="headerlink" href="#opportunities" title="Permanent link">&para;</a></h2>
 <h3 id="affinity-opportunity-ls"><code>affinity opportunity ls</code><a class="headerlink" href="#affinity-opportunity-ls" title="Permanent link">&para;</a></h3>
 <p>List opportunities (basic v2 representation).</p>
@@ -3600,6 +3764,11 @@ affinity<span class="w"> </span>opportunity<span class="w"> </span>update<span c
 </code></pre></div>
 <h3 id="affinity-opportunity-delete-opportunityid"><code>affinity opportunity delete &lt;opportunityId&gt;</code><a class="headerlink" href="#affinity-opportunity-delete-opportunityid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>opportunity<span class="w"> </span>delete<span class="w"> </span><span class="m">123</span>
+</code></pre></div>
+<h3 id="affinity-opportunity-files-upload-opportunityid"><code>affinity opportunity files upload &lt;opportunityId&gt;</code><a class="headerlink" href="#affinity-opportunity-files-upload-opportunityid" title="Permanent link">&para;</a></h3>
+<p>Uploads one or more files to an opportunity.</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>opportunity<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">123</span><span class="w"> </span>--file<span class="w"> </span>doc.pdf
+affinity<span class="w"> </span>opportunity<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">123</span><span class="w"> </span>--file<span class="w"> </span>a.pdf<span class="w"> </span>--file<span class="w"> </span>b.pdf
 </code></pre></div>
 <h2 id="lists">Lists<a class="headerlink" href="#lists" title="Permanent link">&para;</a></h2>
 <h3 id="affinity-list-ls"><code>affinity list ls</code><a class="headerlink" href="#affinity-list-ls" title="Permanent link">&para;</a></h3>
