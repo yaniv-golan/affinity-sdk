@@ -1897,21 +1897,7 @@ Use this for global field values not tied to list entries.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">571</span>
-<span class="normal">572</span>
-<span class="normal">573</span>
-<span class="normal">574</span>
-<span class="normal">575</span>
-<span class="normal">576</span>
-<span class="normal">577</span>
-<span class="normal">578</span>
-<span class="normal">579</span>
-<span class="normal">580</span>
-<span class="normal">581</span>
-<span class="normal">582</span>
-<span class="normal">583</span>
-<span class="normal">584</span>
-<span class="normal">585</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">585</span>
 <span class="normal">586</span>
 <span class="normal">587</span>
 <span class="normal">588</span>
@@ -1982,7 +1968,29 @@ Use this for global field values not tied to list entries.</p>
 <span class="normal">653</span>
 <span class="normal">654</span>
 <span class="normal">655</span>
-<span class="normal">656</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueService</span><span class="p">:</span>
+<span class="normal">656</span>
+<span class="normal">657</span>
+<span class="normal">658</span>
+<span class="normal">659</span>
+<span class="normal">660</span>
+<span class="normal">661</span>
+<span class="normal">662</span>
+<span class="normal">663</span>
+<span class="normal">664</span>
+<span class="normal">665</span>
+<span class="normal">666</span>
+<span class="normal">667</span>
+<span class="normal">668</span>
+<span class="normal">669</span>
+<span class="normal">670</span>
+<span class="normal">671</span>
+<span class="normal">672</span>
+<span class="normal">673</span>
+<span class="normal">674</span>
+<span class="normal">675</span>
+<span class="normal">676</span>
+<span class="normal">677</span>
+<span class="normal">678</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueService</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Service for managing field values.</span>
 
@@ -1997,14 +2005,15 @@ Use this for global field values not tied to list entries.</p>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">organization_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">company_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">list_entry_id</span><span class="p">:</span> <span class="n">ListEntryId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">FieldValue</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get field values for an entity.</span>
 
-<span class="sd">        Exactly one of the ID parameters must be provided.</span>
+<span class="sd">        Exactly one of person_id, company_id, opportunity_id, or list_entry_id</span>
+<span class="sd">        must be provided.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If zero or multiple IDs are provided.</span>
@@ -2013,7 +2022,7 @@ Use this for global field values not tied to list entries.</p>
             <span class="n">name</span>
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span>
                 <span class="p">(</span><span class="s2">&quot;person_id&quot;</span><span class="p">,</span> <span class="n">person_id</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;organization_id&quot;</span><span class="p">,</span> <span class="n">organization_id</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;company_id&quot;</span><span class="p">,</span> <span class="n">company_id</span><span class="p">),</span>
                 <span class="p">(</span><span class="s2">&quot;opportunity_id&quot;</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">),</span>
                 <span class="p">(</span><span class="s2">&quot;list_entry_id&quot;</span><span class="p">,</span> <span class="n">list_entry_id</span><span class="p">),</span>
             <span class="p">)</span>
@@ -2022,15 +2031,16 @@ Use this for global field values not tied to list entries.</p>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">joined</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span> <span class="k">if</span> <span class="n">provided</span> <span class="k">else</span> <span class="s2">&quot;(none)&quot;</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;FieldValueService.list() requires exactly one ID parameter; &quot;</span>
+                <span class="s2">&quot;FieldValueService.list() requires exactly one of: person_id, &quot;</span>
+                <span class="s2">&quot;company_id, opportunity_id, or list_entry_id; &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">joined</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
 
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">person_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;person_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">organization_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;organization_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">organization_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">company_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;organization_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">opportunity_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;opportunity_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">list_entry_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2043,7 +2053,13 @@ Use this for global field values not tied to list entries.</p>
         <span class="k">return</span> <span class="p">[</span><span class="n">FieldValue</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">FieldValueCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValue</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a field value.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a field value (V1 API).</span>
+
+<span class="sd">        Note: V1 writes require numeric field IDs. The SDK accepts V2-style</span>
+<span class="sd">        `field-&lt;digits&gt;` IDs and converts them; enriched/relationship-intelligence</span>
+<span class="sd">        IDs are not supported.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="n">field_id_to_v1_numeric</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">field_id</span><span class="p">),</span>
             <span class="s2">&quot;entity_id&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">entity_id</span><span class="p">,</span>
@@ -2095,24 +2111,39 @@ Use this for global field values not tied to list entries.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Create a field value.</p>
+        <p>Create a field value (V1 API).</p>
+<p>Note: V1 writes require numeric field IDs. The SDK accepts V2-style
+<code>field-&lt;digits&gt;</code> IDs and converts them; enriched/relationship-intelligence
+IDs are not supported.</p>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">631</span>
-<span class="normal">632</span>
-<span class="normal">633</span>
-<span class="normal">634</span>
-<span class="normal">635</span>
-<span class="normal">636</span>
-<span class="normal">637</span>
-<span class="normal">638</span>
-<span class="normal">639</span>
-<span class="normal">640</span>
-<span class="normal">641</span>
-<span class="normal">642</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">FieldValueCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValue</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a field value.&quot;&quot;&quot;</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">647</span>
+<span class="normal">648</span>
+<span class="normal">649</span>
+<span class="normal">650</span>
+<span class="normal">651</span>
+<span class="normal">652</span>
+<span class="normal">653</span>
+<span class="normal">654</span>
+<span class="normal">655</span>
+<span class="normal">656</span>
+<span class="normal">657</span>
+<span class="normal">658</span>
+<span class="normal">659</span>
+<span class="normal">660</span>
+<span class="normal">661</span>
+<span class="normal">662</span>
+<span class="normal">663</span>
+<span class="normal">664</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">FieldValueCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValue</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a field value (V1 API).</span>
+
+<span class="sd">    Note: V1 writes require numeric field IDs. The SDK accepts V2-style</span>
+<span class="sd">    `field-&lt;digits&gt;` IDs and converts them; enriched/relationship-intelligence</span>
+<span class="sd">    IDs are not supported.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="n">field_id_to_v1_numeric</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">field_id</span><span class="p">),</span>
         <span class="s2">&quot;entity_id&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">entity_id</span><span class="p">,</span>
@@ -2145,10 +2176,10 @@ Use this for global field values not tied to list entries.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">653</span>
-<span class="normal">654</span>
-<span class="normal">655</span>
-<span class="normal">656</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_value_id</span><span class="p">:</span> <span class="n">FieldValueId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">675</span>
+<span class="normal">676</span>
+<span class="normal">677</span>
+<span class="normal">678</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_value_id</span><span class="p">:</span> <span class="n">FieldValueId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete a field value.&quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/field-values/</span><span class="si">{</span><span class="n">field_value_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
@@ -2162,7 +2193,7 @@ Use this for global field values not tied to list entries.</p>
 
 
 <h2 id="affinity.services.v1_only.FieldValueService.list" class="doc doc-heading">
-            <code class="highlight language-python"><span class="nb">list</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">organization_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">list_entry_id</span><span class="p">:</span> <span class="n">ListEntryId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">FieldValue</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="nb">list</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">company_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">list_entry_id</span><span class="p">:</span> <span class="n">ListEntryId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">FieldValue</span><span class="p">]</span></code>
 
 <a href="#affinity.services.v1_only.FieldValueService.list" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -2170,7 +2201,8 @@ Use this for global field values not tied to list entries.</p>
     <div class="doc doc-contents ">
 
         <p>Get field values for an entity.</p>
-<p>Exactly one of the ID parameters must be provided.</p>
+<p>Exactly one of person_id, company_id, opportunity_id, or list_entry_id
+must be provided.</p>
 
 
 <p><span class="doc-section-title">Raises:</span></p>
@@ -2198,21 +2230,7 @@ Use this for global field values not tied to list entries.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">582</span>
-<span class="normal">583</span>
-<span class="normal">584</span>
-<span class="normal">585</span>
-<span class="normal">586</span>
-<span class="normal">587</span>
-<span class="normal">588</span>
-<span class="normal">589</span>
-<span class="normal">590</span>
-<span class="normal">591</span>
-<span class="normal">592</span>
-<span class="normal">593</span>
-<span class="normal">594</span>
-<span class="normal">595</span>
-<span class="normal">596</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">596</span>
 <span class="normal">597</span>
 <span class="normal">598</span>
 <span class="normal">599</span>
@@ -2245,18 +2263,35 @@ Use this for global field values not tied to list entries.</p>
 <span class="normal">626</span>
 <span class="normal">627</span>
 <span class="normal">628</span>
-<span class="normal">629</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
+<span class="normal">629</span>
+<span class="normal">630</span>
+<span class="normal">631</span>
+<span class="normal">632</span>
+<span class="normal">633</span>
+<span class="normal">634</span>
+<span class="normal">635</span>
+<span class="normal">636</span>
+<span class="normal">637</span>
+<span class="normal">638</span>
+<span class="normal">639</span>
+<span class="normal">640</span>
+<span class="normal">641</span>
+<span class="normal">642</span>
+<span class="normal">643</span>
+<span class="normal">644</span>
+<span class="normal">645</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">organization_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">company_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">list_entry_id</span><span class="p">:</span> <span class="n">ListEntryId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">FieldValue</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get field values for an entity.</span>
 
-<span class="sd">    Exactly one of the ID parameters must be provided.</span>
+<span class="sd">    Exactly one of person_id, company_id, opportunity_id, or list_entry_id</span>
+<span class="sd">    must be provided.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If zero or multiple IDs are provided.</span>
@@ -2265,7 +2300,7 @@ Use this for global field values not tied to list entries.</p>
         <span class="n">name</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span>
             <span class="p">(</span><span class="s2">&quot;person_id&quot;</span><span class="p">,</span> <span class="n">person_id</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;organization_id&quot;</span><span class="p">,</span> <span class="n">organization_id</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;company_id&quot;</span><span class="p">,</span> <span class="n">company_id</span><span class="p">),</span>
             <span class="p">(</span><span class="s2">&quot;opportunity_id&quot;</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">),</span>
             <span class="p">(</span><span class="s2">&quot;list_entry_id&quot;</span><span class="p">,</span> <span class="n">list_entry_id</span><span class="p">),</span>
         <span class="p">)</span>
@@ -2274,15 +2309,16 @@ Use this for global field values not tied to list entries.</p>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">joined</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span> <span class="k">if</span> <span class="n">provided</span> <span class="k">else</span> <span class="s2">&quot;(none)&quot;</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;FieldValueService.list() requires exactly one ID parameter; &quot;</span>
+            <span class="s2">&quot;FieldValueService.list() requires exactly one of: person_id, &quot;</span>
+            <span class="s2">&quot;company_id, opportunity_id, or list_entry_id; &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">joined</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
     <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">person_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;person_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">organization_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;organization_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">organization_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">company_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;organization_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">opportunity_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;opportunity_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">list_entry_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2315,14 +2351,14 @@ Use this for global field values not tied to list entries.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">644</span>
-<span class="normal">645</span>
-<span class="normal">646</span>
-<span class="normal">647</span>
-<span class="normal">648</span>
-<span class="normal">649</span>
-<span class="normal">650</span>
-<span class="normal">651</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_value_id</span><span class="p">:</span> <span class="n">FieldValueId</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValue</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">666</span>
+<span class="normal">667</span>
+<span class="normal">668</span>
+<span class="normal">669</span>
+<span class="normal">670</span>
+<span class="normal">671</span>
+<span class="normal">672</span>
+<span class="normal">673</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_value_id</span><span class="p">:</span> <span class="n">FieldValueId</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValue</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Update a field value.&quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">put</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;/field-values/</span><span class="si">{</span><span class="n">field_value_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>

@@ -853,6 +853,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Field IDs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v1-only-writes-and-numeric-field-ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        V1-only writes and numeric field IDs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1813,6 +1830,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Field IDs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v1-only-writes-and-numeric-field-ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        V1-only writes and numeric field IDs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1903,6 +1937,17 @@
         <span class="k">if</span> <span class="n">company</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">requested</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">company</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;101&quot;</span><span class="p">))</span>
 </code></pre></div>
+<h3 id="v1-only-writes-and-numeric-field-ids">V1-only writes and numeric field IDs<a class="headerlink" href="#v1-only-writes-and-numeric-field-ids" title="Permanent link">&para;</a></h3>
+<p>The SDK uses V2 field metadata endpoints for reads. Some write operations still use V1
+endpoints under the hood (for example, field value writes and field deletes). Those V1
+endpoints require numeric field IDs.</p>
+<p>Rules:</p>
+<ul>
+<li>IDs of the form <code>field-&lt;digits&gt;</code> are convertible to V1 numeric IDs.</li>
+<li>Enriched and relationship-intelligence IDs (for example, <code>affinity-data-*</code> or
+  <code>source-of-introduction</code>) have no V1 numeric equivalent and will raise an error
+  if used in V1-only write paths.</li>
+</ul>
 <h2 id="requested-vs-not-requested">Requested vs not requested<a class="headerlink" href="#requested-vs-not-requested" title="Permanent link">&para;</a></h2>
 <p>Entities expose a <code>fields</code> container that preserves whether the API returned field data:</p>
 <ul>

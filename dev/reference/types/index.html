@@ -1216,6 +1216,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#affinity.types.FieldValueChangeAction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FieldValueChangeAction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#affinity.types.FieldValueType" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2003,6 +2014,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#affinity.types.FieldValueChangeAction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FieldValueChangeAction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#affinity.types.FieldValueType" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2248,21 +2270,21 @@
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">472</span>
-<span class="normal">473</span>
-<span class="normal">474</span>
-<span class="normal">475</span>
-<span class="normal">476</span>
-<span class="normal">477</span>
-<span class="normal">478</span>
-<span class="normal">479</span>
-<span class="normal">480</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">480</span>
 <span class="normal">481</span>
 <span class="normal">482</span>
 <span class="normal">483</span>
 <span class="normal">484</span>
 <span class="normal">485</span>
-<span class="normal">486</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DropdownOptionColor</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span>
+<span class="normal">489</span>
+<span class="normal">490</span>
+<span class="normal">491</span>
+<span class="normal">492</span>
+<span class="normal">493</span>
+<span class="normal">494</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DropdownOptionColor</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Colors for dropdown options.</span>
 
@@ -2384,12 +2406,12 @@
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EntityType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EntityType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Entity types in Affinity.&quot;&quot;&quot;</span>
 
     <span class="n">PERSON</span> <span class="o">=</span> <span class="mi">0</span>
@@ -2547,17 +2569,17 @@ V2 API uses these string identifiers.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">354</span>
-<span class="normal">355</span>
-<span class="normal">356</span>
-<span class="normal">357</span>
-<span class="normal">358</span>
-<span class="normal">359</span>
-<span class="normal">360</span>
-<span class="normal">361</span>
-<span class="normal">362</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">362</span>
 <span class="normal">363</span>
-<span class="normal">364</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldType</span><span class="p">(</span><span class="n">OpenStrEnum</span><span class="p">):</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldType</span><span class="p">(</span><span class="n">OpenStrEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Field types based on their source/scope.</span>
 <span class="sd">    V2 API uses these string identifiers.</span>
@@ -2568,6 +2590,69 @@ V2 API uses these string identifiers.</p>
     <span class="n">LIST_SPECIFIC</span> <span class="o">=</span> <span class="s2">&quot;list-specific&quot;</span>  <span class="c1"># Alias used in some API responses</span>
     <span class="n">GLOBAL</span> <span class="o">=</span> <span class="s2">&quot;global&quot;</span>
     <span class="n">RELATIONSHIP_INTELLIGENCE</span> <span class="o">=</span> <span class="s2">&quot;relationship-intelligence&quot;</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="affinity.types.FieldValueChangeAction" class="doc doc-heading">
+            <code>FieldValueChangeAction</code>
+
+
+<a href="#affinity.types.FieldValueChangeAction" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="affinity.models.types.OpenIntEnum">OpenIntEnum</span></code></p>
+
+
+
+        <p>Types of changes that can occur to field values.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>affinity/models/types.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueChangeAction</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Types of changes that can occur to field values.&quot;&quot;&quot;</span>
+
+    <span class="n">CREATE</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">DELETE</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">UPDATE</span> <span class="o">=</span> <span class="mi">2</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2623,15 +2708,7 @@ V2 string type where possible.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span>
-<span class="normal">242</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">242</span>
 <span class="normal">243</span>
 <span class="normal">244</span>
 <span class="normal">245</span>
@@ -2697,7 +2774,15 @@ V2 string type where possible.</p>
 <span class="normal">305</span>
 <span class="normal">306</span>
 <span class="normal">307</span>
-<span class="normal">308</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueType</span><span class="p">(</span><span class="n">OpenStrEnum</span><span class="p">):</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueType</span><span class="p">(</span><span class="n">OpenStrEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Field value types (V2-first).</span>
 
@@ -2824,13 +2909,13 @@ V2 string type where possible.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">367</span>
-<span class="normal">368</span>
-<span class="normal">369</span>
-<span class="normal">370</span>
-<span class="normal">371</span>
-<span class="normal">372</span>
-<span class="normal">373</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">InteractionType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">InteractionType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Types of interactions.&quot;&quot;&quot;</span>
 
     <span class="n">MEETING</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Also called Event</span>
@@ -2889,15 +2974,7 @@ V2 string type where possible.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">205</span>
 <span class="normal">206</span>
 <span class="normal">207</span>
 <span class="normal">208</span>
@@ -2907,7 +2984,15 @@ V2 string type where possible.</p>
 <span class="normal">212</span>
 <span class="normal">213</span>
 <span class="normal">214</span>
-<span class="normal">215</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Type of entities a list can contain.&quot;&quot;&quot;</span>
 
     <span class="n">PERSON</span> <span class="o">=</span> <span class="mi">0</span>
@@ -2978,13 +3063,13 @@ V2 string type where possible.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">413</span>
-<span class="normal">414</span>
-<span class="normal">415</span>
-<span class="normal">416</span>
-<span class="normal">417</span>
-<span class="normal">418</span>
-<span class="normal">419</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">NoteType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">NoteType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Types of notes.&quot;&quot;&quot;</span>
 
     <span class="n">PLAIN_TEXT</span> <span class="o">=</span> <span class="mi">0</span>
@@ -3043,12 +3128,12 @@ V2 string type where possible.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PersonType</span><span class="p">(</span><span class="n">OpenStrEnum</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PersonType</span><span class="p">(</span><span class="n">OpenStrEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Types of persons in Affinity.&quot;&quot;&quot;</span>
 
     <span class="n">INTERNAL</span> <span class="o">=</span> <span class="s2">&quot;internal&quot;</span>
@@ -3106,12 +3191,12 @@ V2 string type where possible.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">397</span>
-<span class="normal">398</span>
-<span class="normal">399</span>
-<span class="normal">400</span>
-<span class="normal">401</span>
-<span class="normal">402</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ReminderResetType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ReminderResetType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;How recurring reminders get reset.&quot;&quot;&quot;</span>
 
     <span class="n">INTERACTION</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Email or meeting</span>
@@ -3169,12 +3254,12 @@ V2 string type where possible.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">405</span>
-<span class="normal">406</span>
-<span class="normal">407</span>
-<span class="normal">408</span>
-<span class="normal">409</span>
-<span class="normal">410</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ReminderStatus</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ReminderStatus</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Current status of a reminder.&quot;&quot;&quot;</span>
 
     <span class="n">COMPLETED</span> <span class="o">=</span> <span class="mi">0</span>
@@ -3232,11 +3317,11 @@ V2 string type where possible.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">390</span>
-<span class="normal">391</span>
-<span class="normal">392</span>
-<span class="normal">393</span>
-<span class="normal">394</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ReminderType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ReminderType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Types of reminders.&quot;&quot;&quot;</span>
 
     <span class="n">ONE_TIME</span> <span class="o">=</span> <span class="mi">0</span>
@@ -3293,15 +3378,7 @@ V2 string type where possible.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">438</span>
-<span class="normal">439</span>
-<span class="normal">440</span>
-<span class="normal">441</span>
-<span class="normal">442</span>
-<span class="normal">443</span>
-<span class="normal">444</span>
-<span class="normal">445</span>
-<span class="normal">446</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">446</span>
 <span class="normal">447</span>
 <span class="normal">448</span>
 <span class="normal">449</span>
@@ -3324,7 +3401,15 @@ V2 string type where possible.</p>
 <span class="normal">466</span>
 <span class="normal">467</span>
 <span class="normal">468</span>
-<span class="normal">469</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookEvent</span><span class="p">(</span><span class="n">OpenStrEnum</span><span class="p">):</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookEvent</span><span class="p">(</span><span class="n">OpenStrEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Supported webhook events.&quot;&quot;&quot;</span>
 
     <span class="n">LIST_CREATED</span> <span class="o">=</span> <span class="s2">&quot;list.created&quot;</span>
@@ -3416,7 +3501,15 @@ Rejects:
 <span class="normal">157</span>
 <span class="normal">158</span>
 <span class="normal">159</span>
-<span class="normal">160</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">field_id_to_v1_numeric</span><span class="p">(</span><span class="n">field_id</span><span class="p">:</span> <span class="n">AnyFieldId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">field_id_to_v1_numeric</span><span class="p">(</span><span class="n">field_id</span><span class="p">:</span> <span class="n">AnyFieldId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert v2 FieldId into v1 numeric field_id.</span>
 
@@ -3426,11 +3519,19 @@ Rejects:
 <span class="sd">    - EnrichedFieldId(...) (cannot be represented as v1 numeric id)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field_id</span><span class="p">,</span> <span class="n">EnrichedFieldId</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Enriched field IDs cannot be converted to v1 numeric field_id&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Field IDs must be &#39;field-&lt;digits&gt;&#39; for v1 conversion; &quot;</span>
+            <span class="s2">&quot;enriched/relationship-intelligence IDs (e.g., &#39;affinity-data-*&#39;, &quot;</span>
+            <span class="s2">&quot;&#39;source-of-introduction&#39;) are not supported.&quot;</span>
+        <span class="p">)</span>
 
     <span class="n">match</span> <span class="o">=</span> <span class="n">_FIELD_ID_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">field_id</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;FieldId must match &#39;field-&lt;digits&gt;&#39; for v1 conversion&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Field IDs must be &#39;field-&lt;digits&gt;&#39; for v1 conversion; &quot;</span>
+            <span class="s2">&quot;enriched/relationship-intelligence IDs (e.g., &#39;affinity-data-*&#39;, &quot;</span>
+            <span class="s2">&quot;&#39;source-of-introduction&#39;) are not supported.&quot;</span>
+        <span class="p">)</span>
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
             </details>
