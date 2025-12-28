@@ -1325,6 +1325,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#field-value-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field Value Changes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Field Value Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity-field-value-changes-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity field-value-changes ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#relationship-strengths" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3456,6 +3484,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#field-value-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field Value Changes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Field Value Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity-field-value-changes-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        affinity field-value-changes ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#relationship-strengths" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3883,6 +3939,23 @@ affinity<span class="w"> </span>field-value<span class="w"> </span>ls<span class
 </code></pre></div>
 <h3 id="affinity-field-value-delete-fieldvalueid"><code>affinity field-value delete &lt;fieldValueId&gt;</code><a class="headerlink" href="#affinity-field-value-delete-fieldvalueid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>field-value<span class="w"> </span>delete<span class="w"> </span><span class="m">555</span>
+</code></pre></div>
+<h2 id="field-value-changes">Field Value Changes<a class="headerlink" href="#field-value-changes" title="Permanent link">&para;</a></h2>
+<h3 id="affinity-field-value-changes-ls"><code>affinity field-value-changes ls</code><a class="headerlink" href="#affinity-field-value-changes-ls" title="Permanent link">&para;</a></h3>
+<p>List field value change history for a specific field on an entity (V1).</p>
+<p>Options:</p>
+<ul>
+<li><code>--field-id &lt;id&gt;</code> (required): Field ID (e.g. <code>field-123</code>)</li>
+<li><code>--person-id &lt;id&gt;</code>: Filter by person</li>
+<li><code>--company-id &lt;id&gt;</code>: Filter by company</li>
+<li><code>--opportunity-id &lt;id&gt;</code>: Filter by opportunity</li>
+<li><code>--list-entry-id &lt;id&gt;</code>: Filter by list entry</li>
+<li><code>--action-type &lt;type&gt;</code>: Filter by action (<code>create</code>, <code>update</code>, <code>delete</code>)</li>
+</ul>
+<p>Exactly one entity selector (<code>--person-id</code>, <code>--company-id</code>, <code>--opportunity-id</code>, or <code>--list-entry-id</code>) is required.</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>field-value-changes<span class="w"> </span>ls<span class="w"> </span>--field-id<span class="w"> </span>field-123<span class="w"> </span>--person-id<span class="w"> </span><span class="m">456</span>
+affinity<span class="w"> </span>field-value-changes<span class="w"> </span>ls<span class="w"> </span>--field-id<span class="w"> </span>field-123<span class="w"> </span>--company-id<span class="w"> </span><span class="m">789</span><span class="w"> </span>--action-type<span class="w"> </span>update
+affinity<span class="w"> </span>--json<span class="w"> </span>field-value-changes<span class="w"> </span>ls<span class="w"> </span>--field-id<span class="w"> </span>field-123<span class="w"> </span>--list-entry-id<span class="w"> </span><span class="m">101</span>
 </code></pre></div>
 <h2 id="relationship-strengths">Relationship Strengths<a class="headerlink" href="#relationship-strengths" title="Permanent link">&para;</a></h2>
 <h3 id="affinity-relationship-strength-get"><code>affinity relationship-strength get</code><a class="headerlink" href="#affinity-relationship-strength-get" title="Permanent link">&para;</a></h3>

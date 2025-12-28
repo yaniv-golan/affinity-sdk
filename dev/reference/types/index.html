@@ -2270,21 +2270,21 @@
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">480</span>
-<span class="normal">481</span>
-<span class="normal">482</span>
-<span class="normal">483</span>
-<span class="normal">484</span>
-<span class="normal">485</span>
-<span class="normal">486</span>
-<span class="normal">487</span>
-<span class="normal">488</span>
-<span class="normal">489</span>
-<span class="normal">490</span>
-<span class="normal">491</span>
-<span class="normal">492</span>
-<span class="normal">493</span>
-<span class="normal">494</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DropdownOptionColor</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">500</span>
+<span class="normal">501</span>
+<span class="normal">502</span>
+<span class="normal">503</span>
+<span class="normal">504</span>
+<span class="normal">505</span>
+<span class="normal">506</span>
+<span class="normal">507</span>
+<span class="normal">508</span>
+<span class="normal">509</span>
+<span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DropdownOptionColor</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Colors for dropdown options.</span>
 
@@ -3367,7 +3367,23 @@ V2 string type where possible.</p>
 
 
 
-        <p>Supported webhook events.</p>
+        <p>Supported webhook events (27 total).</p>
+<p>Events cover CRUD operations on Affinity entities:</p>
+<ul>
+<li><strong>Lists</strong>: created, updated, deleted</li>
+<li><strong>List entries</strong>: created, deleted</li>
+<li><strong>Notes</strong>: created, updated, deleted</li>
+<li><strong>Fields</strong>: created, updated, deleted</li>
+<li><strong>Field values</strong>: created, updated, deleted</li>
+<li><strong>Persons</strong>: created, updated, deleted</li>
+<li><strong>Organizations (companies)</strong>: created, updated, deleted, merged</li>
+<li><strong>Opportunities</strong>: created, updated, deleted</li>
+<li><strong>Files</strong>: created, deleted</li>
+<li><strong>Reminders</strong>: created, updated, deleted</li>
+</ul>
+<p>This enum extends <code>OpenStrEnum</code> for forward compatibility - any unknown
+events from Affinity are preserved as strings rather than raising errors.</p>
+<p>See the webhooks guide for complete documentation and usage examples.</p>
 
 
 
@@ -3409,8 +3425,48 @@ V2 string type where possible.</p>
 <span class="normal">474</span>
 <span class="normal">475</span>
 <span class="normal">476</span>
-<span class="normal">477</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookEvent</span><span class="p">(</span><span class="n">OpenStrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Supported webhook events.&quot;&quot;&quot;</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span>
+<span class="normal">489</span>
+<span class="normal">490</span>
+<span class="normal">491</span>
+<span class="normal">492</span>
+<span class="normal">493</span>
+<span class="normal">494</span>
+<span class="normal">495</span>
+<span class="normal">496</span>
+<span class="normal">497</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookEvent</span><span class="p">(</span><span class="n">OpenStrEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Supported webhook events (27 total).</span>
+
+<span class="sd">    Events cover CRUD operations on Affinity entities:</span>
+
+<span class="sd">    - **Lists**: created, updated, deleted</span>
+<span class="sd">    - **List entries**: created, deleted</span>
+<span class="sd">    - **Notes**: created, updated, deleted</span>
+<span class="sd">    - **Fields**: created, updated, deleted</span>
+<span class="sd">    - **Field values**: created, updated, deleted</span>
+<span class="sd">    - **Persons**: created, updated, deleted</span>
+<span class="sd">    - **Organizations (companies)**: created, updated, deleted, merged</span>
+<span class="sd">    - **Opportunities**: created, updated, deleted</span>
+<span class="sd">    - **Files**: created, deleted</span>
+<span class="sd">    - **Reminders**: created, updated, deleted</span>
+
+<span class="sd">    This enum extends ``OpenStrEnum`` for forward compatibility - any unknown</span>
+<span class="sd">    events from Affinity are preserved as strings rather than raising errors.</span>
+
+<span class="sd">    See the webhooks guide for complete documentation and usage examples.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">LIST_CREATED</span> <span class="o">=</span> <span class="s2">&quot;list.created&quot;</span>
     <span class="n">LIST_UPDATED</span> <span class="o">=</span> <span class="s2">&quot;list.updated&quot;</span>
