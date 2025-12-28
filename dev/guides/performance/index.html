@@ -729,6 +729,67 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Caching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enabling-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enabling cache
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#long-running-applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Long-running applications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-cache-invalidation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manual cache invalidation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-use-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use caching
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-isolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache isolation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1868,6 +1929,67 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Caching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enabling-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enabling cache
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#long-running-applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Long-running applications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-cache-invalidation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manual cache invalidation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-use-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use caching
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-isolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache isolation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1927,11 +2049,62 @@
         <span class="o">...</span>
 </code></pre></div>
 <h2 id="caching">Caching<a class="headerlink" href="#caching" title="Permanent link">&para;</a></h2>
-<p>Caching is optional and currently targets metadata-style responses (for example, field metadata). If you enable it:</p>
+<p>The SDK provides optional in-memory caching for metadata-style responses (field definitions, list configurations). This reduces API calls for frequently-accessed, slowly-changing data.</p>
+<h3 id="enabling-cache">Enabling cache<a class="headerlink" href="#enabling-cache" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+
+<span class="c1"># Enable with default 5-minute TTL</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">enable_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Custom TTL (in seconds)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">enable_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache_ttl</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="long-running-applications">Long-running applications<a class="headerlink" href="#long-running-applications" title="Permanent link">&para;</a></h3>
+<p>For long-running processes (web servers, background workers), be aware that cached data may become stale:</p>
 <ul>
-<li>Choose a TTL that matches how often you expect metadata to change.</li>
-<li>Consider clearing cache after known metadata changes (e.g., list/field configuration changes).</li>
+<li><strong>Field definitions</strong> may change if admins add/modify fields</li>
+<li><strong>List configurations</strong> may change if lists are reconfigured</li>
+<li><strong>Default TTL is 5 minutes</strong> (300 seconds)</li>
 </ul>
+<p>Recommendations:</p>
+<ol>
+<li><strong>Choose appropriate TTL</strong>: Match your TTL to how often metadata changes in your organization</li>
+<li><strong>Invalidate on known changes</strong>: Clear cache after operations that modify metadata</li>
+<li><strong>Periodic refresh</strong>: For very long processes, consider periodic cache clears</li>
+</ol>
+<h3 id="manual-cache-invalidation">Manual cache invalidation<a class="headerlink" href="#manual-cache-invalidation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Clear all cached entries</span>
+<span class="n">client</span><span class="o">.</span><span class="n">clear_cache</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="when-to-use-caching">When to use caching<a class="headerlink" href="#when-to-use-caching" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Short-lived scripts</td>
+<td>Caching optional (few repeated calls)</td>
+</tr>
+<tr>
+<td>CLI tools</td>
+<td>Enable caching (reduces latency for field lookups)</td>
+</tr>
+<tr>
+<td>Web servers</td>
+<td>Enable with appropriate TTL</td>
+</tr>
+<tr>
+<td>Background workers</td>
+<td>Enable, consider periodic cache refresh</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cache-isolation">Cache isolation<a class="headerlink" href="#cache-isolation" title="Permanent link">&para;</a></h3>
+<p>Cache is isolated per API key and base URL combination, so multiple clients with different credentials won't share cached data.</p>
 
 
 

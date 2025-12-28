@@ -1567,6 +1567,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#affinity.AsyncAffinity.clear_cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clear_cache
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#affinity.AsyncAffinity.close" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2733,6 +2744,17 @@
     <span class="md-ellipsis">
       
         __init__
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#affinity.AsyncAffinity.clear_cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clear_cache
       
     </span>
   </a>
@@ -5114,7 +5136,12 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
 <span class="normal">710</span>
 <span class="normal">711</span>
 <span class="normal">712</span>
-<span class="normal">713</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AsyncAffinity</span><span class="p">:</span>
+<span class="normal">713</span>
+<span class="normal">714</span>
+<span class="normal">715</span>
+<span class="normal">716</span>
+<span class="normal">717</span>
+<span class="normal">718</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AsyncAffinity</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Asynchronous Affinity API client.</span>
 
@@ -5380,6 +5407,11 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Close the HTTP client.&quot;&quot;&quot;</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear the response cache.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">whoami</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WhoAmI</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convenience wrapper for `client.auth.whoami()`.&quot;&quot;&quot;</span>
@@ -6343,6 +6375,35 @@ See TR-015.</p>
 <div class="doc doc-object doc-function">
 
 
+<h2 id="affinity.AsyncAffinity.clear_cache" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">clear_cache</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span></code>
+
+<a href="#affinity.AsyncAffinity.clear_cache" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Clear the response cache.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>affinity/client.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">711</span>
+<span class="normal">712</span>
+<span class="normal">713</span>
+<span class="normal">714</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clear the response cache.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h2 id="affinity.AsyncAffinity.close" class="doc doc-heading">
             <code class="highlight language-python"><span class="n">close</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span></code>
 
@@ -6490,9 +6551,9 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/client.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">711</span>
-<span class="normal">712</span>
-<span class="normal">713</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">whoami</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WhoAmI</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">716</span>
+<span class="normal">717</span>
+<span class="normal">718</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">whoami</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WhoAmI</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convenience wrapper for `client.auth.whoami()`.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">whoami</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
