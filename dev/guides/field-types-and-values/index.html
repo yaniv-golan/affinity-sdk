@@ -857,6 +857,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#accepted-fieldid-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accepted FieldId formats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v1-only-writes-and-numeric-field-ids" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1834,6 +1845,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#accepted-fieldid-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accepted FieldId formats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v1-only-writes-and-numeric-field-ids" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1937,6 +1959,40 @@
         <span class="k">if</span> <span class="n">company</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">requested</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">company</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;101&quot;</span><span class="p">))</span>
 </code></pre></div>
+<h3 id="accepted-fieldid-formats">Accepted FieldId formats<a class="headerlink" href="#accepted-fieldid-formats" title="Permanent link">&para;</a></h3>
+<p><code>FieldId</code> accepts several input formats and normalizes them to <code>field-&lt;digits&gt;</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Normalized to</th>
+<th>Valid</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FieldId(123)</code></td>
+<td><code>"field-123"</code></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>FieldId("456")</code></td>
+<td><code>"field-456"</code></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>FieldId("field-789")</code></td>
+<td><code>"field-789"</code></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>FieldId("invalid")</code></td>
+<td>—</td>
+<td>No, raises <code>ValueError</code></td>
+</tr>
+</tbody>
+</table>
+<p>Invalid formats raise <code>ValueError</code> immediately at construction time.</p>
 <h3 id="v1-only-writes-and-numeric-field-ids">V1-only writes and numeric field IDs<a class="headerlink" href="#v1-only-writes-and-numeric-field-ids" title="Permanent link">&para;</a></h3>
 <p>The SDK uses V2 field metadata endpoints for reads. Some write operations still use V1
 endpoints under the hood (for example, field value writes and field deletes). Those V1
