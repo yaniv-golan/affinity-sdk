@@ -1918,16 +1918,7 @@
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">188</span>
 <span class="normal">189</span>
 <span class="normal">190</span>
 <span class="normal">191</span>
@@ -2016,7 +2007,32 @@
 <span class="normal">274</span>
 <span class="normal">275</span>
 <span class="normal">276</span>
-<span class="normal">277</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ReminderService</span><span class="p">:</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ReminderService</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Service for managing reminders.</span>
 
@@ -2046,7 +2062,23 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get reminders with optional filtering.</span>
 
-<span class="sd">        Returns V1 paginated response with `data` and `next_page_token`.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            person_id: Filter reminders for this person</span>
+<span class="sd">            company_id: Filter reminders for this company</span>
+<span class="sd">            opportunity_id: Filter reminders for this opportunity</span>
+<span class="sd">            creator_id: Filter by reminder creator</span>
+<span class="sd">            owner_id: Filter by reminder owner (assignee)</span>
+<span class="sd">            completer_id: Filter by who completed the reminder</span>
+<span class="sd">            type: Filter by reminder type (ONE_TIME or RECURRING)</span>
+<span class="sd">            reset_type: Filter by reset type (FIXED_DATE, DATE_ADDED, or INTERACTION)</span>
+<span class="sd">            status: Filter by status (ACTIVE, SNOOZED, or COMPLETE)</span>
+<span class="sd">            due_before: Filter reminders due before this datetime</span>
+<span class="sd">            due_after: Filter reminders due after this datetime</span>
+<span class="sd">            page_size: Number of results per page</span>
+<span class="sd">            page_token: Pagination token from previous response</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            V1PaginatedResponse with reminders and next_page_token</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">person_id</span><span class="p">:</span>
@@ -2147,13 +2179,13 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ReminderCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reminder</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ReminderCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reminder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a new reminder.&quot;&quot;&quot;</span>
     <span class="n">payload</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">by_alias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">_coerce_isoformat</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;due_date&quot;</span><span class="p">,))</span>
@@ -2182,10 +2214,10 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reminder_id</span><span class="p">:</span> <span class="n">ReminderIdType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reminder_id</span><span class="p">:</span> <span class="n">ReminderIdType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete a reminder.&quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/reminders/</span><span class="si">{</span><span class="n">reminder_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
@@ -2211,10 +2243,10 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reminder_id</span><span class="p">:</span> <span class="n">ReminderIdType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reminder</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reminder_id</span><span class="p">:</span> <span class="n">ReminderIdType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reminder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a single reminder.&quot;&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/reminders/</span><span class="si">{</span><span class="n">reminder_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Reminder</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -2236,21 +2268,257 @@
     <div class="doc doc-contents ">
 
         <p>Get reminders with optional filtering.</p>
-<p>Returns V1 paginated response with <code>data</code> and <code>next_page_token</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>person_id</code>
+            </td>
+            <td>
+                  <code><span title="affinity.models.types.PersonId">PersonId</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter reminders for this person</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>company_id</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="CompanyId (affinity.models.types.CompanyId)" href="../../../types/#affinity.types.CompanyId">CompanyId</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter reminders for this company</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>opportunity_id</code>
+            </td>
+            <td>
+                  <code><span title="affinity.models.types.OpportunityId">OpportunityId</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter reminders for this opportunity</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>creator_id</code>
+            </td>
+            <td>
+                  <code><span title="affinity.models.types.UserId">UserId</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter by reminder creator</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>owner_id</code>
+            </td>
+            <td>
+                  <code><span title="affinity.models.types.UserId">UserId</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter by reminder owner (assignee)</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>completer_id</code>
+            </td>
+            <td>
+                  <code><span title="affinity.models.types.UserId">UserId</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter by who completed the reminder</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>type</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="ReminderType (affinity.models.types.ReminderType)" href="../../../types/#affinity.types.ReminderType">ReminderType</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter by reminder type (ONE_TIME or RECURRING)</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>reset_type</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="ReminderResetType (affinity.models.types.ReminderResetType)" href="../../../types/#affinity.types.ReminderResetType">ReminderResetType</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter by reset type (FIXED_DATE, DATE_ADDED, or INTERACTION)</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>status</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="ReminderStatus (affinity.models.types.ReminderStatus)" href="../../../types/#affinity.types.ReminderStatus">ReminderStatus</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter by status (ACTIVE, SNOOZED, or COMPLETE)</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>due_before</code>
+            </td>
+            <td>
+                  <code><span title="datetime.datetime">datetime</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter reminders due before this datetime</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>due_after</code>
+            </td>
+            <td>
+                  <code><span title="datetime.datetime">datetime</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter reminders due after this datetime</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>page_size</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of results per page</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>page_token</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Pagination token from previous response</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="affinity.models.pagination.V1PaginatedResponse">V1PaginatedResponse</span>[<a class="autorefs autorefs-internal" title="Reminder (affinity.models.secondary.Reminder)" href="../../../models/#affinity.models.Reminder">Reminder</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>V1PaginatedResponse with reminders and next_page_token</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">198</span>
 <span class="normal">199</span>
 <span class="normal">200</span>
 <span class="normal">201</span>
@@ -2298,7 +2566,32 @@
 <span class="normal">243</span>
 <span class="normal">244</span>
 <span class="normal">245</span>
-<span class="normal">246</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2318,7 +2611,23 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get reminders with optional filtering.</span>
 
-<span class="sd">    Returns V1 paginated response with `data` and `next_page_token`.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        person_id: Filter reminders for this person</span>
+<span class="sd">        company_id: Filter reminders for this company</span>
+<span class="sd">        opportunity_id: Filter reminders for this opportunity</span>
+<span class="sd">        creator_id: Filter by reminder creator</span>
+<span class="sd">        owner_id: Filter by reminder owner (assignee)</span>
+<span class="sd">        completer_id: Filter by who completed the reminder</span>
+<span class="sd">        type: Filter by reminder type (ONE_TIME or RECURRING)</span>
+<span class="sd">        reset_type: Filter by reset type (FIXED_DATE, DATE_ADDED, or INTERACTION)</span>
+<span class="sd">        status: Filter by status (ACTIVE, SNOOZED, or COMPLETE)</span>
+<span class="sd">        due_before: Filter reminders due before this datetime</span>
+<span class="sd">        due_after: Filter reminders due after this datetime</span>
+<span class="sd">        page_size: Number of results per page</span>
+<span class="sd">        page_token: Pagination token from previous response</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        V1PaginatedResponse with reminders and next_page_token</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">person_id</span><span class="p">:</span>
@@ -2378,18 +2687,18 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">261</span>
-<span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reminder_id</span><span class="p">:</span> <span class="n">ReminderIdType</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ReminderUpdate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reminder</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reminder_id</span><span class="p">:</span> <span class="n">ReminderIdType</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ReminderUpdate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reminder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Update a reminder.&quot;&quot;&quot;</span>
     <span class="n">payload</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span>
         <span class="n">by_alias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
