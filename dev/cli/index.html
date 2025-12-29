@@ -560,6 +560,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#advanced-configuration-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advanced configuration (testing)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exit-codes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2066,6 +2077,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#advanced-configuration-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advanced configuration (testing)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exit-codes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2097,7 +2119,7 @@
 
 
 <h1 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h1>
-<p>The SDK ships an optional <code>affinity</code> CLI that dogfoods the SDK. Install it as an extra so library-only users don't pay the dependency cost.</p>
+<p>The SDK ships an optional <code>xaffinity</code> CLI that dogfoods the SDK. Install it as an extra so library-only users don't pay the dependency cost.</p>
 <h2 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>CSV Export</strong>: Export people, companies, opportunities, and list entries to CSV with <code>--csv</code> flag (<a href="../guides/csv-export/">CSV Export Guide</a>)</li>
@@ -2124,8 +2146,8 @@
 <li><code>api_key</code> in the config profile (discouraged for shared machines; the CLI warns on unsafe permissions where feasible)</li>
 </ol>
 <p>Optional local development: <code>.env</code> loading is <strong>opt-in</strong>:</p>
-<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>--dotenv<span class="w"> </span>whoami
-affinity<span class="w"> </span>--dotenv<span class="w"> </span>--env-file<span class="w"> </span>./dev.env<span class="w"> </span>whoami
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>--dotenv<span class="w"> </span>whoami
+xaffinity<span class="w"> </span>--dotenv<span class="w"> </span>--env-file<span class="w"> </span>./dev.env<span class="w"> </span>whoami
 </code></pre></div>
 <h2 id="output-contract">Output contract<a class="headerlink" href="#output-contract" title="Permanent link">&para;</a></h2>
 <ul>
@@ -2157,6 +2179,13 @@ affinity<span class="w"> </span>--dotenv<span class="w"> </span>--env-file<span 
 <li><code>--max-retries N</code>: tune rate-limit retry behavior.</li>
 <li><code>--trace</code>: trace request/response/error events to stderr (safe redaction).</li>
 </ul>
+<h2 id="advanced-configuration-testing">Advanced configuration (testing)<a class="headerlink" href="#advanced-configuration-testing" title="Permanent link">&para;</a></h2>
+<p>For testing against mock servers, these environment variables override API base URLs:</p>
+<ul>
+<li><code>AFFINITY_V1_BASE_URL</code>: Override V1 API base URL (default: <code>https://api.affinity.co</code>)</li>
+<li><code>AFFINITY_V2_BASE_URL</code>: Override V2 API base URL (default: <code>https://api.affinity.co/v2</code>)</li>
+</ul>
+<p>These can also be set per-profile in the config file.</p>
 <h2 id="exit-codes">Exit codes<a class="headerlink" href="#exit-codes" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>0</code>: success</li>

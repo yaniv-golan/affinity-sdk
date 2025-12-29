@@ -2776,9 +2776,9 @@
 </ul>
 <h3 id="using-pagination-cursors">Using Pagination Cursors<a class="headerlink" href="#using-pagination-cursors" title="Permanent link">&para;</a></h3>
 <p>To fetch the next page, use the <code>--cursor</code> option:</p>
-<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--json
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--json
 <span class="c1"># Get nextCursor from response</span>
-affinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--cursor<span class="w"> </span><span class="s2">&quot;eyJpZCI6MTIzfQ==&quot;</span><span class="w"> </span>--json
+xaffinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--cursor<span class="w"> </span><span class="s2">&quot;eyJpZCI6MTIzfQ==&quot;</span><span class="w"> </span>--json
 </code></pre></div>
 <h2 id="rate-limit-metadata">Rate Limit Metadata<a class="headerlink" href="#rate-limit-metadata" title="Permanent link">&para;</a></h2>
 <p>All API responses include rate limit information:</p>
@@ -2831,7 +2831,7 @@ affinity<span class="w"> </span>person<span class="w"> </span>search<span class=
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
 <h3 id="person-get-by-email">Person Get by Email<a class="headerlink" href="#person-get-by-email" title="Permanent link">&para;</a></h3>
 <p>Command:
-<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span>email:john@example.com<span class="w"> </span>--json
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span>email:john@example.com<span class="w"> </span>--json
 </code></pre></div></p>
 <p>Response:
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -2866,7 +2866,7 @@ affinity<span class="w"> </span>person<span class="w"> </span>search<span class=
 </code></pre></div></p>
 <h3 id="person-search-with-pagination">Person Search with Pagination<a class="headerlink" href="#person-search-with-pagination" title="Permanent link">&para;</a></h3>
 <p>Command:
-<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--json
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--json
 </code></pre></div></p>
 <p>Response:
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -2907,7 +2907,7 @@ affinity<span class="w"> </span>person<span class="w"> </span>search<span class=
 </code></pre></div></p>
 <h3 id="list-rows-with-saved-view">List Rows with Saved View<a class="headerlink" href="#list-rows-with-saved-view" title="Permanent link">&para;</a></h3>
 <p>Command:
-<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>list<span class="w"> </span>rows<span class="w"> </span><span class="s2">&quot;Sales Pipeline&quot;</span><span class="w"> </span>--saved-view<span class="w"> </span><span class="s2">&quot;Active Deals&quot;</span><span class="w"> </span>--json
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>rows<span class="w"> </span><span class="s2">&quot;Sales Pipeline&quot;</span><span class="w"> </span>--saved-view<span class="w"> </span><span class="s2">&quot;Active Deals&quot;</span><span class="w"> </span>--json
 </code></pre></div></p>
 <p>Response:
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
