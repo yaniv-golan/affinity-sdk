@@ -722,10 +722,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#memory-considerations" class="md-nav__link">
+  <a href="#progress-callbacks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Memory considerations
+        Progress callbacks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#memory-safety" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory safety
       
     </span>
   </a>
@@ -1761,10 +1772,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#memory-considerations" class="md-nav__link">
+  <a href="#progress-callbacks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Memory considerations
+        Progress callbacks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#memory-safety" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory safety
       
     </span>
   </a>
@@ -1815,9 +1837,68 @@
     <span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">company</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 </code></pre></div>
-<h2 id="memory-considerations">Memory considerations<a class="headerlink" href="#memory-considerations" title="Permanent link">&para;</a></h2>
-<p>For very large datasets (thousands of pages), prefer <code>iter()</code> or <code>all()</code> over manually calling <code>page.next_page()</code> in a loop. The iterator pattern processes items one at a time without accumulating page objects in memory.</p>
-<p>If you need to hold <code>Page</code> objects (e.g., for batch processing), process and release them promptly to allow garbage collection.</p>
+<h2 id="progress-callbacks">Progress callbacks<a class="headerlink" href="#progress-callbacks" title="Permanent link">&para;</a></h2>
+<p>Use <code>on_progress</code> to track pagination progress for logging, progress bars, or debugging:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span><span class="p">,</span> <span class="n">PaginationProgress</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">log_progress</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PaginationProgress</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Page </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">page_number</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">items_so_far</span><span class="si">}</span><span class="s2"> items so far&quot;</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">pages</span><span class="p">(</span><span class="n">on_progress</span><span class="o">=</span><span class="n">log_progress</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">page</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="n">process</span><span class="p">(</span><span class="n">company</span><span class="p">)</span>
+</code></pre></div>
+<p><code>PaginationProgress</code> provides:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>page_number</code></td>
+<td>1-indexed page number</td>
+</tr>
+<tr>
+<td><code>items_in_page</code></td>
+<td>Items in current page</td>
+</tr>
+<tr>
+<td><code>items_so_far</code></td>
+<td>Cumulative items including current page</td>
+</tr>
+<tr>
+<td><code>has_next</code></td>
+<td>Whether more pages exist</td>
+</tr>
+</tbody>
+</table>
+<h2 id="memory-safety">Memory safety<a class="headerlink" href="#memory-safety" title="Permanent link">&para;</a></h2>
+<p>The <code>.all()</code> method returns a list, which can cause out-of-memory issues with large datasets. By default, it limits results to 100,000 items and raises <code>TooManyResultsError</code> if exceeded:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span><span class="p">,</span> <span class="n">TooManyResultsError</span>
+
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Raises TooManyResultsError if &gt; 100,000 items</span>
+        <span class="n">companies</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">TooManyResultsError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Too many results: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> items&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>Adjust or disable the limit with <code>max_results</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Lower limit for safety</span>
+<span class="n">companies</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">max_results</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+<span class="c1"># Disable limit (use with caution)</span>
+<span class="n">companies</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">max_results</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+<p>For very large datasets, prefer streaming with <code>iter()</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Memory-efficient: processes one item at a time</span>
+<span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">iter</span><span class="p">():</span>
+    <span class="n">process</span><span class="p">(</span><span class="n">company</span><span class="p">)</span>
+</code></pre></div>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../filtering/">Filtering</a></li>

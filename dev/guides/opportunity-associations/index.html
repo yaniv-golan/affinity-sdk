@@ -11,10 +11,6 @@
       
       
       
-        <link rel="prev" href="../filtering/">
-      
-      
-        <link rel="next" href="../models/">
       
       
         
@@ -25,7 +21,7 @@
     
     
       
-        <title>Field types & values - Affinity Python SDK</title>
+        <title>Working with Opportunity Associations - Affinity Python SDK</title>
       
     
     
@@ -68,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#field-types-and-values" class="md-skip">
+        <a href="#working-with-opportunity-associations" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +104,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Field types & values
+              Working with Opportunity Associations
             
           </span>
         </div>
@@ -498,20 +494,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
         
           
           <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
@@ -532,7 +526,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -771,37 +765,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Field types & values
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../field-types-and-values/" class="md-nav__link">
         
   
   
@@ -817,120 +784,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#field-types" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Field types
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#field-ids" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Field IDs
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Field IDs">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#accepted-fieldid-formats" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Accepted FieldId formats
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fieldid-comparison-semantics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        FieldId comparison semantics
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#v1-only-writes-and-numeric-field-ids" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        V1-only writes and numeric field IDs
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#requested-vs-not-requested" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Requested vs not requested
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#field-value-type-mapping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Field value type mapping
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next steps
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1833,10 +1686,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#field-types" class="md-nav__link">
+  <a href="#the-v2-limitation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Field types
+        The V2 Limitation
       
     </span>
   </a>
@@ -1844,44 +1697,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#field-ids" class="md-nav__link">
+  <a href="#getting-associations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Field IDs
+        Getting Associations
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Field IDs">
+    <nav class="md-nav" aria-label="Getting Associations">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#accepted-fieldid-formats" class="md-nav__link">
+  <a href="#getting-both-at-once" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Accepted FieldId formats
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fieldid-comparison-semantics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        FieldId comparison semantics
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#v1-only-writes-and-numeric-field-ids" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        V1-only writes and numeric field IDs
+        Getting Both at Once
       
     </span>
   </a>
@@ -1894,10 +1725,38 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#requested-vs-not-requested" class="md-nav__link">
+  <a href="#batch-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Requested vs not requested
+        Batch Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Batch Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#error-handling-in-batch-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling in Batch Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limiting-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limiting Results
       
     </span>
   </a>
@@ -1905,10 +1764,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#field-value-type-mapping" class="md-nav__link">
+  <a href="#api-cost" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Field value type mapping
+        API Cost
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Async Support
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternative-get_details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternative: get_details()
       
     </span>
   </a>
@@ -1919,7 +1800,7 @@
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Next steps
+        Next Steps
       
     </span>
   </a>
@@ -1946,180 +1827,130 @@
   
 
 
-<h1 id="field-types-and-values">Field types and values<a class="headerlink" href="#field-types-and-values" title="Permanent link">&para;</a></h1>
-<p>Many endpoints can return “field values” in addition to the core entity shape.</p>
-<h2 id="field-types">Field types<a class="headerlink" href="#field-types" title="Permanent link">&para;</a></h2>
-<p>Use <code>FieldType</code> to request which field scopes you want:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FieldType</span><span class="p">,</span> <span class="n">PersonId</span>
-
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-    <span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">PersonId</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span> <span class="n">field_types</span><span class="o">=</span><span class="p">[</span><span class="n">FieldType</span><span class="o">.</span><span class="n">ENRICHED</span><span class="p">,</span> <span class="n">FieldType</span><span class="o">.</span><span class="n">GLOBAL</span><span class="p">])</span>
-    <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">requested</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<h1 id="working-with-opportunity-associations">Working with Opportunity Associations<a class="headerlink" href="#working-with-opportunity-associations" title="Permanent link">&para;</a></h1>
+<p>Opportunities in Affinity can be linked to People and Companies. Due to API limitations, these associations require special handling.</p>
+<h2 id="the-v2-limitation">The V2 Limitation<a class="headerlink" href="#the-v2-limitation" title="Permanent link">&para;</a></h2>
+<p>When you retrieve opportunities via standard methods, person and company associations may be empty:</p>
+<div class="highlight"><pre><span></span><code><span class="n">opp</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">opportunities</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">OpportunityId</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">opp</span><span class="o">.</span><span class="n">person_ids</span><span class="p">)</span>  <span class="c1"># [] - empty!</span>
 </code></pre></div>
-<p>Common values include:</p>
-<ul>
-<li><code>FieldType.ENRICHED</code></li>
-<li><code>FieldType.GLOBAL</code></li>
-<li><code>FieldType.LIST</code></li>
-<li><code>FieldType.LIST_SPECIFIC</code></li>
-</ul>
-<p>Notes:</p>
-<ul>
-<li><code>FieldType.LIST_SPECIFIC</code> is an alternate string value the API uses for list-scoped fields (you may see
-  it in responses as <code>"list-specific"</code>). Treat it as equivalent to <code>FieldType.LIST</code> for most use cases.</li>
-</ul>
-<h2 id="field-ids">Field IDs<a class="headerlink" href="#field-ids" title="Permanent link">&para;</a></h2>
-<p>If you know specific field IDs, you can request only those:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FieldId</span><span class="p">,</span> <span class="n">FieldType</span>
+<p>This is because the V2 API returns a "partial representation" that omits association data.</p>
+<details class="info">
+<summary>Why does this happen?</summary>
+<p>The Affinity V2 API returns opportunities without <code>personIds</code> or <code>companyIds</code> fields. This is a known limitation. The V1 API includes these associations, so the SDK provides explicit methods to fetch them.</p>
+</details>
+<h2 id="getting-associations">Getting Associations<a class="headerlink" href="#getting-associations" title="Permanent link">&para;</a></h2>
+<p>Use the dedicated association methods:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity.models.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpportunityId</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-    <span class="n">page</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">field_ids</span><span class="o">=</span><span class="p">[</span><span class="n">FieldId</span><span class="p">(</span><span class="mi">101</span><span class="p">)],</span> <span class="n">field_types</span><span class="o">=</span><span class="p">[</span><span class="n">FieldType</span><span class="o">.</span><span class="n">GLOBAL</span><span class="p">])</span>
-    <span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">page</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">company</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">requested</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">company</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;101&quot;</span><span class="p">))</span>
+<span class="c1"># Get person IDs only (1 API call)</span>
+<span class="n">person_ids</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">opportunities</span><span class="o">.</span><span class="n">get_associated_person_ids</span><span class="p">(</span><span class="n">OpportunityId</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span>
+
+<span class="c1"># Get full Person objects (1 + N API calls)</span>
+<span class="n">people</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">opportunities</span><span class="o">.</span><span class="n">get_associated_people</span><span class="p">(</span><span class="n">OpportunityId</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span>
+
+<span class="c1"># Same for companies</span>
+<span class="n">company_ids</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">opportunities</span><span class="o">.</span><span class="n">get_associated_company_ids</span><span class="p">(</span><span class="n">OpportunityId</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span>
+<span class="n">companies</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">opportunities</span><span class="o">.</span><span class="n">get_associated_companies</span><span class="p">(</span><span class="n">OpportunityId</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span>
 </code></pre></div>
-<h3 id="accepted-fieldid-formats">Accepted FieldId formats<a class="headerlink" href="#accepted-fieldid-formats" title="Permanent link">&para;</a></h3>
-<p><code>FieldId</code> accepts several input formats and normalizes them to <code>field-&lt;digits&gt;</code>:</p>
+<h3 id="getting-both-at-once">Getting Both at Once<a class="headerlink" href="#getting-both-at-once" title="Permanent link">&para;</a></h3>
+<p>If you need both person and company associations, use <code>get_associations()</code> to save an API call:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Single V1 call returns both</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">opportunities</span><span class="o">.</span><span class="n">get_associations</span><span class="p">(</span><span class="n">OpportunityId</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">assoc</span><span class="o">.</span><span class="n">person_ids</span><span class="p">)</span>   <span class="c1"># [PersonId(1001), PersonId(1002)]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">assoc</span><span class="o">.</span><span class="n">company_ids</span><span class="p">)</span>  <span class="c1"># [CompanyId(2001)]</span>
+</code></pre></div>
+<p>The return type is a <code>NamedTuple</code> with IDE autocomplete support.</p>
+<h2 id="batch-operations">Batch Operations<a class="headerlink" href="#batch-operations" title="Permanent link">&para;</a></h2>
+<p>When working with lists of opportunities, use the batch helper:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity.models.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListId</span><span class="p">,</span> <span class="n">OpportunityId</span>
+
+<span class="c1"># Step 1: Get all opportunity IDs from a list</span>
+<span class="n">opp_ids</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">OpportunityId</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">entity</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">lists</span><span class="o">.</span><span class="n">entries</span><span class="p">(</span><span class="n">ListId</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<span class="p">]</span>
+
+<span class="c1"># Step 2: Fetch associations for all (1 API call per opportunity)</span>
+<span class="n">associations</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">opportunities</span><span class="o">.</span><span class="n">get_associated_person_ids_batch</span><span class="p">(</span><span class="n">opp_ids</span><span class="p">)</span>
+
+<span class="c1"># Step 3: Collect all unique person IDs</span>
+<span class="n">all_person_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">person_ids</span> <span class="ow">in</span> <span class="n">associations</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+    <span class="n">all_person_ids</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">person_ids</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="error-handling-in-batch-operations">Error Handling in Batch Operations<a class="headerlink" href="#error-handling-in-batch-operations" title="Permanent link">&para;</a></h3>
+<p>By default, the batch helper raises on the first error. Use <code>on_error="skip"</code> to continue:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Skip failed IDs instead of raising</span>
+<span class="n">associations</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">opportunities</span><span class="o">.</span><span class="n">get_associated_person_ids_batch</span><span class="p">(</span>
+    <span class="n">opp_ids</span><span class="p">,</span>
+    <span class="n">on_error</span><span class="o">=</span><span class="s2">&quot;skip&quot;</span><span class="p">,</span>  <span class="c1"># Default is &quot;raise&quot;</span>
+<span class="p">)</span>
+<span class="c1"># Only successfully fetched opportunities are in the result</span>
+</code></pre></div>
+<h2 id="limiting-results">Limiting Results<a class="headerlink" href="#limiting-results" title="Permanent link">&para;</a></h2>
+<p>All association methods support <code>max_results</code> to limit the number of items returned:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Get at most 5 associated people</span>
+<span class="n">people</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">opportunities</span><span class="o">.</span><span class="n">get_associated_people</span><span class="p">(</span>
+    <span class="n">OpportunityId</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span>
+    <span class="n">max_results</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<h2 id="api-cost">API Cost<a class="headerlink" href="#api-cost" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Input</th>
-<th>Normalized to</th>
-<th>Valid</th>
+<th>Method</th>
+<th>API Calls</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>FieldId(123)</code></td>
-<td><code>"field-123"</code></td>
-<td>Yes</td>
+<td><code>get_associated_person_ids()</code></td>
+<td>1</td>
 </tr>
 <tr>
-<td><code>FieldId("456")</code></td>
-<td><code>"field-456"</code></td>
-<td>Yes</td>
+<td><code>get_associated_company_ids()</code></td>
+<td>1</td>
 </tr>
 <tr>
-<td><code>FieldId("field-789")</code></td>
-<td><code>"field-789"</code></td>
-<td>Yes</td>
+<td><code>get_associations()</code></td>
+<td>1</td>
 </tr>
 <tr>
-<td><code>FieldId("invalid")</code></td>
-<td>—</td>
-<td>No, raises <code>ValueError</code></td>
+<td><code>get_associated_people()</code></td>
+<td>1 + N (N = people count)</td>
+</tr>
+<tr>
+<td><code>get_associated_companies()</code></td>
+<td>1 + N (N = company count)</td>
+</tr>
+<tr>
+<td><code>get_associated_person_ids_batch()</code></td>
+<td>N (N = opportunity count)</td>
 </tr>
 </tbody>
 </table>
-<p>Invalid formats raise <code>ValueError</code> immediately at construction time.</p>
-<h3 id="fieldid-comparison-semantics">FieldId comparison semantics<a class="headerlink" href="#fieldid-comparison-semantics" title="Permanent link">&para;</a></h3>
-<p><code>FieldId</code> normalizes values at construction time, enabling direct equality comparisons without manual string conversion:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FieldId</span>
-
-<span class="c1"># All these are equal - normalized to &quot;field-123&quot;</span>
-<span class="k">assert</span> <span class="n">FieldId</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span> <span class="o">==</span> <span class="n">FieldId</span><span class="p">(</span><span class="s2">&quot;123&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">FieldId</span><span class="p">(</span><span class="s2">&quot;field-123&quot;</span><span class="p">)</span>
-
-<span class="c1"># Works in sets and dicts</span>
-<span class="n">seen</span> <span class="o">=</span> <span class="p">{</span><span class="n">FieldId</span><span class="p">(</span><span class="mi">123</span><span class="p">)}</span>
-<span class="k">assert</span> <span class="n">FieldId</span><span class="p">(</span><span class="s2">&quot;field-123&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seen</span>  <span class="c1"># True</span>
-
-<span class="c1"># Compare API response IDs directly</span>
-<span class="n">field_id</span> <span class="o">=</span> <span class="n">FieldId</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">field_id</span> <span class="o">==</span> <span class="n">api_response_field_id</span><span class="p">:</span>  <span class="c1"># No str() conversion needed</span>
-    <span class="n">process</span><span class="p">(</span><span class="n">field_id</span><span class="p">)</span>
+<div class="admonition warning">
+<p class="admonition-title">Rate Limits</p>
+<p>For large associations (N &gt; 50), be aware of rate limit implications. Consider using <code>max_results</code> to limit the number of full object fetches.</p>
+</div>
+<h2 id="async-support">Async Support<a class="headerlink" href="#async-support" title="Permanent link">&para;</a></h2>
+<p>All methods have async equivalents in <code>AsyncOpportunityService</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Async version</span>
+<span class="n">person_ids</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">opportunities</span><span class="o">.</span><span class="n">get_associated_person_ids</span><span class="p">(</span><span class="n">OpportunityId</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span>
 </code></pre></div>
-<p>This normalization eliminates common comparison bugs where <code>FieldId(123) != FieldId("field-123")</code> due to type differences.</p>
-<h3 id="v1-only-writes-and-numeric-field-ids">V1-only writes and numeric field IDs<a class="headerlink" href="#v1-only-writes-and-numeric-field-ids" title="Permanent link">&para;</a></h3>
-<p>The SDK uses V2 field metadata endpoints for reads. Some write operations still use V1
-endpoints under the hood (for example, field value writes and field deletes). Those V1
-endpoints require numeric field IDs.</p>
-<p>Rules:</p>
+<h2 id="alternative-get_details">Alternative: <code>get_details()</code><a class="headerlink" href="#alternative-get_details" title="Permanent link">&para;</a></h2>
+<p>If you need the full opportunity object including associations, use <code>get_details()</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">opp</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">opportunities</span><span class="o">.</span><span class="n">get_details</span><span class="p">(</span><span class="n">OpportunityId</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">opp</span><span class="o">.</span><span class="n">person_ids</span><span class="p">)</span>  <span class="c1"># Now populated!</span>
+</code></pre></div>
+<p>This is useful when you need other opportunity fields alongside associations.</p>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
-<li>IDs of the form <code>field-&lt;digits&gt;</code> are convertible to V1 numeric IDs.</li>
-<li>Enriched and relationship-intelligence IDs (for example, <code>affinity-data-*</code> or
-  <code>source-of-introduction</code>) have no V1 numeric equivalent and will raise an error
-  if used in V1-only write paths.</li>
-</ul>
-<h2 id="requested-vs-not-requested">Requested vs not requested<a class="headerlink" href="#requested-vs-not-requested" title="Permanent link">&para;</a></h2>
-<p>Entities expose a <code>fields</code> container that preserves whether the API returned field data:</p>
-<ul>
-<li><code>entity.fields.requested == False</code>: you didn’t request fields (or the API omitted them)</li>
-<li><code>entity.fields.requested == True</code>: field data was requested and returned (possibly empty)</li>
-</ul>
-<h2 id="field-value-type-mapping">Field value type mapping<a class="headerlink" href="#field-value-type-mapping" title="Permanent link">&para;</a></h2>
-<p>When you read <code>entity.fields.data</code>, values are typed as <code>Any</code>. The expected shape depends on the field’s <code>valueType</code>
-(<code>FieldValueType</code>) and whether the field allows multiple values.</p>
-<p><code>FieldValueType</code> is <strong>V2-first</strong> and string-based (for example: <code>dropdown-multi</code>, <code>ranked-dropdown</code>).
-Unknown future values are treated as open enums and preserved as strings.</p>
-<table>
-<thead>
-<tr>
-<th>Affinity <code>FieldValueType</code></th>
-<th>Typical Python value</th>
-<th>Notes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>text</code></td>
-<td><code>str</code></td>
-<td>Plain text</td>
-</tr>
-<tr>
-<td><code>filterable-text</code> / <code>filterable-text-multi</code></td>
-<td><code>str</code> / <code>list[str]</code></td>
-<td>Reserved for Affinity-populated fields</td>
-</tr>
-<tr>
-<td><code>number</code> / <code>number-multi</code></td>
-<td><code>int \| float</code> / <code>list[int \| float]</code></td>
-<td>JSON numbers</td>
-</tr>
-<tr>
-<td><code>datetime</code></td>
-<td><code>str</code> / <code>datetime.datetime</code></td>
-<td>Typically ISO-8601 datetime strings on read</td>
-</tr>
-<tr>
-<td><code>person</code> / <code>person-multi</code></td>
-<td><code>PersonId</code> / <code>list[PersonId]</code></td>
-<td>Under the hood: <code>int</code> or <code>list[int]</code></td>
-</tr>
-<tr>
-<td><code>company</code> / <code>company-multi</code></td>
-<td><code>CompanyId</code> / <code>list[CompanyId]</code></td>
-<td>Under the hood: <code>int</code> or <code>list[int]</code></td>
-</tr>
-<tr>
-<td><code>dropdown</code> / <code>dropdown-multi</code></td>
-<td><code>DropdownOptionId</code> / <code>list[DropdownOptionId]</code></td>
-<td>Under the hood: <code>int</code> or <code>list[int]</code></td>
-</tr>
-<tr>
-<td><code>ranked-dropdown</code></td>
-<td><code>DropdownOptionId</code></td>
-<td>Under the hood: <code>int</code></td>
-</tr>
-<tr>
-<td><code>location</code> / <code>location-multi</code></td>
-<td><code>dict[str, Any]</code> / <code>list[dict[str, Any]]</code></td>
-<td>Structured location object(s); shape varies by API</td>
-</tr>
-<tr>
-<td><code>interaction</code></td>
-<td><code>Any</code></td>
-<td>Relationship-intelligence fields; shape varies by API</td>
-</tr>
-</tbody>
-</table>
-<h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="../filtering/">Filtering</a></li>
-<li><a href="../models/">Models</a></li>
-<li><a href="../../reference/types/">Types reference</a></li>
+<li><a href="../pagination/">Pagination</a> - for iterating large result sets</li>
+<li><a href="../rate-limits/">Rate Limits</a> - understanding API quotas</li>
+<li><a href="../api-versions-and-routing/">API Versions</a> - V1 vs V2 behavior</li>
 </ul>
 
 
