@@ -1456,6 +1456,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JSON Output Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1741,6 +1769,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guides/csv-export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSV Export (CLI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guides/field-types-and-values/" class="md-nav__link">
         
   
@@ -1749,6 +1805,34 @@
     
   
     Field types & values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/field-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field values
   
 
     
@@ -1889,6 +1973,62 @@
     
   
     Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/opportunity-associations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Opportunity associations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/v1-v2-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V1-V2 routing (redirect)
   
 
     
@@ -3647,14 +3787,20 @@ affinity<span class="w"> </span>person<span class="w"> </span>search<span class=
 <ul>
 <li><code>--field &lt;id-or-name&gt;</code> (repeatable): field ID or name to include</li>
 <li><code>--field-type &lt;type&gt;</code> (repeatable): field type to include (global, enriched, relationship-intelligence)</li>
-<li><code>--filter &lt;expression&gt;</code>: V2 filter expression</li>
+<li><code>--filter &lt;expression&gt;</code>: V2 filter expression (custom fields only)</li>
 <li><code>--page-size</code>, <code>--cursor</code>, <code>--max-results</code>, <code>--all</code>: pagination options</li>
+<li><code>--csv &lt;path&gt;</code>: write CSV output (requires <code>--all</code>)</li>
+<li><code>--csv-bom</code>: write UTF-8 BOM for Excel compatibility</li>
 </ul>
+<p><strong>Note:</strong> <code>--filter</code> only works with custom fields using <code>field("Name")</code> syntax. To filter on built-in properties like <code>type</code>, <code>firstName</code>, etc., use <code>--json</code> output with <code>jq</code>.</p>
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>ls
 affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--page-size<span class="w"> </span><span class="m">50</span>
 affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
-affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;field(&quot;Email&quot;).contains(&quot;@acme.com&quot;)&#39;</span>
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;field(&quot;Email&quot;) =~ &quot;@acme.com&quot;&#39;</span>
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>people.csv
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>people.csv<span class="w"> </span>--csv-bom
 </code></pre></div>
+<p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
 <h3 id="affinity-person-get-personselector"><code>affinity person get &lt;personSelector&gt;</code><a class="headerlink" href="#affinity-person-get-personselector" title="Permanent link">&para;</a></h3>
 <p>Fetch a person by id, UI URL (including tenant hosts), or a resolver selector.</p>
 <p>Examples:</p>
@@ -3729,14 +3875,20 @@ affinity<span class="w"> </span>company<span class="w"> </span>search<span class
 <ul>
 <li><code>--field &lt;id-or-name&gt;</code> (repeatable): field ID or name to include</li>
 <li><code>--field-type &lt;type&gt;</code> (repeatable): field type to include (global, enriched, relationship-intelligence)</li>
-<li><code>--filter &lt;expression&gt;</code>: V2 filter expression</li>
+<li><code>--filter &lt;expression&gt;</code>: V2 filter expression (custom fields only)</li>
 <li><code>--page-size</code>, <code>--cursor</code>, <code>--max-results</code>, <code>--all</code>: pagination options</li>
+<li><code>--csv &lt;path&gt;</code>: write CSV output (requires <code>--all</code>)</li>
+<li><code>--csv-bom</code>: write UTF-8 BOM for Excel compatibility</li>
 </ul>
+<p><strong>Note:</strong> <code>--filter</code> only works with custom fields using <code>field("Name")</code> syntax. To filter on built-in properties like <code>name</code>, <code>domain</code>, etc., use <code>--json</code> output with <code>jq</code>.</p>
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>company<span class="w"> </span>ls
 affinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--page-size<span class="w"> </span><span class="m">50</span>
 affinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
-affinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;field(&quot;Industry&quot;).equals(&quot;Software&quot;)&#39;</span>
+affinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;field(&quot;Industry&quot;) = &quot;Software&quot;&#39;</span>
+affinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>companies.csv
+affinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>companies.csv<span class="w"> </span>--csv-bom
 </code></pre></div>
+<p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
 <h3 id="affinity-company-get-companyselector"><code>affinity company get &lt;companySelector&gt;</code><a class="headerlink" href="#affinity-company-get-companyselector" title="Permanent link">&para;</a></h3>
 <p>Fetch a company by id, UI URL (including tenant hosts), or a resolver selector.</p>
 <p>Examples:</p>
@@ -3797,9 +3949,18 @@ affinity<span class="w"> </span>company<span class="w"> </span>files<span class=
 <h2 id="opportunities">Opportunities<a class="headerlink" href="#opportunities" title="Permanent link">&para;</a></h2>
 <h3 id="affinity-opportunity-ls"><code>affinity opportunity ls</code><a class="headerlink" href="#affinity-opportunity-ls" title="Permanent link">&para;</a></h3>
 <p>List opportunities (basic v2 representation).</p>
+<p>Options:</p>
+<ul>
+<li><code>--page-size</code>, <code>--cursor</code>, <code>--max-results</code>, <code>--all</code>: pagination options</li>
+<li><code>--csv &lt;path&gt;</code>: write CSV output (requires <code>--all</code>)</li>
+<li><code>--csv-bom</code>: write UTF-8 BOM for Excel compatibility</li>
+</ul>
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>opportunity<span class="w"> </span>ls
 affinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--page-size<span class="w"> </span><span class="m">200</span><span class="w"> </span>--all<span class="w"> </span>--json
+affinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>opportunities.csv
+affinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>opportunities.csv<span class="w"> </span>--csv-bom
 </code></pre></div>
+<p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
 <h3 id="affinity-opportunity-get-opportunityselector"><code>affinity opportunity get &lt;opportunitySelector&gt;</code><a class="headerlink" href="#affinity-opportunity-get-opportunityselector" title="Permanent link">&para;</a></h3>
 <p>Fetch an opportunity by id or UI URL (including tenant hosts).</p>
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>opportunity<span class="w"> </span>get<span class="w"> </span><span class="m">123</span>
@@ -3842,11 +4003,21 @@ affinity<span class="w"> </span>list<span class="w"> </span>create<span class="w
 affinity<span class="w"> </span>list<span class="w"> </span>view<span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span>--json
 </code></pre></div>
 <h3 id="affinity-list-export-list"><code>affinity list export &lt;list&gt;</code><a class="headerlink" href="#affinity-list-export-list" title="Permanent link">&para;</a></h3>
-<p>Exports list entries with selected fields.</p>
+<p>Exports list entries with selected fields. This is the most powerful CSV export command, supporting custom fields and complex filtering.</p>
+<p>Options:</p>
+<ul>
+<li><code>--csv &lt;path&gt;</code>: write CSV output</li>
+<li><code>--csv-bom</code>: write UTF-8 BOM for Excel compatibility</li>
+<li><code>--field &lt;id-or-name&gt;</code> (repeatable): include specific fields</li>
+<li><code>--saved-view &lt;name&gt;</code>: use a saved view's field selection</li>
+<li><code>--filter &lt;expression&gt;</code>: V1 filter expression</li>
+</ul>
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>out.csv
 affinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span>--saved-view<span class="w"> </span><span class="s2">&quot;Board&quot;</span><span class="w"> </span>--csv<span class="w"> </span>out.csv
 affinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--field<span class="w"> </span>Stage<span class="w"> </span>--field<span class="w"> </span>Amount<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;&quot;Stage&quot; = &quot;Active&quot;&#39;</span><span class="w"> </span>--csv<span class="w"> </span>out.csv
+affinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>out.csv<span class="w"> </span>--csv-bom
 </code></pre></div>
+<p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
 <h3 id="affinity-list-entry-add-list"><code>affinity list entry add &lt;list&gt;</code><a class="headerlink" href="#affinity-list-entry-add-list" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>add<span class="w"> </span><span class="m">123</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">26229794</span>
 affinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">224925494</span>

@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../pagination/">
+        <link rel="prev" href="../filtering/">
       
       
-        <link rel="next" href="../rate-limits/">
+        <link rel="next" href="../field-types-and-values/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Errors & retries - Affinity Python SDK</title>
+        <title>CSV Export (CLI) - Affinity Python SDK</title>
       
     
     
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#errors-and-retries" class="md-skip">
+        <a href="#csv-export-guide" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Errors & retries
+              CSV Export (CLI)
             
           </span>
         </div>
@@ -715,37 +715,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Errors & retries
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../errors-and-retries/" class="md-nav__link">
         
   
   
@@ -761,164 +734,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#exception-taxonomy-common" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Exception taxonomy (common)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#retry-policy-what-is-retried" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Retry policy (what is retried)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#download-deadlines" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Download deadlines
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#diagnostics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Diagnostics
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#production-playbook" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Production playbook
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Production playbook">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#recommended-handling-by-error-type" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Recommended handling by error type
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#retrying-writes-safely-idempotency" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Retrying writes safely (idempotency)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#circuit-breaker-fail-fast-during-outages" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Circuit breaker (fail fast during outages)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#alerting-guidance" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Alerting guidance
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rate-limits" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rate limits
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#api-versions-and-beta-endpoints" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        API versions and beta endpoints
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next steps
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -984,10 +799,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../csv-export/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSV Export (CLI)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1003,6 +845,325 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#excel-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Excel Compatibility
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands-with-built-in-csv-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commands with Built-in CSV Support
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#csv-column-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CSV Column Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CSV Column Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#person-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        person ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#company-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        company ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opportunity-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        opportunity ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list export
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-using-jq-for-custom-csv-exports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advanced: Using jq for Custom CSV Exports
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced: Using jq for Custom CSV Exports">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#json-data-structure-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON Data Structure Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#empty-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Empty Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#csv-shows-json-strings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CSV shows JSON strings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#special-characters-broken-in-excel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Special characters broken in Excel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#empty-csv-file-has-no-headers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Empty CSV file has no headers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips-and-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips and Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tips and Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-use-all-for-complete-exports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Use --all for complete exports
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-combine-with-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Combine with filters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-save-queries-as-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Save queries as scripts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-schedule-regular-exports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Schedule regular exports
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-handle-large-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Handle large datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Help
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2017,10 +2178,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#exception-taxonomy-common" class="md-nav__link">
+  <a href="#quick-start" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Exception taxonomy (common)
+        Quick Start
       
     </span>
   </a>
@@ -2028,10 +2189,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#retry-policy-what-is-retried" class="md-nav__link">
+  <a href="#excel-compatibility" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retry policy (what is retried)
+        Excel Compatibility
       
     </span>
   </a>
@@ -2039,10 +2200,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#download-deadlines" class="md-nav__link">
+  <a href="#commands-with-built-in-csv-support" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Download deadlines
+        Commands with Built-in CSV Support
       
     </span>
   </a>
@@ -2050,33 +2211,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#diagnostics" class="md-nav__link">
+  <a href="#csv-column-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Diagnostics
+        CSV Column Reference
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#production-playbook" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Production playbook
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Production playbook">
+    <nav class="md-nav" aria-label="CSV Column Reference">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#recommended-handling-by-error-type" class="md-nav__link">
+  <a href="#person-ls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Recommended handling by error type
+        person ls
       
     </span>
   </a>
@@ -2084,10 +2234,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#retrying-writes-safely-idempotency" class="md-nav__link">
+  <a href="#company-ls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retrying writes safely (idempotency)
+        company ls
       
     </span>
   </a>
@@ -2095,10 +2245,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#circuit-breaker-fail-fast-during-outages" class="md-nav__link">
+  <a href="#opportunity-ls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Circuit breaker (fail fast during outages)
+        opportunity ls
       
     </span>
   </a>
@@ -2106,10 +2256,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#alerting-guidance" class="md-nav__link">
+  <a href="#list-export" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Alerting guidance
+        list export
       
     </span>
   </a>
@@ -2122,10 +2272,49 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#rate-limits" class="md-nav__link">
+  <a href="#advanced-using-jq-for-custom-csv-exports" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Rate limits
+        Advanced: Using jq for Custom CSV Exports
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced: Using jq for Custom CSV Exports">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#json-data-structure-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON Data Structure Reference
       
     </span>
   </a>
@@ -2133,10 +2322,143 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#api-versions-and-beta-endpoints" class="md-nav__link">
+  <a href="#troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
       
-        API versions and beta endpoints
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#empty-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Empty Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#csv-shows-json-strings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CSV shows JSON strings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#special-characters-broken-in-excel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Special characters broken in Excel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#empty-csv-file-has-no-headers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Empty CSV file has no headers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips-and-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tips and Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tips and Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-use-all-for-complete-exports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Use --all for complete exports
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-combine-with-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Combine with filters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-save-queries-as-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Save queries as scripts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-schedule-regular-exports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Schedule regular exports
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-handle-large-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Handle large datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Help
       
     </span>
   </a>
@@ -2144,10 +2466,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
+  <a href="#related-documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Next steps
+        Related Documentation
       
     </span>
   </a>
@@ -2174,130 +2496,246 @@
   
 
 
-<h1 id="errors-and-retries">Errors and retries<a class="headerlink" href="#errors-and-retries" title="Permanent link">&para;</a></h1>
-<p>The SDK raises typed exceptions (subclasses of <code>AffinityError</code>) and retries some transient failures for safe methods (<code>GET</code>/<code>HEAD</code>).</p>
-<h2 id="exception-taxonomy-common">Exception taxonomy (common)<a class="headerlink" href="#exception-taxonomy-common" title="Permanent link">&para;</a></h2>
-<ul>
-<li><code>AuthenticationError</code> (401): invalid/missing API key</li>
-<li><code>AuthorizationError</code> (403): insufficient permissions</li>
-<li><code>NotFoundError</code> (404): entity or endpoint not found</li>
-<li><code>ValidationError</code> (400/422): invalid parameters/payload</li>
-<li><code>RateLimitError</code> (429): you are being rate limited (may include <code>retry_after</code>)</li>
-<li><code>ServerError</code> (500/503): transient server-side errors</li>
-<li><code>WriteNotAllowedError</code>: you attempted a write while writes are disabled by policy</li>
-<li><code>BetaEndpointDisabledError</code>: you called a beta V2 endpoint without <code>enable_beta_endpoints=True</code></li>
-<li><code>VersionCompatibilityError</code>: response parsing failed, often due to V2 API version mismatch</li>
-</ul>
-<p>See <a href="../../reference/exceptions/">Exceptions</a> for the full hierarchy.</p>
-<h2 id="retry-policy-what-is-retried">Retry policy (what is retried)<a class="headerlink" href="#retry-policy-what-is-retried" title="Permanent link">&para;</a></h2>
-<p>By default, retries apply to:</p>
-<ul>
-<li><code>GET</code>/<code>HEAD</code> only (safe/idempotent methods)</li>
-<li>429 responses (rate limits): respects <code>Retry-After</code> when present</li>
-<li>transient network/timeouts for <code>GET</code>/<code>HEAD</code></li>
-<li>transient server errors (e.g., 5xx) for <code>GET</code>/<code>HEAD</code></li>
-</ul>
-<p>Retries are controlled by <code>max_retries</code> (default: 3).</p>
-<h2 id="download-deadlines">Download deadlines<a class="headerlink" href="#download-deadlines" title="Permanent link">&para;</a></h2>
-<p>For large file downloads, <code>timeout</code> controls per-request timeouts, and <code>deadline_seconds</code> enforces a total time budget for streaming downloads (including retries/backoff). When exceeded, the SDK raises <code>TimeoutError</code>.</p>
-<h2 id="diagnostics">Diagnostics<a class="headerlink" href="#diagnostics" title="Permanent link">&para;</a></h2>
-<p>Many errors include diagnostics (method/URL/status and more). When you catch an <code>AffinityError</code>, you can log it and inspect attached context.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">AffinityError</span><span class="p">,</span> <span class="n">RateLimitError</span>
+<h1 id="csv-export-guide">CSV Export Guide<a class="headerlink" href="#csv-export-guide" title="Permanent link">&para;</a></h1>
+<p>This guide shows you how to export data from the Affinity CLI to CSV format for use in spreadsheets, data analysis tools, or other applications.</p>
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<p>Export data to CSV using the <code>--csv</code> flag:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Export all people to CSV</span>
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>people.csv
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-        <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
-<span class="k">except</span> <span class="n">RateLimitError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Rate limited:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Retry after:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">retry_after</span><span class="p">)</span>
-<span class="k">except</span> <span class="n">AffinityError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Affinity error:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">diagnostics</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Request:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Status:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Request ID:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">request_id</span><span class="p">)</span>
+<span class="c1"># Export all companies to CSV</span>
+affinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>companies.csv
+
+<span class="c1"># Export all opportunities to CSV</span>
+affinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>opportunities.csv
+
+<span class="c1"># Export list entries with custom fields</span>
+affinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">12345</span><span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>entries.csv
 </code></pre></div>
-<h2 id="production-playbook">Production playbook<a class="headerlink" href="#production-playbook" title="Permanent link">&para;</a></h2>
-<p>The SDK retries some failures for safe reads (<code>GET</code>/<code>HEAD</code>), but production systems typically need additional policies: alerting, bounded retries, idempotency for writes, and circuit breaking during outages.</p>
-<h3 id="recommended-handling-by-error-type">Recommended handling by error type<a class="headerlink" href="#recommended-handling-by-error-type" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>AuthenticationError (401), AuthorizationError (403)</strong>: do not retry; fix credentials/permissions; alert immediately.</li>
-<li><strong>ValidationError (400/422)</strong>: do not retry; treat as a bug or bad input; log the response body snippet for debugging.</li>
-<li><strong>NotFoundError (404)</strong>: do not retry; treat as “missing” and handle at the business layer (or alert if it indicates data drift).</li>
-<li><strong>RateLimitError (429)</strong>: retry only after <code>retry_after</code> (when present), reduce concurrency, and consider queueing/batching to smooth bursts.</li>
-<li><strong>Server errors (5xx) / transient network errors / timeouts</strong>:</li>
-<li><strong>Reads (<code>GET</code>/<code>HEAD</code>)</strong>: retry with backoff (the SDK already does).</li>
-<li><strong>Writes (<code>POST</code>/<code>PATCH</code>/<code>PUT</code>/<code>DELETE</code>)</strong>: only retry if you can make the operation idempotent.</li>
-<li><strong>VersionCompatibilityError</strong>: do not retry; fix API-version configuration (see below).</li>
-</ul>
-<h3 id="retrying-writes-safely-idempotency">Retrying writes safely (idempotency)<a class="headerlink" href="#retrying-writes-safely-idempotency" title="Permanent link">&para;</a></h3>
-<p>By default, the SDK does <strong>not</strong> retry non-<code>GET</code>/<code>HEAD</code> requests, because a retry can duplicate side effects (e.g., “create note” twice).</p>
-<p>If you implement retries around writes, make them idempotent:</p>
-<ul>
-<li>Prefer endpoints that are naturally idempotent (e.g., “set field value to X” rather than “append note”).</li>
-<li>If the API supports an idempotency key header, use it (store the key per logical operation and reuse it on retry).</li>
-<li>If the API does not support idempotency keys, consider application-level deduping (e.g., deterministic external IDs, or checking for an existing resource before creating a new one).</li>
-</ul>
-<h3 id="circuit-breaker-fail-fast-during-outages">Circuit breaker (fail fast during outages)<a class="headerlink" href="#circuit-breaker-fail-fast-during-outages" title="Permanent link">&para;</a></h3>
-<p>For sustained 5xx/timeout/network failures, a circuit breaker can protect your system (and Affinity) from retry storms.</p>
-<p>Minimal pattern:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-
-<span class="k">class</span><span class="w"> </span><span class="nc">SimpleCircuitBreaker</span><span class="p">:</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">failure_threshold</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">open_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">failure_threshold</span> <span class="o">=</span> <span class="n">failure_threshold</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">open_seconds</span> <span class="o">=</span> <span class="n">open_seconds</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_failures</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_open_until</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">allow</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_until</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_until</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_open_until</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_failures</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">record_success</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_failures</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_open_until</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">record_failure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_failures</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_failures</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">failure_threshold</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_open_until</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_seconds</span>
+<h2 id="excel-compatibility">Excel Compatibility<a class="headerlink" href="#excel-compatibility" title="Permanent link">&para;</a></h2>
+<p>If you're opening CSV files in Microsoft Excel, use the <code>--csv-bom</code> flag to ensure proper character encoding:</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>people.csv<span class="w"> </span>--csv-bom
 </code></pre></div>
-<h3 id="alerting-guidance">Alerting guidance<a class="headerlink" href="#alerting-guidance" title="Permanent link">&para;</a></h3>
-<p>Common triggers:</p>
+<p>This adds a UTF-8 Byte Order Mark (BOM) to the file, which helps Excel correctly display special characters, accents, and non-English text.</p>
+<h2 id="commands-with-built-in-csv-support">Commands with Built-in CSV Support<a class="headerlink" href="#commands-with-built-in-csv-support" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>CSV Flag</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>person ls</code></td>
+<td>✅ <code>--csv</code></td>
+<td><code>affinity person ls --all --csv people.csv</code></td>
+</tr>
+<tr>
+<td><code>company ls</code></td>
+<td>✅ <code>--csv</code></td>
+<td><code>affinity company ls --all --csv companies.csv</code></td>
+</tr>
+<tr>
+<td><code>opportunity ls</code></td>
+<td>✅ <code>--csv</code></td>
+<td><code>affinity opportunity ls --all --csv opps.csv</code></td>
+</tr>
+<tr>
+<td><code>list export</code></td>
+<td>✅ <code>--csv</code></td>
+<td><code>affinity list export 12345 --all --csv entries.csv</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note:</strong> The <code>--csv</code> flag requires <code>--all</code> to fetch all pages of data. Single-page exports are not supported for CSV output.</p>
+<h2 id="csv-column-reference">CSV Column Reference<a class="headerlink" href="#csv-column-reference" title="Permanent link">&para;</a></h2>
+<h3 id="person-ls">person ls<a class="headerlink" href="#person-ls" title="Permanent link">&para;</a></h3>
+<p>The <code>person ls</code> command exports these columns:</p>
 <ul>
-<li>Any sustained 401/403 (credentials/permissions regressions).</li>
-<li>Sustained 429s (rate-limit pressure): alert and reduce concurrency / increase backoff.</li>
-<li>Elevated 5xx/timeouts/network errors (provider outage or network problem).</li>
+<li><strong>id</strong> - Person ID</li>
+<li><strong>name</strong> - Full name (first + last)</li>
+<li><strong>primaryEmail</strong> - Primary email address</li>
+<li><strong>emails</strong> - All email addresses (semicolon-separated)</li>
 </ul>
-<p>When alerting, include <code>e.diagnostics.request_id</code> (when present) to speed up support/debugging.</p>
-<h2 id="rate-limits">Rate limits<a class="headerlink" href="#rate-limits" title="Permanent link">&para;</a></h2>
-<p>If you are consistently hitting 429s, see <a href="../rate-limits/">Rate limits</a> for strategies and the rate limit APIs.</p>
-<h2 id="api-versions-and-beta-endpoints">API versions and beta endpoints<a class="headerlink" href="#api-versions-and-beta-endpoints" title="Permanent link">&para;</a></h2>
-<p>If you see <code>BetaEndpointDisabledError</code>, enable beta endpoints:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">enable_beta_endpoints</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</code></pre></div>
-<p>If you see <code>VersionCompatibilityError</code>, this often indicates a V2 API version mismatch between your API key settings and what the SDK expects. Check your API key’s “Default API Version”, and consider setting <code>expected_v2_version</code> for clearer diagnostics:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">expected_v2_version</span><span class="o">=</span><span class="s2">&quot;2024-01-01&quot;</span><span class="p">)</span>
-</code></pre></div>
-<p>See <a href="../api-versions-and-routing/">API versions &amp; routing</a> and the <a href="../../glossary/">Glossary</a>.</p>
-<h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<p>Example output:
+<div class="highlight"><pre><span></span><code>id,name,primaryEmail,emails
+123,Alice Smith,alice@example.com,alice@example.com
+456,Bob Jones,bob@company.com,bob@company.com; bjones@company.com
+</code></pre></div></p>
+<h3 id="company-ls">company ls<a class="headerlink" href="#company-ls" title="Permanent link">&para;</a></h3>
+<p>The <code>company ls</code> command exports these columns:</p>
 <ul>
-<li><a href="../rate-limits/">Rate limits</a></li>
-<li><a href="../../troubleshooting/">Troubleshooting</a></li>
-<li><a href="../configuration/">Configuration</a></li>
-<li><a href="../api-versions-and-routing/">API versions &amp; routing</a></li>
-<li><a href="../../reference/exceptions/">Exceptions reference</a></li>
+<li><strong>id</strong> - Company ID</li>
+<li><strong>name</strong> - Company name</li>
+<li><strong>domain</strong> - Primary domain</li>
+<li><strong>domains</strong> - All domains (semicolon-separated)</li>
+</ul>
+<p>Example output:
+<div class="highlight"><pre><span></span><code>id,name,domain,domains
+100,Acme Corp,acme.com,acme.com
+101,Beta Inc,beta.com,beta.com; beta.co
+</code></pre></div></p>
+<h3 id="opportunity-ls">opportunity ls<a class="headerlink" href="#opportunity-ls" title="Permanent link">&para;</a></h3>
+<p>The <code>opportunity ls</code> command exports these columns:</p>
+<ul>
+<li><strong>id</strong> - Opportunity ID</li>
+<li><strong>name</strong> - Opportunity name</li>
+<li><strong>listId</strong> - List ID the opportunity belongs to</li>
+</ul>
+<p>Example output:
+<div class="highlight"><pre><span></span><code>id,name,listId
+10,Series A,41780
+11,Seed Round,41780
+</code></pre></div></p>
+<h3 id="list-export">list export<a class="headerlink" href="#list-export" title="Permanent link">&para;</a></h3>
+<p>The <code>list export</code> command is the most powerful CSV export option. It includes:</p>
+<ul>
+<li>Entity ID and name</li>
+<li>All custom field values</li>
+<li>List entry metadata</li>
+</ul>
+<p>See <code>affinity list export --help</code> for details.</p>
+<h2 id="advanced-using-jq-for-custom-csv-exports">Advanced: Using jq for Custom CSV Exports<a class="headerlink" href="#advanced-using-jq-for-custom-csv-exports" title="Permanent link">&para;</a></h2>
+<p>For commands without built-in <code>--csv</code> support, you can use <code>jq</code> to convert JSON output to CSV format.</p>
+<h3 id="basic-pattern">Basic Pattern<a class="headerlink" href="#basic-pattern" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>&lt;command&gt;<span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.&lt;entity&gt;[] | [.field1, .field2, .field3] | @csv&#39;</span><span class="w"> </span>&gt;<span class="w"> </span>output.csv
+</code></pre></div>
+<p>The <code>-r</code> flag is crucial - it outputs raw strings instead of JSON-quoted values.</p>
+<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<p><strong>Export field values:</strong>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>field-value<span class="w"> </span>ls<span class="w"> </span>--field-id<span class="w"> </span>field-12345<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.fieldValues[] | [.fieldId, .value, .entityId] | @csv&#39;</span>
+</code></pre></div></p>
+<p><strong>Export notes:</strong>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>note<span class="w"> </span>ls<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.notes[] | [.id, .content, .createdAt] | @csv&#39;</span>
+</code></pre></div></p>
+<p><strong>Export interactions:</strong>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.interactions[] | [.id, .date, .type] | @csv&#39;</span>
+</code></pre></div></p>
+<p><strong>Add headers manually:</strong>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;[&quot;ID&quot;,&quot;Name&quot;,&quot;Email&quot;],</span>
+<span class="s1">         (.data.persons[] | [.id, .name, .primaryEmail]) | @csv&#39;</span>
+</code></pre></div></p>
+<p><strong>Handle arrays (join with semicolons):</strong>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.persons[] | [.id, .name, (.emails | join(&quot;; &quot;))] | @csv&#39;</span>
+</code></pre></div></p>
+<p><strong>Extract from nested structures:</strong>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">123</span><span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.person.fields[] | [.fieldId, .value, .listEntryId] | @csv&#39;</span>
+</code></pre></div></p>
+<h2 id="json-data-structure-reference">JSON Data Structure Reference<a class="headerlink" href="#json-data-structure-reference" title="Permanent link">&para;</a></h2>
+<p>All CLI commands return data in a consistent structure:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;&lt;entity-plural&gt;&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Entity paths for jq:
+- <strong>persons</strong>: <code>.data.persons[]</code>
+- <strong>companies</strong>: <code>.data.companies[]</code>
+- <strong>opportunities</strong>: <code>.data.opportunities[]</code>
+- <strong>fieldValues</strong>: <code>.data.fieldValues[]</code>
+- <strong>fieldValueChanges</strong>: <code>.data.fieldValueChanges[]</code>
+- <strong>notes</strong>: <code>.data.notes[]</code>
+- <strong>interactions</strong>: <code>.data.interactions[]</code>
+- <strong>tasks</strong>: <code>.data.tasks[]</code></p>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="empty-output">Empty Output<a class="headerlink" href="#empty-output" title="Permanent link">&para;</a></h3>
+<p>Make sure you're accessing the correct JSON path:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ❌ Wrong - missing .data</span>
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.persons&#39;</span>
+
+<span class="c1"># ✅ Correct</span>
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.persons&#39;</span>
+</code></pre></div>
+<h3 id="csv-shows-json-strings">CSV shows JSON strings<a class="headerlink" href="#csv-shows-json-strings" title="Permanent link">&para;</a></h3>
+<p>Use the <code>-r</code> flag with jq:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ❌ Wrong - produces &quot;[1,\&quot;Alice\&quot;]&quot;</span>
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.persons[] | [.id, .name] | @csv&#39;</span>
+
+<span class="c1"># ✅ Correct - produces &quot;1,Alice&quot;</span>
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.persons[] | [.id, .name] | @csv&#39;</span>
+</code></pre></div>
+<h3 id="special-characters-broken-in-excel">Special characters broken in Excel<a class="headerlink" href="#special-characters-broken-in-excel" title="Permanent link">&para;</a></h3>
+<p>Use the <code>--csv-bom</code> flag:</p>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>people.csv<span class="w"> </span>--csv-bom
+</code></pre></div>
+<h3 id="empty-csv-file-has-no-headers">Empty CSV file has no headers<a class="headerlink" href="#empty-csv-file-has-no-headers" title="Permanent link">&para;</a></h3>
+<p>This is expected behavior when there are no results. The CLI cannot determine column names without data. If you need headers even for empty results, use <code>list export</code> which has a known schema.</p>
+<h2 id="tips-and-best-practices">Tips and Best Practices<a class="headerlink" href="#tips-and-best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-use-all-for-complete-exports">1. Use --all for complete exports<a class="headerlink" href="#1-use-all-for-complete-exports" title="Permanent link">&para;</a></h3>
+<p>The <code>--csv</code> flag requires <code>--all</code> to fetch all pages:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ✅ Correct</span>
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>people.csv
+
+<span class="c1"># ❌ Won&#39;t work</span>
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--csv<span class="w"> </span>people.csv
+</code></pre></div>
+<h3 id="2-combine-with-filters">2. Combine with filters<a class="headerlink" href="#2-combine-with-filters" title="Permanent link">&para;</a></h3>
+<p><strong>Filtering on custom fields (recommended):</strong></p>
+<p>When filtering on custom fields, use <code>--filter</code> for server-side filtering. This is more efficient as Affinity filters the data before sending it:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ✅ Efficient: Server-side filtering on custom field</span>
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;field(&quot;Department&quot;) = &quot;Sales&quot;&#39;</span><span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>sales-people.csv
+</code></pre></div>
+<p>You can also combine <code>--filter</code> with jq for additional client-side processing:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Filter server-side, then process with jq</span>
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;field(&quot;Department&quot;) = &quot;Sales&quot;&#39;</span><span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.persons[] | [.id, .name, .primaryEmail] | @csv&#39;</span>
+</code></pre></div>
+<p><strong>Filtering on built-in properties:</strong></p>
+<p>Built-in properties like <code>type</code>, <code>firstName</code>, <code>primaryEmail</code>, etc. cannot be filtered using <code>--filter</code> (which only works with custom fields). Use jq for client-side filtering:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ⚠️ Less efficient: Client-side filtering on built-in &#39;type&#39; property</span>
+<span class="c1"># (downloads all data, then filters locally)</span>
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.persons[] | select(.type == &quot;internal&quot;) | [.id, .name] | @csv&#39;</span>
+</code></pre></div>
+<p><strong>Combining both approaches:</strong></p>
+<p>For complex scenarios, combine server-side custom field filtering with client-side built-in property filtering:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Filter on custom field server-side, then filter on type client-side</span>
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;field(&quot;Department&quot;) = &quot;Sales&quot;&#39;</span><span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.persons[] | select(.type == &quot;internal&quot;) | [.id, .name] | @csv&#39;</span>
+</code></pre></div>
+<h3 id="3-save-queries-as-scripts">3. Save queries as scripts<a class="headerlink" href="#3-save-queries-as-scripts" title="Permanent link">&para;</a></h3>
+<p>Create reusable export scripts:</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># export-pipeline.sh</span>
+
+affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>people.csv<span class="w"> </span>--csv-bom
+affinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>companies.csv<span class="w"> </span>--csv-bom
+affinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>opportunities.csv<span class="w"> </span>--csv-bom
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Export complete!&quot;</span>
+</code></pre></div>
+<h3 id="4-schedule-regular-exports">4. Schedule regular exports<a class="headerlink" href="#4-schedule-regular-exports" title="Permanent link">&para;</a></h3>
+<p>Use cron or task scheduler for automated exports:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Daily export at 2 AM</span>
+<span class="m">0</span><span class="w"> </span><span class="m">2</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>/path/to/export-pipeline.sh
+</code></pre></div>
+<h3 id="5-handle-large-datasets">5. Handle large datasets<a class="headerlink" href="#5-handle-large-datasets" title="Permanent link">&para;</a></h3>
+<p>For very large exports, monitor progress:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># The CLI will show API call counts for large exports</span>
+affinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">12345</span><span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>large-export.csv
+</code></pre></div>
+<h2 id="getting-help">Getting Help<a class="headerlink" href="#getting-help" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Run <code>affinity &lt;command&gt; --help</code> to see all available options</li>
+<li>Check <code>affinity --version</code> to ensure you have the latest version</li>
+<li>Report issues at https://github.com/anthropics/affinity-api-x/issues</li>
+</ul>
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../cli/scripting/">CLI Scripting Guide</a> - JSON output and automation</li>
+<li><a href="../../cli/commands/">CLI Commands Reference</a> - Complete command documentation</li>
+<li><a href="../field-values/">Field Values Guide</a> - Working with custom fields</li>
+<li><a href="../filtering/">Filtering Guide</a> - Server-side and client-side filtering</li>
 </ul>
 
 

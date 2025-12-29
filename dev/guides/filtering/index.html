@@ -14,7 +14,7 @@
         <link rel="prev" href="../rate-limits/">
       
       
-        <link rel="next" href="../field-types-and-values/">
+        <link rel="next" href="../csv-export/">
       
       
         
@@ -487,6 +487,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JSON Output Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -806,10 +834,43 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#operator-reference" class="md-nav__link">
+  <a href="#recommended-use-the-filter-builder" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Operator reference
+        Recommended: Use the Filter Builder
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filter-builder-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filter Builder Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#raw-filter-strings-advanced" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raw Filter Strings (Advanced)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-can-be-filtered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What can be filtered?
       
     </span>
   </a>
@@ -843,6 +904,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../csv-export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSV Export (CLI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../field-types-and-values/" class="md-nav__link">
         
   
@@ -851,6 +940,34 @@
     
   
     Field types & values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../field-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field values
   
 
     
@@ -991,6 +1108,62 @@
     
   
     Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../opportunity-associations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Opportunity associations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v1-v2-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V1-V2 routing (redirect)
   
 
     
@@ -1761,10 +1934,43 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#operator-reference" class="md-nav__link">
+  <a href="#recommended-use-the-filter-builder" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Operator reference
+        Recommended: Use the Filter Builder
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filter-builder-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filter Builder Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#raw-filter-strings-advanced" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raw Filter Strings (Advanced)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-can-be-filtered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What can be filtered?
       
     </span>
   </a>
@@ -1803,13 +2009,75 @@
 
 
 <h1 id="filtering">Filtering<a class="headerlink" href="#filtering" title="Permanent link">&para;</a></h1>
-<p>For V2 list endpoints that accept <code>filter</code>, you can pass:</p>
-<ul>
-<li>a raw filter string, or</li>
-<li>a <code>FilterExpression</code> built with <code>affinity.F</code></li>
-</ul>
-<h2 id="operator-reference">Operator reference<a class="headerlink" href="#operator-reference" title="Permanent link">&para;</a></h2>
-<p>The builder outputs Affinity’s V2 filtering language:</p>
+<p>V2 list endpoints accept <code>filter</code> expressions to query custom fields.</p>
+<p><strong>Important:</strong> V2 filters only work with <strong>custom fields</strong>, not built-in entity properties. Built-in properties like <code>type</code>, <code>firstName</code>, <code>domain</code>, etc. cannot be filtered.</p>
+<h2 id="recommended-use-the-filter-builder">Recommended: Use the Filter Builder<a class="headerlink" href="#recommended-use-the-filter-builder" title="Permanent link">&para;</a></h2>
+<p>Use <code>affinity.F</code> to build type-safe filter expressions:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span><span class="p">,</span> <span class="n">F</span>
+
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="c1"># ✅ Recommended: Type-safe filter builder</span>
+    <span class="n">companies</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+        <span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Industry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Software&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Benefits of the filter builder:
+- ✅ Prevents syntax errors with type checking
+- ✅ Handles escaping automatically
+- ✅ Makes it clear you're filtering custom fields (via <code>field()</code> method)
+- ✅ Provides IDE autocomplete for filter operations</p>
+<p><strong>CLI users:</strong> The CLI uses raw filter string syntax. See <a href="../../cli/commands/">CLI commands reference</a> for examples.</p>
+<h2 id="filter-builder-examples">Filter Builder Examples<a class="headerlink" href="#filter-builder-examples" title="Permanent link">&para;</a></h2>
+<p><strong>Simple comparisons:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span><span class="p">,</span> <span class="n">F</span>
+
+<span class="c1"># Equals</span>
+<span class="n">persons</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Department&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Sales&quot;</span><span class="p">))</span>
+
+<span class="c1"># Contains (case-insensitive substring match)</span>
+<span class="n">companies</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Industry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;Tech&quot;</span><span class="p">))</span>
+
+<span class="c1"># Starts with</span>
+<span class="n">persons</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Title&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">starts_with</span><span class="p">(</span><span class="s2">&quot;VP&quot;</span><span class="p">))</span>
+
+<span class="c1"># Greater than (for numbers/dates)</span>
+<span class="n">opportunities</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">opportunities</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Amount&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">100000</span><span class="p">))</span>
+
+<span class="c1"># Is null / is not null</span>
+<span class="n">persons</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Manager&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_null</span><span class="p">())</span>
+</code></pre></div>
+<p><strong>Complex logic (AND/OR/NOT):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># AND: Both conditions must be true</span>
+<span class="n">active_sales</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+    <span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Department&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Sales&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Status&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Active&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># OR: Either condition can be true</span>
+<span class="n">tech_or_finance</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+    <span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Industry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Technology&quot;</span><span class="p">)</span> <span class="o">|</span> <span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Industry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Finance&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># NOT: Negate a condition</span>
+<span class="n">non_archived</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+    <span class="nb">filter</span><span class="o">=~</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Archived&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># Complex: (A AND B) OR (C AND D)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+    <span class="nb">filter</span><span class="o">=</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Industry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Software&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Region&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;US&quot;</span><span class="p">))</span>
+        <span class="o">|</span> <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Industry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Hardware&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Region&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;EU&quot;</span><span class="p">))</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><strong>In list (multiple values):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Match any value in the list</span>
+<span class="n">multi_region</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+    <span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Region&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">in_list</span><span class="p">([</span><span class="s2">&quot;US&quot;</span><span class="p">,</span> <span class="s2">&quot;Canada&quot;</span><span class="p">,</span> <span class="s2">&quot;Mexico&quot;</span><span class="p">])</span>
+<span class="p">)</span>
+</code></pre></div>
+<h2 id="raw-filter-strings-advanced">Raw Filter Strings (Advanced)<a class="headerlink" href="#raw-filter-strings-advanced" title="Permanent link">&para;</a></h2>
+<p>For CLI or advanced SDK use, you can use raw filter strings:</p>
 <table>
 <thead>
 <tr>
@@ -1822,62 +2090,73 @@
 <tr>
 <td>and</td>
 <td><code>&amp;</code></td>
-<td><code>foo = 1 &amp; bar = 2</code></td>
+<td><code>field("A") = 1 &amp; field("B") = 2</code></td>
 </tr>
 <tr>
 <td>or</td>
 <td><code>|</code></td>
-<td><code>foo = 1 | bar = 2</code></td>
+<td><code>field("A") = 1 | field("B") = 2</code></td>
 </tr>
 <tr>
 <td>not</td>
 <td><code>!</code></td>
-<td><code>!(foo = 1)</code></td>
+<td><code>!(field("A") = 1)</code></td>
 </tr>
 <tr>
 <td>equals</td>
 <td><code>=</code></td>
-<td><code>name = "Acme"</code></td>
+<td><code>field("Industry") = "Software"</code></td>
 </tr>
 <tr>
 <td>not equals</td>
 <td><code>!=</code></td>
-<td><code>status != "inactive"</code></td>
+<td><code>field("Status") != "inactive"</code></td>
 </tr>
 <tr>
 <td>starts with</td>
 <td><code>=^</code></td>
-<td><code>name =^ "Ac"</code></td>
+<td><code>field("Name") =^ "Ac"</code></td>
 </tr>
 <tr>
 <td>ends with</td>
 <td><code>=$</code></td>
-<td><code>name =$ "me"</code></td>
+<td><code>field("Name") =$ "Inc"</code></td>
 </tr>
 <tr>
 <td>contains</td>
 <td><code>=~</code></td>
-<td><code>name =~ "cm"</code></td>
+<td><code>field("Title") =~ "Manager"</code></td>
 </tr>
 <tr>
 <td>is NULL</td>
 <td><code>!= *</code></td>
-<td><code>email != *</code></td>
+<td><code>field("Email") != *</code></td>
 </tr>
 <tr>
 <td>is not NULL</td>
 <td><code>= *</code></td>
-<td><code>email = *</code></td>
+<td><code>field("Email") = *</code></td>
 </tr>
 </tbody>
 </table>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span><span class="p">,</span> <span class="n">F</span>
-
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-    <span class="n">companies</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;domain&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;acme&quot;</span><span class="p">))</span>
-    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">companies</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-</code></pre></div>
+<p><strong>CLI example:</strong>
+<div class="highlight"><pre><span></span><code>affinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;field(&quot;Department&quot;) = &quot;Sales&quot;&#39;</span>
+</code></pre></div></p>
+<p><strong>SDK with raw string:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># Less safe than using F, but works</span>
+<span class="n">persons</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;field(&quot;Department&quot;) = &quot;Sales&quot;&#39;</span><span class="p">)</span>
+</code></pre></div></p>
+<h2 id="what-can-be-filtered">What can be filtered?<a class="headerlink" href="#what-can-be-filtered" title="Permanent link">&para;</a></h2>
+<p><strong>✅ Custom fields</strong> (added to entities in Affinity):
+- <code>field("Department").equals("Sales")</code>
+- <code>field("Status").contains("Active")</code>
+- <code>field("Industry").equals("Software")</code>
+- <code>field("Region").in_list(["US", "Canada"])</code></p>
+<p><strong>❌ Built-in properties</strong> (cannot be filtered with V2 filter expressions):
+- Person: <code>type</code>, <code>firstName</code>, <code>lastName</code>, <code>primaryEmail</code>, <code>emailAddresses</code>
+- Company: <code>name</code>, <code>domain</code>, <code>domains</code>
+- Opportunity: <code>name</code>, <code>listId</code></p>
+<p>For built-in properties, retrieve all data and filter client-side (see <a href="../csv-export/">CSV Export Guide</a> for examples).</p>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../pagination/">Pagination</a></li>
