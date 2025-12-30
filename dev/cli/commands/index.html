@@ -511,6 +511,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-config-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity config path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-config-init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity config init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-config-check-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity config check-key
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-config-setup-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity config setup-key
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#global-options" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2838,6 +2899,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-config-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity config path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-config-init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity config init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-config-check-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity config check-key
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-config-setup-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity config setup-key
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#global-options" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3775,7 +3897,57 @@
 <li><code>xaffinity version</code> (also <code>xaffinity --version</code>)</li>
 <li><code>xaffinity config path</code></li>
 <li><code>xaffinity config init</code></li>
+<li><code>xaffinity config check-key</code> (reads files, but never calls API)</li>
 </ul>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<h3 id="xaffinity-config-path"><code>xaffinity config path</code><a class="headerlink" href="#xaffinity-config-path" title="Permanent link">&para;</a></h3>
+<p>Show the path to the configuration file.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>path
+</code></pre></div>
+<h3 id="xaffinity-config-init"><code>xaffinity config init</code><a class="headerlink" href="#xaffinity-config-init" title="Permanent link">&para;</a></h3>
+<p>Create a new configuration file with template.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>init
+xaffinity<span class="w"> </span>config<span class="w"> </span>init<span class="w"> </span>--force<span class="w">  </span><span class="c1"># Overwrite existing</span>
+</code></pre></div>
+<h3 id="xaffinity-config-check-key"><code>xaffinity config check-key</code><a class="headerlink" href="#xaffinity-config-check-key" title="Permanent link">&para;</a></h3>
+<p>Check if an API key is configured. Returns exit code 0 if key found, 1 if not found.</p>
+<p>This command checks (in order):
+1. <code>AFFINITY_API_KEY</code> environment variable
+2. <code>.env</code> file in current directory
+3. User config file (<code>config.toml</code>)</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>check-key
+xaffinity<span class="w"> </span>config<span class="w"> </span>check-key<span class="w"> </span>--json
+xaffinity<span class="w"> </span>config<span class="w"> </span>check-key<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Key exists&quot;</span>
+</code></pre></div>
+<p>The <code>--json</code> output includes:
+- <code>configured</code>: boolean indicating if a key was found
+- <code>source</code>: where the key was found (<code>"environment"</code>, <code>"dotenv"</code>, <code>"config"</code>, or <code>null</code>)</p>
+<h3 id="xaffinity-config-setup-key"><code>xaffinity config setup-key</code><a class="headerlink" href="#xaffinity-config-setup-key" title="Permanent link">&para;</a></h3>
+<p>Securely configure your Affinity API key. Prompts for the key with hidden input (not echoed to screen).</p>
+<p>Options:</p>
+<ul>
+<li><code>--scope [project|user]</code>: Where to store the key</li>
+<li><code>project</code>: <code>.env</code> file in current directory (auto-added to <code>.gitignore</code>)</li>
+<li><code>user</code>: User config file (<code>config.toml</code>, with <code>chmod 600</code> on Unix)</li>
+<li><code>--force</code>: Overwrite existing key without confirmation</li>
+<li><code>--validate/--no-validate</code>: Test key against API after storing (default: validate)</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Interactive setup (prompts for scope)</span>
+xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key
+
+<span class="c1"># Store in current project&#39;s .env file</span>
+xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key<span class="w"> </span>--scope<span class="w"> </span>project
+
+<span class="c1"># Store in user config (works across all projects)</span>
+xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key<span class="w"> </span>--scope<span class="w"> </span>user
+
+<span class="c1"># Overwrite existing key</span>
+xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key<span class="w"> </span>--force
+
+<span class="c1"># Skip API validation</span>
+xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key<span class="w"> </span>--no-validate
+</code></pre></div>
+<p>Get your API key from <a href="https://support.affinity.co/s/article/How-to-Create-and-Manage-API-Keys">Affinity API Settings</a>.</p>
 <h2 id="global-options">Global options<a class="headerlink" href="#global-options" title="Permanent link">&para;</a></h2>
 <p>These options can be used with any command:</p>
 <ul>
