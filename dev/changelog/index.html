@@ -1885,8 +1885,35 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased">Unreleased<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
-<h2 id="030-2025-12-30">0.3.0 - 2025-12-30<a class="headerlink" href="#030-2025-12-30" title="Permanent link">&para;</a></h2>
+<h2 id="040-2025-12-30">0.4.0 - 2025-12-30<a class="headerlink" href="#040-2025-12-30" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>config check-key</code> command to check if an API key is configured (checks environment, .env, and config.toml).</li>
+<li>CLI: <code>config setup-key</code> command for secure API key configuration with hidden input, validation, and automatic .gitignore management.</li>
+<li>CLI: <code>set-field</code>, <code>set-fields</code>, <code>unset-field</code> commands for person, company, opportunity, and list entry entities.</li>
+<li>CLI: <code>list entry get</code> command with field metadata display.</li>
+<li>CLI: Enhanced <code>--expand-filter</code> syntax with OR (<code>|</code>), AND (<code>&amp;</code>), NOT (<code>!</code>), NULL checks (<code>=*</code>, <code>!=*</code>), and contains (<code>=~</code>).</li>
+<li>SDK: <code>list_entries</code> field added to <code>Person</code> model.</li>
+<li>SDK: Unified filter parser with <code>parse()</code> function and <code>matches()</code> method for client-side filter evaluation.</li>
+</ul>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Authentication error hints now reference <code>config check-key</code> and <code>config setup-key</code> commands.</li>
+<li>CLI: Authentication documentation updated with Quick Setup section.</li>
+</ul>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Default <code>--page-size</code> reduced from 200 to 100 to match Affinity API limit.</li>
+<li>SDK: Async <code>merge()</code> parameter names corrected (<code>primaryCompanyId</code>/<code>duplicateCompanyId</code>).</li>
+<li>SDK: Cache invalidation added to async create/update/delete in <code>CompanyService</code>.</li>
+</ul>
+<h3 id="removed">Removed<a class="headerlink" href="#removed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Deprecated <code>field-value</code> and <code>field-value-changes</code> command groups removed (use entity-specific field commands instead).</li>
+<li>CLI: Deprecated <code>update-field</code> and <code>batch-update</code> list entry commands removed (use <code>set-field</code>/<code>set-fields</code> instead).</li>
+</ul>
+<h2 id="030-2025-12-30">0.3.0 - 2025-12-30<a class="headerlink" href="#030-2025-12-30" title="Permanent link">&para;</a></h2>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>xaffinity list export --expand</code> for exporting list entries with entity field expansion (company/person/opportunity fields).</li>
 <li>CLI: <code>xaffinity field-value-changes ls</code> for viewing field value change history.</li>
@@ -1917,7 +1944,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Inbound webhook parsing helpers: <code>parse_webhook(...)</code>, <code>dispatch_webhook(...)</code>, and <code>BodyRegistry</code>.</li>
 <li>Claude Code plugin for SDK/CLI documentation and guidance.</li>
 </ul>
-<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Enum fields now display human-readable names instead of integers (type, status, direction, actionType).</li>
 <li>CLI: Datetimes render in local time with timezone info in column headers.</li>
@@ -1930,7 +1957,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li><code>ListEntry.entity</code> is now discriminated by <code>entity_type</code>.</li>
 <li>Rate limit API unified across sync and async clients.</li>
 </ul>
-<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>ListService.get()</code> now uses V1 API to return correct <code>list_size</code>.</li>
 <li>CLI: JSON serialization now handles datetime objects correctly.</li>
@@ -1938,14 +1965,14 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>File downloads now use public services for company expansion pagination.</li>
 </ul>
 <h2 id="020-2025-12-17">0.2.0 - 2025-12-17<a class="headerlink" href="#020-2025-12-17" title="Permanent link">&para;</a></h2>
-<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
+<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Initial public release.</li>
 <li><code>client.files.download_stream(...)</code> and <code>client.files.download_to(...)</code> for chunked file downloads.</li>
 <li><code>client.files.upload_path(...)</code> and <code>client.files.upload_bytes(...)</code> for ergonomic uploads.</li>
 <li><code>client.files.all(...)</code> / <code>client.files.iter(...)</code> for auto-pagination over files.</li>
 </ul>
-<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
+<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>File downloads now follow redirects without forwarding credentials and use the standard retry/diagnostics policy.</li>
 <li><code>client.files.list(...)</code> and <code>client.files.upload(...)</code> now require exactly one of <code>person_id</code>, <code>organization_id</code>, or <code>opportunity_id</code> (per API contract).</li>
