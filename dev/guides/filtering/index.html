@@ -906,6 +906,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#filtering-in-list-exports-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtering in List Exports (CLI)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Filtering in List Exports (CLI)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-the-difference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why the difference?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supported-operators-for-expand-filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported operators for --expand-filter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-consideration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance consideration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2006,6 +2067,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#filtering-in-list-exports-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtering in List Exports (CLI)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Filtering in List Exports (CLI)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-the-difference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why the difference?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supported-operators-for-expand-filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported operators for --expand-filter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-consideration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance consideration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2187,6 +2309,113 @@
 - Company: <code>name</code>, <code>domain</code>, <code>domains</code>
 - Opportunity: <code>name</code>, <code>listId</code></p>
 <p>For built-in properties, retrieve all data and filter client-side (see <a href="../csv-export/">CSV Export Guide</a> for examples).</p>
+<h2 id="filtering-in-list-exports-cli">Filtering in List Exports (CLI)<a class="headerlink" href="#filtering-in-list-exports-cli" title="Permanent link">&para;</a></h2>
+<p>The <code>list export</code> command supports two filter options with <strong>identical syntax</strong> but different behavior:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>What It Filters</th>
+<th>Where Filtering Happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--filter</code></td>
+<td>List entries</td>
+<td>Server-side (API)</td>
+</tr>
+<tr>
+<td><code>--expand-filter</code></td>
+<td>Expanded entities (people, companies)</td>
+<td>Client-side (after fetch)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="why-the-difference">Why the difference?<a class="headerlink" href="#why-the-difference" title="Permanent link">&para;</a></h3>
+<p>The Affinity API supports filtering for list entries, but <strong>does not support filtering associations</strong>.</p>
+<p>When you use <code>--expand people</code>, the CLI:</p>
+<ol>
+<li>Fetches the list entries (can be filtered with <code>--filter</code>)</li>
+<li>For each entry, fetches ALL associated people (API returns all, no filter option)</li>
+<li>Filters the people locally based on <code>--expand-filter</code></li>
+</ol>
+<p>This means <code>--expand-filter</code>:</p>
+<ul>
+<li>Uses the same syntax as <code>--filter</code> for consistency</li>
+<li>Is applied after fetching data (doesn't reduce API calls)</li>
+<li>Still useful for reducing output size and focusing on relevant associations</li>
+</ul>
+<h3 id="supported-operators-for-expand-filter">Supported operators for <code>--expand-filter</code><a class="headerlink" href="#supported-operators-for-expand-filter" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Syntax</th>
+<th>Meaning</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>=</code></td>
+<td>Exact match</td>
+<td><code>name=Alice</code></td>
+</tr>
+<tr>
+<td><code>!=</code></td>
+<td>Not equal</td>
+<td><code>name!=Bob</code></td>
+</tr>
+<tr>
+<td><code>=*</code></td>
+<td>IS NOT NULL (has value)</td>
+<td><code>email=*</code></td>
+</tr>
+<tr>
+<td><code>!=*</code></td>
+<td>IS NULL (empty/not set)</td>
+<td><code>email!=*</code></td>
+</tr>
+<tr>
+<td><code>=~</code></td>
+<td>Contains substring</td>
+<td><code>name=~Corp</code></td>
+</tr>
+<tr>
+<td><code>\|</code></td>
+<td>OR</td>
+<td><code>status=Unknown \| status=Valid</code></td>
+</tr>
+<tr>
+<td><code>&amp;</code></td>
+<td>AND</td>
+<td><code>status=Valid &amp; role=CEO</code></td>
+</tr>
+<tr>
+<td><code>!</code></td>
+<td>NOT (prefix)</td>
+<td><code>!(status=Inactive)</code></td>
+</tr>
+<tr>
+<td><code>()</code></td>
+<td>Grouping</td>
+<td><code>(status=A \| status=B) &amp; role=CEO</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Server-side: only fetch Active opportunities</span>
+<span class="c1"># Client-side: only include people with valid email status</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">275454</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--filter<span class="w"> </span><span class="s2">&quot;Status=Active&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--expand<span class="w"> </span>people<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--expand-filter<span class="w"> </span><span class="s2">&quot;Primary Email Status=Valid | Primary Email Status=Unknown | Primary Email Status!=*&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--all<span class="w"> </span>--csv<span class="w"> </span>output.csv
+</code></pre></div>
+<h3 id="performance-consideration">Performance consideration<a class="headerlink" href="#performance-consideration" title="Permanent link">&para;</a></h3>
+<p>Since <code>--expand-filter</code> is client-side, all associations are still fetched from the API.
+For large lists with many associations, the export may take time even if the filter
+reduces the final output significantly. Use <code>--dry-run</code> to estimate API calls.</p>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../pagination/">Pagination</a></li>
