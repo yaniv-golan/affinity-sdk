@@ -502,6 +502,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quick-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-key-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Key Sources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-env-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using .env Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2047,6 +2086,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quick-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-key-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Key Sources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-env-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using .env Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2165,18 +2243,28 @@
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;affinity-sdk[cli]&quot;</span>
 </code></pre></div>
 <h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
-<p>The CLI never makes “background” requests. It only calls the API for commands that require it.</p>
-<p>API key sources (highest precedence first):</p>
+<p>The CLI never makes "background" requests. It only calls the API for commands that require it.</p>
+<h3 id="quick-setup">Quick Setup<a class="headerlink" href="#quick-setup" title="Permanent link">&para;</a></h3>
+<p>Check if a key is already configured:</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>check-key
+</code></pre></div>
+<p>Set up a new key securely (hidden input, not echoed):</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key
+</code></pre></div>
+<p>See <a href="commands/#xaffinity-config-check-key">config check-key</a> and <a href="commands/#xaffinity-config-setup-key">config setup-key</a> for details.</p>
+<h3 id="api-key-sources">API Key Sources<a class="headerlink" href="#api-key-sources" title="Permanent link">&para;</a></h3>
+<p>The CLI checks these sources in order (highest precedence first):</p>
 <ol>
-<li><code>--api-key-file &lt;path&gt;</code> (use <code>-</code> to read from stdin)</li>
-<li><code>--api-key-stdin</code> (alias for <code>--api-key-file -</code>)</li>
-<li><code>AFFINITY_API_KEY</code></li>
-<li><code>api_key</code> in the config profile (discouraged for shared machines; the CLI warns on unsafe permissions where feasible)</li>
+<li><code>AFFINITY_API_KEY</code> environment variable</li>
+<li><code>.env</code> file in current directory (requires <code>--dotenv</code> flag)</li>
+<li><code>api_key</code> in user config file (<code>~/.config/xaffinity/config.toml</code>)</li>
 </ol>
-<p>Optional local development: <code>.env</code> loading is <strong>opt-in</strong>:</p>
+<h3 id="using-env-files">Using .env Files<a class="headerlink" href="#using-env-files" title="Permanent link">&para;</a></h3>
+<p>For project-specific keys, use <code>--dotenv</code> to load from <code>.env</code>:</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>--dotenv<span class="w"> </span>whoami
 xaffinity<span class="w"> </span>--dotenv<span class="w"> </span>--env-file<span class="w"> </span>./dev.env<span class="w"> </span>whoami
 </code></pre></div>
+<p>The <code>config setup-key --scope project</code> command creates a <code>.env</code> file and adds it to <code>.gitignore</code> automatically.</p>
 <h2 id="output-contract">Output contract<a class="headerlink" href="#output-contract" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>--json</code> is supported on every command.</li>

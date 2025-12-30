@@ -677,6 +677,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#cli-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Authentication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1940,6 +1951,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#cli-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Authentication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1990,6 +2012,15 @@
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">policies</span><span class="o">=</span><span class="n">Policies</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="n">WritePolicy</span><span class="o">.</span><span class="n">DENY</span><span class="p">))</span>
 </code></pre></div>
+<h2 id="cli-authentication">CLI Authentication<a class="headerlink" href="#cli-authentication" title="Permanent link">&para;</a></h2>
+<p>For the CLI, use the built-in setup commands:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Check if a key is configured</span>
+xaffinity<span class="w"> </span>config<span class="w"> </span>check-key
+
+<span class="c1"># Set up a new key securely (hidden input)</span>
+xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key
+</code></pre></div>
+<p>See <a href="../../cli/#authentication">CLI Authentication</a> for details.</p>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../../getting-started/">Getting started</a></li>
