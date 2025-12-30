@@ -2168,18 +2168,20 @@
 </tbody>
 </table>
 <p><strong>CLI example:</strong>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;field(&quot;Department&quot;) = &quot;Sales&quot;&#39;</span>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Department = &quot;Sales&quot;&#39;</span>
 </code></pre></div></p>
 <p><strong>SDK with raw string:</strong>
 <div class="highlight"><pre><span></span><code><span class="c1"># Less safe than using F, but works</span>
 <span class="n">persons</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;field(&quot;Department&quot;) = &quot;Sales&quot;&#39;</span><span class="p">)</span>
 </code></pre></div></p>
 <h2 id="what-can-be-filtered">What can be filtered?<a class="headerlink" href="#what-can-be-filtered" title="Permanent link">&para;</a></h2>
-<p><strong>✅ Custom fields</strong> (added to entities in Affinity):
-- <code>field("Department").equals("Sales")</code>
-- <code>field("Status").contains("Active")</code>
-- <code>field("Industry").equals("Software")</code>
-- <code>field("Region").in_list(["US", "Canada"])</code></p>
+<p><strong>✅ Custom fields</strong> (added to entities in Affinity):</p>
+<p>Python SDK:
+- <code>F.field("Department").equals("Sales")</code>
+- <code>F.field("Status").contains("Active")</code></p>
+<p>CLI (raw filter syntax):
+- <code>Department = "Sales"</code>
+- <code>Status =~ "Active"</code></p>
 <p><strong>❌ Built-in properties</strong> (cannot be filtered with V2 filter expressions):
 - Person: <code>type</code>, <code>firstName</code>, <code>lastName</code>, <code>primaryEmail</code>, <code>emailAddresses</code>
 - Company: <code>name</code>, <code>domain</code>, <code>domains</code>
