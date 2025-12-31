@@ -2233,6 +2233,7 @@
 <li><strong>JSON Output</strong>: All commands support <code>--json</code> for programmatic use (<a href="scripting/">Scripting Guide</a>)</li>
 <li><strong>Pagination</strong>: Fetch all pages with <code>--all</code> or control page size with <code>--page-size</code></li>
 <li><strong>Name Resolution</strong>: Use names instead of IDs for lists, fields, and entities</li>
+<li><strong>Session Caching</strong>: Share metadata across pipeline commands with <code>session start/end</code> (<a href="commands/#pipeline-optimization">Pipeline Optimization</a>)</li>
 </ul>
 <p>See <a href="commands/">Commands Reference</a> for complete command documentation.</p>
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
@@ -2276,6 +2277,12 @@ xaffinity<span class="w"> </span>--dotenv<span class="w"> </span>--env-file<span
 </ul>
 <h2 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>
 <p>The CLI enables SDK in-memory caching for cacheable metadata requests (e.g., field metadata) automatically.</p>
+<p>For pipelines running multiple commands, use <strong>session caching</strong> to share metadata across invocations:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_SESSION_CACHE</span><span class="o">=</span><span class="k">$(</span>xaffinity<span class="w"> </span>session<span class="w"> </span>start<span class="k">)</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My List&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xaffinity<span class="w"> </span>person<span class="w"> </span>get
+xaffinity<span class="w"> </span>session<span class="w"> </span>end
+</code></pre></div>
+<p>See <a href="commands/#pipeline-optimization">Pipeline Optimization</a> for details.</p>
 <h2 id="progress-quiet-mode">Progress + quiet mode<a class="headerlink" href="#progress-quiet-mode" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Long operations show progress bars/spinners on <strong>stderr</strong> when interactive.</li>

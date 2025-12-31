@@ -843,6 +843,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#cli-session-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI session caching
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2155,6 +2166,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#cli-session-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI session caching
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2273,6 +2295,13 @@
 </table>
 <h3 id="cache-isolation">Cache isolation<a class="headerlink" href="#cache-isolation" title="Permanent link">&para;</a></h3>
 <p>Cache is isolated per API key and base URL combination, so multiple clients with different credentials won't share cached data.</p>
+<h3 id="cli-session-caching">CLI session caching<a class="headerlink" href="#cli-session-caching" title="Permanent link">&para;</a></h3>
+<p>For CLI pipelines, use session caching to share metadata across invocations:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_SESSION_CACHE</span><span class="o">=</span><span class="k">$(</span>xaffinity<span class="w"> </span>session<span class="w"> </span>start<span class="k">)</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My List&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xaffinity<span class="w"> </span>person<span class="w"> </span>get
+xaffinity<span class="w"> </span>session<span class="w"> </span>end
+</code></pre></div>
+<p>See <a href="../../cli/commands/#pipeline-optimization">CLI Pipeline Optimization</a> for details.</p>
 
 
 
