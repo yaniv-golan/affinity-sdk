@@ -1413,6 +1413,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#xaffinity-field-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity field history
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1468,34 +1479,6 @@
     <span class="md-ellipsis">
       
         xaffinity field-value delete &lt;fieldValueId&gt;
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#field-value-changes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Field Value Changes
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Field Value Changes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#xaffinity-field-value-changes-ls" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        xaffinity field-value-changes ls
       
     </span>
   </a>
@@ -3895,6 +3878,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#xaffinity-field-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity field history
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3950,34 +3944,6 @@
     <span class="md-ellipsis">
       
         xaffinity field-value delete &lt;fieldValueId&gt;
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#field-value-changes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Field Value Changes
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Field Value Changes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#xaffinity-field-value-changes-ls" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        xaffinity field-value-changes ls
       
     </span>
   </a>
@@ -4578,6 +4544,28 @@ xaffinity<span class="w"> </span>field<span class="w"> </span>ls<span class="w">
 <h3 id="xaffinity-field-delete-fieldid"><code>xaffinity field delete &lt;fieldId&gt;</code><a class="headerlink" href="#xaffinity-field-delete-fieldid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span>delete<span class="w"> </span>field-123
 </code></pre></div>
+<h3 id="xaffinity-field-history"><code>xaffinity field history</code><a class="headerlink" href="#xaffinity-field-history" title="Permanent link">&para;</a></h3>
+<p>Show field value change history for a specific field on an entity (V1).</p>
+<div class="highlight"><pre><span></span><code>xaffinity field history FIELD_ID [OPTIONS]
+</code></pre></div>
+<p>Arguments:</p>
+<ul>
+<li><code>FIELD_ID</code> (required): Field ID (e.g., <code>field-123</code>). Use <code>field ls --list-id LIST</code> to find IDs.</li>
+</ul>
+<p>Options:</p>
+<ul>
+<li><code>--person-id &lt;id&gt;</code>: Filter by person</li>
+<li><code>--company-id &lt;id&gt;</code>: Filter by company</li>
+<li><code>--opportunity-id &lt;id&gt;</code>: Filter by opportunity</li>
+<li><code>--list-entry-id &lt;id&gt;</code>: Filter by list entry</li>
+<li><code>--action-type &lt;type&gt;</code>: Filter by action (<code>create</code>, <code>update</code>, <code>delete</code>)</li>
+<li><code>--max-results &lt;n&gt;</code>: Limit number of results</li>
+</ul>
+<p>Exactly one entity selector is required.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span><span class="nb">history</span><span class="w"> </span>field-123<span class="w"> </span>--person-id<span class="w"> </span><span class="m">456</span>
+xaffinity<span class="w"> </span>field<span class="w"> </span><span class="nb">history</span><span class="w"> </span>field-123<span class="w"> </span>--company-id<span class="w"> </span><span class="m">789</span><span class="w"> </span>--action-type<span class="w"> </span>update
+xaffinity<span class="w"> </span>--json<span class="w"> </span>field<span class="w"> </span><span class="nb">history</span><span class="w"> </span>field-123<span class="w"> </span>--list-entry-id<span class="w"> </span><span class="m">101</span><span class="w"> </span>--max-results<span class="w"> </span><span class="m">20</span>
+</code></pre></div>
 <h2 id="field-values">Field Values<a class="headerlink" href="#field-values" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-field-value-ls"><code>xaffinity field-value ls</code><a class="headerlink" href="#xaffinity-field-value-ls" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field-value<span class="w"> </span>ls<span class="w"> </span>--person-id<span class="w"> </span><span class="m">26229794</span>
@@ -4591,23 +4579,6 @@ xaffinity<span class="w"> </span>field-value<span class="w"> </span>ls<span clas
 </code></pre></div>
 <h3 id="xaffinity-field-value-delete-fieldvalueid"><code>xaffinity field-value delete &lt;fieldValueId&gt;</code><a class="headerlink" href="#xaffinity-field-value-delete-fieldvalueid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field-value<span class="w"> </span>delete<span class="w"> </span><span class="m">555</span>
-</code></pre></div>
-<h2 id="field-value-changes">Field Value Changes<a class="headerlink" href="#field-value-changes" title="Permanent link">&para;</a></h2>
-<h3 id="xaffinity-field-value-changes-ls"><code>xaffinity field-value-changes ls</code><a class="headerlink" href="#xaffinity-field-value-changes-ls" title="Permanent link">&para;</a></h3>
-<p>List field value change history for a specific field on an entity (V1).</p>
-<p>Options:</p>
-<ul>
-<li><code>--field-id &lt;id&gt;</code> (required): Field ID (e.g. <code>field-123</code>)</li>
-<li><code>--person-id &lt;id&gt;</code>: Filter by person</li>
-<li><code>--company-id &lt;id&gt;</code>: Filter by company</li>
-<li><code>--opportunity-id &lt;id&gt;</code>: Filter by opportunity</li>
-<li><code>--list-entry-id &lt;id&gt;</code>: Filter by list entry</li>
-<li><code>--action-type &lt;type&gt;</code>: Filter by action (<code>create</code>, <code>update</code>, <code>delete</code>)</li>
-</ul>
-<p>Exactly one entity selector (<code>--person-id</code>, <code>--company-id</code>, <code>--opportunity-id</code>, or <code>--list-entry-id</code>) is required.</p>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field-value-changes<span class="w"> </span>ls<span class="w"> </span>--field-id<span class="w"> </span>field-123<span class="w"> </span>--person-id<span class="w"> </span><span class="m">456</span>
-xaffinity<span class="w"> </span>field-value-changes<span class="w"> </span>ls<span class="w"> </span>--field-id<span class="w"> </span>field-123<span class="w"> </span>--company-id<span class="w"> </span><span class="m">789</span><span class="w"> </span>--action-type<span class="w"> </span>update
-xaffinity<span class="w"> </span>--json<span class="w"> </span>field-value-changes<span class="w"> </span>ls<span class="w"> </span>--field-id<span class="w"> </span>field-123<span class="w"> </span>--list-entry-id<span class="w"> </span><span class="m">101</span>
 </code></pre></div>
 <h2 id="relationship-strengths">Relationship Strengths<a class="headerlink" href="#relationship-strengths" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-relationship-strength-get"><code>xaffinity relationship-strength get</code><a class="headerlink" href="#xaffinity-relationship-strength-get" title="Permanent link">&para;</a></h3>
