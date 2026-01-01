@@ -1082,10 +1082,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#xaffinity-list-view-list" class="md-nav__link">
+  <a href="#xaffinity-list-get-list" class="md-nav__link">
     <span class="md-ellipsis">
       
-        xaffinity list view &lt;list&gt;
+        xaffinity list get &lt;list&gt;
       
     </span>
   </a>
@@ -1097,6 +1097,17 @@
     <span class="md-ellipsis">
       
         xaffinity list export &lt;list&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-entry-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List Entry Commands
       
     </span>
   </a>
@@ -3547,10 +3558,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#xaffinity-list-view-list" class="md-nav__link">
+  <a href="#xaffinity-list-get-list" class="md-nav__link">
     <span class="md-ellipsis">
       
-        xaffinity list view &lt;list&gt;
+        xaffinity list get &lt;list&gt;
       
     </span>
   </a>
@@ -3562,6 +3573,17 @@
     <span class="md-ellipsis">
       
         xaffinity list export &lt;list&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-entry-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List Entry Commands
       
     </span>
   </a>
@@ -4443,11 +4465,11 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>ls<span class="w"> 
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--type<span class="w"> </span>opportunity<span class="w"> </span>--private
 xaffinity<span class="w"> </span>list<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;People&quot;</span><span class="w"> </span>--type<span class="w"> </span>person<span class="w"> </span>--public<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span>
 </code></pre></div>
-<h3 id="xaffinity-list-view-list"><code>xaffinity list view &lt;list&gt;</code><a class="headerlink" href="#xaffinity-list-view-list" title="Permanent link">&para;</a></h3>
+<h3 id="xaffinity-list-get-list"><code>xaffinity list get &lt;list&gt;</code><a class="headerlink" href="#xaffinity-list-get-list" title="Permanent link">&para;</a></h3>
 <p>Accepts a list ID or an exact list name.</p>
 <p>The Fields table includes a <code>valueType</code> column using V2 string types (e.g., <code>dropdown-multi</code>, <code>ranked-dropdown</code>).</p>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>view<span class="w"> </span><span class="m">123</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span>view<span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span>--json
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>get<span class="w"> </span><span class="m">123</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>get<span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span>--json
 </code></pre></div>
 <h3 id="xaffinity-list-export-list"><code>xaffinity list export &lt;list&gt;</code><a class="headerlink" href="#xaffinity-list-export-list" title="Permanent link">&para;</a></h3>
 <p>Exports list entries with selected fields. This is the most powerful CSV export command, supporting custom fields and complex filtering.</p>
@@ -4465,6 +4487,11 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>out.csv<span class="w"> </span>--csv-bom
 </code></pre></div>
 <p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
+<h3 id="list-entry-commands">List Entry Commands<a class="headerlink" href="#list-entry-commands" title="Permanent link">&para;</a></h3>
+<p><strong>Shorthand:</strong> All <code>list entry</code> commands are also available as top-level <code>entry</code> commands:
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>entry<span class="w"> </span>get<span class="w"> </span><span class="m">123</span><span class="w"> </span><span class="m">456</span><span class="w">          </span><span class="c1"># Same as: xaffinity list entry get 123 456</span>
+xaffinity<span class="w"> </span>entry<span class="w"> </span>set-field<span class="w"> </span><span class="m">123</span><span class="w"> </span><span class="m">456</span><span class="w"> </span>...<span class="w">  </span><span class="c1"># Same as: xaffinity list entry set-field 123 456 ...</span>
+</code></pre></div></p>
 <h3 id="xaffinity-list-entry-add-list"><code>xaffinity list entry add &lt;list&gt;</code><a class="headerlink" href="#xaffinity-list-entry-add-list" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>add<span class="w"> </span><span class="m">123</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">26229794</span>
 xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">224925494</span>
