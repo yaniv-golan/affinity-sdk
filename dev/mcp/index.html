@@ -3249,9 +3249,42 @@ log-interaction-and-update-workflow(personName: &quot;Alice&quot;, interactionTy
 <div class="highlight"><pre><span></span><code><span class="nv">AFFINITY_SESSION_CACHE_TTL</span><span class="o">=</span><span class="m">300</span><span class="w"> </span>./xaffinity-mcp.sh
 </code></pre></div>
 <h3 id="debug-mode">Debug Mode<a class="headerlink" href="#debug-mode" title="Permanent link">&para;</a></h3>
-<p>Enable debug logging:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">MCPBASH_LOG_LEVEL</span><span class="o">=</span>debug<span class="w"> </span>./xaffinity-mcp.sh
+<p>Enable comprehensive logging for troubleshooting:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Full debug mode - enables all debug features</span>
+<span class="nv">MCPBASH_LOG_LEVEL</span><span class="o">=</span>debug<span class="w"> </span>./xaffinity-mcp.sh
+
+<span class="c1"># Test a single tool with debug output</span>
+<span class="nv">MCPBASH_LOG_LEVEL</span><span class="o">=</span>debug<span class="w"> </span>mcp-bash<span class="w"> </span>run-tool<span class="w"> </span>find-entities<span class="w"> </span>--args<span class="w"> </span><span class="s1">&#39;{&quot;query&quot;:&quot;acme&quot;}&#39;</span><span class="w"> </span>--verbose
+
+<span class="c1"># Enable shell tracing for deep debugging</span>
+<span class="nv">MCPBASH_TRACE_TOOLS</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>mcp-bash<span class="w"> </span>run-tool<span class="w"> </span>get-entity-dossier<span class="w"> </span>--args<span class="w"> </span><span class="s1">&#39;{&quot;entityType&quot;:&quot;person&quot;,&quot;entityId&quot;:&quot;12345&quot;}&#39;</span>
 </code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MCPBASH_LOG_LEVEL=debug</code></td>
+<td>Enable mcp-bash framework debug logging</td>
+</tr>
+<tr>
+<td><code>XAFFINITY_DEBUG=true</code></td>
+<td>Enable xaffinity-specific debug logging</td>
+</tr>
+<tr>
+<td><code>MCPBASH_LOG_VERBOSE=true</code></td>
+<td>Show paths in logs (exposes file paths)</td>
+</tr>
+<tr>
+<td><code>MCPBASH_TRACE_TOOLS=true</code></td>
+<td>Enable shell tracing (<code>set -x</code>) for tools</td>
+</tr>
+</tbody>
+</table>
 <h3 id="diagnostics">Diagnostics<a class="headerlink" href="#diagnostics" title="Permanent link">&para;</a></h3>
 <p>Run health check:</p>
 <div class="highlight"><pre><span></span><code>./xaffinity-mcp.sh<span class="w"> </span>doctor
