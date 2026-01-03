@@ -1885,6 +1885,11 @@
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased">[Unreleased]<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <p><em>No unreleased changes.</em></p>
+<h2 id="067-2026-01-03">0.6.7 - 2026-01-03<a class="headerlink" href="#067-2026-01-03" title="Permanent link">&para;</a></h2>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Docs: Updated all documentation links to use versioned <code>/latest/</code> URLs for reliable navigation.</li>
+</ul>
 <h2 id="066-2026-01-03">0.6.6 - 2026-01-03<a class="headerlink" href="#066-2026-01-03" title="Permanent link">&para;</a></h2>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1902,7 +1907,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>CLI: Added explicit <code>type=str</code> to Click arguments for Python 3.13 mypy compatibility.</li>
 </ul>
 <h2 id="061-2026-01-02">0.6.1 - 2026-01-02<a class="headerlink" href="#061-2026-01-02" title="Permanent link">&para;</a></h2>
-<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Docs: Separated MCP Server documentation from Claude Code plugins.</li>
 </ul>
@@ -1911,7 +1916,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <ul>
 <li>MCP: <code>read-xaffinity-resource</code> tool for clients with limited resource support.</li>
 </ul>
-<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
+<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Plugins: Restructured into 3-plugin marketplace architecture (affinity-sdk, xaffinity-cli, xaffinity-mcp).</li>
 <li>Docs: Restructured Claude integrations with consistent naming.</li>
@@ -1943,7 +1948,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>SDK: Async versions of opportunity search methods in <code>AsyncOpportunityService</code>.</li>
 <li>SDK: <code>InteractionService.list()</code> now accepts <code>company_id</code> and <code>opportunity_id</code> parameters.</li>
 </ul>
-<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
+<h3 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>list view</code> renamed to <code>list get</code> for consistency with other entity commands.</li>
 <li>CLI: <code>--completed/--not-completed</code> boolean flag pattern for <code>reminder update</code> (replaces separate flags).</li>
@@ -1976,7 +1981,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>CLI: <code>config check-key --json</code> now includes <code>pattern</code> field showing key source.</li>
 <li>SDK: Client-side filtering for list entries (V2 API does not support server-side filtering).</li>
 </ul>
-<h3 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h3>
+<h3 id="changed_4">Changed<a class="headerlink" href="#changed_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>--filter</code> on list entry commands now applies client-side with warning (V2 API limitation).</li>
 <li>CLI: Removed <code>--opportunity-id</code> from <code>list entry add</code> (opportunities are created atomically via <code>opportunity create --list-id</code>).</li>
@@ -1997,7 +2002,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>SDK: <code>list_entries</code> field added to <code>Person</code> model.</li>
 <li>SDK: Unified filter parser with <code>parse()</code> function and <code>matches()</code> method for client-side filter evaluation.</li>
 </ul>
-<h3 id="changed_4">Changed<a class="headerlink" href="#changed_4" title="Permanent link">&para;</a></h3>
+<h3 id="changed_5">Changed<a class="headerlink" href="#changed_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Authentication error hints now reference <code>config check-key</code> and <code>config setup-key</code> commands.</li>
 <li>CLI: Authentication documentation updated with Quick Setup section.</li>
@@ -2045,7 +2050,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Inbound webhook parsing helpers: <code>parse_webhook(...)</code>, <code>dispatch_webhook(...)</code>, and <code>BodyRegistry</code>.</li>
 <li>Claude Code plugin for SDK/CLI documentation and guidance.</li>
 </ul>
-<h3 id="changed_5">Changed<a class="headerlink" href="#changed_5" title="Permanent link">&para;</a></h3>
+<h3 id="changed_6">Changed<a class="headerlink" href="#changed_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Enum fields now display human-readable names instead of integers (type, status, direction, actionType).</li>
 <li>CLI: Datetimes render in local time with timezone info in column headers.</li>
@@ -2073,7 +2078,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li><code>client.files.upload_path(...)</code> and <code>client.files.upload_bytes(...)</code> for ergonomic uploads.</li>
 <li><code>client.files.all(...)</code> / <code>client.files.iter(...)</code> for auto-pagination over files.</li>
 </ul>
-<h3 id="changed_6">Changed<a class="headerlink" href="#changed_6" title="Permanent link">&para;</a></h3>
+<h3 id="changed_7">Changed<a class="headerlink" href="#changed_7" title="Permanent link">&para;</a></h3>
 <ul>
 <li>File downloads now follow redirects without forwarding credentials and use the standard retry/diagnostics policy.</li>
 <li><code>client.files.list(...)</code> and <code>client.files.upload(...)</code> now require exactly one of <code>person_id</code>, <code>organization_id</code>, or <code>opportunity_id</code> (per API contract).</li>
