@@ -788,15 +788,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#available-tools-14" class="md-nav__link">
+  <a href="#available-tools-17" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Available Tools (14)
+        Available Tools (17)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Available Tools (14)">
+    <nav class="md-nav" aria-label="Available Tools (17)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -837,6 +837,17 @@
     <span class="md-ellipsis">
       
         Logging (write operations)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cli-gateway-full-cli-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Gateway (full CLI access)
       
     </span>
   </a>
@@ -998,6 +1009,17 @@
     <span class="md-ellipsis">
       
         Read-Only Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disable-destructive-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disable Destructive Commands
       
     </span>
   </a>
@@ -2560,15 +2582,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#available-tools-14" class="md-nav__link">
+  <a href="#available-tools-17" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Available Tools (14)
+        Available Tools (17)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Available Tools (14)">
+    <nav class="md-nav" aria-label="Available Tools (17)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2609,6 +2631,17 @@
     <span class="md-ellipsis">
       
         Logging (write operations)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cli-gateway-full-cli-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Gateway (full CLI access)
       
     </span>
   </a>
@@ -2770,6 +2803,17 @@
     <span class="md-ellipsis">
       
         Read-Only Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disable-destructive-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disable Destructive Commands
       
     </span>
   </a>
@@ -3002,7 +3046,7 @@
 </code></pre></div>
 <p>Replace <code>/path/to/affinity-sdk</code> with your actual installation path.</p>
 <hr />
-<h2 id="available-tools-14">Available Tools (14)<a class="headerlink" href="#available-tools-14" title="Permanent link">&para;</a></h2>
+<h2 id="available-tools-17">Available Tools (17)<a class="headerlink" href="#available-tools-17" title="Permanent link">&para;</a></h2>
 <h3 id="search-lookup-read-only">Search &amp; Lookup (read-only)<a class="headerlink" href="#search-lookup-read-only" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -3103,6 +3147,46 @@
 </tr>
 </tbody>
 </table>
+<h3 id="cli-gateway-full-cli-access">CLI Gateway (full CLI access)<a class="headerlink" href="#cli-gateway-full-cli-access" title="Permanent link">&para;</a></h3>
+<p>These tools provide access to the full xaffinity CLI with minimal token overhead:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>discover-commands</code></td>
+<td>Search CLI commands by keyword (e.g., "create person", "delete note")</td>
+</tr>
+<tr>
+<td><code>execute-read-command</code></td>
+<td>Execute read-only CLI commands (get, search, list)</td>
+</tr>
+<tr>
+<td><code>execute-write-command</code></td>
+<td>Execute write CLI commands (create, update, delete)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Usage pattern:</strong></p>
+<ol>
+<li>
+<p><strong>Discover</strong> the right command:
+   <div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;query&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;add person to list&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;write&quot;</span><span class="p">}</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Execute</strong> the command:
+   <div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;list entry add&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;argv&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Pipeline&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--person-id&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;123&quot;</span><span class="p">]}</span>
+</code></pre></div></p>
+</li>
+</ol>
+<p><strong>Destructive commands</strong> (delete operations) require explicit confirmation:
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;person delete&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;argv&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;456&quot;</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;confirm&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span>
+</code></pre></div></p>
 <hr />
 <h2 id="guided-workflows-8-prompts">Guided Workflows (8 Prompts)<a class="headerlink" href="#guided-workflows-8-prompts" title="Permanent link">&para;</a></h2>
 <p>MCP prompts provide guided multi-step workflows.</p>
@@ -3243,6 +3327,10 @@ log-interaction-and-update-workflow(personName: &quot;Alice&quot;, interactionTy
 <h3 id="read-only-mode">Read-Only Mode<a class="headerlink" href="#read-only-mode" title="Permanent link">&para;</a></h3>
 <p>Restrict to read-only tools:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">AFFINITY_MCP_READ_ONLY</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>./xaffinity-mcp.sh
+</code></pre></div>
+<h3 id="disable-destructive-commands">Disable Destructive Commands<a class="headerlink" href="#disable-destructive-commands" title="Permanent link">&para;</a></h3>
+<p>Allow write operations but block delete commands via CLI Gateway:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">AFFINITY_MCP_DISABLE_DESTRUCTIVE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>./xaffinity-mcp.sh
 </code></pre></div>
 <h3 id="cache-ttl">Cache TTL<a class="headerlink" href="#cache-ttl" title="Permanent link">&para;</a></h3>
 <p>Adjust cache duration (default 10 minutes):</p>
