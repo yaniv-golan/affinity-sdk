@@ -571,6 +571,56 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#machine-readable-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Machine-Readable Help
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Machine-Readable Help">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#output-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#command-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Command Metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameter Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2076,6 +2126,56 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#machine-readable-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Machine-Readable Help
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Machine-Readable Help">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#output-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#command-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Command Metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameter Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2131,6 +2231,108 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>ls<span class="w"> 
 <p>When a command writes a CSV file in <code>--json</code> mode, the JSON output includes a reference to the artifact path (and does not duplicate row data).</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>out.csv<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.artifacts&#39;</span>
 </code></pre></div>
+<h2 id="machine-readable-help">Machine-Readable Help<a class="headerlink" href="#machine-readable-help" title="Permanent link">&para;</a></h2>
+<p>Use <code>--help --json</code> to get machine-readable command documentation. This is useful for:</p>
+<ul>
+<li>Building automation tools that discover CLI capabilities</li>
+<li>Generating command registries for AI integrations (like MCP servers)</li>
+<li>Validating command arguments programmatically</li>
+</ul>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>--help<span class="w"> </span>--json
+</code></pre></div>
+<h3 id="output-format">Output Format<a class="headerlink" href="#output-format" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;commands&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;person create&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Create a person.&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;write&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;destructive&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;--first-name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;--last-name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;--email&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;multiple&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;positionals&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;person delete&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Delete a person.&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;write&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;destructive&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;--yes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;flag&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;positionals&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PERSON_ID&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;int&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="command-metadata">Command Metadata<a class="headerlink" href="#command-metadata" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Full command path (e.g., <code>"person create"</code>, <code>"list entry add"</code>)</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Human-readable description</td>
+</tr>
+<tr>
+<td><code>category</code></td>
+<td><code>"read"</code>, <code>"write"</code>, or <code>"local"</code> (no-network)</td>
+</tr>
+<tr>
+<td><code>destructive</code></td>
+<td><code>true</code> for delete commands</td>
+</tr>
+<tr>
+<td><code>parameters</code></td>
+<td>Named options with type info</td>
+</tr>
+<tr>
+<td><code>positionals</code></td>
+<td>Positional arguments with type info</td>
+</tr>
+</tbody>
+</table>
+<h3 id="parameter-types">Parameter Types<a class="headerlink" href="#parameter-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>string</code></td>
+<td>Text value</td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td>Integer value</td>
+</tr>
+<tr>
+<td><code>flag</code></td>
+<td>Boolean flag (no value)</td>
+</tr>
+<tr>
+<td><code>choice</code></td>
+<td>One of allowed values (see <code>choices</code> array)</td>
+</tr>
+</tbody>
+</table>
+<p>Parameters with <code>"multiple": true</code> can be specified multiple times.</p>
 
 
 
