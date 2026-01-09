@@ -1271,6 +1271,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#6-composable-with-unix-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Composable with UNIX tools
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2559,6 +2570,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#6-composable-with-unix-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Composable with UNIX tools
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2609,22 +2631,22 @@
 <h1 id="csv-export-guide">CSV Export Guide<a class="headerlink" href="#csv-export-guide" title="Permanent link">&para;</a></h1>
 <p>This guide shows you how to export data from the Affinity CLI to CSV format for use in spreadsheets, data analysis tools, or other applications.</p>
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
-<p>Export data to CSV using the <code>--csv</code> flag:</p>
+<p>Export data to CSV using the <code>--csv</code> flag with shell redirection:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Export all people to CSV</span>
-xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>people.csv
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>people.csv
 
 <span class="c1"># Export all companies to CSV</span>
-xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>companies.csv
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>companies.csv
 
 <span class="c1"># Export all opportunities to CSV</span>
-xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>opportunities.csv
+xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>opportunities.csv
 
 <span class="c1"># Export list entries with custom fields</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">12345</span><span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>entries.csv
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">12345</span><span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>entries.csv
 </code></pre></div>
 <h2 id="excel-compatibility">Excel Compatibility<a class="headerlink" href="#excel-compatibility" title="Permanent link">&para;</a></h2>
 <p>If you're opening CSV files in Microsoft Excel, use the <code>--csv-bom</code> flag to ensure proper character encoding:</p>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>people.csv<span class="w"> </span>--csv-bom
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>people.csv
 </code></pre></div>
 <p>This adds a UTF-8 Byte Order Mark (BOM) to the file, which helps Excel correctly display special characters, accents, and non-English text.</p>
 <h2 id="commands-with-built-in-csv-support">Commands with Built-in CSV Support<a class="headerlink" href="#commands-with-built-in-csv-support" title="Permanent link">&para;</a></h2>
@@ -2639,27 +2661,27 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 <tbody>
 <tr>
 <td><code>person ls</code></td>
-<td>✅ <code>--csv</code></td>
-<td><code>xaffinity person ls --all --csv people.csv</code></td>
+<td><code>--csv</code></td>
+<td><code>xaffinity person ls --all --csv &gt; people.csv</code></td>
 </tr>
 <tr>
 <td><code>company ls</code></td>
-<td>✅ <code>--csv</code></td>
-<td><code>xaffinity company ls --all --csv companies.csv</code></td>
+<td><code>--csv</code></td>
+<td><code>xaffinity company ls --all --csv &gt; companies.csv</code></td>
 </tr>
 <tr>
 <td><code>opportunity ls</code></td>
-<td>✅ <code>--csv</code></td>
-<td><code>xaffinity opportunity ls --all --csv opps.csv</code></td>
+<td><code>--csv</code></td>
+<td><code>xaffinity opportunity ls --all --csv &gt; opps.csv</code></td>
 </tr>
 <tr>
 <td><code>list export</code></td>
-<td>✅ <code>--csv</code></td>
-<td><code>xaffinity list export 12345 --all --csv entries.csv</code></td>
+<td><code>--csv</code></td>
+<td><code>xaffinity list export 12345 --all --csv &gt; entries.csv</code></td>
 </tr>
 </tbody>
 </table>
-<p><strong>Note:</strong> The <code>--csv</code> flag requires <code>--all</code> to fetch all pages of data. Single-page exports are not supported for CSV output.</p>
+<p><strong>Note:</strong> The <code>--csv</code> flag outputs CSV to stdout. Use shell redirection (<code>&gt;</code>) to save to a file, or pipe (<code>|</code>) to other tools.</p>
 <h2 id="csv-column-reference">CSV Column Reference<a class="headerlink" href="#csv-column-reference" title="Permanent link">&para;</a></h2>
 <h3 id="person-ls">person ls<a class="headerlink" href="#person-ls" title="Permanent link">&para;</a></h3>
 <p>The <code>person ls</code> command exports these columns:</p>
@@ -2724,7 +2746,7 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 <span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.notes[] | [.id, .content, .createdAt] | @csv&#39;</span>
 </code></pre></div></p>
 <p><strong>Export interactions:</strong>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.interactions[] | [.id, .date, .type] | @csv&#39;</span>
 </code></pre></div></p>
 <p><strong>Add headers manually:</strong>
@@ -2760,40 +2782,40 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <h3 id="empty-output">Empty Output<a class="headerlink" href="#empty-output" title="Permanent link">&para;</a></h3>
 <p>Make sure you're accessing the correct JSON path:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># ❌ Wrong - missing .data</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># Wrong - missing .data</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.persons&#39;</span>
 
-<span class="c1"># ✅ Correct</span>
+<span class="c1"># Correct</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.persons&#39;</span>
 </code></pre></div>
 <h3 id="csv-shows-json-strings">CSV shows JSON strings<a class="headerlink" href="#csv-shows-json-strings" title="Permanent link">&para;</a></h3>
 <p>Use the <code>-r</code> flag with jq:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># ❌ Wrong - produces &quot;[1,\&quot;Alice\&quot;]&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># Wrong - produces &quot;[1,\&quot;Alice\&quot;]&quot;</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.persons[] | [.id, .name] | @csv&#39;</span>
 
-<span class="c1"># ✅ Correct - produces &quot;1,Alice&quot;</span>
+<span class="c1"># Correct - produces &quot;1,Alice&quot;</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.persons[] | [.id, .name] | @csv&#39;</span>
 </code></pre></div>
 <h3 id="special-characters-broken-in-excel">Special characters broken in Excel<a class="headerlink" href="#special-characters-broken-in-excel" title="Permanent link">&para;</a></h3>
 <p>Use the <code>--csv-bom</code> flag:</p>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>people.csv<span class="w"> </span>--csv-bom
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>people.csv
 </code></pre></div>
 <h3 id="empty-csv-file-has-no-headers">Empty CSV file has no headers<a class="headerlink" href="#empty-csv-file-has-no-headers" title="Permanent link">&para;</a></h3>
 <p>This is expected behavior when there are no results. The CLI cannot determine column names without data. If you need headers even for empty results, use <code>list export</code> which has a known schema.</p>
 <h2 id="tips-and-best-practices">Tips and Best Practices<a class="headerlink" href="#tips-and-best-practices" title="Permanent link">&para;</a></h2>
 <h3 id="1-use-all-for-complete-exports">1. Use --all for complete exports<a class="headerlink" href="#1-use-all-for-complete-exports" title="Permanent link">&para;</a></h3>
-<p>The <code>--csv</code> flag requires <code>--all</code> to fetch all pages:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># ✅ Correct</span>
-xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>people.csv
+<p>For large datasets, use <code>--all</code> to fetch all pages:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Fetch all pages</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>people.csv
 
-<span class="c1"># ❌ Won&#39;t work</span>
-xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--csv<span class="w"> </span>people.csv
+<span class="c1"># Or limit results</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--max-results<span class="w"> </span><span class="m">100</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>people.csv
 </code></pre></div>
 <h3 id="2-combine-with-filters">2. Combine with filters<a class="headerlink" href="#2-combine-with-filters" title="Permanent link">&para;</a></h3>
 <p><strong>Filtering on custom fields (recommended):</strong></p>
 <p>When filtering on custom fields, use <code>--filter</code> for server-side filtering. This is more efficient as Affinity filters the data before sending it:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># ✅ Efficient: Server-side filtering on custom field</span>
-xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Department = &quot;Sales&quot;&#39;</span><span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>sales-people.csv
+<div class="highlight"><pre><span></span><code><span class="c1"># Efficient: Server-side filtering on custom field</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Department = &quot;Sales&quot;&#39;</span><span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>sales-people.csv
 </code></pre></div>
 <p>You can also combine <code>--filter</code> with jq for additional client-side processing:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Filter server-side, then process with jq</span>
@@ -2802,7 +2824,7 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"
 </code></pre></div>
 <p><strong>Filtering on built-in properties:</strong></p>
 <p>Built-in properties like <code>type</code>, <code>firstName</code>, <code>primaryEmail</code>, etc. cannot be filtered using <code>--filter</code> (which only works with custom fields). Use jq for client-side filtering:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># ⚠️ Less efficient: Client-side filtering on built-in &#39;type&#39; property</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># Less efficient: Client-side filtering on built-in &#39;type&#39; property</span>
 <span class="c1"># (downloads all data, then filters locally)</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.persons[] | select(.type == &quot;internal&quot;) | [.id, .name] | @csv&#39;</span>
@@ -2818,9 +2840,9 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"
 <div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 <span class="c1"># export-pipeline.sh</span>
 
-xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>people.csv<span class="w"> </span>--csv-bom
-xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>companies.csv<span class="w"> </span>--csv-bom
-xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>opportunities.csv<span class="w"> </span>--csv-bom
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>people.csv
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>companies.csv
+xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>opportunities.csv
 
 <span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Export complete!&quot;</span>
 </code></pre></div>
@@ -2832,7 +2854,18 @@ xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span clas
 <h3 id="5-handle-large-datasets">5. Handle large datasets<a class="headerlink" href="#5-handle-large-datasets" title="Permanent link">&para;</a></h3>
 <p>For very large exports, monitor progress:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># The CLI will show API call counts for large exports</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">12345</span><span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>large-export.csv
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">12345</span><span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>large-export.csv
+</code></pre></div>
+<h3 id="6-composable-with-unix-tools">6. Composable with UNIX tools<a class="headerlink" href="#6-composable-with-unix-tools" title="Permanent link">&para;</a></h3>
+<p>Since CSV goes to stdout, you can pipe to other tools:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Count rows</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l
+
+<span class="c1"># Preview first 10 rows</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-10
+
+<span class="c1"># Filter with awk</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;,&#39;</span><span class="w"> </span><span class="s1">&#39;$3 &gt; 1000&#39;</span>
 </code></pre></div>
 <h2 id="getting-help">Getting Help<a class="headerlink" href="#getting-help" title="Permanent link">&para;</a></h2>
 <ul>

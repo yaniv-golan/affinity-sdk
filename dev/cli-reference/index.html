@@ -841,10 +841,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#person-search-with-pagination" class="md-nav__link">
+  <a href="#person-list-with-query-and-pagination" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Person Search with Pagination
+        Person List with Query and Pagination
       
     </span>
   </a>
@@ -2630,10 +2630,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#person-search-with-pagination" class="md-nav__link">
+  <a href="#person-list-with-query-and-pagination" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Person Search with Pagination
+        Person List with Query and Pagination
       
     </span>
   </a>
@@ -2886,9 +2886,9 @@
 </ul>
 <h3 id="using-pagination-cursors">Using Pagination Cursors<a class="headerlink" href="#using-pagination-cursors" title="Permanent link">&para;</a></h3>
 <p>To fetch the next page, use the <code>--cursor</code> option:</p>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--json
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--json
 <span class="c1"># Get nextCursor from response</span>
-xaffinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--cursor<span class="w"> </span><span class="s2">&quot;eyJpZCI6MTIzfQ==&quot;</span><span class="w"> </span>--json
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--cursor<span class="w"> </span><span class="s2">&quot;eyJpZCI6MTIzfQ==&quot;</span><span class="w"> </span>--json
 </code></pre></div>
 <h2 id="rate-limit-metadata">Rate Limit Metadata<a class="headerlink" href="#rate-limit-metadata" title="Permanent link">&para;</a></h2>
 <p>All API responses include rate limit information:</p>
@@ -2974,14 +2974,14 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>search<span class
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div></p>
-<h3 id="person-search-with-pagination">Person Search with Pagination<a class="headerlink" href="#person-search-with-pagination" title="Permanent link">&para;</a></h3>
+<h3 id="person-list-with-query-and-pagination">Person List with Query and Pagination<a class="headerlink" href="#person-list-with-query-and-pagination" title="Permanent link">&para;</a></h3>
 <p>Command:
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--json
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--json
 </code></pre></div></p>
 <p>Response:
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;ok&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;person search&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;person ls&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;persons&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">      </span><span class="p">{</span>
@@ -3163,7 +3163,7 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>search<span class
 <span class="w">  </span><span class="p">};</span>
 <span class="p">}</span>
 
-<span class="kd">interface</span><span class="w"> </span><span class="nx">PersonSearchResponse</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">CLIResponse</span><span class="o">&lt;</span><span class="p">{</span><span class="w"> </span><span class="nx">persons</span><span class="o">:</span><span class="w"> </span><span class="kt">Person</span><span class="p">[]</span><span class="w"> </span><span class="p">}</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="kd">interface</span><span class="w"> </span><span class="nx">PersonListResponse</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">CLIResponse</span><span class="o">&lt;</span><span class="p">{</span><span class="w"> </span><span class="nx">persons</span><span class="o">:</span><span class="w"> </span><span class="kt">Person</span><span class="p">[]</span><span class="w"> </span><span class="p">}</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">persons</span><span class="o">:</span><span class="w"> </span><span class="kt">Person</span><span class="p">[];</span>
 <span class="w">  </span><span class="p">};</span>

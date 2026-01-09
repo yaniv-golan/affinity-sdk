@@ -745,17 +745,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#xaffinity-person-search-query" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        xaffinity person search &lt;query&gt;
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#xaffinity-person-ls" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -859,17 +848,6 @@
   
     <nav class="md-nav" aria-label="Companies">
       <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#xaffinity-company-search-query" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        xaffinity company search &lt;query&gt;
-      
-    </span>
-  </a>
-  
-</li>
         
           <li class="md-nav__item">
   <a href="#xaffinity-company-ls" class="md-nav__link">
@@ -3303,17 +3281,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#xaffinity-person-search-query" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        xaffinity person search &lt;query&gt;
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#xaffinity-person-ls" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3417,17 +3384,6 @@
   
     <nav class="md-nav" aria-label="Companies">
       <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#xaffinity-company-search-query" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        xaffinity company search &lt;query&gt;
-      
-    </span>
-  </a>
-  
-</li>
         
           <li class="md-nav__item">
   <a href="#xaffinity-company-ls" class="md-nav__link">
@@ -4320,37 +4276,28 @@ xaffinity<span class="w"> </span>whoami<span class="w"> </span>--json<span class
 xaffinity<span class="w"> </span>resolve-url<span class="w"> </span><span class="s2">&quot;https://mydomain.affinity.com/companies/263169568&quot;</span><span class="w"> </span>--json
 </code></pre></div>
 <h2 id="people">People<a class="headerlink" href="#people" title="Permanent link">&para;</a></h2>
-<h3 id="xaffinity-person-search-query"><code>xaffinity person search &lt;query&gt;</code><a class="headerlink" href="#xaffinity-person-search-query" title="Permanent link">&para;</a></h3>
-<p><code>&lt;query&gt;</code> is a free-text term (typically a name or email address) passed to Affinity's person search.</p>
-<p>Options:</p>
-<ul>
-<li><code>--with-interaction-dates</code>: include interaction date data</li>
-<li><code>--with-interaction-persons</code>: include persons for interactions</li>
-<li><code>--with-opportunities</code>: include associated opportunity IDs</li>
-<li><code>--page-size</code>, <code>--cursor</code>, <code>--max-results</code>, <code>--all</code>: pagination options</li>
-</ul>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;alice@example.com&quot;</span>
-xaffinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--all<span class="w"> </span>--json
-xaffinity<span class="w"> </span>person<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--with-interaction-dates
-</code></pre></div>
 <h3 id="xaffinity-person-ls"><code>xaffinity person ls</code><a class="headerlink" href="#xaffinity-person-ls" title="Permanent link">&para;</a></h3>
-<p>List persons with V2 pagination. Supports field selection and V2 filter expressions.</p>
+<p>List persons. Supports field selection, filter expressions, and free-text search.</p>
 <p>Options:</p>
 <ul>
+<li><code>--query &lt;term&gt;</code> / <code>-q &lt;term&gt;</code>: free-text search (name or email)</li>
 <li><code>--field &lt;id-or-name&gt;</code> (repeatable): field ID or name to include</li>
 <li><code>--field-type &lt;type&gt;</code> (repeatable): field type to include (global, enriched, relationship-intelligence)</li>
-<li><code>--filter &lt;expression&gt;</code>: V2 filter expression (custom fields only)</li>
+<li><code>--filter &lt;expression&gt;</code>: filter expression (custom fields only)</li>
 <li><code>--page-size</code>, <code>--cursor</code>, <code>--max-results</code>, <code>--all</code>: pagination options</li>
-<li><code>--csv &lt;path&gt;</code>: write CSV output (requires <code>--all</code>)</li>
-<li><code>--csv-bom</code>: write UTF-8 BOM for Excel compatibility</li>
+<li><code>--csv</code>: output as CSV (to stdout)</li>
+<li><code>--csv-bom</code>: add UTF-8 BOM for Excel compatibility</li>
 </ul>
 <p><strong>Note:</strong> <code>--filter</code> only works with custom fields. To filter on built-in properties like <code>type</code>, <code>firstName</code>, etc., use <code>--json</code> output with <code>jq</code>.</p>
+<p><strong>Note:</strong> <code>--query</code> can be combined with <code>--field</code> and <code>--field-type</code> to search with field data.</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>ls
 xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--page-size<span class="w"> </span><span class="m">50</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
 xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Email =~ &quot;@acme.com&quot;&#39;</span>
-xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>people.csv
-xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>people.csv<span class="w"> </span>--csv-bom
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;alice@example.com&quot;</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>people.csv
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>people.csv
 </code></pre></div>
 <p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
 <h3 id="xaffinity-person-get-personselector"><code>xaffinity person get &lt;personSelector&gt;</code><a class="headerlink" href="#xaffinity-person-get-personselector" title="Permanent link">&para;</a></h3>
@@ -4408,37 +4355,28 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>update<span class
 xaffinity<span class="w"> </span>person<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--file<span class="w"> </span>a.pdf<span class="w"> </span>--file<span class="w"> </span>b.pdf
 </code></pre></div>
 <h2 id="companies">Companies<a class="headerlink" href="#companies" title="Permanent link">&para;</a></h2>
-<h3 id="xaffinity-company-search-query"><code>xaffinity company search &lt;query&gt;</code><a class="headerlink" href="#xaffinity-company-search-query" title="Permanent link">&para;</a></h3>
-<p><code>&lt;query&gt;</code> is a free-text term (typically a company name or domain) passed to Affinity's company search.</p>
-<p>Options:</p>
-<ul>
-<li><code>--with-interaction-dates</code>: include interaction date data</li>
-<li><code>--with-interaction-persons</code>: include persons for interactions</li>
-<li><code>--with-opportunities</code>: include associated opportunity IDs</li>
-<li><code>--page-size</code>, <code>--cursor</code>, <code>--max-results</code>, <code>--all</code>: pagination options</li>
-</ul>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;example.com&quot;</span>
-xaffinity<span class="w"> </span>company<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Example&quot;</span><span class="w"> </span>--json
-xaffinity<span class="w"> </span>company<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Example&quot;</span><span class="w"> </span>--with-interaction-dates
-</code></pre></div>
 <h3 id="xaffinity-company-ls"><code>xaffinity company ls</code><a class="headerlink" href="#xaffinity-company-ls" title="Permanent link">&para;</a></h3>
-<p>List companies with V2 pagination. Supports field selection and V2 filter expressions.</p>
+<p>List companies. Supports field selection, filter expressions, and free-text search.</p>
 <p>Options:</p>
 <ul>
+<li><code>--query &lt;term&gt;</code> / <code>-q &lt;term&gt;</code>: free-text search (name or domain)</li>
 <li><code>--field &lt;id-or-name&gt;</code> (repeatable): field ID or name to include</li>
 <li><code>--field-type &lt;type&gt;</code> (repeatable): field type to include (global, enriched, relationship-intelligence)</li>
-<li><code>--filter &lt;expression&gt;</code>: V2 filter expression (custom fields only)</li>
+<li><code>--filter &lt;expression&gt;</code>: filter expression (custom fields only)</li>
 <li><code>--page-size</code>, <code>--cursor</code>, <code>--max-results</code>, <code>--all</code>: pagination options</li>
-<li><code>--csv &lt;path&gt;</code>: write CSV output (requires <code>--all</code>)</li>
-<li><code>--csv-bom</code>: write UTF-8 BOM for Excel compatibility</li>
+<li><code>--csv</code>: output as CSV (to stdout)</li>
+<li><code>--csv-bom</code>: add UTF-8 BOM for Excel compatibility</li>
 </ul>
 <p><strong>Note:</strong> <code>--filter</code> only works with custom fields. To filter on built-in properties like <code>name</code>, <code>domain</code>, etc., use <code>--json</code> output with <code>jq</code>.</p>
+<p><strong>Note:</strong> <code>--query</code> can be combined with <code>--field</code> and <code>--field-type</code> to search with field data.</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>ls
 xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--page-size<span class="w"> </span><span class="m">50</span>
 xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
 xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Industry = &quot;Software&quot;&#39;</span>
-xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>companies.csv
-xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>companies.csv<span class="w"> </span>--csv-bom
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;example.com&quot;</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;Example&quot;</span><span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>companies.csv
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>companies.csv
 </code></pre></div>
 <p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
 <h3 id="xaffinity-company-get-companyselector"><code>xaffinity company get &lt;companySelector&gt;</code><a class="headerlink" href="#xaffinity-company-get-companyselector" title="Permanent link">&para;</a></h3>
@@ -4500,17 +4438,17 @@ xaffinity<span class="w"> </span>company<span class="w"> </span>files<span class
 </code></pre></div>
 <h2 id="opportunities">Opportunities<a class="headerlink" href="#opportunities" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-opportunity-ls"><code>xaffinity opportunity ls</code><a class="headerlink" href="#xaffinity-opportunity-ls" title="Permanent link">&para;</a></h3>
-<p>List opportunities (basic v2 representation).</p>
+<p>List opportunities.</p>
 <p>Options:</p>
 <ul>
 <li><code>--page-size</code>, <code>--cursor</code>, <code>--max-results</code>, <code>--all</code>: pagination options</li>
-<li><code>--csv &lt;path&gt;</code>: write CSV output (requires <code>--all</code>)</li>
-<li><code>--csv-bom</code>: write UTF-8 BOM for Excel compatibility</li>
+<li><code>--csv</code>: output as CSV (to stdout)</li>
+<li><code>--csv-bom</code>: add UTF-8 BOM for Excel compatibility</li>
 </ul>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls
 xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--page-size<span class="w"> </span><span class="m">200</span><span class="w"> </span>--all<span class="w"> </span>--json
-xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>opportunities.csv
-xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>opportunities.csv<span class="w"> </span>--csv-bom
+xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>opportunities.csv
+xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>opportunities.csv
 </code></pre></div>
 <p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
 <h3 id="xaffinity-opportunity-get-opportunityselector"><code>xaffinity opportunity get &lt;opportunitySelector&gt;</code><a class="headerlink" href="#xaffinity-opportunity-get-opportunityselector" title="Permanent link">&para;</a></h3>
@@ -4522,7 +4460,7 @@ xaffinity<span class="w"> </span>opportunity<span class="w"> </span>get<span cla
 <p>Notes:
 - <code>--details</code> fetches a fuller payload with associations and list entries.</p>
 <h3 id="xaffinity-opportunity-create"><code>xaffinity opportunity create</code><a class="headerlink" href="#xaffinity-opportunity-create" title="Permanent link">&para;</a></h3>
-<p>Create a new opportunity (V1 write path).</p>
+<p>Create a new opportunity.</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>opportunity<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Series A&quot;</span><span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span>
 xaffinity<span class="w"> </span>opportunity<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Series A&quot;</span><span class="w"> </span>--list<span class="w"> </span><span class="m">123</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">1</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">2</span>
 </code></pre></div>
@@ -4550,7 +4488,7 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>create<span class="
 </code></pre></div>
 <h3 id="xaffinity-list-get-list"><code>xaffinity list get &lt;list&gt;</code><a class="headerlink" href="#xaffinity-list-get-list" title="Permanent link">&para;</a></h3>
 <p>Accepts a list ID or an exact list name.</p>
-<p>The Fields table includes a <code>valueType</code> column using V2 string types (e.g., <code>dropdown-multi</code>, <code>ranked-dropdown</code>).</p>
+<p>The Fields table includes a <code>valueType</code> column (e.g., <code>dropdown-multi</code>, <code>ranked-dropdown</code>).</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>get<span class="w"> </span><span class="m">123</span>
 xaffinity<span class="w"> </span>list<span class="w"> </span>get<span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span>--json
 </code></pre></div>
@@ -4558,16 +4496,16 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>get<span class="w">
 <p>Exports list entries with selected fields. This is the most powerful CSV export command, supporting custom fields and complex filtering.</p>
 <p>Options:</p>
 <ul>
-<li><code>--csv &lt;path&gt;</code>: write CSV output</li>
-<li><code>--csv-bom</code>: write UTF-8 BOM for Excel compatibility</li>
+<li><code>--csv</code>: output as CSV (to stdout)</li>
+<li><code>--csv-bom</code>: add UTF-8 BOM for Excel compatibility</li>
 <li><code>--field &lt;id-or-name&gt;</code> (repeatable): include specific fields</li>
 <li><code>--saved-view &lt;name&gt;</code>: use a saved view's field selection</li>
-<li><code>--filter &lt;expression&gt;</code>: V1 filter expression</li>
+<li><code>--filter &lt;expression&gt;</code>: filter expression</li>
 </ul>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>out.csv
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span>--saved-view<span class="w"> </span><span class="s2">&quot;Board&quot;</span><span class="w"> </span>--csv<span class="w"> </span>out.csv
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--field<span class="w"> </span>Stage<span class="w"> </span>--field<span class="w"> </span>Amount<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;&quot;Stage&quot; = &quot;Active&quot;&#39;</span><span class="w"> </span>--csv<span class="w"> </span>out.csv
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>out.csv<span class="w"> </span>--csv-bom
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span>--saved-view<span class="w"> </span><span class="s2">&quot;Board&quot;</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--field<span class="w"> </span>Stage<span class="w"> </span>--field<span class="w"> </span>Amount<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;&quot;Stage&quot; = &quot;Active&quot;&#39;</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>out.csv
 </code></pre></div>
 <p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
 <h3 id="list-entry-commands">List Entry Commands<a class="headerlink" href="#list-entry-commands" title="Permanent link">&para;</a></h3>
@@ -4627,8 +4565,10 @@ xaffinity<span class="w"> </span>reminder<span class="w"> </span>update<span cla
 </code></pre></div>
 <h2 id="interactions">Interactions<a class="headerlink" href="#interactions" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-interaction-ls"><code>xaffinity interaction ls</code><a class="headerlink" href="#xaffinity-interaction-ls" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>email
-xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--start-time<span class="w"> </span><span class="m">2025</span>-01-01T00:00:00Z<span class="w"> </span>--end-time<span class="w"> </span><span class="m">2025</span>-02-01T00:00:00Z
+<p>List interactions for an entity. Requires <code>--type</code> and one entity selector (<code>--person-id</code>, <code>--company-id</code>, or <code>--opportunity-id</code>). Date range defaults to last 7 days if not specified.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>email<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span>
+xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--after<span class="w"> </span><span class="m">2025</span>-01-01<span class="w"> </span>--before<span class="w"> </span><span class="m">2025</span>-02-01
+xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>call<span class="w"> </span>--company-id<span class="w"> </span><span class="m">456</span><span class="w"> </span>--after<span class="w"> </span><span class="m">2025</span>-06-01<span class="w"> </span>--json
 </code></pre></div>
 <h3 id="xaffinity-interaction-get-interactionid"><code>xaffinity interaction get &lt;interactionId&gt;</code><a class="headerlink" href="#xaffinity-interaction-get-interactionid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>get<span class="w"> </span><span class="m">2468</span><span class="w"> </span>--type<span class="w"> </span>meeting
@@ -4655,7 +4595,7 @@ xaffinity<span class="w"> </span>field<span class="w"> </span>ls<span class="w">
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span>delete<span class="w"> </span>field-123
 </code></pre></div>
 <h3 id="xaffinity-field-history"><code>xaffinity field history</code><a class="headerlink" href="#xaffinity-field-history" title="Permanent link">&para;</a></h3>
-<p>Show field value change history for a specific field on an entity (V1).</p>
+<p>Show field value change history for a specific field on an entity.</p>
 <div class="highlight"><pre><span></span><code>xaffinity field history FIELD_ID [OPTIONS]
 </code></pre></div>
 <p>Arguments:</p>
