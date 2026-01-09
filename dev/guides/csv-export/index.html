@@ -2737,9 +2737,9 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 </code></pre></div>
 <p>The <code>-r</code> flag is crucial - it outputs raw strings instead of JSON-quoted values.</p>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
-<p><strong>Export field values:</strong>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field-value<span class="w"> </span>ls<span class="w"> </span>--field-id<span class="w"> </span>field-12345<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.fieldValues[] | [.fieldId, .value, .entityId] | @csv&#39;</span>
+<p><strong>Export list entries with field values:</strong>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My List&quot;</span><span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.entries[] | [.id, .fields[&quot;Status&quot;], .fields[&quot;Owner&quot;]] | @csv&#39;</span>
 </code></pre></div></p>
 <p><strong>Export notes:</strong>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>ls<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
