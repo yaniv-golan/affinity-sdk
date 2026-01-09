@@ -948,6 +948,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../guides/datetime-handling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datetime handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../guides/csv-export/" class="md-nav__link">
         
   
@@ -1979,6 +2007,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Context metadata keys changed: <code>startTime</code>/<code>endTime</code> → <code>after</code>/<code>before</code></li>
 <li>Note: Interaction object fields (<code>startTime</code>/<code>endTime</code>) are unchanged</li>
 <li><strong>BREAKING</strong>: CLI: <code>interaction ls</code> now requires <code>--type</code> (was optional but API required it).</li>
+<li><strong>BREAKING</strong>: CLI: Naive datetime strings (without timezone) are now interpreted as <strong>local time</strong> instead of UTC. Use explicit <code>Z</code> suffix or offset for UTC. See <a href="https://yaniv-golan.github.io/affinity-sdk/latest/guides/datetime-handling/">datetime-handling guide</a> for details.</li>
 <li><strong>BREAKING</strong>: CLI: List entry field commands unified into single <code>entry field</code> command:</li>
 <li><code>entry set-field --field F --value V</code> → <code>entry field --set F V</code></li>
 <li><code>entry set-field --field F --value-json '{...}'</code> → <code>entry field --set-json '{"F": ...}'</code></li>
