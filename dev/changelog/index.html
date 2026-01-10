@@ -2007,6 +2007,8 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Context metadata keys changed: <code>startTime</code>/<code>endTime</code> → <code>after</code>/<code>before</code></li>
 <li>Note: Interaction object fields (<code>startTime</code>/<code>endTime</code>) are unchanged</li>
 <li><strong>BREAKING</strong>: CLI: <code>interaction ls</code> now requires <code>--type</code> (was optional but API required it).</li>
+<li><strong>BREAKING</strong>: CLI: <code>interaction ls</code> now requires explicit date range via <code>--days</code> or <code>--after</code> (removed 7-day default).</li>
+<li><strong>BREAKING</strong>: CLI: <code>interaction ls</code> removed <code>--cursor</code> and <code>--all</code> flags (auto-chunking replaces manual pagination).</li>
 <li><strong>BREAKING</strong>: CLI: Naive datetime strings (without timezone) are now interpreted as <strong>local time</strong> instead of UTC. Use explicit <code>Z</code> suffix or offset for UTC. See <a href="https://yaniv-golan.github.io/affinity-sdk/latest/guides/datetime-handling/">datetime-handling guide</a> for details.</li>
 <li><strong>BREAKING</strong>: CLI: List entry field commands unified into single <code>entry field</code> command:</li>
 <li><code>entry set-field --field F --value V</code> → <code>entry field --set F V</code></li>
@@ -2020,6 +2022,10 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 </ul>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
+<li>CLI: <code>interaction ls</code> auto-chunking for date ranges &gt; 1 year (transparently splits into API-compatible chunks).</li>
+<li>CLI: <code>interaction ls --days N</code> convenience flag for "last N days" queries.</li>
+<li>CLI: <code>interaction ls --csv</code> and <code>--csv-bom</code> flags for CSV export.</li>
+<li>CLI: <code>interaction ls</code> metadata in JSON output includes <code>dateRange</code>, <code>chunksProcessed</code>, <code>totalRows</code>.</li>
 <li>SDK: <code>ListEntryService.from_saved_view()</code> now accepts <code>field_ids</code> and <code>field_types</code> parameters.</li>
 <li>CLI: <code>list export --saved-view</code> can now be combined with <code>--field</code> for server-side filtering with explicit field selection.</li>
 <li>SDK: <code>ids</code> parameter added to <code>PersonService</code>, <code>CompanyService</code>, and <code>OpportunityService</code> for batch fetching by ID.</li>

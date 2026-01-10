@@ -2264,19 +2264,24 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 <h2 id="timezone-safe-datetime-handling">Timezone-safe datetime handling<a class="headerlink" href="#timezone-safe-datetime-handling" title="Permanent link">&para;</a></h2>
 <p>Date/time flags (<code>--after</code>, <code>--before</code>, etc.) interpret naive strings as <strong>local time</strong>. For reproducible scripts across timezones, always use explicit UTC:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Use Z suffix for explicit UTC</span>
-xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--after<span class="w"> </span><span class="m">2024</span>-01-01T00:00:00Z<span class="w"> </span>--json
+xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--after<span class="w"> </span><span class="m">2024</span>-01-01T00:00:00Z<span class="w"> </span>--json
 
 <span class="c1"># Or use explicit timezone offset</span>
-xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--after<span class="w"> </span><span class="m">2024</span>-01-01T00:00:00-05:00<span class="w"> </span>--json
+xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--after<span class="w"> </span><span class="m">2024</span>-01-01T00:00:00-05:00<span class="w"> </span>--json
+
+<span class="c1"># Or use --days for relative date ranges</span>
+xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--days<span class="w"> </span><span class="m">30</span><span class="w"> </span>--json
 </code></pre></div>
 <p>JSON output always returns datetimes in UTC (with <code>+00:00</code> suffix). See the <a href="../../guides/datetime-handling/">Datetime Handling Guide</a> for full details on SDK vs CLI behavior.</p>
+<p><strong>Note:</strong> <code>interaction ls</code> auto-chunks date ranges &gt; 1 year into API-compatible segments. For multi-year queries, dates are split transparently.</p>
 <h2 id="pagination-and-resume">Pagination and resume<a class="headerlink" href="#pagination-and-resume" title="Permanent link">&para;</a></h2>
 <p>Some commands include resume tokens in <code>meta.pagination</code>.</p>
 <ul>
 <li><code>meta.pagination</code> is keyed by section name.</li>
 <li>Resume cursor: <code>meta.pagination.&lt;section&gt;.nextCursor</code> (resume with <code>--cursor &lt;cursor&gt;</code>)</li>
-<li>Treat cursors as opaque strings (some may look like URLs); don’t parse them.</li>
+<li>Treat cursors as opaque strings (some may look like URLs); don't parse them.</li>
 </ul>
+<p><strong>Note:</strong> <code>interaction ls</code> does not use pagination cursors. Instead, it auto-fetches all results within the specified date range, chunking as needed for ranges &gt; 1 year.</p>
 <p>Example (person list with query):</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;alice&quot;</span><span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.meta.pagination.persons.nextCursor&#39;</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;alice&quot;</span><span class="w"> </span>--cursor<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$CURSOR</span><span class="s2">&quot;</span><span class="w"> </span>--json
