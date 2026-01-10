@@ -2254,13 +2254,13 @@
 <li><strong>Output (JSON)</strong>: Always UTC for machine consumption</li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="c1"># Date only = midnight in YOUR timezone</span>
-xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--after<span class="w"> </span><span class="m">2024</span>-01-01
+xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>email<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--after<span class="w"> </span><span class="m">2024</span>-01-01
 
 <span class="c1"># Explicit UTC (Z suffix)</span>
-xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--after<span class="w"> </span><span class="m">2024</span>-01-01T00:00:00Z
+xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>email<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--after<span class="w"> </span><span class="m">2024</span>-01-01T00:00:00Z
 
 <span class="c1"># Explicit timezone offset</span>
-xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--after<span class="w"> </span><span class="m">2024</span>-01-01T00:00:00-05:00
+xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>email<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--after<span class="w"> </span><span class="m">2024</span>-01-01T00:00:00-05:00
 </code></pre></div>
 <h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
 <p>If you're in EST (UTC-5) and run <code>--after 2024-01-01</code>:</p>
@@ -2332,10 +2332,10 @@ xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span clas
 <h2 id="scripting-best-practices">Scripting Best Practices<a class="headerlink" href="#scripting-best-practices" title="Permanent link">&para;</a></h2>
 <p>For reproducible scripts that work regardless of timezone:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Always use explicit UTC for scripting</span>
-xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--after<span class="w"> </span><span class="m">2024</span>-01-01T00:00:00Z<span class="w"> </span>--json<span class="w"> </span>&gt;<span class="w"> </span>interactions.json
+xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>email<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--after<span class="w"> </span><span class="m">2024</span>-01-01T00:00:00Z<span class="w"> </span>--json<span class="w"> </span>&gt;<span class="w"> </span>interactions.json
 
 <span class="c1"># Or use explicit timezone offset</span>
-xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--after<span class="w"> </span><span class="m">2024</span>-01-01T00:00:00-05:00<span class="w"> </span>--json<span class="w"> </span>&gt;<span class="w"> </span>interactions.json
+xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>email<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--after<span class="w"> </span><span class="m">2024</span>-01-01T00:00:00-05:00<span class="w"> </span>--json<span class="w"> </span>&gt;<span class="w"> </span>interactions.json
 </code></pre></div>
 <p>For machine consumption, use <code>--json</code> output which always provides UTC timestamps.</p>
 
