@@ -11,7 +11,7 @@
       
       
       
-        <link rel="prev" href="../filtering/">
+        <link rel="prev" href="../datetime-handling/">
       
       
         <link rel="next" href="../field-types-and-values/">
@@ -920,6 +920,34 @@
     
   
     Filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../datetime-handling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datetime handling
   
 
     
@@ -2746,8 +2774,12 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 <span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.notes[] | [.id, .content, .createdAt] | @csv&#39;</span>
 </code></pre></div></p>
 <p><strong>Export interactions:</strong>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># Use --days for relative date range (auto-chunks if &gt; 1 year)</span>
+xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--days<span class="w"> </span><span class="m">365</span><span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.interactions[] | [.id, .date, .type] | @csv&#39;</span>
+
+<span class="c1"># Or use built-in --csv flag</span>
+xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--days<span class="w"> </span><span class="m">365</span><span class="w"> </span>--csv
 </code></pre></div></p>
 <p><strong>Add headers manually:</strong>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
