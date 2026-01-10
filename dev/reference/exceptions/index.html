@@ -1510,6 +1510,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#affinity.exceptions.FilterParseError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FilterParseError
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FilterParseError">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity.exceptions.FilterParseError--wrong-filter-statusintro-meeting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wrong: --filter 'Status=Intro Meeting'
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity.exceptions.FilterParseError--right-filter-statusintro-meeting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Right: --filter 'Status="Intro Meeting"'
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#affinity.exceptions.ListNotFoundError" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2486,6 +2525,45 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#affinity.exceptions.FilterParseError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FilterParseError
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FilterParseError">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity.exceptions.FilterParseError--wrong-filter-statusintro-meeting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wrong: --filter 'Status=Intro Meeting'
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity.exceptions.FilterParseError--right-filter-statusintro-meeting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Right: --filter 'Status="Intro Meeting"'
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -3505,6 +3583,80 @@ For example:
 
 
   </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="affinity.exceptions.FilterParseError" class="doc doc-heading">
+            <code>FilterParseError</code>
+
+
+<a href="#affinity.exceptions.FilterParseError" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="ValueError">ValueError</span></code></p>
+
+
+
+        <p>Raised when a filter expression cannot be parsed.</p>
+<p>Common causes:
+- Multi-word values not quoted: Status=Intro Meeting
+- Invalid operators
+- Malformed expressions</p>
+
+
+<details class="example-fix" open>
+  <summary>Example fix</summary>
+  <h3 id="affinity.exceptions.FilterParseError--wrong-filter-statusintro-meeting">Wrong: --filter 'Status=Intro Meeting'<a class="headerlink" href="#affinity.exceptions.FilterParseError--wrong-filter-statusintro-meeting" title="Permanent link">&para;</a></h3>
+<h3 id="affinity.exceptions.FilterParseError--right-filter-statusintro-meeting">Right: --filter 'Status="Intro Meeting"'<a class="headerlink" href="#affinity.exceptions.FilterParseError--right-filter-statusintro-meeting" title="Permanent link">&para;</a></h3>
+</details>
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>affinity/exceptions.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">601</span>
+<span class="normal">602</span>
+<span class="normal">603</span>
+<span class="normal">604</span>
+<span class="normal">605</span>
+<span class="normal">606</span>
+<span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FilterParseError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raised when a filter expression cannot be parsed.</span>
+
+<span class="sd">    Common causes:</span>
+<span class="sd">    - Multi-word values not quoted: Status=Intro Meeting</span>
+<span class="sd">    - Invalid operators</span>
+<span class="sd">    - Malformed expressions</span>
+
+<span class="sd">    Example fix:</span>
+<span class="sd">        # Wrong: --filter &#39;Status=Intro Meeting&#39;</span>
+<span class="sd">        # Right: --filter &#39;Status=&quot;Intro Meeting&quot;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">pass</span>
+</code></pre></div></td></tr></table></div>
+              </details>
 
     </div>
 
