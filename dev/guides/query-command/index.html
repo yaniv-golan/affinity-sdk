@@ -2006,6 +2006,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Supported Entity Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#entity-query-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entity Query Limitations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
       </ul>
@@ -2359,35 +2376,86 @@ xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class=
 <tr>
 <th>Entity</th>
 <th>Description</th>
+<th>Query Type</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>persons</code></td>
 <td>People in your CRM</td>
+<td>Direct query</td>
 </tr>
 <tr>
 <td><code>companies</code></td>
 <td>Companies/organizations</td>
+<td>Direct query</td>
 </tr>
 <tr>
 <td><code>opportunities</code></td>
 <td>Deals/opportunities</td>
+<td>Direct query</td>
+</tr>
+<tr>
+<td><code>lists</code></td>
+<td>Affinity list definitions</td>
+<td>Direct query</td>
 </tr>
 <tr>
 <td><code>listEntries</code></td>
 <td>Entries in Affinity lists</td>
+<td>Requires <code>listId</code> or <code>listName</code> filter</td>
 </tr>
 <tr>
 <td><code>interactions</code></td>
 <td>Emails, calls, meetings</td>
+<td>Include only (cannot query directly)</td>
 </tr>
 <tr>
 <td><code>notes</code></td>
 <td>Notes on entities</td>
+<td>Include only (cannot query directly)</td>
 </tr>
 </tbody>
 </table>
+<h4 id="entity-query-limitations">Entity Query Limitations<a class="headerlink" href="#entity-query-limitations" title="Permanent link">&para;</a></h4>
+<p><strong><code>listEntries</code></strong> requires a <code>listId</code> or <code>listName</code> filter to specify which list to query:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listId&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12345</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Or using list name (resolved automatically):</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Field name resolution:</strong> When filtering on <code>fields.*</code>, you can use human-readable field names instead of field IDs:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;and&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Status&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Active&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Field names are resolved case-insensitively. If a field name is not found, it passes through unchanged (allowing numeric field IDs like <code>fields.12345</code> to work).</p>
+<p><strong><code>interactions</code> and <code>notes</code></strong> cannot be queried directly. Instead, include them on a parent entity:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persons&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;include&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;interactions&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;notes&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Attempting to query <code>interactions</code> or <code>notes</code> directly will return an error:
+<div class="highlight"><pre><span></span><code>QueryParseError: &#39;interactions&#39; cannot be queried directly.
+Use it as an &#39;include&#39; on a parent entity instead.
+Example: {&quot;from&quot;: &quot;persons&quot;, &quot;include&quot;: [&quot;interactions&quot;]}
+</code></pre></div></p>
 <h2 id="filtering-with-where">Filtering with WHERE<a class="headerlink" href="#filtering-with-where" title="Permanent link">&para;</a></h2>
 <h3 id="simple-conditions">Simple Conditions<a class="headerlink" href="#simple-conditions" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>

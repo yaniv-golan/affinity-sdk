@@ -2000,6 +2000,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Entity Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-type-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Type Details
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2230,6 +2247,17 @@
     <span class="md-ellipsis">
       
         Escaping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#field-name-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field Name Resolution
       
     </span>
   </a>
@@ -2596,6 +2624,7 @@
 <th>Entity</th>
 <th>Description</th>
 <th>Service</th>
+<th>Query Type</th>
 </tr>
 </thead>
 <tbody>
@@ -2603,34 +2632,72 @@
 <td><code>persons</code></td>
 <td>People in CRM</td>
 <td>PersonService</td>
+<td>Direct</td>
 </tr>
 <tr>
 <td><code>companies</code></td>
 <td>Companies/organizations</td>
 <td>CompanyService</td>
+<td>Direct</td>
 </tr>
 <tr>
 <td><code>opportunities</code></td>
 <td>Deals/opportunities</td>
 <td>OpportunityService</td>
+<td>Direct</td>
+</tr>
+<tr>
+<td><code>lists</code></td>
+<td>Affinity list definitions</td>
+<td>ListService</td>
+<td>Direct</td>
 </tr>
 <tr>
 <td><code>listEntries</code></td>
 <td>Entries in Affinity lists</td>
 <td>ListEntryService</td>
+<td>Requires parent filter</td>
 </tr>
 <tr>
 <td><code>interactions</code></td>
 <td>Emails, calls, meetings</td>
 <td>InteractionService</td>
+<td>Include only</td>
 </tr>
 <tr>
 <td><code>notes</code></td>
 <td>Notes on entities</td>
 <td>NoteService</td>
+<td>Include only</td>
 </tr>
 </tbody>
 </table>
+<h3 id="query-type-details">Query Type Details<a class="headerlink" href="#query-type-details" title="Permanent link">&para;</a></h3>
+<p><strong>Direct</strong> - Can be queried without any required filters:
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persons&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Requires parent filter</strong> - Must specify parent context:
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listId&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12345</span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p>The <code>listEntries</code> entity supports:
+- <code>listId</code> filter with <code>eq</code> or <code>in</code> operator
+- <code>listName</code> filter (resolved to <code>listId</code> automatically)
+- Multiple lists via <code>in</code> operator or <code>or</code> conditions
+- <code>fields.*</code> paths with human-readable field names (resolved to field IDs automatically)</p>
+<p><strong>Include only</strong> - Cannot be queried directly; use as relationship include:
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persons&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;include&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;interactions&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;notes&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p>Direct queries for include-only entities will fail with helpful guidance:
+<div class="highlight"><pre><span></span><code>QueryParseError: &#39;interactions&#39; cannot be queried directly.
+Use it as an &#39;include&#39; on a parent entity instead.
+Example: {&quot;from&quot;: &quot;persons&quot;, &quot;include&quot;: [&quot;interactions&quot;]}
+</code></pre></div></p>
 <h2 id="where-clause">WHERE Clause<a class="headerlink" href="#where-clause" title="Permanent link">&para;</a></h2>
 <h3 id="simple-condition">Simple Condition<a class="headerlink" href="#simple-condition" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -2857,6 +2924,11 @@ phones[-1]               # Last element
 <div class="highlight"><pre><span></span><code>fields[&quot;Field.With.Dots&quot;]
 fields[&quot;Field With Spaces&quot;]
 </code></pre></div>
+<h3 id="field-name-resolution">Field Name Resolution<a class="headerlink" href="#field-name-resolution" title="Permanent link">&para;</a></h3>
+<p>For <code>listEntries</code> queries, <code>fields.*</code> paths support human-readable field names:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Status&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Active&quot;</span><span class="p">}</span>
+</code></pre></div>
+<p>Field names are resolved case-insensitively against the list's field definitions. If a name is not found, it passes through unchanged (allowing direct use of field IDs like <code>fields.12345</code> or <code>fields.field-260415</code>).</p>
 <h2 id="date-values">Date Values<a class="headerlink" href="#date-values" title="Permanent link">&para;</a></h2>
 <h3 id="relative-dates">Relative Dates<a class="headerlink" href="#relative-dates" title="Permanent link">&para;</a></h3>
 <table>
