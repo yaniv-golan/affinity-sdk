@@ -733,6 +733,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Query">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity query
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#people" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3225,6 +3253,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Query">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity query
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#people" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4159,6 +4215,38 @@ xaffinity<span class="w"> </span>whoami<span class="w"> </span>--json<span class
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>resolve-url<span class="w"> </span><span class="s2">&quot;https://app.affinity.co/companies/263169568&quot;</span>
 xaffinity<span class="w"> </span>resolve-url<span class="w"> </span><span class="s2">&quot;https://mydomain.affinity.com/companies/263169568&quot;</span><span class="w"> </span>--json
 </code></pre></div>
+<h2 id="query">Query<a class="headerlink" href="#query" title="Permanent link">&para;</a></h2>
+<h3 id="xaffinity-query"><code>xaffinity query</code><a class="headerlink" href="#xaffinity-query" title="Permanent link">&para;</a></h3>
+<p>Execute structured JSON queries against Affinity data. Supports complex filtering, aggregations, grouping, and including related entities.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Simple query</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;persons&quot;, &quot;limit&quot;: 10}&#39;</span>
+
+<span class="c1"># Filter with conditions</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;persons&quot;, &quot;where&quot;: {&quot;path&quot;: &quot;email&quot;, &quot;op&quot;: &quot;contains&quot;, &quot;value&quot;: &quot;@acme.com&quot;}}&#39;</span>
+
+<span class="c1"># Include related entities</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;persons&quot;, &quot;include&quot;: [&quot;companies&quot;], &quot;limit&quot;: 50}&#39;</span>
+
+<span class="c1"># Aggregation</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;opportunities&quot;, &quot;groupBy&quot;: &quot;status&quot;, &quot;aggregate&quot;: {&quot;count&quot;: {&quot;count&quot;: true}}}&#39;</span>
+
+<span class="c1"># Dry-run to preview execution plan</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;persons&quot;, &quot;include&quot;: [&quot;companies&quot;]}&#39;</span><span class="w"> </span>--dry-run
+
+<span class="c1"># From file</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class="w"> </span>query.json
+</code></pre></div>
+<p><strong>Key options:</strong></p>
+<ul>
+<li><code>--query &lt;json&gt;</code>: Inline JSON query string</li>
+<li><code>--file &lt;path&gt;</code>: Read query from JSON file</li>
+<li><code>--dry-run</code>: Show execution plan without running (estimated API calls)</li>
+<li><code>--dry-run-verbose</code>: Detailed plan with step breakdown</li>
+<li><code>--max-records &lt;n&gt;</code>: Safety limit (default: 10000)</li>
+<li><code>--timeout &lt;secs&gt;</code>: Query timeout (default: 300)</li>
+<li><code>--csv</code> / <code>--json</code>: Output format</li>
+</ul>
+<p>See <a href="../../reference/query-language/">Query Language Reference</a> and <a href="../../guides/query-command/">Query Guide</a> for full documentation.</p>
 <h2 id="people">People<a class="headerlink" href="#people" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-person-ls"><code>xaffinity person ls</code><a class="headerlink" href="#xaffinity-person-ls" title="Permanent link">&para;</a></h3>
 <p>List persons. Supports field selection, filter expressions, and free-text search.</p>

@@ -901,6 +901,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#query-command-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Command Output
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Query Command Output">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-output-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Output Fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#related-documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2718,6 +2746,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#query-command-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Command Output
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Query Command Output">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-output-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Output Fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#related-documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2757,6 +2813,7 @@
 <li><a href="#pagination-metadata">Pagination Metadata</a></li>
 <li><a href="#rate-limit-metadata">Rate Limit Metadata</a></li>
 <li><a href="#error-responses">Error Responses</a></li>
+<li><a href="#query-command-output">Query Command Output</a></li>
 </ul>
 <h2 id="standard-response-format">Standard Response Format<a class="headerlink" href="#standard-response-format" title="Permanent link">&para;</a></h2>
 <p>All CLI commands support the <code>--json</code> flag for machine-readable output. The response follows a consistent structure:</p>
@@ -3197,11 +3254,43 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"
 <span class="w">  </span><span class="p">};</span>
 <span class="p">}</span>
 </code></pre></div>
+<h2 id="query-command-output">Query Command Output<a class="headerlink" href="#query-command-output" title="Permanent link">&para;</a></h2>
+<p>The <code>xaffinity query</code> command uses a different output format optimized for complex queries with includes and aggregations:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;firstName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lastName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Smith&quot;</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;firstName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bob&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lastName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Jones&quot;</span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;included&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;companies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Acme Corp&quot;</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">101</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TechCo&quot;</span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;executionTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.34</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;recordsFetched&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;apiCalls&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;pagination&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;nextCursor&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJpZCI6Mn0=&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="query-output-fields">Query Output Fields<a class="headerlink" href="#query-output-fields" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>data</strong> (array): Query results as an array of records</li>
+<li><strong>included</strong> (object, optional): Related entities fetched via <code>include</code>, keyed by entity type</li>
+<li><strong>meta</strong> (object, optional): Execution metadata (requires <code>--include-meta</code>)</li>
+<li><strong>pagination</strong> (object, optional): Pagination cursors for continuing the query</li>
+</ul>
+<p>Note: Query output does not include <code>ok</code>, <code>command</code>, or <code>resolved</code> fields. Use <code>--include-meta</code> to include execution metadata.</p>
 <h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../cli/commands/">CLI Commands Reference</a> - Complete command documentation</li>
 <li><a href="../cli/scripting/">CLI Scripting Guide</a> - Working with JSON output and pagination</li>
 <li><a href="../guides/csv-export/">CSV Export Guide</a> - Exporting data to CSV files</li>
+<li><a href="../reference/query-language/">Query Language Reference</a> - Complete query syntax</li>
 </ul>
 
 
