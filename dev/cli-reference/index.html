@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#cli-json-output-reference" class="md-skip">
+        <a href="#cli-output-reference" class="md-skip">
           Skip to content
         </a>
       
@@ -554,6 +554,17 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#output-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output Formats
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#table-of-contents" class="md-nav__link">
@@ -2401,6 +2412,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#output-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output Formats
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#table-of-contents" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2804,8 +2826,57 @@
   
 
 
-<h1 id="cli-json-output-reference">CLI JSON Output Reference<a class="headerlink" href="#cli-json-output-reference" title="Permanent link">&para;</a></h1>
-<p>This document describes the structure of JSON output from Affinity CLI commands.</p>
+<h1 id="cli-output-reference">CLI Output Reference<a class="headerlink" href="#cli-output-reference" title="Permanent link">&para;</a></h1>
+<p>This document describes the output formats available from Affinity CLI commands.</p>
+<h2 id="output-formats">Output Formats<a class="headerlink" href="#output-formats" title="Permanent link">&para;</a></h2>
+<p>The CLI supports multiple output formats via the <code>--output</code> / <code>-o</code> flag:</p>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>table</code></td>
+<td>default</td>
+<td>Rich terminal tables (default for interactive use)</td>
+</tr>
+<tr>
+<td><code>json</code></td>
+<td><code>--json</code> or <code>-o json</code></td>
+<td>Full JSON with envelope (<code>ok</code>, <code>data</code>, <code>meta</code>, <code>error</code>)</td>
+</tr>
+<tr>
+<td><code>jsonl</code></td>
+<td><code>-o jsonl</code></td>
+<td>JSON Lines (one object per line, data only)</td>
+</tr>
+<tr>
+<td><code>markdown</code></td>
+<td><code>-o markdown</code></td>
+<td>GitHub-flavored markdown tables (data only)</td>
+</tr>
+<tr>
+<td><code>toon</code></td>
+<td><code>-o toon</code></td>
+<td>Token-Optimized Object Notation (30-60% fewer tokens)</td>
+</tr>
+<tr>
+<td><code>csv</code></td>
+<td><code>--csv</code> or <code>-o csv</code></td>
+<td>Comma-separated values (data only)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>For LLM/MCP use</strong>: Use <code>markdown</code> for best comprehension or <code>toon</code> for large datasets.</p>
+<p><strong>For scripts</strong>: Use <code>--json</code> for full structured output with error handling.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--output<span class="w"> </span>markdown
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;companies&quot;, &quot;limit&quot;: 10}&#39;</span><span class="w"> </span>-o<span class="w"> </span>toon
+</code></pre></div></p>
 <h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="#standard-response-format">Standard Response Format</a></li>
