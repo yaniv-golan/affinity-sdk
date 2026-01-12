@@ -2065,6 +2065,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#multi-select-field-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Select Field Filtering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#compound-conditions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2535,16 +2546,89 @@ Example: {&quot;from&quot;: &quot;persons&quot;, &quot;include&quot;: [&quot;int
 </tr>
 <tr>
 <td><code>contains_any</code></td>
-<td>Array contains any</td>
+<td>String contains any substring (case-insensitive)</td>
 <td><code>["vip", "hot"]</code></td>
 </tr>
 <tr>
 <td><code>contains_all</code></td>
-<td>Array contains all</td>
+<td>String contains all substrings (case-insensitive)</td>
 <td><code>["verified", "active"]</code></td>
+</tr>
+<tr>
+<td><code>has_any</code></td>
+<td>Array contains any of the values</td>
+<td><code>["LB", "MA"]</code></td>
+</tr>
+<tr>
+<td><code>has_all</code></td>
+<td>Array contains all of the values</td>
+<td><code>["LB", "MA"]</code></td>
 </tr>
 </tbody>
 </table>
+<h3 id="multi-select-field-filtering">Multi-Select Field Filtering<a class="headerlink" href="#multi-select-field-filtering" title="Permanent link">&para;</a></h3>
+<p>Multi-select dropdown fields (like "Team Member") return arrays from the API. The query engine handles these automatically:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;and_&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Team Member&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;LB&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Operator behavior with array fields:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Single-value field</th>
+<th>Multi-select field</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eq</code></td>
+<td>Exact match</td>
+<td>Scalar: membership check / List: set equality</td>
+</tr>
+<tr>
+<td><code>neq</code></td>
+<td>Not equal</td>
+<td>Scalar: not in array / List: set inequality</td>
+</tr>
+<tr>
+<td><code>in</code></td>
+<td>Value in list</td>
+<td>Any intersection between arrays</td>
+</tr>
+<tr>
+<td><code>has_any</code></td>
+<td>Returns false</td>
+<td>Any specified value present</td>
+</tr>
+<tr>
+<td><code>has_all</code></td>
+<td>Returns false</td>
+<td>All specified values present</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Find entries where Team Member includes &quot;LB&quot;</span>
+<span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Team Member&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;LB&quot;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// Find entries where Team Member is exactly [&quot;LB&quot;, &quot;MA&quot;] (order-insensitive)</span>
+<span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Team Member&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;LB&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;MA&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// Find entries where Team Member includes any of [&quot;LB&quot;, &quot;DW&quot;]</span>
+<span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Team Member&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;has_any&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;LB&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;DW&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// Find entries where Team Member includes both &quot;LB&quot; and &quot;MA&quot;</span>
+<span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Team Member&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;has_all&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;LB&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;MA&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p><strong>Note:</strong> Array operators are case-sensitive because dropdown values from the Affinity API are exact matches.</p>
 <h3 id="compound-conditions">Compound Conditions<a class="headerlink" href="#compound-conditions" title="Permanent link">&para;</a></h3>
 <p><strong>AND:</strong></p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>

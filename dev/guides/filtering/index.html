@@ -994,10 +994,77 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#raw-filter-strings-advanced" class="md-nav__link">
+  <a href="#raw-filter-strings" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Raw Filter Strings (Advanced)
+        Raw Filter Strings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Raw Filter Strings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#standard-operators-affinity-v2-api-compatible" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standard Operators (Affinity V2 API compatible)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sdk-extensions-client-side-filtering-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SDK Extensions (client-side filtering only)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SDK Extensions (client-side filtering only)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#word-based-aliases-sdk-extension" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Word-Based Aliases [SDK Extension]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-collection-operators-sdk-extension" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Collection Operators [SDK Extension]
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Examples
       
     </span>
   </a>
@@ -1008,7 +1075,7 @@
   <a href="#what-can-be-filtered" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What can be filtered?
+        What Can Be Filtered?
       
     </span>
   </a>
@@ -1032,17 +1099,6 @@
     <span class="md-ellipsis">
       
         Why the difference?
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#supported-operators-for-expand-filter" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Supported operators for --expand-filter
       
     </span>
   </a>
@@ -2155,10 +2211,77 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#raw-filter-strings-advanced" class="md-nav__link">
+  <a href="#raw-filter-strings" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Raw Filter Strings (Advanced)
+        Raw Filter Strings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Raw Filter Strings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#standard-operators-affinity-v2-api-compatible" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standard Operators (Affinity V2 API compatible)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sdk-extensions-client-side-filtering-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SDK Extensions (client-side filtering only)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SDK Extensions (client-side filtering only)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#word-based-aliases-sdk-extension" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Word-Based Aliases [SDK Extension]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-collection-operators-sdk-extension" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Collection Operators [SDK Extension]
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Examples
       
     </span>
   </a>
@@ -2169,7 +2292,7 @@
   <a href="#what-can-be-filtered" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What can be filtered?
+        What Can Be Filtered?
       
     </span>
   </a>
@@ -2193,17 +2316,6 @@
     <span class="md-ellipsis">
       
         Why the difference?
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#supported-operators-for-expand-filter" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Supported operators for --expand-filter
       
     </span>
   </a>
@@ -2276,17 +2388,17 @@
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span><span class="p">,</span> <span class="n">F</span>
 
 <span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-    <span class="c1"># ✅ Recommended: Type-safe filter builder</span>
+    <span class="c1"># Recommended: Type-safe filter builder</span>
     <span class="n">companies</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
         <span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Industry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Software&quot;</span><span class="p">)</span>
     <span class="p">)</span>
 </code></pre></div>
 <p>Benefits of the filter builder:
-- ✅ Prevents syntax errors with type checking
-- ✅ Handles escaping automatically
-- ✅ Makes it clear you're filtering custom fields (via <code>field()</code> method)
-- ✅ Provides IDE autocomplete for filter operations</p>
-<p><strong>CLI users:</strong> The CLI uses raw filter string syntax. See <a href="../../cli/commands/">CLI commands reference</a> for examples.</p>
+- Prevents syntax errors with type checking
+- Handles escaping automatically
+- Makes it clear you're filtering custom fields (via <code>field()</code> method)
+- Provides IDE autocomplete for filter operations</p>
+<p><strong>CLI users:</strong> The CLI uses raw filter string syntax. See examples below.</p>
 <h2 id="filter-builder-examples">Filter Builder Examples<a class="headerlink" href="#filter-builder-examples" title="Permanent link">&para;</a></h2>
 <p><strong>Simple comparisons:</strong></p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span><span class="p">,</span> <span class="n">F</span>
@@ -2299,6 +2411,9 @@
 
 <span class="c1"># Starts with</span>
 <span class="n">persons</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Title&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">starts_with</span><span class="p">(</span><span class="s2">&quot;VP&quot;</span><span class="p">))</span>
+
+<span class="c1"># Ends with</span>
+<span class="n">persons</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Email&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">ends_with</span><span class="p">(</span><span class="s2">&quot;@acme.com&quot;</span><span class="p">))</span>
 
 <span class="c1"># Greater than (for numbers/dates)</span>
 <span class="n">opportunities</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">opportunities</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Amount&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">100000</span><span class="p">))</span>
@@ -2336,8 +2451,10 @@
     <span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Region&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">in_list</span><span class="p">([</span><span class="s2">&quot;US&quot;</span><span class="p">,</span> <span class="s2">&quot;Canada&quot;</span><span class="p">,</span> <span class="s2">&quot;Mexico&quot;</span><span class="p">])</span>
 <span class="p">)</span>
 </code></pre></div>
-<h2 id="raw-filter-strings-advanced">Raw Filter Strings (Advanced)<a class="headerlink" href="#raw-filter-strings-advanced" title="Permanent link">&para;</a></h2>
-<p>For CLI or advanced SDK use, you can use raw filter strings:</p>
+<h2 id="raw-filter-strings">Raw Filter Strings<a class="headerlink" href="#raw-filter-strings" title="Permanent link">&para;</a></h2>
+<p>For CLI or advanced SDK use, you can use raw filter strings. The SDK supports both official Affinity V2 API syntax and SDK-specific extensions.</p>
+<h3 id="standard-operators-affinity-v2-api-compatible">Standard Operators (Affinity V2 API compatible)<a class="headerlink" href="#standard-operators-affinity-v2-api-compatible" title="Permanent link">&para;</a></h3>
+<p>These operators work both with the Affinity API and SDK client-side filtering:</p>
 <table>
 <thead>
 <tr>
@@ -2354,8 +2471,8 @@
 </tr>
 <tr>
 <td>or</td>
-<td><code>|</code></td>
-<td><code>field("A") = 1 | field("B") = 2</code></td>
+<td><code>\|</code></td>
+<td><code>field("A") = 1 \| field("B") = 2</code></td>
 </tr>
 <tr>
 <td>not</td>
@@ -2388,6 +2505,26 @@
 <td><code>field("Title") =~ "Manager"</code></td>
 </tr>
 <tr>
+<td>greater than</td>
+<td><code>&gt;</code></td>
+<td><code>field("Count") &gt; 5</code></td>
+</tr>
+<tr>
+<td>greater than or equal</td>
+<td><code>&gt;=</code></td>
+<td><code>field("Count") &gt;= 5</code></td>
+</tr>
+<tr>
+<td>less than</td>
+<td><code>&lt;</code></td>
+<td><code>field("Count") &lt; 10</code></td>
+</tr>
+<tr>
+<td>less than or equal</td>
+<td><code>&lt;=</code></td>
+<td><code>field("Count") &lt;= 10</code></td>
+</tr>
+<tr>
 <td>is NULL</td>
 <td><code>!= *</code></td>
 <td><code>field("Email") != *</code></td>
@@ -2397,24 +2534,178 @@
 <td><code>= *</code></td>
 <td><code>field("Email") = *</code></td>
 </tr>
+<tr>
+<td>is empty string</td>
+<td><code>= ""</code></td>
+<td><code>field("Notes") = ""</code></td>
+</tr>
+<tr>
+<td>collection exact match</td>
+<td><code>= [A, B]</code></td>
+<td><code>field("Tags") = [tech, startup]</code></td>
+</tr>
+<tr>
+<td>collection contains all</td>
+<td><code>=~ [A, B]</code></td>
+<td><code>field("Tags") =~ [tech, startup]</code></td>
+</tr>
+<tr>
+<td>collection empty</td>
+<td><code>= []</code></td>
+<td><code>field("Tags") = []</code></td>
+</tr>
 </tbody>
 </table>
-<p><strong>CLI example:</strong>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Department = &quot;Sales&quot;&#39;</span>
-</code></pre></div></p>
-<p><strong>SDK with raw string:</strong>
-<div class="highlight"><pre><span></span><code><span class="c1"># Less safe than using F, but works</span>
-<span class="n">persons</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;field(&quot;Department&quot;) = &quot;Sales&quot;&#39;</span><span class="p">)</span>
-</code></pre></div></p>
-<h2 id="what-can-be-filtered">What can be filtered?<a class="headerlink" href="#what-can-be-filtered" title="Permanent link">&para;</a></h2>
-<p><strong>✅ Custom fields</strong> (added to entities in Affinity):</p>
+<h3 id="sdk-extensions-client-side-filtering-only">SDK Extensions (client-side filtering only)<a class="headerlink" href="#sdk-extensions-client-side-filtering-only" title="Permanent link">&para;</a></h3>
+<p>These operators are SDK-specific and only work for client-side filtering with <code>--expand-filter</code> or <code>matches()</code>. They do NOT work with the Affinity API.</p>
+<h4 id="word-based-aliases-sdk-extension">Word-Based Aliases <code>[SDK Extension]</code><a class="headerlink" href="#word-based-aliases-sdk-extension" title="Permanent link">&para;</a></h4>
+<p>Human/LLM-friendly aliases for official operators:</p>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Equivalent</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>contains</code></td>
+<td><code>=~</code></td>
+<td><code>name contains "Corp"</code></td>
+</tr>
+<tr>
+<td><code>starts_with</code></td>
+<td><code>=^</code></td>
+<td><code>name starts_with "Acme"</code></td>
+</tr>
+<tr>
+<td><code>ends_with</code></td>
+<td><code>=$</code></td>
+<td><code>email ends_with "@acme.com"</code></td>
+</tr>
+<tr>
+<td><code>gt</code></td>
+<td><code>&gt;</code></td>
+<td><code>count gt 5</code></td>
+</tr>
+<tr>
+<td><code>gte</code></td>
+<td><code>&gt;=</code></td>
+<td><code>count gte 5</code></td>
+</tr>
+<tr>
+<td><code>lt</code></td>
+<td><code>&lt;</code></td>
+<td><code>count lt 10</code></td>
+</tr>
+<tr>
+<td><code>lte</code></td>
+<td><code>&lt;=</code></td>
+<td><code>count lte 10</code></td>
+</tr>
+<tr>
+<td><code>is null</code></td>
+<td><code>!= *</code></td>
+<td><code>email is null</code></td>
+</tr>
+<tr>
+<td><code>is not null</code></td>
+<td><code>= *</code></td>
+<td><code>email is not null</code></td>
+</tr>
+<tr>
+<td><code>is empty</code></td>
+<td><code>= ""</code> or <code>= []</code></td>
+<td><code>tags is empty</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="additional-collection-operators-sdk-extension">Additional Collection Operators <code>[SDK Extension]</code><a class="headerlink" href="#additional-collection-operators-sdk-extension" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Syntax</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>in list</td>
+<td><code>in [A, B, C]</code></td>
+<td>Value equals any in list</td>
+</tr>
+<tr>
+<td>between</td>
+<td><code>between [1, 10]</code></td>
+<td>Value in range (inclusive)</td>
+</tr>
+<tr>
+<td>has any</td>
+<td><code>has_any [A, B]</code></td>
+<td>Array contains any of values (exact match)</td>
+</tr>
+<tr>
+<td>has all</td>
+<td><code>has_all [A, B]</code></td>
+<td>Array contains all values (exact match)</td>
+</tr>
+<tr>
+<td>contains any</td>
+<td><code>contains_any [A, B]</code></td>
+<td>Any element contains any substring</td>
+</tr>
+<tr>
+<td>contains all</td>
+<td><code>contains_all [A, B]</code></td>
+<td>Any element contains all substrings</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example equivalents (prefer official syntax for API portability):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># These are equivalent:</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">&#39;&quot;Team Member&quot; =~ LB&#39;</span><span class="w">       </span><span class="c1"># Official V2 API</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">&#39;&quot;Team Member&quot; contains LB&#39;</span><span class="w"> </span><span class="c1"># SDK alias</span>
+
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">&#39;email = *&#39;</span><span class="w">           </span><span class="c1"># Official V2 API</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">&#39;email is not null&#39;</span><span class="w">   </span><span class="c1"># SDK alias</span>
+
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">&#39;count &gt; 5&#39;</span><span class="w">   </span><span class="c1"># Official V2 API</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">&#39;count gt 5&#39;</span><span class="w">  </span><span class="c1"># SDK alias</span>
+</code></pre></div>
+<h2 id="cli-examples">CLI Examples<a class="headerlink" href="#cli-examples" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Simple filter</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Department = &quot;Sales&quot;&#39;</span>
+
+<span class="c1"># Contains (case-insensitive)</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Industry =~ &quot;tech&quot;&#39;</span>
+
+<span class="c1"># Numeric comparison</span>
+xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Amount &gt; 100000&#39;</span>
+
+<span class="c1"># Multiple conditions with AND</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Status = &quot;Active&quot; &amp; Department = &quot;Sales&quot;&#39;</span>
+
+<span class="c1"># Multiple conditions with OR</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Region = &quot;US&quot; | Region = &quot;Canada&quot;&#39;</span>
+
+<span class="c1"># Null check</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Manager != *&#39;</span>
+
+<span class="c1"># Collection operators (SDK extension)</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">&#39;Status in [Active, Pending]&#39;</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">&#39;Tags has_any [priority, urgent]&#39;</span>
+</code></pre></div>
+<h2 id="what-can-be-filtered">What Can Be Filtered?<a class="headerlink" href="#what-can-be-filtered" title="Permanent link">&para;</a></h2>
+<p><strong>Custom fields</strong> (added to entities in Affinity):</p>
 <p>Python SDK:
 - <code>F.field("Department").equals("Sales")</code>
 - <code>F.field("Status").contains("Active")</code></p>
 <p>CLI (raw filter syntax):
 - <code>Department = "Sales"</code>
 - <code>Status =~ "Active"</code></p>
-<p><strong>❌ Built-in properties</strong> (cannot be filtered with V2 filter expressions):
+<p><strong>Built-in properties</strong> (cannot be filtered with V2 filter expressions):
 - Person: <code>type</code>, <code>firstName</code>, <code>lastName</code>, <code>primaryEmail</code>, <code>emailAddresses</code>
 - Company: <code>name</code>, <code>domain</code>, <code>domains</code>
 - Opportunity: <code>name</code>, <code>listId</code></p>
@@ -2454,72 +2745,16 @@
 <ul>
 <li>Uses the same syntax as <code>--filter</code> for consistency</li>
 <li>Is applied after fetching data (doesn't reduce API calls)</li>
+<li>Supports SDK extension operators (word aliases, collection operators)</li>
 <li>Still useful for reducing output size and focusing on relevant associations</li>
 </ul>
-<h3 id="supported-operators-for-expand-filter">Supported operators for <code>--expand-filter</code><a class="headerlink" href="#supported-operators-for-expand-filter" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Syntax</th>
-<th>Meaning</th>
-<th>Example</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>=</code></td>
-<td>Exact match</td>
-<td><code>name=Alice</code></td>
-</tr>
-<tr>
-<td><code>!=</code></td>
-<td>Not equal</td>
-<td><code>name!=Bob</code></td>
-</tr>
-<tr>
-<td><code>=*</code></td>
-<td>IS NOT NULL (has value)</td>
-<td><code>email=*</code></td>
-</tr>
-<tr>
-<td><code>!=*</code></td>
-<td>IS NULL (empty/not set)</td>
-<td><code>email!=*</code></td>
-</tr>
-<tr>
-<td><code>=~</code></td>
-<td>Contains substring</td>
-<td><code>name=~Corp</code></td>
-</tr>
-<tr>
-<td><code>\|</code></td>
-<td>OR</td>
-<td><code>status=Unknown \| status=Valid</code></td>
-</tr>
-<tr>
-<td><code>&amp;</code></td>
-<td>AND</td>
-<td><code>status=Valid &amp; role=CEO</code></td>
-</tr>
-<tr>
-<td><code>!</code></td>
-<td>NOT (prefix)</td>
-<td><code>!(status=Inactive)</code></td>
-</tr>
-<tr>
-<td><code>()</code></td>
-<td>Grouping</td>
-<td><code>(status=A \| status=B) &amp; role=CEO</code></td>
-</tr>
-</tbody>
-</table>
 <h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># Server-side: only fetch Active opportunities</span>
 <span class="c1"># Client-side: only include people with valid email status</span>
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">275454</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--filter<span class="w"> </span><span class="s2">&quot;Status=Active&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--expand<span class="w"> </span>people<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--expand-filter<span class="w"> </span><span class="s2">&quot;Primary Email Status=Valid | Primary Email Status=Unknown | Primary Email Status!=*&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--expand-filter<span class="w"> </span><span class="s1">&#39;&quot;Primary Email Status&quot;=Valid | &quot;Primary Email Status&quot;=Unknown | &quot;Primary Email Status&quot; is null&#39;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>output.csv
 </code></pre></div>
 <h3 id="performance-consideration">Performance consideration<a class="headerlink" href="#performance-consideration" title="Permanent link">&para;</a></h3>
