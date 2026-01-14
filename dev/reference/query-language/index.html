@@ -2502,6 +2502,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quantifier-queries-on-large-databases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quantifier Queries on Large Databases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended Patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lazy-loading-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lazy Loading Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-dry-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using Dry-Run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2883,7 +2944,7 @@ Example: {&quot;from&quot;: &quot;persons&quot;, &quot;include&quot;: [&quot;int
 <p>All items in collection must match:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;all_&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;over&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tags&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tags&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;.&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;starts_with&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;priority&quot;</span><span class="w"> </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -2892,7 +2953,7 @@ Example: {&quot;from&quot;: &quot;persons&quot;, &quot;include&quot;: [&quot;int
 <p>No items in collection may match:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;none_&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;over&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tags&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tags&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;.&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;spam&quot;</span><span class="w"> </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -3176,6 +3237,93 @@ fields[&quot;Field With Spaces&quot;]
 <li><code>limit</code> must be non-negative</li>
 <li>Maximum 10,000 records per query</li>
 </ul>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="quantifier-queries-on-large-databases">Quantifier Queries on Large Databases<a class="headerlink" href="#quantifier-queries-on-large-databases" title="Permanent link">&para;</a></h3>
+<p>The <code>all_</code>, <code>none_</code>, <code>exists_</code>, and <code>_count</code> operators require fetching
+relationship data for each record. This causes N+1 API calls, which can
+be very slow on large databases.</p>
+<table>
+<thead>
+<tr>
+<th>Database Size</th>
+<th>N+1 API Calls</th>
+<th>Time @ 30 req/s</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100 records</td>
+<td>100</td>
+<td>~3 seconds</td>
+<td>✅ Usable</td>
+</tr>
+<tr>
+<td>1,000 records</td>
+<td>1,000</td>
+<td>~33 seconds</td>
+<td>⚠️ Slow</td>
+</tr>
+<tr>
+<td>10,000 records</td>
+<td>10,000</td>
+<td>~5.5 minutes</td>
+<td>❌ Painful</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Important</strong>: Unbounded queries (from <code>persons</code>, <code>companies</code>, or <code>opportunities</code>)
+with quantifier filters require explicit <code>--max-records</code> to prevent accidentally
+running very long queries.</p>
+<h3 id="recommended-patterns">Recommended Patterns<a class="headerlink" href="#recommended-patterns" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Start from listEntries</strong> (bounded by list size):
+   <div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;and&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listId&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12345</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;entity.companies._count&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gte&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Add pre-filters</strong> to reduce dataset first:
+   <div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;companies&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;and&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;domain&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;contains&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;example&quot;</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;people._count&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gte&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span>
+<span class="p">}</span>
+</code></pre></div>
+   Then run with: <code>xaffinity query --file query.json --max-records 100</code></p>
+</li>
+<li>
+<p><strong>Use --max-records</strong> for exploration:
+   <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;...&#39;</span><span class="w"> </span>--max-records<span class="w"> </span><span class="m">100</span>
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="lazy-loading-optimization">Lazy Loading Optimization<a class="headerlink" href="#lazy-loading-optimization" title="Permanent link">&para;</a></h3>
+<p>When a query has both cheap filters (local field comparisons) and expensive
+filters (quantifiers), the engine automatically applies cheap filters first
+to reduce the dataset before making N+1 API calls. This can dramatically
+reduce execution time.</p>
+<h3 id="using-dry-run">Using Dry-Run<a class="headerlink" href="#using-dry-run" title="Permanent link">&para;</a></h3>
+<p>Always preview expensive queries with <code>--dry-run</code>:</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class="w"> </span>query.json<span class="w"> </span>--dry-run
+</code></pre></div>
+<p>The dry-run output shows:
+- Estimated API calls (or "UNBOUNDED" for unbounded quantifier queries)
+- Whether <code>--max-records</code> is required
+- Lazy loading optimization status</p>
 
 
 
