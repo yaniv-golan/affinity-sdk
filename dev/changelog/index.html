@@ -1994,20 +1994,27 @@
 <p>All notable changes to this project will be documented in this file.</p>
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
-<h2 id="099-unreleased">0.9.9 - Unreleased<a class="headerlink" href="#099-unreleased" title="Permanent link">&para;</a></h2>
+<h2 id="099-2026-01-14">0.9.9 - 2026-01-14<a class="headerlink" href="#099-2026-01-14" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>query</code> command now supports advanced relationship filtering:</li>
-<li><code>all_</code> quantifier: Filter where all related items match a condition (e.g., find persons where all their companies have ".com" domains)</li>
-<li><code>none_</code> quantifier: Filter where no related items match a condition (e.g., find persons with no spam interactions)</li>
-<li><code>exists_</code> subquery: Filter where at least one related item exists, optionally matching a condition (e.g., find persons who have email interactions)</li>
+<li><code>all</code> quantifier: Filter where all related items match a condition (e.g., find persons where all their companies have ".com" domains)</li>
+<li><code>none</code> quantifier: Filter where no related items match a condition (e.g., find persons with no spam interactions)</li>
+<li><code>exists</code> subquery: Filter where at least one related item exists, optionally matching a condition (e.g., find persons who have email interactions)</li>
 <li><code>_count</code> pseudo-field: Filter by count of related items (e.g., <code>"path": "companies._count", "op": "gte", "value": 2</code>)</li>
-<li>Available relationship paths: persons→companies/opportunities/interactions/notes/listEntries, companies→people/opportunities/interactions/notes/listEntries, opportunities→people/companies/interactions</li>
-<li>Note: These features cause N+1 API calls to fetch relationship data; use <code>dryRun</code> to preview</li>
+<li>Available relationship paths: persons→companies/opportunities/interactions/notes/listEntries, companies→persons/opportunities/interactions/notes/listEntries, opportunities→persons/companies/interactions</li>
+<li>Note: These features cause N+1 API calls to fetch relationship data; use <code>--dry-run</code> to preview</li>
+</ul>
+<h3 id="changed-breaking">Changed (Breaking)<a class="headerlink" href="#changed-breaking" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Renamed relationship <code>"people"</code> to <code>"persons"</code> for consistency with entity type names:</li>
+<li>Query <code>include</code>: <code>{"from": "companies", "include": ["people"]}</code> → use <code>["persons"]</code></li>
+<li>CLI <code>--expand</code>: <code>xaffinity company get &lt;id&gt; --expand people</code> → use <code>--expand persons</code></li>
+<li>JSON output: <code>data.people</code> → <code>data.persons</code></li>
 </ul>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>
-<li>CLI: Query engine no longer silently passes all records for <code>all_</code>, <code>none_</code>, and <code>_count</code> filters. Previously these were placeholder implementations that returned <code>True</code> for all records, causing incorrect query results. (Bug #15)</li>
+<li>CLI: Query engine no longer silently passes all records for <code>all</code>, <code>none</code>, and <code>_count</code> filters. Previously these were placeholder implementations that returned <code>True</code> for all records, causing incorrect query results. (Bug #15)</li>
 </ul>
 <h2 id="098-2026-01-12">0.9.8 - 2026-01-12<a class="headerlink" href="#098-2026-01-12" title="Permanent link">&para;</a></h2>
 <h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
