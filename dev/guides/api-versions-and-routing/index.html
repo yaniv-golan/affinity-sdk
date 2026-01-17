@@ -868,6 +868,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="What this means in practice">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#eventual-consistency-caveat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Eventual consistency caveat
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1011,6 +1028,34 @@
     
   
     Filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../query-command/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query command
   
 
     
@@ -1504,6 +1549,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query Language
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/models/" class="md-nav__link">
         
   
@@ -1540,10 +1613,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7" >
         
           
-          <label class="md-nav__link" for="__nav_10_6" id="__nav_10_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_7" id="__nav_10_7_label" tabindex="0">
             
   
   
@@ -1561,8 +1634,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_6">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1727,10 +1800,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_6_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7_6" >
         
           
-          <label class="md-nav__link" for="__nav_10_6_6" id="__nav_10_6_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_7_6" id="__nav_10_7_6_label" tabindex="0">
             
   
   
@@ -1748,8 +1821,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_6_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_6_6">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2069,6 +2142,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="What this means in practice">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#eventual-consistency-caveat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Eventual consistency caveat
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2146,6 +2236,8 @@
 <li><code>client.companies.get(...)</code> uses V2</li>
 <li><code>client.companies.create(...)</code> uses V1</li>
 </ul>
+<h3 id="eventual-consistency-caveat">Eventual consistency caveat<a class="headerlink" href="#eventual-consistency-caveat" title="Permanent link">&para;</a></h3>
+<p>Because writes go to V1 and reads come from V2, there can be a brief delay (typically 100-500ms) before newly created entities appear in V2. A <code>get()</code> immediately after <code>create()</code> may return 404. See <a href="../errors-and-retries/#v1v2-eventual-consistency">V1→V2 eventual consistency</a> for solutions.</p>
 <h2 id="beta-endpoints">Beta endpoints<a class="headerlink" href="#beta-endpoints" title="Permanent link">&para;</a></h2>
 <p>Some V2 endpoints are gated behind <code>enable_beta_endpoints=True</code>. If you call a beta endpoint without opt-in, the SDK raises <code>BetaEndpointDisabledError</code>.</p>
 <h2 id="version-compatibility-errors">Version compatibility errors<a class="headerlink" href="#version-compatibility-errors" title="Permanent link">&para;</a></h2>

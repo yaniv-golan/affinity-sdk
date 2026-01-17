@@ -1990,6 +1990,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guides/query-command/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guides/datetime-handling/" class="md-nav__link">
         
   
@@ -2463,6 +2491,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query Language
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/models/" class="md-nav__link">
         
   
@@ -2499,10 +2555,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7" >
         
           
-          <label class="md-nav__link" for="__nav_10_6" id="__nav_10_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_7" id="__nav_10_7_label" tabindex="0">
             
   
   
@@ -2520,8 +2576,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_6">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2686,10 +2742,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_6_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7_6" >
         
           
-          <label class="md-nav__link" for="__nav_10_6_6" id="__nav_10_6_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_7_6" id="__nav_10_7_6_label" tabindex="0">
             
   
   
@@ -2707,8 +2763,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_6_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_6_6">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4296,12 +4352,21 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w
 <li><code>--show-list-entry-fields</code>: render per-list-entry Fields tables in human output (requires <code>--expand list-entries</code> and <code>--max-results &lt;= 3</code>). Mutually exclusive with <code>--list-entry-field</code>.</li>
 <li><code>--list-entry-fields-scope list-only|all</code>: control which fields appear in list-entry tables (human output only).</li>
 </ul>
+<p>Interaction dates (V1 API):</p>
+<ul>
+<li><code>--with-interaction-dates</code>: include interaction date summaries (last/next meeting, email dates). Uses V1 API.</li>
+<li><code>--with-interaction-persons</code>: include person IDs involved in each interaction (requires <code>--with-interaction-dates</code>).</li>
+</ul>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--all-fields<span class="w"> </span>--expand<span class="w"> </span>lists
 xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--max-results<span class="w"> </span><span class="m">200</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--list-entry-field<span class="w"> </span>Stage<span class="w"> </span>--list-entry-field<span class="w"> </span>Amount
 xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--max-results<span class="w"> </span><span class="m">1</span><span class="w"> </span>--show-list-entry-fields
 xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--max-results<span class="w"> </span><span class="m">1</span><span class="w"> </span>--show-list-entry-fields<span class="w"> </span>--list-entry-fields-scope<span class="w"> </span>all
 xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--all-fields<span class="w"> </span>--expand<span class="w"> </span>lists<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.person.name&#39;</span>
+
+<span class="c1"># Include interaction dates (last meeting, next meeting, email dates)</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--with-interaction-dates<span class="w"> </span>--json
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--with-interaction-dates<span class="w"> </span>--with-interaction-persons<span class="w"> </span>--json
 </code></pre></div>
 <h3 id="xaffinity-person-create"><code>xaffinity person create</code><a class="headerlink" href="#xaffinity-person-create" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>create<span class="w"> </span>--first-name<span class="w"> </span>Ada<span class="w"> </span>--last-name<span class="w"> </span>Lovelace<span class="w"> </span>--email<span class="w"> </span>ada@example.com
@@ -4376,6 +4441,11 @@ xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="
 <li><code>--show-list-entry-fields</code>: render per-list-entry Fields tables in human output (requires <code>--expand list-entries</code> and <code>--max-results &lt;= 3</code>). Mutually exclusive with <code>--list-entry-field</code>.</li>
 <li><code>--list-entry-fields-scope list-only|all</code>: control which fields appear in list-entry tables (human output only).</li>
 </ul>
+<p>Interaction dates (V1 API):</p>
+<ul>
+<li><code>--with-interaction-dates</code>: include interaction date summaries (last/next meeting, email dates). Uses V1 API.</li>
+<li><code>--with-interaction-persons</code>: include person IDs involved in each interaction (requires <code>--with-interaction-dates</code>).</li>
+</ul>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--all-fields<span class="w"> </span>--expand<span class="w"> </span>lists
 xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--max-results<span class="w"> </span><span class="m">200</span>
 xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--list-entry-field<span class="w"> </span>Stage<span class="w"> </span>--list-entry-field<span class="w"> </span>Amount
@@ -4383,6 +4453,10 @@ xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="
 xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--max-results<span class="w"> </span><span class="m">1</span><span class="w"> </span>--show-list-entry-fields<span class="w"> </span>--list-entry-fields-scope<span class="w"> </span>all
 xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>people<span class="w"> </span>--max-results<span class="w"> </span><span class="m">50</span>
 xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--all-fields<span class="w"> </span>--expand<span class="w"> </span>lists<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.company.name&#39;</span>
+
+<span class="c1"># Include interaction dates (last meeting, next meeting, email dates)</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--with-interaction-dates<span class="w"> </span>--json
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--with-interaction-dates<span class="w"> </span>--with-interaction-persons<span class="w"> </span>--json
 </code></pre></div>
 <h3 id="xaffinity-company-create"><code>xaffinity company create</code><a class="headerlink" href="#xaffinity-company-create" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Acme Corp&quot;</span><span class="w"> </span>--domain<span class="w"> </span>acme.com
@@ -4473,11 +4547,24 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>get<span class="w">
 <li><code>--field &lt;id-or-name&gt;</code> (repeatable): include specific fields</li>
 <li><code>--saved-view &lt;name&gt;</code>: use a saved view's field selection</li>
 <li><code>--filter &lt;expression&gt;</code>: filter expression</li>
+<li><code>--expand &lt;type&gt;</code> (repeatable): expand associated entities or interaction data</li>
+<li><code>persons</code>, <code>companies</code>, <code>opportunities</code>: Expand related entities</li>
+<li><code>interactions</code>: Add interaction date summaries (last/next meeting, email dates)</li>
+<li><code>--check-unreplied-emails</code>: Check for unreplied incoming emails for each list entry</li>
+<li><code>--unreplied-lookback-days &lt;days&gt;</code>: Lookback period for unreplied email detection (default: 30)</li>
 </ul>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span>--saved-view<span class="w"> </span><span class="s2">&quot;Board&quot;</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--field<span class="w"> </span>Stage<span class="w"> </span>--field<span class="w"> </span>Amount<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;&quot;Stage&quot; = &quot;Active&quot;&#39;</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>out.csv
+
+<span class="c1"># Include interaction dates (last meeting, next meeting, email dates)</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--expand<span class="w"> </span>interactions<span class="w"> </span>--format<span class="w"> </span>json
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--expand<span class="w"> </span>interactions<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>pipeline.csv
+
+<span class="c1"># Check for unreplied incoming emails</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--check-unreplied-emails<span class="w"> </span>--json
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--check-unreplied-emails<span class="w"> </span>--unreplied-lookback-days<span class="w"> </span><span class="m">60</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>unreplied.csv
 </code></pre></div>
 <p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
 <h3 id="list-entry-commands">List Entry Commands<a class="headerlink" href="#list-entry-commands" title="Permanent link">&para;</a></h3>
@@ -4544,14 +4631,25 @@ xaffinity<span class="w"> </span>note<span class="w"> </span>create<span class="
 </code></pre></div>
 <h2 id="reminders">Reminders<a class="headerlink" href="#reminders" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-reminder-ls"><code>xaffinity reminder ls</code><a class="headerlink" href="#xaffinity-reminder-ls" title="Permanent link">&para;</a></h3>
+<p>The <code>--due-after</code> and <code>--due-before</code> options accept the same date formats as <code>--due-date</code>:
+- <strong>ISO-8601</strong>: <code>2025-01-15</code>, <code>2025-01-15T09:00:00Z</code>
+- <strong>Relative</strong>: <code>+7d</code>, <code>+2w</code>, <code>+1m</code>, <code>+1y</code>
+- <strong>Keywords</strong>: <code>now</code>, <code>today</code>, <code>tomorrow</code>, <code>yesterday</code></p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>reminder<span class="w"> </span>ls
 xaffinity<span class="w"> </span>reminder<span class="w"> </span>ls<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span><span class="w"> </span>--status<span class="w"> </span>active<span class="w"> </span>--json
+xaffinity<span class="w"> </span>reminder<span class="w"> </span>ls<span class="w"> </span>--due-after<span class="w"> </span>today<span class="w"> </span>--due-before<span class="w"> </span>+7d
 </code></pre></div>
 <h3 id="xaffinity-reminder-get-reminderid"><code>xaffinity reminder get &lt;reminderId&gt;</code><a class="headerlink" href="#xaffinity-reminder-get-reminderid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>reminder<span class="w"> </span>get<span class="w"> </span><span class="m">12345</span>
 </code></pre></div>
 <h3 id="xaffinity-reminder-create"><code>xaffinity reminder create</code><a class="headerlink" href="#xaffinity-reminder-create" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>reminder<span class="w"> </span>create<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span><span class="w"> </span>--type<span class="w"> </span>one-time<span class="w"> </span>--due-date<span class="w"> </span><span class="m">2025</span>-01-15T09:00:00Z<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span>
+<p>The <code>--due-date</code> option accepts multiple formats:
+- <strong>ISO-8601</strong>: <code>2025-01-15</code>, <code>2025-01-15T09:00:00Z</code>
+- <strong>Relative</strong>: <code>+7d</code> (7 days), <code>+2w</code> (2 weeks), <code>+1m</code> (1 month), <code>+1y</code> (1 year)
+- <strong>Keywords</strong>: <code>now</code>, <code>today</code>, <code>tomorrow</code>, <code>yesterday</code></p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>reminder<span class="w"> </span>create<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span><span class="w"> </span>--type<span class="w"> </span>one-time<span class="w"> </span>--due-date<span class="w"> </span>+7d<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span>
+xaffinity<span class="w"> </span>reminder<span class="w"> </span>create<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span><span class="w"> </span>--type<span class="w"> </span>one-time<span class="w"> </span>--due-date<span class="w"> </span>tomorrow<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span>
+xaffinity<span class="w"> </span>reminder<span class="w"> </span>create<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span><span class="w"> </span>--type<span class="w"> </span>one-time<span class="w"> </span>--due-date<span class="w"> </span><span class="m">2025</span>-01-15T09:00:00Z<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span>
 xaffinity<span class="w"> </span>reminder<span class="w"> </span>create<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span><span class="w"> </span>--type<span class="w"> </span>recurring<span class="w"> </span>--reset-type<span class="w"> </span>interaction<span class="w"> </span>--reminder-days<span class="w"> </span><span class="m">3</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">456</span>
 </code></pre></div>
 <h3 id="xaffinity-reminder-update-reminderid"><code>xaffinity reminder update &lt;reminderId&gt;</code><a class="headerlink" href="#xaffinity-reminder-update-reminderid" title="Permanent link">&para;</a></h3>

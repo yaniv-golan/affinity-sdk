@@ -938,6 +938,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../guides/query-command/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../guides/datetime-handling/" class="md-nav__link">
         
   
@@ -1296,6 +1324,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#404-immediately-after-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        404 immediately after create
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stale-data-after-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stale data after update
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#underscores-escaped-in-note-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Underscores escaped in note content
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#rate-limits" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1502,6 +1563,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../reference/query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query Language
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../reference/models/" class="md-nav__link">
         
   
@@ -1538,10 +1627,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7" >
         
           
-          <label class="md-nav__link" for="__nav_10_6" id="__nav_10_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_7" id="__nav_10_7_label" tabindex="0">
             
   
   
@@ -1559,8 +1648,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_6">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1725,10 +1814,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_6_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7_6" >
         
           
-          <label class="md-nav__link" for="__nav_10_6_6" id="__nav_10_6_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_7_6" id="__nav_10_7_6_label" tabindex="0">
             
   
   
@@ -1746,8 +1835,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_6_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_6_6">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2070,6 +2159,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#404-immediately-after-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        404 immediately after create
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stale-data-after-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stale data after update
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#underscores-escaped-in-note-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Underscores escaped in note content
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#rate-limits" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2128,6 +2250,27 @@
 <li>Verify your API key is correct.</li>
 <li>Ensure the key has access to the entities you’re querying.</li>
 </ul>
+<h2 id="404-immediately-after-create">404 immediately after create<a class="headerlink" href="#404-immediately-after-create" title="Permanent link">&para;</a></h2>
+<p>If you get a 404 <code>NotFoundError</code> when calling <code>get()</code> right after <code>create()</code>, this is due to V1→V2 eventual consistency. The entity exists but hasn't propagated to V2 yet.</p>
+<p><strong>Solutions:</strong>
+- Use the object returned by <code>create()</code> directly (recommended)
+- Use <code>get(..., retries=3)</code> to retry with backoff</p>
+<p>See <a href="../guides/errors-and-retries/#v1v2-eventual-consistency">V1→V2 eventual consistency</a> for details.</p>
+<h2 id="stale-data-after-update">Stale data after update<a class="headerlink" href="#stale-data-after-update" title="Permanent link">&para;</a></h2>
+<p>If <code>get()</code> returns old values after calling <code>update()</code>, this is also due to V1→V2 eventual consistency. The update succeeded, but V2 hasn't synced yet.</p>
+<p><strong>Solution:</strong> Use the object returned by <code>update()</code> directly - it contains the updated data.</p>
+<p>See <a href="../guides/errors-and-retries/#stale-data-after-update">Stale data after update</a> for details.</p>
+<h2 id="underscores-escaped-in-note-content">Underscores escaped in note content<a class="headerlink" href="#underscores-escaped-in-note-content" title="Permanent link">&para;</a></h2>
+<p>When you create or update a note, the Affinity API escapes underscores in the content:</p>
+<div class="highlight"><pre><span></span><code>Input:  &quot;test_note_content&quot;
+Output: &quot;test\_note\_content&quot;
+</code></pre></div>
+<p>This is server-side markdown escaping and cannot be prevented. If you need to search for or compare note content, account for this transformation:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># When checking note content, allow for escaped underscores</span>
+<span class="n">original</span> <span class="o">=</span> <span class="s2">&quot;my_note&quot;</span>
+<span class="n">from_api</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">content</span>
+<span class="k">assert</span> <span class="n">from_api</span> <span class="ow">in</span> <span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="n">original</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\_&quot;</span><span class="p">))</span>
+</code></pre></div>
 <h2 id="rate-limits">Rate limits<a class="headerlink" href="#rate-limits" title="Permanent link">&para;</a></h2>
 <p>The client tracks rate-limit state and retries some requests automatically.
 See <a href="../reference/client/">Client</a> and <a href="../reference/exceptions/">Exceptions</a>.</p>

@@ -938,6 +938,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../guides/query-command/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../guides/datetime-handling/" class="md-nav__link">
         
   
@@ -1413,6 +1441,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query Language
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../models/" class="md-nav__link">
         
   
@@ -1451,10 +1507,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_6" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7" checked>
         
           
-          <label class="md-nav__link" for="__nav_10_6" id="__nav_10_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_7" id="__nav_10_7_label" tabindex="0">
             
   
   
@@ -1472,8 +1528,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_6_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_10_6">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1640,10 +1696,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_6_6" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7_6" checked>
         
           
-          <label class="md-nav__link" for="__nav_10_6_6" id="__nav_10_6_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_7_6" id="__nav_10_7_6_label" tabindex="0">
             
   
   
@@ -1661,8 +1717,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_6_6_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_10_6_6">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_7_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10_7_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1776,6 +1832,17 @@
     <span class="md-ellipsis">
       
         get
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#affinity.services.v1_only.NoteService.iter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        iter
       
     </span>
   </a>
@@ -2131,6 +2198,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#affinity.services.v1_only.NoteService.iter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        iter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#affinity.services.v1_only.NoteService.list" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2290,7 +2368,42 @@
 <span class="normal">185</span>
 <span class="normal">186</span>
 <span class="normal">187</span>
-<span class="normal">188</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">NoteService</span><span class="p">:</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">NoteService</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Service for managing notes.</span>
 
@@ -2309,7 +2422,7 @@
         <span class="n">creator_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">page_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">V1PaginatedResponse</span><span class="p">[</span><span class="n">Note</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">Note</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get notes filtered by entity or creator.</span>
 
@@ -2322,7 +2435,7 @@
 <span class="sd">            page_token: Pagination token from previous response</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            V1PaginatedResponse with notes and next_page_token</span>
+<span class="sd">            PaginatedResponse with notes and next_page_token</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">person_id</span><span class="p">:</span>
@@ -2342,7 +2455,7 @@
         <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;notes&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">[]))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">return</span> <span class="n">V1PaginatedResponse</span><span class="p">[</span><span class="n">Note</span><span class="p">](</span>
+        <span class="k">return</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">Note</span><span class="p">](</span>
             <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">Note</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">items</span><span class="p">],</span>
             <span class="n">next_page_token</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;next_page_token&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nextPageToken&quot;</span><span class="p">),</span>
         <span class="p">)</span>
@@ -2385,6 +2498,41 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete a note.&quot;&quot;&quot;</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/notes/</span><span class="si">{</span><span class="n">note_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">iter</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">company_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">creator_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PageIterator</span><span class="p">[</span><span class="n">Note</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate through all notes with automatic pagination.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            person_id: Filter notes associated with this person</span>
+<span class="sd">            company_id: Filter notes associated with this company</span>
+<span class="sd">            opportunity_id: Filter notes associated with this opportunity</span>
+<span class="sd">            creator_id: Filter notes created by this user</span>
+<span class="sd">            page_size: Number of results per page</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            PageIterator that yields Note objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fetch_page</span><span class="p">(</span><span class="n">cursor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">Note</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+                <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
+                <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
+                <span class="n">opportunity_id</span><span class="o">=</span><span class="n">opportunity_id</span><span class="p">,</span>
+                <span class="n">creator_id</span><span class="o">=</span><span class="n">creator_id</span><span class="p">,</span>
+                <span class="n">page_size</span><span class="o">=</span><span class="n">page_size</span><span class="p">,</span>
+                <span class="n">page_token</span><span class="o">=</span><span class="n">cursor</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">PageIterator</span><span class="p">(</span><span class="n">fetch_page</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2521,8 +2669,215 @@ opportunity, or parent note (for replies).</p>
 <div class="doc doc-object doc-function">
 
 
+<h2 id="affinity.services.v1_only.NoteService.iter" class="doc doc-heading">
+            <code class="highlight language-python"><span class="nb">iter</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">company_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">creator_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PageIterator</span><span class="p">[</span><span class="n">Note</span><span class="p">]</span></code>
+
+<a href="#affinity.services.v1_only.NoteService.iter" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Iterate through all notes with automatic pagination.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>person_id</code>
+            </td>
+            <td>
+                  <code><span title="affinity.models.types.PersonId">PersonId</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter notes associated with this person</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>company_id</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="CompanyId (affinity.models.types.CompanyId)" href="../../../types/#affinity.types.CompanyId">CompanyId</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter notes associated with this company</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>opportunity_id</code>
+            </td>
+            <td>
+                  <code><span title="affinity.models.types.OpportunityId">OpportunityId</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter notes associated with this opportunity</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>creator_id</code>
+            </td>
+            <td>
+                  <code><span title="affinity.models.types.UserId">UserId</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter notes created by this user</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>page_size</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of results per page</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="PageIterator (affinity.models.pagination.PageIterator)" href="../../../models/#affinity.models.PageIterator">PageIterator</a>[<a class="autorefs autorefs-internal" title="Note (affinity.models.secondary.Note)" href="../../../models/#affinity.models.Note">Note</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>PageIterator that yields Note objects</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">company_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">creator_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PageIterator</span><span class="p">[</span><span class="n">Note</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Iterate through all notes with automatic pagination.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        person_id: Filter notes associated with this person</span>
+<span class="sd">        company_id: Filter notes associated with this company</span>
+<span class="sd">        opportunity_id: Filter notes associated with this opportunity</span>
+<span class="sd">        creator_id: Filter notes created by this user</span>
+<span class="sd">        page_size: Number of results per page</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        PageIterator that yields Note objects</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fetch_page</span><span class="p">(</span><span class="n">cursor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">Note</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+            <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
+            <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
+            <span class="n">opportunity_id</span><span class="o">=</span><span class="n">opportunity_id</span><span class="p">,</span>
+            <span class="n">creator_id</span><span class="o">=</span><span class="n">creator_id</span><span class="p">,</span>
+            <span class="n">page_size</span><span class="o">=</span><span class="n">page_size</span><span class="p">,</span>
+            <span class="n">page_token</span><span class="o">=</span><span class="n">cursor</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">PageIterator</span><span class="p">(</span><span class="n">fetch_page</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h2 id="affinity.services.v1_only.NoteService.list" class="doc doc-heading">
-            <code class="highlight language-python"><span class="nb">list</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">company_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">creator_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">page_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">V1PaginatedResponse</span><span class="p">[</span><span class="n">Note</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="nb">list</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">company_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">creator_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">page_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">Note</span><span class="p">]</span></code>
 
 <a href="#affinity.services.v1_only.NoteService.list" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -2654,11 +3009,11 @@ opportunity, or parent note (for replies).</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="affinity.models.pagination.V1PaginatedResponse">V1PaginatedResponse</span>[<a class="autorefs autorefs-internal" title="Note (affinity.models.secondary.Note)" href="../../../models/#affinity.models.Note">Note</a>]</code>
+                  <code><a class="autorefs autorefs-internal" title="PaginatedResponse (affinity.models.pagination.PaginatedResponse)" href="../../../models/#affinity.models.PaginatedResponse">PaginatedResponse</a>[<a class="autorefs autorefs-internal" title="Note (affinity.models.secondary.Note)" href="../../../models/#affinity.models.Note">Note</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>V1PaginatedResponse with notes and next_page_token</p>
+                <p>PaginatedResponse with notes and next_page_token</p>
               </div>
             </td>
           </tr>
@@ -2722,7 +3077,7 @@ opportunity, or parent note (for replies).</p>
     <span class="n">creator_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">page_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">V1PaginatedResponse</span><span class="p">[</span><span class="n">Note</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">Note</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get notes filtered by entity or creator.</span>
 
@@ -2735,7 +3090,7 @@ opportunity, or parent note (for replies).</p>
 <span class="sd">        page_token: Pagination token from previous response</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        V1PaginatedResponse with notes and next_page_token</span>
+<span class="sd">        PaginatedResponse with notes and next_page_token</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">person_id</span><span class="p">:</span>
@@ -2755,7 +3110,7 @@ opportunity, or parent note (for replies).</p>
     <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;notes&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">[]))</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">return</span> <span class="n">V1PaginatedResponse</span><span class="p">[</span><span class="n">Note</span><span class="p">](</span>
+    <span class="k">return</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">Note</span><span class="p">](</span>
         <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">Note</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">items</span><span class="p">],</span>
         <span class="n">next_page_token</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;next_page_token&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nextPageToken&quot;</span><span class="p">),</span>
     <span class="p">)</span>

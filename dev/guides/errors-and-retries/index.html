@@ -1021,6 +1021,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v1v2-eventual-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        V1→V2 eventual consistency
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="V1→V2 eventual consistency">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#solutions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solutions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stale-data-after-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stale data after update
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#rate-limits" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1105,6 +1144,34 @@
     
   
     Filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../query-command/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query command
   
 
     
@@ -1598,6 +1665,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query Language
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/models/" class="md-nav__link">
         
   
@@ -1634,10 +1729,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7" >
         
           
-          <label class="md-nav__link" for="__nav_10_6" id="__nav_10_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_7" id="__nav_10_7_label" tabindex="0">
             
   
   
@@ -1655,8 +1750,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_6">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1821,10 +1916,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_6_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7_6" >
         
           
-          <label class="md-nav__link" for="__nav_10_6_6" id="__nav_10_6_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_7_6" id="__nav_10_7_6_label" tabindex="0">
             
   
   
@@ -1842,8 +1937,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_6_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_6_6">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2260,6 +2355,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v1v2-eventual-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        V1→V2 eventual consistency
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="V1→V2 eventual consistency">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#solutions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solutions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stale-data-after-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stale data after update
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#rate-limits" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2362,7 +2496,7 @@
 <ul>
 <li><strong>AuthenticationError (401), AuthorizationError (403)</strong>: do not retry; fix credentials/permissions; alert immediately.</li>
 <li><strong>ValidationError (400/422)</strong>: do not retry; treat as a bug or bad input; log the response body snippet for debugging.</li>
-<li><strong>NotFoundError (404)</strong>: do not retry; treat as “missing” and handle at the business layer (or alert if it indicates data drift).</li>
+<li><strong>NotFoundError (404)</strong>: generally do not retry; treat as "missing" and handle at the business layer. <strong>Exception</strong>: see <a href="#v1v2-eventual-consistency">V1→V2 eventual consistency</a> below for 404s immediately after create.</li>
 <li><strong>RateLimitError (429)</strong>: retry only after <code>retry_after</code> (when present), reduce concurrency, and consider queueing/batching to smooth bursts.</li>
 <li><strong>Server errors (5xx) / transient network errors / timeouts</strong>:</li>
 <li><strong>Reads (<code>GET</code>/<code>HEAD</code>)</strong>: retry with backoff (the SDK already does).</li>
@@ -2415,6 +2549,38 @@
 <li>Elevated 5xx/timeouts/network errors (provider outage or network problem).</li>
 </ul>
 <p>When alerting, include <code>e.diagnostics.request_id</code> (when present) to speed up support/debugging.</p>
+<h2 id="v1v2-eventual-consistency">V1→V2 eventual consistency<a class="headerlink" href="#v1v2-eventual-consistency" title="Permanent link">&para;</a></h2>
+<p>The SDK uses V1 API for writes (create/update/delete) and V2 API for reads (get/list). Due to eventual consistency between V1 and V2 backends, a <code>get()</code> call <strong>immediately after</strong> <code>create()</code> may return a 404 <code>NotFoundError</code> even though the entity was successfully created.</p>
+<p>This typically resolves within 100-500ms, but under load the delay can be longer.</p>
+<h3 id="solutions">Solutions<a class="headerlink" href="#solutions" title="Permanent link">&para;</a></h3>
+<p><strong>Option 1: Use the returned object (recommended)</strong></p>
+<p>The <code>create()</code> method returns the created entity - use it directly instead of re-fetching:</p>
+<div class="highlight"><pre><span></span><code><span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">PersonCreate</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s2">&quot;Jane&quot;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s2">&quot;Doe&quot;</span><span class="p">))</span>
+<span class="c1"># Use person directly - no need to call get()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">person</span><span class="o">.</span><span class="n">first_name</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Option 2: Use the <code>retries</code> parameter</strong></p>
+<p>The <code>get()</code> methods on <code>persons</code>, <code>companies</code>, and <code>opportunities</code> accept a <code>retries</code> parameter:</p>
+<div class="highlight"><pre><span></span><code><span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">PersonCreate</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s2">&quot;Jane&quot;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s2">&quot;Doe&quot;</span><span class="p">))</span>
+<span class="c1"># Retry up to 3 times on 404 with exponential backoff</span>
+<span class="n">fetched</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">retries</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</code></pre></div>
+<p>With <code>retries=3</code>, the SDK will retry up to 3 times on 404 with exponential backoff (0.5s, 1s, 1.5s).</p>
+<p><strong>Note</strong>: The default is <code>retries=0</code> (fail fast). This is intentional - it keeps the SDK predictable and avoids hidden delays. Only use <code>retries &gt; 0</code> when you specifically need to handle eventual consistency after writes.</p>
+<h3 id="stale-data-after-update">Stale data after update<a class="headerlink" href="#stale-data-after-update" title="Permanent link">&para;</a></h3>
+<p>A related issue: after calling <code>update()</code>, a subsequent <code>get()</code> may return <strong>stale data</strong> (the old values) even though the update succeeded. Unlike the 404 case, the request succeeds with <code>200 OK</code> but returns outdated information.</p>
+<p>The <code>retries</code> parameter doesn't help here because the request succeeds - it just returns stale data.</p>
+<p><strong>Solution: Trust the write response</strong></p>
+<p>The <code>update()</code> method returns the updated entity from V1 (strongly consistent). Use it directly:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Good: Use the response from update()</span>
+<span class="n">updated_person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">PersonUpdate</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s2">&quot;Jane&quot;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">updated_person</span><span class="o">.</span><span class="n">first_name</span><span class="p">)</span>  <span class="c1"># &quot;Jane&quot; - immediate, from V1 response</span>
+
+<span class="c1"># Risky: Re-fetching may return stale data</span>
+<span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">PersonUpdate</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s2">&quot;Jane&quot;</span><span class="p">))</span>
+<span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>  <span class="c1"># May still show old name!</span>
+</code></pre></div>
+<p>This applies to all <code>update()</code> methods: persons, companies, opportunities, notes, etc.</p>
 <h2 id="rate-limits">Rate limits<a class="headerlink" href="#rate-limits" title="Permanent link">&para;</a></h2>
 <p>If you are consistently hitting 429s, see <a href="../rate-limits/">Rate limits</a> for strategies and the rate limit APIs.</p>
 <h2 id="api-versions-and-beta-endpoints">API versions and beta endpoints<a class="headerlink" href="#api-versions-and-beta-endpoints" title="Permanent link">&para;</a></h2>

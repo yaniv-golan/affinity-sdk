@@ -969,6 +969,45 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#counting-entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Counting entities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Counting entities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list-entries-efficient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List entries (efficient)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#global-personscompanies-no-direct-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global persons/companies (no direct method)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1105,6 +1144,34 @@
     
   
     Filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../query-command/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query command
   
 
     
@@ -1598,6 +1665,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query Language
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/models/" class="md-nav__link">
         
   
@@ -1634,10 +1729,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7" >
         
           
-          <label class="md-nav__link" for="__nav_10_6" id="__nav_10_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_7" id="__nav_10_7_label" tabindex="0">
             
   
   
@@ -1655,8 +1750,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_6">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1821,10 +1916,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_6_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7_6" >
         
           
-          <label class="md-nav__link" for="__nav_10_6_6" id="__nav_10_6_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_7_6" id="__nav_10_7_6_label" tabindex="0">
             
   
   
@@ -1842,8 +1937,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_6_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_6_6">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2292,6 +2387,45 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#counting-entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Counting entities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Counting entities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list-entries-efficient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List entries (efficient)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#global-personscompanies-no-direct-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global persons/companies (no direct method)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2412,6 +2546,57 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 xaffinity<span class="w"> </span>session<span class="w"> </span>end
 </code></pre></div>
 <p>See <a href="../../cli/commands/#pipeline-optimization">CLI Pipeline Optimization</a> for details.</p>
+<h2 id="counting-entities">Counting entities<a class="headerlink" href="#counting-entities" title="Permanent link">&para;</a></h2>
+<h3 id="list-entries-efficient">List entries (efficient)<a class="headerlink" href="#list-entries-efficient" title="Permanent link">&para;</a></h3>
+<p>Every list includes a <code>list_size</code> field that returns the entry count in a single API call:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Count entries on a single list</span>
+<span class="n">lst</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">lists</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">list_id</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Entries: </span><span class="si">{</span><span class="n">lst</span><span class="o">.</span><span class="n">list_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Get counts for all lists at once</span>
+<span class="k">for</span> <span class="n">lst</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">lists</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lst</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">lst</span><span class="o">.</span><span class="n">list_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>This is the most efficient way to count entities in Affinity.</p>
+<h3 id="global-personscompanies-no-direct-method">Global persons/companies (no direct method)<a class="headerlink" href="#global-personscompanies-no-direct-method" title="Permanent link">&para;</a></h3>
+<p>The Affinity API does not provide a count endpoint for global persons or companies. A <code>count()</code> method was intentionally omitted from the SDK because it would require paginating through all records—potentially hundreds of API calls for large databases.</p>
+<p><strong>Why this matters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Database size</th>
+<th>API calls (V2)</th>
+<th>Approximate time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1,000 entities</td>
+<td>10 calls</td>
+<td>~1 second</td>
+</tr>
+<tr>
+<td>10,000 entities</td>
+<td>100 calls</td>
+<td>~10 seconds</td>
+</tr>
+<tr>
+<td>100,000 entities</td>
+<td>1,000 calls</td>
+<td>~2 minutes</td>
+</tr>
+</tbody>
+</table>
+<p>If you need a global count, iterate once and cache the result:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># One-time count (expensive for large databases)</span>
+<span class="n">person_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">iter</span><span class="p">())</span>
+</code></pre></div>
+<p><strong>Recommended alternatives:</strong></p>
+<ol>
+<li><strong>Use lists</strong>: Create a list containing your target entities and use <code>list_size</code></li>
+<li><strong>Cache externally</strong>: Count once and store the result in your application</li>
+<li><strong>Estimate</strong>: If exact counts aren't critical, sample or track changes incrementally</li>
+</ol>
 
 
 
