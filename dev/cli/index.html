@@ -602,6 +602,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Performance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-command-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Command Tuning
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2391,6 +2408,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Performance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-command-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Command Tuning
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2538,6 +2572,25 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 xaffinity<span class="w"> </span>session<span class="w"> </span>end
 </code></pre></div>
 <p>See <a href="commands/#pipeline-optimization">Pipeline Optimization</a> for details.</p>
+<h3 id="query-command-tuning">Query Command Tuning<a class="headerlink" href="#query-command-tuning" title="Permanent link">&para;</a></h3>
+<p>For the <code>query</code> command, advanced users can tune concurrency:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>XAFFINITY_QUERY_CONCURRENCY</code></td>
+<td>15</td>
+<td>Max concurrent API calls for fetches/expansions</td>
+</tr>
+</tbody>
+</table>
+<p>Higher values speed up queries with <code>include</code> or <code>expand</code> but may trigger rate limits on smaller accounts.</p>
 <h2 id="progress-quiet-mode">Progress + quiet mode<a class="headerlink" href="#progress-quiet-mode" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Long operations show progress bars/spinners on <strong>stderr</strong> when interactive.</li>
