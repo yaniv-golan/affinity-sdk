@@ -1824,6 +1824,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#field-value-normalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field Value Normalization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#discovering-available-fields" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3140,6 +3151,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#field-value-normalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field Value Normalization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#discovering-available-fields" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4020,6 +4042,71 @@ fields[&quot;Field With Spaces&quot;]
 <div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Status&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Active&quot;</span><span class="p">}</span>
 </code></pre></div>
 <p>Field names are resolved case-insensitively against the list's field definitions. If a name is not found, it passes through unchanged (allowing direct use of field IDs like <code>fields.12345</code> or <code>fields.field-260415</code>).</p>
+<h3 id="field-value-normalization">Field Value Normalization<a class="headerlink" href="#field-value-normalization" title="Permanent link">&para;</a></h3>
+<p>When selecting custom fields in <code>listEntries</code> queries, reference field values are <strong>normalized to display strings</strong> for readability:</p>
+<table>
+<thead>
+<tr>
+<th>Field Type</th>
+<th>API Returns</th>
+<th>Normalized To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dropdown</td>
+<td><code>{"text": "Active", "id": 1}</code></td>
+<td><code>"Active"</code></td>
+</tr>
+<tr>
+<td>Multi-select</td>
+<td><code>[{"text": "A"}, {"text": "B"}]</code></td>
+<td><code>["A", "B"]</code></td>
+</tr>
+<tr>
+<td>Person reference</td>
+<td><code>{"firstName": "Jane", "lastName": "Doe", "id": 123}</code></td>
+<td><code>"Jane Doe"</code></td>
+</tr>
+<tr>
+<td>Company reference</td>
+<td><code>{"name": "Acme Corp", "id": 456, "domain": "acme.com"}</code></td>
+<td><code>"Acme Corp"</code></td>
+</tr>
+<tr>
+<td>Multi-person</td>
+<td><code>[{"firstName": "Jane", ...}, {"firstName": "John", ...}]</code></td>
+<td><code>["Jane Doe", "John Smith"]</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;select&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;entityName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;fields.Status&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;fields.Owner&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Output:</strong>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;entityName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Acme Corp&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;fields&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;Status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Active&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;Owner&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Jane Doe&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Need full entity details?</strong> Use <code>include</code> to fetch complete person/company records:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;include&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;persons&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;companies&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
 <h3 id="discovering-available-fields">Discovering Available Fields<a class="headerlink" href="#discovering-available-fields" title="Permanent link">&para;</a></h3>
 <p>Use the CLI to see what fields are available on each entity:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># See person fields</span>
