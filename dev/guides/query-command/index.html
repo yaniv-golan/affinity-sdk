@@ -3590,8 +3590,8 @@ xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class=
 <span class="c1"># CSV output</span>
 xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class="w"> </span>query.json<span class="w"> </span>--csv
 
-<span class="c1"># Pretty JSON with metadata</span>
-xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class="w"> </span>query.json<span class="w"> </span>--json<span class="w"> </span>--pretty<span class="w"> </span>--include-meta
+<span class="c1"># JSON with metadata</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class="w"> </span>query.json<span class="w"> </span>--json<span class="w"> </span>--include-meta
 </code></pre></div>
 <h2 id="command-options">Command Options<a class="headerlink" href="#command-options" title="Permanent link">&para;</a></h2>
 <table>
@@ -3636,19 +3636,15 @@ xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class=
 </tr>
 <tr>
 <td><code>--json</code></td>
-<td>Output as JSON</td>
+<td>Output as JSON (alias for <code>--output json</code>)</td>
 </tr>
 <tr>
 <td><code>--csv</code></td>
-<td>Output as CSV</td>
+<td>Output as CSV (alias for <code>--output csv</code>)</td>
 </tr>
 <tr>
 <td><code>--output</code></td>
-<td>Output format: table, json</td>
-</tr>
-<tr>
-<td><code>--pretty</code></td>
-<td>Pretty-print JSON output</td>
+<td>Output format: table, json, csv</td>
 </tr>
 <tr>
 <td><code>--include-meta</code></td>

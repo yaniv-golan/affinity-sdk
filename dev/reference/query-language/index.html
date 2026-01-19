@@ -2266,6 +2266,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#design-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design Notes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Design Notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-a-custom-query-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why a Custom Query Syntax?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3604,6 +3632,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#design-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design Notes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Design Notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-a-custom-query-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why a Custom Query Syntax?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -4680,6 +4736,10 @@ reduce execution time.</p>
 - Estimated API calls (or "UNBOUNDED" for unbounded quantifier queries)
 - Whether <code>--max-records</code> is required
 - Lazy loading optimization status</p>
+<h2 id="design-notes">Design Notes<a class="headerlink" href="#design-notes" title="Permanent link">&para;</a></h2>
+<h3 id="why-a-custom-query-syntax">Why a Custom Query Syntax?<a class="headerlink" href="#why-a-custom-query-syntax" title="Permanent link">&para;</a></h3>
+<p>You might wonder why we didn't use SQL, Pandas, or JMESPath. Our query engine needs to optimize API calls—partitioning filters into local evaluations vs. those requiring relationship fetches, estimating costs before execution, and supporting entity-specific constraints (like <code>listEntries</code> requiring a list context). These capabilities don't map cleanly to general-purpose query languages.</p>
+<p>For post-processing, you can pipe JSON output to <code>jq</code> or load results into Pandas/DuckDB for further analysis.</p>
 
 
 
