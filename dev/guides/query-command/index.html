@@ -1224,10 +1224,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#unreplied-emails-expansion" class="md-nav__link">
+  <a href="#unreplied-messages-expansion" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Unreplied Emails Expansion
+        Unreplied Messages Expansion
       
     </span>
   </a>
@@ -2730,10 +2730,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#unreplied-emails-expansion" class="md-nav__link">
+  <a href="#unreplied-messages-expansion" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Unreplied Emails Expansion
+        Unreplied Messages Expansion
       
     </span>
   </a>
@@ -3453,33 +3453,34 @@ In <strong>JSON output</strong>, included data appears in a separate <code>inclu
 <td><code>persons</code>, <code>companies</code>, <code>opportunities</code>, <code>listEntries</code></td>
 </tr>
 <tr>
-<td><code>unrepliedEmails</code></td>
-<td>Detect unreplied incoming emails</td>
+<td><code>unreplied</code></td>
+<td>Detect unreplied incoming messages (email/chat)</td>
 <td><code>persons</code>, <code>companies</code>, <code>opportunities</code>, <code>listEntries</code></td>
 </tr>
 </tbody>
 </table>
-<h4 id="unreplied-emails-expansion">Unreplied Emails Expansion<a class="headerlink" href="#unreplied-emails-expansion" title="Permanent link">&para;</a></h4>
-<p>Add unreplied email detection to each record:</p>
+<h4 id="unreplied-messages-expansion">Unreplied Messages Expansion<a class="headerlink" href="#unreplied-messages-expansion" title="Permanent link">&para;</a></h4>
+<p>Add unreplied message detection to each record:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;expand&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;unrepliedEmails&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;expand&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;unreplied&quot;</span><span class="p">],</span>
 <span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Output includes unreplied email info on each record:</p>
+<p>Output includes unreplied message info on each record:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">123</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;entity&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">456</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;company&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Acme Corp&quot;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;unrepliedEmails&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;unreplied&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-15T09:30:00Z&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;daysSince&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;email&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Re: Partnership opportunity&quot;</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Records without unreplied emails have <code>"unrepliedEmails": null</code>.</p>
+<p>Records without unreplied messages have <code>"unreplied": null</code>. For chat messages, <code>subject</code> is <code>null</code>.</p>
 <h3 id="expand-vs-include">Expand vs Include<a class="headerlink" href="#expand-vs-include" title="Permanent link">&para;</a></h3>
 <table>
 <thead>

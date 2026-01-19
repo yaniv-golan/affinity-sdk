@@ -4550,8 +4550,9 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>get<span class="w">
 <li><code>--expand &lt;type&gt;</code> (repeatable): expand associated entities or interaction data</li>
 <li><code>persons</code>, <code>companies</code>, <code>opportunities</code>: Expand related entities</li>
 <li><code>interactions</code>: Add interaction date summaries (last/next meeting, email dates)</li>
-<li><code>--check-unreplied-emails</code>: Check for unreplied incoming emails for each list entry</li>
-<li><code>--unreplied-lookback-days &lt;days&gt;</code>: Lookback period for unreplied email detection (default: 30)</li>
+<li><code>--check-unreplied</code>: Check for unreplied incoming messages (email/chat) for each list entry</li>
+<li><code>--unreplied-types &lt;types&gt;</code>: Comma-separated types to check: email, chat, all (default: email,chat)</li>
+<li><code>--unreplied-lookback-days &lt;days&gt;</code>: Lookback period for unreplied message detection (default: 30)</li>
 </ul>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span>--saved-view<span class="w"> </span><span class="s2">&quot;Board&quot;</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
@@ -4562,9 +4563,12 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--expand<span class="w"> </span>interactions<span class="w"> </span>--format<span class="w"> </span>json
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--expand<span class="w"> </span>interactions<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>pipeline.csv
 
-<span class="c1"># Check for unreplied incoming emails</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--check-unreplied-emails<span class="w"> </span>--json
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--check-unreplied-emails<span class="w"> </span>--unreplied-lookback-days<span class="w"> </span><span class="m">60</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>unreplied.csv
+<span class="c1"># Check for unreplied incoming messages (email + chat)</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--check-unreplied<span class="w"> </span>--json
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--check-unreplied<span class="w"> </span>--unreplied-lookback-days<span class="w"> </span><span class="m">60</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>unreplied.csv
+
+<span class="c1"># Check email-only unreplied messages</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--check-unreplied<span class="w"> </span>--unreplied-types<span class="w"> </span>email<span class="w"> </span>--json
 </code></pre></div>
 <p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
 <h3 id="list-entry-commands">List Entry Commands<a class="headerlink" href="#list-entry-commands" title="Permanent link">&para;</a></h3>

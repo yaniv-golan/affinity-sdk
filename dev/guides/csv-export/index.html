@@ -2827,12 +2827,12 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 </code></pre></div></p>
 <p><strong>Export notes:</strong>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>ls<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.notes[] | [.id, .content, .createdAt] | @csv&#39;</span>
+<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data[] | [.id, .content, .createdAt] | @csv&#39;</span>
 </code></pre></div></p>
 <p><strong>Export interactions:</strong>
 <div class="highlight"><pre><span></span><code><span class="c1"># Use --days for relative date range (auto-chunks if &gt; 1 year)</span>
 xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--days<span class="w"> </span><span class="m">365</span><span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.interactions[] | [.id, .date, .type] | @csv&#39;</span>
+<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data[] | [.id, .date, .type] | @csv&#39;</span>
 
 <span class="c1"># Or use built-in --csv flag</span>
 xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--days<span class="w"> </span><span class="m">365</span><span class="w"> </span>--csv
@@ -2851,11 +2851,16 @@ xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span clas
 <span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.person.fields[] | [.fieldId, .value, .listEntryId] | @csv&#39;</span>
 </code></pre></div></p>
 <h2 id="json-data-structure-reference">JSON Data Structure Reference<a class="headerlink" href="#json-data-structure-reference" title="Permanent link">&para;</a></h2>
-<p>All CLI commands return data in a consistent structure:</p>
+<p>Most CLI commands return data in this structure:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;&lt;entity-plural&gt;&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Some commands (<code>note ls</code>, <code>interaction ls</code>) return data as a direct array:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>Entity paths for jq:
@@ -2864,8 +2869,8 @@ xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span clas
 - <strong>opportunities</strong>: <code>.data.opportunities[]</code>
 - <strong>fieldValues</strong>: <code>.data.fieldValues[]</code>
 - <strong>fieldValueChanges</strong>: <code>.data.fieldValueChanges[]</code>
-- <strong>notes</strong>: <code>.data.notes[]</code>
-- <strong>interactions</strong>: <code>.data.interactions[]</code>
+- <strong>notes</strong>: <code>.data[]</code> (direct array)
+- <strong>interactions</strong>: <code>.data[]</code> (direct array)
 - <strong>tasks</strong>: <code>.data.tasks[]</code></p>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <h3 id="empty-output">Empty Output<a class="headerlink" href="#empty-output" title="Permanent link">&para;</a></h3>

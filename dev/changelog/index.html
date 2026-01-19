@@ -2051,10 +2051,42 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased">[Unreleased]<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
-<h2 id="0914-2026-01-19">0.9.14 - 2026-01-19<a class="headerlink" href="#0914-2026-01-19" title="Permanent link">&para;</a></h2>
+<h2 id="0100-2026-01-19">0.10.0 - 2026-01-19<a class="headerlink" href="#0100-2026-01-19" title="Permanent link">&para;</a></h2>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>
-<li>CLI: Query <code>select</code> clause now automatically includes <code>expand</code> fields. Previously, using <code>select</code> with <code>expand</code> would filter out the expansion data (e.g., <code>interactionDates</code>, <code>unrepliedEmails</code>), requiring users to explicitly list expansions in <code>select</code>.</li>
+<li>SDK: Removed unsafe <code>asyncio.create_task()</code> in <code>AsyncAffinity.__del__</code> that could cause tasks to be garbage collected before completion. Users must now use context managers or call <code>close()</code> explicitly.</li>
+<li>SDK: Added thread-safe locking to <code>SimpleCache</code> for concurrent access.</li>
+<li>SDK: Fixed async client initialization race condition with asyncio lock.</li>
+<li>SDK: Fixed stream context manager cleanup on errors in HTTP client.</li>
+<li>SDK: Fixed empty/whitespace content handling in JSON response parsing.</li>
+<li>SDK: Added error handling for partial file cleanup on download failures.</li>
+<li>SDK: Improved filename sanitization for server-provided filenames (null bytes, control chars).</li>
+<li>CLI: Added validation for <code>--timeout</code>, <code>--max-columns</code>, <code>--max-records</code>, <code>--max-output-bytes</code> to reject non-positive values.</li>
+<li>CLI: Added validation for <code>--env-file</code> to check file exists when <code>--dotenv</code> is enabled.</li>
+<li>CLI: Added file size limit (1MB) for config files to prevent memory exhaustion.</li>
+<li>CLI: Added file permission warnings for API key files (same as config files).</li>
+<li>CLI: Fixed TOML escaping to handle newlines, tabs, and carriage returns in API keys.</li>
+<li>CLI: Fixed JSON/TOML parse error handling with helpful error messages.</li>
+<li>CLI: Fixed type validation for list access in CSV/table output (verify first element is dict).</li>
+<li>CLI: Fixed exponential backoff calculation to cap exponent before computing power.</li>
+<li>CLI: Let <code>AuthenticationError</code>/<code>AuthorizationError</code> propagate in query executor instead of silent catch.</li>
+<li>CLI: Added logging to silent exception handlers in entity validation.</li>
+</ul>
+<h3 id="changed-breaking">Changed (Breaking)<a class="headerlink" href="#changed-breaking" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>--check-unreplied-emails</code> renamed to <code>--check-unreplied</code> with support for both email and chat messages.</li>
+<li>New <code>--unreplied-types</code> flag: comma-separated list of types to check (<code>email</code>, <code>chat</code>, <code>all</code>). Default: <code>email,chat</code></li>
+<li>Output now includes <code>type</code> field ("email" or "chat") in addition to date, daysSince, and subject</li>
+<li>Chat messages have <code>null</code> subject (no subject attribute)</li>
+<li>Cross-type reply detection: email replied via chat (or vice versa) counts as "replied"</li>
+<li>CLI: Query <code>expand: ["unrepliedEmails"]</code> renamed to <code>expand: ["unreplied"]</code></li>
+<li>Same cross-type reply detection and multi-type support as CLI flag</li>
+<li>CSV columns renamed: <code>unrepliedEmailDate</code> → <code>unrepliedDate</code>, <code>unrepliedEmailDaysSince</code> → <code>unrepliedDaysSince</code>, <code>unrepliedEmailSubject</code> → <code>unrepliedSubject</code>, plus new <code>unrepliedType</code> column</li>
+</ul>
+<h2 id="0914-2026-01-19">0.9.14 - 2026-01-19<a class="headerlink" href="#0914-2026-01-19" title="Permanent link">&para;</a></h2>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Query <code>select</code> clause now automatically includes <code>expand</code> fields. Previously, using <code>select</code> with <code>expand</code> would filter out the expansion data (e.g., <code>interactionDates</code>, <code>unreplied</code>), requiring users to explicitly list expansions in <code>select</code>.</li>
 </ul>
 <h2 id="0913-2026-01-19">0.9.13 - 2026-01-19<a class="headerlink" href="#0913-2026-01-19" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
@@ -2066,7 +2098,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li><code>{include: {opportunities: {list: "Pipeline"}}}</code> - Scope to specific opportunity list</li>
 <li><code>{include: {persons: {where: {...}}}}</code> - Filter included entities</li>
 </ul>
-<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Query TOON format now correctly flattens <code>fields.*</code> and <code>interactionDates</code> like markdown and CSV formats do. Previously, TOON was missing the <code>_apply_explicit_flattening()</code> call, causing nested fields to be truncated and interaction dates to be missing entirely.</li>
 <li>CLI: <code>list export --check-unreplied-emails</code> now works standalone without requiring <code>--expand</code>.</li>
@@ -2123,12 +2155,12 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>SDK: Query executor <code>_batch_fetch_by_ids()</code> now uses V2 batch lookup for persons and companies, improving query performance on relationship includes.</li>
 <li>CLI: Query <code>include</code> clause now fetches relationship IDs in parallel, then batch-fetches full records via V2 API, reducing API calls from N×M to N+1 for deduped lookups.</li>
 </ul>
-<h3 id="changed-breaking">Changed (Breaking)<a class="headerlink" href="#changed-breaking" title="Permanent link">&para;</a></h3>
+<h3 id="changed-breaking_1">Changed (Breaking)<a class="headerlink" href="#changed-breaking_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>MCP: Query tool default format changed from <code>json</code> to <code>toon</code> for better token efficiency (~40% fewer tokens).</li>
 <li>CLI: TOON query output now includes full envelope structure instead of data-only format. The <code>data</code> prefix is added to the array header: <code>data[N]{fields}:</code> instead of <code>[N]{fields}:</code>.</li>
 </ul>
-<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>MCP: Query tool now honors the <code>format</code> parameter instead of always using JSON output.</li>
 <li>SDK: <code>ListEntryService.batch_update_fields()</code> now uses correct V2 API payload format. Previously failed with "Missing discriminator for property operation" error.</li>
@@ -2144,19 +2176,19 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Available relationship paths: persons→companies/opportunities/interactions/notes/listEntries, companies→persons/opportunities/interactions/notes/listEntries, opportunities→persons/companies/interactions</li>
 <li>Note: These features cause N+1 API calls to fetch relationship data; use <code>--dry-run</code> to preview</li>
 </ul>
-<h3 id="changed-breaking_1">Changed (Breaking)<a class="headerlink" href="#changed-breaking_1" title="Permanent link">&para;</a></h3>
+<h3 id="changed-breaking_2">Changed (Breaking)<a class="headerlink" href="#changed-breaking_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Renamed relationship <code>"people"</code> to <code>"persons"</code> for consistency with entity type names:</li>
 <li>Query <code>include</code>: <code>{"from": "companies", "include": ["people"]}</code> → use <code>["persons"]</code></li>
 <li>CLI <code>--expand</code>: <code>xaffinity company get &lt;id&gt; --expand people</code> → use <code>--expand persons</code></li>
 <li>JSON output: <code>data.people</code> → <code>data.persons</code></li>
 </ul>
-<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Query engine no longer silently passes all records for <code>all</code>, <code>none</code>, and <code>_count</code> filters. Previously these were placeholder implementations that returned <code>True</code> for all records, causing incorrect query results. (Bug #15)</li>
 </ul>
 <h2 id="098-2026-01-12">0.9.8 - 2026-01-12<a class="headerlink" href="#098-2026-01-12" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_5">Fixed<a class="headerlink" href="#fixed_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>query</code> command now correctly fetches all records before applying filter, sort, or aggregate operations. Previously, limits were applied during fetch which caused incorrect results:</li>
 <li>With filters: Empty results when matching records were beyond the limit position</li>
@@ -2164,7 +2196,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>With aggregate: Inaccurate counts/sums computed on partial data</li>
 </ul>
 <h2 id="097-2026-01-12">0.9.7 - 2026-01-12<a class="headerlink" href="#097-2026-01-12" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_5">Fixed<a class="headerlink" href="#fixed_5" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_6">Fixed<a class="headerlink" href="#fixed_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CI: Smoke test now correctly installs CLI extras before testing CLI import</li>
 </ul>
@@ -2192,7 +2224,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <ul>
 <li>CLI: <code>to_cell()</code> now extracts "text" from dropdown/multi-select fields instead of JSON-serializing the full dict. This makes CSV and other tabular outputs human-readable for dropdown values.</li>
 </ul>
-<h3 id="fixed_6">Fixed<a class="headerlink" href="#fixed_6" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_7">Fixed<a class="headerlink" href="#fixed_7" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>query</code> command with <code>limit</code> now correctly returns results when combined with client-side filters (like <code>has_any</code> on multi-select fields). Previously, the limit was applied during fetch before filtering, causing empty results when the first N records didn't match the filter criteria.</li>
 </ul>
@@ -2215,7 +2247,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li><code>= [A, B]</code> - set equality (array has exactly these elements)</li>
 <li><code>=~ [A, B]</code> - V2 API collection contains (array contains all elements)</li>
 </ul>
-<h3 id="fixed_7">Fixed<a class="headerlink" href="#fixed_7" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_8">Fixed<a class="headerlink" href="#fixed_8" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>query</code> command now correctly filters on multi-select dropdown fields (like "Team Member"). The <code>eq</code> operator checks array membership for scalar values and set equality for array values. Previously, these queries returned 0 results due to strict equality comparison.</li>
 <li>SDK/CLI: <code>list export --filter</code> now correctly matches multi-select dropdown fields. The <code>=</code>, <code>!=</code>, and <code>=~</code> operators now handle array values properly. Also fixes extraction of text values from multi-select dropdown API responses.</li>
@@ -2236,7 +2268,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>CI: Enabled PyPI attestations via workflow_dispatch API trigger.</li>
 </ul>
 <h2 id="092-2026-01-11">0.9.2 - 2026-01-11<a class="headerlink" href="#092-2026-01-11" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_8">Fixed<a class="headerlink" href="#fixed_8" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_9">Fixed<a class="headerlink" href="#fixed_9" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>AsyncListEntryService.pages()</code> now supports <code>progress_callback</code> parameter (sync/async parity fix).</li>
 </ul>
@@ -2261,7 +2293,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>CLI: <code>query</code> command now validates entity queryability and provides clear error messages for unsupported entities.</li>
 <li>CLI: <code>query</code> command resolves field names to IDs automatically (e.g., <code>"field": "Status"</code> works alongside <code>"fieldId": 123</code>).</li>
 </ul>
-<h3 id="fixed_9">Fixed<a class="headerlink" href="#fixed_9" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_10">Fixed<a class="headerlink" href="#fixed_10" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>query</code> for <code>listEntries</code> entity now correctly requires <code>listId</code> filter.</li>
 <li>CLI: <code>query</code> relationship definitions now correctly set <code>requires_n_plus_1</code> flag for proper query planning.</li>
@@ -2284,7 +2316,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>SDK: <code>CompanyService.get_associated_opportunity_ids()</code> method.</li>
 </ul>
 <h2 id="085-2026-01-10">0.8.5 - 2026-01-10<a class="headerlink" href="#085-2026-01-10" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_10">Fixed<a class="headerlink" href="#fixed_10" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_11">Fixed<a class="headerlink" href="#fixed_11" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI/SDK: <code>FilterParseError</code> now raised when filter expressions fail to parse (previously silently ignored). Common cause: unquoted multi-word values like <code>--filter 'Status=Intro Meeting'</code> must be quoted: <code>--filter 'Status="Intro Meeting"'</code>.</li>
 <li>CLI: Pre-commit hook now validates installed CLI version matches <code>pyproject.toml</code> before regenerating MCP registry.</li>
@@ -2349,7 +2381,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>CLI: <code>entry field --append FIELD VALUE</code> for adding to multi-value fields without replacing.</li>
 <li>CLI: <code>entry field --unset-value FIELD VALUE</code> for removing specific value from multi-value field.</li>
 </ul>
-<h3 id="fixed_11">Fixed<a class="headerlink" href="#fixed_11" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_12">Fixed<a class="headerlink" href="#fixed_12" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>FieldValues</code> now properly parses field arrays from API responses (previously showed <code>requested=False</code>).</li>
 </ul>
@@ -2371,7 +2403,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>SDK: <code>FilterStats</code> dataclass for tracking scanned/matched counts during filtered pagination.</li>
 <li>SDK: <code>PaginatedResponse.filter_stats</code> property exposes filter statistics.</li>
 </ul>
-<h3 id="fixed_12">Fixed<a class="headerlink" href="#fixed_12" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_13">Fixed<a class="headerlink" href="#fixed_13" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: JSON progress output no longer appears alongside Rich progress bar (mutual exclusivity enforced).</li>
 <li>SDK: Dropdown field filtering now extracts "text" property from dropdown dicts.</li>
@@ -2427,7 +2459,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Docs: Updated all documentation links to use versioned <code>/latest/</code> URLs for reliable navigation.</li>
 </ul>
 <h2 id="066-2026-01-03">0.6.6 - 2026-01-03<a class="headerlink" href="#066-2026-01-03" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_13">Fixed<a class="headerlink" href="#fixed_13" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_14">Fixed<a class="headerlink" href="#fixed_14" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: Regex patterns in <code>lists.py</code> and <code>http.py</code> were double-escaped, matching literal <code>\d</code> instead of digits.</li>
 </ul>
@@ -2438,7 +2470,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h2 id="063-2026-01-02">0.6.3 - 2026-01-02<a class="headerlink" href="#063-2026-01-02" title="Permanent link">&para;</a></h2>
 <p><em>No user-facing changes. Version bump for PyPI release.</em></p>
 <h2 id="062-2026-01-02">0.6.2 - 2026-01-02<a class="headerlink" href="#062-2026-01-02" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_14">Fixed<a class="headerlink" href="#fixed_14" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_15">Fixed<a class="headerlink" href="#fixed_15" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Added explicit <code>type=str</code> to Click arguments for Python 3.13 mypy compatibility.</li>
 </ul>
@@ -2457,14 +2489,14 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Plugins: Restructured into 3-plugin marketplace architecture (affinity-sdk, xaffinity-cli, xaffinity-mcp).</li>
 <li>Docs: Restructured Claude integrations with consistent naming.</li>
 </ul>
-<h3 id="fixed_15">Fixed<a class="headerlink" href="#fixed_15" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_16">Fixed<a class="headerlink" href="#fixed_16" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Improved <code>setup-key</code> command UX with Rich styling.</li>
 <li>MCP: Source both <code>.zprofile</code> and <code>.zshrc</code> in environment wrapper.</li>
 <li>MCP: Parse JSON response correctly for <code>check-key</code> output.</li>
 </ul>
 <h2 id="051-2026-01-01">0.5.1 - 2026-01-01<a class="headerlink" href="#051-2026-01-01" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_16">Fixed<a class="headerlink" href="#fixed_16" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_17">Fixed<a class="headerlink" href="#fixed_17" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Plugins: Consolidated plugin structure and fixed relative paths.</li>
 </ul>
@@ -2499,7 +2531,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>CLI: <code>company set-field</code>, <code>company set-fields</code>, <code>company unset-field</code> commands (use <code>company field</code> instead).</li>
 <li>CLI: <code>opportunity set-field</code>, <code>opportunity set-fields</code>, <code>opportunity unset-field</code> commands (use <code>opportunity field</code> instead).</li>
 </ul>
-<h3 id="fixed_17">Fixed<a class="headerlink" href="#fixed_17" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_18">Fixed<a class="headerlink" href="#fixed_18" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Help text formatting - added missing spaces in command examples (~78 instances).</li>
 <li>CLI: Improved <code>--cursor</code> help text explaining incompatibility with <code>--page-size</code>.</li>
@@ -2522,7 +2554,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>CLI: <code>--filter</code> on list entry commands now applies client-side with warning (V2 API limitation).</li>
 <li>CLI: Removed <code>--opportunity-id</code> from <code>list entry add</code> (opportunities are created atomically via <code>opportunity create --list-id</code>).</li>
 </ul>
-<h3 id="fixed_18">Fixed<a class="headerlink" href="#fixed_18" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_19">Fixed<a class="headerlink" href="#fixed_19" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: Client-side filter parsing handles whitespace-only and unparseable filters gracefully.</li>
 <li>CLI: <code>--filter</code> on list entries now returns proper field values (V2 API format).</li>
@@ -2543,7 +2575,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>CLI: Authentication error hints now reference <code>config check-key</code> and <code>config setup-key</code> commands.</li>
 <li>CLI: Authentication documentation updated with Quick Setup section.</li>
 </ul>
-<h3 id="fixed_19">Fixed<a class="headerlink" href="#fixed_19" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_20">Fixed<a class="headerlink" href="#fixed_20" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Default <code>--page-size</code> reduced from 200 to 100 to match Affinity API limit.</li>
 <li>SDK: Async <code>merge()</code> parameter names corrected (<code>primaryCompanyId</code>/<code>duplicateCompanyId</code>).</li>
@@ -2599,7 +2631,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li><code>ListEntry.entity</code> is now discriminated by <code>entity_type</code>.</li>
 <li>Rate limit API unified across sync and async clients.</li>
 </ul>
-<h3 id="fixed_20">Fixed<a class="headerlink" href="#fixed_20" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_21">Fixed<a class="headerlink" href="#fixed_21" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>ListService.get()</code> now uses V1 API to return correct <code>list_size</code>.</li>
 <li>CLI: JSON serialization now handles datetime objects correctly.</li>
