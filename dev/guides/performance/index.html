@@ -2548,16 +2548,20 @@ xaffinity<span class="w"> </span>session<span class="w"> </span>end
 <p>See <a href="../../cli/commands/#pipeline-optimization">CLI Pipeline Optimization</a> for details.</p>
 <h2 id="counting-entities">Counting entities<a class="headerlink" href="#counting-entities" title="Permanent link">&para;</a></h2>
 <h3 id="list-entries-efficient">List entries (efficient)<a class="headerlink" href="#list-entries-efficient" title="Permanent link">&para;</a></h3>
-<p>Every list includes a <code>list_size</code> field that returns the entry count in a single API call:</p>
+<p>Use <code>client.lists.get_size(list_id)</code> to get accurate entry counts:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Count entries on a single list</span>
-<span class="n">lst</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">lists</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">list_id</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Entries: </span><span class="si">{</span><span class="n">lst</span><span class="o">.</span><span class="n">list_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">count</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">lists</span><span class="o">.</span><span class="n">get_size</span><span class="p">(</span><span class="n">list_id</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Entries: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="c1"># Get counts for all lists at once</span>
+<span class="c1"># Get counts for multiple lists (cached for 5 min)</span>
 <span class="k">for</span> <span class="n">lst</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">lists</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lst</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">lst</span><span class="o">.</span><span class="n">list_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">lists</span><span class="o">.</span><span class="n">get_size</span><span class="p">(</span><span class="n">lst</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lst</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Force fresh fetch (bypass cache) when accuracy is critical</span>
+<span class="n">count</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">lists</span><span class="o">.</span><span class="n">get_size</span><span class="p">(</span><span class="n">list_id</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
-<p>This is the most efficient way to count entities in Affinity.</p>
+<p>This uses the V1 API which returns accurate counts. Results are cached for 5 minutes per list. Use <code>force=True</code> to bypass the cache when you need the most up-to-date value.</p>
 <h3 id="global-personscompanies-no-direct-method">Global persons/companies (no direct method)<a class="headerlink" href="#global-personscompanies-no-direct-method" title="Permanent link">&para;</a></h3>
 <p>The Affinity API does not provide a count endpoint for global persons or companies. A <code>count()</code> method was intentionally omitted from the SDK because it would require paginating through all records—potentially hundreds of API calls for large databases.</p>
 <p><strong>Why this matters:</strong></p>
@@ -2593,7 +2597,7 @@ xaffinity<span class="w"> </span>session<span class="w"> </span>end
 </code></pre></div>
 <p><strong>Recommended alternatives:</strong></p>
 <ol>
-<li><strong>Use lists</strong>: Create a list containing your target entities and use <code>list_size</code></li>
+<li><strong>Use lists</strong>: Create a list containing your target entities and use <code>client.lists.get_size(list_id)</code></li>
 <li><strong>Cache externally</strong>: Count once and store the result in your application</li>
 <li><strong>Estimate</strong>: If exact counts aren't critical, sample or track changes incrementally</li>
 </ol>

@@ -700,10 +700,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#option-1-mcpb-bundle-recommended" class="md-nav__link">
+  <a href="#option-1-mcpb-bundle-for-claude-desktop-recommended" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Option 1: MCPB Bundle (Recommended)
+        Option 1: MCPB Bundle for Claude Desktop (Recommended)
       
     </span>
   </a>
@@ -2578,10 +2578,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#option-1-mcpb-bundle-recommended" class="md-nav__link">
+  <a href="#option-1-mcpb-bundle-for-claude-desktop-recommended" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Option 1: MCPB Bundle (Recommended)
+        Option 1: MCPB Bundle for Claude Desktop (Recommended)
       
     </span>
   </a>
@@ -3060,16 +3060,34 @@
 </ul>
 <hr />
 <h2 id="installation-options">Installation Options<a class="headerlink" href="#installation-options" title="Permanent link">&para;</a></h2>
-<h3 id="option-1-mcpb-bundle-recommended">Option 1: MCPB Bundle (Recommended)<a class="headerlink" href="#option-1-mcpb-bundle-recommended" title="Permanent link">&para;</a></h3>
-<p>Download the <code>.mcpb</code> bundle for one-click installation:</p>
+<h3 id="option-1-mcpb-bundle-for-claude-desktop-recommended">Option 1: MCPB Bundle for Claude Desktop (Recommended)<a class="headerlink" href="#option-1-mcpb-bundle-for-claude-desktop-recommended" title="Permanent link">&para;</a></h3>
+<p>The easiest installation method - download and double-click:</p>
 <ol>
-<li>Download <code>xaffinity-mcp-X.Y.Z.mcpb</code> from <a href="https://github.com/yaniv-golan/affinity-sdk/releases">GitHub Releases</a></li>
-<li>Double-click the file or drag it to Claude Desktop</li>
-<li>Configure your API key when prompted</li>
+<li>
+<p><strong>Install the CLI first:</strong>
+   <div class="highlight"><pre><span></span><code>pipx<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;affinity-sdk[cli]&quot;</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><em>(Optional)</em> <strong>Pre-configure your API key:</strong>
+   <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key
+</code></pre></div>
+   If you skip this step, Claude Desktop will prompt for your API key during MCPB installation.</p>
+</li>
+<li>
+<p><strong>Download</strong> <code>xaffinity-mcp-X.Y.Z.mcpb</code> from <a href="https://github.com/yaniv-golan/affinity-sdk/releases">GitHub Releases</a></p>
+</li>
+<li>
+<p><strong>Double-click</strong> the file or drag it to Claude Desktop</p>
+</li>
 </ol>
-<p>MCPB bundles work with Claude Desktop and other MCPB-compatible clients.</p>
+<p>The MCPB bundle is self-contained (includes MCP framework and JSON processor) but requires the CLI to be installed separately.</p>
+<div class="admonition note">
+<p class="admonition-title">MCPB support</p>
+<p>MCPB bundles currently only work with <strong>Claude Desktop</strong>. Other clients require manual configuration (see below).</p>
+</div>
 <h3 id="option-2-manual-configuration">Option 2: Manual Configuration<a class="headerlink" href="#option-2-manual-configuration" title="Permanent link">&para;</a></h3>
-<p>For clients that don't support MCPB, configure manually:</p>
+<p>For <strong>Cursor, Windsurf, VS Code + Copilot, Zed</strong>, and other MCP clients:</p>
 <p><strong>Prerequisites:</strong></p>
 <ol>
 <li>Install the CLI:</li>

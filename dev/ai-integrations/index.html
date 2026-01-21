@@ -2316,10 +2316,14 @@
 <p><a href="../guides/claude-code-plugins/">Claude Code Plugins documentation</a>{ .md-button }</p>
 <h2 id="quick-install">Quick Install<a class="headerlink" href="#quick-install" title="Permanent link">&para;</a></h2>
 <h3 id="mcp-server_1">MCP Server<a class="headerlink" href="#mcp-server_1" title="Permanent link">&para;</a></h3>
-<p><strong>One-click install (recommended):</strong></p>
-<p>Download the <code>.mcpb</code> bundle from <a href="https://github.com/yaniv-golan/affinity-sdk/releases">GitHub Releases</a>, then double-click or drag to Claude Desktop.</p>
-<p><strong>Manual install:</strong></p>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;affinity-sdk[cli]&quot;</span>
+<p><strong>Claude Desktop</strong> (easiest - MCPB bundle):</p>
+<ol>
+<li>Install CLI: <code>pipx install "affinity-sdk[cli]"</code></li>
+<li><em>(Optional)</em> Pre-configure API key: <code>xaffinity config setup-key</code> (Claude Desktop will prompt if skipped)</li>
+<li>Download <code>.mcpb</code> from <a href="https://github.com/yaniv-golan/affinity-sdk/releases">GitHub Releases</a> and double-click</li>
+</ol>
+<p><strong>Other clients</strong> (Cursor, Windsurf, VS Code, etc.):</p>
+<div class="highlight"><pre><span></span><code>pipx<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;affinity-sdk[cli]&quot;</span>
 xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key
 </code></pre></div>
 <p>Then add to your MCP client's configuration:</p>
