@@ -1,0 +1,2760 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Strongly-typed Python SDK for the Affinity CRM API">
+      
+      
+      
+      
+        <link rel="prev" href="../debugging-hooks/">
+      
+      
+        <link rel="next" href="../opportunity-associations/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Webhooks - Affinity Python SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#webhooks" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Affinity Python SDK" class="md-header__button md-logo" aria-label="Affinity Python SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Affinity Python SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Webhooks
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/yaniv-golan/affinity-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Affinity Python SDK" class="md-nav__button md-logo" aria-label="Affinity Python SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Affinity Python SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/yaniv-golan/affinity-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CLI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/scripting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scripting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JSON Output Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Integrations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AI Integrations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ai-integrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../claude-code-plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Code Plugins & Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-versions-and-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API versions & routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pagination/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pagination
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../errors-and-retries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors & retries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rate-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rate limits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../filtering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../query-command/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../datetime-handling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datetime handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../csv-export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSV Export (CLI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../field-types-and-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field types & values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../field-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ids-and-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IDs & types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sync-vs-async/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sync vs async
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../debugging-hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debugging hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#supported-webhook-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported Webhook Events
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-subscription" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create a subscription
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#securing-your-webhook-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Securing your webhook endpoint
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Securing your webhook endpoint">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-secret-url-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required: Secret URL path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-https-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required: HTTPS only
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-request-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required: Request validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-replay-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended: Replay protection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-ip-allowlisting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended: IP allowlisting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-fast-response-with-async-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended: Fast response with async processing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-logging-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended: Logging considerations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parse-inbound-payloads-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parse inbound payloads (optional)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#minimal-receiver-example-fastapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimal receiver example (FastAPI)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../opportunity-associations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Opportunity associations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query Language
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_7" id="__nav_10_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/companies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Companies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/persons/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Persons
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/lists/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lists
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/opportunities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Opportunities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_7_6" id="__nav_10_7_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V1 endpoints
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    V1 endpoints
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/reminders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reminders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/webhooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/fields/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fields
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/field-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/relationships/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relationships
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#supported-webhook-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported Webhook Events
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-subscription" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create a subscription
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#securing-your-webhook-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Securing your webhook endpoint
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Securing your webhook endpoint">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-secret-url-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required: Secret URL path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-https-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required: HTTPS only
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-request-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required: Request validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-replay-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended: Replay protection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-ip-allowlisting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended: IP allowlisting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-fast-response-with-async-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended: Fast response with async processing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-logging-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended: Logging considerations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parse-inbound-payloads-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parse inbound payloads (optional)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#minimal-receiver-example-fastapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimal receiver example (FastAPI)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="webhooks">Webhooks<a class="headerlink" href="#webhooks" title="Permanent link">&para;</a></h1>
+<p>The SDK supports managing webhook subscriptions via the V1 API (<code>client.webhooks</code>). Receiving webhooks is handled by <strong>your</strong> web server/app.</p>
+<h2 id="supported-webhook-events">Supported Webhook Events<a class="headerlink" href="#supported-webhook-events" title="Permanent link">&para;</a></h2>
+<p>The SDK defines all webhook events in <code>WebhookEvent</code>. You can subscribe to any combination of these events:</p>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LIST_CREATED</code></td>
+<td><code>list.created</code></td>
+<td>A new list was created</td>
+</tr>
+<tr>
+<td><code>LIST_UPDATED</code></td>
+<td><code>list.updated</code></td>
+<td>A list's properties were modified</td>
+</tr>
+<tr>
+<td><code>LIST_DELETED</code></td>
+<td><code>list.deleted</code></td>
+<td>A list was deleted</td>
+</tr>
+<tr>
+<td><code>LIST_ENTRY_CREATED</code></td>
+<td><code>list_entry.created</code></td>
+<td>An entity was added to a list</td>
+</tr>
+<tr>
+<td><code>LIST_ENTRY_DELETED</code></td>
+<td><code>list_entry.deleted</code></td>
+<td>An entity was removed from a list</td>
+</tr>
+<tr>
+<td><code>NOTE_CREATED</code></td>
+<td><code>note.created</code></td>
+<td>A note was created on an entity</td>
+</tr>
+<tr>
+<td><code>NOTE_UPDATED</code></td>
+<td><code>note.updated</code></td>
+<td>A note's content was modified</td>
+</tr>
+<tr>
+<td><code>NOTE_DELETED</code></td>
+<td><code>note.deleted</code></td>
+<td>A note was deleted</td>
+</tr>
+<tr>
+<td><code>FIELD_CREATED</code></td>
+<td><code>field.created</code></td>
+<td>A new field was created</td>
+</tr>
+<tr>
+<td><code>FIELD_UPDATED</code></td>
+<td><code>field.updated</code></td>
+<td>A field's properties were modified</td>
+</tr>
+<tr>
+<td><code>FIELD_DELETED</code></td>
+<td><code>field.deleted</code></td>
+<td>A field was deleted</td>
+</tr>
+<tr>
+<td><code>FIELD_VALUE_CREATED</code></td>
+<td><code>field_value.created</code></td>
+<td>A field value was set on an entity</td>
+</tr>
+<tr>
+<td><code>FIELD_VALUE_UPDATED</code></td>
+<td><code>field_value.updated</code></td>
+<td>A field value was modified</td>
+</tr>
+<tr>
+<td><code>FIELD_VALUE_DELETED</code></td>
+<td><code>field_value.deleted</code></td>
+<td>A field value was removed</td>
+</tr>
+<tr>
+<td><code>PERSON_CREATED</code></td>
+<td><code>person.created</code></td>
+<td>A new person was created</td>
+</tr>
+<tr>
+<td><code>PERSON_UPDATED</code></td>
+<td><code>person.updated</code></td>
+<td>A person's properties were modified</td>
+</tr>
+<tr>
+<td><code>PERSON_DELETED</code></td>
+<td><code>person.deleted</code></td>
+<td>A person was deleted</td>
+</tr>
+<tr>
+<td><code>ORGANIZATION_CREATED</code></td>
+<td><code>organization.created</code></td>
+<td>A new company/organization was created</td>
+</tr>
+<tr>
+<td><code>ORGANIZATION_UPDATED</code></td>
+<td><code>organization.updated</code></td>
+<td>A company's properties were modified</td>
+</tr>
+<tr>
+<td><code>ORGANIZATION_DELETED</code></td>
+<td><code>organization.deleted</code></td>
+<td>A company was deleted</td>
+</tr>
+<tr>
+<td><code>ORGANIZATION_MERGED</code></td>
+<td><code>organization.merged</code></td>
+<td>Two companies were merged</td>
+</tr>
+<tr>
+<td><code>OPPORTUNITY_CREATED</code></td>
+<td><code>opportunity.created</code></td>
+<td>A new opportunity was created</td>
+</tr>
+<tr>
+<td><code>OPPORTUNITY_UPDATED</code></td>
+<td><code>opportunity.updated</code></td>
+<td>An opportunity's properties were modified</td>
+</tr>
+<tr>
+<td><code>OPPORTUNITY_DELETED</code></td>
+<td><code>opportunity.deleted</code></td>
+<td>An opportunity was deleted</td>
+</tr>
+<tr>
+<td><code>FILE_CREATED</code></td>
+<td><code>file.created</code></td>
+<td>A file was uploaded to an entity</td>
+</tr>
+<tr>
+<td><code>FILE_DELETED</code></td>
+<td><code>file.deleted</code></td>
+<td>A file was deleted</td>
+</tr>
+<tr>
+<td><code>REMINDER_CREATED</code></td>
+<td><code>reminder.created</code></td>
+<td>A reminder was created</td>
+</tr>
+<tr>
+<td><code>REMINDER_UPDATED</code></td>
+<td><code>reminder.updated</code></td>
+<td>A reminder's properties were modified</td>
+</tr>
+<tr>
+<td><code>REMINDER_DELETED</code></td>
+<td><code>reminder.deleted</code></td>
+<td>A reminder was deleted</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Forward Compatibility</p>
+<p><code>WebhookEvent</code> extends <code>OpenStrEnum</code>, meaning unknown event types from Affinity are preserved as strings rather than causing errors. This ensures the SDK gracefully handles any new events Affinity may add in the future.</p>
+</div>
+<h2 id="create-a-subscription">Create a subscription<a class="headerlink" href="#create-a-subscription" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">WebhookCreate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">WebhookEvent</span>
+
+<span class="k">with</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="n">webhook</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">webhooks</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">WebhookCreate</span><span class="p">(</span>
+            <span class="n">webhook_url</span><span class="o">=</span><span class="s2">&quot;https://example.com/webhooks/affinity/&lt;random-secret&gt;&quot;</span><span class="p">,</span>
+            <span class="n">subscriptions</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">WebhookEvent</span><span class="o">.</span><span class="n">FIELD_VALUE_UPDATED</span><span class="p">,</span>
+                <span class="n">WebhookEvent</span><span class="o">.</span><span class="n">LIST_ENTRY_CREATED</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">webhook</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">webhook</span><span class="o">.</span><span class="n">webhook_url</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Notes</p>
+<ul>
+<li>Affinity limits webhook subscriptions (see <code>WebhookService</code> docs).</li>
+<li>Affinity may attempt to contact your <code>webhook_url</code> during creation/updates; ensure your endpoint is reachable and responds quickly.</li>
+</ul>
+</div>
+<h2 id="securing-your-webhook-endpoint">Securing your webhook endpoint<a class="headerlink" href="#securing-your-webhook-endpoint" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">No signature verification available</p>
+<p>Affinity's V1 API does not provide cryptographic signature verification for webhook requests. There is no HMAC header, signing secret, or other mechanism to verify that requests originate from Affinity. You must rely on defense-in-depth practices to secure your endpoint.</p>
+</div>
+<p>Since webhook authenticity cannot be cryptographically verified, treat your webhook endpoint as a semi-public entry point and apply multiple layers of protection:</p>
+<h3 id="required-secret-url-path">Required: Secret URL path<a class="headerlink" href="#required-secret-url-path" title="Permanent link">&para;</a></h3>
+<p>Include a long, random, unguessable secret in your webhook URL path:</p>
+<div class="highlight"><pre><span></span><code>https://example.com/webhooks/affinity/a1b2c3d4e5f6g7h8i9j0...
+</code></pre></div>
+<ul>
+<li>Generate at least 32 characters of cryptographically random data</li>
+<li>Reject any request where the path secret doesn't match</li>
+<li>Rotate the secret periodically and after any suspected exposure</li>
+<li>Never log the full URL or share it in plain text</li>
+</ul>
+<h3 id="required-https-only">Required: HTTPS only<a class="headerlink" href="#required-https-only" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Always use HTTPS for your webhook URL</li>
+<li>Terminate TLS at your load balancer or reverse proxy</li>
+<li>Reject HTTP requests at the application level as a fallback</li>
+</ul>
+<h3 id="required-request-validation">Required: Request validation<a class="headerlink" href="#required-request-validation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Method</strong>: Only accept <code>POST</code> requests</li>
+<li><strong>Content-Type</strong>: Require <code>application/json</code></li>
+<li><strong>Body size</strong>: Enforce a reasonable limit (e.g., 1MB)</li>
+<li><strong>JSON parsing</strong>: Use strict parsing; reject malformed payloads</li>
+</ul>
+<h3 id="recommended-replay-protection">Recommended: Replay protection<a class="headerlink" href="#recommended-replay-protection" title="Permanent link">&para;</a></h3>
+<p>Use the <code>sent_at</code> field in the webhook payload to reject stale events:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_webhook</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">WebhookInvalidSentAtError</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># Reject events older than 5 minutes (300 seconds)</span>
+    <span class="n">envelope</span> <span class="o">=</span> <span class="n">parse_webhook</span><span class="p">(</span><span class="n">raw_body</span><span class="p">,</span> <span class="n">max_age_seconds</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">WebhookInvalidSentAtError</span><span class="p">:</span>
+    <span class="c1"># Event is too old or too far in the future</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+</code></pre></div>
+<p>For stronger replay protection, store a short-lived dedupe key:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+
+<span class="c1"># Generate a dedupe key from event properties</span>
+<span class="n">dedupe_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">envelope</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">envelope</span><span class="o">.</span><span class="n">sent_at_epoch</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">raw_body</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()[:</span><span class="mi">16</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="c1"># Check against a cache (Redis, memcached, etc.) with 5-10 minute TTL</span>
+<span class="k">if</span> <span class="n">cache</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dedupe_key</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>  <span class="c1"># Already processed, acknowledge silently</span>
+<span class="n">cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">dedupe_key</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">ttl</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="recommended-ip-allowlisting">Recommended: IP allowlisting<a class="headerlink" href="#recommended-ip-allowlisting" title="Permanent link">&para;</a></h3>
+<p>If Affinity provides stable egress IP ranges for your account:</p>
+<ul>
+<li>Configure your load balancer or WAF to only accept webhook traffic from those IPs</li>
+<li>Contact Affinity support to request their webhook delivery IP ranges</li>
+</ul>
+<p>If IP ranges are not available:</p>
+<ul>
+<li>Restrict by geography or ASN where appropriate</li>
+<li>Alert on unexpected source IPs for investigation</li>
+<li>Apply rate limiting and bot protection at the edge</li>
+</ul>
+<h3 id="recommended-fast-response-with-async-processing">Recommended: Fast response with async processing<a class="headerlink" href="#recommended-fast-response-with-async-processing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Respond with <code>2xx</code> immediately after basic validation</li>
+<li>Enqueue the actual processing for async handling</li>
+<li>Assume retries can happen (Affinity retries with exponential backoff for up to 10 hours)</li>
+<li>Make your processing idempotent using the dedupe key pattern above</li>
+</ul>
+<h3 id="recommended-logging-considerations">Recommended: Logging considerations<a class="headerlink" href="#recommended-logging-considerations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Avoid logging raw webhook payloads (may contain PII)</li>
+<li>If logging is required, redact sensitive fields or use a PII-safe pipeline</li>
+<li>Log the event type, timestamp, and dedupe key for debugging</li>
+</ul>
+<h2 id="parse-inbound-payloads-optional">Parse inbound payloads (optional)<a class="headerlink" href="#parse-inbound-payloads-optional" title="Permanent link">&para;</a></h2>
+<p>The SDK includes small, framework-agnostic helpers to parse the webhook envelope and (optionally) dispatch to a typed body for a few common events.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_webhook</span><span class="p">,</span> <span class="n">parse_webhook</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">WebhookEvent</span>
+
+<span class="n">envelope</span> <span class="o">=</span> <span class="n">parse_webhook</span><span class="p">(</span><span class="n">raw_body_bytes</span><span class="p">)</span>  <span class="c1"># or raw str / dict</span>
+<span class="n">event</span> <span class="o">=</span> <span class="n">dispatch_webhook</span><span class="p">(</span><span class="n">envelope</span><span class="p">)</span>  <span class="c1"># typed for some events, dict otherwise</span>
+
+<span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">WebhookEvent</span><span class="o">.</span><span class="n">LIST_ENTRY_CREATED</span><span class="p">:</span>
+    <span class="c1"># event.body may be typed (or a dict, depending on the event)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">sent_at</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="minimal-receiver-example-fastapi">Minimal receiver example (FastAPI)<a class="headerlink" href="#minimal-receiver-example-fastapi" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">secrets</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">Header</span><span class="p">,</span> <span class="n">Request</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_webhook</span><span class="p">,</span> <span class="n">parse_webhook</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">WebhookInvalidSentAtError</span><span class="p">,</span> <span class="n">WebhookParseError</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+
+<span class="c1"># Generate with: secrets.token_urlsafe(32)</span>
+<span class="n">WEBHOOK_SECRET</span> <span class="o">=</span> <span class="s2">&quot;replace-with-a-long-random-string-at-least-32-chars&quot;</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/webhooks/affinity/</span><span class="si">{secret}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">affinity_webhook</span><span class="p">(</span>
+    <span class="n">secret</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span>
+    <span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Header</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="c1"># 1. Validate secret path</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">secrets</span><span class="o">.</span><span class="n">compare_digest</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span> <span class="n">WEBHOOK_SECRET</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">)</span>  <span class="c1"># 404 to avoid confirming endpoint exists</span>
+
+    <span class="c1"># 2. Validate content type</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">content_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;application/json&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">415</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;unsupported media type&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 3. Read and validate body size</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1_000_000</span><span class="p">:</span>  <span class="c1"># 1MB limit</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">413</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;payload too large&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 4. Parse with replay protection (rejects events older than 5 minutes)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">envelope</span> <span class="o">=</span> <span class="n">parse_webhook</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">max_age_seconds</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">WebhookInvalidSentAtError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;stale event&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">WebhookParseError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;invalid payload&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 5. Optional: Check dedupe key against cache here</span>
+
+    <span class="c1"># 6. Dispatch to typed body (if registered) and process</span>
+    <span class="n">event</span> <span class="o">=</span> <span class="n">dispatch_webhook</span><span class="p">(</span><span class="n">envelope</span><span class="p">)</span>
+
+    <span class="c1"># TODO: Enqueue for async processing instead of processing inline</span>
+    <span class="c1"># process_webhook_event.delay(event)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;ok&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">}</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Disclaimer: Unofficial community project; not affiliated with, endorsed by, or sponsored by Affinity. "Affinity" and related marks are trademarks of their respective owners. Use of the Affinity API is subject to Affinity Terms of Service.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

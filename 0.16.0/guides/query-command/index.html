@@ -1,0 +1,3780 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Strongly-typed Python SDK for the Affinity CRM API">
+      
+      
+      
+      
+        <link rel="prev" href="../filtering/">
+      
+      
+        <link rel="next" href="../datetime-handling/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Query command - Affinity Python SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#query-command" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Affinity Python SDK" class="md-header__button md-logo" aria-label="Affinity Python SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Affinity Python SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Query command
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/yaniv-golan/affinity-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Affinity Python SDK" class="md-nav__button md-logo" aria-label="Affinity Python SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Affinity Python SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/yaniv-golan/affinity-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CLI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/scripting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scripting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JSON Output Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Integrations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AI Integrations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ai-integrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../claude-code-plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Code Plugins & Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-versions-and-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API versions & routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pagination/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pagination
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../errors-and-retries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors & retries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rate-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rate limits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../filtering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query command
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-query-vs-individual-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Use Query vs Individual Commands
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Query Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supported-entity-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported Entity Types
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Supported Entity Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#entity-query-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entity Query Limitations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filtering-with-where" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtering with WHERE
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Filtering with WHERE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simple-conditions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simple Conditions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supported-operators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported Operators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-select-field-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Select Field Filtering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compound-conditions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compound Conditions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#field-paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field Paths
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#date-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Date Filtering
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#including-related-entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Including Related Entities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Including Related Entities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#available-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Available Relationships
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameterized-includes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameterized Includes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#expanding-computed-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expanding Computed Data
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Expanding Computed Data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#interaction-dates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interaction Dates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#available-expansions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Available Expansions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Available Expansions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unreplied-messages-expansion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unreplied Messages Expansion
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expand-vs-include" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expand vs Include
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aggregations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aggregations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Aggregations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-aggregates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Aggregates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-by" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group By
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#having-filter-aggregated-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Having (Filter Aggregated Results)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sorting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sorting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limiting-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limiting Results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dry-run-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dry-Run Mode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output Formats
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#command-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Command Options
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#find-vip-contacts-at-tech-companies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Find VIP Contacts at Tech Companies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipeline-summary-by-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline Summary by Status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recent-meetings-with-persons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recent Meetings with Persons
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../datetime-handling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datetime handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../csv-export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSV Export (CLI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../field-types-and-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field types & values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../field-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ids-and-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IDs & types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sync-vs-async/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sync vs async
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../debugging-hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debugging hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../webhooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../opportunity-associations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Opportunity associations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query Language
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_7" id="__nav_10_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/companies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Companies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/persons/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Persons
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/lists/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lists
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/opportunities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Opportunities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_7_6" id="__nav_10_7_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V1 endpoints
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    V1 endpoints
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/reminders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reminders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/webhooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/fields/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fields
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/field-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/relationships/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relationships
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-query-vs-individual-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Use Query vs Individual Commands
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Query Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supported-entity-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported Entity Types
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Supported Entity Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#entity-query-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entity Query Limitations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filtering-with-where" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtering with WHERE
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Filtering with WHERE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simple-conditions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simple Conditions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supported-operators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported Operators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-select-field-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Select Field Filtering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compound-conditions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compound Conditions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#field-paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field Paths
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#date-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Date Filtering
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#including-related-entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Including Related Entities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Including Related Entities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#available-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Available Relationships
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameterized-includes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameterized Includes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#expanding-computed-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expanding Computed Data
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Expanding Computed Data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#interaction-dates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interaction Dates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#available-expansions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Available Expansions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Available Expansions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unreplied-messages-expansion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unreplied Messages Expansion
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expand-vs-include" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expand vs Include
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aggregations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aggregations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Aggregations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-aggregates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Aggregates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-by" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group By
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#having-filter-aggregated-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Having (Filter Aggregated Results)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sorting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sorting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limiting-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limiting Results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dry-run-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dry-Run Mode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output Formats
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#command-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Command Options
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#find-vip-contacts-at-tech-companies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Find VIP Contacts at Tech Companies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipeline-summary-by-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline Summary by Status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recent-meetings-with-persons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recent Meetings with Persons
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="query-command">Query Command<a class="headerlink" href="#query-command" title="Permanent link">&para;</a></h1>
+<p>The <code>xaffinity query</code> command provides a structured JSON query language for complex data retrieval, filtering, includes, and aggregations.</p>
+<h2 id="when-to-use-query-vs-individual-commands">When to Use Query vs Individual Commands<a class="headerlink" href="#when-to-use-query-vs-individual-commands" title="Permanent link">&para;</a></h2>
+<p><strong>Use <code>query</code> when you need:</strong>
+- Complex filtering with multiple AND/OR/NOT conditions
+- Related entity data (include companies with persons)
+- Aggregations (count, sum, avg, groupBy)
+- Multi-field sorting
+- Analysis across large datasets</p>
+<p><strong>Use individual commands for:</strong>
+- Simple lookups (<code>person get 123</code>)
+- Basic searches (<code>company ls --query "Acme"</code>)
+- Quick exports (<code>list export Pipeline</code>)</p>
+<h2 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># From file</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class="w"> </span>query.json
+
+<span class="c1"># Inline JSON</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;persons&quot;, &quot;limit&quot;: 10}&#39;</span>
+
+<span class="c1"># From stdin (piped)</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;persons&quot;}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xaffinity<span class="w"> </span>query
+
+<span class="c1"># Dry-run to preview execution plan</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class="w"> </span>query.json<span class="w"> </span>--dry-run
+</code></pre></div>
+<h2 id="query-structure">Query Structure<a class="headerlink" href="#query-structure" title="Permanent link">&para;</a></h2>
+<p>A minimal query requires only the <code>from</code> field:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persons&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>A complete query can include:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;$version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persons&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;email&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;contains&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@acme.com&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;include&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;companies&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;select&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;firstName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;lastName&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;email&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;orderBy&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">&quot;field&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lastName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;direction&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;asc&quot;</span><span class="w"> </span><span class="p">}],</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="supported-entity-types">Supported Entity Types<a class="headerlink" href="#supported-entity-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Entity</th>
+<th>Description</th>
+<th>Query Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>persons</code></td>
+<td>People in your CRM</td>
+<td>Direct query</td>
+</tr>
+<tr>
+<td><code>companies</code></td>
+<td>Companies/organizations</td>
+<td>Direct query</td>
+</tr>
+<tr>
+<td><code>opportunities</code></td>
+<td>Deals/opportunities</td>
+<td>Direct query</td>
+</tr>
+<tr>
+<td><code>lists</code></td>
+<td>Affinity list definitions</td>
+<td>Direct query</td>
+</tr>
+<tr>
+<td><code>listEntries</code></td>
+<td>Entries in Affinity lists</td>
+<td>Requires <code>listId</code> or <code>listName</code> filter</td>
+</tr>
+<tr>
+<td><code>interactions</code></td>
+<td>Emails, calls, meetings</td>
+<td>Include only (cannot query directly)</td>
+</tr>
+<tr>
+<td><code>notes</code></td>
+<td>Notes on entities</td>
+<td>Include only (cannot query directly)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="entity-query-limitations">Entity Query Limitations<a class="headerlink" href="#entity-query-limitations" title="Permanent link">&para;</a></h4>
+<p><strong><code>listEntries</code></strong> requires a <code>listId</code> or <code>listName</code> filter to specify which list to query:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listId&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12345</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Or using list name (resolved automatically):</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Field name resolution:</strong> When filtering on <code>fields.*</code>, you can use human-readable field names instead of field IDs:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;and&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Status&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Active&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Field names are resolved case-insensitively. If a field name is not found, it passes through unchanged (allowing numeric field IDs like <code>fields.12345</code> to work).</p>
+<p><strong><code>interactions</code> and <code>notes</code></strong> cannot be queried directly. Instead, include them on a parent entity:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persons&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;include&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;interactions&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;notes&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Attempting to query <code>interactions</code> or <code>notes</code> directly will return an error:
+<div class="highlight"><pre><span></span><code>QueryParseError: &#39;interactions&#39; cannot be queried directly.
+Use it as an &#39;include&#39; on a parent entity instead.
+Example: {&quot;from&quot;: &quot;persons&quot;, &quot;include&quot;: [&quot;interactions&quot;]}
+</code></pre></div></p>
+<h2 id="filtering-with-where">Filtering with WHERE<a class="headerlink" href="#filtering-with-where" title="Permanent link">&para;</a></h2>
+<h3 id="simple-conditions">Simple Conditions<a class="headerlink" href="#simple-conditions" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persons&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;email&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;contains&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@gmail.com&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="supported-operators">Supported Operators<a class="headerlink" href="#supported-operators" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Description</th>
+<th>Example Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eq</code></td>
+<td>Equals</td>
+<td><code>"Active"</code></td>
+</tr>
+<tr>
+<td><code>neq</code></td>
+<td>Not equals</td>
+<td><code>"Closed"</code></td>
+</tr>
+<tr>
+<td><code>gt</code></td>
+<td>Greater than</td>
+<td><code>10000</code></td>
+</tr>
+<tr>
+<td><code>gte</code></td>
+<td>Greater than or equal</td>
+<td><code>10000</code></td>
+</tr>
+<tr>
+<td><code>lt</code></td>
+<td>Less than</td>
+<td><code>5000</code></td>
+</tr>
+<tr>
+<td><code>lte</code></td>
+<td>Less than or equal</td>
+<td><code>5000</code></td>
+</tr>
+<tr>
+<td><code>contains</code></td>
+<td>Contains substring</td>
+<td><code>"@gmail"</code></td>
+</tr>
+<tr>
+<td><code>starts_with</code></td>
+<td>Starts with</td>
+<td><code>"Acme"</code></td>
+</tr>
+<tr>
+<td><code>in</code></td>
+<td>Value in list</td>
+<td><code>["New", "Active"]</code></td>
+</tr>
+<tr>
+<td><code>between</code></td>
+<td>Value in range</td>
+<td><code>[1000, 5000]</code></td>
+</tr>
+<tr>
+<td><code>is_null</code></td>
+<td>Field is null</td>
+<td>(no value needed)</td>
+</tr>
+<tr>
+<td><code>is_not_null</code></td>
+<td>Field is not null</td>
+<td>(no value needed)</td>
+</tr>
+<tr>
+<td><code>contains_any</code></td>
+<td>String contains any substring (case-insensitive)</td>
+<td><code>["vip", "hot"]</code></td>
+</tr>
+<tr>
+<td><code>contains_all</code></td>
+<td>String contains all substrings (case-insensitive)</td>
+<td><code>["verified", "active"]</code></td>
+</tr>
+<tr>
+<td><code>has_any</code></td>
+<td>Array contains any of the values</td>
+<td><code>["LB", "MA"]</code></td>
+</tr>
+<tr>
+<td><code>has_all</code></td>
+<td>Array contains all of the values</td>
+<td><code>["LB", "MA"]</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="multi-select-field-filtering">Multi-Select Field Filtering<a class="headerlink" href="#multi-select-field-filtering" title="Permanent link">&para;</a></h3>
+<p>Multi-select dropdown fields (like "Team Member") return arrays from the API. The query engine handles these automatically:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;and&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Team Member&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;LB&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Operator behavior with array fields:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Single-value field</th>
+<th>Multi-select field</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eq</code></td>
+<td>Exact match</td>
+<td>Scalar: membership check / List: set equality</td>
+</tr>
+<tr>
+<td><code>neq</code></td>
+<td>Not equal</td>
+<td>Scalar: not in array / List: set inequality</td>
+</tr>
+<tr>
+<td><code>in</code></td>
+<td>Value in list</td>
+<td>Any intersection between arrays</td>
+</tr>
+<tr>
+<td><code>has_any</code></td>
+<td>Returns false</td>
+<td>Any specified value present</td>
+</tr>
+<tr>
+<td><code>has_all</code></td>
+<td>Returns false</td>
+<td>All specified values present</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Find entries where Team Member includes &quot;LB&quot;</span>
+<span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Team Member&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;LB&quot;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// Find entries where Team Member is exactly [&quot;LB&quot;, &quot;MA&quot;] (order-insensitive)</span>
+<span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Team Member&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;LB&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;MA&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// Find entries where Team Member includes any of [&quot;LB&quot;, &quot;DW&quot;]</span>
+<span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Team Member&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;has_any&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;LB&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;DW&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// Find entries where Team Member includes both &quot;LB&quot; and &quot;MA&quot;</span>
+<span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Team Member&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;has_all&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;LB&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;MA&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p><strong>Note:</strong> Array operators are case-sensitive because dropdown values from the Affinity API are exact matches.</p>
+<h3 id="compound-conditions">Compound Conditions<a class="headerlink" href="#compound-conditions" title="Permanent link">&para;</a></h3>
+<p><strong>AND:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persons&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;and&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;email&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;is_not_null&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;firstName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;starts_with&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;J&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>OR:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persons&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;or&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;email&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;contains&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@acme.com&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;email&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;contains&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@acme.io&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>NOT:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persons&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;not&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;status&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Inactive&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="field-paths">Field Paths<a class="headerlink" href="#field-paths" title="Permanent link">&para;</a></h3>
+<p>Access nested fields with dot notation:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Status&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Active&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Array access:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persons&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;emails[0]&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;contains&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="date-filtering">Date Filtering<a class="headerlink" href="#date-filtering" title="Permanent link">&para;</a></h3>
+<p><strong>Relative dates:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;and&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;createdAt&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gte&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;-30d&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-30d</code></td>
+<td>30 days ago</td>
+</tr>
+<tr>
+<td><code>+7d</code></td>
+<td>7 days from now</td>
+</tr>
+<tr>
+<td><code>today</code></td>
+<td>Start of today</td>
+</tr>
+<tr>
+<td><code>now</code></td>
+<td>Current time</td>
+</tr>
+<tr>
+<td><code>yesterday</code></td>
+<td>Start of yesterday</td>
+</tr>
+<tr>
+<td><code>tomorrow</code></td>
+<td>Start of tomorrow</td>
+</tr>
+</tbody>
+</table>
+<h2 id="including-related-entities">Including Related Entities<a class="headerlink" href="#including-related-entities" title="Permanent link">&para;</a></h2>
+<p>Fetch related entities in a single query:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persons&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;include&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;companies&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;opportunities&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="available-relationships">Available Relationships<a class="headerlink" href="#available-relationships" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>Can Include</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>persons</code></td>
+<td><code>companies</code>, <code>opportunities</code>, <code>interactions</code>, <code>notes</code></td>
+</tr>
+<tr>
+<td><code>companies</code></td>
+<td><code>persons</code>, <code>opportunities</code>, <code>interactions</code>, <code>notes</code></td>
+</tr>
+<tr>
+<td><code>opportunities</code></td>
+<td><code>persons</code>, <code>companies</code>, <code>interactions</code>, <code>notes</code></td>
+</tr>
+<tr>
+<td><code>listEntries</code></td>
+<td><code>persons</code>, <code>companies</code>, <code>opportunities</code>, <code>interactions</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note:</strong> For <code>listEntries</code>, the include dynamically resolves based on the entry's entity type (person, company, or opportunity). For example, company entries can include <code>persons</code> (associated persons) and <code>interactions</code> (company interactions).</p>
+<p><strong>Note:</strong> Includes fetch relationship IDs in parallel (N calls), then batch-fetch full records via V2 API. Use <code>--dry-run</code> to preview the cost.</p>
+<h3 id="parameterized-includes">Parameterized Includes<a class="headerlink" href="#parameterized-includes" title="Permanent link">&para;</a></h3>
+<p>For <code>listEntries</code>, you can customize includes with parameters:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;include&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;interactions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;days&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">180</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;opportunities&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;list&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;persons&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;firstName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;contains&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Applicable To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>limit</code></td>
+<td>Maximum records to fetch</td>
+<td><code>interactions</code></td>
+</tr>
+<tr>
+<td><code>days</code></td>
+<td>Lookback period in days</td>
+<td><code>interactions</code></td>
+</tr>
+<tr>
+<td><code>list</code></td>
+<td>Scope to specific opportunity list</td>
+<td><code>opportunities</code></td>
+</tr>
+<tr>
+<td><code>where</code></td>
+<td>Filter included entities</td>
+<td><code>persons</code>, <code>companies</code>, <code>opportunities</code></td>
+</tr>
+</tbody>
+</table>
+<p>In <strong>table output</strong>, included data appears as separate tables (e.g., "Included: companies").
+In <strong>JSON output</strong>, included data appears in a separate <code>included</code> section with deduplicated records.</p>
+<h2 id="expanding-computed-data">Expanding Computed Data<a class="headerlink" href="#expanding-computed-data" title="Permanent link">&para;</a></h2>
+<p>Use <code>expand</code> to add computed data directly to each record (unlike <code>include</code> which fetches separate entities).</p>
+<h3 id="interaction-dates">Interaction Dates<a class="headerlink" href="#interaction-dates" title="Permanent link">&para;</a></h3>
+<p>Add interaction date summaries to records:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;companies&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;expand&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;interactionDates&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Output includes interaction summaries on each record:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">123</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Acme Corp&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;interactionDates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;lastMeeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-08T10:00:00Z&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;daysSince&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;nextMeeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-20T14:00:00Z&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;daysUntil&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;lastEmail&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-10T09:30:00Z&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;daysSince&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="available-expansions">Available Expansions<a class="headerlink" href="#available-expansions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Expansion</th>
+<th>Description</th>
+<th>Supported Entities</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>interactionDates</code></td>
+<td>Last/next meeting, email dates</td>
+<td><code>persons</code>, <code>companies</code>, <code>opportunities</code>, <code>listEntries</code></td>
+</tr>
+<tr>
+<td><code>unreplied</code></td>
+<td>Detect unreplied incoming messages (email/chat)</td>
+<td><code>persons</code>, <code>companies</code>, <code>opportunities</code>, <code>listEntries</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="unreplied-messages-expansion">Unreplied Messages Expansion<a class="headerlink" href="#unreplied-messages-expansion" title="Permanent link">&para;</a></h4>
+<p>Add unreplied message detection to each record:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;expand&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;unreplied&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Output includes unreplied message info on each record:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">123</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;entity&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">456</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;company&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Acme Corp&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;unreplied&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-15T09:30:00Z&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;daysSince&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;email&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Re: Partnership opportunity&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Records without unreplied messages have <code>"unreplied": null</code>. For chat messages, <code>subject</code> is <code>null</code>.</p>
+<h3 id="expand-vs-include">Expand vs Include<a class="headerlink" href="#expand-vs-include" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th><code>include</code></th>
+<th><code>expand</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Purpose</strong></td>
+<td>Fetch related entities</td>
+<td>Add computed data</td>
+</tr>
+<tr>
+<td><strong>Output</strong></td>
+<td>Separate records</td>
+<td>Merged into each record</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td>Related company records</td>
+<td>Dates, counts, summaries</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Warning:</strong> Expand also causes N+1 API calls. For large datasets, consider using <code>list export --expand interactions</code> for streaming output.</p>
+<h2 id="aggregations">Aggregations<a class="headerlink" href="#aggregations" title="Permanent link">&para;</a></h2>
+<h3 id="basic-aggregates">Basic Aggregates<a class="headerlink" href="#basic-aggregates" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;opportunities&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;aggregate&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;totalValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;sum&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;amount&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;avgValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;avg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;amount&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="group-by">Group By<a class="headerlink" href="#group-by" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;opportunities&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;groupBy&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;status&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;aggregate&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;totalValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;sum&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;amount&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="having-filter-aggregated-results">Having (Filter Aggregated Results)<a class="headerlink" href="#having-filter-aggregated-results" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;opportunities&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;groupBy&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;status&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;aggregate&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;having&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;count&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gte&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="sorting">Sorting<a class="headerlink" href="#sorting" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persons&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;orderBy&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;field&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lastName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;direction&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;asc&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;field&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;firstName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;direction&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;asc&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="limiting-results">Limiting Results<a class="headerlink" href="#limiting-results" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persons&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="dry-run-mode">Dry-Run Mode<a class="headerlink" href="#dry-run-mode" title="Permanent link">&para;</a></h2>
+<p><strong>Always preview expensive queries first:</strong></p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class="w"> </span>query.json<span class="w"> </span>--dry-run
+</code></pre></div>
+<p>Output shows:</p>
+<div class="highlight"><pre><span></span><code>Query Execution Plan
+
+Query:
+  $version: 1.0
+  from: persons
+  include: [companies]
+  limit: 100
+
+Steps:
+  [1] FETCH persons (1 API call)
+  [2] FILTER (client-side)
+  [3] INCLUDE companies (up to 100 API calls)
+  [4] LIMIT 100
+
+Estimated:
+  API Calls: 101
+  Records: 100
+
+[warning] Include &#39;companies&#39; will make N API calls (1 per person).
+</code></pre></div>
+<h2 id="output-formats">Output Formats<a class="headerlink" href="#output-formats" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Table (default for interactive)</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class="w"> </span>query.json
+
+<span class="c1"># JSON output</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class="w"> </span>query.json<span class="w"> </span>--json
+
+<span class="c1"># CSV output</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class="w"> </span>query.json<span class="w"> </span>--csv
+
+<span class="c1"># JSON with metadata</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class="w"> </span>query.json<span class="w"> </span>--json<span class="w"> </span>--include-meta
+</code></pre></div>
+<h2 id="command-options">Command Options<a class="headerlink" href="#command-options" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--file</code>, <code>-f</code></td>
+<td>Read query from JSON file</td>
+</tr>
+<tr>
+<td><code>--query</code></td>
+<td>Inline JSON query string</td>
+</tr>
+<tr>
+<td><code>--query-version</code></td>
+<td>Override <code>$version</code> in query</td>
+</tr>
+<tr>
+<td><code>--dry-run</code></td>
+<td>Show execution plan without running</td>
+</tr>
+<tr>
+<td><code>--dry-run-verbose</code></td>
+<td>Show detailed plan with API call breakdown</td>
+</tr>
+<tr>
+<td><code>--confirm</code></td>
+<td>Require confirmation before expensive operations</td>
+</tr>
+<tr>
+<td><code>--max-records</code></td>
+<td>Safety limit on total records (default: 10000)</td>
+</tr>
+<tr>
+<td><code>--timeout</code></td>
+<td>Overall timeout in seconds (default: 300)</td>
+</tr>
+<tr>
+<td><code>--json</code></td>
+<td>Output as JSON (alias for <code>--output json</code>)</td>
+</tr>
+<tr>
+<td><code>--csv</code></td>
+<td>Output as CSV (alias for <code>--output csv</code>)</td>
+</tr>
+<tr>
+<td><code>--output</code></td>
+<td>Output format: table, json, csv</td>
+</tr>
+<tr>
+<td><code>--include-meta</code></td>
+<td>Include execution metadata in output</td>
+</tr>
+<tr>
+<td><code>--quiet</code>, <code>-q</code></td>
+<td>Suppress progress output</td>
+</tr>
+<tr>
+<td><code>--verbose</code>, <code>-v</code></td>
+<td>Show detailed progress</td>
+</tr>
+</tbody>
+</table>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<h3 id="find-vip-contacts-at-tech-companies">Find VIP Contacts at Tech Companies<a class="headerlink" href="#find-vip-contacts-at-tech-companies" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persons&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;and&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.VIP&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;email&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;is_not_null&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;include&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;companies&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;orderBy&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">&quot;field&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lastName&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;direction&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;asc&quot;</span><span class="w"> </span><span class="p">}],</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="pipeline-summary-by-status">Pipeline Summary by Status<a class="headerlink" href="#pipeline-summary-by-status" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listEntries&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;listId&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12345</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;groupBy&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Status&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;aggregate&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;totalValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;sum&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fields.Deal Value&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="recent-meetings-with-persons">Recent Meetings with Persons<a class="headerlink" href="#recent-meetings-with-persons" title="Permanent link">&para;</a></h3>
+<p>Since interactions cannot be queried directly, fetch persons with their recent interactions included:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persons&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;include&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;interactions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;days&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Then filter for meetings client-side, or use the CLI with <code>--expand-filter</code> for post-fetch filtering.</p>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Start with dry-run</strong> for complex queries to see API call estimates</li>
+<li><strong>Use limit</strong> to avoid fetching too much data</li>
+<li><strong>Be specific with where</strong> to reduce client-side filtering</li>
+<li><strong>Avoid deep includes</strong> which cause N+1 API calls</li>
+<li><strong>Include <code>$version</code></strong> in saved query files for forward compatibility</li>
+</ol>
+<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>All filtering except listEntries field filters happens client-side</li>
+<li>Includes cause N+1 API calls (1 per parent record)</li>
+<li>Maximum 10,000 records per query for safety</li>
+<li>No cross-entity joins (use includes instead)</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Disclaimer: Unofficial community project; not affiliated with, endorsed by, or sponsored by Affinity. "Affinity" and related marks are trademarks of their respective owners. Use of the Affinity API is subject to Affinity Terms of Service.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
