@@ -863,10 +863,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#list-rows-with-saved-view" class="md-nav__link">
+  <a href="#list-export-with-saved-view" class="md-nav__link">
     <span class="md-ellipsis">
       
-        List Rows with Saved View
+        List Export with Saved View
       
     </span>
   </a>
@@ -2775,10 +2775,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#list-rows-with-saved-view" class="md-nav__link">
+  <a href="#list-export-with-saved-view" class="md-nav__link">
     <span class="md-ellipsis">
       
-        List Rows with Saved View
+        List Export with Saved View
       
     </span>
   </a>
@@ -2891,6 +2891,7 @@
 <tr>
 <th>Format</th>
 <th>Flag</th>
+<th>Availability</th>
 <th>Description</th>
 </tr>
 </thead>
@@ -2898,35 +2899,42 @@
 <tr>
 <td><code>table</code></td>
 <td>default</td>
+<td>Global</td>
 <td>Rich terminal tables (default for interactive use)</td>
 </tr>
 <tr>
 <td><code>json</code></td>
 <td><code>--json</code> or <code>-o json</code></td>
+<td>Global</td>
 <td>Full JSON with envelope (<code>ok</code>, <code>data</code>, <code>meta</code>, <code>error</code>)</td>
 </tr>
 <tr>
 <td><code>jsonl</code></td>
 <td><code>-o jsonl</code></td>
+<td>Per-command</td>
 <td>JSON Lines (one object per line, data only)</td>
 </tr>
 <tr>
 <td><code>markdown</code></td>
 <td><code>-o markdown</code></td>
+<td>Per-command</td>
 <td>GitHub-flavored markdown tables (data only)</td>
 </tr>
 <tr>
 <td><code>toon</code></td>
 <td><code>-o toon</code></td>
+<td>Per-command</td>
 <td>Token-Optimized Object Notation (30-60% fewer tokens)</td>
 </tr>
 <tr>
 <td><code>csv</code></td>
 <td><code>--csv</code> or <code>-o csv</code></td>
+<td>Per-command</td>
 <td>Comma-separated values (data only)</td>
 </tr>
 </tbody>
 </table>
+<p><strong>Note:</strong> <code>table</code> and <code>json</code> are available on all commands. Other formats (<code>jsonl</code>, <code>markdown</code>, <code>toon</code>, <code>csv</code>) are available on specific commands that support them (primarily list/export commands).</p>
 <p><strong>For LLM/MCP use</strong>: Use <code>markdown</code> for best comprehension or <code>toon</code> for large datasets.</p>
 <p><strong>For scripts</strong>: Use <code>--json</code> for full structured output with error handling.</p>
 <p><strong>Example:</strong>
@@ -2946,7 +2954,7 @@ xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class
 <p>All CLI commands support the <code>--json</code> flag for machine-readable output. The response follows a consistent structure:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;ok&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;person get&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;person get&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;personSelector&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;12345&quot;</span><span class="p">},</span><span class="w"> </span><span class="nt">&quot;modifiers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"> </span><span class="nt">&quot;resolved&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">},</span>
 <span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;person&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12345</span><span class="p">,</span>
@@ -2970,7 +2978,7 @@ xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class
 <h3 id="top-level-fields">Top-Level Fields<a class="headerlink" href="#top-level-fields" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>ok</strong> (boolean): <code>true</code> if the command succeeded, <code>false</code> if it failed</li>
-<li><strong>command</strong> (string): The command that was executed (e.g., <code>"person get"</code>)</li>
+<li><strong>command</strong> (object): Command metadata with <code>name</code> (string), <code>inputs</code> (object), <code>modifiers</code> (object), and <code>resolved</code> (object|null)</li>
 <li><strong>data</strong> (object): The command's result data (structure varies by command)</li>
 <li><strong>meta</strong> (object): Metadata about the command execution</li>
 </ul>
@@ -3016,7 +3024,7 @@ xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class
 <li><strong>canonicalUrl</strong> (string, optional): The canonical Affinity URL for the entity</li>
 </ul>
 <h4 id="field-selection">Field Selection<a class="headerlink" href="#field-selection" title="Permanent link">&para;</a></h4>
-<p>When field selection options are used (e.g., <code>--field-id</code>, <code>--field-type</code>), the <code>fieldSelection</code> object contains:</p>
+<p>When field selection options are used (e.g., <code>--field</code>), the <code>fieldSelection</code> object contains:</p>
 <ul>
 <li><strong>fieldIds</strong> (array of strings): Specific field IDs requested</li>
 <li><strong>fieldTypes</strong> (array of strings): Field types requested (e.g., <code>"global"</code>, <code>"list-specific"</code>)</li>
@@ -3124,7 +3132,7 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"
 <p>When a command fails, the response structure changes:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;ok&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;person get&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;person get&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;personSelector&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;99999&quot;</span><span class="p">},</span><span class="w"> </span><span class="nt">&quot;modifiers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"> </span><span class="nt">&quot;resolved&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">},</span>
 <span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;api_error&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Person not found&quot;</span><span class="p">,</span>
@@ -3227,16 +3235,16 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div></p>
-<h3 id="list-rows-with-saved-view">List Rows with Saved View<a class="headerlink" href="#list-rows-with-saved-view" title="Permanent link">&para;</a></h3>
+<h3 id="list-export-with-saved-view">List Export with Saved View<a class="headerlink" href="#list-export-with-saved-view" title="Permanent link">&para;</a></h3>
 <p>Command:
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>rows<span class="w"> </span><span class="s2">&quot;Sales Pipeline&quot;</span><span class="w"> </span>--saved-view<span class="w"> </span><span class="s2">&quot;Active Deals&quot;</span><span class="w"> </span>--json
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Sales Pipeline&quot;</span><span class="w"> </span>--saved-view<span class="w"> </span><span class="s2">&quot;Active Deals&quot;</span><span class="w"> </span>--json
 </code></pre></div></p>
 <p>Response:
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;ok&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;list rows&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;list export&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;listSelector&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Sales Pipeline&quot;</span><span class="p">},</span><span class="w"> </span><span class="nt">&quot;modifiers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;savedView&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Active Deals&quot;</span><span class="p">},</span><span class="w"> </span><span class="nt">&quot;resolved&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">},</span>
 <span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;rows&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">&quot;entries&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">      </span><span class="p">{</span>
 <span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">101</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;listId&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">789</span><span class="p">,</span>
@@ -3259,7 +3267,7 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nt">&quot;pagination&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;rows&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;entries&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nt">&quot;nextCursor&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;prevCursor&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
 <span class="w">      </span><span class="p">}</span>

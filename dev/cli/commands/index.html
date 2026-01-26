@@ -4175,7 +4175,7 @@ xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key<span cl
 <span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_SESSION_CACHE</span><span class="o">=</span><span class="k">$(</span>xaffinity<span class="w"> </span>session<span class="w"> </span>start<span class="k">)</span>
 
 <span class="c1"># Run your commands - metadata is cached across invocations</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My List&quot;</span><span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span>&gt;<span class="w"> </span>entries.json
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My List&quot;</span><span class="w"> </span>--json<span class="w"> </span>&gt;<span class="w"> </span>entries.json
 xaffinity<span class="w"> </span>field<span class="w"> </span>ls<span class="w"> </span>--list-id<span class="w"> </span><span class="m">12345</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">12345</span>
 
@@ -4560,7 +4560,7 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>out.csv
 
 <span class="c1"># Include interaction dates (last meeting, next meeting, email dates)</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--expand<span class="w"> </span>interactions<span class="w"> </span>--format<span class="w"> </span>json
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--expand<span class="w"> </span>interactions<span class="w"> </span>--json
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--expand<span class="w"> </span>interactions<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>pipeline.csv
 
 <span class="c1"># Check for unreplied incoming messages (email + chat)</span>

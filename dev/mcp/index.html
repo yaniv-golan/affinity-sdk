@@ -788,22 +788,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#available-tools-17" class="md-nav__link">
+  <a href="#available-tools-7" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Available Tools (17)
+        Available Tools (7)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Available Tools (17)">
+    <nav class="md-nav" aria-label="Available Tools (7)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#search-lookup-read-only" class="md-nav__link">
+  <a href="#native-mcp-tools" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Search &amp; Lookup (read-only)
+        Native MCP Tools
       
     </span>
   </a>
@@ -811,10 +811,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#workflow-management" class="md-nav__link">
+  <a href="#cli-gateway-pattern" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Workflow Management
+        CLI Gateway Pattern
       
     </span>
   </a>
@@ -822,32 +822,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#relationships-intelligence" class="md-nav__link">
+  <a href="#common-cli-operations-via-gateway" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Relationships &amp; Intelligence
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#logging-write-operations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Logging (write operations)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cli-gateway-full-cli-access" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CLI Gateway (full CLI access)
+        Common CLI Operations (via gateway)
       
     </span>
   </a>
@@ -2666,22 +2644,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#available-tools-17" class="md-nav__link">
+  <a href="#available-tools-7" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Available Tools (17)
+        Available Tools (7)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Available Tools (17)">
+    <nav class="md-nav" aria-label="Available Tools (7)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#search-lookup-read-only" class="md-nav__link">
+  <a href="#native-mcp-tools" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Search &amp; Lookup (read-only)
+        Native MCP Tools
       
     </span>
   </a>
@@ -2689,10 +2667,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#workflow-management" class="md-nav__link">
+  <a href="#cli-gateway-pattern" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Workflow Management
+        CLI Gateway Pattern
       
     </span>
   </a>
@@ -2700,32 +2678,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#relationships-intelligence" class="md-nav__link">
+  <a href="#common-cli-operations-via-gateway" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Relationships &amp; Intelligence
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#logging-write-operations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Logging (write operations)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cli-gateway-full-cli-access" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CLI Gateway (full CLI access)
+        Common CLI Operations (via gateway)
       
     </span>
   </a>
@@ -3090,10 +3046,18 @@
 <p>For <strong>Cursor, Windsurf, VS Code + Copilot, Zed</strong>, and other MCP clients:</p>
 <p><strong>Prerequisites:</strong></p>
 <ol>
-<li>Install the CLI:</li>
+<li>Install the CLI (choose one):</li>
 </ol>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;affinity-sdk[cli]&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># Recommended: isolated installation with pipx</span>
+pipx<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;affinity-sdk[cli]&quot;</span>
+
+<span class="c1"># Alternative: install in a virtualenv</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;affinity-sdk[cli]&quot;</span>
 </code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Why pipx?</p>
+<p><code>pipx</code> installs CLI tools in isolated environments, avoiding dependency conflicts. See <a href="https://pipx.pypa.io/">pipx.pypa.io</a> for installation.</p>
+</div>
 <ol>
 <li>Configure your API key:</li>
 </ol>
@@ -3107,12 +3071,21 @@
 <hr />
 <h2 id="client-configuration">Client Configuration<a class="headerlink" href="#client-configuration" title="Permanent link">&para;</a></h2>
 <p>For manual installation, add the MCP server to your client's configuration.</p>
+<div class="admonition tip">
+<p class="admonition-title">Finding the MCP server path</p>
+<p>If you installed the MCPB bundle, the server is at:
+<div class="highlight"><pre><span></span><code>~/Library/Application Support/Claude/Claude Extensions/local.mcpb.yaniv-golan.xaffinity-mcp/server/xaffinity-mcp.sh
+</code></pre></div></p>
+<p>If you cloned the repo, use the path to your clone:
+<div class="highlight"><pre><span></span><code>/path/to/your/affinity-sdk/mcp/xaffinity-mcp.sh
+</code></pre></div></p>
+</div>
 <h3 id="claude-desktop">Claude Desktop<a class="headerlink" href="#claude-desktop" title="Permanent link">&para;</a></h3>
 <p>Edit <code>~/Library/Application Support/Claude/claude_desktop_config.json</code> (macOS) or <code>%APPDATA%\Claude\claude_desktop_config.json</code> (Windows):</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;xaffinity&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/affinity-sdk/mcp/xaffinity-mcp.sh&quot;</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/xaffinity-mcp.sh&quot;</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -3122,7 +3095,7 @@
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;xaffinity&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/affinity-sdk/mcp/xaffinity-mcp.sh&quot;</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/xaffinity-mcp.sh&quot;</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -3132,7 +3105,7 @@
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;xaffinity&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/affinity-sdk/mcp/xaffinity-mcp.sh&quot;</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/xaffinity-mcp.sh&quot;</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -3142,116 +3115,16 @@
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;xaffinity&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/affinity-sdk/mcp/xaffinity-mcp.sh&quot;</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/xaffinity-mcp.sh&quot;</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Replace <code>/path/to/affinity-sdk</code> with your actual installation path.</p>
+<p>Replace <code>/path/to/xaffinity-mcp.sh</code> with the actual path (see tip above).</p>
 <hr />
-<h2 id="available-tools-17">Available Tools (17)<a class="headerlink" href="#available-tools-17" title="Permanent link">&para;</a></h2>
-<h3 id="search-lookup-read-only">Search &amp; Lookup (read-only)<a class="headerlink" href="#search-lookup-read-only" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Tool</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>find-entities</code></td>
-<td>Search persons, companies, opportunities by name/email</td>
-</tr>
-<tr>
-<td><code>find-lists</code></td>
-<td>Find Affinity lists by name</td>
-</tr>
-<tr>
-<td><code>get-entity-dossier</code></td>
-<td>Comprehensive entity info: details, relationship strength, interactions, notes, list memberships</td>
-</tr>
-<tr>
-<td><code>read-xaffinity-resource</code></td>
-<td>Access dynamic resources via <code>xaffinity://</code> URIs</td>
-</tr>
-</tbody>
-</table>
-<h3 id="workflow-management">Workflow Management<a class="headerlink" href="#workflow-management" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Tool</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>get-list-workflow-config</code></td>
-<td>Get workflow config (statuses, fields) for a list</td>
-</tr>
-<tr>
-<td><code>get-workflow-view</code></td>
-<td>Get items from a saved workflow view</td>
-</tr>
-<tr>
-<td><code>resolve-workflow-item</code></td>
-<td>Resolve entity to list entry ID (needed before status updates)</td>
-</tr>
-<tr>
-<td><code>set-workflow-status</code></td>
-<td>Update workflow item status <strong>(write)</strong></td>
-</tr>
-<tr>
-<td><code>update-workflow-fields</code></td>
-<td>Update multiple fields on workflow item <strong>(write)</strong></td>
-</tr>
-</tbody>
-</table>
-<h3 id="relationships-intelligence">Relationships &amp; Intelligence<a class="headerlink" href="#relationships-intelligence" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Tool</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>get-relationship-insights</code></td>
-<td>Relationship strength scores, warm intro paths via shared connections</td>
-</tr>
-<tr>
-<td><code>get-status-timeline</code></td>
-<td>Status change history for a workflow item</td>
-</tr>
-<tr>
-<td><code>get-interactions</code></td>
-<td>Interaction history (calls, meetings, emails) for an entity</td>
-</tr>
-</tbody>
-</table>
-<h3 id="logging-write-operations">Logging (write operations)<a class="headerlink" href="#logging-write-operations" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Tool</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>add-note</code></td>
-<td>Add note to a person, company, or opportunity <strong>(write)</strong></td>
-</tr>
-<tr>
-<td><code>log-interaction</code></td>
-<td>Log call, meeting, email, or chat message <strong>(write)</strong></td>
-</tr>
-</tbody>
-</table>
-<h3 id="cli-gateway-full-cli-access">CLI Gateway (full CLI access)<a class="headerlink" href="#cli-gateway-full-cli-access" title="Permanent link">&para;</a></h3>
-<p>These tools provide access to the full xaffinity CLI with minimal token overhead:</p>
+<h2 id="available-tools-7">Available Tools (7)<a class="headerlink" href="#available-tools-7" title="Permanent link">&para;</a></h2>
+<p>The MCP server exposes 7 native tools. Most CRM operations are accessed through the CLI gateway tools, which provide access to the full <code>xaffinity</code> CLI.</p>
+<h3 id="native-mcp-tools">Native MCP Tools<a class="headerlink" href="#native-mcp-tools" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -3266,15 +3139,32 @@
 </tr>
 <tr>
 <td><code>execute-read-command</code></td>
-<td>Execute read-only CLI commands (get, search, list)</td>
+<td>Execute read-only CLI commands (get, search, list, export)</td>
 </tr>
 <tr>
 <td><code>execute-write-command</code></td>
 <td>Execute write CLI commands (create, update, delete)</td>
 </tr>
+<tr>
+<td><code>query</code></td>
+<td>Execute structured JSON queries with filtering, includes, and aggregations</td>
+</tr>
+<tr>
+<td><code>get-entity-dossier</code></td>
+<td>Comprehensive entity info: details, relationship strength, interactions, notes, list memberships</td>
+</tr>
+<tr>
+<td><code>get-file-url</code></td>
+<td>Get presigned URL to access a file attachment</td>
+</tr>
+<tr>
+<td><code>read-xaffinity-resource</code></td>
+<td>Access dynamic resources via <code>xaffinity://</code> URIs</td>
+</tr>
 </tbody>
 </table>
-<p><strong>Usage pattern:</strong></p>
+<h3 id="cli-gateway-pattern">CLI Gateway Pattern<a class="headerlink" href="#cli-gateway-pattern" title="Permanent link">&para;</a></h3>
+<p>The <code>discover-commands</code>, <code>execute-read-command</code>, and <code>execute-write-command</code> tools provide access to the full xaffinity CLI:</p>
 <ol>
 <li>
 <p><strong>Discover</strong> the right command:
@@ -3290,6 +3180,73 @@
 <p><strong>Destructive commands</strong> (delete operations) require explicit confirmation:
 <div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;person delete&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;argv&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;456&quot;</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;confirm&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span>
 </code></pre></div></p>
+<h3 id="common-cli-operations-via-gateway">Common CLI Operations (via gateway)<a class="headerlink" href="#common-cli-operations-via-gateway" title="Permanent link">&para;</a></h3>
+<p>These operations are available through <code>execute-read-command</code> and <code>execute-write-command</code>:</p>
+<p><strong>Search &amp; Lookup (read-only)</strong></p>
+<table>
+<thead>
+<tr>
+<th>CLI Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>person ls</code>, <code>company ls</code></td>
+<td>Search persons, companies by name/email</td>
+</tr>
+<tr>
+<td><code>list ls</code></td>
+<td>Find Affinity lists by name</td>
+</tr>
+<tr>
+<td><code>list export &lt;name&gt;</code></td>
+<td>Export list entries with custom fields</td>
+</tr>
+<tr>
+<td><code>interaction ls</code></td>
+<td>Interaction history (calls, meetings, emails) for an entity</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Workflow Management</strong></p>
+<table>
+<thead>
+<tr>
+<th>CLI Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list get &lt;name&gt;</code></td>
+<td>Get workflow config (statuses, fields, saved views) for a list</td>
+</tr>
+<tr>
+<td><code>entry field &lt;list&gt; &lt;id&gt;</code></td>
+<td>Update fields on a list entry <strong>(write)</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Logging (write operations)</strong></p>
+<table>
+<thead>
+<tr>
+<th>CLI Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>note create</code></td>
+<td>Add note to a person, company, or opportunity <strong>(write)</strong></td>
+</tr>
+<tr>
+<td><code>interaction create</code></td>
+<td>Log call, meeting, email, or chat message <strong>(write)</strong></td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="guided-workflows-8-prompts">Guided Workflows (8 Prompts)<a class="headerlink" href="#guided-workflows-8-prompts" title="Permanent link">&para;</a></h2>
 <p>MCP prompts provide guided multi-step workflows.</p>
@@ -3365,6 +3322,18 @@ log-interaction-and-update-workflow(personName: &quot;Alice&quot;, interactionTy
 </thead>
 <tbody>
 <tr>
+<td><code>xaffinity://data-model</code></td>
+<td>Conceptual guide to Affinity's data model (read first!)</td>
+</tr>
+<tr>
+<td><code>xaffinity://query-guide</code></td>
+<td>Complete query language reference</td>
+</tr>
+<tr>
+<td><code>xaffinity://workflows-guide</code></td>
+<td>Workflow patterns and best practices</td>
+</tr>
+<tr>
 <td><code>xaffinity://me</code></td>
 <td>Current authenticated user details</td>
 </tr>
@@ -3382,7 +3351,7 @@ log-interaction-and-update-workflow(personName: &quot;Alice&quot;, interactionTy
 </tr>
 <tr>
 <td><code>xaffinity://field-catalogs/{listId}</code></td>
-<td>Field definitions for a list</td>
+<td>Field definitions for a list or entity type</td>
 </tr>
 <tr>
 <td><code>xaffinity://workflow-config/{listId}</code></td>
@@ -3394,35 +3363,33 @@ log-interaction-and-update-workflow(personName: &quot;Alice&quot;, interactionTy
 <h2 id="common-workflow-patterns">Common Workflow Patterns<a class="headerlink" href="#common-workflow-patterns" title="Permanent link">&para;</a></h2>
 <h3 id="before-a-meeting">Before a Meeting<a class="headerlink" href="#before-a-meeting" title="Permanent link">&para;</a></h3>
 <ol>
-<li><code>find-entities</code> to locate the person/company</li>
+<li><code>person ls</code> or <code>company ls</code> to locate the person/company</li>
 <li><code>get-entity-dossier</code> for full context (relationship strength, recent interactions, notes)</li>
 <li><strong>Or use</strong>: <code>prepare-briefing</code> prompt for a guided flow</li>
 </ol>
 <h3 id="after-a-callmeeting">After a Call/Meeting<a class="headerlink" href="#after-a-callmeeting" title="Permanent link">&para;</a></h3>
 <ol>
-<li><code>log-interaction</code> to record what happened</li>
-<li><code>resolve-workflow-item</code> to get list entry ID (if updating pipeline)</li>
-<li><code>set-workflow-status</code> if deal stage changed</li>
+<li><code>interaction create</code> to record what happened</li>
+<li><code>entry field</code> to update pipeline fields if needed</li>
 <li><strong>Or use</strong>: <code>log-interaction-and-update-workflow</code> prompt</li>
 </ol>
 <h3 id="finding-warm-introductions">Finding Warm Introductions<a class="headerlink" href="#finding-warm-introductions" title="Permanent link">&para;</a></h3>
 <ol>
-<li><code>find-entities</code> to locate target person</li>
-<li><code>get-relationship-insights</code> for connection paths</li>
+<li><code>person ls</code> to locate target person</li>
+<li><code>get-entity-dossier</code> includes relationship strength data</li>
 <li><strong>Or use</strong>: <code>warm-intro</code> prompt for guided flow</li>
 </ol>
 <h3 id="pipeline-review">Pipeline Review<a class="headerlink" href="#pipeline-review" title="Permanent link">&para;</a></h3>
 <ol>
-<li><code>find-lists</code> to locate the pipeline list</li>
-<li><code>get-workflow-view</code> to see items in a saved view</li>
+<li><code>list ls</code> to locate the pipeline list</li>
+<li><code>query</code> tool with listEntries to fetch items with filters</li>
 <li><strong>Or use</strong>: <code>pipeline-review</code> prompt</li>
 </ol>
 <h3 id="updating-deal-status">Updating Deal Status<a class="headerlink" href="#updating-deal-status" title="Permanent link">&para;</a></h3>
 <ol>
-<li><code>find-entities</code> to find the opportunity</li>
-<li><code>resolve-workflow-item</code> to get list entry ID</li>
-<li><code>get-list-workflow-config</code> to see available statuses</li>
-<li><code>set-workflow-status</code> to update</li>
+<li><code>person ls</code> or <code>company ls</code> to find the entity</li>
+<li><code>list get &lt;name&gt;</code> to see available status options</li>
+<li><code>entry field</code> to update the status field</li>
 <li><strong>Or use</strong>: <code>change-status</code> prompt</li>
 </ol>
 <hr />
@@ -3486,8 +3453,8 @@ log-interaction-and-update-workflow(personName: &quot;Alice&quot;, interactionTy
 <li><strong>Entity types</strong>: <code>person</code>, <code>company</code>, <code>opportunity</code></li>
 <li><strong>Interaction types</strong>: <code>call</code>, <code>meeting</code>, <code>email</code>, <code>chat_message</code>, <code>in_person</code></li>
 <li><strong>Dossier is comprehensive</strong>: <code>get-entity-dossier</code> returns relationship strength, interactions, notes, and list memberships in one call</li>
-<li><strong>Resolve before update</strong>: Always use <code>resolve-workflow-item</code> before <code>set-workflow-status</code> or <code>update-workflow-fields</code></li>
-<li><strong>Check workflow config</strong>: Use <code>get-list-workflow-config</code> to discover valid status options before updating</li>
+<li><strong>Check workflow config</strong>: Use <code>list get &lt;name&gt;</code> to discover valid status options and saved views before updating</li>
+<li><strong>Start with data-model</strong>: Read <code>xaffinity://data-model</code> to understand when to use <code>company ls</code> vs <code>list export</code></li>
 </ul>
 <hr />
 <h2 id="claude-code-installation">Claude Code Installation<a class="headerlink" href="#claude-code-installation" title="Permanent link">&para;</a></h2>

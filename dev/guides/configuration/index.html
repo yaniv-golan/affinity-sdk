@@ -812,6 +812,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Load from environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-env-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using .env files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -822,6 +839,45 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Timeouts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#streaming-download-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Streaming download parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#preserving-file-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preserving file metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-handling-for-downloads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error handling for downloads
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2202,6 +2258,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Load from environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-env-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using .env files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2212,6 +2285,45 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Timeouts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#streaming-download-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Streaming download parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#preserving-file-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preserving file metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-handling-for-downloads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error handling for downloads
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2341,36 +2453,97 @@
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
 </code></pre></div>
+<p>By default, <code>from_env()</code> reads the <code>AFFINITY_API_KEY</code> environment variable. You can customize this:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+
+<span class="c1"># Use a different environment variable</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">env_var</span><span class="o">=</span><span class="s2">&quot;MY_AFFINITY_KEY&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="using-env-files">Using .env files<a class="headerlink" href="#using-env-files" title="Permanent link">&para;</a></h3>
 <p>To load a local <code>.env</code> file, install the optional extra and set <code>load_dotenv=True</code>:</p>
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;affinity-sdk[dotenv]&quot;</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
+<span class="c1"># Load from .env in current directory</span>
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">load_dotenv</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Load from a specific .env file</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">load_dotenv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dotenv_path</span><span class="o">=</span><span class="s2">&quot;/path/to/.env.local&quot;</span><span class="p">)</span>
+
+<span class="c1"># Override existing environment variables with .env values</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">load_dotenv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dotenv_override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="timeouts">Timeouts<a class="headerlink" href="#timeouts" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
 </code></pre></div>
 <p>For file downloads, you can override timeouts per call, and (for streaming downloads) set a total time budget:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileId</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">download_stream</span><span class="p">(</span><span class="n">FileId</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span> <span class="n">deadline_seconds</span><span class="o">=</span><span class="mi">300</span><span class="p">):</span>
         <span class="o">...</span>
 </code></pre></div>
+<h3 id="streaming-download-parameters">Streaming download parameters<a class="headerlink" href="#streaming-download-parameters" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>timeout</code></td>
+<td>Per-request timeout in seconds (default: client timeout)</td>
+</tr>
+<tr>
+<td><code>deadline_seconds</code></td>
+<td>Total time budget for the entire download including retries</td>
+</tr>
+</tbody>
+</table>
+<p>If <code>deadline_seconds</code> is exceeded, the SDK raises <code>TimeoutError</code>.</p>
+<h3 id="preserving-file-metadata">Preserving file metadata<a class="headerlink" href="#preserving-file-metadata" title="Permanent link">&para;</a></h3>
 <p>To preserve server-provided file metadata (like filename and size), use <code>download_stream_with_info(...)</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileId</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="n">downloaded</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">download_stream_with_info</span><span class="p">(</span><span class="n">FileId</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span> <span class="n">deadline_seconds</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">downloaded</span><span class="o">.</span><span class="n">filename</span> <span class="ow">or</span> <span class="n">client</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">FileId</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span><span class="o">.</span><span class="n">name</span>
     <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">downloaded</span><span class="o">.</span><span class="n">iter_bytes</span><span class="p">:</span>
         <span class="o">...</span>
 </code></pre></div>
+<p>The <code>DownloadedFile</code> object provides:</p>
+<ul>
+<li><code>filename</code>: Original filename from Content-Disposition header (may be <code>None</code>)</li>
+<li><code>content_type</code>: MIME type from Content-Type header</li>
+<li><code>size</code>: File size in bytes (may be <code>None</code> if server doesn't provide it)</li>
+<li><code>iter_bytes</code>: Iterator yielding file content chunks</li>
+</ul>
+<h3 id="error-handling-for-downloads">Error handling for downloads<a class="headerlink" href="#error-handling-for-downloads" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileId</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">AffinityError</span>
+
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;output.pdf&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">download_stream</span><span class="p">(</span><span class="n">FileId</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span> <span class="n">deadline_seconds</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TimeoutError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Download timed out - file may be too large or connection too slow&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">AffinityError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Download failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">No resume support</p>
+<p>The SDK does not currently support resuming partial downloads. If a download fails, you must restart from the beginning.</p>
+</div>
 <h2 id="retries">Retries<a class="headerlink" href="#retries" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Retries apply to safe/idempotent methods (by default <code>GET</code>/<code>HEAD</code>).</li>
@@ -2378,20 +2551,24 @@
 </ul>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="download-redirects-files">Download redirects (files)<a class="headerlink" href="#download-redirects-files" title="Permanent link">&para;</a></h2>
 <p>Affinity file downloads may redirect to externally-hosted signed URLs. By default, the SDK refuses <code>http://</code> redirects.</p>
 <p>If you must allow insecure redirects (not recommended), opt in explicitly:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">allow_insecure_download_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">allow_insecure_download_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="caching">Caching<a class="headerlink" href="#caching" title="Permanent link">&para;</a></h2>
-<p>Caching is optional and currently targets metadata-style responses (e.g., field metadata).</p>
+<p>Caching is optional and currently targets metadata-style responses (e.g., field metadata). Default TTL is 300 seconds (5 minutes).</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">enable_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache_ttl</span><span class="o">=</span><span class="mf">300.0</span><span class="p">)</span>
+<span class="c1"># Enable with default 5-minute TTL</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">enable_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Custom TTL (in seconds)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">enable_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache_ttl</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="logging-and-hooks">Logging and hooks<a class="headerlink" href="#logging-and-hooks" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
@@ -2401,7 +2578,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span>
-    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span>
     <span class="n">log_requests</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">on_event</span><span class="o">=</span><span class="n">on_event</span><span class="p">,</span>
     <span class="n">hook_error_policy</span><span class="o">=</span><span class="s2">&quot;swallow&quot;</span><span class="p">,</span>  <span class="c1"># or &quot;raise&quot;</span>
@@ -2418,7 +2595,7 @@ If you want to change that behavior, configure <code>Policies(external_hooks=...
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.policies</span><span class="w"> </span><span class="kn">import</span> <span class="n">Policies</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span>
-    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span>
     <span class="n">on_event</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">type</span><span class="p">),</span>
     <span class="n">policies</span><span class="o">=</span><span class="n">Policies</span><span class="p">(</span><span class="n">external_hooks</span><span class="o">=</span><span class="n">ExternalHookPolicy</span><span class="o">.</span><span class="n">REDACT</span><span class="p">),</span>  <span class="c1"># or SUPPRESS / EMIT_UNSAFE</span>
 <span class="p">)</span>
@@ -2429,7 +2606,7 @@ disable writes via policy:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.policies</span><span class="w"> </span><span class="kn">import</span> <span class="n">Policies</span><span class="p">,</span> <span class="n">WritePolicy</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">policies</span><span class="o">=</span><span class="n">Policies</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="n">WritePolicy</span><span class="o">.</span><span class="n">DENY</span><span class="p">))</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">policies</span><span class="o">=</span><span class="n">Policies</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="n">WritePolicy</span><span class="o">.</span><span class="n">DENY</span><span class="p">))</span>
 </code></pre></div>
 <h2 id="http-transport-injection-advanced">HTTP transport injection (advanced)<a class="headerlink" href="#http-transport-injection-advanced" title="Permanent link">&para;</a></h2>
 <p>For testing/mocking without real network calls, inject an <code>httpx</code> transport:</p>
@@ -2441,13 +2618,13 @@ disable writes via policy:</p>
         <span class="k">return</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;pagination&quot;</span><span class="p">:</span> <span class="p">{}},</span> <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="mi">404</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{},</span> <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">)</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">transport</span><span class="o">=</span><span class="n">httpx</span><span class="o">.</span><span class="n">MockTransport</span><span class="p">(</span><span class="n">handler</span><span class="p">))</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">transport</span><span class="o">=</span><span class="n">httpx</span><span class="o">.</span><span class="n">MockTransport</span><span class="p">(</span><span class="n">handler</span><span class="p">))</span>
 </code></pre></div>
 <h2 id="v1v2-urls-and-auth-mode">V1/V2 URLs and auth mode<a class="headerlink" href="#v1v2-urls-and-auth-mode" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span>
-    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span>
     <span class="n">v1_base_url</span><span class="o">=</span><span class="s2">&quot;https://api.affinity.co&quot;</span><span class="p">,</span>
     <span class="n">v2_base_url</span><span class="o">=</span><span class="s2">&quot;https://api.affinity.co/v2&quot;</span><span class="p">,</span>
     <span class="n">v1_auth_mode</span><span class="o">=</span><span class="s2">&quot;bearer&quot;</span><span class="p">,</span>  <span class="c1"># or &quot;basic&quot;</span>
@@ -2458,7 +2635,7 @@ disable writes via policy:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span>
-    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span>
     <span class="n">enable_beta_endpoints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">expected_v2_version</span><span class="o">=</span><span class="s2">&quot;2024-01-01&quot;</span><span class="p">,</span>
 <span class="p">)</span>

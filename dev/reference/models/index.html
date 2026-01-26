@@ -5286,8 +5286,8 @@ blocking iteration.</p>
     <span class="c1"># Interaction dates</span>
     <span class="n">interaction_dates</span><span class="p">:</span> <span class="n">InteractionDates</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;interactionDates&quot;</span><span class="p">)</span>
 
-    <span class="c1"># V1: only returned when with_interaction_dates=true; preserve shape for forward compatibility.</span>
-    <span class="n">interactions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># Detailed interaction data with person IDs (returned when with_interaction_persons=True)</span>
+    <span class="n">interactions</span><span class="p">:</span> <span class="n">Interactions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -9168,8 +9168,8 @@ or <code>next_page_token</code> directly.</p>
     <span class="c1"># Interaction dates (V1 format, returned when with_interaction_dates=True)</span>
     <span class="n">interaction_dates</span><span class="p">:</span> <span class="n">InteractionDates</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;interactionDates&quot;</span><span class="p">)</span>
 
-    <span class="c1"># V1: only returned when with_interaction_dates=true; preserve shape for forward compatibility.</span>
-    <span class="n">interactions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># Detailed interaction data with person IDs (returned when with_interaction_persons=True)</span>
+    <span class="n">interactions</span><span class="p">:</span> <span class="n">Interactions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># List entries (returned for single person fetch)</span>
     <span class="n">list_entries</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ListEntry</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;listEntries&quot;</span><span class="p">)</span>

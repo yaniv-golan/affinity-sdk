@@ -2254,23 +2254,22 @@
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompanyId</span><span class="p">,</span> <span class="n">FieldId</span><span class="p">,</span> <span class="n">FieldValueChangeAction</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="c1"># Get all changes to field &quot;field-123&quot; for company 456</span>
+    <span class="n">changes</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">field_value_changes</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+        <span class="n">FieldId</span><span class="p">(</span><span class="s2">&quot;field-123&quot;</span><span class="p">),</span>
+        <span class="n">company_id</span><span class="o">=</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">456</span><span class="p">),</span>
+    <span class="p">)</span>
 
-<span class="c1"># Get all changes to field &quot;field-123&quot; for company 456</span>
-<span class="n">changes</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">field_value_changes</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
-    <span class="n">FieldId</span><span class="p">(</span><span class="s2">&quot;field-123&quot;</span><span class="p">),</span>
-    <span class="n">company_id</span><span class="o">=</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">456</span><span class="p">),</span>
-<span class="p">)</span>
+    <span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">changes</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">changed_at</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> (action=</span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">action_type</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
 
-<span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">changes</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">changed_at</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> (action=</span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">action_type</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-
-<span class="c1"># Filter by action type (e.g., only updates)</span>
-<span class="n">updates</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">field_value_changes</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
-    <span class="n">FieldId</span><span class="p">(</span><span class="s2">&quot;field-123&quot;</span><span class="p">),</span>
-    <span class="n">company_id</span><span class="o">=</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">456</span><span class="p">),</span>
-    <span class="n">action_type</span><span class="o">=</span><span class="n">FieldValueChangeAction</span><span class="o">.</span><span class="n">UPDATE</span><span class="p">,</span>
-<span class="p">)</span>
+    <span class="c1"># Filter by action type (e.g., only updates)</span>
+    <span class="n">updates</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">field_value_changes</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+        <span class="n">FieldId</span><span class="p">(</span><span class="s2">&quot;field-123&quot;</span><span class="p">),</span>
+        <span class="n">company_id</span><span class="o">=</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">456</span><span class="p">),</span>
+        <span class="n">action_type</span><span class="o">=</span><span class="n">FieldValueChangeAction</span><span class="o">.</span><span class="n">UPDATE</span><span class="p">,</span>
+    <span class="p">)</span>
 </code></pre></div>
 <p>Note: This endpoint is not paginated. For large histories, use narrow filters.</p>
 <h2 id="v1-only-exception-company-people-associations">V1-only exception: company -&gt; people associations<a class="headerlink" href="#v1-only-exception-company-people-associations" title="Permanent link">&para;</a></h2>
@@ -2279,10 +2278,9 @@ organizations API and are documented as exceptions:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompanyId</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
-
-<span class="n">person_ids</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">get_associated_person_ids</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">224925494</span><span class="p">))</span>
-<span class="n">people</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">get_associated_people</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">224925494</span><span class="p">),</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="n">person_ids</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">get_associated_person_ids</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">224925494</span><span class="p">))</span>
+    <span class="n">people</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">get_associated_people</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">224925494</span><span class="p">),</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </code></pre></div>
 
 

@@ -2253,7 +2253,7 @@
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">PersonId</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="n">field_values</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">field_values</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">person_id</span><span class="o">=</span><span class="n">PersonId</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">fv</span> <span class="ow">in</span> <span class="n">field_values</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fv</span><span class="o">.</span><span class="n">field_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">fv</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -2264,7 +2264,7 @@
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FieldId</span><span class="p">,</span> <span class="n">PersonId</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="c1"># Returns FieldValue or None if not found</span>
     <span class="n">status</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">field_values</span><span class="o">.</span><span class="n">get_for_entity</span><span class="p">(</span>
         <span class="n">FieldId</span><span class="p">(</span><span class="s2">&quot;field-123&quot;</span><span class="p">),</span>
@@ -2288,7 +2288,7 @@
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">PersonId</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="n">person_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">PersonId</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">PersonId</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">PersonId</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
 
     <span class="c1"># Returns dict mapping entity_id -&gt; list of field values</span>
@@ -2310,7 +2310,7 @@
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FieldId</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">FieldId</span><span class="p">(</span><span class="s2">&quot;field-123&quot;</span><span class="p">)):</span>
         <span class="c1"># Field exists, safe to use</span>
         <span class="k">pass</span>
@@ -2328,27 +2328,26 @@
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">PersonId</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="c1"># Single API call returns person + field values</span>
     <span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
         <span class="n">PersonId</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span>
         <span class="n">include_field_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># Field values are attached to the person object</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="s2">&quot;field_values&quot;</span><span class="p">):</span>
+    <span class="c1"># Field values are attached to the person object (may be None if not returned)</span>
+    <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">field_values</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">fv</span> <span class="ow">in</span> <span class="n">person</span><span class="o">.</span><span class="n">field_values</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fv</span><span class="p">[</span><span class="s1">&#39;field_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">fv</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fv</span><span class="o">.</span><span class="n">field_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">fv</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div>
-<p><strong>Note:</strong> This uses the V1 API internally, which returns field values in the response.</p>
 <h2 id="resource-management">Resource management<a class="headerlink" href="#resource-management" title="Permanent link">&para;</a></h2>
 <p>Always use the client as a context manager to ensure proper cleanup:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Recommended: context manager ensures cleanup</span>
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="n">field_values</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">field_values</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">person_id</span><span class="o">=</span><span class="n">PersonId</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span>
 
 <span class="c1"># Or close explicitly</span>
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="n">field_values</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">field_values</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">person_id</span><span class="o">=</span><span class="n">PersonId</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span>
 <span class="k">finally</span><span class="p">:</span>

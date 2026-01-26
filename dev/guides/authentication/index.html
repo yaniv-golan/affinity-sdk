@@ -2170,9 +2170,22 @@
 <p>If you prefer reading from the environment:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
+<span class="c1"># Reads AFFINITY_API_KEY by default</span>
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+
+<span class="c1"># Use a custom environment variable name</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">env_var</span><span class="o">=</span><span class="s2">&quot;MY_AFFINITY_KEY&quot;</span><span class="p">)</span>
 </code></pre></div>
-<p>For defensive “no writes” usage (scripts, audits), disable writes via policy:</p>
+<p>For local development, you can load a <code>.env</code> file (requires <code>python-dotenv</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+
+<span class="c1"># Load .env from current directory</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">load_dotenv</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Load from a specific path</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">load_dotenv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dotenv_path</span><span class="o">=</span><span class="s2">&quot;.env.local&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>For defensive "no writes" usage (scripts, audits), disable writes via policy:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.policies</span><span class="w"> </span><span class="kn">import</span> <span class="n">Policies</span><span class="p">,</span> <span class="n">WritePolicy</span>
 

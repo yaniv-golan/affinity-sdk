@@ -2185,7 +2185,7 @@
 <p>Use <code>Affinity</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">first_name</span><span class="p">)</span>
 </code></pre></div>
@@ -2194,7 +2194,7 @@
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncAffinity</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">async</span> <span class="k">with</span> <span class="n">AsyncAffinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">AsyncAffinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="k">async</span> <span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">company</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 </code></pre></div>
@@ -2221,6 +2221,11 @@
 </tr>
 <tr>
 <td>lists</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>lists.entries</td>
 <td style="text-align: center;">✅</td>
 <td style="text-align: center;">✅</td>
 </tr>
@@ -2265,6 +2270,11 @@
 <td style="text-align: center;">✅</td>
 </tr>
 <tr>
+<td>field_value_changes</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
 <td>files</td>
 <td style="text-align: center;">✅</td>
 <td style="text-align: center;">✅</td>
@@ -2286,6 +2296,7 @@
 </tr>
 </tbody>
 </table>
+<p>Nested services (like <code>lists.entries</code>) have the same sync/async parity as their parent services.</p>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../../getting-started/">Getting started</a></li>

@@ -2187,14 +2187,14 @@
 <h2 id="snapshot-no-network">Snapshot (no network)<a class="headerlink" href="#snapshot-no-network" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">rate_limits</span><span class="o">.</span><span class="n">snapshot</span><span class="p">())</span>
 </code></pre></div>
 <h2 id="refresh-one-request">Refresh (one request)<a class="headerlink" href="#refresh-one-request" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="n">limits</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">rate_limits</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">limits</span><span class="p">)</span>
 </code></pre></div>

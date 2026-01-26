@@ -910,10 +910,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#memory-safety" class="md-nav__link">
+  <a href="#collecting-results-into-a-list" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Memory safety
+        Collecting results into a list
       
     </span>
   </a>
@@ -2150,10 +2150,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#memory-safety" class="md-nav__link">
+  <a href="#collecting-results-into-a-list" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Memory safety
+        Collecting results into a list
       
     </span>
   </a>
@@ -2206,71 +2206,106 @@
 <p>Most list endpoints support both:</p>
 <ul>
 <li><code>list(...)</code>: fetch a single page</li>
-<li><code>iter(...)</code> / <code>all(...)</code>: iterate across pages automatically</li>
+<li><code>iter(...)</code> or <code>all(...)</code>: iterate across pages automatically</li>
 </ul>
 <h2 id="services-with-pagination">Services with pagination<a class="headerlink" href="#services-with-pagination" title="Permanent link">&para;</a></h2>
-<p>All paginated services support <code>iter()</code> for streaming and <code>all()</code> for collecting results:</p>
 <table>
 <thead>
 <tr>
 <th>Service</th>
-<th>Methods</th>
+<th>Auto-pagination</th>
+<th>Page-by-page</th>
+<th>API</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>persons</code></td>
-<td><code>iter()</code>, <code>all()</code>, <code>pages()</code></td>
+<td><code>all()</code>, <code>iter()</code></td>
+<td><code>pages()</code></td>
+<td>V2</td>
 </tr>
 <tr>
 <td><code>companies</code></td>
-<td><code>iter()</code>, <code>all()</code>, <code>pages()</code></td>
+<td><code>all()</code>, <code>iter()</code></td>
+<td><code>pages()</code></td>
+<td>V2</td>
 </tr>
 <tr>
 <td><code>opportunities</code></td>
-<td><code>iter()</code>, <code>all()</code>, <code>pages()</code></td>
+<td><code>all()</code>, <code>iter()</code></td>
+<td><code>pages()</code></td>
+<td>V2</td>
 </tr>
 <tr>
 <td><code>lists</code></td>
-<td><code>iter()</code>, <code>all()</code>, <code>pages()</code></td>
+<td><code>all()</code>, <code>iter()</code></td>
+<td><code>pages()</code></td>
+<td>V2</td>
 </tr>
 <tr>
 <td><code>notes</code></td>
 <td><code>iter()</code></td>
+<td>use <code>list()</code></td>
+<td>V1</td>
 </tr>
 <tr>
 <td><code>reminders</code></td>
 <td><code>iter()</code></td>
+<td>use <code>list()</code></td>
+<td>V1</td>
 </tr>
 <tr>
 <td><code>interactions</code></td>
 <td><code>iter()</code></td>
+<td>use <code>list()</code></td>
+<td>V1</td>
 </tr>
 <tr>
 <td><code>files</code></td>
-<td><code>iter()</code>, <code>all()</code></td>
+<td><code>all()</code>, <code>iter()</code></td>
+<td>use <code>list()</code></td>
+<td>V1</td>
 </tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="admonition-title">V1 vs V2 method availability</p>
+<p><strong>V2 services</strong> (persons, companies, opportunities, lists) have <code>all()</code> and <code>iter()</code> as aliases, plus a dedicated <code>pages()</code> method for page-by-page iteration with progress callbacks.</p>
+<p><strong>V1 services</strong> (notes, reminders, interactions, files) have <code>iter()</code> for auto-pagination. For manual page-by-page control, use <code>list()</code> with <code>page_token</code> parameter directly.</p>
+</div>
 <p>Example:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-    <span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">iter</span><span class="p">():</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="c1"># Stream through all companies (memory-efficient)</span>
+    <span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">company</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="c1"># For V1 services, use iter()</span>
+    <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="progress-callbacks">Progress callbacks<a class="headerlink" href="#progress-callbacks" title="Permanent link">&para;</a></h2>
-<p>Use <code>on_progress</code> to track pagination progress for logging, progress bars, or debugging:</p>
+<p>Use <code>on_progress</code> to track pagination progress for logging, progress bars, or debugging.</p>
+<p>The <code>on_progress</code> callback is available on <code>PageIterator.pages()</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span><span class="p">,</span> <span class="n">PaginationProgress</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">log_progress</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">PaginationProgress</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Page </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">page_number</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">items_so_far</span><span class="si">}</span><span class="s2"> items so far&quot;</span><span class="p">)</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-    <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">pages</span><span class="p">(</span><span class="n">on_progress</span><span class="o">=</span><span class="n">log_progress</span><span class="p">):</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="c1"># Get a PageIterator, then iterate page-by-page with progress</span>
+    <span class="n">iterator</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">iterator</span><span class="o">.</span><span class="n">pages</span><span class="p">(</span><span class="n">on_progress</span><span class="o">=</span><span class="n">log_progress</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">page</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
             <span class="n">process</span><span class="p">(</span><span class="n">company</span><span class="p">)</span>
 </code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Service <code>pages()</code> vs <code>PageIterator.pages()</code></p>
+<p>V2 services (persons, companies, etc.) have a direct <code>pages()</code> method for convenience.
+The <code>PageIterator.pages()</code> method shown above works with any auto-pagination method.</p>
+</div>
 <p><code>PaginationProgress</code> provides:</p>
 <table>
 <thead>
@@ -2298,34 +2333,47 @@
 </tr>
 </tbody>
 </table>
-<h2 id="memory-safety">Memory safety<a class="headerlink" href="#memory-safety" title="Permanent link">&para;</a></h2>
-<p>The <code>.all()</code> method returns a list, which can cause out-of-memory issues with large datasets. By default, it limits results to 100,000 items and raises <code>TooManyResultsError</code> if exceeded:</p>
+<h2 id="collecting-results-into-a-list">Collecting results into a list<a class="headerlink" href="#collecting-results-into-a-list" title="Permanent link">&para;</a></h2>
+<p>Service methods like <code>client.companies.all()</code> return a <code>PageIterator</code> for streaming iteration. While the return type annotation is <code>Iterator[T]</code> for interface compatibility, the actual object returned is a <code>PageIterator</code> which provides additional methods like <code>.all()</code> and <code>.pages()</code>.</p>
+<p>If you need all items in a list (instead of streaming), call the <code>PageIterator.all()</code> method:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span><span class="p">,</span> <span class="n">TooManyResultsError</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Raises TooManyResultsError if &gt; 100,000 items</span>
-        <span class="n">companies</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="c1"># service.all() returns PageIterator</span>
+        <span class="c1"># PageIterator.all() collects all items into a list</span>
+        <span class="n">iterator</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">companies</span> <span class="o">=</span> <span class="n">iterator</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>  <span class="c1"># Returns list[Company]</span>
+        <span class="c1"># Or as a one-liner: client.companies.all().all()</span>
     <span class="k">except</span> <span class="n">TooManyResultsError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Too many results: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> items&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Too many results: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div>
-<p>Adjust or disable the limit with <code>max_results</code>:</p>
+<div class="admonition warning">
+<p class="admonition-title">The <code>.all().all()</code> pattern</p>
+<p>The double <code>.all()</code> can look confusing. Here's what's happening:</p>
+<ol>
+<li><code>client.companies.all()</code> → returns a <code>PageIterator</code> (streams items lazily)</li>
+<li><code>PageIterator.all()</code> → collects all items into a <code>list</code> (loads into memory)</li>
+</ol>
+<p>By default, <code>PageIterator.all()</code> raises <code>TooManyResultsError</code> if results exceed 100,000 items.</p>
+</div>
+<p>Adjust or disable the limit with the <code>limit</code> parameter:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Lower limit for safety</span>
-<span class="n">companies</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">max_results</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">companies</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 
 <span class="c1"># Disable limit (use with caution)</span>
-<span class="n">companies</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">max_results</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">companies</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
-<p>For very large datasets, prefer streaming with <code>iter()</code>:</p>
+<p>For very large datasets, prefer streaming directly (no collection into list):</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Memory-efficient: processes one item at a time</span>
-<span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">iter</span><span class="p">():</span>
+<span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
     <span class="n">process</span><span class="p">(</span><span class="n">company</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="manual-pagination">Manual pagination<a class="headerlink" href="#manual-pagination" title="Permanent link">&para;</a></h2>
 <p>When iterating pages manually, use the <code>next_cursor</code> property to get the cursor for the next page:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="n">page</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 
     <span class="k">while</span> <span class="n">page</span><span class="o">.</span><span class="n">has_next</span><span class="p">:</span>

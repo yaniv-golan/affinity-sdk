@@ -2190,7 +2190,7 @@
     <span class="c1"># Each event has a `.type` discriminator (e.g., &quot;request_started&quot;, &quot;request_failed&quot;, ...)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">on_event</span><span class="o">=</span><span class="n">on_event</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">on_event</span><span class="o">=</span><span class="n">on_event</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
 </code></pre></div>
 <h2 id="common-event-types">Common event types<a class="headerlink" href="#common-event-types" title="Permanent link">&para;</a></h2>
@@ -2219,7 +2219,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">on_error</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">error</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">err</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">on_request</span><span class="o">=</span><span class="n">on_request</span><span class="p">,</span> <span class="n">on_response</span><span class="o">=</span><span class="n">on_response</span><span class="p">,</span> <span class="n">on_error</span><span class="o">=</span><span class="n">on_error</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">on_request</span><span class="o">=</span><span class="n">on_request</span><span class="p">,</span> <span class="n">on_response</span><span class="o">=</span><span class="n">on_response</span><span class="p">,</span> <span class="n">on_error</span><span class="o">=</span><span class="n">on_error</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
 </code></pre></div>
 <h2 id="external-signed-download-urls">External (signed) download URLs<a class="headerlink" href="#external-signed-download-urls" title="Permanent link">&para;</a></h2>
@@ -2234,7 +2234,7 @@ You can change this behavior with <code>Policies(external_hooks=...)</code>:</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.policies</span><span class="w"> </span><span class="kn">import</span> <span class="n">Policies</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span>
-    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span>
     <span class="n">on_event</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">type</span><span class="p">),</span>
     <span class="n">policies</span><span class="o">=</span><span class="n">Policies</span><span class="p">(</span><span class="n">external_hooks</span><span class="o">=</span><span class="n">ExternalHookPolicy</span><span class="o">.</span><span class="n">REDACT</span><span class="p">),</span>
 <span class="p">)</span>
@@ -2243,10 +2243,10 @@ You can change this behavior with <code>Policies(external_hooks=...)</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span> <span class="n">transport</span><span class="o">=</span><span class="n">httpx</span><span class="o">.</span><span class="n">MockTransport</span><span class="p">(</span><span class="k">lambda</span> <span class="n">req</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="mi">200</span><span class="p">)))</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">transport</span><span class="o">=</span><span class="n">httpx</span><span class="o">.</span><span class="n">MockTransport</span><span class="p">(</span><span class="k">lambda</span> <span class="n">req</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="mi">200</span><span class="p">)))</span>
 </code></pre></div>
 <h2 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h2>
-<p>The <code>affinity</code> CLI can also trace requests/responses/errors:</p>
+<p>The <code>xaffinity</code> CLI can also trace requests/responses/errors:</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>--trace<span class="w"> </span>--no-progress<span class="w"> </span>whoami
 </code></pre></div>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>

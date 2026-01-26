@@ -1168,6 +1168,50 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#available-id-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Available ID types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-typed-ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why typed IDs?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2084,6 +2128,50 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#available-id-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Available ID types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-typed-ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why typed IDs?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2115,15 +2203,85 @@
 
 
 <h1 id="ids-and-types">IDs and types<a class="headerlink" href="#ids-and-types" title="Permanent link">&para;</a></h1>
-<p>The SDK uses strongly-typed ID classes to reduce accidental ID mixups.</p>
+<p>The SDK uses strongly-typed ID classes to reduce accidental ID mixups and enable better static analysis.</p>
+<h2 id="basic-usage">Basic usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompanyId</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompanyId</span><span class="p">,</span> <span class="n">PersonId</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="n">company</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">company</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">PersonId</span><span class="p">(</span><span class="mi">456</span><span class="p">))</span>
 </code></pre></div>
-<p>See <code>reference/types.md</code>.</p>
+<h2 id="available-id-types">Available ID types<a class="headerlink" href="#available-id-types" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PersonId</code></td>
+<td>Person identifier</td>
+</tr>
+<tr>
+<td><code>CompanyId</code></td>
+<td>Company identifier</td>
+</tr>
+<tr>
+<td><code>OpportunityId</code></td>
+<td>Opportunity identifier</td>
+</tr>
+<tr>
+<td><code>ListId</code></td>
+<td>List identifier</td>
+</tr>
+<tr>
+<td><code>ListEntryId</code></td>
+<td>List entry identifier</td>
+</tr>
+<tr>
+<td><code>FieldId</code></td>
+<td>Field definition identifier</td>
+</tr>
+<tr>
+<td><code>FieldValueId</code></td>
+<td>Field value identifier</td>
+</tr>
+<tr>
+<td><code>NoteId</code></td>
+<td>Note identifier</td>
+</tr>
+<tr>
+<td><code>InteractionId</code></td>
+<td>Interaction identifier</td>
+</tr>
+<tr>
+<td><code>FileId</code></td>
+<td>File attachment identifier</td>
+</tr>
+</tbody>
+</table>
+<h2 id="why-typed-ids">Why typed IDs?<a class="headerlink" href="#why-typed-ids" title="Permanent link">&para;</a></h2>
+<p>Typed IDs help catch bugs at development time:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">PersonId</span><span class="p">,</span> <span class="n">CompanyId</span>
+
+<span class="n">person_id</span> <span class="o">=</span> <span class="n">PersonId</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+<span class="n">company_id</span> <span class="o">=</span> <span class="n">CompanyId</span><span class="p">(</span><span class="mi">456</span><span class="p">)</span>
+
+<span class="c1"># Static type checkers will flag this as an error:</span>
+<span class="c1"># client.persons.get(company_id)  # Wrong type!</span>
+</code></pre></div>
+<h2 id="behavior">Behavior<a class="headerlink" href="#behavior" title="Permanent link">&para;</a></h2>
+<p>Typed IDs behave like integers at runtime:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">PersonId</span>
+
+<span class="n">pid</span> <span class="o">=</span> <span class="n">PersonId</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>       <span class="c1"># 123</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">pid</span><span class="p">))</span>  <span class="c1"># 123</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>   <span class="c1"># 124 (regular int)</span>
+</code></pre></div>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../field-types-and-values/">Field types &amp; values</a></li>

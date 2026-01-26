@@ -2251,13 +2251,13 @@
 <li>Ensure the key has access to the entities you’re querying.</li>
 </ul>
 <h2 id="404-immediately-after-create">404 immediately after create<a class="headerlink" href="#404-immediately-after-create" title="Permanent link">&para;</a></h2>
-<p>If you get a 404 <code>NotFoundError</code> when calling <code>get()</code> right after <code>create()</code>, this is due to V1→V2 eventual consistency. The entity exists but hasn't propagated to V2 yet.</p>
+<p>If you get a 404 <code>NotFoundError</code> when calling <code>get()</code> right after <code>create()</code>, this is due to V1→V2 eventual consistency. The entity exists but hasn't propagated to V2 yet. This typically resolves within 100-500ms, but can take longer under load.</p>
 <p><strong>Solutions:</strong>
 - Use the object returned by <code>create()</code> directly (recommended)
 - Use <code>get(..., retries=3)</code> to retry with backoff</p>
 <p>See <a href="../guides/errors-and-retries/#v1v2-eventual-consistency">V1→V2 eventual consistency</a> for details.</p>
 <h2 id="stale-data-after-update">Stale data after update<a class="headerlink" href="#stale-data-after-update" title="Permanent link">&para;</a></h2>
-<p>If <code>get()</code> returns old values after calling <code>update()</code>, this is also due to V1→V2 eventual consistency. The update succeeded, but V2 hasn't synced yet.</p>
+<p>If <code>get()</code> returns old values after calling <code>update()</code>, this is also due to V1→V2 eventual consistency. The update succeeded, but V2 hasn't synced yet. Like the 404 case, this typically resolves within 100-500ms.</p>
 <p><strong>Solution:</strong> Use the object returned by <code>update()</code> directly - it contains the updated data.</p>
 <p>See <a href="../guides/errors-and-retries/#stale-data-after-update">Stale data after update</a> for details.</p>
 <h2 id="underscores-escaped-in-note-content">Underscores escaped in note content<a class="headerlink" href="#underscores-escaped-in-note-content" title="Permanent link">&para;</a></h2>
@@ -2275,7 +2275,7 @@ Output: &quot;test\_note\_content&quot;
 <p>The client tracks rate-limit state and retries some requests automatically.
 See <a href="../reference/client/">Client</a> and <a href="../reference/exceptions/">Exceptions</a>.</p>
 <h2 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">&para;</a></h2>
-<p>Enable hooks (<code>guides/debugging-hooks.md</code>) or set <code>log_requests=True</code> on the client.</p>
+<p>Enable <a href="../guides/debugging-hooks/">hooks</a> or set <code>log_requests=True</code> on the client.</p>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../getting-started/">Getting started</a></li>

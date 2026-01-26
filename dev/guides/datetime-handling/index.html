@@ -2272,6 +2272,12 @@
 
 <h1 id="datetime-handling">Datetime Handling<a class="headerlink" href="#datetime-handling" title="Permanent link">&para;</a></h1>
 <p>This guide explains how the SDK and CLI handle datetime values, including timezone behavior.</p>
+<div class="admonition warning">
+<p class="admonition-title">SDK and CLI interpret naive datetimes differently</p>
+<p><strong>SDK (Python)</strong>: Naive datetime strings like <code>"2024-01-01"</code> are assumed to be <strong>UTC</strong>.</p>
+<p><strong>CLI</strong>: Naive datetime strings like <code>--after 2024-01-01</code> are assumed to be <strong>local time</strong>.</p>
+<p>This difference can cause subtle bugs if you're not aware of it. For portable, reproducible behavior, always use explicit timezone suffixes (<code>Z</code> for UTC or <code>+HH:MM</code> offset).</p>
+</div>
 <h2 id="sdk-python-api">SDK (Python API)<a class="headerlink" href="#sdk-python-api" title="Permanent link">&para;</a></h2>
 <p>All datetime fields in SDK models are <strong>UTC-aware</strong>:</p>
 <ul>
