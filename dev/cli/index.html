@@ -533,6 +533,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#verify-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verify Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#authentication" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2350,6 +2361,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#verify-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verify Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#authentication" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2555,6 +2577,17 @@
 <p>Or in a virtualenv:</p>
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;affinity-sdk[cli]&quot;</span>
 </code></pre></div>
+<h2 id="verify-installation">Verify Installation<a class="headerlink" href="#verify-installation" title="Permanent link">&para;</a></h2>
+<p><strong>Step 1</strong>: Check the CLI is installed:</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>--version
+</code></pre></div>
+<p><strong>Expected</strong>: Version number (e.g., <code>0.15.0</code>)</p>
+<p><strong>Step 2</strong>: Verify API connectivity with your API key:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">AFFINITY_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-key-here&quot;</span><span class="w"> </span>xaffinity<span class="w"> </span>whoami
+</code></pre></div>
+<p><strong>Expected</strong>: Your user information and tenant details</p>
+<p>If <code>whoami</code> hangs, check network connectivity (firewall, proxy, VPN). If it returns an authentication error, verify your API key is correct (Settings → API Keys in Affinity).</p>
+<p>Once verified, see <a href="#authentication">Authentication</a> for persistent API key configuration options.</p>
 <h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
 <p>The CLI never makes "background" requests. It only calls the API for commands that require it.</p>
 <h3 id="quick-setup">Quick Setup<a class="headerlink" href="#quick-setup" title="Permanent link">&para;</a></h3>
