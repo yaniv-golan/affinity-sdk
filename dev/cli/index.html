@@ -644,6 +644,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#update-notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Update Notifications
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Update Notifications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manual Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#background-check-for-mcpautomation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Background Check (for MCP/Automation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#progress-quiet-mode" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2472,6 +2522,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#update-notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Update Notifications
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Update Notifications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manual Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#background-check-for-mcpautomation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Background Check (for MCP/Automation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#progress-quiet-mode" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2660,6 +2760,46 @@ xaffinity<span class="w"> </span>session<span class="w"> </span>end
 </tbody>
 </table>
 <p>Higher values speed up queries with <code>include</code> or <code>expand</code> but may trigger rate limits on smaller accounts.</p>
+<h2 id="update-notifications">Update Notifications<a class="headerlink" href="#update-notifications" title="Permanent link">&para;</a></h2>
+<p>The CLI checks for available updates once per day and displays a notification after command execution:</p>
+<div class="highlight"><pre><span></span><code>┌──────────────────────────────────────────────────────┐
+│  Update available: 1.0.0 → 1.1.0                     │
+│  Run: pip install --upgrade &quot;affinity-sdk[cli]&quot;      │
+└──────────────────────────────────────────────────────┘
+</code></pre></div>
+<p>The upgrade command is auto-detected based on your installation method (pipx, uv, pip).</p>
+<p>The check is non-blocking and never delays command execution. Notifications are automatically suppressed when:</p>
+<ul>
+<li>Using <code>--quiet</code> or <code>--output json</code></li>
+<li>Running in CI/CD environments (<code>CI</code>, <code>GITHUB_ACTIONS</code>, etc.)</li>
+<li>Not attached to a terminal</li>
+<li>Using the <code>--no-update-check</code> flag</li>
+</ul>
+<h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h3>
+<p>Disable update checks via config file (<code>~/.config/xaffinity/config.toml</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="k">[default]</span>
+<span class="n">update_check</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+</code></pre></div>
+<p>Or via environment variable:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">XAFFINITY_NO_UPDATE_CHECK</span><span class="o">=</span><span class="m">1</span>
+</code></pre></div>
+<p>Control notification behavior with <code>update_notify</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[default]</span>
+<span class="n">update_notify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;interactive&quot;</span><span class="w">  </span><span class="c1"># &quot;interactive&quot; (default), &quot;always&quot;, or &quot;never&quot;</span>
+</code></pre></div>
+<h3 id="manual-check">Manual Check<a class="headerlink" href="#manual-check" title="Permanent link">&para;</a></h3>
+<p>Check for updates manually:</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>update-check<span class="w"> </span>--now
+</code></pre></div>
+<p>See current update status:</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>update-check<span class="w"> </span>--status
+</code></pre></div>
+<h3 id="background-check-for-mcpautomation">Background Check (for MCP/Automation)<a class="headerlink" href="#background-check-for-mcpautomation" title="Permanent link">&para;</a></h3>
+<p>Trigger a non-blocking background update check (used by MCP server):</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>update-check<span class="w"> </span>--background
+</code></pre></div>
+<p>This spawns a background worker that checks for updates and caches the result.
+It exits immediately with no output on success, exit code 1 on failure.</p>
 <h2 id="progress-quiet-mode">Progress + quiet mode<a class="headerlink" href="#progress-quiet-mode" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Long operations show progress bars/spinners on <strong>stderr</strong> when interactive.</li>

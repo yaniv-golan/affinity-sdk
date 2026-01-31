@@ -2791,7 +2791,7 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 </table>
 <h3 id="why-the-difference">Why the difference?<a class="headerlink" href="#why-the-difference" title="Permanent link">&para;</a></h3>
 <p>The Affinity API supports filtering for list entries, but <strong>does not support filtering associations</strong>.</p>
-<p>When you use <code>--expand people</code>, the CLI:</p>
+<p>When you use <code>--expand persons</code>, the CLI:</p>
 <ol>
 <li>Fetches the list entries (can be filtered with <code>--filter</code>)</li>
 <li>For each entry, fetches ALL associated people (API returns all, no filter option)</li>
@@ -2809,7 +2809,7 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 <span class="c1"># Client-side: only include people with valid email status</span>
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">275454</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--filter<span class="w"> </span><span class="s2">&quot;Status=Active&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--expand<span class="w"> </span>people<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--expand<span class="w"> </span>persons<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--expand-filter<span class="w"> </span><span class="s1">&#39;&quot;Primary Email Status&quot;=Valid | &quot;Primary Email Status&quot;=Unknown | &quot;Primary Email Status&quot; is null&#39;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>output.csv
 </code></pre></div>
