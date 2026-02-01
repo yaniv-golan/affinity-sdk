@@ -1,0 +1,2833 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Strongly-typed Python SDK for the Affinity CRM API">
+      
+      
+      
+      
+        <link rel="prev" href="../glossary/">
+      
+      
+        <link rel="next" href="../cli/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Changelog - Affinity Python SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#changelog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Affinity Python SDK" class="md-header__button md-logo" aria-label="Affinity Python SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Affinity Python SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Changelog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/yaniv-golan/affinity-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Affinity Python SDK" class="md-nav__button md-logo" aria-label="Affinity Python SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Affinity Python SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/yaniv-golan/affinity-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CLI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/scripting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scripting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JSON Output Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Integrations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AI Integrations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ai-integrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/claude-code-plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Code Plugins & Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/api-versions-and-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API versions & routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/pagination/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pagination
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/errors-and-retries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors & retries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/rate-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rate limits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/filtering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/query-command/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/datetime-handling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datetime handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/csv-export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSV Export (CLI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/field-types-and-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field types & values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/field-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/ids-and-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IDs & types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/sync-vs-async/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sync vs async
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/debugging-hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debugging hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/webhooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/opportunity-associations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Opportunity associations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query Language
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_7" id="__nav_10_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/services/companies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Companies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/services/persons/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Persons
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/services/lists/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lists
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/services/opportunities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Opportunities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/services/tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_7_6" id="__nav_10_7_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V1 endpoints
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    V1 endpoints
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/services/v1/notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/services/v1/reminders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reminders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/services/v1/webhooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/services/v1/interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/services/v1/fields/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fields
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/services/v1/field-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/services/v1/files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/services/v1/relationships/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relationships
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/services/v1/auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h1 id="changelog_1">Changelog<a class="headerlink" href="#changelog_1" title="Permanent link">&para;</a></h1>
+<p>All notable changes to this project will be documented in this file.</p>
+<p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
+and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<h2 id="101-2026-02-01">[1.0.1] - 2026-02-01<a class="headerlink" href="#101-2026-02-01" title="Permanent link">&para;</a></h2>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SDK: <code>InteractionService.list()</code> and <code>iter()</code> now validate that <code>type</code> parameter is required, raising <code>ValueError</code> with clear guidance instead of failing with cryptic API 422 errors. The Affinity V1 API has always required this parameter.</li>
+<li>CLI: <code>--check-unreplied</code> and <code>expand: ["unreplied"]</code> now work correctly. Previously, all unreplied checks silently failed (returning null) due to missing <code>type</code> parameter in interaction API calls.</li>
+<li>CLI: Query <code>dryRun</code> JSON output now includes a warning when estimated API calls exceed 50, helping LLMs notice expensive operations.</li>
+</ul>
+<h2 id="100-2026-01-31">[1.0.0] - 2026-01-31<a class="headerlink" href="#100-2026-01-31" title="Permanent link">&para;</a></h2>
+<p><strong>First stable release.</strong> The SDK and CLI APIs are now considered stable. Breaking changes will follow semantic versioning (major version bumps).</p>
+<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Auto-update notifications. The CLI now checks PyPI daily (in background) and displays a notification when a new version is available. Notifications are suppressed in non-interactive environments (<code>--quiet</code>, <code>--output json</code>, CI, no TTY). Disable with <code>XAFFINITY_NO_UPDATE_CHECK=1</code> or <code>update_check = false</code> in config.</li>
+<li>CLI: <code>xaffinity config update-check --background</code> flag for non-blocking update checks. Used by MCP server to trigger background updates without waiting for results.</li>
+</ul>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>MCP: Add <code>AFFINITY_API_KEY</code> to environment variable allowlist. API keys configured in Claude Desktop's MCP settings were being silently dropped, requiring manual config file creation as a workaround.</li>
+<li>MCP: Detect CLI in macOS Python framework path (<code>/Library/Frameworks/Python.framework/Versions/*/bin/</code>). Users who installed via <code>pip install</code> with python.org Python were getting "xaffinity: command not found" errors.</li>
+</ul>
+<h2 id="0161-2026-01-27">[0.16.1] - 2026-01-27<a class="headerlink" href="#0161-2026-01-27" title="Permanent link">&para;</a></h2>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Docs: "Verify Installation" section in CLI documentation with step-by-step health check instructions (<code>xaffinity --version</code>, <code>AFFINITY_API_KEY=... xaffinity whoami</code>).</li>
+</ul>
+<h2 id="0160-2026-01-26">[0.16.0] - 2026-01-26<a class="headerlink" href="#0160-2026-01-26" title="Permanent link">&para;</a></h2>
+<h3 id="changed-breaking">Changed (Breaking)<a class="headerlink" href="#changed-breaking" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SDK: <code>Person.interactions</code> and <code>Company.interactions</code> attribute type changed from <code>dict[str, Any]</code> to typed <code>Interactions</code> model. Migration: change dict access (<code>person.interactions["last_event"]["person_ids"]</code>) to attribute access (<code>person.interactions.last_event.person_ids</code>). The <code>Interactions</code> model provides typed access to <code>first_email</code>, <code>last_email</code>, <code>first_event</code>, <code>last_event</code>, <code>next_event</code>, <code>last_chat_message</code>, and <code>last_interaction</code> fields, each containing an <code>InteractionEvent</code> with <code>date</code> and <code>person_ids</code> attributes.</li>
+</ul>
+<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SDK: <code>PersonService.get()</code> field values are now properly validated as <code>FieldValue</code> models.</li>
+</ul>
+<h2 id="0151-2026-01-25">[0.15.1] - 2026-01-25<a class="headerlink" href="#0151-2026-01-25" title="Permanent link">&para;</a></h2>
+<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>query --output json</code> now supports cursor-based pagination when output is truncated. Previously, JSON truncation happened at the MCP layer after CLI execution, so no cursor was emitted. Now JSON truncation happens in the CLI layer (same as other formats), enabling proper resumption via <code>--cursor</code>.</li>
+</ul>
+<h2 id="0150-2026-01-23">[0.15.0] - 2026-01-23<a class="headerlink" href="#0150-2026-01-23" title="Permanent link">&para;</a></h2>
+<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>company files read</code>, <code>person files read</code>, <code>opportunity files read</code> commands to read file content with chunking support. Returns base64-encoded content with metadata (<code>size</code>, <code>offset</code>, <code>length</code>, <code>hasMore</code>, <code>nextOffset</code>). Use <code>--offset</code> and <code>--limit</code> to fetch large files in chunks. Default chunk size is 1MB.</li>
+</ul>
+<h3 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>--env-file</code> now implicitly enables dotenv loading when an explicit file path is provided (not the default <code>.env</code>). Previously, using <code>--env-file .sandbox.env</code> without <code>--dotenv</code> would silently ignore the file.</li>
+<li>CLI: Fixed dropdown field value resolution in <code>entry field --set</code> and <code>--append</code> commands. The V2 API requires <code>{"dropdownOptionId": ID}</code> format, but the CLI was sending raw values. Now dropdown text (e.g., "In Progress") or numeric IDs are properly resolved to the V2 API format.</li>
+<li>CLI: List field metadata now fetched from V1 API to include <code>dropdown_options</code>, which V2 API omits.</li>
+</ul>
+<h2 id="0140-2026-01-22">0.14.0 - 2026-01-22<a class="headerlink" href="#0140-2026-01-22" title="Permanent link">&para;</a></h2>
+<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>company files ls</code>, <code>person files ls</code>, <code>opportunity files ls</code> commands to list files attached to entities without downloading them. Supports pagination (<code>--page-size</code>, <code>--cursor</code>, <code>--max-results</code>, <code>--all</code>), selector resolution (ID, URL, name, domain, email), and MCP safety limits.</li>
+<li>CLI: <code>file-url</code> command to get presigned download URLs for files. Returns URL valid for 60 seconds along with file metadata (name, size, contentType). Useful for programmatic access and MCP workflows.</li>
+<li>CLI: <code>files download --file-id</code> option for single-file downloads. Downloads one file directly without creating a manifest.</li>
+<li>SDK: <code>FilesService.get_download_url(file_id)</code> method to get presigned download URLs without downloading content. Returns <code>PresignedUrl</code> with URL, file metadata, and expiration info.</li>
+<li>SDK: <code>PresignedUrl</code> dataclass exported from <code>affinity</code> package with fields: <code>url</code>, <code>file_id</code>, <code>name</code>, <code>size</code>, <code>content_type</code>, <code>expires_in</code>, <code>expires_at</code>.</li>
+</ul>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>files dump</code> renamed to <code>files download</code> for clarity.</li>
+</ul>
+<h3 id="fixed_5">Fixed<a class="headerlink" href="#fixed_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SDK: <code>CompanyService.get()</code> and <code>PersonService.get()</code> now automatically fall back to V1 API when V2 returns 404. This handles V1→V2 eventual consistency issues where a search (<code>company ls --query</code>, <code>person ls --query</code>) finds an entity via V1, but a subsequent <code>get</code> fails because V2 hasn't synced yet. The fallback is transparent and requires no code changes.</li>
+</ul>
+<h3 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">&para;</a></h3>
+<ul>
+<li>MCP: <code>get-file-url</code> tool returns valid presigned URLs, but Claude Desktop's WebFetch cannot access <code>userfiles.affinity.co</code> due to domain sandbox restrictions. This affects all Claude Desktop users - neither "Additional allowed domains" nor "All domains" settings work around this limitation (<a href="https://github.com/anthropics/claude-code/issues/19087">#19087</a>, <a href="https://github.com/anthropics/claude-code/issues/11897">#11897</a>). Workaround: Use <code>files read</code> command (returns content inline), copy URL to browser, or use CLI directly with <code>files download --file-id</code>.</li>
+</ul>
+<h2 id="0131-2026-01-21">0.13.1 - 2026-01-21<a class="headerlink" href="#0131-2026-01-21" title="Permanent link">&para;</a></h2>
+<h3 id="fixed_6">Fixed<a class="headerlink" href="#fixed_6" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Query progress now emits <code>progress: 0</code> in <code>on_step_start</code> events, enabling mcp-bash timeout extension for slow first-page fetches</li>
+</ul>
+<h2 id="0130-2026-01-21">0.13.0 - 2026-01-21<a class="headerlink" href="#0130-2026-01-21" title="Permanent link">&para;</a></h2>
+<h3 id="changed-breaking_1">Changed (Breaking)<a class="headerlink" href="#changed-breaking_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SDK: <code>AffinityList.list_size</code> field removed. The V2 API returns incorrect values (often 0 for non-empty lists). Use <code>client.lists.get_size(list_id)</code> instead, which fetches from the V1 API and caches for 5 minutes.</li>
+</ul>
+<h3 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SDK: <code>ListService.get_size(list_id)</code> and <code>AsyncListService.get_size(list_id)</code> methods to get accurate list size from the V1 API with automatic caching (5 minutes). Use <code>force=True</code> to bypass cache when fresh data is critical.</li>
+</ul>
+<h2 id="0120-2026-01-20">0.12.0 - 2026-01-20<a class="headerlink" href="#0120-2026-01-20" title="Permanent link">&para;</a></h2>
+<h3 id="added_5">Added<a class="headerlink" href="#added_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>query --cursor</code> option for resumable pagination when responses are truncated (exceed <code>--max-output-bytes</code>):</li>
+<li><strong>Streaming mode</strong> (simple queries): O(1) resumption via stored Affinity API cursor - no re-fetching of previous pages</li>
+<li><strong>Full-fetch mode</strong> (queries with orderBy/aggregate): Results cached to disk, zero API calls on resume</li>
+<li>Cursor emitted to stderr as NDJSON <code>{"type": "cursor", "cursor": "...", "mode": "..."}</code> for MCP extraction</li>
+<li>CLI exits with code 100 when truncated (cursor available)</li>
+<li>Cache auto-cleanup on startup: LRU eviction (500MB limit), 1-hour TTL</li>
+<li>Validation: query hash, format mismatch, cache tampering all detected with clear errors</li>
+</ul>
+<h2 id="0110-2026-01-20">0.11.0 - 2026-01-20<a class="headerlink" href="#0110-2026-01-20" title="Permanent link">&para;</a></h2>
+<h3 id="added_6">Added<a class="headerlink" href="#added_6" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Full scan protection when running via MCP gateway. Commands with pagination (<code>list export</code>, <code>person ls</code>, <code>company ls</code>, etc.) now enforce limits: default 1000 records, max 10000 records. The <code>--all</code> flag is blocked with a clear error message guiding users to use explicit <code>--max-results</code> or cursor pagination instead.</li>
+</ul>
+<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>--csv</code> is now an alias for <code>--output csv</code> (consistent with <code>--json</code> being an alias for <code>--output json</code>)</li>
+<li>CLI: CSV sub-options (<code>--csv-bom</code>, <code>--csv-header</code>, <code>--csv-mode</code>) auto-enable CSV output when no format is specified</li>
+<li>CLI: Error messages for output flag conflicts no longer have trailing periods (e.g., <code>--csv and --json are mutually exclusive</code> instead of ending with <code>.</code>)</li>
+</ul>
+<h3 id="removed">Removed<a class="headerlink" href="#removed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Breaking</strong>: CLI: <code>--pretty</code> flag removed from <code>query</code> command (use <code>| jq .</code> for pretty JSON output)</li>
+</ul>
+<h3 id="fixed_7">Fixed<a class="headerlink" href="#fixed_7" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Query engine now correctly computes <code>entityName</code> for Person list entries. Previously, <code>entityName</code> was <code>null</code> for persons because the API returns <code>firstName</code>/<code>lastName</code> instead of <code>name</code>. Now uses the same display name logic as <code>list export</code>.</li>
+<li>CLI: Table/CSV formatters now correctly detect Person entities with real API types (<code>external</code>/<code>internal</code>) or no type field. Previously, formatters only checked for <code>type="person"</code> which the API never actually returns, causing Person data to display as "object (N keys)" instead of "John Smith (id=123)".</li>
+</ul>
+<h3 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Session cache now caches person resolution (by email/name) and company resolution (by domain/name), reducing API calls when running multiple commands in a session pipeline.</li>
+<li>CLI: Person and company field resolution now uses session cache, avoiding redundant field definition fetches.</li>
+</ul>
+<h2 id="0100-2026-01-19">0.10.0 - 2026-01-19<a class="headerlink" href="#0100-2026-01-19" title="Permanent link">&para;</a></h2>
+<h3 id="fixed_8">Fixed<a class="headerlink" href="#fixed_8" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SDK: Removed unsafe <code>asyncio.create_task()</code> in <code>AsyncAffinity.__del__</code> that could cause tasks to be garbage collected before completion. Users must now use context managers or call <code>close()</code> explicitly.</li>
+<li>SDK: Added thread-safe locking to <code>SimpleCache</code> for concurrent access.</li>
+<li>SDK: Fixed async client initialization race condition with asyncio lock.</li>
+<li>SDK: Fixed stream context manager cleanup on errors in HTTP client.</li>
+<li>SDK: Fixed empty/whitespace content handling in JSON response parsing.</li>
+<li>SDK: Added error handling for partial file cleanup on download failures.</li>
+<li>SDK: Improved filename sanitization for server-provided filenames (null bytes, control chars).</li>
+<li>CLI: Added validation for <code>--timeout</code>, <code>--max-columns</code>, <code>--max-records</code>, <code>--max-output-bytes</code> to reject non-positive values.</li>
+<li>CLI: Added validation for <code>--env-file</code> to check file exists when <code>--dotenv</code> is enabled.</li>
+<li>CLI: Added file size limit (1MB) for config files to prevent memory exhaustion.</li>
+<li>CLI: Added file permission warnings for API key files (same as config files).</li>
+<li>CLI: Fixed TOML escaping to handle newlines, tabs, and carriage returns in API keys.</li>
+<li>CLI: Fixed JSON/TOML parse error handling with helpful error messages.</li>
+<li>CLI: Fixed type validation for list access in CSV/table output (verify first element is dict).</li>
+<li>CLI: Fixed exponential backoff calculation to cap exponent before computing power.</li>
+<li>CLI: Let <code>AuthenticationError</code>/<code>AuthorizationError</code> propagate in query executor instead of silent catch.</li>
+<li>CLI: Added logging to silent exception handlers in entity validation.</li>
+</ul>
+<h3 id="changed-breaking_2">Changed (Breaking)<a class="headerlink" href="#changed-breaking_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>--check-unreplied-emails</code> renamed to <code>--check-unreplied</code> with support for both email and chat messages.</li>
+<li>New <code>--unreplied-types</code> flag: comma-separated list of types to check (<code>email</code>, <code>chat</code>, <code>all</code>). Default: <code>email,chat</code></li>
+<li>Output now includes <code>type</code> field ("email" or "chat") in addition to date, daysSince, and subject</li>
+<li>Chat messages have <code>null</code> subject (no subject attribute)</li>
+<li>Cross-type reply detection: email replied via chat (or vice versa) counts as "replied"</li>
+<li>CLI: Query <code>expand: ["unrepliedEmails"]</code> renamed to <code>expand: ["unreplied"]</code></li>
+<li>Same cross-type reply detection and multi-type support as CLI flag</li>
+<li>CSV columns renamed: <code>unrepliedEmailDate</code> → <code>unrepliedDate</code>, <code>unrepliedEmailDaysSince</code> → <code>unrepliedDaysSince</code>, <code>unrepliedEmailSubject</code> → <code>unrepliedSubject</code>, plus new <code>unrepliedType</code> column</li>
+</ul>
+<h2 id="0914-2026-01-19">0.9.14 - 2026-01-19<a class="headerlink" href="#0914-2026-01-19" title="Permanent link">&para;</a></h2>
+<h3 id="fixed_9">Fixed<a class="headerlink" href="#fixed_9" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Query <code>select</code> clause now automatically includes <code>expand</code> fields. Previously, using <code>select</code> with <code>expand</code> would filter out the expansion data (e.g., <code>interactionDates</code>, <code>unreplied</code>), requiring users to explicitly list expansions in <code>select</code>.</li>
+</ul>
+<h2 id="0913-2026-01-19">0.9.13 - 2026-01-19<a class="headerlink" href="#0913-2026-01-19" title="Permanent link">&para;</a></h2>
+<h3 id="added_7">Added<a class="headerlink" href="#added_7" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Query <code>include</code> for <code>listEntries</code> now supports <code>persons</code>, <code>companies</code>, <code>opportunities</code>, and <code>interactions</code>. Fetches related entities based on list entry entity type (e.g., company entries get associated persons).</li>
+<li>CLI: Query <code>expand: ["unrepliedEmails"]</code> now works with <code>listEntries</code>. Checks each list entry's underlying entity for unreplied incoming emails.</li>
+<li>CLI: Query extended include syntax with parameters:</li>
+<li><code>{include: {interactions: {limit: 50, days: 180}}}</code> - Limit and lookback control</li>
+<li><code>{include: {opportunities: {list: "Pipeline"}}}</code> - Scope to specific opportunity list</li>
+<li><code>{include: {persons: {where: {...}}}}</code> - Filter included entities</li>
+</ul>
+<h3 id="fixed_10">Fixed<a class="headerlink" href="#fixed_10" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Query TOON format now correctly flattens <code>fields.*</code> and <code>interactionDates</code> like markdown and CSV formats do. Previously, TOON was missing the <code>_apply_explicit_flattening()</code> call, causing nested fields to be truncated and interaction dates to be missing entirely.</li>
+<li>CLI: <code>list export --check-unreplied-emails</code> now works standalone without requiring <code>--expand</code>.</li>
+<li>CLI: <code>expand: ["interactionDates"]</code> now always produces 8 canonical columns regardless of data presence, ensuring consistent schema across all records.</li>
+<li>SDK: Improved error message when adding wrong entity type to a list (e.g., adding a company to a person list). Now provides clear guidance about list type requirements instead of exposing raw API validation error.</li>
+</ul>
+<h3 id="performance_1">Performance<a class="headerlink" href="#performance_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Query <code>expand: ["interactionDates"]</code> is significantly faster with parallel person resolution, bounded concurrent fetches (semaphore=10), and parallelized section resolution. Default concurrency increased from 5 to 15 (tunable via <code>XAFFINITY_QUERY_CONCURRENCY</code>).</li>
+</ul>
+<h2 id="0912-2026-01-17">0.9.12 - 2026-01-17<a class="headerlink" href="#0912-2026-01-17" title="Permanent link">&para;</a></h2>
+<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Query <code>listEntries</code> now normalizes reference field values to display strings:</li>
+<li>Person fields: <code>{"firstName": "Jane", "lastName": "Doe"}</code> → <code>"Jane Doe"</code></li>
+<li>Company fields: <code>{"name": "Acme Corp", "id": 123}</code> → <code>"Acme Corp"</code></li>
+<li>Multi-person/company fields: Arrays of names instead of raw objects</li>
+<li>Use <code>expand</code> or <code>include</code> for full entity data when needed</li>
+<li>CLI: Query output with explicit <code>select</code> on <code>fields.*</code> paths now flattens fields to top-level columns in table/CSV/markdown formats. JSON output preserves nested structure.</li>
+</ul>
+<h2 id="0911-2026-01-17">0.9.11 - 2026-01-17<a class="headerlink" href="#0911-2026-01-17" title="Permanent link">&para;</a></h2>
+<h3 id="added_8">Added<a class="headerlink" href="#added_8" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Query <code>include</code> clause now displays included relationships inline by default. Use <code>--include-style=separate</code> for separate tables or <code>--include-style=ids-only</code> for raw IDs. JSON output includes full <code>included</code> and <code>included_by_parent</code> mappings for correlation.</li>
+<li>CLI: Query <code>include</code> extended syntax for custom display fields: <code>include: {companies: {display: ["name", "domain"]}}</code>.</li>
+<li>SDK: <code>with_interaction_dates</code> and <code>with_interaction_persons</code> parameters for <code>CompanyService.get()</code> and <code>PersonService.get()</code>. When enabled, routes to V1 API to fetch interaction date summaries (last/next meeting, email dates, team member IDs).</li>
+<li>CLI: <code>--expand interactions</code> option for <code>list export</code> command. Adds interaction date summaries to each list entry (last meeting, next meeting, last email, last interaction with daysSince/daysUntil calculations and team member names). Supports both JSON and CSV output formats.</li>
+<li>CLI: <code>expand: ["interactionDates"]</code> support in <code>query</code> command. Enriches records with interaction date summaries directly on each record in <code>result.data</code>. Works with <code>persons</code>, <code>companies</code>, and <code>listEntries</code> queries.</li>
+<li>CLI: <code>--check-unreplied-emails</code> flag for <code>list export</code> command. Detects unreplied incoming emails for each list entry and adds date, daysSince, and subject to output. Use <code>--unreplied-lookback-days</code> to configure lookback period (default: 30 days).</li>
+<li>CLI: <code>--with-interaction-dates</code> and <code>--with-interaction-persons</code> flags for <code>company get</code> and <code>person get</code> commands. Fetches interaction date summaries directly in entity get operations.</li>
+<li>MCP: Query tool <code>format</code> parameter now functional (was previously ignored). Supports <code>toon</code>, <code>markdown</code>, <code>json</code>, <code>jsonl</code>, <code>csv</code>.</li>
+<li>CLI: <code>--max-output-bytes</code> option for <code>query</code> command. Enables format-aware truncation for MCP use, returning exit code 100 when truncated.</li>
+<li>CLI: <code>format_toon_envelope()</code> function for TOON output with full envelope (<code>data[N]{...}:</code>, <code>pagination:</code>, <code>included_*:</code> sections).</li>
+<li>SDK: Batch association methods for PersonService, CompanyService, and OpportunityService:</li>
+<li><code>get_associated_company_ids_batch(person_ids)</code> / <code>get_associated_opportunity_ids_batch(person_ids)</code></li>
+<li><code>get_associated_person_ids_batch(company_ids)</code> / <code>get_associated_opportunity_ids_batch(company_ids)</code></li>
+<li><code>get_associated_person_ids_batch(opportunity_ids)</code> / <code>get_associated_company_ids_batch(opportunity_ids)</code></li>
+<li>All return <code>dict[EntityId, list[AssocId]]</code> with <code>on_error="raise"|"skip"</code> parameter.</li>
+<li>SDK: <code>retries</code> parameter on <code>persons.get()</code>, <code>companies.get()</code>, and <code>opportunities.get()</code> methods. Enables automatic retry with exponential backoff on 404 errors to handle V1→V2 eventual consistency after create operations. Default is <code>retries=0</code> (fail fast).</li>
+<li>CLI: Reminder date options now accept relative dates and keywords in addition to ISO-8601:</li>
+<li><code>--due-date</code>: <code>+7d</code>, <code>+2w</code>, <code>+1m</code>, <code>+1y</code>, <code>today</code>, <code>tomorrow</code>, <code>yesterday</code>, <code>now</code></li>
+<li><code>--due-after</code>, <code>--due-before</code>: Same formats for filtering in <code>reminder ls</code></li>
+<li>Example: <code>xaffinity reminder create --due-date +7d --type one-time --owner-id 123</code></li>
+<li>CLI: Domain validation for <code>company create</code> and <code>company update</code> now provides helpful error messages:</li>
+<li>Detects underscores (RFC 1035 violation) and suggests dash replacement</li>
+<li>Detects URL prefixes and extracts domain</li>
+<li>Example: <code>--domain test_company.com</code> → "Use 'test-company.com' instead"</li>
+<li>Docs: V1→V2 eventual consistency guide covering 404 after create and stale data after update scenarios.</li>
+<li>Tests: Integration test suite for SDK write operations (<code>tests/integration/</code>).</li>
+</ul>
+<h3 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SDK: <code>OpportunityService.get_associated_people()</code> and <code>get_associated_companies()</code> now use V2 batch lookup instead of individual V1 fetches, reducing N+1 API calls (e.g., 50 people now fetched in 2 calls instead of 51).</li>
+<li>SDK: Query executor <code>_batch_fetch_by_ids()</code> now uses V2 batch lookup for persons and companies, improving query performance on relationship includes.</li>
+<li>CLI: Query <code>include</code> clause now fetches relationship IDs in parallel, then batch-fetches full records via V2 API, reducing API calls from N×M to N+1 for deduped lookups.</li>
+</ul>
+<h3 id="changed-breaking_3">Changed (Breaking)<a class="headerlink" href="#changed-breaking_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>MCP: Query tool default format changed from <code>json</code> to <code>toon</code> for better token efficiency (~40% fewer tokens).</li>
+<li>CLI: TOON query output now includes full envelope structure instead of data-only format. The <code>data</code> prefix is added to the array header: <code>data[N]{fields}:</code> instead of <code>[N]{fields}:</code>.</li>
+</ul>
+<h3 id="fixed_11">Fixed<a class="headerlink" href="#fixed_11" title="Permanent link">&para;</a></h3>
+<ul>
+<li>MCP: Query tool now honors the <code>format</code> parameter instead of always using JSON output.</li>
+<li>SDK: <code>ListEntryService.batch_update_fields()</code> now uses correct V2 API payload format. Previously failed with "Missing discriminator for property operation" error.</li>
+</ul>
+<h2 id="099-2026-01-14">0.9.9 - 2026-01-14<a class="headerlink" href="#099-2026-01-14" title="Permanent link">&para;</a></h2>
+<h3 id="added_9">Added<a class="headerlink" href="#added_9" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>query</code> command now supports advanced relationship filtering:</li>
+<li><code>all</code> quantifier: Filter where all related items match a condition (e.g., find persons where all their companies have ".com" domains)</li>
+<li><code>none</code> quantifier: Filter where no related items match a condition (e.g., find persons with no spam interactions)</li>
+<li><code>exists</code> subquery: Filter where at least one related item exists, optionally matching a condition (e.g., find persons who have email interactions)</li>
+<li><code>_count</code> pseudo-field: Filter by count of related items (e.g., <code>"path": "companies._count", "op": "gte", "value": 2</code>)</li>
+<li>Available relationship paths: persons→companies/opportunities/interactions/notes/listEntries, companies→persons/opportunities/interactions/notes/listEntries, opportunities→persons/companies/interactions</li>
+<li>Note: These features cause N+1 API calls to fetch relationship data; use <code>--dry-run</code> to preview</li>
+</ul>
+<h3 id="changed-breaking_4">Changed (Breaking)<a class="headerlink" href="#changed-breaking_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Renamed relationship <code>"people"</code> to <code>"persons"</code> for consistency with entity type names:</li>
+<li>Query <code>include</code>: <code>{"from": "companies", "include": ["people"]}</code> → use <code>["persons"]</code></li>
+<li>CLI <code>--expand</code>: <code>xaffinity company get &lt;id&gt; --expand people</code> → use <code>--expand persons</code></li>
+<li>JSON output: <code>data.people</code> → <code>data.persons</code></li>
+</ul>
+<h3 id="fixed_12">Fixed<a class="headerlink" href="#fixed_12" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Query engine no longer silently passes all records for <code>all</code>, <code>none</code>, and <code>_count</code> filters. Previously these were placeholder implementations that returned <code>True</code> for all records, causing incorrect query results. (Bug #15)</li>
+</ul>
+<h2 id="098-2026-01-12">0.9.8 - 2026-01-12<a class="headerlink" href="#098-2026-01-12" title="Permanent link">&para;</a></h2>
+<h3 id="fixed_13">Fixed<a class="headerlink" href="#fixed_13" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>query</code> command now correctly fetches all records before applying filter, sort, or aggregate operations. Previously, limits were applied during fetch which caused incorrect results:</li>
+<li>With filters: Empty results when matching records were beyond the limit position</li>
+<li>With sort + limit: Random N records sorted instead of actual top N</li>
+<li>With aggregate: Inaccurate counts/sums computed on partial data</li>
+</ul>
+<h2 id="097-2026-01-12">0.9.7 - 2026-01-12<a class="headerlink" href="#097-2026-01-12" title="Permanent link">&para;</a></h2>
+<h3 id="fixed_14">Fixed<a class="headerlink" href="#fixed_14" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CI: Smoke test now correctly installs CLI extras before testing CLI import</li>
+</ul>
+<h2 id="096-2026-01-12">0.9.6 - 2026-01-12<a class="headerlink" href="#096-2026-01-12" title="Permanent link">&para;</a></h2>
+<h3 id="added_10">Added<a class="headerlink" href="#added_10" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>listEntries</code> queries now include convenience aliases: <code>listEntryId</code>, <code>entityId</code>, <code>entityName</code>, <code>entityType</code>. These intuitive field names work in both <code>select</code> and <code>where</code> clauses.</li>
+<li>CLI: <code>listEntries</code> records now always include a <code>fields</code> key (defaults to <code>{}</code> if no custom fields).</li>
+</ul>
+<h3 id="changed_4">Changed<a class="headerlink" href="#changed_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Query projection now includes null values for explicitly selected fields. Previously, <code>select: ["entityName", "fields.Status"]</code> would return <code>{}</code> if Status was null; now returns <code>{"entityName": "Acme", "fields": {"Status": null}}</code>.</li>
+</ul>
+<h2 id="095-2026-01-12">0.9.5 - 2026-01-12<a class="headerlink" href="#095-2026-01-12" title="Permanent link">&para;</a></h2>
+<h3 id="added_11">Added<a class="headerlink" href="#added_11" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: New <code>--output</code>/<code>-o</code> option supporting multiple formats: <code>json</code>, <code>jsonl</code>, <code>markdown</code>, <code>toon</code>, <code>csv</code>, <code>table</code> (default).</li>
+<li><code>markdown</code>: GitHub-flavored markdown tables, best for LLM analysis and comprehension</li>
+<li><code>toon</code>: Token-Optimized Object Notation, 30-60% fewer tokens than JSON for large datasets</li>
+<li><code>jsonl</code>: JSON Lines format, one object per line for streaming workflows</li>
+<li>Example: <code>xaffinity person ls --output markdown</code>, <code>xaffinity query -o toon</code></li>
+<li>Existing <code>--csv</code> and <code>--json</code> flags continue to work as before.</li>
+</ul>
+<h3 id="changed_5">Changed<a class="headerlink" href="#changed_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>to_cell()</code> now extracts "text" from dropdown/multi-select fields instead of JSON-serializing the full dict. This makes CSV and other tabular outputs human-readable for dropdown values.</li>
+</ul>
+<h3 id="fixed_15">Fixed<a class="headerlink" href="#fixed_15" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>query</code> command with <code>limit</code> now correctly returns results when combined with client-side filters (like <code>has_any</code> on multi-select fields). Previously, the limit was applied during fetch before filtering, causing empty results when the first N records didn't match the filter criteria.</li>
+</ul>
+<h2 id="094-2026-01-12">0.9.4 - 2026-01-12<a class="headerlink" href="#094-2026-01-12" title="Permanent link">&para;</a></h2>
+<h3 id="added_12">Added<a class="headerlink" href="#added_12" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>query</code> command now supports <code>has_any</code> and <code>has_all</code> operators for multi-select field filtering.</li>
+<li>SDK/CLI: Filter parser now supports V2 API comparison operators: <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code> for numeric/date comparisons.</li>
+<li>SDK/CLI: Filter parser now supports word-based operator aliases for LLM/human clarity:</li>
+<li><code>contains</code>, <code>starts_with</code>, <code>ends_with</code> (string matching)</li>
+<li><code>gt</code>, <code>gte</code>, <code>lt</code>, <code>lte</code> (numeric/date comparisons)</li>
+<li><code>is null</code>, <code>is not null</code>, <code>is empty</code> (null/empty checks)</li>
+<li>SDK/CLI: Filter parser now supports collection bracket syntax <code>[A, B, C]</code> with operators:</li>
+<li><code>in [A, B]</code> - value is one of the listed values</li>
+<li><code>between [1, 10]</code> - value is in range (inclusive)</li>
+<li><code>has_any [A, B]</code> - array field contains any of the values</li>
+<li><code>has_all [A, B]</code> - array field contains all of the values</li>
+<li><code>contains_any [A, B]</code> - substring match for any term</li>
+<li><code>contains_all [A, B]</code> - substring match for all terms</li>
+<li><code>= [A, B]</code> - set equality (array has exactly these elements)</li>
+<li><code>=~ [A, B]</code> - V2 API collection contains (array contains all elements)</li>
+</ul>
+<h3 id="fixed_16">Fixed<a class="headerlink" href="#fixed_16" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>query</code> command now correctly filters on multi-select dropdown fields (like "Team Member"). The <code>eq</code> operator checks array membership for scalar values and set equality for array values. Previously, these queries returned 0 results due to strict equality comparison.</li>
+<li>SDK/CLI: <code>list export --filter</code> now correctly matches multi-select dropdown fields. The <code>=</code>, <code>!=</code>, and <code>=~</code> operators now handle array values properly. Also fixes extraction of text values from multi-select dropdown API responses.</li>
+<li>SDK/CLI: Fixed <code>=^</code> (starts_with) and <code>=$</code> (ends_with) operators which were broken due to tokenizer ordering issue.</li>
+</ul>
+<h3 id="improved">Improved<a class="headerlink" href="#improved" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SDK/CLI: Filter parser now provides helpful hints for common mistakes:</li>
+<li>Multi-word field names: suggests quoting (<code>"Team Member"</code>)</li>
+<li>Multi-word values: suggests quoting (<code>"Intro Meeting"</code>)</li>
+<li>SQL keywords (<code>AND</code>, <code>OR</code>): suggests correct symbols (<code>&amp;</code>, <code>|</code>)</li>
+<li>Double equals (<code>==</code>): suggests single <code>=</code></li>
+</ul>
+<h2 id="093-2026-01-11">0.9.3 - 2026-01-11<a class="headerlink" href="#093-2026-01-11" title="Permanent link">&para;</a></h2>
+<h3 id="changed_6">Changed<a class="headerlink" href="#changed_6" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CI: SDK releases now include MCPB bundle and plugin ZIP for convenience.</li>
+<li>CI: Enabled PyPI attestations via workflow_dispatch API trigger.</li>
+</ul>
+<h2 id="092-2026-01-11">0.9.2 - 2026-01-11<a class="headerlink" href="#092-2026-01-11" title="Permanent link">&para;</a></h2>
+<h3 id="fixed_17">Fixed<a class="headerlink" href="#fixed_17" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SDK: <code>AsyncListEntryService.pages()</code> now supports <code>progress_callback</code> parameter (sync/async parity fix).</li>
+</ul>
+<h3 id="changed_7">Changed<a class="headerlink" href="#changed_7" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>BREAKING</strong>: CLI: <code>interaction ls</code> JSON output restructured for consistency:</li>
+<li><code>.data.interactions</code> → <code>.data</code> (direct array)</li>
+<li><code>.data.metadata.totalRows</code> → <code>.meta.summary.totalRows</code></li>
+<li><code>.data.metadata.dateRange</code> → <code>.meta.summary.dateRange</code></li>
+<li><code>.data.metadata.typeStats</code> → <code>.meta.summary.typeBreakdown</code></li>
+<li><strong>BREAKING</strong>: CLI: <code>note ls</code> JSON output restructured for consistency:</li>
+<li><code>.data.notes</code> → <code>.data</code> (direct array)</li>
+<li>Pagination: <code>.data.notes.nextCursor</code> → <code>.meta.pagination.nextCursor</code></li>
+<li><strong>BREAKING</strong>: CLI: <code>query</code> JSON output (with <code>--include-meta</code>) restructured for consistency:</li>
+<li><code>.meta.recordCount</code> → <code>.meta.summary.totalRows</code></li>
+<li>Included entity counts now in <code>.meta.summary.includedCounts</code></li>
+<li>CLI: Standardized <code>ResultSummary</code> footer rendering across all commands (displays row counts, date ranges, type breakdowns as compact footer text instead of tables).</li>
+</ul>
+<h2 id="091-2026-01-11">0.9.1 - 2026-01-11<a class="headerlink" href="#091-2026-01-11" title="Permanent link">&para;</a></h2>
+<h3 id="added_13">Added<a class="headerlink" href="#added_13" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>query</code> command now validates entity queryability and provides clear error messages for unsupported entities.</li>
+<li>CLI: <code>query</code> command resolves field names to IDs automatically (e.g., <code>"field": "Status"</code> works alongside <code>"fieldId": 123</code>).</li>
+</ul>
+<h3 id="fixed_18">Fixed<a class="headerlink" href="#fixed_18" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>query</code> for <code>listEntries</code> entity now correctly requires <code>listId</code> filter.</li>
+<li>CLI: <code>query</code> relationship definitions now correctly set <code>requires_n_plus_1</code> flag for proper query planning.</li>
+</ul>
+<h2 id="090-2026-01-11">0.9.0 - 2026-01-11<a class="headerlink" href="#090-2026-01-11" title="Permanent link">&para;</a></h2>
+<h3 id="added_14">Added<a class="headerlink" href="#added_14" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: New <code>query</code> command for structured JSON queries with complex filtering, includes, aggregations, and sorting. Use <code>--dry-run</code> to preview execution plans. Supports entities: persons, companies, opportunities, listEntries, interactions, notes.</li>
+<li>MCP: New <code>query</code> tool for complex data queries via JSON query language. Supports filtering (AND/OR/NOT), includes (related entities), aggregations (count/sum/avg/min/max), groupBy, and sorting.</li>
+<li>CLI: <code>--limit</code> alias for <code>--max-results</code> on <code>company get</code>, <code>person get</code>, and <code>opportunity get</code> commands (consistency with <code>ls</code> commands).</li>
+</ul>
+<h3 id="changed_8">Changed<a class="headerlink" href="#changed_8" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>--list</code>, <code>--list-entry-field</code>, and <code>--show-list-entry-fields</code> now auto-imply <code>--expand list-entries</code> on <code>company get</code> and <code>person get</code> commands (improved DX).</li>
+</ul>
+<h2 id="086-2026-01-10">0.8.6 - 2026-01-10<a class="headerlink" href="#086-2026-01-10" title="Permanent link">&para;</a></h2>
+<h3 id="added_15">Added<a class="headerlink" href="#added_15" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SDK: <code>PersonService.get_associated_company_ids()</code> and <code>get_associated_opportunity_ids()</code> methods for symmetric association API.</li>
+<li>SDK: <code>CompanyService.get_associated_opportunity_ids()</code> method.</li>
+</ul>
+<h2 id="085-2026-01-10">0.8.5 - 2026-01-10<a class="headerlink" href="#085-2026-01-10" title="Permanent link">&para;</a></h2>
+<h3 id="fixed_19">Fixed<a class="headerlink" href="#fixed_19" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI/SDK: <code>FilterParseError</code> now raised when filter expressions fail to parse (previously silently ignored). Common cause: unquoted multi-word values like <code>--filter 'Status=Intro Meeting'</code> must be quoted: <code>--filter 'Status="Intro Meeting"'</code>.</li>
+<li>CLI: Pre-commit hook now validates installed CLI version matches <code>pyproject.toml</code> before regenerating MCP registry.</li>
+</ul>
+<h2 id="084-2026-01-10">0.8.4 - 2026-01-10<a class="headerlink" href="#084-2026-01-10" title="Permanent link">&para;</a></h2>
+<h3 id="added_16">Added<a class="headerlink" href="#added_16" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: NDJSON progress output for <code>interaction ls</code> multi-type queries (MCP integration).</li>
+</ul>
+<h2 id="083-2026-01-10">0.8.3 - 2026-01-10<a class="headerlink" href="#083-2026-01-10" title="Permanent link">&para;</a></h2>
+<h3 id="added_17">Added<a class="headerlink" href="#added_17" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>--limit</code> alias for <code>--max-results</code> on all <code>ls</code> commands (LLM-friendly).</li>
+<li>CLI: Option aliases now included in <code>--help --json</code> output.</li>
+</ul>
+<h2 id="082-2026-01-10">0.8.2 - 2026-01-10<a class="headerlink" href="#082-2026-01-10" title="Permanent link">&para;</a></h2>
+<p><em>No user-facing changes. Version bump for PyPI release.</em></p>
+<h2 id="081-2026-01-10">0.8.1 - 2026-01-10<a class="headerlink" href="#081-2026-01-10" title="Permanent link">&para;</a></h2>
+<p><em>No user-facing changes. Version bump for PyPI release.</em></p>
+<h2 id="080-2026-01-10">0.8.0 - 2026-01-10<a class="headerlink" href="#080-2026-01-10" title="Permanent link">&para;</a></h2>
+<h3 id="changed_9">Changed<a class="headerlink" href="#changed_9" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Renamed <code>--json</code> to <code>--set-json</code> on <code>person field</code>, <code>company field</code>, <code>opportunity field</code> commands to avoid conflict with global <code>--json</code> output flag.</li>
+<li><strong>BREAKING</strong>: CLI: <code>--csv FILE</code> is now <code>--csv</code> flag that outputs CSV to stdout. Use shell redirection: <code>--csv &gt; file.csv</code>. Applies to <code>person ls</code>, <code>company ls</code>, <code>opportunity ls</code>, <code>list export</code>.</li>
+<li>CLI: <code>--csv</code> and <code>--json</code> are now mutually exclusive (error if both specified).</li>
+<li>CLI: <code>person ls --query</code> and <code>company ls --query</code> now support <code>--field</code> and <code>--field-type</code> options via hybrid V1→V2 fetch.</li>
+<li><strong>BREAKING</strong>: CLI: <code>interaction ls</code> date filter parameters renamed for consistency:</li>
+<li><code>--start-time</code> → <code>--after</code></li>
+<li><code>--end-time</code> → <code>--before</code></li>
+<li>Context metadata keys changed: <code>startTime</code>/<code>endTime</code> → <code>after</code>/<code>before</code></li>
+<li>Note: Interaction object fields (<code>startTime</code>/<code>endTime</code>) are unchanged</li>
+<li><strong>BREAKING</strong>: CLI: <code>interaction ls</code> now requires <code>--type</code> (was optional but API required it).</li>
+<li>CLI: <code>interaction ls</code> date range now defaults to all-time when <code>--days</code> and <code>--after</code> are omitted.</li>
+<li><strong>BREAKING</strong>: CLI: <code>interaction ls</code> removed <code>--cursor</code> and <code>--all</code> flags (auto-chunking replaces manual pagination).</li>
+<li><strong>BREAKING</strong>: CLI: <code>interaction ls</code> output field renamed <code>modifiers.type</code> → <code>modifiers.types</code> (now always an array).</li>
+<li><strong>BREAKING</strong>: CLI: <code>interaction ls</code> metadata <code>chunksProcessed</code> moved to <code>typeStats[type].chunksProcessed</code>.</li>
+<li><strong>BREAKING</strong>: CLI: Naive datetime strings (without timezone) are now interpreted as <strong>local time</strong> instead of UTC. Use explicit <code>Z</code> suffix or offset for UTC. See <a href="https://yaniv-golan.github.io/affinity-sdk/latest/guides/datetime-handling/">datetime-handling guide</a> for details.</li>
+<li><strong>BREAKING</strong>: CLI: List entry field commands unified into single <code>entry field</code> command:</li>
+<li><code>entry set-field --field F --value V</code> → <code>entry field --set F V</code></li>
+<li><code>entry set-field --field F --value-json '{...}'</code> → <code>entry field --set-json '{"F": ...}'</code></li>
+<li><code>entry set-fields --updates-json '{...}'</code> → <code>entry field --set-json '{...}'</code></li>
+<li><code>entry unset-field --field F</code> → <code>entry field --unset F</code></li>
+<li><code>entry unset-field --field F --value V</code> → <code>entry field --unset-value F V</code></li>
+<li><code>entry unset-field --field F --all-values</code> → <code>entry field --unset F</code></li>
+<li>Removed: <code>--field-id</code> option (field IDs can be passed as FIELD argument directly)</li>
+<li><strong>Behavior change:</strong> <code>--set</code> on multi-value field now replaces all values (use <code>--append</code> to add)</li>
+</ul>
+<h3 id="added_18">Added<a class="headerlink" href="#added_18" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>interaction ls --type</code> now accepts multiple types (e.g., <code>--type email --type meeting</code>).</li>
+<li>CLI: <code>interaction ls --type all</code> convenience option fetches all interaction types.</li>
+<li>CLI: <code>interaction ls</code> multi-type results sorted by date descending (types interleaved).</li>
+<li>CLI: <code>interaction ls</code> metadata includes <code>typeStats</code> with per-type counts and chunk info.</li>
+<li>CLI: <code>interaction ls</code> auto-chunking for date ranges &gt; 1 year (transparently splits into API-compatible chunks).</li>
+<li>CLI: <code>interaction ls --days N</code> convenience flag for "last N days" queries.</li>
+<li>CLI: <code>interaction ls --csv</code> and <code>--csv-bom</code> flags for CSV export.</li>
+<li>CLI: <code>interaction ls</code> metadata in JSON output includes <code>dateRange</code>, <code>typeStats</code>, <code>totalRows</code>.</li>
+<li>SDK: <code>ListEntryService.from_saved_view()</code> now accepts <code>field_ids</code> and <code>field_types</code> parameters.</li>
+<li>CLI: <code>list export --saved-view</code> can now be combined with <code>--field</code> for server-side filtering with explicit field selection.</li>
+<li>SDK: <code>ids</code> parameter added to <code>PersonService</code>, <code>CompanyService</code>, and <code>OpportunityService</code> for batch fetching by ID.</li>
+<li>CLI: <code>entry field --get FIELD</code> for reading field values (new functionality).</li>
+<li>CLI: <code>entry field --append FIELD VALUE</code> for adding to multi-value fields without replacing.</li>
+<li>CLI: <code>entry field --unset-value FIELD VALUE</code> for removing specific value from multi-value field.</li>
+</ul>
+<h3 id="fixed_20">Fixed<a class="headerlink" href="#fixed_20" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SDK: <code>FieldValues</code> now properly parses field arrays from API responses (previously showed <code>requested=False</code>).</li>
+</ul>
+<h3 id="removed_1">Removed<a class="headerlink" href="#removed_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>person search</code> and <code>company search</code> commands. Use <code>person ls --query</code> and <code>company ls --query</code> instead.</li>
+<li>CLI: Removed <code>entry set-field</code>, <code>entry set-fields</code>, and <code>entry unset-field</code> commands (replaced by unified <code>entry field</code>).</li>
+</ul>
+<h2 id="070-2026-01-08">0.7.0 - 2026-01-08<a class="headerlink" href="#070-2026-01-08" title="Permanent link">&para;</a></h2>
+<h3 id="added_19">Added<a class="headerlink" href="#added_19" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Column limiting for wide table output - tables now auto-limit columns based on terminal width.</li>
+<li>CLI: <code>--all-columns</code> flag to show all columns regardless of terminal width.</li>
+<li>CLI: <code>--max-columns N</code> flag for fine control over column limits.</li>
+<li>CLI: Real-time filter scanning progress during <code>list export --filter</code> shows "Scanning X... (Y matches)".</li>
+<li>CLI: Export summary line after filtered operations (e.g., "Exported 35 rows (filtered from 9,340 scanned) in 2:15").</li>
+<li>CLI: <code>format_duration()</code> helper for human-readable time formatting.</li>
+<li>CLI: Rich pager now uses <code>styles=True</code> to preserve ANSI colors when paging.</li>
+<li>SDK: <code>FilterStats</code> dataclass for tracking scanned/matched counts during filtered pagination.</li>
+<li>SDK: <code>PaginatedResponse.filter_stats</code> property exposes filter statistics.</li>
+</ul>
+<h3 id="fixed_21">Fixed<a class="headerlink" href="#fixed_21" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: JSON progress output no longer appears alongside Rich progress bar (mutual exclusivity enforced).</li>
+<li>SDK: Dropdown field filtering now extracts "text" property from dropdown dicts.</li>
+</ul>
+<h2 id="0611-2026-01-07">0.6.11 - 2026-01-07<a class="headerlink" href="#0611-2026-01-07" title="Permanent link">&para;</a></h2>
+<h3 id="added_20">Added<a class="headerlink" href="#added_20" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Parameter help text (<code>help</code>) now included in <code>--help --json</code> output.</li>
+<li>CLI: Click.Choice values (<code>choices</code>) now included in <code>--help --json</code> output.</li>
+<li>CLI: Examples from docstrings now parsed and included in <code>--help --json</code> output.</li>
+</ul>
+<h3 id="changed_10">Changed<a class="headerlink" href="#changed_10" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Improved <code>--filter</code> help text with full operator list (<code>= != =~ =^ =$ &gt; &lt; &gt;= &lt;=</code>).</li>
+<li>CLI: Improved <code>--query</code> help text to clarify V1 fuzzy search vs V2 structured filtering.</li>
+</ul>
+<h2 id="0610-2026-01-06">0.6.10 - 2026-01-06<a class="headerlink" href="#0610-2026-01-06" title="Permanent link">&para;</a></h2>
+<h3 id="added_21">Added<a class="headerlink" href="#added_21" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: JSON progress output to stderr when not connected to a TTY (for MCP integration).</li>
+<li>CLI: <code>@progress_capable</code> decorator to mark commands supporting progress reporting.</li>
+<li>CLI: Rate-limited progress updates (0.65s interval) with guaranteed 100% completion emission.</li>
+<li>CLI: <code>progressCapable</code> field in <code>--help --json</code> output for registry generation.</li>
+<li>MCP: <code>run_xaffinity_with_progress</code> helper for progress-aware CLI execution.</li>
+<li>MCP: <code>command_supports_progress</code> helper to check registry for progress capability.</li>
+<li>MCP: Execute tools now forward CLI progress for <code>@progress_capable</code> commands.</li>
+<li>CLI: File upload commands (<code>person/company/opportunity files upload</code>) marked as <code>@progress_capable</code>.</li>
+<li>MCP: <code>PROGRESS_MIN_VERSION</code> in COMPATIBILITY for graceful degradation with older CLIs.</li>
+<li>MCP: <code>version_gte</code> helper for portable version comparison (macOS/Linux).</li>
+<li>MCP: CLI version check in <code>command_supports_progress</code> (disables progress for CLI &lt; 0.6.10).</li>
+<li>MCP: <code>XAFFINITY_CLI_VERSION</code> exported for tool scripts to access CLI version.</li>
+</ul>
+<h3 id="changed_11">Changed<a class="headerlink" href="#changed_11" title="Permanent link">&para;</a></h3>
+<ul>
+<li>MCP: Updated mcp-bash.lock to patched v0.9.3 (commit ee245a7) with progress passthrough fixes.</li>
+</ul>
+<h2 id="069-2026-01-06">0.6.9 - 2026-01-06<a class="headerlink" href="#069-2026-01-06" title="Permanent link">&para;</a></h2>
+<h3 id="changed_12">Changed<a class="headerlink" href="#changed_12" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI Plugin: Skill now documents destructive command confirmation flow (look up, ask, wait, execute with <code>--yes</code>).</li>
+<li>CLI Plugin: Skill lists all destructive commands requiring double confirmation.</li>
+</ul>
+<h2 id="068-2026-01-05">0.6.8 - 2026-01-05<a class="headerlink" href="#068-2026-01-05" title="Permanent link">&para;</a></h2>
+<h3 id="added_22">Added<a class="headerlink" href="#added_22" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>@category</code> and <code>@destructive</code> decorators for MCP registry generation.</li>
+<li>CLI: <code>--help --json</code> output for machine-readable command documentation.</li>
+<li>CLI: Commands now expose category (read/write/local) and destructive metadata.</li>
+</ul>
+<h2 id="067-2026-01-03">0.6.7 - 2026-01-03<a class="headerlink" href="#067-2026-01-03" title="Permanent link">&para;</a></h2>
+<h3 id="changed_13">Changed<a class="headerlink" href="#changed_13" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Docs: Updated all documentation links to use versioned <code>/latest/</code> URLs for reliable navigation.</li>
+</ul>
+<h2 id="066-2026-01-03">0.6.6 - 2026-01-03<a class="headerlink" href="#066-2026-01-03" title="Permanent link">&para;</a></h2>
+<h3 id="fixed_22">Fixed<a class="headerlink" href="#fixed_22" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SDK: Regex patterns in <code>lists.py</code> and <code>http.py</code> were double-escaped, matching literal <code>\d</code> instead of digits.</li>
+</ul>
+<h2 id="065-2026-01-02">0.6.5 - 2026-01-02<a class="headerlink" href="#065-2026-01-02" title="Permanent link">&para;</a></h2>
+<p><em>No user-facing changes. Version bump for PyPI release.</em></p>
+<h2 id="064-2026-01-02">0.6.4 - 2026-01-02<a class="headerlink" href="#064-2026-01-02" title="Permanent link">&para;</a></h2>
+<p><em>No user-facing changes. Version bump for PyPI release.</em></p>
+<h2 id="063-2026-01-02">0.6.3 - 2026-01-02<a class="headerlink" href="#063-2026-01-02" title="Permanent link">&para;</a></h2>
+<p><em>No user-facing changes. Version bump for PyPI release.</em></p>
+<h2 id="062-2026-01-02">0.6.2 - 2026-01-02<a class="headerlink" href="#062-2026-01-02" title="Permanent link">&para;</a></h2>
+<h3 id="fixed_23">Fixed<a class="headerlink" href="#fixed_23" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Added explicit <code>type=str</code> to Click arguments for Python 3.13 mypy compatibility.</li>
+</ul>
+<h2 id="061-2026-01-02">0.6.1 - 2026-01-02<a class="headerlink" href="#061-2026-01-02" title="Permanent link">&para;</a></h2>
+<h3 id="changed_14">Changed<a class="headerlink" href="#changed_14" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Docs: Separated MCP Server documentation from Claude Code plugins.</li>
+</ul>
+<h2 id="060-2026-01-02">0.6.0 - 2026-01-02<a class="headerlink" href="#060-2026-01-02" title="Permanent link">&para;</a></h2>
+<h3 id="added_23">Added<a class="headerlink" href="#added_23" title="Permanent link">&para;</a></h3>
+<ul>
+<li>MCP: <code>read-xaffinity-resource</code> tool for clients with limited resource support.</li>
+</ul>
+<h3 id="changed_15">Changed<a class="headerlink" href="#changed_15" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Plugins: Restructured into 3-plugin marketplace architecture (affinity-sdk, xaffinity-cli, xaffinity-mcp).</li>
+<li>Docs: Restructured Claude integrations with consistent naming.</li>
+</ul>
+<h3 id="fixed_24">Fixed<a class="headerlink" href="#fixed_24" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Improved <code>setup-key</code> command UX with Rich styling.</li>
+<li>MCP: Source both <code>.zprofile</code> and <code>.zshrc</code> in environment wrapper.</li>
+<li>MCP: Parse JSON response correctly for <code>check-key</code> output.</li>
+</ul>
+<h2 id="051-2026-01-01">0.5.1 - 2026-01-01<a class="headerlink" href="#051-2026-01-01" title="Permanent link">&para;</a></h2>
+<h3 id="fixed_25">Fixed<a class="headerlink" href="#fixed_25" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Plugins: Consolidated plugin structure and fixed relative paths.</li>
+</ul>
+<h2 id="050-2026-01-01">0.5.0 - 2026-01-01<a class="headerlink" href="#050-2026-01-01" title="Permanent link">&para;</a></h2>
+<h3 id="added_24">Added<a class="headerlink" href="#added_24" title="Permanent link">&para;</a></h3>
+<ul>
+<li>MCP: Initial xaffinity MCP server as separate Claude Code plugin.</li>
+<li>CLI: Top-level <code>entry</code> command group as shorthand for <code>list entry</code> (e.g., <code>xaffinity entry get</code> instead of <code>xaffinity list entry get</code>).</li>
+<li>CLI: <code>--query</code> / <code>-q</code> flag for <code>person ls</code>, <code>company ls</code>, and <code>opportunity ls</code> to enable free-text search (V1 API).</li>
+<li>CLI: <code>--company-id</code> and <code>--opportunity-id</code> options for <code>interaction ls</code>.</li>
+<li>CLI: <code>-A</code> short flag for <code>--all</code> on all paginated list commands.</li>
+<li>CLI: <code>-n</code> short flag for <code>--max-results</code> on all commands with result limits.</li>
+<li>CLI: <code>-s</code> short flag for <code>--page-size</code> on all pagination commands.</li>
+<li>CLI: <code>-t</code> short flag for <code>--type</code> on interaction commands.</li>
+<li>CLI: Structured <code>CommandContext</code> for all commands.</li>
+<li>SDK: <code>OpportunityService.search()</code>, <code>search_pages()</code>, <code>search_all()</code> methods for V1 opportunity search.</li>
+<li>SDK: Async versions of opportunity search methods in <code>AsyncOpportunityService</code>.</li>
+<li>SDK: <code>InteractionService.list()</code> now accepts <code>company_id</code> and <code>opportunity_id</code> parameters.</li>
+</ul>
+<h3 id="changed_16">Changed<a class="headerlink" href="#changed_16" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>list view</code> renamed to <code>list get</code> for consistency with other entity commands.</li>
+<li>CLI: <code>--completed/--not-completed</code> boolean flag pattern for <code>reminder update</code> (replaces separate flags).</li>
+<li>CLI: Removed API version mentions from help text (implementation detail).</li>
+<li>CLI: <code>interaction ls</code> now requires an entity ID (<code>--person-id</code>, <code>--company-id</code>, or <code>--opportunity-id</code>) and defaults to last 7 days with visible warning (API max: 1 year).</li>
+<li>CLI: Unified <code>person field</code>, <code>company field</code>, <code>opportunity field</code> commands replace <code>set-field</code>, <code>set-fields</code>, and <code>unset-field</code> commands. New syntax: <code>--set FIELD VALUE</code>, <code>--unset FIELD</code>, <code>--set-json '{...}'</code>, <code>--get FIELD</code>.</li>
+<li>CLI: Note content separated from metadata in table display.</li>
+</ul>
+<h3 id="removed_2">Removed<a class="headerlink" href="#removed_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>person set-field</code>, <code>person set-fields</code>, <code>person unset-field</code> commands (use <code>person field</code> instead).</li>
+<li>CLI: <code>company set-field</code>, <code>company set-fields</code>, <code>company unset-field</code> commands (use <code>company field</code> instead).</li>
+<li>CLI: <code>opportunity set-field</code>, <code>opportunity set-fields</code>, <code>opportunity unset-field</code> commands (use <code>opportunity field</code> instead).</li>
+</ul>
+<h3 id="fixed_26">Fixed<a class="headerlink" href="#fixed_26" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Help text formatting - added missing spaces in command examples (~78 instances).</li>
+<li>CLI: Improved <code>--cursor</code> help text explaining incompatibility with <code>--page-size</code>.</li>
+<li>CLI: Clarified <code>--csv</code> help text to indicate it writes to file while stdout format is unchanged.</li>
+<li>CLI: CommandContext validation and test isolation issues.</li>
+</ul>
+<h2 id="048-2025-12-31">0.4.8 - 2025-12-31<a class="headerlink" href="#048-2025-12-31" title="Permanent link">&para;</a></h2>
+<h3 id="added_25">Added<a class="headerlink" href="#added_25" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>xaffinity field history</code> for viewing field value change history.</li>
+<li>CLI: Session caching for pipeline optimization via <code>AFFINITY_SESSION_CACHE</code> environment variable.</li>
+<li>CLI: <code>session start/end/status</code> commands for managing session cache lifecycle.</li>
+<li>CLI: <code>--session-cache</code> and <code>--no-cache</code> global flags for cache control.</li>
+<li>CLI: Cache hit/miss visibility with <code>--trace</code> flag.</li>
+<li>CLI: <code>config check-key --json</code> now includes <code>pattern</code> field showing key source.</li>
+<li>SDK: Client-side filtering for list entries (V2 API does not support server-side filtering).</li>
+</ul>
+<h3 id="changed_17">Changed<a class="headerlink" href="#changed_17" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>--filter</code> on list entry commands now applies client-side with warning (V2 API limitation).</li>
+<li>CLI: Removed <code>--opportunity-id</code> from <code>list entry add</code> (opportunities are created atomically via <code>opportunity create --list-id</code>).</li>
+</ul>
+<h3 id="fixed_27">Fixed<a class="headerlink" href="#fixed_27" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SDK: Client-side filter parsing handles whitespace-only and unparseable filters gracefully.</li>
+<li>CLI: <code>--filter</code> on list entries now returns proper field values (V2 API format).</li>
+</ul>
+<h2 id="040-2025-12-30">0.4.0 - 2025-12-30<a class="headerlink" href="#040-2025-12-30" title="Permanent link">&para;</a></h2>
+<h3 id="added_26">Added<a class="headerlink" href="#added_26" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>config check-key</code> command to check if an API key is configured (checks environment, .env, and config.toml).</li>
+<li>CLI: <code>config setup-key</code> command for secure API key configuration with hidden input, validation, and automatic .gitignore management.</li>
+<li>CLI: <code>set-field</code>, <code>set-fields</code>, <code>unset-field</code> commands for person, company, opportunity, and list entry entities.</li>
+<li>CLI: <code>list entry get</code> command with field metadata display.</li>
+<li>CLI: Enhanced <code>--expand-filter</code> syntax with OR (<code>|</code>), AND (<code>&amp;</code>), NOT (<code>!</code>), NULL checks (<code>=*</code>, <code>!=*</code>), and contains (<code>=~</code>).</li>
+<li>SDK: <code>list_entries</code> field added to <code>Person</code> model.</li>
+<li>SDK: Unified filter parser with <code>parse()</code> function and <code>matches()</code> method for client-side filter evaluation.</li>
+</ul>
+<h3 id="changed_18">Changed<a class="headerlink" href="#changed_18" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Authentication error hints now reference <code>config check-key</code> and <code>config setup-key</code> commands.</li>
+<li>CLI: Authentication documentation updated with Quick Setup section.</li>
+</ul>
+<h3 id="fixed_28">Fixed<a class="headerlink" href="#fixed_28" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Default <code>--page-size</code> reduced from 200 to 100 to match Affinity API limit.</li>
+<li>SDK: Async <code>merge()</code> parameter names corrected (<code>primaryCompanyId</code>/<code>duplicateCompanyId</code>).</li>
+<li>SDK: Cache invalidation added to async create/update/delete in <code>CompanyService</code>.</li>
+</ul>
+<h3 id="removed_3">Removed<a class="headerlink" href="#removed_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Deprecated <code>field-value</code> and <code>field-value-changes</code> command groups removed (use entity-specific field commands instead).</li>
+<li>CLI: Deprecated <code>update-field</code> and <code>batch-update</code> list entry commands removed (use <code>set-field</code>/<code>set-fields</code> instead).</li>
+</ul>
+<h2 id="030-2025-12-30">0.3.0 - 2025-12-30<a class="headerlink" href="#030-2025-12-30" title="Permanent link">&para;</a></h2>
+<h3 id="added_27">Added<a class="headerlink" href="#added_27" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: <code>xaffinity list export --expand</code> for exporting list entries with entity field expansion (company/person/opportunity fields).</li>
+<li>CLI: <code>xaffinity field-value-changes ls</code> for viewing field value change history.</li>
+<li>CLI: <code>xaffinity company get</code> (id/URL/resolver selectors) with <code>--all-fields</code> and <code>--expand lists|list-entries|people</code>.</li>
+<li>CLI: <code>xaffinity person get</code> (id/URL/resolver selectors) with <code>--all-fields</code> and <code>--expand lists|list-entries</code>.</li>
+<li>CLI: <code>xaffinity person ls</code> and <code>xaffinity company ls</code> with search flags.</li>
+<li>CLI: <code>xaffinity opportunity</code> command group with <code>ls/get/create/update/delete</code>.</li>
+<li>CLI: <code>xaffinity note</code>, <code>xaffinity reminder</code>, and <code>xaffinity interaction</code> command groups.</li>
+<li>CLI: <code>xaffinity file upload</code> command for file uploads.</li>
+<li>CLI: Write/merge/field operations for list entries.</li>
+<li>CLI: <code>--max-results</code> and <code>--all</code> controls for pagination and expansions.</li>
+<li>CLI: Progress reporting for all paginated commands.</li>
+<li>CLI: Rate limit visibility via SDK event hook.</li>
+<li>CLI: <code>--trace</code> flag for debugging SDK requests.</li>
+<li>SDK: <code>client.files.download_stream_with_info(...)</code> exposes headers/filename/size alongside streamed bytes.</li>
+<li>SDK: v1-only company association helpers <code>get_associated_person_ids(...)</code> and <code>get_associated_people(...)</code>.</li>
+<li>SDK: List-scoped opportunity resolution helpers <code>resolve(...)</code> and <code>resolve_all(...)</code>.</li>
+<li>SDK: Async parity for company and person services.</li>
+<li>SDK: Async parity for V1-only services.</li>
+<li>SDK: Async list and list entry write helpers.</li>
+<li>SDK: Pagination support for person resolution in <code>PersonService</code> and <code>AsyncPersonService</code>.</li>
+<li>SDK: <code>client.clear_cache()</code> method for cache invalidation.</li>
+<li>SDK: Field value changes service with <code>client.field_value_changes</code>.</li>
+<li>SDK: Detailed exception handling for <code>ConflictError</code>, <code>UnsafeUrlError</code>, and <code>UnsupportedOperationError</code>.</li>
+<li>SDK: Webhook <code>sent_at</code> timestamp validation.</li>
+<li>SDK: Request pipeline with policies (read-only mode, transport injection).</li>
+<li>SDK: <code>on_error</code> hook for error observability.</li>
+<li>Inbound webhook parsing helpers: <code>parse_webhook(...)</code>, <code>dispatch_webhook(...)</code>, and <code>BodyRegistry</code>.</li>
+<li>Claude Code plugin for SDK/CLI documentation and guidance.</li>
+</ul>
+<h3 id="changed_19">Changed<a class="headerlink" href="#changed_19" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLI: Enum fields now display human-readable names instead of integers (type, status, direction, actionType).</li>
+<li>CLI: Datetimes render in local time with timezone info in column headers.</li>
+<li>CLI: Human/table output renders dict-shaped results as sections/tables (no JSON-looking panels).</li>
+<li>CLI: <code>--json</code> output now uses section-keyed <code>data</code> and <code>meta.pagination</code>.</li>
+<li>CLI: List-entry fields tables default to list-only fields; use <code>--list-entry-fields-scope all</code> for full payloads.</li>
+<li>CLI: Domain columns are now linkified in table output.</li>
+<li>CLI: Output only pages when content would scroll.</li>
+<li><code>FieldValueType</code> is now V2-first and string-based (e.g. <code>dropdown-multi</code>, <code>ranked-dropdown</code>, <code>interaction</code>).</li>
+<li><code>ListEntry.entity</code> is now discriminated by <code>entity_type</code>.</li>
+<li>Rate limit API unified across sync and async clients.</li>
+</ul>
+<h3 id="fixed_29">Fixed<a class="headerlink" href="#fixed_29" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SDK: <code>ListService.get()</code> now uses V1 API to return correct <code>list_size</code>.</li>
+<li>CLI: JSON serialization now handles datetime objects correctly.</li>
+<li>Sync entity file download <code>deadline_seconds</code> handling.</li>
+<li>File downloads now use public services for company expansion pagination.</li>
+</ul>
+<h2 id="020-2025-12-17">0.2.0 - 2025-12-17<a class="headerlink" href="#020-2025-12-17" title="Permanent link">&para;</a></h2>
+<h3 id="added_28">Added<a class="headerlink" href="#added_28" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Initial public release.</li>
+<li><code>client.files.download_stream(...)</code> and <code>client.files.download_to(...)</code> for chunked file downloads.</li>
+<li><code>client.files.upload_path(...)</code> and <code>client.files.upload_bytes(...)</code> for ergonomic uploads.</li>
+<li><code>client.files.all(...)</code> / <code>client.files.iter(...)</code> for auto-pagination over files.</li>
+</ul>
+<h3 id="changed_20">Changed<a class="headerlink" href="#changed_20" title="Permanent link">&para;</a></h3>
+<ul>
+<li>File downloads now follow redirects without forwarding credentials and use the standard retry/diagnostics policy.</li>
+<li><code>client.files.list(...)</code> and <code>client.files.upload(...)</code> now require exactly one of <code>person_id</code>, <code>organization_id</code>, or <code>opportunity_id</code> (per API contract).</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Disclaimer: Unofficial community project; not affiliated with, endorsed by, or sponsored by Affinity. "Affinity" and related marks are trademarks of their respective owners. Use of the Affinity API is subject to Affinity Terms of Service.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
