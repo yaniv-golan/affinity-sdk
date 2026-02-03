@@ -1,0 +1,4791 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Strongly-typed Python SDK for the Affinity CRM API">
+      
+      
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../scripting/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Commands - Affinity Python SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#commands" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Affinity Python SDK" class="md-header__button md-logo" aria-label="Affinity Python SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Affinity Python SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Commands
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/yaniv-golan/affinity-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Affinity Python SDK" class="md-nav__button md-logo" aria-label="Affinity Python SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Affinity Python SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/yaniv-golan/affinity-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CLI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commands
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#no-network-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No-network commands
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-config-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity config path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-config-init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity config init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-config-check-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity config check-key
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-config-setup-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity config setup-key
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#global-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global options
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pipeline-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline Optimization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pipeline Optimization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-session-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using session commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#best-practice-for-scripts-with-automatic-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best practice for scripts (with automatic cleanup)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quick-one-liner-pattern-subshell" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick one-liner pattern (subshell)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#session-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debugging
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identity
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Identity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-whoami" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity whoami
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#url-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        URL resolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="URL resolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-resolve-url-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity resolve-url &lt;url&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Query">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity query
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#people" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        People
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="People">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-person-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-person-get-personselector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person get &lt;personSelector&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-person-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-person-update-personid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person update &lt;personId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-person-delete-personid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person delete &lt;personId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-person-merge-primaryid-duplicateid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person merge &lt;primaryId&gt; &lt;duplicateId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-person-files-dump-personid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person files dump &lt;personId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-person-files-upload-personid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person files upload &lt;personId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#companies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Companies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Companies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-get-companyselector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company get &lt;companySelector&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-update-companyid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company update &lt;companyId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-delete-companyid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company delete &lt;companyId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-merge-primaryid-duplicateid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company merge &lt;primaryId&gt; &lt;duplicateId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-files-dump-companyid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company files dump &lt;companyId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-files-upload-companyid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company files upload &lt;companyId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#opportunities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opportunities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Opportunities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-opportunity-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity opportunity ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-opportunity-get-opportunityselector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity opportunity get &lt;opportunitySelector&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-opportunity-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity opportunity create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-opportunity-update-opportunityid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity opportunity update &lt;opportunityId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-opportunity-delete-opportunityid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity opportunity delete &lt;opportunityId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-opportunity-files-upload-opportunityid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity opportunity files upload &lt;opportunityId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lists
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Lists">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-list-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity list ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-list-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity list create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-list-get-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity list get &lt;list&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-list-export-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity list export &lt;list&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-entry-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List Entry Commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-list-entry-add-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity list entry add &lt;list&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-list-entry-delete-list-entryid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity list entry delete &lt;list&gt; &lt;entryId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-list-entry-field-list-entryid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity list entry field &lt;list&gt; &lt;entryId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-note-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity note ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-note-get-noteid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity note get &lt;noteId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-note-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity note create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-note-update-noteid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity note update &lt;noteId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-note-delete-noteid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity note delete &lt;noteId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reminders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reminders
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reminders">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-reminder-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity reminder ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-reminder-get-reminderid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity reminder get &lt;reminderId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-reminder-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity reminder create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-reminder-update-reminderid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity reminder update &lt;reminderId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-reminder-delete-reminderid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity reminder delete &lt;reminderId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interactions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interactions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-interaction-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity interaction ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-interaction-get-interactionid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity interaction get &lt;interactionId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-interaction-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity interaction create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-interaction-update-interactionid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity interaction update &lt;interactionId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-interaction-delete-interactionid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity interaction delete &lt;interactionId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fields">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-field-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity field ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-field-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity field create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-field-delete-fieldid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity field delete &lt;fieldId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-field-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity field history
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship-strengths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship Strengths
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Relationship Strengths">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-relationship-strength-get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity relationship-strength get
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tasks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-task-get-taskurl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity task get &lt;taskUrl&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-task-wait-taskurl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity task wait &lt;taskUrl&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scripting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scripting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JSON Output Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Integrations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AI Integrations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ai-integrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/claude-code-plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Code Plugins & Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/api-versions-and-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API versions & routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pagination/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pagination
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/errors-and-retries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors & retries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rate-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rate limits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/filtering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/query-command/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/datetime-handling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datetime handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/csv-export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSV Export (CLI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/field-types-and-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field types & values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/field-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/ids-and-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IDs & types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/sync-vs-async/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sync vs async
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/debugging-hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debugging hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/webhooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/opportunity-associations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Opportunity associations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query Language
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_7" id="__nav_10_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/companies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Companies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/persons/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Persons
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/lists/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lists
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/opportunities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Opportunities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_7_6" id="__nav_10_7_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V1 endpoints
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_7_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    V1 endpoints
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/reminders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reminders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/webhooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/fields/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fields
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/field-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/relationships/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relationships
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/v1/auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#no-network-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No-network commands
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-config-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity config path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-config-init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity config init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-config-check-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity config check-key
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-config-setup-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity config setup-key
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#global-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global options
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pipeline-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline Optimization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pipeline Optimization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-session-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using session commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#best-practice-for-scripts-with-automatic-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best practice for scripts (with automatic cleanup)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quick-one-liner-pattern-subshell" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick one-liner pattern (subshell)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#session-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debugging
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identity
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Identity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-whoami" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity whoami
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#url-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        URL resolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="URL resolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-resolve-url-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity resolve-url &lt;url&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Query">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity query
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#people" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        People
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="People">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-person-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-person-get-personselector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person get &lt;personSelector&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-person-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-person-update-personid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person update &lt;personId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-person-delete-personid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person delete &lt;personId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-person-merge-primaryid-duplicateid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person merge &lt;primaryId&gt; &lt;duplicateId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-person-files-dump-personid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person files dump &lt;personId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-person-files-upload-personid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person files upload &lt;personId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#companies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Companies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Companies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-get-companyselector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company get &lt;companySelector&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-update-companyid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company update &lt;companyId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-delete-companyid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company delete &lt;companyId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-merge-primaryid-duplicateid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company merge &lt;primaryId&gt; &lt;duplicateId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-files-dump-companyid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company files dump &lt;companyId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-files-upload-companyid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company files upload &lt;companyId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#opportunities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opportunities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Opportunities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-opportunity-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity opportunity ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-opportunity-get-opportunityselector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity opportunity get &lt;opportunitySelector&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-opportunity-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity opportunity create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-opportunity-update-opportunityid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity opportunity update &lt;opportunityId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-opportunity-delete-opportunityid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity opportunity delete &lt;opportunityId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-opportunity-files-upload-opportunityid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity opportunity files upload &lt;opportunityId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lists
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Lists">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-list-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity list ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-list-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity list create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-list-get-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity list get &lt;list&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-list-export-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity list export &lt;list&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-entry-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List Entry Commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-list-entry-add-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity list entry add &lt;list&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-list-entry-delete-list-entryid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity list entry delete &lt;list&gt; &lt;entryId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-list-entry-field-list-entryid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity list entry field &lt;list&gt; &lt;entryId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-note-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity note ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-note-get-noteid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity note get &lt;noteId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-note-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity note create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-note-update-noteid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity note update &lt;noteId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-note-delete-noteid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity note delete &lt;noteId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reminders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reminders
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reminders">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-reminder-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity reminder ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-reminder-get-reminderid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity reminder get &lt;reminderId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-reminder-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity reminder create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-reminder-update-reminderid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity reminder update &lt;reminderId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-reminder-delete-reminderid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity reminder delete &lt;reminderId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interactions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interactions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-interaction-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity interaction ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-interaction-get-interactionid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity interaction get &lt;interactionId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-interaction-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity interaction create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-interaction-update-interactionid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity interaction update &lt;interactionId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-interaction-delete-interactionid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity interaction delete &lt;interactionId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fields">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-field-ls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity field ls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-field-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity field create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-field-delete-fieldid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity field delete &lt;fieldId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-field-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity field history
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship-strengths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship Strengths
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Relationship Strengths">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-relationship-strength-get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity relationship-strength get
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tasks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-task-get-taskurl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity task get &lt;taskUrl&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-task-wait-taskurl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity task wait &lt;taskUrl&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h1>
+<h2 id="no-network-commands">No-network commands<a class="headerlink" href="#no-network-commands" title="Permanent link">&para;</a></h2>
+<p>These commands never call the Affinity API:</p>
+<ul>
+<li><code>xaffinity --help</code></li>
+<li><code>xaffinity completion bash|zsh|fish</code></li>
+<li><code>xaffinity version</code> (also <code>xaffinity --version</code>)</li>
+<li><code>xaffinity config path</code></li>
+<li><code>xaffinity config init</code></li>
+<li><code>xaffinity config check-key</code> (reads files, but never calls API)</li>
+</ul>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<h3 id="xaffinity-config-path"><code>xaffinity config path</code><a class="headerlink" href="#xaffinity-config-path" title="Permanent link">&para;</a></h3>
+<p>Show the path to the configuration file.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>path
+</code></pre></div>
+<h3 id="xaffinity-config-init"><code>xaffinity config init</code><a class="headerlink" href="#xaffinity-config-init" title="Permanent link">&para;</a></h3>
+<p>Create a new configuration file with template.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>init
+xaffinity<span class="w"> </span>config<span class="w"> </span>init<span class="w"> </span>--force<span class="w">  </span><span class="c1"># Overwrite existing</span>
+</code></pre></div>
+<h3 id="xaffinity-config-check-key"><code>xaffinity config check-key</code><a class="headerlink" href="#xaffinity-config-check-key" title="Permanent link">&para;</a></h3>
+<p>Check if an API key is configured. Returns exit code 0 if key found, 1 if not found.</p>
+<p>This command checks (in order):
+1. <code>AFFINITY_API_KEY</code> environment variable
+2. <code>.env</code> file in current directory
+3. User config file (<code>config.toml</code>)</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>check-key
+xaffinity<span class="w"> </span>config<span class="w"> </span>check-key<span class="w"> </span>--json
+xaffinity<span class="w"> </span>config<span class="w"> </span>check-key<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Key exists&quot;</span>
+</code></pre></div>
+<p>The <code>--json</code> output includes:
+- <code>configured</code>: boolean indicating if a key was found
+- <code>source</code>: where the key was found (<code>"environment"</code>, <code>"dotenv"</code>, <code>"config"</code>, or <code>null</code>)</p>
+<h3 id="xaffinity-config-setup-key"><code>xaffinity config setup-key</code><a class="headerlink" href="#xaffinity-config-setup-key" title="Permanent link">&para;</a></h3>
+<p>Securely configure your Affinity API key. Prompts for the key with hidden input (not echoed to screen).</p>
+<p>Options:</p>
+<ul>
+<li><code>--scope [project|user]</code>: Where to store the key</li>
+<li><code>project</code>: <code>.env</code> file in current directory (auto-added to <code>.gitignore</code>)</li>
+<li><code>user</code>: User config file (<code>config.toml</code>, with <code>chmod 600</code> on Unix)</li>
+<li><code>--force</code>: Overwrite existing key without confirmation</li>
+<li><code>--validate/--no-validate</code>: Test key against API after storing (default: validate)</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Interactive setup (prompts for scope)</span>
+xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key
+
+<span class="c1"># Store in current project&#39;s .env file</span>
+xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key<span class="w"> </span>--scope<span class="w"> </span>project
+
+<span class="c1"># Store in user config (works across all projects)</span>
+xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key<span class="w"> </span>--scope<span class="w"> </span>user
+
+<span class="c1"># Overwrite existing key</span>
+xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key<span class="w"> </span>--force
+
+<span class="c1"># Skip API validation</span>
+xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key<span class="w"> </span>--no-validate
+</code></pre></div>
+<p>Get your API key from <a href="https://support.affinity.co/s/article/How-to-Create-and-Manage-API-Keys">Affinity API Settings</a>.</p>
+<h2 id="global-options">Global options<a class="headerlink" href="#global-options" title="Permanent link">&para;</a></h2>
+<p>These options can be used with any command:</p>
+<ul>
+<li><code>--json</code> / <code>--output json</code>: emit machine-readable <code>CommandResult</code> JSON to stdout.</li>
+<li><code>--help --json</code>: emit machine-readable command documentation (see <a href="../scripting/#machine-readable-help">Scripting: Machine-Readable Help</a>).</li>
+<li><code>--trace</code>: emit request/response/error trace lines to stderr (safe redaction). Recommended with <code>--no-progress</code> for long-running commands.</li>
+<li><code>--beta</code>: enable beta endpoints (required for merge commands).</li>
+<li><code>--session-cache &lt;dir&gt;</code>: enable session caching using the specified directory.</li>
+<li><code>--no-cache</code>: disable session caching for this command.</li>
+</ul>
+<h2 id="pipeline-optimization">Pipeline Optimization<a class="headerlink" href="#pipeline-optimization" title="Permanent link">&para;</a></h2>
+<p>When running multiple CLI commands in a pipeline, you can enable session caching to avoid redundant API calls for metadata like field definitions and list resolution.</p>
+<h3 id="using-session-commands">Using session commands<a class="headerlink" href="#using-session-commands" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Start a session (creates temp cache directory)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_SESSION_CACHE</span><span class="o">=</span><span class="k">$(</span>xaffinity<span class="w"> </span>session<span class="w"> </span>start<span class="k">)</span>
+
+<span class="c1"># Run your commands - metadata is cached across invocations</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My List&quot;</span><span class="w"> </span>--json<span class="w"> </span>&gt;<span class="w"> </span>entries.json
+xaffinity<span class="w"> </span>field<span class="w"> </span>ls<span class="w"> </span>--list-id<span class="w"> </span><span class="m">12345</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">12345</span>
+
+<span class="c1"># Check session status</span>
+xaffinity<span class="w"> </span>session<span class="w"> </span>status
+
+<span class="c1"># End session (cleanup)</span>
+xaffinity<span class="w"> </span>session<span class="w"> </span>end
+<span class="nb">unset</span><span class="w"> </span>AFFINITY_SESSION_CACHE
+</code></pre></div>
+<h3 id="best-practice-for-scripts-with-automatic-cleanup">Best practice for scripts (with automatic cleanup)<a class="headerlink" href="#best-practice-for-scripts-with-automatic-cleanup" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_SESSION_CACHE</span><span class="o">=</span><span class="k">$(</span>xaffinity<span class="w"> </span>session<span class="w"> </span>start<span class="k">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="nb">trap</span><span class="w"> </span><span class="s1">&#39;xaffinity session end; unset AFFINITY_SESSION_CACHE&#39;</span><span class="w"> </span>EXIT
+
+<span class="c1"># Your commands here - cleanup happens automatically on exit, error, or Ctrl+C</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My List&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.entries[]&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xaffinity<span class="w"> </span>person<span class="w"> </span>get
+</code></pre></div>
+<h3 id="quick-one-liner-pattern-subshell">Quick one-liner pattern (subshell)<a class="headerlink" href="#quick-one-liner-pattern-subshell" title="Permanent link">&para;</a></h3>
+<p>For simple pipelines, use a subshell - the session dir is cleaned up by TTL:</p>
+<div class="highlight"><pre><span></span><code><span class="o">(</span>
+<span class="w">  </span><span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_SESSION_CACHE</span><span class="o">=</span><span class="k">$(</span>xaffinity<span class="w"> </span>session<span class="w"> </span>start<span class="k">)</span>
+<span class="w">  </span>xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My List&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xaffinity<span class="w"> </span>person<span class="w"> </span>get
+<span class="o">)</span>
+</code></pre></div>
+<h3 id="cache-behavior">Cache behavior<a class="headerlink" href="#cache-behavior" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Cache is scoped to your API key (multi-tenant safe)</li>
+<li>Default TTL is 10 minutes (configurable via <code>AFFINITY_SESSION_CACHE_TTL</code>)</li>
+<li>Cache is file-based in the specified directory</li>
+<li><code>session end</code> is idempotent - safe to call multiple times</li>
+</ul>
+<h3 id="environment-variables">Environment variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AFFINITY_SESSION_CACHE</code></td>
+<td>Directory for session cache files</td>
+</tr>
+<tr>
+<td><code>AFFINITY_SESSION_CACHE_TTL</code></td>
+<td>Cache TTL in seconds (default: 600)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="session-commands">Session commands<a class="headerlink" href="#session-commands" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>xaffinity session start</code></td>
+<td>Create session cache, output path</td>
+</tr>
+<tr>
+<td><code>xaffinity session end</code></td>
+<td>Clean up session cache directory</td>
+</tr>
+<tr>
+<td><code>xaffinity session status</code></td>
+<td>Show cache stats (entries, size, age)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">&para;</a></h3>
+<p>Use <code>--trace</code> to see cache hit/miss information:</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>--trace<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My List&quot;</span>
+<span class="c1"># trace #+ cache hit: list_fields_12345</span>
+<span class="c1"># trace #- cache miss: saved_views_12345</span>
+</code></pre></div>
+<p>Use <code>--no-cache</code> to bypass session cache:</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>--no-cache<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My List&quot;</span>
+</code></pre></div>
+<h2 id="identity">Identity<a class="headerlink" href="#identity" title="Permanent link">&para;</a></h2>
+<h3 id="xaffinity-whoami"><code>xaffinity whoami</code><a class="headerlink" href="#xaffinity-whoami" title="Permanent link">&para;</a></h3>
+<p>Validates credentials and prints tenant/user context.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>whoami
+xaffinity<span class="w"> </span>whoami<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+</code></pre></div>
+<h2 id="url-resolution">URL resolution<a class="headerlink" href="#url-resolution" title="Permanent link">&para;</a></h2>
+<h3 id="xaffinity-resolve-url-url"><code>xaffinity resolve-url &lt;url&gt;</code><a class="headerlink" href="#xaffinity-resolve-url-url" title="Permanent link">&para;</a></h3>
+<p>Parses an Affinity UI URL (including tenant hosts like <code>https://&lt;tenant&gt;.affinity.co/...</code> or <code>https://&lt;tenant&gt;.affinity.com/...</code>) and validates it by fetching the referenced object.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>resolve-url<span class="w"> </span><span class="s2">&quot;https://app.affinity.co/companies/263169568&quot;</span>
+xaffinity<span class="w"> </span>resolve-url<span class="w"> </span><span class="s2">&quot;https://mydomain.affinity.com/companies/263169568&quot;</span><span class="w"> </span>--json
+</code></pre></div>
+<h2 id="query">Query<a class="headerlink" href="#query" title="Permanent link">&para;</a></h2>
+<h3 id="xaffinity-query"><code>xaffinity query</code><a class="headerlink" href="#xaffinity-query" title="Permanent link">&para;</a></h3>
+<p>Execute structured JSON queries against Affinity data. Supports complex filtering, aggregations, grouping, and including related entities.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Simple query</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;persons&quot;, &quot;limit&quot;: 10}&#39;</span>
+
+<span class="c1"># Filter with conditions</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;persons&quot;, &quot;where&quot;: {&quot;path&quot;: &quot;email&quot;, &quot;op&quot;: &quot;contains&quot;, &quot;value&quot;: &quot;@acme.com&quot;}}&#39;</span>
+
+<span class="c1"># Include related entities</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;persons&quot;, &quot;include&quot;: [&quot;companies&quot;], &quot;limit&quot;: 50}&#39;</span>
+
+<span class="c1"># Aggregation</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;opportunities&quot;, &quot;groupBy&quot;: &quot;status&quot;, &quot;aggregate&quot;: {&quot;count&quot;: {&quot;count&quot;: true}}}&#39;</span>
+
+<span class="c1"># Dry-run to preview execution plan</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;persons&quot;, &quot;include&quot;: [&quot;companies&quot;]}&#39;</span><span class="w"> </span>--dry-run
+
+<span class="c1"># From file</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class="w"> </span>query.json
+</code></pre></div>
+<p><strong>Key options:</strong></p>
+<ul>
+<li><code>--query &lt;json&gt;</code>: Inline JSON query string</li>
+<li><code>--file &lt;path&gt;</code>: Read query from JSON file</li>
+<li><code>--dry-run</code>: Show execution plan without running (estimated API calls)</li>
+<li><code>--dry-run-verbose</code>: Detailed plan with step breakdown</li>
+<li><code>--max-records &lt;n&gt;</code>: Safety limit (default: 10000)</li>
+<li><code>--timeout &lt;secs&gt;</code>: Query timeout (default: 300)</li>
+<li><code>--csv</code> / <code>--json</code>: Output format</li>
+</ul>
+<p>See <a href="../../reference/query-language/">Query Language Reference</a> and <a href="../../guides/query-command/">Query Guide</a> for full documentation.</p>
+<h2 id="people">People<a class="headerlink" href="#people" title="Permanent link">&para;</a></h2>
+<h3 id="xaffinity-person-ls"><code>xaffinity person ls</code><a class="headerlink" href="#xaffinity-person-ls" title="Permanent link">&para;</a></h3>
+<p>List persons. Supports field selection, filter expressions, and free-text search.</p>
+<p>Options:</p>
+<ul>
+<li><code>--query &lt;term&gt;</code> / <code>-q &lt;term&gt;</code>: free-text search (name or email)</li>
+<li><code>--field &lt;id-or-name&gt;</code> (repeatable): field ID or name to include</li>
+<li><code>--field-type &lt;type&gt;</code> (repeatable): field type to include (global, enriched, relationship-intelligence)</li>
+<li><code>--filter &lt;expression&gt;</code>: filter expression (custom fields only)</li>
+<li><code>--page-size</code>, <code>--cursor</code>, <code>--max-results</code>, <code>--all</code>: pagination options</li>
+<li><code>--csv</code>: output as CSV (to stdout)</li>
+<li><code>--csv-bom</code>: add UTF-8 BOM for Excel compatibility</li>
+</ul>
+<p><strong>Note:</strong> <code>--filter</code> only works with custom fields. To filter on built-in properties like <code>type</code>, <code>firstName</code>, etc., use <code>--json</code> output with <code>jq</code>.</p>
+<p><strong>Note:</strong> <code>--query</code> can be combined with <code>--field</code> and <code>--field-type</code> to search with field data.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>ls
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--page-size<span class="w"> </span><span class="m">50</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Email =~ &quot;@acme.com&quot;&#39;</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;alice@example.com&quot;</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>people.csv
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>people.csv
+</code></pre></div>
+<p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
+<h3 id="xaffinity-person-get-personselector"><code>xaffinity person get &lt;personSelector&gt;</code><a class="headerlink" href="#xaffinity-person-get-personselector" title="Permanent link">&para;</a></h3>
+<p>Fetch a person by id, UI URL (including tenant hosts), or a resolver selector.</p>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="s2">&quot;https://mydomain.affinity.com/persons/26229794&quot;</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span>email:alice@example.com
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="s1">&#39;name:&quot;Alice Smith&quot;&#39;</span>
+</code></pre></div>
+<p>Field selection:</p>
+<ul>
+<li><code>--all-fields</code>: include all supported (non-list-specific) fields.</li>
+<li><code>--field &lt;id-or-exact-name&gt;</code> (repeatable)</li>
+<li><code>--field-type &lt;type&gt;</code> (repeatable)</li>
+<li><code>--no-fields</code>: skip fields entirely.</li>
+</ul>
+<p>Expansions:</p>
+<ul>
+<li><code>--expand lists</code>: include lists the person is on (auto-paginates up to a safe cap; use <code>--max-results</code> / <code>--all</code> to adjust).</li>
+<li><code>--expand list-entries</code>: include list entries for the person (first page by default; use <code>--max-results</code> / <code>--all</code> to fetch more).</li>
+<li><code>--list &lt;id-or-exact-name&gt;</code>: filter list entries to a specific list (requires <code>--expand list-entries</code>).</li>
+<li><code>--list-entry-field &lt;id-or-exact-name&gt;</code> (repeatable): project list-entry fields into columns (requires <code>--expand list-entries</code>). Field names are only allowed with <code>--list</code>.</li>
+<li><code>--show-list-entry-fields</code>: render per-list-entry Fields tables in human output (requires <code>--expand list-entries</code> and <code>--max-results &lt;= 3</code>). Mutually exclusive with <code>--list-entry-field</code>.</li>
+<li><code>--list-entry-fields-scope list-only|all</code>: control which fields appear in list-entry tables (human output only).</li>
+</ul>
+<p>Interaction dates (V1 API):</p>
+<ul>
+<li><code>--with-interaction-dates</code>: include interaction date summaries (last/next meeting, email dates). Uses V1 API.</li>
+<li><code>--with-interaction-persons</code>: include person IDs involved in each interaction (requires <code>--with-interaction-dates</code>).</li>
+</ul>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--all-fields<span class="w"> </span>--expand<span class="w"> </span>lists
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--max-results<span class="w"> </span><span class="m">200</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--list-entry-field<span class="w"> </span>Stage<span class="w"> </span>--list-entry-field<span class="w"> </span>Amount
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--max-results<span class="w"> </span><span class="m">1</span><span class="w"> </span>--show-list-entry-fields
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--max-results<span class="w"> </span><span class="m">1</span><span class="w"> </span>--show-list-entry-fields<span class="w"> </span>--list-entry-fields-scope<span class="w"> </span>all
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--all-fields<span class="w"> </span>--expand<span class="w"> </span>lists<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.person.name&#39;</span>
+
+<span class="c1"># Include interaction dates (last meeting, next meeting, email dates)</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--with-interaction-dates<span class="w"> </span>--json
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--with-interaction-dates<span class="w"> </span>--with-interaction-persons<span class="w"> </span>--json
+</code></pre></div>
+<h3 id="xaffinity-person-create"><code>xaffinity person create</code><a class="headerlink" href="#xaffinity-person-create" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>create<span class="w"> </span>--first-name<span class="w"> </span>Ada<span class="w"> </span>--last-name<span class="w"> </span>Lovelace<span class="w"> </span>--email<span class="w"> </span>ada@example.com
+xaffinity<span class="w"> </span>person<span class="w"> </span>create<span class="w"> </span>--first-name<span class="w"> </span>Ada<span class="w"> </span>--last-name<span class="w"> </span>Lovelace<span class="w"> </span>--company-id<span class="w"> </span><span class="m">224925494</span>
+</code></pre></div>
+<h3 id="xaffinity-person-update-personid"><code>xaffinity person update &lt;personId&gt;</code><a class="headerlink" href="#xaffinity-person-update-personid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>update<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--email<span class="w"> </span>ada@example.com<span class="w"> </span>--email<span class="w"> </span>ada@work.com
+xaffinity<span class="w"> </span>person<span class="w"> </span>update<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--first-name<span class="w"> </span>Ada<span class="w"> </span>--last-name<span class="w"> </span>Byron
+</code></pre></div>
+<h3 id="xaffinity-person-delete-personid"><code>xaffinity person delete &lt;personId&gt;</code><a class="headerlink" href="#xaffinity-person-delete-personid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>delete<span class="w"> </span><span class="m">26229794</span>
+</code></pre></div>
+<h3 id="xaffinity-person-merge-primaryid-duplicateid"><code>xaffinity person merge &lt;primaryId&gt; &lt;duplicateId&gt;</code><a class="headerlink" href="#xaffinity-person-merge-primaryid-duplicateid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>--beta<span class="w"> </span>person<span class="w"> </span>merge<span class="w"> </span><span class="m">111</span><span class="w"> </span><span class="m">222</span>
+</code></pre></div>
+<h3 id="xaffinity-person-files-dump-personid"><code>xaffinity person files dump &lt;personId&gt;</code><a class="headerlink" href="#xaffinity-person-files-dump-personid" title="Permanent link">&para;</a></h3>
+<p>Downloads all files attached to a person into a folder bundle with a <code>manifest.json</code>.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>files<span class="w"> </span>dump<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--out<span class="w"> </span>./bundle
+</code></pre></div>
+<h3 id="xaffinity-person-files-upload-personid"><code>xaffinity person files upload &lt;personId&gt;</code><a class="headerlink" href="#xaffinity-person-files-upload-personid" title="Permanent link">&para;</a></h3>
+<p>Uploads one or more files to a person.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--file<span class="w"> </span>doc.pdf
+xaffinity<span class="w"> </span>person<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--file<span class="w"> </span>a.pdf<span class="w"> </span>--file<span class="w"> </span>b.pdf
+</code></pre></div>
+<h2 id="companies">Companies<a class="headerlink" href="#companies" title="Permanent link">&para;</a></h2>
+<h3 id="xaffinity-company-ls"><code>xaffinity company ls</code><a class="headerlink" href="#xaffinity-company-ls" title="Permanent link">&para;</a></h3>
+<p>List companies. Supports field selection, filter expressions, and free-text search.</p>
+<p>Options:</p>
+<ul>
+<li><code>--query &lt;term&gt;</code> / <code>-q &lt;term&gt;</code>: free-text search (name or domain)</li>
+<li><code>--field &lt;id-or-name&gt;</code> (repeatable): field ID or name to include</li>
+<li><code>--field-type &lt;type&gt;</code> (repeatable): field type to include (global, enriched, relationship-intelligence)</li>
+<li><code>--filter &lt;expression&gt;</code>: filter expression (custom fields only)</li>
+<li><code>--page-size</code>, <code>--cursor</code>, <code>--max-results</code>, <code>--all</code>: pagination options</li>
+<li><code>--csv</code>: output as CSV (to stdout)</li>
+<li><code>--csv-bom</code>: add UTF-8 BOM for Excel compatibility</li>
+</ul>
+<p><strong>Note:</strong> <code>--filter</code> only works with custom fields. To filter on built-in properties like <code>name</code>, <code>domain</code>, etc., use <code>--json</code> output with <code>jq</code>.</p>
+<p><strong>Note:</strong> <code>--query</code> can be combined with <code>--field</code> and <code>--field-type</code> to search with field data.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>ls
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--page-size<span class="w"> </span><span class="m">50</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Industry = &quot;Software&quot;&#39;</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;example.com&quot;</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;Example&quot;</span><span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>companies.csv
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>companies.csv
+</code></pre></div>
+<p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
+<h3 id="xaffinity-company-get-companyselector"><code>xaffinity company get &lt;companySelector&gt;</code><a class="headerlink" href="#xaffinity-company-get-companyselector" title="Permanent link">&para;</a></h3>
+<p>Fetch a company by id, UI URL (including tenant hosts), or a resolver selector.</p>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="s2">&quot;https://mydomain.affinity.com/companies/224925494&quot;</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span>domain:wellybox.com
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="s1">&#39;name:&quot;WellyBox&quot;&#39;</span>
+</code></pre></div>
+<p>Field selection:</p>
+<ul>
+<li><code>--all-fields</code>: include all supported (non-list-specific) fields.</li>
+<li><code>--field &lt;id-or-exact-name&gt;</code> (repeatable)</li>
+<li><code>--field-type &lt;type&gt;</code> (repeatable)</li>
+<li><code>--no-fields</code>: skip fields entirely.</li>
+</ul>
+<p>Expansions:</p>
+<ul>
+<li><code>--expand lists</code>: include lists the company is on (auto-paginates up to a safe cap; use <code>--max-results</code> / <code>--all</code> to adjust).</li>
+<li><code>--expand list-entries</code>: include list entries for the company (first page by default; use <code>--max-results</code> / <code>--all</code> to fetch more).</li>
+<li><code>--expand persons</code>: include people associated with the company (use <code>--max-results</code> / <code>--all</code> to control volume).</li>
+<li><code>--list &lt;id-or-exact-name&gt;</code>: filter list entries to a specific list (requires <code>--expand list-entries</code>).</li>
+<li><code>--list-entry-field &lt;id-or-exact-name&gt;</code> (repeatable): project list-entry fields into columns (requires <code>--expand list-entries</code>). Field names are only allowed with <code>--list</code>.</li>
+<li><code>--show-list-entry-fields</code>: render per-list-entry Fields tables in human output (requires <code>--expand list-entries</code> and <code>--max-results &lt;= 3</code>). Mutually exclusive with <code>--list-entry-field</code>.</li>
+<li><code>--list-entry-fields-scope list-only|all</code>: control which fields appear in list-entry tables (human output only).</li>
+</ul>
+<p>Interaction dates (V1 API):</p>
+<ul>
+<li><code>--with-interaction-dates</code>: include interaction date summaries (last/next meeting, email dates). Uses V1 API.</li>
+<li><code>--with-interaction-persons</code>: include person IDs involved in each interaction (requires <code>--with-interaction-dates</code>).</li>
+</ul>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--all-fields<span class="w"> </span>--expand<span class="w"> </span>lists
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--max-results<span class="w"> </span><span class="m">200</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--list-entry-field<span class="w"> </span>Stage<span class="w"> </span>--list-entry-field<span class="w"> </span>Amount
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--max-results<span class="w"> </span><span class="m">1</span><span class="w"> </span>--show-list-entry-fields
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--max-results<span class="w"> </span><span class="m">1</span><span class="w"> </span>--show-list-entry-fields<span class="w"> </span>--list-entry-fields-scope<span class="w"> </span>all
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>persons<span class="w"> </span>--max-results<span class="w"> </span><span class="m">50</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--all-fields<span class="w"> </span>--expand<span class="w"> </span>lists<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.company.name&#39;</span>
+
+<span class="c1"># Include interaction dates (last meeting, next meeting, email dates)</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--with-interaction-dates<span class="w"> </span>--json
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--with-interaction-dates<span class="w"> </span>--with-interaction-persons<span class="w"> </span>--json
+</code></pre></div>
+<h3 id="xaffinity-company-create"><code>xaffinity company create</code><a class="headerlink" href="#xaffinity-company-create" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Acme Corp&quot;</span><span class="w"> </span>--domain<span class="w"> </span>acme.com
+xaffinity<span class="w"> </span>company<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Acme Corp&quot;</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">26229794</span>
+</code></pre></div>
+<h3 id="xaffinity-company-update-companyid"><code>xaffinity company update &lt;companyId&gt;</code><a class="headerlink" href="#xaffinity-company-update-companyid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>update<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--domain<span class="w"> </span>acme.com
+xaffinity<span class="w"> </span>company<span class="w"> </span>update<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">26229795</span>
+</code></pre></div>
+<h3 id="xaffinity-company-delete-companyid"><code>xaffinity company delete &lt;companyId&gt;</code><a class="headerlink" href="#xaffinity-company-delete-companyid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>delete<span class="w"> </span><span class="m">224925494</span>
+</code></pre></div>
+<h3 id="xaffinity-company-merge-primaryid-duplicateid"><code>xaffinity company merge &lt;primaryId&gt; &lt;duplicateId&gt;</code><a class="headerlink" href="#xaffinity-company-merge-primaryid-duplicateid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>--beta<span class="w"> </span>company<span class="w"> </span>merge<span class="w"> </span><span class="m">111</span><span class="w"> </span><span class="m">222</span>
+</code></pre></div>
+<h3 id="xaffinity-company-files-dump-companyid"><code>xaffinity company files dump &lt;companyId&gt;</code><a class="headerlink" href="#xaffinity-company-files-dump-companyid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>files<span class="w"> </span>dump<span class="w"> </span><span class="m">9876</span><span class="w"> </span>--out<span class="w"> </span>./bundle
+</code></pre></div>
+<p>Notes:
+- Saved files use the original filename when possible; if multiple files share the same name, the CLI disambiguates by appending the file id.</p>
+<h3 id="xaffinity-company-files-upload-companyid"><code>xaffinity company files upload &lt;companyId&gt;</code><a class="headerlink" href="#xaffinity-company-files-upload-companyid" title="Permanent link">&para;</a></h3>
+<p>Uploads one or more files to a company.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">9876</span><span class="w"> </span>--file<span class="w"> </span>doc.pdf
+xaffinity<span class="w"> </span>company<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">9876</span><span class="w"> </span>--file<span class="w"> </span>a.pdf<span class="w"> </span>--file<span class="w"> </span>b.pdf
+</code></pre></div>
+<h2 id="opportunities">Opportunities<a class="headerlink" href="#opportunities" title="Permanent link">&para;</a></h2>
+<h3 id="xaffinity-opportunity-ls"><code>xaffinity opportunity ls</code><a class="headerlink" href="#xaffinity-opportunity-ls" title="Permanent link">&para;</a></h3>
+<p>List opportunities.</p>
+<p>Options:</p>
+<ul>
+<li><code>--page-size</code>, <code>--cursor</code>, <code>--max-results</code>, <code>--all</code>: pagination options</li>
+<li><code>--csv</code>: output as CSV (to stdout)</li>
+<li><code>--csv-bom</code>: add UTF-8 BOM for Excel compatibility</li>
+</ul>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls
+xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--page-size<span class="w"> </span><span class="m">200</span><span class="w"> </span>--all<span class="w"> </span>--json
+xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>opportunities.csv
+xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>opportunities.csv
+</code></pre></div>
+<p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
+<h3 id="xaffinity-opportunity-get-opportunityselector"><code>xaffinity opportunity get &lt;opportunitySelector&gt;</code><a class="headerlink" href="#xaffinity-opportunity-get-opportunityselector" title="Permanent link">&para;</a></h3>
+<p>Fetch an opportunity by id or UI URL (including tenant hosts).</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>opportunity<span class="w"> </span>get<span class="w"> </span><span class="m">123</span>
+xaffinity<span class="w"> </span>opportunity<span class="w"> </span>get<span class="w"> </span><span class="s2">&quot;https://mydomain.affinity.com/opportunities/123&quot;</span>
+xaffinity<span class="w"> </span>opportunity<span class="w"> </span>get<span class="w"> </span><span class="m">123</span><span class="w"> </span>--details
+</code></pre></div>
+<p>Notes:
+- <code>--details</code> fetches a fuller payload with associations and list entries.</p>
+<h3 id="xaffinity-opportunity-create"><code>xaffinity opportunity create</code><a class="headerlink" href="#xaffinity-opportunity-create" title="Permanent link">&para;</a></h3>
+<p>Create a new opportunity.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>opportunity<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Series A&quot;</span><span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span>
+xaffinity<span class="w"> </span>opportunity<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Series A&quot;</span><span class="w"> </span>--list<span class="w"> </span><span class="m">123</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">1</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">2</span>
+</code></pre></div>
+<h3 id="xaffinity-opportunity-update-opportunityid"><code>xaffinity opportunity update &lt;opportunityId&gt;</code><a class="headerlink" href="#xaffinity-opportunity-update-opportunityid" title="Permanent link">&para;</a></h3>
+<p>Update an opportunity (replaces association arrays when provided).</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>opportunity<span class="w"> </span>update<span class="w"> </span><span class="m">123</span><span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Series A (Closed)&quot;</span>
+xaffinity<span class="w"> </span>opportunity<span class="w"> </span>update<span class="w"> </span><span class="m">123</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">1</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">2</span>
+</code></pre></div>
+<h3 id="xaffinity-opportunity-delete-opportunityid"><code>xaffinity opportunity delete &lt;opportunityId&gt;</code><a class="headerlink" href="#xaffinity-opportunity-delete-opportunityid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>opportunity<span class="w"> </span>delete<span class="w"> </span><span class="m">123</span>
+</code></pre></div>
+<h3 id="xaffinity-opportunity-files-upload-opportunityid"><code>xaffinity opportunity files upload &lt;opportunityId&gt;</code><a class="headerlink" href="#xaffinity-opportunity-files-upload-opportunityid" title="Permanent link">&para;</a></h3>
+<p>Uploads one or more files to an opportunity.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>opportunity<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">123</span><span class="w"> </span>--file<span class="w"> </span>doc.pdf
+xaffinity<span class="w"> </span>opportunity<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">123</span><span class="w"> </span>--file<span class="w"> </span>a.pdf<span class="w"> </span>--file<span class="w"> </span>b.pdf
+</code></pre></div>
+<h2 id="lists">Lists<a class="headerlink" href="#lists" title="Permanent link">&para;</a></h2>
+<h3 id="xaffinity-list-ls"><code>xaffinity list ls</code><a class="headerlink" href="#xaffinity-list-ls" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>ls
+xaffinity<span class="w"> </span>list<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--json
+</code></pre></div>
+<h3 id="xaffinity-list-create"><code>xaffinity list create</code><a class="headerlink" href="#xaffinity-list-create" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--type<span class="w"> </span>opportunity<span class="w"> </span>--private
+xaffinity<span class="w"> </span>list<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;People&quot;</span><span class="w"> </span>--type<span class="w"> </span>person<span class="w"> </span>--public<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span>
+</code></pre></div>
+<h3 id="xaffinity-list-get-list"><code>xaffinity list get &lt;list&gt;</code><a class="headerlink" href="#xaffinity-list-get-list" title="Permanent link">&para;</a></h3>
+<p>Accepts a list ID or an exact list name.</p>
+<p>The Fields table includes a <code>valueType</code> column (e.g., <code>dropdown-multi</code>, <code>ranked-dropdown</code>).</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>get<span class="w"> </span><span class="m">123</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>get<span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span>--json
+</code></pre></div>
+<h3 id="xaffinity-list-export-list"><code>xaffinity list export &lt;list&gt;</code><a class="headerlink" href="#xaffinity-list-export-list" title="Permanent link">&para;</a></h3>
+<p>Exports list entries with selected fields. This is the most powerful CSV export command, supporting custom fields and complex filtering.</p>
+<p>Options:</p>
+<ul>
+<li><code>--csv</code>: output as CSV (to stdout)</li>
+<li><code>--csv-bom</code>: add UTF-8 BOM for Excel compatibility</li>
+<li><code>--field &lt;id-or-name&gt;</code> (repeatable): include specific fields</li>
+<li><code>--saved-view &lt;name&gt;</code>: use a saved view's field selection</li>
+<li><code>--filter &lt;expression&gt;</code>: filter expression</li>
+<li><code>--expand &lt;type&gt;</code> (repeatable): expand associated entities or interaction data</li>
+<li><code>persons</code>, <code>companies</code>, <code>opportunities</code>: Expand related entities</li>
+<li><code>interactions</code>: Add interaction date summaries (last/next meeting, email dates)</li>
+<li><code>--check-unreplied</code>: Check for unreplied incoming messages (email/chat) for each list entry</li>
+<li><code>--unreplied-types &lt;types&gt;</code>: Comma-separated types to check: email, chat, all (default: email,chat)</li>
+<li><code>--unreplied-lookback-days &lt;days&gt;</code>: Lookback period for unreplied message detection (default: 30)</li>
+</ul>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span>--saved-view<span class="w"> </span><span class="s2">&quot;Board&quot;</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--field<span class="w"> </span>Stage<span class="w"> </span>--field<span class="w"> </span>Amount<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;&quot;Stage&quot; = &quot;Active&quot;&#39;</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>out.csv
+
+<span class="c1"># Include interaction dates (last meeting, next meeting, email dates)</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--expand<span class="w"> </span>interactions<span class="w"> </span>--json
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--expand<span class="w"> </span>interactions<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>pipeline.csv
+
+<span class="c1"># Check for unreplied incoming messages (email + chat)</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--check-unreplied<span class="w"> </span>--json
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--check-unreplied<span class="w"> </span>--unreplied-lookback-days<span class="w"> </span><span class="m">60</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>unreplied.csv
+
+<span class="c1"># Check email-only unreplied messages</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--check-unreplied<span class="w"> </span>--unreplied-types<span class="w"> </span>email<span class="w"> </span>--json
+</code></pre></div>
+<p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
+<h3 id="list-entry-commands">List Entry Commands<a class="headerlink" href="#list-entry-commands" title="Permanent link">&para;</a></h3>
+<p><strong>Shorthand:</strong> All <code>list entry</code> commands are also available as top-level <code>entry</code> commands:
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>entry<span class="w"> </span>get<span class="w"> </span><span class="m">123</span><span class="w"> </span><span class="m">456</span><span class="w">          </span><span class="c1"># Same as: xaffinity list entry get 123 456</span>
+xaffinity<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="m">123</span><span class="w"> </span><span class="m">456</span><span class="w"> </span>...<span class="w">    </span><span class="c1"># Same as: xaffinity list entry field 123 456 ...</span>
+</code></pre></div></p>
+<h3 id="xaffinity-list-entry-add-list"><code>xaffinity list entry add &lt;list&gt;</code><a class="headerlink" href="#xaffinity-list-entry-add-list" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>add<span class="w"> </span><span class="m">123</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">26229794</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">224925494</span>
+</code></pre></div>
+<h3 id="xaffinity-list-entry-delete-list-entryid"><code>xaffinity list entry delete &lt;list&gt; &lt;entryId&gt;</code><a class="headerlink" href="#xaffinity-list-entry-delete-list-entryid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>delete<span class="w"> </span><span class="m">123</span><span class="w"> </span><span class="m">98765</span>
+</code></pre></div>
+<h3 id="xaffinity-list-entry-field-list-entryid"><code>xaffinity list entry field &lt;list&gt; &lt;entryId&gt;</code><a class="headerlink" href="#xaffinity-list-entry-field-list-entryid" title="Permanent link">&para;</a></h3>
+<p>Unified command for getting, setting, appending, and unsetting field values.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Set a single field</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">&quot;Portfolio&quot;</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--set<span class="w"> </span>Status<span class="w"> </span><span class="s2">&quot;Active&quot;</span>
+
+<span class="c1"># Set multiple fields</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">&quot;Portfolio&quot;</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--set<span class="w"> </span>Status<span class="w"> </span><span class="s2">&quot;Active&quot;</span><span class="w"> </span>--set<span class="w"> </span>Priority<span class="w"> </span><span class="s2">&quot;High&quot;</span>
+
+<span class="c1"># Append to a multi-value field (e.g., tags)</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">&quot;Portfolio&quot;</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--append<span class="w"> </span>Tags<span class="w"> </span><span class="s2">&quot;Priority&quot;</span>
+
+<span class="c1"># Unset a field (remove all values)</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">&quot;Portfolio&quot;</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--unset<span class="w"> </span>OldField
+
+<span class="c1"># Unset a specific value from a multi-value field</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">&quot;Portfolio&quot;</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--unset-value<span class="w"> </span>Tags<span class="w"> </span><span class="s2">&quot;OldTag&quot;</span>
+
+<span class="c1"># Batch set via JSON</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">&quot;Portfolio&quot;</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--set-json<span class="w"> </span><span class="s1">&#39;{&quot;Status&quot;: &quot;Active&quot;, &quot;Priority&quot;: &quot;High&quot;}&#39;</span>
+
+<span class="c1"># Get specific field values</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">&quot;Portfolio&quot;</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--get<span class="w"> </span>Status<span class="w"> </span>--get<span class="w"> </span>Priority
+
+<span class="c1"># Swap tags (append new, remove old)</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">&quot;Portfolio&quot;</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--append<span class="w"> </span>Tags<span class="w"> </span><span class="s2">&quot;NewTag&quot;</span><span class="w"> </span>--unset-value<span class="w"> </span>Tags<span class="w"> </span><span class="s2">&quot;OldTag&quot;</span>
+</code></pre></div>
+<p><strong>Notes:</strong>
+- Field names are resolved case-insensitively
+- Field IDs (<code>field-123</code>) can be used directly
+- <code>--set</code> replaces all existing values; use <code>--append</code> to add to multi-value fields
+- <code>--get</code> is exclusive with write operations
+- Operation order: <code>--set</code>/<code>--set-json</code> → <code>--append</code> → <code>--unset</code>/<code>--unset-value</code></p>
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
+<h3 id="xaffinity-note-ls"><code>xaffinity note ls</code><a class="headerlink" href="#xaffinity-note-ls" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>ls
+xaffinity<span class="w"> </span>note<span class="w"> </span>ls<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--json
+</code></pre></div>
+<h3 id="xaffinity-note-get-noteid"><code>xaffinity note get &lt;noteId&gt;</code><a class="headerlink" href="#xaffinity-note-get-noteid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>get<span class="w"> </span><span class="m">9876</span>
+</code></pre></div>
+<h3 id="xaffinity-note-create"><code>xaffinity note create</code><a class="headerlink" href="#xaffinity-note-create" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>create<span class="w"> </span>--content<span class="w"> </span><span class="s2">&quot;Met with the team&quot;</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span>
+xaffinity<span class="w"> </span>note<span class="w"> </span>create<span class="w"> </span>--content<span class="w"> </span><span class="s2">&quot;&lt;p&gt;Meeting notes&lt;/p&gt;&quot;</span><span class="w"> </span>--type<span class="w"> </span>html<span class="w"> </span>--company-id<span class="w"> </span><span class="m">456</span>
+</code></pre></div>
+<h3 id="xaffinity-note-update-noteid"><code>xaffinity note update &lt;noteId&gt;</code><a class="headerlink" href="#xaffinity-note-update-noteid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>update<span class="w"> </span><span class="m">9876</span><span class="w"> </span>--content<span class="w"> </span><span class="s2">&quot;Updated note content&quot;</span>
+</code></pre></div>
+<h3 id="xaffinity-note-delete-noteid"><code>xaffinity note delete &lt;noteId&gt;</code><a class="headerlink" href="#xaffinity-note-delete-noteid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>delete<span class="w"> </span><span class="m">9876</span>
+</code></pre></div>
+<h2 id="reminders">Reminders<a class="headerlink" href="#reminders" title="Permanent link">&para;</a></h2>
+<h3 id="xaffinity-reminder-ls"><code>xaffinity reminder ls</code><a class="headerlink" href="#xaffinity-reminder-ls" title="Permanent link">&para;</a></h3>
+<p>The <code>--due-after</code> and <code>--due-before</code> options accept the same date formats as <code>--due-date</code>:
+- <strong>ISO-8601</strong>: <code>2025-01-15</code>, <code>2025-01-15T09:00:00Z</code>
+- <strong>Relative</strong>: <code>+7d</code>, <code>+2w</code>, <code>+1m</code>, <code>+1y</code>
+- <strong>Keywords</strong>: <code>now</code>, <code>today</code>, <code>tomorrow</code>, <code>yesterday</code></p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>reminder<span class="w"> </span>ls
+xaffinity<span class="w"> </span>reminder<span class="w"> </span>ls<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span><span class="w"> </span>--status<span class="w"> </span>active<span class="w"> </span>--json
+xaffinity<span class="w"> </span>reminder<span class="w"> </span>ls<span class="w"> </span>--due-after<span class="w"> </span>today<span class="w"> </span>--due-before<span class="w"> </span>+7d
+</code></pre></div>
+<h3 id="xaffinity-reminder-get-reminderid"><code>xaffinity reminder get &lt;reminderId&gt;</code><a class="headerlink" href="#xaffinity-reminder-get-reminderid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>reminder<span class="w"> </span>get<span class="w"> </span><span class="m">12345</span>
+</code></pre></div>
+<h3 id="xaffinity-reminder-create"><code>xaffinity reminder create</code><a class="headerlink" href="#xaffinity-reminder-create" title="Permanent link">&para;</a></h3>
+<p>The <code>--due-date</code> option accepts multiple formats:
+- <strong>ISO-8601</strong>: <code>2025-01-15</code>, <code>2025-01-15T09:00:00Z</code>
+- <strong>Relative</strong>: <code>+7d</code> (7 days), <code>+2w</code> (2 weeks), <code>+1m</code> (1 month), <code>+1y</code> (1 year)
+- <strong>Keywords</strong>: <code>now</code>, <code>today</code>, <code>tomorrow</code>, <code>yesterday</code></p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>reminder<span class="w"> </span>create<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span><span class="w"> </span>--type<span class="w"> </span>one-time<span class="w"> </span>--due-date<span class="w"> </span>+7d<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span>
+xaffinity<span class="w"> </span>reminder<span class="w"> </span>create<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span><span class="w"> </span>--type<span class="w"> </span>one-time<span class="w"> </span>--due-date<span class="w"> </span>tomorrow<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span>
+xaffinity<span class="w"> </span>reminder<span class="w"> </span>create<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span><span class="w"> </span>--type<span class="w"> </span>one-time<span class="w"> </span>--due-date<span class="w"> </span><span class="m">2025</span>-01-15T09:00:00Z<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span>
+xaffinity<span class="w"> </span>reminder<span class="w"> </span>create<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span><span class="w"> </span>--type<span class="w"> </span>recurring<span class="w"> </span>--reset-type<span class="w"> </span>interaction<span class="w"> </span>--reminder-days<span class="w"> </span><span class="m">3</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">456</span>
+</code></pre></div>
+<h3 id="xaffinity-reminder-update-reminderid"><code>xaffinity reminder update &lt;reminderId&gt;</code><a class="headerlink" href="#xaffinity-reminder-update-reminderid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>reminder<span class="w"> </span>update<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--content<span class="w"> </span><span class="s2">&quot;Follow up after demo&quot;</span>
+xaffinity<span class="w"> </span>reminder<span class="w"> </span>update<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--completed
+</code></pre></div>
+<h3 id="xaffinity-reminder-delete-reminderid"><code>xaffinity reminder delete &lt;reminderId&gt;</code><a class="headerlink" href="#xaffinity-reminder-delete-reminderid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>reminder<span class="w"> </span>delete<span class="w"> </span><span class="m">12345</span>
+</code></pre></div>
+<h2 id="interactions">Interactions<a class="headerlink" href="#interactions" title="Permanent link">&para;</a></h2>
+<h3 id="xaffinity-interaction-ls"><code>xaffinity interaction ls</code><a class="headerlink" href="#xaffinity-interaction-ls" title="Permanent link">&para;</a></h3>
+<p>List interactions for an entity. Requires <code>--type</code>, one entity selector (<code>--person-id</code>, <code>--company-id</code>, or <code>--opportunity-id</code>), and a date range (<code>--days</code> or <code>--after</code>). Auto-chunks date ranges &gt; 1 year into API-compatible segments.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>email<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--days<span class="w"> </span><span class="m">30</span>
+xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--after<span class="w"> </span><span class="m">2025</span>-01-01<span class="w"> </span>--before<span class="w"> </span><span class="m">2025</span>-02-01
+xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span class="w"> </span>--type<span class="w"> </span>call<span class="w"> </span>--company-id<span class="w"> </span><span class="m">456</span><span class="w"> </span>--days<span class="w"> </span><span class="m">365</span><span class="w"> </span>--json
+</code></pre></div>
+<h3 id="xaffinity-interaction-get-interactionid"><code>xaffinity interaction get &lt;interactionId&gt;</code><a class="headerlink" href="#xaffinity-interaction-get-interactionid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>get<span class="w"> </span><span class="m">2468</span><span class="w"> </span>--type<span class="w"> </span>meeting
+</code></pre></div>
+<h3 id="xaffinity-interaction-create"><code>xaffinity interaction create</code><a class="headerlink" href="#xaffinity-interaction-create" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>create<span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--content<span class="w"> </span><span class="s2">&quot;Met to discuss roadmap&quot;</span><span class="w"> </span>--date<span class="w"> </span><span class="m">2025</span>-01-10T14:00:00Z
+xaffinity<span class="w"> </span>interaction<span class="w"> </span>create<span class="w"> </span>--type<span class="w"> </span>email<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--content<span class="w"> </span><span class="s2">&quot;Intro email&quot;</span><span class="w"> </span>--date<span class="w"> </span><span class="m">2025</span>-01-05T09:15:00Z<span class="w"> </span>--direction<span class="w"> </span>outgoing
+</code></pre></div>
+<h3 id="xaffinity-interaction-update-interactionid"><code>xaffinity interaction update &lt;interactionId&gt;</code><a class="headerlink" href="#xaffinity-interaction-update-interactionid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>update<span class="w"> </span><span class="m">2468</span><span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--content<span class="w"> </span><span class="s2">&quot;Updated meeting notes&quot;</span>
+</code></pre></div>
+<h3 id="xaffinity-interaction-delete-interactionid"><code>xaffinity interaction delete &lt;interactionId&gt;</code><a class="headerlink" href="#xaffinity-interaction-delete-interactionid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>delete<span class="w"> </span><span class="m">2468</span><span class="w"> </span>--type<span class="w"> </span>meeting
+</code></pre></div>
+<h2 id="fields">Fields<a class="headerlink" href="#fields" title="Permanent link">&para;</a></h2>
+<h3 id="xaffinity-field-ls"><code>xaffinity field ls</code><a class="headerlink" href="#xaffinity-field-ls" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span>ls<span class="w"> </span>--entity-type<span class="w"> </span>company
+xaffinity<span class="w"> </span>field<span class="w"> </span>ls<span class="w"> </span>--list-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--json
+</code></pre></div>
+<h3 id="xaffinity-field-create"><code>xaffinity field create</code><a class="headerlink" href="#xaffinity-field-create" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Stage&quot;</span><span class="w"> </span>--entity-type<span class="w"> </span>opportunity<span class="w"> </span>--value-type<span class="w"> </span>dropdown<span class="w"> </span>--list-specific
+</code></pre></div>
+<h3 id="xaffinity-field-delete-fieldid"><code>xaffinity field delete &lt;fieldId&gt;</code><a class="headerlink" href="#xaffinity-field-delete-fieldid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span>delete<span class="w"> </span>field-123
+</code></pre></div>
+<h3 id="xaffinity-field-history"><code>xaffinity field history</code><a class="headerlink" href="#xaffinity-field-history" title="Permanent link">&para;</a></h3>
+<p>Show field value change history for a specific field on an entity.</p>
+<div class="highlight"><pre><span></span><code>xaffinity field history FIELD_ID [OPTIONS]
+</code></pre></div>
+<p>Arguments:</p>
+<ul>
+<li><code>FIELD_ID</code> (required): Field ID (e.g., <code>field-123</code>). Use <code>field ls --list-id LIST</code> to find IDs.</li>
+</ul>
+<p>Options:</p>
+<ul>
+<li><code>--person-id &lt;id&gt;</code>: Filter by person</li>
+<li><code>--company-id &lt;id&gt;</code>: Filter by company</li>
+<li><code>--opportunity-id &lt;id&gt;</code>: Filter by opportunity</li>
+<li><code>--list-entry-id &lt;id&gt;</code>: Filter by list entry</li>
+<li><code>--action-type &lt;type&gt;</code>: Filter by action (<code>create</code>, <code>update</code>, <code>delete</code>)</li>
+<li><code>--max-results &lt;n&gt;</code>: Limit number of results</li>
+</ul>
+<p>Exactly one entity selector is required.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span><span class="nb">history</span><span class="w"> </span>field-123<span class="w"> </span>--person-id<span class="w"> </span><span class="m">456</span>
+xaffinity<span class="w"> </span>field<span class="w"> </span><span class="nb">history</span><span class="w"> </span>field-123<span class="w"> </span>--company-id<span class="w"> </span><span class="m">789</span><span class="w"> </span>--action-type<span class="w"> </span>update
+xaffinity<span class="w"> </span>--json<span class="w"> </span>field<span class="w"> </span><span class="nb">history</span><span class="w"> </span>field-123<span class="w"> </span>--list-entry-id<span class="w"> </span><span class="m">101</span><span class="w"> </span>--max-results<span class="w"> </span><span class="m">20</span>
+</code></pre></div>
+<h2 id="relationship-strengths">Relationship Strengths<a class="headerlink" href="#relationship-strengths" title="Permanent link">&para;</a></h2>
+<h3 id="xaffinity-relationship-strength-get"><code>xaffinity relationship-strength get</code><a class="headerlink" href="#xaffinity-relationship-strength-get" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>relationship-strength<span class="w"> </span>get<span class="w"> </span>--external-id<span class="w"> </span><span class="m">26229794</span>
+xaffinity<span class="w"> </span>relationship-strength<span class="w"> </span>get<span class="w"> </span>--external-id<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--internal-id<span class="w"> </span><span class="m">42</span>
+</code></pre></div>
+<h2 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h2>
+<h3 id="xaffinity-task-get-taskurl"><code>xaffinity task get &lt;taskUrl&gt;</code><a class="headerlink" href="#xaffinity-task-get-taskurl" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>task<span class="w"> </span>get<span class="w"> </span>https://api.affinity.co/tasks/person-merges/123
+</code></pre></div>
+<h3 id="xaffinity-task-wait-taskurl"><code>xaffinity task wait &lt;taskUrl&gt;</code><a class="headerlink" href="#xaffinity-task-wait-taskurl" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>task<span class="w"> </span><span class="nb">wait</span><span class="w"> </span>https://api.affinity.co/tasks/person-merges/123<span class="w"> </span>--timeout<span class="w"> </span><span class="m">120</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Disclaimer: Unofficial community project; not affiliated with, endorsed by, or sponsored by Affinity. "Affinity" and related marks are trademarks of their respective owners. Use of the Affinity API is subject to Affinity Terms of Service.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
