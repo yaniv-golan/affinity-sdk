@@ -2483,7 +2483,7 @@
 <span class="sd">            completer_id: Filter by who completed the reminder</span>
 <span class="sd">            type: Filter by reminder type (ONE_TIME or RECURRING)</span>
 <span class="sd">            reset_type: Filter by reset type (FIXED_DATE, DATE_ADDED, or INTERACTION)</span>
-<span class="sd">            status: Filter by status (ACTIVE, SNOOZED, or COMPLETE)</span>
+<span class="sd">            status: Filter by status (COMPLETED, ACTIVE, or OVERDUE)</span>
 <span class="sd">            due_before: Filter reminders due before this datetime</span>
 <span class="sd">            due_after: Filter reminders due after this datetime</span>
 <span class="sd">            page_size: Number of results per page</span>
@@ -2493,17 +2493,17 @@
 <span class="sd">            PaginatedResponse with reminders and next_page_token</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">person_id</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">person_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;person_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">company_id</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">company_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;organization_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">opportunity_id</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">opportunity_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;opportunity_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">creator_id</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">creator_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;creator_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">creator_id</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">owner_id</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">owner_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;owner_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">owner_id</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">completer_id</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">completer_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;completer_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">completer_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span>
@@ -2511,13 +2511,13 @@
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;reset_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">reset_type</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">due_before</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">due_before</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;due_before&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">due_before</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">due_after</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">due_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;due_after&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">due_after</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">page_size</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">page_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;page_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">page_size</span>
-        <span class="k">if</span> <span class="n">page_token</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">page_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;page_token&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">page_token</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/reminders&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -2588,7 +2588,7 @@
 <span class="sd">            completer_id: Filter by who completed the reminder</span>
 <span class="sd">            type: Filter by reminder type (ONE_TIME or RECURRING)</span>
 <span class="sd">            reset_type: Filter by reset type (FIXED_DATE, DATE_ADDED, or INTERACTION)</span>
-<span class="sd">            status: Filter by status (ACTIVE, SNOOZED, or COMPLETE)</span>
+<span class="sd">            status: Filter by status (COMPLETED, ACTIVE, or OVERDUE)</span>
 <span class="sd">            due_before: Filter reminders due before this datetime</span>
 <span class="sd">            due_after: Filter reminders due after this datetime</span>
 <span class="sd">            page_size: Number of results per page</span>
@@ -2886,7 +2886,7 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Filter by status (ACTIVE, SNOOZED, or COMPLETE)</p>
+                <p>Filter by status (COMPLETED, ACTIVE, or OVERDUE)</p>
               </div>
             </td>
             <td>
@@ -3052,7 +3052,7 @@
 <span class="sd">        completer_id: Filter by who completed the reminder</span>
 <span class="sd">        type: Filter by reminder type (ONE_TIME or RECURRING)</span>
 <span class="sd">        reset_type: Filter by reset type (FIXED_DATE, DATE_ADDED, or INTERACTION)</span>
-<span class="sd">        status: Filter by status (ACTIVE, SNOOZED, or COMPLETE)</span>
+<span class="sd">        status: Filter by status (COMPLETED, ACTIVE, or OVERDUE)</span>
 <span class="sd">        due_before: Filter reminders due before this datetime</span>
 <span class="sd">        due_after: Filter reminders due after this datetime</span>
 <span class="sd">        page_size: Number of results per page</span>
@@ -3247,7 +3247,7 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Filter by status (ACTIVE, SNOOZED, or COMPLETE)</p>
+                <p>Filter by status (COMPLETED, ACTIVE, or OVERDUE)</p>
               </div>
             </td>
             <td>
@@ -3449,7 +3449,7 @@
 <span class="sd">        completer_id: Filter by who completed the reminder</span>
 <span class="sd">        type: Filter by reminder type (ONE_TIME or RECURRING)</span>
 <span class="sd">        reset_type: Filter by reset type (FIXED_DATE, DATE_ADDED, or INTERACTION)</span>
-<span class="sd">        status: Filter by status (ACTIVE, SNOOZED, or COMPLETE)</span>
+<span class="sd">        status: Filter by status (COMPLETED, ACTIVE, or OVERDUE)</span>
 <span class="sd">        due_before: Filter reminders due before this datetime</span>
 <span class="sd">        due_after: Filter reminders due after this datetime</span>
 <span class="sd">        page_size: Number of results per page</span>
@@ -3459,17 +3459,17 @@
 <span class="sd">        PaginatedResponse with reminders and next_page_token</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="n">person_id</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">person_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;person_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">company_id</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">company_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;organization_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">opportunity_id</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">opportunity_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;opportunity_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">creator_id</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">creator_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;creator_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">creator_id</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">owner_id</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">owner_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;owner_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">owner_id</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">completer_id</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">completer_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;completer_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">completer_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span>
@@ -3477,13 +3477,13 @@
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;reset_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">reset_type</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">due_before</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">due_before</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;due_before&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">due_before</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">due_after</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">due_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;due_after&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">due_after</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">page_size</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">page_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;page_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">page_size</span>
-    <span class="k">if</span> <span class="n">page_token</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">page_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;page_token&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">page_token</span>
 
     <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/reminders&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
