@@ -10810,7 +10810,10 @@ or <code>next_page_token</code> directly.</p>
 <span class="normal">176</span>
 <span class="normal">177</span>
 <span class="normal">178</span>
-<span class="normal">179</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldResolver</span><span class="p">:</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldResolver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper for extracting field values by name from entities.</span>
 
@@ -10843,9 +10846,12 @@ or <code>next_page_token</code> directly.</p>
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
             <span class="n">name_key</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">name_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">:</span>
+                <span class="n">existing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">[</span><span class="n">name_key</span><span class="p">]</span>
+                <span class="n">src_existing</span> <span class="o">=</span> <span class="n">existing</span><span class="o">.</span><span class="n">enrichment_source</span> <span class="ow">or</span> <span class="n">existing</span><span class="o">.</span><span class="n">type</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span>
+                <span class="n">src_new</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">enrichment_source</span> <span class="ow">or</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Duplicate field name &#39;</span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;(IDs: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">[</span><span class="n">name_key</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">). &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">src_existing</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">existing</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">] vs </span><span class="si">{</span><span class="n">src_new</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">]). &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;Later field will be used. Use get_by_id() for unambiguous access.&quot;</span><span class="p">,</span>
                     <span class="ne">UserWarning</span><span class="p">,</span>
                     <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
@@ -11059,7 +11065,10 @@ or <code>next_page_token</code> directly.</p>
 <span class="normal">63</span>
 <span class="normal">64</span>
 <span class="normal">65</span>
-<span class="normal">66</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">FieldMetadata</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">FieldMetadata</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a resolver from field metadata.</span>
 
@@ -11075,9 +11084,12 @@ or <code>next_page_token</code> directly.</p>
     <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
         <span class="n">name_key</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">name_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">:</span>
+            <span class="n">existing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">[</span><span class="n">name_key</span><span class="p">]</span>
+            <span class="n">src_existing</span> <span class="o">=</span> <span class="n">existing</span><span class="o">.</span><span class="n">enrichment_source</span> <span class="ow">or</span> <span class="n">existing</span><span class="o">.</span><span class="n">type</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span>
+            <span class="n">src_new</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">enrichment_source</span> <span class="ow">or</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Duplicate field name &#39;</span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;(IDs: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">[</span><span class="n">name_key</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">). &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">src_existing</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">existing</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">] vs </span><span class="si">{</span><span class="n">src_new</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">]). &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;Later field will be used. Use get_by_id() for unambiguous access.&quot;</span><span class="p">,</span>
                 <span class="ne">UserWarning</span><span class="p">,</span>
                 <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
@@ -11109,9 +11121,9 @@ or <code>next_page_token</code> directly.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/field_resolver.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get all available field names.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
 </code></pre></div></td></tr></table></div>
@@ -11237,10 +11249,7 @@ print(stage)  # "Negotiation" instead of 12345</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/field_resolver.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 68</span>
-<span class="normal"> 69</span>
-<span class="normal"> 70</span>
-<span class="normal"> 71</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 71</span>
 <span class="normal"> 72</span>
 <span class="normal"> 73</span>
 <span class="normal"> 74</span>
@@ -11281,7 +11290,10 @@ print(stage)  # "Negotiation" instead of 12345</p>
 <span class="normal">109</span>
 <span class="normal">110</span>
 <span class="normal">111</span>
-<span class="normal">112</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">entity</span><span class="p">:</span> <span class="n">Company</span> <span class="o">|</span> <span class="n">Person</span> <span class="o">|</span> <span class="n">Opportunity</span> <span class="o">|</span> <span class="n">ListEntryWithEntity</span><span class="p">,</span>
     <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -11434,10 +11446,7 @@ print(stage)  # "Negotiation" instead of 12345</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/field_resolver.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">153</span>
 <span class="normal">154</span>
 <span class="normal">155</span>
 <span class="normal">156</span>
@@ -11455,7 +11464,10 @@ print(stage)  # "Negotiation" instead of 12345</p>
 <span class="normal">168</span>
 <span class="normal">169</span>
 <span class="normal">170</span>
-<span class="normal">171</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_by_id</span><span class="p">(</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_by_id</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">entity</span><span class="p">:</span> <span class="n">Company</span> <span class="o">|</span> <span class="n">Person</span> <span class="o">|</span> <span class="n">Opportunity</span> <span class="o">|</span> <span class="n">ListEntryWithEntity</span><span class="p">,</span>
     <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">AnyFieldId</span><span class="p">,</span>
@@ -11598,10 +11610,7 @@ print(values)
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/field_resolver.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">117</span>
 <span class="normal">118</span>
 <span class="normal">119</span>
 <span class="normal">120</span>
@@ -11624,7 +11633,10 @@ print(values)
 <span class="normal">137</span>
 <span class="normal">138</span>
 <span class="normal">139</span>
-<span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_many</span><span class="p">(</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_many</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">entity</span><span class="p">:</span> <span class="n">Company</span> <span class="o">|</span> <span class="n">Person</span> <span class="o">|</span> <span class="n">Opportunity</span> <span class="o">|</span> <span class="n">ListEntryWithEntity</span><span class="p">,</span>
     <span class="n">field_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
@@ -11673,9 +11685,9 @@ print(values)
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/field_resolver.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">has_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">has_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if a field exists by name.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">field_name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span>
 </code></pre></div></td></tr></table></div>
