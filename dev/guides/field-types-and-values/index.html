@@ -2296,13 +2296,14 @@
 <ul>
 <li><code>FieldType.ENRICHED</code></li>
 <li><code>FieldType.GLOBAL</code></li>
-<li><code>FieldType.LIST</code></li>
-<li><code>FieldType.LIST_SPECIFIC</code></li>
+<li><code>FieldType.LIST</code> (only valid for list entry endpoints)</li>
+<li><code>FieldType.RELATIONSHIP_INTELLIGENCE</code></li>
 </ul>
 <p>Notes:</p>
 <ul>
-<li><code>FieldType.LIST_SPECIFIC</code> is an alternate string value the API uses for list-scoped fields (you may see
-  it in responses as <code>"list-specific"</code>). Treat it as equivalent to <code>FieldType.LIST</code> for most use cases.</li>
+<li><code>FieldType.LIST</code> is only accepted by list entry endpoints. Company/person endpoints accept
+  <code>ENRICHED</code>, <code>GLOBAL</code>, and <code>RELATIONSHIP_INTELLIGENCE</code> only — the SDK raises <code>ValueError</code> if
+  you pass <code>LIST</code> to a company or person method.</li>
 </ul>
 <h2 id="field-ids">Field IDs<a class="headerlink" href="#field-ids" title="Permanent link">&para;</a></h2>
 <p>If you know specific field IDs, you can request only those:</p>
@@ -2429,13 +2430,13 @@ Unknown future values are treated as open enums and preserved as strings.</p>
 </tr>
 <tr>
 <td><code>dropdown</code> / <code>dropdown-multi</code></td>
-<td><code>DropdownOptionId</code> / <code>list[DropdownOptionId]</code></td>
-<td>Under the hood: <code>int</code> or <code>list[int]</code></td>
+<td><code>DropdownOption</code> / <code>list[DropdownOption]</code></td>
+<td>Has <code>.id</code>, <code>.text</code>, <code>.rank</code>, <code>.color</code></td>
 </tr>
 <tr>
 <td><code>ranked-dropdown</code></td>
-<td><code>DropdownOptionId</code></td>
-<td>Under the hood: <code>int</code></td>
+<td><code>DropdownOption</code></td>
+<td>Has <code>.id</code>, <code>.text</code>, <code>.rank</code>, <code>.color</code></td>
 </tr>
 <tr>
 <td><code>location</code> / <code>location-multi</code></td>

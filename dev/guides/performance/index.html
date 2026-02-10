@@ -1021,6 +1021,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#list-entry-field-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List Entry Field Access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#low-level-access" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2500,6 +2511,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#list-entry-field-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List Entry Field Access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#low-level-access" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2722,7 +2744,7 @@ xaffinity<span class="w"> </span>session<span class="w"> </span>end
 The SDK provides several approaches with different trade-offs.</p>
 <h3 id="recommended-fieldresolver">Recommended: FieldResolver<a class="headerlink" href="#recommended-fieldresolver" title="Permanent link">&para;</a></h3>
 <p>For most use cases, use the <code>FieldResolver</code> helper:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span><span class="p">,</span> <span class="n">FieldResolver</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span><span class="p">,</span> <span class="n">FieldResolver</span><span class="p">,</span> <span class="n">ResolveMode</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FieldType</span>
 
 <span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="n">enable_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
@@ -2740,18 +2762,25 @@ The SDK provides several approaches with different trade-offs.</p>
         <span class="c1"># Batch extraction</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">resolver</span><span class="o">.</span><span class="n">get_many</span><span class="p">(</span><span class="n">company</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Status&quot;</span><span class="p">,</span> <span class="s2">&quot;Industry&quot;</span><span class="p">,</span> <span class="s2">&quot;Size&quot;</span><span class="p">])</span>
 
-        <span class="c1"># Resolve dropdown IDs to human-readable text</span>
-        <span class="n">stage</span> <span class="o">=</span> <span class="n">resolver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">company</span><span class="p">,</span> <span class="s2">&quot;Deal Stage&quot;</span><span class="p">,</span> <span class="n">resolve_dropdowns</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Resolve all complex types to human-readable text</span>
+        <span class="n">stage</span> <span class="o">=</span> <span class="n">resolver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">company</span><span class="p">,</span> <span class="s2">&quot;Deal Stage&quot;</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="n">ResolveMode</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
 </code></pre></div>
 <p>The <code>FieldResolver</code>:
 - Caches name -&gt; ID mapping internally
 - Handles nested value extraction automatically
 - Supports case-insensitive field names
-- Can resolve dropdown option IDs to text labels</p>
+- <code>ResolveMode.TEXT</code> resolves dropdowns, persons, companies, locations to text
+- Disambiguates enrichment fields with <code>source:Name</code> syntax (e.g., <code>"dealroom:Description"</code>)</p>
+<h3 id="list-entry-field-access">List Entry Field Access<a class="headerlink" href="#list-entry-field-access" title="Permanent link">&para;</a></h3>
+<p>For list entries, the V2 API nests field data inside <code>entry.entity.fields</code>, not <code>entry.fields</code>.
+<code>FieldResolver.get()</code> handles this automatically — just pass the entry directly:</p>
+<div class="highlight"><pre><span></span><code><span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">lists</span><span class="o">.</span><span class="n">entries</span><span class="p">(</span><span class="n">list_id</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">field_types</span><span class="o">=</span><span class="p">[</span><span class="n">FieldType</span><span class="o">.</span><span class="n">LIST</span><span class="p">]):</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">resolver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s2">&quot;Status&quot;</span><span class="p">)</span>  <span class="c1"># auto-delegates to entry.entity.fields</span>
+</code></pre></div>
 <h3 id="low-level-access">Low-Level Access<a class="headerlink" href="#low-level-access" title="Permanent link">&para;</a></h3>
 <p>For direct access when you already have field IDs:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Get extracted value by field ID</span>
-<span class="n">value</span> <span class="o">=</span> <span class="n">company</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;field-123&quot;</span><span class="p">)</span>  <span class="c1"># Returns &quot;Active&quot;, not nested dict</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">company</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;field-123&quot;</span><span class="p">)</span>  <span class="c1"># &quot;Active&quot; for text, DropdownOption for dropdowns</span>
 
 <span class="c1"># Get raw field data (for advanced use cases)</span>
 <span class="n">field_data</span> <span class="o">=</span> <span class="n">company</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;field-123&quot;</span><span class="p">)</span>  <span class="c1"># Returns {&quot;id&quot;: ..., &quot;value&quot;: {...}}</span>

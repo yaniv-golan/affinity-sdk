@@ -2311,7 +2311,7 @@ disable writes via policy:</p>
 <p class="admonition-title">SDK-specific gotchas</p>
 <ul>
 <li>Use typed IDs (e.g., <code>CompanyId(123)</code>) instead of raw integers.</li>
-<li>Entity <code>fields</code> are only present when requested via <code>field_ids</code> or <code>field_types</code> parameters. The <code>entity.fields.requested</code> boolean indicates whether field data was actually fetched (<code>True</code>) or omitted (<code>False</code>). When <code>True</code>, <code>entity.fields.data</code> contains the field values (which may be empty if the entity has no field values).</li>
+<li>Entity <code>fields</code> are only present when requested via <code>field_ids</code> or <code>field_types</code> parameters. The <code>entity.fields.requested</code> boolean indicates whether field data was actually fetched (<code>True</code>) or omitted (<code>False</code>). When <code>True</code>, <code>entity.fields.data</code> contains the field values (which may be empty if the entity has no field values). Use <code>FieldResolver</code> to look up values by field name instead of raw IDs — see <a href="../guides/performance/#field-lookup-patterns">Field Lookup Patterns</a>.</li>
 <li>Some write operations still route to V1; see the V1 vs V2 routing guide.</li>
 </ul>
 </div>

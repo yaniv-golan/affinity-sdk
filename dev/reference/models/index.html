@@ -2508,10 +2508,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#affinity.field_resolver.FieldResolver.get--with-dropdown-resolution" class="md-nav__link">
+  <a href="#affinity.field_resolver.FieldResolver.get--resolve-complex-types-to-text" class="md-nav__link">
     <span class="md-ellipsis">
       
-        With dropdown resolution
+        Resolve complex types to text
       
     </span>
   </a>
@@ -4080,10 +4080,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#affinity.field_resolver.FieldResolver.get--with-dropdown-resolution" class="md-nav__link">
+  <a href="#affinity.field_resolver.FieldResolver.get--resolve-complex-types-to-text" class="md-nav__link">
     <span class="md-ellipsis">
       
-        With dropdown resolution
+        Resolve complex types to text
       
     </span>
   </a>
@@ -4221,15 +4221,7 @@ incorrect values (often 0 for non-empty lists). Use
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">525</span>
-<span class="normal">526</span>
-<span class="normal">527</span>
-<span class="normal">528</span>
-<span class="normal">529</span>
-<span class="normal">530</span>
-<span class="normal">531</span>
-<span class="normal">532</span>
-<span class="normal">533</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">533</span>
 <span class="normal">534</span>
 <span class="normal">535</span>
 <span class="normal">536</span>
@@ -4275,7 +4267,15 @@ incorrect values (often 0 for non-empty lists). Use
 <span class="normal">576</span>
 <span class="normal">577</span>
 <span class="normal">578</span>
-<span class="normal">579</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AffinityList</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span>
+<span class="normal">582</span>
+<span class="normal">583</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AffinityList</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A list (spreadsheet) in Affinity.</span>
 
@@ -4362,12 +4362,12 @@ incorrect values (often 0 for non-empty lists). Use
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/models/entities.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">574</span>
-<span class="normal">575</span>
-<span class="normal">576</span>
-<span class="normal">577</span>
-<span class="normal">578</span>
-<span class="normal">579</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">model_post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">__context</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">582</span>
+<span class="normal">583</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">model_post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">__context</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transfer list_size_temp to _list_size_hint private attr.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_size_temp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_list_size_hint&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_size_temp</span><span class="p">)</span>
@@ -5443,15 +5443,7 @@ blocking iteration.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">364</span>
-<span class="normal">365</span>
-<span class="normal">366</span>
-<span class="normal">367</span>
-<span class="normal">368</span>
-<span class="normal">369</span>
-<span class="normal">370</span>
-<span class="normal">371</span>
-<span class="normal">372</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">372</span>
 <span class="normal">373</span>
 <span class="normal">374</span>
 <span class="normal">375</span>
@@ -5492,7 +5484,15 @@ blocking iteration.</p>
 <span class="normal">410</span>
 <span class="normal">411</span>
 <span class="normal">412</span>
-<span class="normal">413</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Company</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Company</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Full company representation.</span>
 
@@ -5594,12 +5594,12 @@ blocking iteration.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">416</span>
-<span class="normal">417</span>
-<span class="normal">418</span>
-<span class="normal">419</span>
-<span class="normal">420</span>
-<span class="normal">421</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CompanyCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CompanyCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Data for creating a new company (V1 API).&quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
@@ -5657,12 +5657,12 @@ blocking iteration.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">424</span>
-<span class="normal">425</span>
-<span class="normal">426</span>
-<span class="normal">427</span>
-<span class="normal">428</span>
-<span class="normal">429</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CompanyUpdate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CompanyUpdate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Data for updating a company (V1 API).&quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -5720,19 +5720,19 @@ blocking iteration.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DropdownOption</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DropdownOption</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A selectable option in a dropdown field.&quot;&quot;&quot;</span>
 
     <span class="nb">id</span><span class="p">:</span> <span class="n">DropdownOptionId</span>
     <span class="n">text</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">color</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -5874,18 +5874,18 @@ blocking iteration.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">817</span>
-<span class="normal">818</span>
-<span class="normal">819</span>
-<span class="normal">820</span>
-<span class="normal">821</span>
-<span class="normal">822</span>
-<span class="normal">823</span>
-<span class="normal">824</span>
-<span class="normal">825</span>
-<span class="normal">826</span>
-<span class="normal">827</span>
-<span class="normal">828</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">828</span>
+<span class="normal">829</span>
+<span class="normal">830</span>
+<span class="normal">831</span>
+<span class="normal">832</span>
+<span class="normal">833</span>
+<span class="normal">834</span>
+<span class="normal">835</span>
+<span class="normal">836</span>
+<span class="normal">837</span>
+<span class="normal">838</span>
+<span class="normal">839</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Data for creating a new field (V1 API).&quot;&quot;&quot;</span>
 
     <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">use_enum_values</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -5950,18 +5950,7 @@ blocking iteration.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">759</span>
-<span class="normal">760</span>
-<span class="normal">761</span>
-<span class="normal">762</span>
-<span class="normal">763</span>
-<span class="normal">764</span>
-<span class="normal">765</span>
-<span class="normal">766</span>
-<span class="normal">767</span>
-<span class="normal">768</span>
-<span class="normal">769</span>
-<span class="normal">770</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">770</span>
 <span class="normal">771</span>
 <span class="normal">772</span>
 <span class="normal">773</span>
@@ -6005,7 +5994,18 @@ blocking iteration.</p>
 <span class="normal">811</span>
 <span class="normal">812</span>
 <span class="normal">813</span>
-<span class="normal">814</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldMetadata</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">814</span>
+<span class="normal">815</span>
+<span class="normal">816</span>
+<span class="normal">817</span>
+<span class="normal">818</span>
+<span class="normal">819</span>
+<span class="normal">820</span>
+<span class="normal">821</span>
+<span class="normal">822</span>
+<span class="normal">823</span>
+<span class="normal">824</span>
+<span class="normal">825</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldMetadata</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Metadata about a field (column) in Affinity.</span>
 
@@ -6114,24 +6114,24 @@ blocking iteration.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">836</span>
-<span class="normal">837</span>
-<span class="normal">838</span>
-<span class="normal">839</span>
-<span class="normal">840</span>
-<span class="normal">841</span>
-<span class="normal">842</span>
-<span class="normal">843</span>
-<span class="normal">844</span>
-<span class="normal">845</span>
-<span class="normal">846</span>
-<span class="normal">847</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">847</span>
 <span class="normal">848</span>
 <span class="normal">849</span>
 <span class="normal">850</span>
 <span class="normal">851</span>
 <span class="normal">852</span>
-<span class="normal">853</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValue</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">853</span>
+<span class="normal">854</span>
+<span class="normal">855</span>
+<span class="normal">856</span>
+<span class="normal">857</span>
+<span class="normal">858</span>
+<span class="normal">859</span>
+<span class="normal">860</span>
+<span class="normal">861</span>
+<span class="normal">862</span>
+<span class="normal">863</span>
+<span class="normal">864</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValue</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A single field value (cell data).</span>
 
@@ -6201,17 +6201,17 @@ blocking iteration.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">876</span>
-<span class="normal">877</span>
-<span class="normal">878</span>
-<span class="normal">879</span>
-<span class="normal">880</span>
-<span class="normal">881</span>
-<span class="normal">882</span>
-<span class="normal">883</span>
-<span class="normal">884</span>
-<span class="normal">885</span>
-<span class="normal">886</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueChange</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">887</span>
+<span class="normal">888</span>
+<span class="normal">889</span>
+<span class="normal">890</span>
+<span class="normal">891</span>
+<span class="normal">892</span>
+<span class="normal">893</span>
+<span class="normal">894</span>
+<span class="normal">895</span>
+<span class="normal">896</span>
+<span class="normal">897</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueChange</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Historical change to a field value.&quot;&quot;&quot;</span>
 
     <span class="nb">id</span><span class="p">:</span> <span class="n">FieldValueChangeId</span>
@@ -6274,13 +6274,13 @@ blocking iteration.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">856</span>
-<span class="normal">857</span>
-<span class="normal">858</span>
-<span class="normal">859</span>
-<span class="normal">860</span>
-<span class="normal">861</span>
-<span class="normal">862</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">867</span>
+<span class="normal">868</span>
+<span class="normal">869</span>
+<span class="normal">870</span>
+<span class="normal">871</span>
+<span class="normal">872</span>
+<span class="normal">873</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Data for creating a field value (V1 API).&quot;&quot;&quot;</span>
 
     <span class="n">field_id</span><span class="p">:</span> <span class="n">FieldId</span>
@@ -6719,14 +6719,14 @@ blocking iteration.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">602</span>
-<span class="normal">603</span>
-<span class="normal">604</span>
-<span class="normal">605</span>
-<span class="normal">606</span>
-<span class="normal">607</span>
-<span class="normal">608</span>
-<span class="normal">609</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Data for creating a new list (V1 API).&quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
@@ -6787,15 +6787,7 @@ blocking iteration.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">617</span>
-<span class="normal">618</span>
-<span class="normal">619</span>
-<span class="normal">620</span>
-<span class="normal">621</span>
-<span class="normal">622</span>
-<span class="normal">623</span>
-<span class="normal">624</span>
-<span class="normal">625</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">625</span>
 <span class="normal">626</span>
 <span class="normal">627</span>
 <span class="normal">628</span>
@@ -6866,7 +6858,15 @@ blocking iteration.</p>
 <span class="normal">693</span>
 <span class="normal">694</span>
 <span class="normal">695</span>
-<span class="normal">696</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListEntry</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">696</span>
+<span class="normal">697</span>
+<span class="normal">698</span>
+<span class="normal">699</span>
+<span class="normal">700</span>
+<span class="normal">701</span>
+<span class="normal">702</span>
+<span class="normal">703</span>
+<span class="normal">704</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListEntry</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A row in a list, linking an entity to a list.</span>
 
@@ -6998,11 +6998,11 @@ blocking iteration.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">727</span>
-<span class="normal">728</span>
-<span class="normal">729</span>
-<span class="normal">730</span>
-<span class="normal">731</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListEntryCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">738</span>
+<span class="normal">739</span>
+<span class="normal">740</span>
+<span class="normal">741</span>
+<span class="normal">742</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListEntryCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Data for adding an entity to a list (V1 API).&quot;&quot;&quot;</span>
 
     <span class="n">entity_id</span><span class="p">:</span> <span class="nb">int</span>
@@ -7059,15 +7059,7 @@ blocking iteration.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">699</span>
-<span class="normal">700</span>
-<span class="normal">701</span>
-<span class="normal">702</span>
-<span class="normal">703</span>
-<span class="normal">704</span>
-<span class="normal">705</span>
-<span class="normal">706</span>
-<span class="normal">707</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">707</span>
 <span class="normal">708</span>
 <span class="normal">709</span>
 <span class="normal">710</span>
@@ -7084,7 +7076,18 @@ blocking iteration.</p>
 <span class="normal">721</span>
 <span class="normal">722</span>
 <span class="normal">723</span>
-<span class="normal">724</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListEntryWithEntity</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">724</span>
+<span class="normal">725</span>
+<span class="normal">726</span>
+<span class="normal">727</span>
+<span class="normal">728</span>
+<span class="normal">729</span>
+<span class="normal">730</span>
+<span class="normal">731</span>
+<span class="normal">732</span>
+<span class="normal">733</span>
+<span class="normal">734</span>
+<span class="normal">735</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListEntryWithEntity</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;List entry with full entity data included (V2 response format).&quot;&quot;&quot;</span>
 
     <span class="nb">id</span><span class="p">:</span> <span class="n">ListEntryId</span>
@@ -7096,7 +7099,10 @@ blocking iteration.</p>
     <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># &quot;person&quot;, &quot;company&quot;, or &quot;opportunity&quot;</span>
     <span class="n">entity</span><span class="p">:</span> <span class="n">Person</span> <span class="o">|</span> <span class="n">Company</span> <span class="o">|</span> <span class="n">Opportunity</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="c1"># Field values (requested-vs-not-requested preserved)</span>
+    <span class="c1"># Field values — always requested=False at entry level because the V2 API</span>
+    <span class="c1"># nests field data inside entity.fields, not here. Use entry.entity.fields</span>
+    <span class="c1"># to access field data, or pass entries to FieldResolver.get() which</span>
+    <span class="c1"># auto-delegates to the inner entity.</span>
     <span class="n">fields</span><span class="p">:</span> <span class="n">FieldValues</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">FieldValues</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;fields&quot;</span><span class="p">)</span>
     <span class="n">fields_raw</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -7162,11 +7168,11 @@ blocking iteration.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">518</span>
-<span class="normal">519</span>
-<span class="normal">520</span>
-<span class="normal">521</span>
-<span class="normal">522</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListPermission</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">526</span>
+<span class="normal">527</span>
+<span class="normal">528</span>
+<span class="normal">529</span>
+<span class="normal">530</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListPermission</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Additional permission on a list.&quot;&quot;&quot;</span>
 
     <span class="n">internal_person_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;internalPersonId&quot;</span><span class="p">)</span>
@@ -7223,15 +7229,7 @@ blocking iteration.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">582</span>
-<span class="normal">583</span>
-<span class="normal">584</span>
-<span class="normal">585</span>
-<span class="normal">586</span>
-<span class="normal">587</span>
-<span class="normal">588</span>
-<span class="normal">589</span>
-<span class="normal">590</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">590</span>
 <span class="normal">591</span>
 <span class="normal">592</span>
 <span class="normal">593</span>
@@ -7240,7 +7238,15 @@ blocking iteration.</p>
 <span class="normal">596</span>
 <span class="normal">597</span>
 <span class="normal">598</span>
-<span class="normal">599</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListSummary</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">599</span>
+<span class="normal">600</span>
+<span class="normal">601</span>
+<span class="normal">602</span>
+<span class="normal">603</span>
+<span class="normal">604</span>
+<span class="normal">605</span>
+<span class="normal">606</span>
+<span class="normal">607</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListSummary</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimal list reference used by relationship endpoints.&quot;&quot;&quot;</span>
 
     <span class="nb">id</span><span class="p">:</span> <span class="n">ListId</span>
@@ -7568,15 +7574,7 @@ or <code>client.opportunities.get_details()</code> to retrieve association data.
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">437</span>
-<span class="normal">438</span>
-<span class="normal">439</span>
-<span class="normal">440</span>
-<span class="normal">441</span>
-<span class="normal">442</span>
-<span class="normal">443</span>
-<span class="normal">444</span>
-<span class="normal">445</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">445</span>
 <span class="normal">446</span>
 <span class="normal">447</span>
 <span class="normal">448</span>
@@ -7612,7 +7610,15 @@ or <code>client.opportunities.get_details()</code> to retrieve association data.
 <span class="normal">478</span>
 <span class="normal">479</span>
 <span class="normal">480</span>
-<span class="normal">481</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Opportunity</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span>
+<span class="normal">489</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Opportunity</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Deal/opportunity in a pipeline.</span>
 
@@ -7709,13 +7715,13 @@ or <code>client.opportunities.get_details()</code> to retrieve association data.
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">484</span>
-<span class="normal">485</span>
-<span class="normal">486</span>
-<span class="normal">487</span>
-<span class="normal">488</span>
-<span class="normal">489</span>
-<span class="normal">490</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OpportunityCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">492</span>
+<span class="normal">493</span>
+<span class="normal">494</span>
+<span class="normal">495</span>
+<span class="normal">496</span>
+<span class="normal">497</span>
+<span class="normal">498</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OpportunityCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Data for creating a new opportunity (V1 API).&quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
@@ -7774,11 +7780,11 @@ or <code>client.opportunities.get_details()</code> to retrieve association data.
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">506</span>
-<span class="normal">507</span>
-<span class="normal">508</span>
-<span class="normal">509</span>
-<span class="normal">510</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OpportunitySummary</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">514</span>
+<span class="normal">515</span>
+<span class="normal">516</span>
+<span class="normal">517</span>
+<span class="normal">518</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OpportunitySummary</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimal opportunity data returned in nested contexts.&quot;&quot;&quot;</span>
 
     <span class="nb">id</span><span class="p">:</span> <span class="n">OpportunityId</span>
@@ -7835,12 +7841,12 @@ or <code>client.opportunities.get_details()</code> to retrieve association data.
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">493</span>
-<span class="normal">494</span>
-<span class="normal">495</span>
-<span class="normal">496</span>
-<span class="normal">497</span>
-<span class="normal">498</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OpportunityUpdate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">501</span>
+<span class="normal">502</span>
+<span class="normal">503</span>
+<span class="normal">504</span>
+<span class="normal">505</span>
+<span class="normal">506</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OpportunityUpdate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Data for updating an opportunity (V1 API).&quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -9284,15 +9290,7 @@ or <code>next_page_token</code> directly.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">264</span>
 <span class="normal">265</span>
 <span class="normal">266</span>
 <span class="normal">267</span>
@@ -9358,7 +9356,15 @@ or <code>next_page_token</code> directly.</p>
 <span class="normal">327</span>
 <span class="normal">328</span>
 <span class="normal">329</span>
-<span class="normal">330</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Person</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Person</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Full person representation.</span>
 
@@ -9507,13 +9513,13 @@ or <code>next_page_token</code> directly.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">333</span>
-<span class="normal">334</span>
-<span class="normal">335</span>
-<span class="normal">336</span>
-<span class="normal">337</span>
-<span class="normal">338</span>
-<span class="normal">339</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PersonCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PersonCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Data for creating a new person (V1 API).&quot;&quot;&quot;</span>
 
     <span class="n">first_name</span><span class="p">:</span> <span class="nb">str</span>
@@ -9572,13 +9578,13 @@ or <code>next_page_token</code> directly.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">342</span>
-<span class="normal">343</span>
-<span class="normal">344</span>
-<span class="normal">345</span>
-<span class="normal">346</span>
-<span class="normal">347</span>
-<span class="normal">348</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PersonUpdate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PersonUpdate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Data for updating a person (V1 API).&quot;&quot;&quot;</span>
 
     <span class="n">first_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -10239,19 +10245,19 @@ or <code>next_page_token</code> directly.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">739</span>
-<span class="normal">740</span>
-<span class="normal">741</span>
-<span class="normal">742</span>
-<span class="normal">743</span>
-<span class="normal">744</span>
-<span class="normal">745</span>
-<span class="normal">746</span>
-<span class="normal">747</span>
-<span class="normal">748</span>
-<span class="normal">749</span>
-<span class="normal">750</span>
-<span class="normal">751</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SavedView</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">750</span>
+<span class="normal">751</span>
+<span class="normal">752</span>
+<span class="normal">753</span>
+<span class="normal">754</span>
+<span class="normal">755</span>
+<span class="normal">756</span>
+<span class="normal">757</span>
+<span class="normal">758</span>
+<span class="normal">759</span>
+<span class="normal">760</span>
+<span class="normal">761</span>
+<span class="normal">762</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SavedView</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A saved view configuration for a list.&quot;&quot;&quot;</span>
 
     <span class="nb">id</span><span class="p">:</span> <span class="n">SavedViewId</span>
@@ -10653,15 +10659,7 @@ or <code>next_page_token</code> directly.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/field_resolver.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 22</span>
-<span class="normal"> 23</span>
-<span class="normal"> 24</span>
-<span class="normal"> 25</span>
-<span class="normal"> 26</span>
-<span class="normal"> 27</span>
-<span class="normal"> 28</span>
-<span class="normal"> 29</span>
-<span class="normal"> 30</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 30</span>
 <span class="normal"> 31</span>
 <span class="normal"> 32</span>
 <span class="normal"> 33</span>
@@ -10833,7 +10831,92 @@ or <code>next_page_token</code> directly.</p>
 <span class="normal">199</span>
 <span class="normal">200</span>
 <span class="normal">201</span>
-<span class="normal">202</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldResolver</span><span class="p">:</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldResolver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper for extracting field values by name from entities.</span>
 
@@ -10858,36 +10941,30 @@ or <code>next_page_token</code> directly.</p>
 <span class="sd">            fields: Field metadata from client.companies.get_fields(),</span>
 <span class="sd">                    client.persons.get_fields(), etc.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Build case-insensitive name -&gt; field mapping</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">FieldMetadata</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Build case-insensitive name -&gt; field(s) mapping.</span>
+        <span class="c1"># Multiple fields can share the same display name (e.g., enrichment</span>
+        <span class="c1"># fields from different sources both called &quot;Description&quot;).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">FieldMetadata</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_by_id</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">FieldMetadata</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dropdown_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># option_id -&gt; text</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warned_names</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
             <span class="n">name_key</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">name_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">:</span>
-                <span class="n">existing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">[</span><span class="n">name_key</span><span class="p">]</span>
-                <span class="n">src_existing</span> <span class="o">=</span> <span class="n">existing</span><span class="o">.</span><span class="n">enrichment_source</span> <span class="ow">or</span> <span class="n">existing</span><span class="o">.</span><span class="n">type</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span>
-                <span class="n">src_new</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">enrichment_source</span> <span class="ow">or</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Duplicate field name &#39;</span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">src_existing</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">existing</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">] vs </span><span class="si">{</span><span class="n">src_new</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">]). &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Later field will be used. Use get_by_id() for unambiguous access.&quot;</span><span class="p">,</span>
-                    <span class="ne">UserWarning</span><span class="p">,</span>
-                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">[</span><span class="n">name_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">name_key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+
+            <span class="c1"># Register source-qualified key for enrichment fields (e.g., &quot;dealroom:description&quot;)</span>
+            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">enrichment_source</span><span class="p">:</span>
+                <span class="n">qualified_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">enrichment_source</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">name_key</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">qualified_key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">_by_id</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">id</span><span class="p">)]</span> <span class="o">=</span> <span class="n">field</span>
-            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">dropdown_options</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dropdown_options</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_dropdown_options</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">id</span><span class="p">)]</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">text</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">entity</span><span class="p">:</span> <span class="n">Company</span> <span class="o">|</span> <span class="n">Person</span> <span class="o">|</span> <span class="n">Opportunity</span> <span class="o">|</span> <span class="n">ListEntryWithEntity</span><span class="p">,</span>
         <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">resolve_dropdowns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">resolve</span><span class="p">:</span> <span class="n">ResolveMode</span> <span class="o">=</span> <span class="n">ResolveMode</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a field value by name from an entity.</span>
@@ -10895,7 +10972,9 @@ or <code>next_page_token</code> directly.</p>
 <span class="sd">        Args:</span>
 <span class="sd">            entity: The entity (Company, Person, Opportunity, or ListEntry)</span>
 <span class="sd">            field_name: The field display name (case-insensitive)</span>
-<span class="sd">            resolve_dropdowns: If True, return dropdown option text instead of ID</span>
+<span class="sd">            resolve: ResolveMode.RAW returns extracted values as-is.</span>
+<span class="sd">                     ResolveMode.TEXT resolves all complex types to strings</span>
+<span class="sd">                     (dropdowns to text, persons to names, etc.).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The extracted field value, or None if field not found or not populated.</span>
@@ -10904,8 +10983,8 @@ or <code>next_page_token</code> directly.</p>
 <span class="sd">            &gt;&gt;&gt; status = resolver.get(company, &quot;Status&quot;)</span>
 <span class="sd">            &gt;&gt;&gt; print(status)  # &quot;Active&quot;</span>
 
-<span class="sd">            &gt;&gt;&gt; # With dropdown resolution</span>
-<span class="sd">            &gt;&gt;&gt; stage = resolver.get(opportunity, &quot;Stage&quot;, resolve_dropdowns=True)</span>
+<span class="sd">            &gt;&gt;&gt; # Resolve complex types to text</span>
+<span class="sd">            &gt;&gt;&gt; stage = resolver.get(opportunity, &quot;Stage&quot;, resolve=ResolveMode.TEXT)</span>
 <span class="sd">            &gt;&gt;&gt; print(stage)  # &quot;Negotiation&quot; instead of 12345</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Delegate to inner entity for ListEntryWithEntity</span>
@@ -10927,14 +11006,37 @@ or <code>next_page_token</code> directly.</p>
             <span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="n">field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field_name</span><span class="o">.</span><span class="n">casefold</span><span class="p">())</span>
-        <span class="k">if</span> <span class="n">field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">name_key</span> <span class="o">=</span> <span class="n">field_name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name_key</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">candidates</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Warn once per ambiguous bare name at access time</span>
+            <span class="k">if</span> <span class="n">name_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_warned_names</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_warned_names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name_key</span><span class="p">)</span>
+                <span class="n">sources</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">enrichment_source</span> <span class="ow">or</span> <span class="n">f</span><span class="o">.</span><span class="n">type</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">)</span>
+                <span class="n">example_source</span> <span class="o">=</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">enrichment_source</span>
+                <span class="n">hint</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Disambiguate with &#39;source:name&#39; syntax, &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;e.g., &#39;</span><span class="si">{</span><span class="n">example_source</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                    <span class="k">if</span> <span class="n">example_source</span>
+                    <span class="k">else</span> <span class="s2">&quot;Use get_by_id() for unambiguous access.&quot;</span>
+                <span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Ambiguous field name &#39;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2">&#39; matches </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span><span class="si">}</span><span class="s2"> fields &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">sources</span><span class="si">}</span><span class="s2">). Using first match. </span><span class="si">{</span><span class="n">hint</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="ne">UserWarning</span><span class="p">,</span>
+                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="n">value</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="n">resolve_dropdowns</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_dropdown</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">resolve</span> <span class="o">==</span> <span class="n">ResolveMode</span><span class="o">.</span><span class="n">TEXT</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">value_type</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">value</span>
 
@@ -10943,7 +11045,7 @@ or <code>next_page_token</code> directly.</p>
         <span class="n">entity</span><span class="p">:</span> <span class="n">Company</span> <span class="o">|</span> <span class="n">Person</span> <span class="o">|</span> <span class="n">Opportunity</span> <span class="o">|</span> <span class="n">ListEntryWithEntity</span><span class="p">,</span>
         <span class="n">field_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">resolve_dropdowns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">resolve</span><span class="p">:</span> <span class="n">ResolveMode</span> <span class="o">=</span> <span class="n">ResolveMode</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get multiple field values by name.</span>
@@ -10951,7 +11053,7 @@ or <code>next_page_token</code> directly.</p>
 <span class="sd">        Args:</span>
 <span class="sd">            entity: The entity (Company, Person, Opportunity, or ListEntry)</span>
 <span class="sd">            field_names: List of field names to extract</span>
-<span class="sd">            resolve_dropdowns: If True, resolve dropdown IDs to text</span>
+<span class="sd">            resolve: ResolveMode.RAW or ResolveMode.TEXT</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Dict mapping field_name -&gt; value (None for missing/unpopulated fields)</span>
@@ -10961,17 +11063,51 @@ or <code>next_page_token</code> directly.</p>
 <span class="sd">            &gt;&gt;&gt; print(values)</span>
 <span class="sd">            {&#39;Status&#39;: &#39;Active&#39;, &#39;Industry&#39;: &#39;Tech&#39;, &#39;Size&#39;: None}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="n">name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">resolve_dropdowns</span><span class="o">=</span><span class="n">resolve_dropdowns</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">field_names</span>
-        <span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="n">resolve</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">field_names</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">value_type</span><span class="p">:</span> <span class="n">FieldValueType</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve a field value to human-readable text based on its type.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value_type</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="n">FieldValueType</span><span class="o">.</span><span class="n">DROPDOWN</span><span class="p">,</span>
+            <span class="n">FieldValueType</span><span class="o">.</span><span class="n">RANKED_DROPDOWN</span><span class="p">,</span>
+            <span class="n">FieldValueType</span><span class="o">.</span><span class="n">DROPDOWN_MULTI</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_dropdown</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value_type</span> <span class="o">==</span> <span class="n">FieldValueType</span><span class="o">.</span><span class="n">PERSON</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">resolve_person</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="n">value_type</span> <span class="o">==</span> <span class="n">FieldValueType</span><span class="o">.</span><span class="n">PERSON_MULTI</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">resolve_person</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">or</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">value</span>
+
+        <span class="k">if</span> <span class="n">value_type</span> <span class="o">==</span> <span class="n">FieldValueType</span><span class="o">.</span><span class="n">COMPANY</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">resolve_company</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="n">value_type</span> <span class="o">==</span> <span class="n">FieldValueType</span><span class="o">.</span><span class="n">COMPANY_MULTI</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">resolve_company</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">or</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">value</span>
+
+        <span class="k">if</span> <span class="n">value_type</span> <span class="o">==</span> <span class="n">FieldValueType</span><span class="o">.</span><span class="n">LOCATION</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">resolve_location</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="n">value_type</span> <span class="o">==</span> <span class="n">FieldValueType</span><span class="o">.</span><span class="n">LOCATION_MULTI</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">resolve_location</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">or</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">value</span>
+
+        <span class="k">if</span> <span class="n">value_type</span> <span class="o">==</span> <span class="n">FieldValueType</span><span class="o">.</span><span class="n">INTERACTION</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">resolve_interaction</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span>
+
+        <span class="k">return</span> <span class="n">value</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_dropdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve dropdown option ID(s) to text.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve dropdown DropdownOption(s) to text.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.models.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">DropdownOption</span>  <span class="c1"># noqa: PLC0415</span>
+
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_resolve_dropdown</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dropdown_options</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dropdown_options</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">DropdownOption</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">text</span>
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_by_id</span><span class="p">(</span>
@@ -10979,7 +11115,7 @@ or <code>next_page_token</code> directly.</p>
         <span class="n">entity</span><span class="p">:</span> <span class="n">Company</span> <span class="o">|</span> <span class="n">Person</span> <span class="o">|</span> <span class="n">Opportunity</span> <span class="o">|</span> <span class="n">ListEntryWithEntity</span><span class="p">,</span>
         <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">AnyFieldId</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">resolve_dropdowns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">resolve</span><span class="p">:</span> <span class="n">ResolveMode</span> <span class="o">=</span> <span class="n">ResolveMode</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a field value by ID (unambiguous, for duplicate field names).</span>
@@ -10987,7 +11123,7 @@ or <code>next_page_token</code> directly.</p>
 <span class="sd">        Args:</span>
 <span class="sd">            entity: The entity</span>
 <span class="sd">            field_id: The field ID (e.g., &quot;field-123&quot; or FieldId(123))</span>
-<span class="sd">            resolve_dropdowns: If True, resolve dropdown IDs to text</span>
+<span class="sd">            resolve: ResolveMode.RAW or ResolveMode.TEXT</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The extracted field value, or None if not found.</span>
@@ -11002,17 +11138,41 @@ or <code>next_page_token</code> directly.</p>
         <span class="p">):</span>
             <span class="n">entity</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">entity</span>
 
-        <span class="n">value</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">field_id</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">resolve_dropdowns</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_dropdown</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">field_id_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">field_id</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">field_id_str</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">resolve</span> <span class="o">==</span> <span class="n">ResolveMode</span><span class="o">.</span><span class="n">TEXT</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_id</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field_id_str</span><span class="p">)</span>
+            <span class="n">value_type</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">value_type</span> <span class="k">if</span> <span class="n">field</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">value_type</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all available field names.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all available field names (including source-qualified names for ambiguous fields).&quot;&quot;&quot;</span>
+        <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">fields</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Skip source-qualified keys — they&#39;ll be added when we detect ambiguity</span>
+            <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                    <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                    <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Ambiguous: emit source-qualified names</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+                    <span class="n">qualified</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">enrichment_source</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">enrichment_source</span> <span class="k">else</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span>
+                    <span class="k">if</span> <span class="n">qualified</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">qualified</span><span class="p">)</span>
+                        <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qualified</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">names</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">has_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if a field exists by name.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if a field exists by name.</span>
+
+<span class="sd">        Supports source-qualified names like ``&#39;dealroom:Description&#39;``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">field_name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -11078,15 +11238,7 @@ or <code>next_page_token</code> directly.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/field_resolver.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">47</span>
 <span class="normal">48</span>
 <span class="normal">49</span>
 <span class="normal">50</span>
@@ -11108,7 +11260,9 @@ or <code>next_page_token</code> directly.</p>
 <span class="normal">66</span>
 <span class="normal">67</span>
 <span class="normal">68</span>
-<span class="normal">69</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">FieldMetadata</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">FieldMetadata</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a resolver from field metadata.</span>
 
@@ -11116,29 +11270,23 @@ or <code>next_page_token</code> directly.</p>
 <span class="sd">        fields: Field metadata from client.companies.get_fields(),</span>
 <span class="sd">                client.persons.get_fields(), etc.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Build case-insensitive name -&gt; field mapping</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">FieldMetadata</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># Build case-insensitive name -&gt; field(s) mapping.</span>
+    <span class="c1"># Multiple fields can share the same display name (e.g., enrichment</span>
+    <span class="c1"># fields from different sources both called &quot;Description&quot;).</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">FieldMetadata</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_by_id</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">FieldMetadata</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_dropdown_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># option_id -&gt; text</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_warned_names</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
         <span class="n">name_key</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">name_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">:</span>
-            <span class="n">existing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">[</span><span class="n">name_key</span><span class="p">]</span>
-            <span class="n">src_existing</span> <span class="o">=</span> <span class="n">existing</span><span class="o">.</span><span class="n">enrichment_source</span> <span class="ow">or</span> <span class="n">existing</span><span class="o">.</span><span class="n">type</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span>
-            <span class="n">src_new</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">enrichment_source</span> <span class="ow">or</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Duplicate field name &#39;</span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">src_existing</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">existing</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">] vs </span><span class="si">{</span><span class="n">src_new</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">]). &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Later field will be used. Use get_by_id() for unambiguous access.&quot;</span><span class="p">,</span>
-                <span class="ne">UserWarning</span><span class="p">,</span>
-                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">[</span><span class="n">name_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">name_key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+
+        <span class="c1"># Register source-qualified key for enrichment fields (e.g., &quot;dealroom:description&quot;)</span>
+        <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">enrichment_source</span><span class="p">:</span>
+            <span class="n">qualified_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">enrichment_source</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">name_key</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">qualified_key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_by_id</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">id</span><span class="p">)]</span> <span class="o">=</span> <span class="n">field</span>
-        <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">dropdown_options</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dropdown_options</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_dropdown_options</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">id</span><span class="p">)]</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">text</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -11156,16 +11304,52 @@ or <code>next_page_token</code> directly.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Get all available field names.</p>
+        <p>Get all available field names (including source-qualified names for ambiguous fields).</p>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/field_resolver.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get all available field names.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get all available field names (including source-qualified names for ambiguous fields).&quot;&quot;&quot;</span>
+    <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">fields</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># Skip source-qualified keys — they&#39;ll be added when we detect ambiguity</span>
+        <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Ambiguous: emit source-qualified names</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+                <span class="n">qualified</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">enrichment_source</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">enrichment_source</span> <span class="k">else</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span>
+                <span class="k">if</span> <span class="n">qualified</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                    <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">qualified</span><span class="p">)</span>
+                    <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qualified</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">names</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -11176,7 +11360,7 @@ or <code>next_page_token</code> directly.</p>
 
 
 <h2 id="affinity.field_resolver.FieldResolver.get" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="n">entity</span><span class="p">:</span> <span class="n">Company</span> <span class="o">|</span> <span class="n">Person</span> <span class="o">|</span> <span class="n">Opportunity</span> <span class="o">|</span> <span class="n">ListEntryWithEntity</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">resolve_dropdowns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span></code>
+            <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="n">entity</span><span class="p">:</span> <span class="n">Company</span> <span class="o">|</span> <span class="n">Person</span> <span class="o">|</span> <span class="n">Opportunity</span> <span class="o">|</span> <span class="n">ListEntryWithEntity</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">resolve</span><span class="p">:</span> <span class="n">ResolveMode</span> <span class="o">=</span> <span class="n">ResolveMode</span><span class="o">.</span><span class="n">RAW</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span></code>
 
 <a href="#affinity.field_resolver.FieldResolver.get" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -11231,18 +11415,20 @@ or <code>next_page_token</code> directly.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>resolve_dropdowns</code>
+                <code>resolve</code>
             </td>
             <td>
-                  <code><span title="bool">bool</span></code>
+                  <code><a class="autorefs autorefs-internal" title="ResolveMode (affinity.models.types.ResolveMode)" href="../types/#affinity.types.ResolveMode">ResolveMode</a></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>If True, return dropdown option text instead of ID</p>
+                <p>ResolveMode.RAW returns extracted values as-is.
+     ResolveMode.TEXT resolves all complex types to strings
+     (dropdowns to text, persons to names, etc.).</p>
               </div>
             </td>
             <td>
-                  <code>False</code>
+                  <code><span title="affinity.models.types.ResolveMode.RAW">RAW</span></code>
             </td>
           </tr>
       </tbody>
@@ -11279,8 +11465,8 @@ or <code>next_page_token</code> directly.</p>
 <blockquote>
 <p>status = resolver.get(company, "Status")
 print(status)  # "Active"</p>
-<h3 id="affinity.field_resolver.FieldResolver.get--with-dropdown-resolution">With dropdown resolution<a class="headerlink" href="#affinity.field_resolver.FieldResolver.get--with-dropdown-resolution" title="Permanent link">&para;</a></h3>
-<p>stage = resolver.get(opportunity, "Stage", resolve_dropdowns=True)
+<h3 id="affinity.field_resolver.FieldResolver.get--resolve-complex-types-to-text">Resolve complex types to text<a class="headerlink" href="#affinity.field_resolver.FieldResolver.get--resolve-complex-types-to-text" title="Permanent link">&para;</a></h3>
+<p>stage = resolver.get(opportunity, "Stage", resolve=ResolveMode.TEXT)
 print(stage)  # "Negotiation" instead of 12345</p>
 </blockquote>
 </blockquote>
@@ -11289,9 +11475,7 @@ print(stage)  # "Negotiation" instead of 12345</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/field_resolver.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 71</span>
-<span class="normal"> 72</span>
-<span class="normal"> 73</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 73</span>
 <span class="normal"> 74</span>
 <span class="normal"> 75</span>
 <span class="normal"> 76</span>
@@ -11343,12 +11527,39 @@ print(stage)  # "Negotiation" instead of 12345</p>
 <span class="normal">122</span>
 <span class="normal">123</span>
 <span class="normal">124</span>
-<span class="normal">125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">entity</span><span class="p">:</span> <span class="n">Company</span> <span class="o">|</span> <span class="n">Person</span> <span class="o">|</span> <span class="n">Opportunity</span> <span class="o">|</span> <span class="n">ListEntryWithEntity</span><span class="p">,</span>
     <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">resolve_dropdowns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">resolve</span><span class="p">:</span> <span class="n">ResolveMode</span> <span class="o">=</span> <span class="n">ResolveMode</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a field value by name from an entity.</span>
@@ -11356,7 +11567,9 @@ print(stage)  # "Negotiation" instead of 12345</p>
 <span class="sd">    Args:</span>
 <span class="sd">        entity: The entity (Company, Person, Opportunity, or ListEntry)</span>
 <span class="sd">        field_name: The field display name (case-insensitive)</span>
-<span class="sd">        resolve_dropdowns: If True, return dropdown option text instead of ID</span>
+<span class="sd">        resolve: ResolveMode.RAW returns extracted values as-is.</span>
+<span class="sd">                 ResolveMode.TEXT resolves all complex types to strings</span>
+<span class="sd">                 (dropdowns to text, persons to names, etc.).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The extracted field value, or None if field not found or not populated.</span>
@@ -11365,8 +11578,8 @@ print(stage)  # "Negotiation" instead of 12345</p>
 <span class="sd">        &gt;&gt;&gt; status = resolver.get(company, &quot;Status&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; print(status)  # &quot;Active&quot;</span>
 
-<span class="sd">        &gt;&gt;&gt; # With dropdown resolution</span>
-<span class="sd">        &gt;&gt;&gt; stage = resolver.get(opportunity, &quot;Stage&quot;, resolve_dropdowns=True)</span>
+<span class="sd">        &gt;&gt;&gt; # Resolve complex types to text</span>
+<span class="sd">        &gt;&gt;&gt; stage = resolver.get(opportunity, &quot;Stage&quot;, resolve=ResolveMode.TEXT)</span>
 <span class="sd">        &gt;&gt;&gt; print(stage)  # &quot;Negotiation&quot; instead of 12345</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Delegate to inner entity for ListEntryWithEntity</span>
@@ -11388,14 +11601,37 @@ print(stage)  # "Negotiation" instead of 12345</p>
         <span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="n">field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field_name</span><span class="o">.</span><span class="n">casefold</span><span class="p">())</span>
-    <span class="k">if</span> <span class="n">field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">name_key</span> <span class="o">=</span> <span class="n">field_name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+    <span class="n">candidates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name_key</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">candidates</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Warn once per ambiguous bare name at access time</span>
+        <span class="k">if</span> <span class="n">name_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_warned_names</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_warned_names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name_key</span><span class="p">)</span>
+            <span class="n">sources</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">enrichment_source</span> <span class="ow">or</span> <span class="n">f</span><span class="o">.</span><span class="n">type</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">)</span>
+            <span class="n">example_source</span> <span class="o">=</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">enrichment_source</span>
+            <span class="n">hint</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Disambiguate with &#39;source:name&#39; syntax, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;e.g., &#39;</span><span class="si">{</span><span class="n">example_source</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                <span class="k">if</span> <span class="n">example_source</span>
+                <span class="k">else</span> <span class="s2">&quot;Use get_by_id() for unambiguous access.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Ambiguous field name &#39;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2">&#39; matches </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span><span class="si">}</span><span class="s2"> fields &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">sources</span><span class="si">}</span><span class="s2">). Using first match. </span><span class="si">{</span><span class="n">hint</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="n">value</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
 
-    <span class="k">if</span> <span class="n">resolve_dropdowns</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_dropdown</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">resolve</span> <span class="o">==</span> <span class="n">ResolveMode</span><span class="o">.</span><span class="n">TEXT</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">value_type</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">value</span>
 </code></pre></div></td></tr></table></div>
@@ -11408,7 +11644,7 @@ print(stage)  # "Negotiation" instead of 12345</p>
 
 
 <h2 id="affinity.field_resolver.FieldResolver.get_by_id" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_by_id</span><span class="p">(</span><span class="n">entity</span><span class="p">:</span> <span class="n">Company</span> <span class="o">|</span> <span class="n">Person</span> <span class="o">|</span> <span class="n">Opportunity</span> <span class="o">|</span> <span class="n">ListEntryWithEntity</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">AnyFieldId</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">resolve_dropdowns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span></code>
+            <code class="highlight language-python"><span class="n">get_by_id</span><span class="p">(</span><span class="n">entity</span><span class="p">:</span> <span class="n">Company</span> <span class="o">|</span> <span class="n">Person</span> <span class="o">|</span> <span class="n">Opportunity</span> <span class="o">|</span> <span class="n">ListEntryWithEntity</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">AnyFieldId</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">resolve</span><span class="p">:</span> <span class="n">ResolveMode</span> <span class="o">=</span> <span class="n">ResolveMode</span><span class="o">.</span><span class="n">RAW</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span></code>
 
 <a href="#affinity.field_resolver.FieldResolver.get_by_id" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -11463,18 +11699,18 @@ print(stage)  # "Negotiation" instead of 12345</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>resolve_dropdowns</code>
+                <code>resolve</code>
             </td>
             <td>
-                  <code><span title="bool">bool</span></code>
+                  <code><a class="autorefs autorefs-internal" title="ResolveMode (affinity.models.types.ResolveMode)" href="../types/#affinity.types.ResolveMode">ResolveMode</a></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>If True, resolve dropdown IDs to text</p>
+                <p>ResolveMode.RAW or ResolveMode.TEXT</p>
               </div>
             </td>
             <td>
-                  <code>False</code>
+                  <code><span title="affinity.models.types.ResolveMode.RAW">RAW</span></code>
             </td>
           </tr>
       </tbody>
@@ -11506,43 +11742,46 @@ print(stage)  # "Negotiation" instead of 12345</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/field_resolver.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_by_id</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_by_id</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">entity</span><span class="p">:</span> <span class="n">Company</span> <span class="o">|</span> <span class="n">Person</span> <span class="o">|</span> <span class="n">Opportunity</span> <span class="o">|</span> <span class="n">ListEntryWithEntity</span><span class="p">,</span>
     <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">AnyFieldId</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">resolve_dropdowns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">resolve</span><span class="p">:</span> <span class="n">ResolveMode</span> <span class="o">=</span> <span class="n">ResolveMode</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a field value by ID (unambiguous, for duplicate field names).</span>
@@ -11550,7 +11789,7 @@ print(stage)  # "Negotiation" instead of 12345</p>
 <span class="sd">    Args:</span>
 <span class="sd">        entity: The entity</span>
 <span class="sd">        field_id: The field ID (e.g., &quot;field-123&quot; or FieldId(123))</span>
-<span class="sd">        resolve_dropdowns: If True, resolve dropdown IDs to text</span>
+<span class="sd">        resolve: ResolveMode.RAW or ResolveMode.TEXT</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The extracted field value, or None if not found.</span>
@@ -11565,9 +11804,12 @@ print(stage)  # "Negotiation" instead of 12345</p>
     <span class="p">):</span>
         <span class="n">entity</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">entity</span>
 
-    <span class="n">value</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">field_id</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">resolve_dropdowns</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_dropdown</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">field_id_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">field_id</span><span class="p">)</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">field_id_str</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">resolve</span> <span class="o">==</span> <span class="n">ResolveMode</span><span class="o">.</span><span class="n">TEXT</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_id</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field_id_str</span><span class="p">)</span>
+        <span class="n">value_type</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">value_type</span> <span class="k">if</span> <span class="n">field</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">value_type</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">value</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -11579,7 +11821,7 @@ print(stage)  # "Negotiation" instead of 12345</p>
 
 
 <h2 id="affinity.field_resolver.FieldResolver.get_many" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_many</span><span class="p">(</span><span class="n">entity</span><span class="p">:</span> <span class="n">Company</span> <span class="o">|</span> <span class="n">Person</span> <span class="o">|</span> <span class="n">Opportunity</span> <span class="o">|</span> <span class="n">ListEntryWithEntity</span><span class="p">,</span> <span class="n">field_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">resolve_dropdowns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">get_many</span><span class="p">(</span><span class="n">entity</span><span class="p">:</span> <span class="n">Company</span> <span class="o">|</span> <span class="n">Person</span> <span class="o">|</span> <span class="n">Opportunity</span> <span class="o">|</span> <span class="n">ListEntryWithEntity</span><span class="p">,</span> <span class="n">field_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">resolve</span><span class="p">:</span> <span class="n">ResolveMode</span> <span class="o">=</span> <span class="n">ResolveMode</span><span class="o">.</span><span class="n">RAW</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span></code>
 
 <a href="#affinity.field_resolver.FieldResolver.get_many" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -11634,18 +11876,18 @@ print(stage)  # "Negotiation" instead of 12345</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>resolve_dropdowns</code>
+                <code>resolve</code>
             </td>
             <td>
-                  <code><span title="bool">bool</span></code>
+                  <code><a class="autorefs autorefs-internal" title="ResolveMode (affinity.models.types.ResolveMode)" href="../types/#affinity.types.ResolveMode">ResolveMode</a></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>If True, resolve dropdown IDs to text</p>
+                <p>ResolveMode.RAW or ResolveMode.TEXT</p>
               </div>
             </td>
             <td>
-                  <code>False</code>
+                  <code><span title="affinity.models.types.ResolveMode.RAW">RAW</span></code>
             </td>
           </tr>
       </tbody>
@@ -11690,38 +11932,35 @@ print(values)
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/field_resolver.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_many</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_many</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">entity</span><span class="p">:</span> <span class="n">Company</span> <span class="o">|</span> <span class="n">Person</span> <span class="o">|</span> <span class="n">Opportunity</span> <span class="o">|</span> <span class="n">ListEntryWithEntity</span><span class="p">,</span>
     <span class="n">field_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">resolve_dropdowns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">resolve</span><span class="p">:</span> <span class="n">ResolveMode</span> <span class="o">=</span> <span class="n">ResolveMode</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get multiple field values by name.</span>
@@ -11729,7 +11968,7 @@ print(values)
 <span class="sd">    Args:</span>
 <span class="sd">        entity: The entity (Company, Person, Opportunity, or ListEntry)</span>
 <span class="sd">        field_names: List of field names to extract</span>
-<span class="sd">        resolve_dropdowns: If True, resolve dropdown IDs to text</span>
+<span class="sd">        resolve: ResolveMode.RAW or ResolveMode.TEXT</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict mapping field_name -&gt; value (None for missing/unpopulated fields)</span>
@@ -11739,10 +11978,7 @@ print(values)
 <span class="sd">        &gt;&gt;&gt; print(values)</span>
 <span class="sd">        {&#39;Status&#39;: &#39;Active&#39;, &#39;Industry&#39;: &#39;Tech&#39;, &#39;Size&#39;: None}</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="n">name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">resolve_dropdowns</span><span class="o">=</span><span class="n">resolve_dropdowns</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">field_names</span>
-    <span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="n">resolve</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">field_names</span><span class="p">}</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -11761,14 +11997,21 @@ print(values)
     <div class="doc doc-contents ">
 
         <p>Check if a field exists by name.</p>
+<p>Supports source-qualified names like <code>'dealroom:Description'</code>.</p>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/field_resolver.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">has_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if a field exists by name.&quot;&quot;&quot;</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">has_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if a field exists by name.</span>
+
+<span class="sd">    Supports source-qualified names like ``&#39;dealroom:Description&#39;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">field_name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span>
 </code></pre></div></td></tr></table></div>
             </details>
