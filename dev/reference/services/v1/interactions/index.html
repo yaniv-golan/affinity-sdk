@@ -2274,29 +2274,7 @@
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">494</span>
-<span class="normal">495</span>
-<span class="normal">496</span>
-<span class="normal">497</span>
-<span class="normal">498</span>
-<span class="normal">499</span>
-<span class="normal">500</span>
-<span class="normal">501</span>
-<span class="normal">502</span>
-<span class="normal">503</span>
-<span class="normal">504</span>
-<span class="normal">505</span>
-<span class="normal">506</span>
-<span class="normal">507</span>
-<span class="normal">508</span>
-<span class="normal">509</span>
-<span class="normal">510</span>
-<span class="normal">511</span>
-<span class="normal">512</span>
-<span class="normal">513</span>
-<span class="normal">514</span>
-<span class="normal">515</span>
-<span class="normal">516</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">516</span>
 <span class="normal">517</span>
 <span class="normal">518</span>
 <span class="normal">519</span>
@@ -2439,7 +2417,94 @@
 <span class="normal">656</span>
 <span class="normal">657</span>
 <span class="normal">658</span>
-<span class="normal">659</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">InteractionService</span><span class="p">:</span>
+<span class="normal">659</span>
+<span class="normal">660</span>
+<span class="normal">661</span>
+<span class="normal">662</span>
+<span class="normal">663</span>
+<span class="normal">664</span>
+<span class="normal">665</span>
+<span class="normal">666</span>
+<span class="normal">667</span>
+<span class="normal">668</span>
+<span class="normal">669</span>
+<span class="normal">670</span>
+<span class="normal">671</span>
+<span class="normal">672</span>
+<span class="normal">673</span>
+<span class="normal">674</span>
+<span class="normal">675</span>
+<span class="normal">676</span>
+<span class="normal">677</span>
+<span class="normal">678</span>
+<span class="normal">679</span>
+<span class="normal">680</span>
+<span class="normal">681</span>
+<span class="normal">682</span>
+<span class="normal">683</span>
+<span class="normal">684</span>
+<span class="normal">685</span>
+<span class="normal">686</span>
+<span class="normal">687</span>
+<span class="normal">688</span>
+<span class="normal">689</span>
+<span class="normal">690</span>
+<span class="normal">691</span>
+<span class="normal">692</span>
+<span class="normal">693</span>
+<span class="normal">694</span>
+<span class="normal">695</span>
+<span class="normal">696</span>
+<span class="normal">697</span>
+<span class="normal">698</span>
+<span class="normal">699</span>
+<span class="normal">700</span>
+<span class="normal">701</span>
+<span class="normal">702</span>
+<span class="normal">703</span>
+<span class="normal">704</span>
+<span class="normal">705</span>
+<span class="normal">706</span>
+<span class="normal">707</span>
+<span class="normal">708</span>
+<span class="normal">709</span>
+<span class="normal">710</span>
+<span class="normal">711</span>
+<span class="normal">712</span>
+<span class="normal">713</span>
+<span class="normal">714</span>
+<span class="normal">715</span>
+<span class="normal">716</span>
+<span class="normal">717</span>
+<span class="normal">718</span>
+<span class="normal">719</span>
+<span class="normal">720</span>
+<span class="normal">721</span>
+<span class="normal">722</span>
+<span class="normal">723</span>
+<span class="normal">724</span>
+<span class="normal">725</span>
+<span class="normal">726</span>
+<span class="normal">727</span>
+<span class="normal">728</span>
+<span class="normal">729</span>
+<span class="normal">730</span>
+<span class="normal">731</span>
+<span class="normal">732</span>
+<span class="normal">733</span>
+<span class="normal">734</span>
+<span class="normal">735</span>
+<span class="normal">736</span>
+<span class="normal">737</span>
+<span class="normal">738</span>
+<span class="normal">739</span>
+<span class="normal">740</span>
+<span class="normal">741</span>
+<span class="normal">742</span>
+<span class="normal">743</span>
+<span class="normal">744</span>
+<span class="normal">745</span>
+<span class="normal">746</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">InteractionService</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Service for managing interactions (meetings, calls, emails, chats).</span>
 
@@ -2462,48 +2527,74 @@
         <span class="n">page_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">Interaction</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get interactions with optional filtering.</span>
+<span class="sd">        Get interactions with filtering.</span>
 
-<span class="sd">        The Affinity API requires:</span>
-<span class="sd">        - type: Interaction type (meeting, call, email, chat)</span>
-<span class="sd">        - start_time and end_time: Date range (max 1 year)</span>
-<span class="sd">        - One entity ID: person_id, company_id, or opportunity_id</span>
+<span class="sd">        All parameters are validated before calling the API:</span>
+<span class="sd">        - type, start_time, end_time are required</span>
+<span class="sd">        - At least one entity ID (person_id, company_id, or opportunity_id)</span>
+<span class="sd">        - Date range must be &lt;= 365 days</span>
+<span class="sd">        - start_time must be before end_time</span>
+
+<span class="sd">        For ranges exceeding 365 days, use iter() which automatically chunks.</span>
 
 <span class="sd">        Returns V1 paginated response with `data` and `next_page_token`.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            ValueError: If type is not provided (required by Affinity V1 API)</span>
+<span class="sd">            ValueError: If required parameters are missing or invalid.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;type is required for interactions API. &quot;</span>
                 <span class="s2">&quot;Use InteractionType.EMAIL, MEETING, CALL, or CHAT_MESSAGE.&quot;</span>
             <span class="p">)</span>
+        <span class="k">if</span> <span class="n">start_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;start_time is required for interactions API. &quot;</span>
+                <span class="s2">&quot;Use iter() for automatic date range handling.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">end_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;end_time is required for interactions API. &quot;</span>
+                <span class="s2">&quot;Use iter() for automatic date range handling.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">start_time</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">end_time</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;start_time and end_time must both be timezone-aware or both naive. &quot;</span>
+                <span class="s2">&quot;Recommended: use timezone-aware datetimes (e.g., datetime.now(timezone.utc)).&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">end_time</span> <span class="o">&lt;=</span> <span class="n">start_time</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;start_time must be before end_time.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">_MAX_INTERACTION_RANGE_DAYS</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Date range exceeds </span><span class="si">{</span><span class="n">_MAX_INTERACTION_RANGE_DAYS</span><span class="si">}</span><span class="s2"> days. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Use iter() which automatically chunks large ranges.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">person_id</span><span class="p">,</span> <span class="n">company_id</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;At least one entity filter is required: person_id, company_id, or opportunity_id.&quot;</span>
+            <span class="p">)</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)}</span>
-        <span class="k">if</span> <span class="n">start_time</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;start_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">end_time</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">person_id</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;start_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">person_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;person_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">company_id</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">company_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;organization_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">opportunity_id</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">opportunity_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;opportunity_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">page_size</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">page_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;page_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">page_size</span>
-        <span class="k">if</span> <span class="n">page_token</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">page_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;page_token&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">page_token</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/interactions&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">items</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">InteractionType</span><span class="o">.</span><span class="n">MEETING</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">InteractionType</span><span class="o">.</span><span class="n">CALL</span><span class="p">)):</span>
-                <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;events&quot;</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">InteractionType</span><span class="o">.</span><span class="n">CHAT_MESSAGE</span><span class="p">):</span>
-                <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;chat_messages&quot;</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">InteractionType</span><span class="o">.</span><span class="n">EMAIL</span><span class="p">):</span>
-                <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;emails&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">InteractionType</span><span class="o">.</span><span class="n">MEETING</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">InteractionType</span><span class="o">.</span><span class="n">CALL</span><span class="p">)):</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;events&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">InteractionType</span><span class="o">.</span><span class="n">CHAT_MESSAGE</span><span class="p">):</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;chat_messages&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">InteractionType</span><span class="o">.</span><span class="n">EMAIL</span><span class="p">):</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;emails&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">items</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">items</span> <span class="o">=</span> <span class="p">(</span>
@@ -2581,28 +2672,67 @@
         <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PageIterator</span><span class="p">[</span><span class="n">Interaction</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Iterate through all interactions with automatic pagination.</span>
+<span class="sd">        Iterate through all interactions with automatic pagination and date chunking.</span>
 
-<span class="sd">        The Affinity API requires:</span>
-<span class="sd">        - type: Interaction type (meeting, call, email, chat)</span>
-<span class="sd">        - start_time and end_time: Date range (max 1 year)</span>
-<span class="sd">        - One entity ID: person_id, company_id, or opportunity_id</span>
+<span class="sd">        Automatically splits date ranges exceeding 365 days into chunks</span>
+<span class="sd">        and bridges them with synthetic cursors for seamless iteration.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            type: Interaction type (required).</span>
+<span class="sd">            start_time: Start of date range (required).</span>
+<span class="sd">            end_time: End of date range (defaults to now if not provided).</span>
+<span class="sd">            person_id: Filter by person.</span>
+<span class="sd">            company_id: Filter by company.</span>
+<span class="sd">            opportunity_id: Filter by opportunity.</span>
+<span class="sd">            page_size: Page size for API calls.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            PageIterator that yields Interaction objects</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;type is required for interactions API. &quot;</span>
+                <span class="s2">&quot;Use InteractionType.EMAIL, MEETING, CALL, or CHAT_MESSAGE.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">start_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;start_time is required for interactions API.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">person_id</span><span class="p">,</span> <span class="n">company_id</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;At least one entity filter is required: person_id, company_id, or opportunity_id.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">resolved_end</span> <span class="o">=</span> <span class="n">end_time</span> <span class="k">if</span> <span class="n">end_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">start_time</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">resolved_end</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;start_time and end_time must both be timezone-aware or both naive. &quot;</span>
+                <span class="s2">&quot;Recommended: use timezone-aware datetimes (e.g., datetime.now(timezone.utc)).&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">resolved_end</span> <span class="o">&lt;=</span> <span class="n">start_time</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;start_time must be before end_time.&quot;</span><span class="p">)</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="n">_chunk_date_range</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">resolved_end</span><span class="p">)</span>
+        <span class="n">chunk_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">chunk_sentinel</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;__chunk_</span><span class="si">{</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="si">}</span><span class="s2">__&quot;</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">fetch_page</span><span class="p">(</span><span class="n">cursor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">Interaction</span><span class="p">]:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+            <span class="k">nonlocal</span> <span class="n">chunk_index</span>
+            <span class="k">if</span> <span class="n">cursor</span> <span class="o">==</span> <span class="n">chunk_sentinel</span><span class="p">:</span>
+                <span class="n">chunk_index</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">cursor</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">chunk_index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunks</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">Interaction</span><span class="p">](</span><span class="n">data</span><span class="o">=</span><span class="p">[])</span>
+            <span class="n">c_start</span><span class="p">,</span> <span class="n">c_end</span> <span class="o">=</span> <span class="n">chunks</span><span class="p">[</span><span class="n">chunk_index</span><span class="p">]</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
                 <span class="nb">type</span><span class="o">=</span><span class="nb">type</span><span class="p">,</span>
-                <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span>
-                <span class="n">end_time</span><span class="o">=</span><span class="n">end_time</span><span class="p">,</span>
+                <span class="n">start_time</span><span class="o">=</span><span class="n">c_start</span><span class="p">,</span>
+                <span class="n">end_time</span><span class="o">=</span><span class="n">c_end</span><span class="p">,</span>
                 <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
                 <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
                 <span class="n">opportunity_id</span><span class="o">=</span><span class="n">opportunity_id</span><span class="p">,</span>
                 <span class="n">page_size</span><span class="o">=</span><span class="n">page_size</span><span class="p">,</span>
                 <span class="n">page_token</span><span class="o">=</span><span class="n">cursor</span><span class="p">,</span>
             <span class="p">)</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">next_cursor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">chunk_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">next_page_token</span> <span class="o">=</span> <span class="n">chunk_sentinel</span>
+            <span class="k">return</span> <span class="n">response</span>
 
         <span class="k">return</span> <span class="n">PageIterator</span><span class="p">(</span><span class="n">fetch_page</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -2637,13 +2767,13 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">584</span>
-<span class="normal">585</span>
-<span class="normal">586</span>
-<span class="normal">587</span>
-<span class="normal">588</span>
-<span class="normal">589</span>
-<span class="normal">590</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">InteractionCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Interaction</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">632</span>
+<span class="normal">633</span>
+<span class="normal">634</span>
+<span class="normal">635</span>
+<span class="normal">636</span>
+<span class="normal">637</span>
+<span class="normal">638</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">InteractionCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Interaction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a new interaction (manually logged).&quot;&quot;&quot;</span>
     <span class="n">payload</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">by_alias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">_coerce_isoformat</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,))</span>
@@ -2672,14 +2802,14 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">615</span>
-<span class="normal">616</span>
-<span class="normal">617</span>
-<span class="normal">618</span>
-<span class="normal">619</span>
-<span class="normal">620</span>
-<span class="normal">621</span>
-<span class="normal">622</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction_id</span><span class="p">:</span> <span class="n">InteractionId</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">InteractionType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">663</span>
+<span class="normal">664</span>
+<span class="normal">665</span>
+<span class="normal">666</span>
+<span class="normal">667</span>
+<span class="normal">668</span>
+<span class="normal">669</span>
+<span class="normal">670</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction_id</span><span class="p">:</span> <span class="n">InteractionId</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">InteractionType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete an interaction.&quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;/interactions/</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">interaction_id</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -2709,14 +2839,14 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">575</span>
-<span class="normal">576</span>
-<span class="normal">577</span>
-<span class="normal">578</span>
-<span class="normal">579</span>
-<span class="normal">580</span>
-<span class="normal">581</span>
-<span class="normal">582</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction_id</span><span class="p">:</span> <span class="n">InteractionId</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">InteractionType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Interaction</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span>
+<span class="normal">630</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction_id</span><span class="p">:</span> <span class="n">InteractionId</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">InteractionType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Interaction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a single interaction by ID and type.&quot;&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;/interactions/</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">interaction_id</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -2741,11 +2871,136 @@
 
     <div class="doc doc-contents ">
 
-        <p>Iterate through all interactions with automatic pagination.</p>
-<p>The Affinity API requires:
-- type: Interaction type (meeting, call, email, chat)
-- start_time and end_time: Date range (max 1 year)
-- One entity ID: person_id, company_id, or opportunity_id</p>
+        <p>Iterate through all interactions with automatic pagination and date chunking.</p>
+<p>Automatically splits date ranges exceeding 365 days into chunks
+and bridges them with synthetic cursors for seamless iteration.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>type</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="InteractionType (affinity.models.types.InteractionType)" href="../../../types/#affinity.types.InteractionType">InteractionType</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Interaction type (required).</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>start_time</code>
+            </td>
+            <td>
+                  <code><span title="datetime.datetime">datetime</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Start of date range (required).</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>end_time</code>
+            </td>
+            <td>
+                  <code><span title="datetime.datetime">datetime</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>End of date range (defaults to now if not provided).</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>person_id</code>
+            </td>
+            <td>
+                  <code><span title="affinity.models.types.PersonId">PersonId</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter by person.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>company_id</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="CompanyId (affinity.models.types.CompanyId)" href="../../../types/#affinity.types.CompanyId">CompanyId</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter by company.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>opportunity_id</code>
+            </td>
+            <td>
+                  <code><span title="affinity.models.types.OpportunityId">OpportunityId</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter by opportunity.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>page_size</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Page size for API calls.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
     <p><span class="doc-section-title">Returns:</span></p>
@@ -2773,42 +3028,81 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">624</span>
-<span class="normal">625</span>
-<span class="normal">626</span>
-<span class="normal">627</span>
-<span class="normal">628</span>
-<span class="normal">629</span>
-<span class="normal">630</span>
-<span class="normal">631</span>
-<span class="normal">632</span>
-<span class="normal">633</span>
-<span class="normal">634</span>
-<span class="normal">635</span>
-<span class="normal">636</span>
-<span class="normal">637</span>
-<span class="normal">638</span>
-<span class="normal">639</span>
-<span class="normal">640</span>
-<span class="normal">641</span>
-<span class="normal">642</span>
-<span class="normal">643</span>
-<span class="normal">644</span>
-<span class="normal">645</span>
-<span class="normal">646</span>
-<span class="normal">647</span>
-<span class="normal">648</span>
-<span class="normal">649</span>
-<span class="normal">650</span>
-<span class="normal">651</span>
-<span class="normal">652</span>
-<span class="normal">653</span>
-<span class="normal">654</span>
-<span class="normal">655</span>
-<span class="normal">656</span>
-<span class="normal">657</span>
-<span class="normal">658</span>
-<span class="normal">659</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">672</span>
+<span class="normal">673</span>
+<span class="normal">674</span>
+<span class="normal">675</span>
+<span class="normal">676</span>
+<span class="normal">677</span>
+<span class="normal">678</span>
+<span class="normal">679</span>
+<span class="normal">680</span>
+<span class="normal">681</span>
+<span class="normal">682</span>
+<span class="normal">683</span>
+<span class="normal">684</span>
+<span class="normal">685</span>
+<span class="normal">686</span>
+<span class="normal">687</span>
+<span class="normal">688</span>
+<span class="normal">689</span>
+<span class="normal">690</span>
+<span class="normal">691</span>
+<span class="normal">692</span>
+<span class="normal">693</span>
+<span class="normal">694</span>
+<span class="normal">695</span>
+<span class="normal">696</span>
+<span class="normal">697</span>
+<span class="normal">698</span>
+<span class="normal">699</span>
+<span class="normal">700</span>
+<span class="normal">701</span>
+<span class="normal">702</span>
+<span class="normal">703</span>
+<span class="normal">704</span>
+<span class="normal">705</span>
+<span class="normal">706</span>
+<span class="normal">707</span>
+<span class="normal">708</span>
+<span class="normal">709</span>
+<span class="normal">710</span>
+<span class="normal">711</span>
+<span class="normal">712</span>
+<span class="normal">713</span>
+<span class="normal">714</span>
+<span class="normal">715</span>
+<span class="normal">716</span>
+<span class="normal">717</span>
+<span class="normal">718</span>
+<span class="normal">719</span>
+<span class="normal">720</span>
+<span class="normal">721</span>
+<span class="normal">722</span>
+<span class="normal">723</span>
+<span class="normal">724</span>
+<span class="normal">725</span>
+<span class="normal">726</span>
+<span class="normal">727</span>
+<span class="normal">728</span>
+<span class="normal">729</span>
+<span class="normal">730</span>
+<span class="normal">731</span>
+<span class="normal">732</span>
+<span class="normal">733</span>
+<span class="normal">734</span>
+<span class="normal">735</span>
+<span class="normal">736</span>
+<span class="normal">737</span>
+<span class="normal">738</span>
+<span class="normal">739</span>
+<span class="normal">740</span>
+<span class="normal">741</span>
+<span class="normal">742</span>
+<span class="normal">743</span>
+<span class="normal">744</span>
+<span class="normal">745</span>
+<span class="normal">746</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="nb">type</span><span class="p">:</span> <span class="n">InteractionType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2820,28 +3114,67 @@
     <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PageIterator</span><span class="p">[</span><span class="n">Interaction</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Iterate through all interactions with automatic pagination.</span>
+<span class="sd">    Iterate through all interactions with automatic pagination and date chunking.</span>
 
-<span class="sd">    The Affinity API requires:</span>
-<span class="sd">    - type: Interaction type (meeting, call, email, chat)</span>
-<span class="sd">    - start_time and end_time: Date range (max 1 year)</span>
-<span class="sd">    - One entity ID: person_id, company_id, or opportunity_id</span>
+<span class="sd">    Automatically splits date ranges exceeding 365 days into chunks</span>
+<span class="sd">    and bridges them with synthetic cursors for seamless iteration.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        type: Interaction type (required).</span>
+<span class="sd">        start_time: Start of date range (required).</span>
+<span class="sd">        end_time: End of date range (defaults to now if not provided).</span>
+<span class="sd">        person_id: Filter by person.</span>
+<span class="sd">        company_id: Filter by company.</span>
+<span class="sd">        opportunity_id: Filter by opportunity.</span>
+<span class="sd">        page_size: Page size for API calls.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        PageIterator that yields Interaction objects</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;type is required for interactions API. &quot;</span>
+            <span class="s2">&quot;Use InteractionType.EMAIL, MEETING, CALL, or CHAT_MESSAGE.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">start_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;start_time is required for interactions API.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">person_id</span><span class="p">,</span> <span class="n">company_id</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;At least one entity filter is required: person_id, company_id, or opportunity_id.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">resolved_end</span> <span class="o">=</span> <span class="n">end_time</span> <span class="k">if</span> <span class="n">end_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">start_time</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">resolved_end</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;start_time and end_time must both be timezone-aware or both naive. &quot;</span>
+            <span class="s2">&quot;Recommended: use timezone-aware datetimes (e.g., datetime.now(timezone.utc)).&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">resolved_end</span> <span class="o">&lt;=</span> <span class="n">start_time</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;start_time must be before end_time.&quot;</span><span class="p">)</span>
+    <span class="n">chunks</span> <span class="o">=</span> <span class="n">_chunk_date_range</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">resolved_end</span><span class="p">)</span>
+    <span class="n">chunk_index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">chunk_sentinel</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;__chunk_</span><span class="si">{</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="si">}</span><span class="s2">__&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">fetch_page</span><span class="p">(</span><span class="n">cursor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">Interaction</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+        <span class="k">nonlocal</span> <span class="n">chunk_index</span>
+        <span class="k">if</span> <span class="n">cursor</span> <span class="o">==</span> <span class="n">chunk_sentinel</span><span class="p">:</span>
+            <span class="n">chunk_index</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">cursor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">chunk_index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunks</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">Interaction</span><span class="p">](</span><span class="n">data</span><span class="o">=</span><span class="p">[])</span>
+        <span class="n">c_start</span><span class="p">,</span> <span class="n">c_end</span> <span class="o">=</span> <span class="n">chunks</span><span class="p">[</span><span class="n">chunk_index</span><span class="p">]</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
             <span class="nb">type</span><span class="o">=</span><span class="nb">type</span><span class="p">,</span>
-            <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span>
-            <span class="n">end_time</span><span class="o">=</span><span class="n">end_time</span><span class="p">,</span>
+            <span class="n">start_time</span><span class="o">=</span><span class="n">c_start</span><span class="p">,</span>
+            <span class="n">end_time</span><span class="o">=</span><span class="n">c_end</span><span class="p">,</span>
             <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
             <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
             <span class="n">opportunity_id</span><span class="o">=</span><span class="n">opportunity_id</span><span class="p">,</span>
             <span class="n">page_size</span><span class="o">=</span><span class="n">page_size</span><span class="p">,</span>
             <span class="n">page_token</span><span class="o">=</span><span class="n">cursor</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">next_cursor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">chunk_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">next_page_token</span> <span class="o">=</span> <span class="n">chunk_sentinel</span>
+        <span class="k">return</span> <span class="n">response</span>
 
     <span class="k">return</span> <span class="n">PageIterator</span><span class="p">(</span><span class="n">fetch_page</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -2861,11 +3194,13 @@
 
     <div class="doc doc-contents ">
 
-        <p>Get interactions with optional filtering.</p>
-<p>The Affinity API requires:
-- type: Interaction type (meeting, call, email, chat)
-- start_time and end_time: Date range (max 1 year)
-- One entity ID: person_id, company_id, or opportunity_id</p>
+        <p>Get interactions with filtering.</p>
+<p>All parameters are validated before calling the API:
+- type, start_time, end_time are required
+- At least one entity ID (person_id, company_id, or opportunity_id)
+- Date range must be &lt;= 365 days
+- start_time must be before end_time</p>
+<p>For ranges exceeding 365 days, use iter() which automatically chunks.</p>
 <p>Returns V1 paginated response with <code>data</code> and <code>next_page_token</code>.</p>
 
 
@@ -2884,7 +3219,7 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>If type is not provided (required by Affinity V1 API)</p>
+                <p>If required parameters are missing or invalid.</p>
               </div>
             </td>
           </tr>
@@ -2894,29 +3229,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">504</span>
-<span class="normal">505</span>
-<span class="normal">506</span>
-<span class="normal">507</span>
-<span class="normal">508</span>
-<span class="normal">509</span>
-<span class="normal">510</span>
-<span class="normal">511</span>
-<span class="normal">512</span>
-<span class="normal">513</span>
-<span class="normal">514</span>
-<span class="normal">515</span>
-<span class="normal">516</span>
-<span class="normal">517</span>
-<span class="normal">518</span>
-<span class="normal">519</span>
-<span class="normal">520</span>
-<span class="normal">521</span>
-<span class="normal">522</span>
-<span class="normal">523</span>
-<span class="normal">524</span>
-<span class="normal">525</span>
-<span class="normal">526</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">526</span>
 <span class="normal">527</span>
 <span class="normal">528</span>
 <span class="normal">529</span>
@@ -2963,7 +3276,55 @@
 <span class="normal">570</span>
 <span class="normal">571</span>
 <span class="normal">572</span>
-<span class="normal">573</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
+<span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span>
+<span class="normal">577</span>
+<span class="normal">578</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span>
+<span class="normal">582</span>
+<span class="normal">583</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span>
+<span class="normal">590</span>
+<span class="normal">591</span>
+<span class="normal">592</span>
+<span class="normal">593</span>
+<span class="normal">594</span>
+<span class="normal">595</span>
+<span class="normal">596</span>
+<span class="normal">597</span>
+<span class="normal">598</span>
+<span class="normal">599</span>
+<span class="normal">600</span>
+<span class="normal">601</span>
+<span class="normal">602</span>
+<span class="normal">603</span>
+<span class="normal">604</span>
+<span class="normal">605</span>
+<span class="normal">606</span>
+<span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="nb">type</span><span class="p">:</span> <span class="n">InteractionType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2976,48 +3337,74 @@
     <span class="n">page_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">Interaction</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get interactions with optional filtering.</span>
+<span class="sd">    Get interactions with filtering.</span>
 
-<span class="sd">    The Affinity API requires:</span>
-<span class="sd">    - type: Interaction type (meeting, call, email, chat)</span>
-<span class="sd">    - start_time and end_time: Date range (max 1 year)</span>
-<span class="sd">    - One entity ID: person_id, company_id, or opportunity_id</span>
+<span class="sd">    All parameters are validated before calling the API:</span>
+<span class="sd">    - type, start_time, end_time are required</span>
+<span class="sd">    - At least one entity ID (person_id, company_id, or opportunity_id)</span>
+<span class="sd">    - Date range must be &lt;= 365 days</span>
+<span class="sd">    - start_time must be before end_time</span>
+
+<span class="sd">    For ranges exceeding 365 days, use iter() which automatically chunks.</span>
 
 <span class="sd">    Returns V1 paginated response with `data` and `next_page_token`.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        ValueError: If type is not provided (required by Affinity V1 API)</span>
+<span class="sd">        ValueError: If required parameters are missing or invalid.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s2">&quot;type is required for interactions API. &quot;</span>
             <span class="s2">&quot;Use InteractionType.EMAIL, MEETING, CALL, or CHAT_MESSAGE.&quot;</span>
         <span class="p">)</span>
+    <span class="k">if</span> <span class="n">start_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;start_time is required for interactions API. &quot;</span>
+            <span class="s2">&quot;Use iter() for automatic date range handling.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">end_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;end_time is required for interactions API. &quot;</span>
+            <span class="s2">&quot;Use iter() for automatic date range handling.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">start_time</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">end_time</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;start_time and end_time must both be timezone-aware or both naive. &quot;</span>
+            <span class="s2">&quot;Recommended: use timezone-aware datetimes (e.g., datetime.now(timezone.utc)).&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">end_time</span> <span class="o">&lt;=</span> <span class="n">start_time</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;start_time must be before end_time.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">_MAX_INTERACTION_RANGE_DAYS</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Date range exceeds </span><span class="si">{</span><span class="n">_MAX_INTERACTION_RANGE_DAYS</span><span class="si">}</span><span class="s2"> days. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Use iter() which automatically chunks large ranges.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">person_id</span><span class="p">,</span> <span class="n">company_id</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;At least one entity filter is required: person_id, company_id, or opportunity_id.&quot;</span>
+        <span class="p">)</span>
     <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)}</span>
-    <span class="k">if</span> <span class="n">start_time</span><span class="p">:</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;start_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">end_time</span><span class="p">:</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">person_id</span><span class="p">:</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;start_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">person_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;person_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">company_id</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">company_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;organization_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">opportunity_id</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">opportunity_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;opportunity_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">page_size</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">page_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;page_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">page_size</span>
-    <span class="k">if</span> <span class="n">page_token</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">page_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;page_token&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">page_token</span>
 
     <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/interactions&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">items</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">InteractionType</span><span class="o">.</span><span class="n">MEETING</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">InteractionType</span><span class="o">.</span><span class="n">CALL</span><span class="p">)):</span>
-            <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;events&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">InteractionType</span><span class="o">.</span><span class="n">CHAT_MESSAGE</span><span class="p">):</span>
-            <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;chat_messages&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">InteractionType</span><span class="o">.</span><span class="n">EMAIL</span><span class="p">):</span>
-            <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;emails&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">InteractionType</span><span class="o">.</span><span class="n">MEETING</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">InteractionType</span><span class="o">.</span><span class="n">CALL</span><span class="p">)):</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;events&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">InteractionType</span><span class="o">.</span><span class="n">CHAT_MESSAGE</span><span class="p">):</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;chat_messages&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">InteractionType</span><span class="o">.</span><span class="n">EMAIL</span><span class="p">):</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;emails&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">items</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">items</span> <span class="o">=</span> <span class="p">(</span>
@@ -3055,28 +3442,28 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">592</span>
-<span class="normal">593</span>
-<span class="normal">594</span>
-<span class="normal">595</span>
-<span class="normal">596</span>
-<span class="normal">597</span>
-<span class="normal">598</span>
-<span class="normal">599</span>
-<span class="normal">600</span>
-<span class="normal">601</span>
-<span class="normal">602</span>
-<span class="normal">603</span>
-<span class="normal">604</span>
-<span class="normal">605</span>
-<span class="normal">606</span>
-<span class="normal">607</span>
-<span class="normal">608</span>
-<span class="normal">609</span>
-<span class="normal">610</span>
-<span class="normal">611</span>
-<span class="normal">612</span>
-<span class="normal">613</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">640</span>
+<span class="normal">641</span>
+<span class="normal">642</span>
+<span class="normal">643</span>
+<span class="normal">644</span>
+<span class="normal">645</span>
+<span class="normal">646</span>
+<span class="normal">647</span>
+<span class="normal">648</span>
+<span class="normal">649</span>
+<span class="normal">650</span>
+<span class="normal">651</span>
+<span class="normal">652</span>
+<span class="normal">653</span>
+<span class="normal">654</span>
+<span class="normal">655</span>
+<span class="normal">656</span>
+<span class="normal">657</span>
+<span class="normal">658</span>
+<span class="normal">659</span>
+<span class="normal">660</span>
+<span class="normal">661</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">interaction_id</span><span class="p">:</span> <span class="n">InteractionId</span><span class="p">,</span>
     <span class="nb">type</span><span class="p">:</span> <span class="n">InteractionType</span><span class="p">,</span>
