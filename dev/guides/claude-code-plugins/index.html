@@ -832,6 +832,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#known-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Known Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plugin-cache-may-be-empty-after-fresh-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plugin cache may be empty after fresh install
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2350,6 +2378,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#known-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Known Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plugin-cache-may-be-empty-after-fresh-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plugin cache may be empty after fresh install
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2487,6 +2543,20 @@
 <div class="highlight"><pre><span></span><code>/plugin<span class="w"> </span>uninstall<span class="w"> </span>sdk@xaffinity
 /plugin<span class="w"> </span>uninstall<span class="w"> </span>cli@xaffinity
 </code></pre></div>
+<hr />
+<h2 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">&para;</a></h2>
+<h3 id="plugin-cache-may-be-empty-after-fresh-install">Plugin cache may be empty after fresh install<a class="headerlink" href="#plugin-cache-may-be-empty-after-fresh-install" title="Permanent link">&para;</a></h3>
+<p>After a fresh install, the plugin cache directory may be empty — skills and hooks won't load. This is a known Claude Code platform issue (<a href="https://github.com/anthropics/claude-code/issues/17361">#17361</a>, <a href="https://github.com/anthropics/claude-code/issues/13799">#13799</a>).</p>
+<p><strong>Workaround:</strong> After installing, click "Update" (in Claude Cowork UI) or run a marketplace update (in Claude Code CLI) to force a cache refresh:</p>
+<ul>
+<li><strong>Claude Cowork:</strong> Go to plugin settings, select the xaffinity marketplace, and click <strong>Update</strong></li>
+<li><strong>Claude Code CLI:</strong>
+  <div class="highlight"><pre><span></span><code>/plugin<span class="w"> </span>marketplace<span class="w"> </span>update<span class="w"> </span>xaffinity
+/plugin<span class="w"> </span>update<span class="w"> </span>cli@xaffinity
+/plugin<span class="w"> </span>update<span class="w"> </span>sdk@xaffinity
+</code></pre></div></li>
+</ul>
+<p>Then restart the session. You can verify the plugin loaded by checking if skills appear in the session.</p>
 
 
 
