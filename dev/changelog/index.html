@@ -2051,6 +2051,8 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="160-2026-02-16">[1.6.0] - 2026-02-16<a class="headerlink" href="#160-2026-02-16" title="Permanent link">&para;</a></h2>
+<h3 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h3>
+<p>New <code>--include-me</code> flag for <code>interaction create</code> auto-includes your person ID. Also fixes field writes for person/company multi-value fields -- entity IDs are now wrapped correctly for the V2 API, and <code>--append</code> properly merges instead of replacing.</p>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>CLI</strong>: <code>interaction create --include-me</code> flag to auto-include current user's person ID via whoami</li>
@@ -2092,6 +2094,8 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Updated <code>affinity-mcp-workflows</code> skill description following guide formula</li>
 </ul>
 <h2 id="152-2026-02-14">[1.5.2] - 2026-02-14<a class="headerlink" href="#152-2026-02-14" title="Permanent link">&para;</a></h2>
+<h3 id="highlights_1">Highlights<a class="headerlink" href="#highlights_1" title="Permanent link">&para;</a></h3>
+<p>Plugin improvements for Claude Code and Cowork: automatic environment setup via SessionStart hook, API key protection via <code>.env</code> read guard, and clearer plugin names in marketplace listings.</p>
 <h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI Plugin: SessionStart hook (<code>session-setup.sh</code>) for Cowork bootstrap — installs xaffinity, sets PATH, loads API key from <code>.env</code></li>
@@ -2117,12 +2121,16 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>CLI Plugin: SessionStart hook writes to <code>CLAUDE_ENV_FILE</code> are idempotent (no duplicate lines on re-run)</li>
 </ul>
 <h2 id="151-2026-02-12">[1.5.1] - 2026-02-12<a class="headerlink" href="#151-2026-02-12" title="Permanent link">&para;</a></h2>
+<h3 id="highlights_2">Highlights<a class="headerlink" href="#highlights_2" title="Permanent link">&para;</a></h3>
+<p>Fixes writing to multi-select dropdown fields. <code>--set</code> and <code>--append</code> now correctly handle the array format required by the API, and <code>--append</code> properly merges with existing selections instead of replacing them.</p>
 <h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>--set</code> and <code>--append</code> now work correctly for dropdown-multi fields when V1 API returns <code>value_type="dropdown"</code> with <code>allows_multiple=True</code>. Previously, <code>resolve_dropdown_value</code> only checked <code>value_type</code> (not <code>allows_multiple</code>) to determine the payload format, sending <code>{"dropdownOptionId": ID}</code> instead of <code>[{"dropdownOptionId": ID}]</code>.</li>
 <li>CLI: <code>--append</code> for dropdown-multi fields now merges with existing values instead of replacing them. The V2 API replaces the entire option array on POST, so <code>--append</code> now reads existing selections, adds the new option (deduplicating), and sends the combined array.</li>
 </ul>
 <h2 id="150-2026-02-11">[1.5.0] - 2026-02-11<a class="headerlink" href="#150-2026-02-11" title="Permanent link">&para;</a></h2>
+<h3 id="highlights_3">Highlights<a class="headerlink" href="#highlights_3" title="Permanent link">&para;</a></h3>
+<p>Interaction queries are now much more robust. Date ranges are validated up front, ranges over 1 year are auto-chunked seamlessly, and mixing naive/timezone-aware datetimes is caught with a clear error. <strong>Breaking:</strong> <code>InteractionService.list()</code> now requires <code>start_time</code>, <code>end_time</code>, and an entity ID -- callers already getting 422 errors will now get a clear SDK-level message instead.</p>
 <h3 id="changed_5">Changed<a class="headerlink" href="#changed_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Breaking:</strong> <code>InteractionService.list()</code> and <code>AsyncInteractionService.list()</code> now require <code>start_time</code>, <code>end_time</code>, and at least one entity ID (<code>person_id</code>, <code>company_id</code>, or <code>opportunity_id</code>). Previously these were optional, but the API always rejected calls without them (422). Callers that were passing <code>None</code> for these parameters were already getting API errors; this change surfaces the requirement at the SDK level with clear error messages.</li>
@@ -2141,12 +2149,16 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>SDK: Fixed falsy truthiness bugs in <code>InteractionService.list()</code> where <code>PersonId(0)</code>, <code>CompanyId(0)</code>, <code>page_size=0</code>, and empty <code>page_token=""</code> were incorrectly dropped. Changed <code>if x:</code> to <code>if x is not None:</code> for all optional parameters.</li>
 </ul>
 <h2 id="141-2026-02-11">[1.4.1] - 2026-02-11<a class="headerlink" href="#141-2026-02-11" title="Permanent link">&para;</a></h2>
+<h3 id="highlights_4">Highlights<a class="headerlink" href="#highlights_4" title="Permanent link">&para;</a></h3>
+<p>CLI errors from invalid commands or options now produce proper JSON error envelopes when <code>--json</code> is active, fixing broken downstream JSON parsers.</p>
 <h3 id="fixed_5">Fixed<a class="headerlink" href="#fixed_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Click-level errors (unknown commands, invalid options) now emit a proper JSON error envelope (<code>{"ok": false, "error": {...}}</code>) when <code>--json</code> or <code>--output json</code> is active. Previously, stdout was empty and only plain text went to stderr, breaking downstream JSON parsers.</li>
 <li>CLI: <code>normalize_exception()</code> now handles <code>click.UsageError</code> (→ <code>usage_error</code>, exit code 2) and <code>click.ClickException</code> (→ <code>error</code>, exit code from exception) instead of misclassifying them as <code>internal_error</code>.</li>
 </ul>
 <h2 id="140-2026-02-10">[1.4.0] - 2026-02-10<a class="headerlink" href="#140-2026-02-10" title="Permanent link">&para;</a></h2>
+<h3 id="highlights_5">Highlights<a class="headerlink" href="#highlights_5" title="Permanent link">&para;</a></h3>
+<p><code>FieldResolver</code> now resolves all value types to human-readable text -- not just dropdowns, but also persons, companies, locations, and interactions. Dropdown fields return rich <code>DropdownOption</code> objects with <code>.text</code>, <code>.rank</code>, and <code>.color</code>. <strong>Breaking:</strong> <code>get_value()</code> returns <code>DropdownOption</code> instead of raw IDs, and <code>resolve_dropdowns</code> parameter is replaced by <code>ResolveMode</code>.</p>
 <h3 id="changed_6">Changed<a class="headerlink" href="#changed_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Breaking:</strong> <code>FieldValues.get_value()</code> now returns <code>DropdownOption</code> objects for dropdown/ranked-dropdown fields instead of raw <code>int</code> IDs. The <code>DropdownOption</code> has <code>.id</code>, <code>.text</code>, <code>.rank</code>, and <code>.color</code> attributes. This applies to all dropdown value types (<code>dropdown</code>, <code>ranked-dropdown</code>, <code>dropdown-multi</code>).</li>
@@ -2177,22 +2189,30 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Added "List Entry Field Access" section to performance guide explaining <code>entry.entity.fields</code> delegation.</li>
 </ul>
 <h2 id="132-2026-02-08">[1.3.2] - 2026-02-08<a class="headerlink" href="#132-2026-02-08" title="Permanent link">&para;</a></h2>
+<h3 id="highlights_6">Highlights<a class="headerlink" href="#highlights_6" title="Permanent link">&para;</a></h3>
+<p>Fixes writing to <code>dropdown-multi</code> fields via <code>--set</code> and <code>--append</code>. Previously all dropdown-multi writes failed with a type mismatch error.</p>
 <h3 id="fixed_7">Fixed<a class="headerlink" href="#fixed_7" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>--set</code> and <code>--append</code> now work for <code>dropdown-multi</code> fields. Previously, <code>resolve_dropdown_value()</code> only handled <code>dropdown</code> and <code>ranked-dropdown</code>, causing all dropdown-multi writes to fail with "Field value type should be dropdown-multi" errors. The fix resolves option text/IDs and wraps them in the array format required by the V2 API.</li>
 </ul>
 <h2 id="131-2026-02-06">[1.3.1] - 2026-02-06<a class="headerlink" href="#131-2026-02-06" title="Permanent link">&para;</a></h2>
+<h3 id="highlights_7">Highlights<a class="headerlink" href="#highlights_7" title="Permanent link">&para;</a></h3>
+<p><code>FieldResolver</code> now works correctly with list entry objects -- it auto-delegates to the inner entity when fields were fetched on the entity rather than the list entry directly.</p>
 <h3 id="fixed_8">Fixed<a class="headerlink" href="#fixed_8" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>FieldResolver.get()</code> and <code>get_by_id()</code> now automatically delegate to the inner entity when called with a <code>ListEntryWithEntity</code> whose fields were not directly requested. Previously warned and returned <code>None</code> even when <code>entry.entity.fields</code> were populated.</li>
 <li>SDK: <code>FieldResolver</code> duplicate field name warning now includes enrichment source (e.g., "dealroom" vs "affinity-data") instead of raw IDs, making enrichment provider collisions immediately clear.</li>
 </ul>
 <h2 id="130-2026-02-06">[1.3.0] - 2026-02-06<a class="headerlink" href="#130-2026-02-06" title="Permanent link">&para;</a></h2>
+<h3 id="highlights_8">Highlights<a class="headerlink" href="#highlights_8" title="Permanent link">&para;</a></h3>
+<p>New <code>list_batch()</code> method on <code>AsyncEntityFileService</code> for fetching files across multiple entities concurrently with auto-pagination.</p>
 <h3 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>list_batch()</code> on <code>AsyncEntityFileService</code> for fetching files across multiple entities concurrently with auto-pagination. Accepts <code>person_ids</code>, <code>company_ids</code>, or <code>opportunity_ids</code> with <code>max_concurrent</code> and <code>on_error</code> ("raise"/"skip") parameters.</li>
 </ul>
 <h2 id="120-2026-02-06">[1.2.0] - 2026-02-06<a class="headerlink" href="#120-2026-02-06" title="Permanent link">&para;</a></h2>
+<h3 id="highlights_9">Highlights<a class="headerlink" href="#highlights_9" title="Permanent link">&para;</a></h3>
+<p>New async batch methods for files and reminders: <code>batch_get()</code> on <code>AsyncEntityFileService</code> and <code>list_batch()</code> on <code>AsyncReminderService</code> for concurrent multi-entity operations. Also fixes falsy ID bugs across reminder and file services.</p>
 <h3 id="added_5">Added<a class="headerlink" href="#added_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>batch_get()</code> on <code>AsyncEntityFileService</code> for fetching file metadata concurrently with controlled concurrency. Supports <code>max_concurrent</code> and <code>on_error</code> ("raise"/"skip") parameters.</li>
@@ -2204,6 +2224,8 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>SDK: Fixed incorrect <code>ReminderStatus</code> docstrings that referenced non-existent "SNOOZED" and "COMPLETE" values. The actual enum values are <code>COMPLETED</code>, <code>ACTIVE</code>, and <code>OVERDUE</code>.</li>
 </ul>
 <h2 id="110-2026-02-05">[1.1.0] - 2026-02-05<a class="headerlink" href="#110-2026-02-05" title="Permanent link">&para;</a></h2>
+<h3 id="highlights_10">Highlights<a class="headerlink" href="#highlights_10" title="Permanent link">&para;</a></h3>
+<p>Major convenience release: <code>FieldResolver</code> for looking up field values by name instead of ID, <code>batch_get()</code> for concurrent entity fetching, <code>read_only()</code> factory for safe clients, and <code>get_first()</code> for quick single-entity lookups. Working with Affinity field data is now significantly easier.</p>
 <h3 id="added_6">Added<a class="headerlink" href="#added_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>CompanyService.get_many(company_ids)</code> convenience method for batch fetching multiple companies in a single API call. Alias for <code>list(ids=[...])</code> with better discoverability.</li>
@@ -2221,17 +2243,23 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>SDK: <code>FieldService.list(list_id=ListId(0))</code> no longer skips the <code>list_id</code> parameter. The falsy ID guard (<code>if list_id:</code>) was changed to <code>if list_id is not None:</code>.</li>
 </ul>
 <h2 id="103-2026-02-03">[1.0.3] - 2026-02-03<a class="headerlink" href="#103-2026-02-03" title="Permanent link">&para;</a></h2>
+<h3 id="highlights_11">Highlights<a class="headerlink" href="#highlights_11" title="Permanent link">&para;</a></h3>
+<p>Fixes MCP timeout failures during large query <code>include</code> operations by emitting incremental progress every 10 records instead of only at start/end.</p>
 <h3 id="fixed_11">Fixed<a class="headerlink" href="#fixed_11" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Query <code>include</code> operations now emit incremental progress every 10 records during N+1 API calls. Previously, progress was only emitted at the start and end of include steps, causing MCP timeout to expire during long-running N+1 operations (e.g., 100 records with <code>include: ["persons"]</code>). The fix changes from <code>asyncio.gather()</code> to <code>asyncio.as_completed()</code> for incremental progress emission.</li>
 </ul>
 <h2 id="102-2026-02-03">[1.0.2] - 2026-02-03<a class="headerlink" href="#102-2026-02-03" title="Permanent link">&para;</a></h2>
+<h3 id="highlights_12">Highlights<a class="headerlink" href="#highlights_12" title="Permanent link">&para;</a></h3>
+<p>Fixes descending sort for string fields in queries (dates, names were silently returning ascending order) and corrects API call estimates for sorted queries that could cause premature timeouts.</p>
 <h3 id="fixed_12">Fixed<a class="headerlink" href="#fixed_12" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Query <code>orderBy</code> with descending direction now works correctly for string values (dates, names, etc.). Previously, descending sort on non-numeric fields silently returned results in ascending order because string values cannot be negated. The fix uses a comparison-inverting wrapper class for proper descending sort.</li>
 <li>CLI: Query dry run now correctly estimates API calls when <code>orderBy</code> is present. Previously, <code>estimatedApiCalls</code> used the <code>limit</code> value even though sorting requires fetching all records first. A query with <code>limit: 200</code> and <code>orderBy</code> on a 9000-record list showed 4 API calls instead of ~90. This caused dynamic timeout calculations to be too short.</li>
 </ul>
 <h2 id="101-2026-02-01">[1.0.1] - 2026-02-01<a class="headerlink" href="#101-2026-02-01" title="Permanent link">&para;</a></h2>
+<h3 id="highlights_13">Highlights<a class="headerlink" href="#highlights_13" title="Permanent link">&para;</a></h3>
+<p>Fixes unreplied email/chat detection (<code>--check-unreplied</code> and <code>expand: ["unreplied"]</code>) which was silently failing, and adds required <code>type</code> parameter validation to <code>InteractionService</code> with clear error messages instead of cryptic 422s.</p>
 <h3 id="fixed_13">Fixed<a class="headerlink" href="#fixed_13" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>InteractionService.list()</code> and <code>iter()</code> now validate that <code>type</code> parameter is required, raising <code>ValueError</code> with clear guidance instead of failing with cryptic API 422 errors. The Affinity V1 API has always required this parameter.</li>
