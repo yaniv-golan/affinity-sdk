@@ -2788,10 +2788,13 @@ xaffinity<span class="w"> </span>session<span class="w"> </span>end
 <span class="n">update_notify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;interactive&quot;</span><span class="w">  </span><span class="c1"># &quot;interactive&quot; (default), &quot;always&quot;, or &quot;never&quot;</span>
 </code></pre></div>
 <h3 id="manual-check">Manual Check<a class="headerlink" href="#manual-check" title="Permanent link">&para;</a></h3>
-<p>Check for updates manually:</p>
+<p>Check your update status (queries PyPI if no recent cache):</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>update-check
+</code></pre></div>
+<p>Force a fresh check regardless of cache age:</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>update-check<span class="w"> </span>--now
 </code></pre></div>
-<p>See current update status:</p>
+<p>See detailed update status (JSON-friendly):</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>update-check<span class="w"> </span>--status
 </code></pre></div>
 <h3 id="background-check-for-mcpautomation">Background Check (for MCP/Automation)<a class="headerlink" href="#background-check-for-mcpautomation" title="Permanent link">&para;</a></h3>
