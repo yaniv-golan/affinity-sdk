@@ -1693,6 +1693,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#affinity.types.UserId" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UserId
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#affinity.types.WebhookEvent" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2584,6 +2595,17 @@
     <span class="md-ellipsis">
       
         ResolveMode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#affinity.types.UserId" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UserId
       
     </span>
   </a>
@@ -4202,6 +4224,61 @@ V2 string type where possible.</p>
 
     <span class="n">RAW</span> <span class="o">=</span> <span class="s2">&quot;raw&quot;</span>  <span class="c1"># Return extracted values as-is (default)</span>
     <span class="n">TEXT</span> <span class="o">=</span> <span class="s2">&quot;text&quot;</span>  <span class="c1"># Resolve all complex types to human-readable strings</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="affinity.types.UserId" class="doc doc-heading">
+            <code>UserId</code>
+
+
+<a href="#affinity.types.UserId" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="affinity.models.types.PersonId">PersonId</span></code></p>
+
+
+
+        <p>Workspace member ID. A subtype of PersonId — users are internal persons in Affinity.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>affinity/models/types.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">174</span>
+<span class="normal">175</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">UserId</span><span class="p">(</span><span class="n">PersonId</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Workspace member ID. A subtype of PersonId — users are internal persons in Affinity.&quot;&quot;&quot;</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
