@@ -4614,6 +4614,7 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w
 - Field IDs (<code>field-123</code>) can be used directly
 - <code>--set</code> replaces all existing values; use <code>--append</code> to add to multi-value fields
 - <code>--get</code> is exclusive with write operations
+- <code>--get</code> returns resolved objects for person/company reference fields (with <code>firstName</code>, <code>lastName</code>, <code>primaryEmailAddress</code>, etc.) and full dropdown option data (with <code>text</code>, <code>color</code>). Output format matches <code>list export</code>.
 - Operation order: <code>--set</code>/<code>--set-json</code> → <code>--append</code> → <code>--unset</code>/<code>--unset-value</code></p>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-note-ls"><code>xaffinity note ls</code><a class="headerlink" href="#xaffinity-note-ls" title="Permanent link">&para;</a></h3>
