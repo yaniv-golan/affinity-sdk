@@ -2,48 +2,69 @@
 
 ## Project Overview
 
-`affinity-sdk` is a mixed-surface repository centered on a strongly typed Python SDK for the Affinity CRM API, with additional developer and AI-facing interfaces:
+`affinity-sdk` is a mixed Python monorepo centered on a strongly typed Affinity CRM SDK and CLI, with adjacent documentation, MCP server assets, and Claude Code plugin artifacts.
 
-- Python SDK package (`affinity/`)
-- CLI (`xaffinity` entrypoint)
-- MCP server assets and scripts (`mcp/`)
-- Claude Code plugin packaging (`plugins/`, `.claude-plugin/`)
-- MkDocs-based documentation (`docs/public/`)
-- Large automated test suite (`tests/`)
+Primary components in this repository:
 
-The project targets Python **3.10+** and emphasizes strict typing, predictable API behavior, and robust test/lint/type quality gates.
+- **SDK + CLI (Python package):** `affinity/` (published from `pyproject.toml`)
+- **Test suite:** `tests/` (pytest, strict markers, async coverage)
+- **Documentation source:** `docs/public/` (MkDocs Material)
+- **MCP server distribution and tooling:** `mcp/` (versioned independently)
+- **Claude Code plugin assets:** `plugins/` and `.claude-plugin/`
+
+The project is configured for Python **3.10+** and emphasizes strict static analysis, clear API modeling, and automation-friendly CLI behavior.
+
+---
 
 ## Repository Structure
 
-Top-level directories and their roles:
+Top-level layout (validated paths):
 
-- `affinity/` — Core SDK package (client, services, models, types, CLI modules).
-- `tests/` — Unit/integration/CLI/service tests. Integration tests are sandbox-gated and skipped by default.
-- `docs/public/` — Documentation source for MkDocs (guides, CLI docs, API reference, MCP docs).
-- `mcp/` — Bash-based MCP server implementation, provider scripts, prompts, tools, and plugin assembly artifacts.
-- `examples/` — Runnable SDK usage examples.
-- `tools/` — Repository automation and validation scripts.
-- `.github/workflows/` — CI, release, docs, and validation workflows.
-- `plugins/` — Claude plugin packaging directories.
-- `.claude-plugin/` — Plugin marketplace metadata (repository marketplace manifest).
+- `affinity/` — core SDK and CLI source code
+- `tests/` — unit, integration, contract, and CLI-focused tests
+- `docs/` — docs sources and contributor guides
+  - `docs/public/` — MkDocs site content (`mkdocs.yml` uses this as `docs_dir`)
+  - `docs/cli-development-guide.md` — CLI contribution guide
+- `mcp/` — MCP server runtime, scripts, docs, and versioning files
+- `plugins/` — plugin-related artifacts (SDK/CLI plugins)
+- `.claude-plugin/` — repository marketplace/plugin metadata
+- `.github/workflows/` — CI and release automation workflows
+- `tools/` — maintenance/release helper scripts
 
 Important root files:
 
-- `pyproject.toml` — Build config, dependencies, lint/type/test configuration.
-- `mkdocs.yml` — Docs build/navigation configuration (`docs/public` as docs source).
-- `README.md` — Product overview, quick start, feature docs.
-- `CONTRIBUTING.md` — Contributor workflow, naming conventions, quality checks.
-- `tests/integration/README.md` — Live sandbox integration test safety and usage.
+- `pyproject.toml` — package metadata, dependencies, lint/type/test config
+- `mkdocs.yml` — docs site navigation and build config
+- `.pre-commit-config.yaml` — pre-commit hooks
+- `codecov.yml` — coverage reporting config
+- `README.md` — user-facing project overview
+- `CONTRIBUTING.md` — contributor workflow
+- `VERSIONING.md` — release/version governance across SDK/MCP/plugins
+- `CHANGELOG.md` — SDK/CLI changelog
+
+MCP-specific release/version files (validated):
+
+- `mcp/VERSION`
+- `mcp/CHANGELOG.md`
+- `mcp/COMPATIBILITY`
+
+---
 
 ## Development Guidelines
 
-Environment and install:
+### Environment and Installation
+
+Use a virtual environment, then install editable with development dependencies:
 
 ```bash
+python -m venv .venv
+source .venv/bin/activate
 python -m pip install -e ".[dev]"
 ```
 
-Recommended local checks before PRs:
+### Core Local Checks
+
+Run these before submitting changes:
 
 ```bash
 ruff format .
@@ -52,132 +73,149 @@ mypy affinity
 pytest
 ```
 
-Pre-commit hooks are supported:
+Repository conventions are defined in `pyproject.toml`:
+
+- **Ruff**: formatting/linting, target version `py310`
+- **Mypy**: `strict = true`
+- **Pytest**: strict config/markers, default excludes integration tests via marker expression
+
+### Pre-commit
+
+Recommended for all contributors:
 
 ```bash
 pre-commit install
 ```
 
-CLI notes:
-
-- CLI script entrypoint is `xaffinity` (`[project.scripts]` in `pyproject.toml`).
-- CLI dependencies are in optional `cli` extras, and included in `dev` extras for test/type consistency.
-
-Documentation notes:
-
-- MkDocs config is in `mkdocs.yml`.
-- Docs source is `docs/public/`.
-- Versioned docs use `mike` (`extra.version.provider: mike`).
+---
 
 ## Code Patterns
 
-Repository patterns to follow:
+### Architecture and Organization
 
-- **Service-based SDK design** under `affinity/services` (resource-specific service modules).
-- **Strong typing everywhere** with Pydantic v2 models and typed IDs/enums.
-- **Dual API surface support** (V1 + V2 routing behavior documented in README/docs).
-- **Sync + async parity** for client operations where supported.
-- **CLI + SDK cohesion**: CLI behavior should map cleanly to SDK capabilities.
-- **MCP Bash framework integration** in `mcp/` for AI client interoperability.
+- Domain/service-oriented SDK under `affinity/`
+- CLI entrypoint exposed as `xaffinity` (`[project.scripts]` in `pyproject.toml`)
+- Typed models and API-facing interfaces with strong validation semantics
+- Separate but co-located MCP tooling in `mcp/`
 
-Testing patterns (from `CONTRIBUTING.md`):
+### Testing Patterns
 
-- `test_cli_<topic>.py`
-- `test_services_<service>.py`
-- `test_<feature>.py`
-- `test_http_client_*.py`
-- `test_v1_only_*.py`
-- `test_integration_*.py`
+From `CONTRIBUTING.md`, test files follow clear naming conventions:
 
-Coverage-gap naming suffixes include `_additional_coverage` and `_remaining_coverage`.
+- `test_cli_<topic>.py` — CLI command behavior
+- `test_services_<service>.py` — service-layer coverage
+- `test_integration_*.py` — integration/smoke coverage
+- coverage-gap suffixes like `_additional_coverage` and `_remaining_coverage`
+
+Common pytest markers configured in `pyproject.toml` include:
+
+- `integration`
+- `contract`
+- `pitfall`
+- `req`
+- `slow`
+
+### CLI and MCP Relationship
+
+- MCP tooling shells out to `xaffinity` CLI and has independent versioning in `mcp/VERSION`
+- Breaking CLI output/shape changes may require MCP compatibility updates (`mcp/COMPATIBILITY`)
+
+---
 
 ## Quality Standards
 
-Configured standards (from `pyproject.toml`):
+Quality gates are strict and should be treated as mandatory:
 
-- **Python target**: `py310`
-- **Formatting/linting**: Ruff (`line-length = 100`, broad rule set enabled)
-- **Type checking**: Mypy strict mode (`strict = true`, `disallow_untyped_defs = true`)
-- **Tests**: Pytest with strict config/markers and default `-m 'not integration'`
-- **Coverage**: Configured via `tool.coverage.*`
+1. **Formatting/linting passes** (`ruff format`, `ruff check`)
+2. **Type checking passes** (`mypy affinity` with strict mode)
+3. **Tests pass** (`pytest`)
+4. **Docs stay aligned** when public behavior changes (`docs/public/`, `README.md`, changelogs)
 
-Core runtime dependencies:
+Additional expectations:
 
-- `httpx`
-- `pydantic` (v2)
+- Keep public interfaces typed and stable where possible
+- Favor clear error handling and user-readable CLI output
+- Preserve marker discipline and test naming conventions
 
-Core dev/tooling dependencies include:
-
-- `pytest`, `pytest-asyncio`, `pytest-cov`, `respx`
-- `ruff`, `mypy`
-- `mkdocs`, `mkdocs-material`, `mkdocstrings`, `mike`
+---
 
 ## Critical Rules
 
-1. **Do not run live integration tests against production tenants.** Integration tests require sandbox credentials and enforce sandbox-only checks.
-2. **Respect integration safety gates** in `tests/integration/README.md`:
-   - `.sandbox.env` requirement
-   - sandbox tenant validation
-   - cleanup expectations for write tests
-3. **Assume integration tests are skipped by default** unless explicitly invoked with `-m integration`.
-4. **Keep SDK/CLI/docs consistency** when changing API behavior.
-5. **Preserve strict typing and lint quality**; do not weaken type/lint/test gates without strong justification.
-6. **For plugin/MCP changes**, ensure the documented build/validation flow remains valid (`mcp` plugin build + CI validation).
+1. **Do not bypass configured quality gates.**
+2. **Maintain version-source correctness:**
+   - SDK/CLI version from `pyproject.toml`
+   - MCP version from `mcp/VERSION`
+   - Plugin versions from their respective `plugin.json` files (see `VERSIONING.md`)
+3. **When CLI output contract changes, evaluate MCP impact** and update `mcp/COMPATIBILITY` if needed.
+4. **Keep changelogs updated** (`CHANGELOG.md`, `mcp/CHANGELOG.md`) per release policy.
+5. **Respect docs structure and nav** in `mkdocs.yml` when adding/removing docs pages.
+
+---
 
 ## Common Tasks
 
-Install for development:
-
-```bash
-python -m pip install -e ".[dev]"
-```
-
-Run default test suite (excluding integration by default config):
+### Run the test suite
 
 ```bash
 pytest
 ```
 
-Run integration tests (sandbox only):
-
-```bash
-pytest -m integration
-```
-
-Run lint and format:
+### Run fast local quality checks
 
 ```bash
 ruff format .
 ruff check .
-```
-
-Run type checks:
-
-```bash
 mypy affinity
 ```
 
-Build MCP plugin assets (from `mcp/`):
+### Build docs locally (if docs deps are installed)
+
+```bash
+mkdocs serve
+```
+
+### Work on MCP assets
+
+```bash
+cd mcp
+./xaffinity-mcp.sh validate
+```
+
+### Build MCP Claude plugin structure
 
 ```bash
 cd mcp
 make plugin
 ```
 
+---
+
 ## Reference Examples
 
-Useful examples and references in-repo:
+Useful orientation files for contributors/agents:
 
-- `examples/basic_usage.py` — basic SDK usage patterns.
-- `affinity/services/companies.py` — representative service-layer implementation.
-- `tests/test_models.py` — model/type behavior tests.
-- `tests/integration/README.md` — integration test operating model and safeguards.
-- `.github/workflows/ci.yml` — authoritative CI quality gates and plugin validation.
+- **Simple usage/examples**
+  - `examples/basic_usage.py`
+  - `tests/test_models.py`
+- **Complex CLI/query behaviors**
+  - `tests/test_cli_query_executor.py`
+  - `affinity/cli/`
+- **Service layer patterns**
+  - `affinity/services/`
+- **Docs architecture**
+  - `mkdocs.yml`
+  - `docs/public/`
+- **Automation/release helpers**
+  - `tools/`
+  - `.github/workflows/`
+
+---
 
 ## Additional Resources
 
-- Main overview and usage: `README.md`
-- Contributor workflow and naming conventions: `CONTRIBUTING.md`
-- Packaging/tool configuration: `pyproject.toml`
-- Documentation navigation/build config: `mkdocs.yml`
-- Public docs site: https://yaniv-golan.github.io/affinity-sdk/latest/
+- `README.md` — high-level usage and installation
+- `CONTRIBUTING.md` — contributor workflows and quality checklist
+- `VERSIONING.md` — canonical versioning/release policy
+- `docs/cli-development-guide.md` — CLI-specific implementation guidance
+- `mcp/README.md` — MCP installation, operation, and troubleshooting
+- Published docs site: https://yaniv-golan.github.io/affinity-sdk/latest/
