@@ -16,6 +16,7 @@ from .types import (
     FileId,
     InteractionDirection,
     InteractionId,
+    InteractionLoggingType,
     InteractionType,
     ISODatetime,
     NoteId,
@@ -149,7 +150,8 @@ class Interaction(AffinityModel):
     # Notes attached to this interaction
     notes: list[NoteId] = Field(default_factory=list)
 
-    # Manual logging info
+    # Logging info
+    logging_type: InteractionLoggingType | None = Field(None, alias="loggingType")
     manual_creator_id: UserId | None = Field(None, alias="manualCreatorId")
     updated_at: ISODatetime | None = Field(None, alias="updatedAt")
 

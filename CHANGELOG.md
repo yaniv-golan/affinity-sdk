@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.1] - 2026-03-16
+
+### Highlights
+
+`InteractionDirection`, `InteractionLoggingType`, and `ListRole` are now available from `affinity.types` — previously they could only be imported from the internal `affinity.models.types` path. The `Interaction` model now also captures the `logging_type` field from the API instead of silently dropping it.
+
+### Fixed
+- Re-export `InteractionDirection`, `InteractionLoggingType`, and `ListRole` from `affinity.types` — these were the only public enums missing from the stable import path
+- Add `logging_type` field to `Interaction` model — the API returns this field but it was silently discarded
+
 ## [1.8.0] - 2026-03-10
 
 ### Highlights

@@ -382,8 +382,9 @@ def test_opportunity_files_download(respx_mock: respx.MockRouter, tmp_path: obje
         env={"AFFINITY_API_KEY": "test-key"},
     )
     assert result.exit_code == 0, result.output
-    # Use result.stdout to avoid stderr (progress output) contaminating JSON
-    payload = json.loads(result.stdout.strip())
+    # Output is JSONL: progress lines followed by the result — parse last line
+    lines = [ln for ln in result.stdout.strip().splitlines() if ln.strip()]
+    payload = json.loads(lines[-1])
     assert payload["data"]["filesDownloaded"] == 1
     assert payload["data"]["filesTotal"] == 1
 
