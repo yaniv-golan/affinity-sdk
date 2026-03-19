@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.2] - 2026-03-19
+
+### Highlights
+
+Added a comparison guide documenting how this project differs from Affinity's official MCP Server (beta), covering API coverage, tool architecture, deployment options, and when to use each.
+
+### Added
+- Comparison guide: [Affinity SDK vs. Official MCP](docs/public/guides/affinity-official-mcp-comparison.md)
+- README section linking to Affinity's official MCP and the comparison guide
+
 ## [1.8.1] - 2026-03-16
 
 ### Highlights
