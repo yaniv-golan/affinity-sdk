@@ -20,6 +20,14 @@ Maintainer: GitHub: `yaniv-golan`
 
 Documentation: https://yaniv-golan.github.io/affinity-sdk/latest/
 
+## Affinity's Official MCP Server
+
+As of March 2026, Affinity has released an [official MCP Server (beta)](https://www.affinity.co/blog/campfire-icymi) for conversational, natural-language access to your CRM data via AI chat clients. It covers relationship intelligence queries, pipeline summaries, meeting activity, and note capture.
+
+This SDK serves a different purpose — it's a full-coverage, strongly-typed Python client for the Affinity API, supporting the complete read/write surface (companies, persons, lists, field values, notes, reminders, webhooks, files, and more). Use it when you need programmatic control, write operations, type safety, or want to build custom integrations and tooling.
+
+For a detailed comparison, see [Affinity SDK vs. Official MCP](docs/public/guides/affinity-official-mcp-comparison.md).
+
 ## Table of Contents
 
 - [Features](#features)
