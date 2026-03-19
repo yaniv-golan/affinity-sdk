@@ -82,6 +82,5 @@ The two serve different layers. A common pattern:
 - [MCP Server docs](https://yaniv-golan.github.io/affinity-sdk/latest/mcp/)
 - [Claude Code Plugins docs](https://yaniv-golan.github.io/affinity-sdk/latest/guides/claude-code-plugins/)
 - [Affinity Official MCP Docs](https://developer.affinity.co/pages/mcp/introduction)
-- [Affinity Official MCP Announcement](https://www.affinity.co/blog/campfire-icymi)
 - [Affinity API V2 Documentation](https://api-docs.affinity.co/reference/getting-started-with-your-api)
 - [Affinity API V1 Documentation](https://api-docs.affinity.co/reference)
