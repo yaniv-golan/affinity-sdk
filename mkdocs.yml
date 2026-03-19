@@ -45,6 +45,7 @@ nav:
       - Overview: ai-integrations/index.md
       - MCP Server: mcp/index.md
       - Claude Code Plugins & Skills: guides/claude-code-plugins.md
+      - vs. Affinity Official MCP: guides/affinity-official-mcp-comparison.md
   - Guides:
       - Authentication: guides/authentication.md
       - Configuration: guides/configuration.md
