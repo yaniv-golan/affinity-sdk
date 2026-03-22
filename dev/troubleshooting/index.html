@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -1363,6 +1363,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#422-on-merged-entity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        422 on merged entity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#stale-data-after-update" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2209,6 +2220,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#422-on-merged-entity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        422 on merged entity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#stale-data-after-update" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2306,6 +2328,18 @@
 - Use the object returned by <code>create()</code> directly (recommended)
 - Use <code>get(..., retries=3)</code> to retry with backoff</p>
 <p>See <a href="../guides/errors-and-retries/#v1v2-eventual-consistency">V1→V2 eventual consistency</a> for details.</p>
+<h2 id="422-on-merged-entity">422 on merged entity<a class="headerlink" href="#422-on-merged-entity" title="Permanent link">&para;</a></h2>
+<p>If you get a 422 <code>MergedEntityError</code> when calling <code>get()</code> on a company or person, the entity was merged into another record. Unlike deleted entities (which return 404), merged entities return 422 with the target ID.</p>
+<p><strong>Solution:</strong> Catch <code>CompanyMergedError</code> or <code>PersonMergedError</code> and use <code>e.target_id</code> to follow the merge:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompanyMergedError</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">company</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="n">old_id</span><span class="p">))</span>
+<span class="k">except</span> <span class="n">CompanyMergedError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">company</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">target_id</span><span class="p">))</span>
+</code></pre></div>
+<p><strong>CLI:</strong> The error JSON includes <code>error.details.targetId</code> — scripts can use <code>jq '.error.details.targetId'</code> to extract it.</p>
+<p>See <a href="../guides/errors-and-retries/#merged-entities">Merged entities</a> for details.</p>
 <h2 id="stale-data-after-update">Stale data after update<a class="headerlink" href="#stale-data-after-update" title="Permanent link">&para;</a></h2>
 <p>If <code>get()</code> returns old values after calling <code>update()</code>, this is also due to V1→V2 eventual consistency. The update succeeded, but V2 hasn't synced yet. Like the 404 case, this typically resolves within 100-500ms.</p>
 <p><strong>Solution:</strong> Use the object returned by <code>update()</code> directly - it contains the updated data.</p>

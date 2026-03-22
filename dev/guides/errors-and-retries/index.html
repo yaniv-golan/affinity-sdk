@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -1045,6 +1045,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#merged-entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Merged entities
+      
+    </span>
+  </a>
   
 </li>
       
@@ -2383,6 +2394,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#merged-entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Merged entities
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v1v2-eventual-consistency" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2482,6 +2504,7 @@
 <li><code>AuthorizationError</code> (403): insufficient permissions</li>
 <li><code>NotFoundError</code> (404): entity or endpoint not found</li>
 <li><code>ValidationError</code> (400/422): invalid parameters/payload</li>
+<li><code>MergedEntityError</code> (422): entity was merged into another — subclass of <code>ValidationError</code> with <code>source_id</code> and <code>target_id</code></li>
 <li><code>ConflictError</code> (409): resource conflict (e.g., duplicate email)</li>
 <li><code>RateLimitError</code> (429): you are being rate limited (may include <code>retry_after</code>)</li>
 <li><code>ServerError</code> (500/502/503/504): transient server-side errors</li>
@@ -2527,6 +2550,7 @@
 <ul>
 <li><strong>AuthenticationError (401), AuthorizationError (403)</strong>: do not retry; fix credentials/permissions; alert immediately.</li>
 <li><strong>ValidationError (400/422)</strong>: do not retry; treat as a bug or bad input; log the response body snippet for debugging.</li>
+<li><strong>MergedEntityError (422)</strong>: a subclass of <code>ValidationError</code> raised when you access a company or person that was merged into another. Use <code>e.target_id</code> to follow the merge programmatically (see <a href="#merged-entities">Merged entities</a> below).</li>
 <li><strong>NotFoundError (404)</strong>: generally do not retry; treat as "missing" and handle at the business layer. <strong>Exception</strong>: see <a href="#v1v2-eventual-consistency">V1→V2 eventual consistency</a> below for 404s immediately after create.</li>
 <li><strong>ConflictError (409)</strong>: do not retry; handle the conflict (e.g., duplicate email, concurrent modification). May indicate you need to fetch-then-update instead of blind update.</li>
 <li><strong>RateLimitError (429)</strong>: retry only after <code>retry_after</code> (when present), reduce concurrency, and consider queueing/batching to smooth bursts.</li>
@@ -2582,6 +2606,22 @@
 <li>Elevated 5xx/timeouts/network errors (provider outage or network problem).</li>
 </ul>
 <p>When alerting, include <code>e.diagnostics.request_id</code> (when present) to speed up support/debugging.</p>
+<h2 id="merged-entities">Merged entities<a class="headerlink" href="#merged-entities" title="Permanent link">&para;</a></h2>
+<p>When you access a company or person that has been merged into another record, the API returns a 422 instead of a 404. The SDK raises a <code>MergedEntityError</code> (or <code>CompanyMergedError</code>/<code>PersonMergedError</code>) with structured access to the merge target:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompanyMergedError</span><span class="p">,</span> <span class="n">MergedEntityError</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">company</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="n">old_id</span><span class="p">))</span>
+<span class="k">except</span> <span class="n">CompanyMergedError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="c1"># Follow the merge to the surviving record</span>
+    <span class="n">company</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">target_id</span><span class="p">))</span>
+<span class="k">except</span> <span class="n">MergedEntityError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="c1"># Generic handler (works for any entity type)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Entity </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">source_id</span><span class="si">}</span><span class="s2"> merged into </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">target_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><code>MergedEntityError</code> is a subclass of <code>ValidationError</code>, so existing <code>except ValidationError</code> handlers continue to work. The entity-specific subclasses (<code>CompanyMergedError</code>, <code>PersonMergedError</code>) are auto-detected from the request URL.</p>
+<p><strong>CLI</strong>: The CLI surfaces this as <code>error.type: "entity_merged"</code> with <code>sourceId</code>, <code>targetId</code>, and <code>entityType</code> in <code>error.details</code>. Exit code is 4 (same as not-found — the entity is effectively gone from its original ID).</p>
 <h2 id="v1v2-eventual-consistency">V1→V2 eventual consistency<a class="headerlink" href="#v1v2-eventual-consistency" title="Permanent link">&para;</a></h2>
 <p>The SDK uses V1 API for writes (create/update/delete) and V2 API for reads (get/list). Due to eventual consistency between V1 and V2 backends, a <code>get()</code> call <strong>immediately after</strong> <code>create()</code> may return a 404 <code>NotFoundError</code> even though the entity was successfully created.</p>
 <p>This typically resolves within 100-500ms, but under load the delay can be longer.</p>
