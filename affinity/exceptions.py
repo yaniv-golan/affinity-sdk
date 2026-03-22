@@ -6,6 +6,7 @@ All exceptions inherit from AffinityError for easy catching of all library error
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -351,6 +352,99 @@ class OpportunityNotFoundError(EntityNotFoundError):
 
 
 # =============================================================================
+# Merged Entity Errors
+# =============================================================================
+
+# Pattern: "<source_id> no longer exists as it has been merged into <target_id>"
+_MERGED_PATTERN = re.compile(r"(\d+)\s+no longer exists as it has been merged into\s+(\d+)")
+
+
+class MergedEntityError(ValidationError):
+    """
+    422 error indicating an entity was merged into another.
+
+    When accessing a company or person that has been merged, the Affinity API
+    returns a 422 with a message like:
+    "292479388 no longer exists as it has been merged into 301128758"
+
+    This exception provides structured access to both IDs.
+
+    Attributes:
+        source_id: The ID of the entity that was merged away (no longer exists).
+        target_id: The ID of the entity it was merged into (the surviving entity).
+        entity_type: The type of entity ("Company", "Person", or None if unknown).
+    """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        source_id: int,
+        target_id: int,
+        entity_type: str | None = None,
+        param: str | None = None,
+        status_code: int | None = None,
+        response_body: Any | None = None,
+        diagnostics: ErrorDiagnostics | None = None,
+    ):
+        super().__init__(
+            message,
+            param=param,
+            status_code=status_code,
+            response_body=response_body,
+            diagnostics=diagnostics,
+        )
+        self.source_id = source_id
+        self.target_id = target_id
+        self.entity_type = entity_type
+
+    @staticmethod
+    def match(message: str) -> re.Match[str] | None:
+        """Check if an error message matches the merged entity pattern."""
+        return _MERGED_PATTERN.search(message)
+
+
+class CompanyMergedError(MergedEntityError):
+    """A company was merged into another company."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        source_id: int,
+        target_id: int,
+        **kwargs: Any,
+    ):
+        super().__init__(
+            message,
+            source_id=source_id,
+            target_id=target_id,
+            entity_type="Company",
+            **kwargs,
+        )
+
+
+class PersonMergedError(MergedEntityError):
+    """A person was merged into another person."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        source_id: int,
+        target_id: int,
+        **kwargs: Any,
+    ):
+        super().__init__(
+            message,
+            source_id=source_id,
+            target_id=target_id,
+            entity_type="Person",
+            **kwargs,
+        )
+
+
+# =============================================================================
 # API Version Errors
 # =============================================================================
 
@@ -530,6 +624,37 @@ def error_from_response(
 
     # Special handling for ValidationError with param
     if error_class is ValidationError:
+        # Check if this is a merged entity error (422 with merge message)
+        merge_match = MergedEntityError.match(message)
+        if merge_match is not None:
+            source_id = int(merge_match.group(1))
+            target_id = int(merge_match.group(2))
+            # Detect entity type from URL in diagnostics
+            entity_type: str | None = None
+            if diagnostics is not None and diagnostics.url is not None:
+                url = diagnostics.url
+                if "/companies/" in url or "/organizations/" in url:
+                    entity_type = "Company"
+                elif "/persons/" in url or "/people/" in url:
+                    entity_type = "Person"
+
+            if entity_type == "Company":
+                cls: type[MergedEntityError] = CompanyMergedError
+            elif entity_type == "Person":
+                cls = PersonMergedError
+            else:
+                cls = MergedEntityError
+
+            return cls(
+                message,
+                source_id=source_id,
+                target_id=target_id,
+                param=param,
+                status_code=status_code,
+                response_body=response_body,
+                diagnostics=diagnostics,
+            )
+
         return ValidationError(
             message,
             param=param,

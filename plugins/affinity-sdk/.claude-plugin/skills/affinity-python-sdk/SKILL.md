@@ -241,6 +241,9 @@ from affinity.exceptions import (
     AuthorizationError,      # 403 - insufficient permissions
     NotFoundError,           # 404 - entity not found
     ValidationError,         # 400/422 - invalid parameters
+    MergedEntityError,       # 422 - entity merged into another (subclass of ValidationError)
+    CompanyMergedError,      # 422 - company merged (has source_id, target_id)
+    PersonMergedError,       # 422 - person merged (has source_id, target_id)
     RateLimitError,          # 429 - rate limited
     ServerError,             # 500/503 - server errors
     WriteNotAllowedError,    # Write attempted in read-only mode
@@ -248,9 +251,12 @@ from affinity.exceptions import (
 )
 
 try:
-    person = client.persons.get(PersonId(123))
+    company = client.companies.get(CompanyId(123))
+except CompanyMergedError as e:
+    # Entity was merged — follow to the surviving record
+    company = client.companies.get(CompanyId(e.target_id))
 except NotFoundError:
-    print("Person not found")
+    print("Company not found")
 except RateLimitError as e:
     print(f"Rate limited. Retry after: {e.retry_after}")
 except AffinityError as e:

@@ -15,6 +15,25 @@ If you get a 404 `NotFoundError` when calling `get()` right after `create()`, th
 
 See [V1→V2 eventual consistency](guides/errors-and-retries.md#v1v2-eventual-consistency) for details.
 
+## 422 on merged entity
+
+If you get a 422 `MergedEntityError` when calling `get()` on a company or person, the entity was merged into another record. Unlike deleted entities (which return 404), merged entities return 422 with the target ID.
+
+**Solution:** Catch `CompanyMergedError` or `PersonMergedError` and use `e.target_id` to follow the merge:
+
+```python
+from affinity.exceptions import CompanyMergedError
+
+try:
+    company = client.companies.get(CompanyId(old_id))
+except CompanyMergedError as e:
+    company = client.companies.get(CompanyId(e.target_id))
+```
+
+**CLI:** The error JSON includes `error.details.targetId` — scripts can use `jq '.error.details.targetId'` to extract it.
+
+See [Merged entities](guides/errors-and-retries.md#merged-entities) for details.
+
 ## Stale data after update
 
 If `get()` returns old values after calling `update()`, this is also due to V1→V2 eventual consistency. The update succeeded, but V2 hasn't synced yet. Like the 404 case, this typically resolves within 100-500ms.

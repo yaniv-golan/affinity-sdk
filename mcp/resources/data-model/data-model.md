@@ -350,6 +350,13 @@ task get "https://api.affinity.co/v2/tasks/abc123"               # Check status 
 
 Task statuses: `pending`, `in_progress`, `success`, `failed`
 
+### Accessing a Merged Entity
+If you `company get` or `person get` an entity that was previously merged, the API returns exit code 4 with `error.type: "entity_merged"`. The JSON error includes `error.details.targetId` — the surviving entity's ID. Use that ID to fetch the correct record:
+```bash
+# If company 292479388 was merged into 301128758:
+company get 301128758   # Use the targetId from the error
+```
+
 ---
 
 ## Write Operations

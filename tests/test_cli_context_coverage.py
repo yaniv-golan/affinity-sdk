@@ -21,10 +21,13 @@ from affinity.exceptions import (
     AffinityError,
     AuthenticationError,
     AuthorizationError,
+    CompanyMergedError,
     ConfigurationError,
     ConflictError,
+    MergedEntityError,
     NetworkError,
     NotFoundError,
+    PersonMergedError,
     RateLimitError,
     ServerError,
     UnsafeUrlError,
@@ -164,6 +167,56 @@ class TestNormalizeAffinityErrors:
 # ---------------------------------------------------------------------------
 # normalize_exception — ValidationError paths
 # ---------------------------------------------------------------------------
+
+
+class TestNormalizeMergedEntityError:
+    def test_company_merged_error(self) -> None:
+        exc = CompanyMergedError(
+            "292479388 no longer exists as it has been merged into 301128758",
+            source_id=292479388,
+            target_id=301128758,
+            status_code=422,
+        )
+        result = normalize_exception(exc)
+        assert result.error_type == "entity_merged"
+        assert result.exit_code == 4
+        assert result.details["sourceId"] == 292479388
+        assert result.details["targetId"] == 301128758
+        assert result.details["entityType"] == "Company"
+        assert "301128758" in result.hint
+        assert "Use the target ID" in result.hint
+
+    def test_person_merged_error(self) -> None:
+        exc = PersonMergedError(
+            "100 no longer exists as it has been merged into 200",
+            source_id=100,
+            target_id=200,
+        )
+        result = normalize_exception(exc)
+        assert result.error_type == "entity_merged"
+        assert result.details["entityType"] == "Person"
+
+    def test_generic_merged_error(self) -> None:
+        exc = MergedEntityError(
+            "123 no longer exists as it has been merged into 456",
+            source_id=123,
+            target_id=456,
+        )
+        result = normalize_exception(exc)
+        assert result.error_type == "entity_merged"
+        assert result.exit_code == 4
+        assert "entityType" not in result.details
+
+    def test_not_caught_as_validation_error(self) -> None:
+        """MergedEntityError must be handled before ValidationError in normalize_exception."""
+        exc = CompanyMergedError(
+            "1 no longer exists as it has been merged into 2",
+            source_id=1,
+            target_id=2,
+        )
+        result = normalize_exception(exc)
+        # Must NOT fall through to the ValidationError handler
+        assert result.error_type != "validation_error"
 
 
 class TestNormalizeValidationError:

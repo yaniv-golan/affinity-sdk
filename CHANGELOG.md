@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-03-22
+
+### Highlights
+
+Accessing a company or person that was merged now raises a dedicated `MergedEntityError` (or `CompanyMergedError`/`PersonMergedError`) instead of a generic `ValidationError`. The exception provides structured `source_id` and `target_id` attributes, so you can programmatically follow merges without regex-parsing error messages. The CLI also surfaces this as a distinct `entity_merged` error type with structured JSON details.
+
+### Added
+- `MergedEntityError`, `CompanyMergedError`, `PersonMergedError` exception classes — raised on 422 responses indicating an entity was merged into another
+- CLI: `entity_merged` error type with `sourceId`, `targetId`, `entityType` in JSON error details (exit code 4)
+
 ## [1.8.2] - 2026-03-19
 
 ### Highlights

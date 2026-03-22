@@ -20,6 +20,7 @@ from affinity.exceptions import (
     AuthorizationError,
     ConfigurationError,
     ConflictError,
+    MergedEntityError,
     NetworkError,
     NotFoundError,
     RateLimitError,
@@ -362,6 +363,8 @@ def exit_code_for_exception(exc: Exception) -> int:
         return exc.exit_code
     if isinstance(exc, (AuthenticationError, AuthorizationError)):
         return 3
+    if isinstance(exc, MergedEntityError):
+        return 4
     if isinstance(exc, NotFoundError):
         return 4
     if isinstance(exc, (RateLimitError, ServerError)):
@@ -466,6 +469,25 @@ def normalize_exception(exc: Exception, *, verbosity: int = 0) -> CLIError:
             exit_code=5,
             hint=hint,
             details=_details_for_affinity_error(exc, verbosity=verbosity),
+            cause=exc,
+        )
+
+    if isinstance(exc, MergedEntityError):
+        details = _details_for_affinity_error(exc, verbosity=verbosity) or {}
+        details["sourceId"] = exc.source_id
+        details["targetId"] = exc.target_id
+        if exc.entity_type:
+            details["entityType"] = exc.entity_type
+        entity_label = exc.entity_type or "Entity"
+        return CLIError(
+            str(exc),
+            error_type="entity_merged",
+            exit_code=4,
+            hint=(
+                f"{entity_label} {exc.source_id} was merged into {exc.target_id}. "
+                f"Use the target ID instead."
+            ),
+            details=details,
             cause=exc,
         )
 

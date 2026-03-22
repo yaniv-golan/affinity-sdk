@@ -4,11 +4,14 @@ from __future__ import annotations
 
 from affinity.exceptions import (
     AffinityError,
+    CompanyMergedError,
     CompanyNotFoundError,
     EntityNotFoundError,
     ErrorDiagnostics,
+    MergedEntityError,
     NetworkError,
     OpportunityNotFoundError,
+    PersonMergedError,
     PersonNotFoundError,
     RateLimitError,
     TimeoutError,
@@ -339,3 +342,146 @@ class TestValidationErrorStr:
     def test_str_with_param(self) -> None:
         err = ValidationError("Invalid value", param="company_id", status_code=422)
         assert "(param: company_id)" in str(err)
+
+
+class TestMergedEntityError:
+    """Tests for MergedEntityError and subclasses."""
+
+    MERGE_MSG = "292479388 no longer exists as it has been merged into 301128758"
+
+    def test_match_positive(self) -> None:
+        m = MergedEntityError.match(self.MERGE_MSG)
+        assert m is not None
+        assert m.group(1) == "292479388"
+        assert m.group(2) == "301128758"
+
+    def test_match_negative(self) -> None:
+        assert MergedEntityError.match("Invalid email format") is None
+
+    def test_init_base(self) -> None:
+        err = MergedEntityError(
+            self.MERGE_MSG,
+            source_id=292479388,
+            target_id=301128758,
+            status_code=422,
+        )
+        assert err.source_id == 292479388
+        assert err.target_id == 301128758
+        assert err.entity_type is None
+        assert err.status_code == 422
+        assert isinstance(err, ValidationError)
+
+    def test_company_merged_error(self) -> None:
+        err = CompanyMergedError(
+            self.MERGE_MSG,
+            source_id=292479388,
+            target_id=301128758,
+        )
+        assert err.entity_type == "Company"
+        assert err.source_id == 292479388
+        assert err.target_id == 301128758
+        assert isinstance(err, MergedEntityError)
+        assert isinstance(err, ValidationError)
+
+    def test_person_merged_error(self) -> None:
+        err = PersonMergedError(
+            "100 no longer exists as it has been merged into 200",
+            source_id=100,
+            target_id=200,
+        )
+        assert err.entity_type == "Person"
+        assert err.source_id == 100
+        assert err.target_id == 200
+        assert isinstance(err, MergedEntityError)
+
+    def test_catchable_as_validation_error(self) -> None:
+        """MergedEntityError can be caught by existing ValidationError handlers."""
+        err = CompanyMergedError(self.MERGE_MSG, source_id=292479388, target_id=301128758)
+        try:
+            raise err
+        except ValidationError as caught:
+            assert isinstance(caught, CompanyMergedError)
+            assert caught.source_id == 292479388
+
+
+class TestErrorFromResponseMergedEntity:
+    """Tests for error_from_response detecting merged entities."""
+
+    MERGE_MSG = "292479388 no longer exists as it has been merged into 301128758"
+
+    def test_422_with_merge_message_returns_merged_entity_error(self) -> None:
+        err = error_from_response(
+            422,
+            {"errors": [{"message": self.MERGE_MSG}]},
+        )
+        assert isinstance(err, MergedEntityError)
+        assert err.source_id == 292479388
+        assert err.target_id == 301128758
+        assert err.status_code == 422
+
+    def test_422_merge_with_company_url_returns_company_merged(self) -> None:
+        diag = ErrorDiagnostics(
+            method="GET",
+            url="https://api.affinity.co/v2/companies/292479388",
+        )
+        err = error_from_response(
+            422,
+            {"errors": [{"message": self.MERGE_MSG}]},
+            diagnostics=diag,
+        )
+        assert isinstance(err, CompanyMergedError)
+        assert err.entity_type == "Company"
+
+    def test_422_merge_with_organizations_url_returns_company_merged(self) -> None:
+        diag = ErrorDiagnostics(
+            url="https://api.affinity.co/organizations/292479388",
+        )
+        err = error_from_response(
+            422,
+            {"errors": [{"message": self.MERGE_MSG}]},
+            diagnostics=diag,
+        )
+        assert isinstance(err, CompanyMergedError)
+
+    def test_422_merge_with_person_url_returns_person_merged(self) -> None:
+        diag = ErrorDiagnostics(
+            url="https://api.affinity.co/v2/persons/100",
+        )
+        err = error_from_response(
+            422,
+            {"errors": [{"message": "100 no longer exists as it has been merged into 200"}]},
+            diagnostics=diag,
+        )
+        assert isinstance(err, PersonMergedError)
+        assert err.entity_type == "Person"
+        assert err.source_id == 100
+        assert err.target_id == 200
+
+    def test_422_merge_with_people_url_returns_person_merged(self) -> None:
+        diag = ErrorDiagnostics(
+            url="https://api.affinity.co/people/100",
+        )
+        err = error_from_response(
+            422,
+            {"errors": [{"message": "100 no longer exists as it has been merged into 200"}]},
+            diagnostics=diag,
+        )
+        assert isinstance(err, PersonMergedError)
+
+    def test_422_merge_without_url_returns_generic_merged(self) -> None:
+        err = error_from_response(
+            422,
+            {"errors": [{"message": self.MERGE_MSG}]},
+        )
+        assert isinstance(err, MergedEntityError)
+        assert not isinstance(err, CompanyMergedError)
+        assert not isinstance(err, PersonMergedError)
+        assert err.entity_type is None
+
+    def test_422_non_merge_still_returns_validation_error(self) -> None:
+        err = error_from_response(
+            422,
+            {"errors": [{"message": "Invalid email format"}]},
+        )
+        assert isinstance(err, ValidationError)
+        assert not isinstance(err, MergedEntityError)

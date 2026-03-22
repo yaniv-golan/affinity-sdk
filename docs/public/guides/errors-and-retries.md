@@ -8,6 +8,7 @@ The SDK raises typed exceptions (subclasses of `AffinityError`) and retries some
 - `AuthorizationError` (403): insufficient permissions
 - `NotFoundError` (404): entity or endpoint not found
 - `ValidationError` (400/422): invalid parameters/payload
+- `MergedEntityError` (422): entity was merged into another — subclass of `ValidationError` with `source_id` and `target_id`
 - `ConflictError` (409): resource conflict (e.g., duplicate email)
 - `RateLimitError` (429): you are being rate limited (may include `retry_after`)
 - `ServerError` (500/502/503/504): transient server-side errors
@@ -64,6 +65,7 @@ The SDK retries some failures for safe reads (`GET`/`HEAD`), but production syst
 
 - **AuthenticationError (401), AuthorizationError (403)**: do not retry; fix credentials/permissions; alert immediately.
 - **ValidationError (400/422)**: do not retry; treat as a bug or bad input; log the response body snippet for debugging.
+- **MergedEntityError (422)**: a subclass of `ValidationError` raised when you access a company or person that was merged into another. Use `e.target_id` to follow the merge programmatically (see [Merged entities](#merged-entities) below).
 - **NotFoundError (404)**: generally do not retry; treat as "missing" and handle at the business layer. **Exception**: see [V1→V2 eventual consistency](#v1v2-eventual-consistency) below for 404s immediately after create.
 - **ConflictError (409)**: do not retry; handle the conflict (e.g., duplicate email, concurrent modification). May indicate you need to fetch-then-update instead of blind update.
 - **RateLimitError (429)**: retry only after `retry_after` (when present), reduce concurrency, and consider queueing/batching to smooth bursts.
@@ -127,6 +129,28 @@ Common triggers:
 - Elevated 5xx/timeouts/network errors (provider outage or network problem).
 
 When alerting, include `e.diagnostics.request_id` (when present) to speed up support/debugging.
+
+## Merged entities
+
+When you access a company or person that has been merged into another record, the API returns a 422 instead of a 404. The SDK raises a `MergedEntityError` (or `CompanyMergedError`/`PersonMergedError`) with structured access to the merge target:
+
+```python
+from affinity import Affinity
+from affinity.exceptions import CompanyMergedError, MergedEntityError
+
+try:
+    company = client.companies.get(CompanyId(old_id))
+except CompanyMergedError as e:
+    # Follow the merge to the surviving record
+    company = client.companies.get(CompanyId(e.target_id))
+except MergedEntityError as e:
+    # Generic handler (works for any entity type)
+    print(f"Entity {e.source_id} merged into {e.target_id}")
+```
+
+`MergedEntityError` is a subclass of `ValidationError`, so existing `except ValidationError` handlers continue to work. The entity-specific subclasses (`CompanyMergedError`, `PersonMergedError`) are auto-detected from the request URL.
+
+**CLI**: The CLI surfaces this as `error.type: "entity_merged"` with `sourceId`, `targetId`, and `entityType` in `error.details`. Exit code is 4 (same as not-found — the entity is effectively gone from its original ID).
 
 ## V1→V2 eventual consistency
 

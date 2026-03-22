@@ -512,6 +512,7 @@ from affinity import (
     Affinity,
     AffinityError,
     AuthenticationError,
+    MergedEntityError,
     RateLimitError,
     NotFoundError,
     ValidationError,
@@ -526,6 +527,8 @@ except RateLimitError as e:
     print(f"Rate limited. Retry after {e.retry_after}s")
 except NotFoundError:
     print("Person not found")
+except MergedEntityError as e:
+    print(f"Entity {e.source_id} was merged into {e.target_id}")
 except ValidationError as e:
     print(f"Invalid request: {e.message}")
 except AffinityError as e:
