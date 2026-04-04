@@ -201,21 +201,27 @@ run_xaffinity_readonly person ls --query "test" --output json --quiet
 | `mcp/mcp-publisher.lock` | MCP Registry publisher CLI version | Manual |
 | `mcp/server.json` | MCP Registry metadata template (patched by CI) | Manual (version/hash patched at release time) |
 
-## MCP-Bash Framework Pinning
+## MCP-Bash Framework Vendoring
 
-The MCP server depends on the mcp-bash-framework. Version and commit hash are pinned in `mcp/mcp-bash.lock`.
+The MCP server vendors the mcp-bash runtime at `mcp/.mcp-bash/` (committed to git). Version and commit hash are also recorded in `mcp/mcp-bash.lock` for MCPB bundling.
 
 ### When to Update
 
 ```bash
-# 1. Get the new version's commit hash (use ^{} for dereferenced commit, not tag object)
+# 1. Upgrade system mcp-bash to the new version
+# 2. Re-vendor from the updated install:
+cd mcp && mcp-bash vendor --upgrade
+
+# 3. Update mcp/mcp-bash.lock with new version and commit hash:
 git ls-remote https://github.com/yaniv-golan/mcp-bash-framework.git 'vX.Y.Z^{}'
 
-# 2. Update BOTH files:
-#    - mcp/mcp-bash.lock (exact version + commit for bundling)
-#    - mcp/server.d/requirements.json (minVersion for runtime validation)
+# 4. Verify integrity:
+mcp-bash vendor --verify
 
-# 3. Update mcp/CHANGELOG.md
+# 5. Review and commit:
+git diff mcp/.mcp-bash/
+git add mcp/.mcp-bash/ mcp/mcp-bash.lock
+# 6. Update mcp/CHANGELOG.md
 ```
 
 ## Changelog Format
