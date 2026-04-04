@@ -2005,9 +2005,10 @@ class QueryExecutor:
                     parent_mapping[ent_id] = i_records
                     included_records.extend(i_records)
             else:
+                assert rel.filter_field is not None  # schema guarantees this for global_service
                 for ent_id in entity_ids:
                     try:
-                        filter_kwargs = {rel.filter_field: ent_id}
+                        filter_kwargs: dict[str, Any] = {rel.filter_field: ent_id}
                         response = await service.list(**filter_kwargs)
                         ent_records: list[dict[str, Any]] = []
                         for item in response.data:
