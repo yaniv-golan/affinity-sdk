@@ -1,0 +1,385 @@
+#!/usr/bin/env bash
+# mcp-bash must execute on Bash ≥3.2 across macOS/Linux/WSL without edits.
+# Core targets MCP protocol version 2025-11-25 and maintains stdout discipline.
+# Transport scope is limited to stdio; no alternative transports are supported.
+
+set -euo pipefail
+
+mcp_resolve_script_path() {
+	local source="${BASH_SOURCE[0]-$0}"
+	local dir=""
+
+	while [ -L "${source}" ]; do
+		dir="$(cd -P "$(dirname "${source}")" && pwd)"
+		source="$(readlink "${source}")"
+		if [[ "${source}" != /* ]]; then
+			source="${dir}/${source}"
+		fi
+	done
+
+	dir="$(cd -P "$(dirname "${source}")" && pwd)"
+	printf '%s/%s\n' "${dir}" "$(basename "${source}")"
+}
+
+script_path="$(mcp_resolve_script_path)"
+MCPBASH_SCRIPT_PATH="${script_path}"
+script_dir="$(cd -P "$(dirname "${script_path}")" && pwd)"
+# Allow MCPBASH_HOME override for development (use installed binary with dev code)
+MCPBASH_HOME="${MCPBASH_HOME:-$(cd -P "${script_dir}/.." && pwd)}"
+
+if [ ! -r "${MCPBASH_HOME}/lib/runtime.sh" ]; then
+	printf '%s\n' "mcp-bash install looks broken: expected ${MCPBASH_HOME}/lib/runtime.sh (resolved from ${script_path})." >&2
+	exit 1
+fi
+
+usage() {
+	cat <<'EOF'
+Usage:
+  mcp-bash                 # launch server
+  mcp-bash --help          # show this help
+  mcp-bash --version       # show version
+  mcp-bash new <name> [--no-hello]
+                           # create new project directory with full structure
+  mcp-bash init [--name NAME] [--no-hello]
+                           # initialize project in current directory
+  mcp-bash debug           # launch server with debug logging (see docs/DEBUGGING.md)
+  mcp-bash --health        # readiness probe (0=ready, 1=unhealthy, 2=misconfigured)
+  mcp-bash --ready         # alias for --health
+  mcp-bash run-tool <name> [--args JSON] [--roots paths] [--dry-run]
+                           [--timeout SECS] [--verbose] [--no-refresh]
+                           [--minimal] [--project-root DIR] [--print-env]
+                           [--allow-self] [--allow TOOL] [--allow-all]
+  mcp-bash scaffold tool <name> [--ui]
+  mcp-bash scaffold prompt <name>
+  mcp-bash scaffold resource <name>
+  mcp-bash scaffold completion <name>
+  mcp-bash scaffold ui <name>           # create standalone UI in ui/<name>/
+  mcp-bash scaffold ui [name] --tool T  # create UI for tool T (name defaults to T)
+  mcp-bash scaffold test   # create test harness for project
+  mcp-bash validate [--project-root DIR] [--fix] [--json]
+                     [--explain-defaults] [--strict]
+                           # validate project structure and metadata
+  mcp-bash config [--project-root DIR] [--show|--json|--client NAME|--wrapper|--inspector]
+                           # print MCP client configuration snippets
+  mcp-bash doctor          # diagnose environment and installation issues
+  mcp-bash registry refresh [--project-root DIR] [--no-notify] [--quiet] [--filter PATH]
+  mcp-bash registry status [--project-root DIR]
+  mcp-bash vendor [--output DIR] [--upgrade] [--verify] [--dry-run] [--verbose]
+                           # embed runtime into .mcp-bash/ (commit to git)
+  mcp-bash bundle [--output DIR] [--name NAME] [--version VERSION]
+                  [--platform PLAT] [--include-gojq] [--validate] [--verbose]
+                           # create distributable MCPB bundle (requires client support)
+  mcp-bash publish <bundle.mcpb> [--dry-run] [--token TOKEN] [--verbose]
+                           # submit bundle to MCP Registry
+
+Note: running without MCPBASH_PROJECT_ROOT starts a temporary getting-started helper tool.
+Remote deployments: set MCPBASH_REMOTE_TOKEN to require per-request _meta token; see docs/REMOTE.md.
+EOF
+}
+
+# Keep a stable, versioned core separated from extension directories.
+# Server metadata (name, version, title, etc.) is loaded from server.d/server.meta.json
+# with smart defaults derived from the project structure. See mcp_runtime_load_server_meta().
+MCPBASH_PROTOCOL_VERSION="2025-11-25"
+MCPBASH_NEGOTIATED_PROTOCOL_VERSION="${MCPBASH_PROTOCOL_VERSION}"
+
+require_bash_runtime() {
+	if [ -z "${BASH_VERSION-}" ]; then
+		printf 'mcp-bash must be launched with Bash; current shell is incompatible.\n' >&2
+		exit 1
+	fi
+
+	local major="${BASH_VERSINFO[0]}"
+	local minor="${BASH_VERSINFO[1]}"
+
+	if [ "${major}" -lt 3 ] || { [ "${major}" -eq 3 ] && [ "${minor}" -lt 2 ]; }; then
+		printf 'mcp-bash requires Bash 3.2 or newer (detected %s).\n' "${BASH_VERSION}" >&2
+		exit 1
+	fi
+}
+
+# Establish project root and source runtime detection helpers.
+initialize_runtime_paths() {
+	local resolved="${MCPBASH_SCRIPT_PATH:-${BASH_SOURCE[0]-$0}}"
+	local script_dir=""
+
+	script_dir="$(cd "$(dirname "${resolved}")" && pwd)"
+	# Allow MCPBASH_HOME override for development (use installed binary with dev code)
+	MCPBASH_HOME="${MCPBASH_HOME:-$(cd "${script_dir}/.." && pwd)}"
+
+	local required_libs="require runtime json hash ids lock io paginate logging auth uri policy tools_policy registry spec tools resources prompts completion timeout rpc core validate"
+	local lib
+
+	for lib in ${required_libs}; do
+		if [ ! -r "${MCPBASH_HOME}/lib/${lib}.sh" ]; then
+			printf '%s\n' "Missing required library at ${MCPBASH_HOME}/lib/${lib}.sh (bootstrap prerequisites)." >&2
+			exit 1
+		fi
+	done
+
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/require.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/runtime.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/json.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/hash.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/ids.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/lock.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/io.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/paginate.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/logging.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/auth.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/uri.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/policy.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/tools_policy.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/registry.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/spec.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/tools.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/resources.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/prompts.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/completion.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/timeout.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/elicitation.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/capabilities.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/ui.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/ui-templates.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/roots.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/rpc.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/core.sh"
+	# shellcheck disable=SC1090
+	. "${MCPBASH_HOME}/lib/validate.sh"
+}
+
+mcp_verify_stdout_target() {
+	# Reject configurations where stdout is not connected to a pipe or terminal.
+	if [ -t 1 ]; then
+		return 0
+	fi
+
+	# macOS/Linux expose /dev/stdout as a character device even when piped; fall back to a write probe.
+	if ! { : >&1; } 2>/dev/null; then
+		printf '%s\n' 'mcp-bash requires stdout to be connected to an active pipe or terminal (stdout must be connected).' >&2
+		exit 1
+	fi
+}
+
+main() {
+	require_bash_runtime
+	initialize_runtime_paths
+	mcp_runtime_detect_transport
+	mcp_verify_stdout_target
+	mcp_runtime_detect_json_tool
+	mcp_runtime_log_batch_mode
+
+	trap 'mcp_runtime_cleanup' EXIT INT TERM HUP
+
+	if mcp_runtime_is_minimal_mode; then
+		# Warn about reduced capability surface.
+		printf '%s\n' 'Operating in minimal mode: only lifecycle, ping, and logging handlers are exposed until JSON tooling becomes available (JSON tooling needed).' >&2
+	fi
+
+	# Bootstrap: begin primary lifecycle loop.
+	mcp_core_run
+}
+
+case "${1-}" in
+--help | -h)
+	usage
+	exit 0
+	;;
+--version | -v)
+	# Read framework version from VERSION file
+	_version_file="${MCPBASH_HOME}/VERSION"
+	if [ -f "${_version_file}" ]; then
+		printf 'mcp-bash %s\n' "$(tr -d '[:space:]' <"${_version_file}")"
+	else
+		printf 'mcp-bash (unknown version)\n'
+	fi
+	exit 0
+	;;
+esac
+
+cli_cmd="${1-}"
+
+if [ "${cli_cmd}" = "init" ]; then
+	shift
+	# shellcheck source=lib/cli/init.sh disable=SC1091
+	. "${MCPBASH_HOME}/lib/cli/init.sh"
+	mcp_cli_init "$@"
+fi
+
+if [ "${cli_cmd}" = "validate" ]; then
+	shift
+	# shellcheck source=lib/cli/validate.sh disable=SC1091
+	. "${MCPBASH_HOME}/lib/cli/validate.sh"
+	mcp_cli_validate "$@"
+fi
+
+if [ "${cli_cmd}" = "run-tool" ]; then
+	shift
+	# shellcheck source=lib/cli/run_tool.sh disable=SC1091
+	. "${MCPBASH_HOME}/lib/cli/run_tool.sh"
+	mcp_cli_run_tool "$@"
+fi
+
+if [ "${cli_cmd}" = "config" ]; then
+	shift
+	# shellcheck source=lib/cli/config.sh disable=SC1091
+	. "${MCPBASH_HOME}/lib/cli/config.sh"
+	mcp_cli_config "$@"
+fi
+
+if [ "${cli_cmd}" = "doctor" ]; then
+	shift
+	# shellcheck source=lib/cli/doctor.sh disable=SC1091
+	. "${MCPBASH_HOME}/lib/cli/doctor.sh"
+	mcp_cli_doctor "$@"
+fi
+
+if [ "${cli_cmd}" = "--health" ] || [ "${cli_cmd}" = "--ready" ] || [ "${cli_cmd}" = "health" ] || [ "${cli_cmd}" = "ready" ]; then
+	shift
+	# shellcheck source=lib/cli/health.sh disable=SC1091
+	. "${MCPBASH_HOME}/lib/cli/health.sh"
+	mcp_cli_health "$@"
+fi
+
+if [ "${cli_cmd}" = "new" ]; then
+	shift
+	# shellcheck source=lib/cli/new.sh disable=SC1091
+	. "${MCPBASH_HOME}/lib/cli/new.sh"
+	mcp_cli_new "$@"
+fi
+
+if [ "${cli_cmd}" = "registry" ]; then
+	shift
+	# shellcheck source=lib/cli/registry.sh disable=SC1091
+	. "${MCPBASH_HOME}/lib/cli/registry.sh"
+	case "${1-}" in
+	refresh)
+		shift
+		mcp_registry_refresh_cli "$@"
+		exit $?
+		;;
+	status)
+		shift
+		mcp_registry_status_cli "$@"
+		exit $?
+		;;
+	*)
+		usage
+		exit 1
+		;;
+	esac
+fi
+
+if [ "${cli_cmd}" = "scaffold" ]; then
+	shift
+	# shellcheck source=lib/cli/scaffold.sh disable=SC1091
+	. "${MCPBASH_HOME}/lib/cli/scaffold.sh"
+	case "${1-}" in
+	tool)
+		shift
+		mcp_scaffold_tool "$@"
+		;;
+	prompt)
+		shift
+		mcp_scaffold_prompt "${1:-}"
+		;;
+		resource)
+			shift
+			mcp_scaffold_resource "${1:-}"
+			;;
+		completion)
+			shift
+			mcp_scaffold_completion "${1:-}"
+			;;
+		ui)
+			shift
+			mcp_scaffold_ui "$@"
+			;;
+		test)
+			shift
+			mcp_scaffold_test
+			;;
+	*)
+		usage
+		exit 1
+		;;
+	esac
+fi
+
+if [ "${cli_cmd}" = "vendor" ]; then
+	shift
+	# shellcheck source=lib/cli/vendor.sh disable=SC1091
+	. "${MCPBASH_HOME}/lib/cli/vendor.sh"
+	mcp_cli_vendor "$@"
+	exit $?
+fi
+
+if [ "${cli_cmd}" = "bundle" ]; then
+	shift
+	# shellcheck source=lib/cli/bundle.sh disable=SC1091
+	. "${MCPBASH_HOME}/lib/cli/bundle.sh"
+	mcp_cli_bundle "$@"
+	exit $?
+fi
+
+if [ "${cli_cmd}" = "publish" ]; then
+	shift
+	# shellcheck source=lib/cli/publish.sh disable=SC1091
+	. "${MCPBASH_HOME}/lib/cli/publish.sh"
+	mcp_cli_publish "$@"
+	exit $?
+fi
+
+if [ "${cli_cmd}" = "debug" ]; then
+	shift
+	export MCPBASH_DEBUG_PAYLOADS=true
+	export MCPBASH_PRESERVE_STATE=true
+	# Create isolated debug directory with restrictive perms
+	MCPBASH_STATE_DIR="$(
+		(
+			umask 077
+			TMPDIR="${TMPDIR:-/tmp}" mktemp -d "${TMPDIR:-/tmp}/mcpbash.debug.XXXXXX"
+		)
+	)"
+	export MCPBASH_STATE_DIR
+	# Print location to stderr immediately (safe for stdio servers)
+	printf 'mcp-bash debug: logging to %s/payload.debug.log\n' "${MCPBASH_STATE_DIR}" >&2
+	main "$@"
+	exit $?
+fi
+
+# Catch unknown commands before falling through to server mode
+if [ -n "${cli_cmd}" ] && [[ ! "${cli_cmd}" =~ ^- ]]; then
+	printf 'Unknown command: %s\n\n' "${cli_cmd}" >&2
+	printf 'Run "mcp-bash --help" for available commands.\n' >&2
+	exit 2
+fi
+
+main "$@"

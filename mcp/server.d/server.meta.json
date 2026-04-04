@@ -1,6 +1,6 @@
 {
   "name": "xaffinity-mcp",
   "title": "xaffinity MCP",
-  "version": "1.19.0",
+  "version": "1.19.1",
   "description": "MCP server for Affinity CRM - workflow management, entity lookup, relationship intelligence using xaffinity CLI"
 }

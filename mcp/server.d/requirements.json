@@ -1,9 +1,5 @@
 {
   "schemaVersion": 1,
-  "framework": {
-    "name": "mcp-bash",
-    "minVersion": "1.1.1"
-  },
   "dependencies": [
     {
       "name": "bash",
@@ -23,7 +19,6 @@
     }
   ],
   "fixHints": {
-    "install": "./xaffinity-mcp.sh install",
     "doctor": "./xaffinity-mcp.sh doctor --fix"
   }
 }

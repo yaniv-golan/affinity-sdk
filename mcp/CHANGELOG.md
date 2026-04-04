@@ -5,6 +5,22 @@ All notable changes to the xaffinity MCP server will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.19.1] - 2026-04-04
+
+### Highlights
+
+MCP server now vendors the mcp-bash runtime (v1.2.0) directly in the repository. No network download required at startup — the server is fully self-contained. CI validates vendored runtime integrity via SHA-256 verification.
+
+### Changed
+- Vendored mcp-bash v1.2.0 runtime into `.mcp-bash/` directory (committed to repo)
+- Updated launcher `find_framework()` to prioritize `.mcp-bash/` vendored path
+- CI workflows use `mcp-bash vendor --verify` instead of downloading framework
+- Removed `install` subcommand from `xaffinity-mcp.sh` (no longer needed)
+- Removed `framework` section from `server.d/requirements.json`
+
+### Removed
+- `scripts/install-framework.sh` — replaced by vendored runtime
+
 ## [1.19.0] - 2026-02-21
 
 ### Highlights

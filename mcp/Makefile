@@ -17,7 +17,6 @@ MCP_FILES := \
 	xaffinity-mcp.sh \
 	xaffinity-mcp-env.sh \
 	VERSION \
-	FRAMEWORK_VERSION \
 	COMPATIBILITY
 
 # MCP server directories to include in plugin ZIP

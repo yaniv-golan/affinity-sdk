@@ -22,25 +22,19 @@ jobs:
       - name: Install jq
         run: sudo apt-get install -y jq
 
-      - name: Install mcp-bash framework
+      - name: Install mcp-bash CLI
         run: |
-          # Source version and commit from lockfile (single source of truth)
           source mcp/mcp-bash.lock
-          echo "Installing mcp-bash v${MCPBASH_VERSION} (${MCPBASH_COMMIT})"
+          echo "Installing mcp-bash v${MCPBASH_VERSION} for bundle tooling"
           curl -fsSL https://raw.githubusercontent.com/yaniv-golan/mcp-bash-framework/main/install.sh | \
             bash -s -- --version "v${MCPBASH_VERSION}" --yes
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-          # Verify installed commit matches lockfile
-          INSTALLED_COMMIT=$(git -C "${XDG_DATA_HOME:-$HOME/.local/share}/mcp-bash" rev-parse HEAD)
-          if [[ "$INSTALLED_COMMIT" != "$MCPBASH_COMMIT" ]]; then
-            echo "::error::mcp-bash commit mismatch: expected $MCPBASH_COMMIT, got $INSTALLED_COMMIT"
-            exit 1
-          fi
 
-      - name: Verify mcp-bash installation
+      - name: Verify vendored runtime integrity
         run: |
-          mcp-bash --version
-          echo "mcp-bash installed successfully"
+          cd mcp
+          mcp-bash vendor --verify
+          echo "Vendored runtime integrity verified (SHA-256)"
 
       - name: Build MCP plugin ZIP
         run: make -C mcp plugin

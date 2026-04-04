@@ -27,14 +27,14 @@ source "${SCRIPT_DIR}/mcp-bash.lock"
 FRAMEWORK_VERSION="${MCPBASH_VERSION:-unknown}"
 
 # Framework location precedence:
-# 1. Vendored: ${SCRIPT_DIR}/mcp-bash-framework/bin/mcp-bash
+# 1. Vendored: ${SCRIPT_DIR}/.mcp-bash/bin/mcp-bash (committed to repo)
 # 2. MCPBASH_HOME env override
 # 3. XDG default: ${XDG_DATA_HOME:-$HOME/.local/share}/mcp-bash
 # 4. Fallback: ${HOME}/.local/bin/mcp-bash
 
 find_framework() {
-    if [[ -x "${SCRIPT_DIR}/mcp-bash-framework/bin/mcp-bash" ]]; then
-        echo "${SCRIPT_DIR}/mcp-bash-framework/bin/mcp-bash"
+    if [[ -x "${SCRIPT_DIR}/.mcp-bash/bin/mcp-bash" ]]; then
+        echo "${SCRIPT_DIR}/.mcp-bash/bin/mcp-bash"
     elif [[ -n "${MCPBASH_HOME:-}" && -x "${MCPBASH_HOME}/bin/mcp-bash" ]]; then
         echo "${MCPBASH_HOME}/bin/mcp-bash"
     elif [[ -x "${XDG_DATA_HOME:-$HOME/.local/share}/mcp-bash/bin/mcp-bash" ]]; then
@@ -49,8 +49,8 @@ find_framework() {
 _json() {
     if command -v jq >/dev/null 2>&1; then
         jq "$@"
-    elif [[ -x "${SCRIPT_DIR}/mcp-bash-framework/bin/gojq" ]]; then
-        "${SCRIPT_DIR}/mcp-bash-framework/bin/gojq" "$@"
+    elif [[ -x "${SCRIPT_DIR}/.mcp-bash/bin/gojq" ]]; then
+        "${SCRIPT_DIR}/.mcp-bash/bin/gojq" "$@"
     elif command -v gojq >/dev/null 2>&1; then
         gojq "$@"
     else
@@ -61,11 +61,6 @@ _json() {
 
 # Handle special commands
 case "${1:-}" in
-    install)
-        # Install framework and create PATH launcher
-        "${SCRIPT_DIR}/scripts/install-framework.sh"
-        exit $?
-        ;;
     doctor)
         # Run diagnostics (pass --fix to auto-repair)
         shift
@@ -155,7 +150,8 @@ export XAFFINITY_CLI_VERSION="$CLI_VERSION"
 # Find and run framework
 FRAMEWORK=$(find_framework)
 if [[ -z "$FRAMEWORK" ]]; then
-    echo "MCP Bash Framework not found. Run: $0 install" >&2
+    echo "MCP Bash Framework not found. Expected vendored runtime at .mcp-bash/" >&2
+    echo "Run: cd $(dirname "$0") && mcp-bash vendor" >&2
     exit 1
 fi
 
