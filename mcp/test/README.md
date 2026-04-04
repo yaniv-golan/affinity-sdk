@@ -113,10 +113,10 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Install mcp-bash
+      - name: Verify vendored mcp-bash
         run: |
-          curl -fsSL https://raw.githubusercontent.com/yaniv-golan/mcp-bash-framework/main/install.sh | bash -s -- --yes
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          cd mcp
+          mcp-bash vendor --verify
 
       - name: Validate project
         run: mcp-bash validate
@@ -125,7 +125,7 @@ jobs:
         run: ./test/run.sh
 ```
 
-> **Note**: Adjust the install step if you're using a fork or specific branch. See the [installation docs](https://github.com/yaniv-golan/mcp-bash-framework#installation) for alternatives.
+> **Note**: The vendored runtime at `.mcp-bash/` is committed to the repo. The CI step above verifies its SHA-256 integrity. See the [mcp-bash docs](https://github.com/yaniv-golan/mcp-bash-framework#vendoring) for details.
 
 ## Reference
 

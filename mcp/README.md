@@ -102,10 +102,7 @@ For other MCP clients or development. Requires [additional prerequisites](#for-m
 
 1. Download `xaffinity-mcp-plugin.zip` from the [latest release](https://github.com/yaniv-golan/affinity-sdk/releases/latest)
 2. Extract and configure your MCP client (see [Usage](#usage) below)
-3. Install the MCP Bash Framework:
-   ```bash
-   ./xaffinity-mcp.sh install
-   ```
+3. The MCP Bash Framework is vendored in `.mcp-bash/` — no separate install needed.
 4. Validate your configuration:
    ```bash
    ./xaffinity-mcp.sh validate
@@ -183,7 +180,7 @@ If Step 1 works but Step 2 fails, the issue is MCP-specific. Run diagnostics:
 | "CLI version X is too old" | Outdated CLI | `pip install --upgrade "affinity-sdk[cli]"` |
 | "API key not configured" | Missing credentials | `xaffinity config setup-key` |
 | "No JSON processor found" | jq/gojq not installed (manual install only) | See [Installing jq/gojq](#installing-jqgojq) |
-| "Framework not found" | MCP Bash not installed (manual install only) | `./xaffinity-mcp.sh install` |
+| "Framework not found" | Vendored `.mcp-bash/` directory missing | `cd mcp && mcp-bash vendor` |
 
 For detailed debugging, see [docs/DEBUGGING.md](docs/DEBUGGING.md).
 
