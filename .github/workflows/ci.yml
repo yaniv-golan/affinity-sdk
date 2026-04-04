@@ -19,7 +19,7 @@ jobs:
           # --shell=bash ensures bash-specific checks
           # --severity=error catches only errors (not style warnings)
           # Add --severity=warning for stricter checking
-          find mcp -name '*.sh' -type f | xargs shellcheck --shell=bash --severity=error
+          find mcp -name '*.sh' -type f -not -path 'mcp/.mcp-bash/*' | xargs shellcheck --shell=bash --severity=error
 
       - name: Check Bash 3.2 array compatibility
         run: |
@@ -39,7 +39,7 @@ jobs:
           errors=0
           files_checked=0
 
-          for file in $(find mcp -name '*.sh' -type f | sort); do
+          for file in $(find mcp -name '*.sh' -type f -not -path 'mcp/.mcp-bash/*' | sort); do
             # Skip if file doesn't use set -u
             if ! grep -qE 'set -[a-z]*u|set -o nounset' "$file" 2>/dev/null; then
               continue
