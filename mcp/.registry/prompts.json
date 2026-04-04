@@ -1,7 +1,7 @@
 {
   "format_version": 1,
   "version": 1,
-  "generatedAt": "2026-01-26T16:26:17Z",
+  "generatedAt": "2026-04-04T17:45:20Z",
   "items": [
     {
       "name": "change-status",
@@ -122,10 +122,9 @@
               "call",
               "meeting",
               "email",
-              "chat_message",
-              "in_person"
+              "chat-message"
             ],
-            "description": "Type of interaction"
+            "description": "Type of interaction (chat-message can also be specified as 'chat')"
           },
           "subject": {
             "type": "string",
@@ -248,6 +247,6 @@
       "metadata": null
     }
   ],
-  "hash": "50c24719c8541dbfcba4dc221e04ee702f54be31ab7a229b007f30f05be501c3",
+  "hash": "def40129bad8b0075172244bf21aa5bf392c307cb45436ed8eea8d244cbc1703",
   "total": 8
 }
