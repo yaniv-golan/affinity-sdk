@@ -79,13 +79,14 @@ jobs:
           fi
           echo "Framework commit: $MCPBASH_COMMIT"
 
-          # Verify the hash matches the remote tag (use ^{} to get commit hash, not tag object)
-          REMOTE_HASH=$(git ls-remote https://github.com/yaniv-golan/mcp-bash-framework.git "v${MCPBASH_VERSION}^{}" | cut -f1)
-          if [ -z "$REMOTE_HASH" ]; then
-            echo "::warning::Could not verify remote hash for v${MCPBASH_VERSION} (tag may not exist yet)"
-          elif [ "$MCPBASH_COMMIT" != "$REMOTE_HASH" ]; then
-            echo "::error::MCPBASH_COMMIT ($MCPBASH_COMMIT) does not match remote v${MCPBASH_VERSION} commit ($REMOTE_HASH)"
+          # Verify vendored runtime matches lockfile version
+          VENDOR_VERSION=$(cat mcp/.mcp-bash/VERSION 2>/dev/null || echo "")
+          if [ -z "$VENDOR_VERSION" ]; then
+            echo "::error::Vendored runtime not found at mcp/.mcp-bash/"
+            exit 1
+          elif [ "$VENDOR_VERSION" != "$MCPBASH_VERSION" ]; then
+            echo "::error::Vendored version ($VENDOR_VERSION) does not match lockfile ($MCPBASH_VERSION)"
             exit 1
           else
-            echo "Commit hash verified against remote tag"
+            echo "Vendored runtime version matches lockfile"
           fi
