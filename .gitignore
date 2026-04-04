@@ -62,3 +62,4 @@ CLAUDE.md
 .sandbox.env
 tests/integration/query_parity_test_data.json
 dormant_founders.json
+docs/superpowers/
