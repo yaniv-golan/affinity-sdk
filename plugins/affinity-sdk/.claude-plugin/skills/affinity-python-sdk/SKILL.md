@@ -324,6 +324,45 @@ if company.fields.requested:
 # Available: GLOBAL, LIST, ENRICHED, RELATIONSHIP_INTELLIGENCE
 ```
 
+## Resolving Fields by Name
+
+**Pattern A: Reading field values by name** — use `FieldResolver.get()`:
+```python
+from affinity.field_resolver import FieldResolver
+from affinity.types import ListId, FieldType, ResolveMode
+
+fields = client.lists.get_fields(ListId(123))
+resolver = FieldResolver(fields)
+
+# Fields must be requested when fetching entries — they're NOT populated by default
+entries = client.lists.entries(ListId(123)).all(field_types=[FieldType.LIST])
+
+for entry in entries:
+    status = resolver.get(entry, "Status")
+    owner = resolver.get(entry, "Owner", resolve=ResolveMode.TEXT)
+```
+`FieldResolver.get()` maps names to values. `FieldResolver.find_field()` maps names to metadata (including FieldId).
+
+**Pattern B: Getting FieldId for write operations** — use `FieldResolver.find_field()`:
+```python
+# For list-entry fields: use client.lists.get_fields(list_id)
+fields = client.lists.get_fields(ListId(123))
+resolver = FieldResolver(fields)
+
+status_meta = resolver.find_field("Status")  # -> FieldMetadata | None
+if status_meta:
+    entries_service = client.lists.entries(ListId(123))
+    # For text fields, pass the string directly:
+    entries_service.update_field_value(ListEntryId(456), status_meta.id, "Active")
+    # For dropdown fields, pass the dropdown option ID (int), not the text:
+    #   option = next(o for o in status_meta.dropdown_options if o.text == "Active")
+    #   entries_service.update_field_value(entry_id, status_meta.id, option.id,
+    #                                      value_type=FieldValueType.DROPDOWN)
+
+# For entity-level fields: use the entity-specific method
+# FieldResolver(client.companies.get_fields()) / FieldResolver(client.persons.get_fields())
+```
+
 ## Rate Limits
 
 ```python
