@@ -11,6 +11,7 @@
 [![MCP](https://img.shields.io/badge/MCP-server-green?logo=modelcontextprotocol)](https://yaniv-golan.github.io/affinity-sdk/latest/mcp/)
 [![MCP Bash Framework](https://img.shields.io/badge/MCP-MCP_Bash_Framework-green?logo=modelcontextprotocol)](https://github.com/yaniv-golan/mcp-bash-framework)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugins-blueviolet.svg)](https://yaniv-golan.github.io/affinity-sdk/latest/guides/claude-code-plugins/)
+[![Built with Skill Creator Plus](https://img.shields.io/badge/Built_with-Skill_Creator_Plus-4ecdc4?style=flat-square)](https://github.com/yaniv-golan/skill-creator-plus)
 
 A modern, strongly-typed Python wrapper for the [Affinity CRM API](https://api-docs.affinity.co/).
 
@@ -591,3 +592,7 @@ Contributions welcome! Please read our contributing guidelines first.
 - Issues: https://github.com/yaniv-golan/affinity-sdk/issues
 - [Affinity API V2 Documentation](https://api-docs.affinity.co/reference/getting-started-with-your-api)
 - [Affinity API V1 Documentation](https://api-docs.affinity.co/reference)
+
+---
+
+Built with [Skill Creator Plus](https://github.com/yaniv-golan/skill-creator-plus).
