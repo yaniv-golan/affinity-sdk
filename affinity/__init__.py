@@ -74,7 +74,7 @@ from .exceptions import (
 )
 
 # Field resolution
-from .field_resolver import FieldResolver
+from .field_resolver import AmbiguousFieldError, FieldResolver
 
 # Filter builder (FR-007)
 from .filters import F, Filter, FilterExpression
@@ -131,6 +131,7 @@ __all__ = [
     "WebhookMissingKeyError",
     "WebhookInvalidSentAtError",
     "FilterParseError",
+    "AmbiguousFieldError",
     # Filter builder
     "Filter",
     "FilterExpression",

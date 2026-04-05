@@ -28,6 +28,7 @@ class TestPackageExports:
         """All exception classes should be importable from the root package."""
         from affinity import (
             AffinityError,
+            AmbiguousFieldError,
             AuthenticationError,
             AuthorizationError,
             CompanyNotFoundError,
@@ -52,6 +53,9 @@ class TestPackageExports:
             WebhookParseError,
             WriteNotAllowedError,
         )
+
+        # AmbiguousFieldError is Exception-based (not AffinityError)
+        assert issubclass(AmbiguousFieldError, Exception)
 
         # Verify inheritance hierarchy
         assert issubclass(AuthenticationError, AffinityError)
