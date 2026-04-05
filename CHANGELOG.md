@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-04-05
+
+### Highlights
+
+You can now resolve field names to `FieldMetadata` (including `FieldId`) using `FieldResolver.find_field()`, which is what you need for write operations like `update_field_value()`. Unlike `get()` which silently picks the first match for ambiguous names, `find_field()` raises `AmbiguousFieldError` to prevent accidentally updating the wrong field. Skill descriptions across all three plugins have been rewritten for clearer triggering boundaries when multiple plugins are installed.
+
+### Added
+- `FieldResolver.find_field(name)` method — resolves field names to `FieldMetadata` for write operations
+- `AmbiguousFieldError` exception — raised when `find_field()` encounters ambiguous field names; includes candidate IDs and disambiguation hints
+
+### Changed
+- **Plugin skills:** Clarified triggering boundaries across MCP, CLI, and SDK plugins — MCP workflows skill is now explicitly primary when MCP tools are available, CLI skill defers to MCP for general CRM tasks
+- **Plugin skills:** Pipeline-history skill rewritten with MCP tool examples (was raw bash), query-language skill no longer depends on workflows-guide resource
+- **Plugin skills:** SDK skill now documents `FieldResolver.find_field()` patterns for read vs. write field resolution
+
 ## [1.9.0] - 2026-03-22
 
 ### Highlights
