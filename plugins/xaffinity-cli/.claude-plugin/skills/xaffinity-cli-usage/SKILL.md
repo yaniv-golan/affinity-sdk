@@ -1,6 +1,12 @@
 ---
 name: xaffinity-cli-usage
-description: "Runs xaffinity CLI commands to search, export, filter, and manage Affinity CRM data. Use when user asks to find people/companies/opportunities, export lists, query CRM data, get interactions, or mentions xaffinity, export to CSV, Affinity CLI."
+description: >
+  Runs xaffinity CLI commands directly in bash to search, export, filter, and manage
+  Affinity CRM data. Use when the user explicitly asks about CLI commands, bash scripts,
+  xaffinity flags, CSV export, or mentions "xaffinity" by name.
+  Also use when MCP tools are not available and user needs CRM data access.
+  Do NOT use for pipeline history analysis (use pipeline-history skill) or structured
+  queries via MCP (use query-language skill) when those skills are available.
 ---
 
 # xaffinity CLI Usage
@@ -146,9 +152,11 @@ xaffinity --readonly company get domain:acme.com --json
 
 # List entries from a named list
 xaffinity --readonly list export "Pipeline" --max-results 20 --json
+```
 
 **JSON output key is `data.rows`** (not `data.listEntries` or `data.entries`). Each row contains `listEntryId`, `entityType`, `entityId`, `entityName`, plus field values keyed by field name.
 
+```bash
 # List all available lists
 xaffinity --readonly list ls --json
 
@@ -238,14 +246,11 @@ xaffinity --readonly list export "Pipeline" --expand persons --expand companies 
 
 ## Query Command (Advanced)
 
-Use `query` when you need capabilities beyond simple `ls` / `list export`:
-- **Aggregation & groupBy** — summarize data (count, sum, avg by field)
-- **Cross-entity filtering** — find persons based on their companies/interactions
-- **Nested boolean logic** — complex AND/OR/NOT combinations
-- **Dry-run mode** — preview API cost before executing
-- **Include relationships** — fetch related entities in one query
-
-### When to use query vs other commands
+For complex data retrieval beyond simple `ls` / `list export`, use `xaffinity query`:
+- Aggregation & groupBy (count, sum, avg by field)
+- Cross-entity filtering (find persons based on their companies)
+- Nested boolean logic (AND/OR/NOT)
+- Dry-run mode to preview API cost
 
 | Need | Use |
 |------|-----|
@@ -256,42 +261,17 @@ Use `query` when you need capabilities beyond simple `ls` / `list export`:
 | Filter by related entities | `query` |
 | Preview API cost first | `query --dry-run` |
 
-### Basic patterns
+**Always `--dry-run` first** for queries with include/expand/quantifiers.
 
 ```bash
-# Always dry-run first for queries with include/expand/quantifiers
-xaffinity --readonly query --dry-run --query '{"from": "listEntries", "where": {"path": "listName", "op": "eq", "value": "Dealflow"}, "groupBy": "fields.Status", "aggregate": {"count": {"count": true}}}' --json
+# From file (recommended for complex queries)
+xaffinity --readonly query --dry-run --file query.json --json
 
-# From a file (recommended for complex queries)
-xaffinity --readonly query --file query.json --json
-
-# Inline simple query
+# Inline
 xaffinity --readonly query --query '{"from": "persons", "where": {"path": "email", "op": "contains", "value": "@acme.com"}, "limit": 20}' --json
 ```
 
-### Query JSON structure
-
-```json
-{
-  "from": "persons|companies|opportunities|listEntries|lists",
-  "where": {"path": "field", "op": "eq", "value": "x"},
-  "select": ["id", "firstName", "fields.Status"],
-  "include": ["companies"],
-  "expand": ["interactionDates"],
-  "groupBy": "fields.Status",
-  "aggregate": {"count": {"count": true}, "total": {"sum": "fields.Deal Size"}},
-  "orderBy": [{"field": "name", "direction": "asc"}],
-  "limit": 100
-}
-```
-
-**Key rules:**
-- `listEntries` queries MUST include a `where` filter on `listId` or `listName`
-- `interactions` and `notes` can only be accessed via `include`, not queried directly
-- `--dry-run` is REQUIRED before running queries with `include`, `expand`, or quantifiers (`all`, `none`, `exists`)
-- Quantifiers (`all`, `none`, `exists`) cause N+1 API calls — always limit results
-
-For full query reference (operators, aggregation, quantifiers, examples): see `references/query-guide.md`
+For full query reference (JSON structure, operators, aggregation, quantifiers, examples): see `references/query-guide.md`
 
 ## Filtering
 
