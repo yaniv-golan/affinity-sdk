@@ -553,3 +553,118 @@ class TestFieldResolver:
 
         result = resolver.get(entry, "Status")
         assert result == "FromEntry"
+
+
+@pytest.mark.req("SDK-FIELD-RESOLVER")
+class TestFindField:
+    """Tests for FieldResolver.find_field() method."""
+
+    def test_find_field_basic_lookup(self) -> None:
+        """find_field() should return FieldMetadata for a known field."""
+        fields = [
+            FieldMetadata(id=FieldId(1), name="Status", value_type=FieldValueType.TEXT),
+            FieldMetadata(id=FieldId(2), name="Stage", value_type=FieldValueType.DROPDOWN),
+        ]
+        resolver = FieldResolver(fields)
+        result = resolver.find_field("Status")
+        assert result is not None
+        assert result.id == FieldId(1)
+        assert result.name == "Status"
+
+    def test_find_field_case_insensitive(self) -> None:
+        """find_field() should match case-insensitively."""
+        fields = [
+            FieldMetadata(id=FieldId(1), name="Status", value_type=FieldValueType.TEXT),
+        ]
+        resolver = FieldResolver(fields)
+        result = resolver.find_field("status")
+        assert result is not None
+        assert result.id == FieldId(1)
+
+        result2 = resolver.find_field("STATUS")
+        assert result2 is not None
+        assert result2.id == FieldId(1)
+
+    def test_find_field_missing_returns_none(self) -> None:
+        """find_field() should return None for unknown fields."""
+        fields = [
+            FieldMetadata(id=FieldId(1), name="Status", value_type=FieldValueType.TEXT),
+        ]
+        resolver = FieldResolver(fields)
+        assert resolver.find_field("Nonexistent") is None
+
+    def test_find_field_ambiguous_with_enrichment_raises(self) -> None:
+        """find_field() raises AmbiguousFieldError for ambiguous enrichment names."""
+        from affinity.field_resolver import AmbiguousFieldError
+
+        fields = [
+            FieldMetadata(
+                id=FieldId(1),
+                name="Description",
+                value_type=FieldValueType.TEXT,
+                enrichment_source="dealroom",
+            ),
+            FieldMetadata(
+                id=FieldId(2),
+                name="Description",
+                value_type=FieldValueType.TEXT,
+                enrichment_source="affinity-data",
+            ),
+        ]
+        resolver = FieldResolver(fields)
+
+        with pytest.raises(
+            AmbiguousFieldError, match="Ambiguous field name 'Description'"
+        ) as exc_info:
+            resolver.find_field("Description")
+
+        err = exc_info.value
+        assert err.field_name == "Description"
+        assert len(err.candidates) == 2
+        assert "dealroom:Description" in str(err)
+
+    def test_find_field_ambiguous_without_enrichment_raises(self) -> None:
+        """find_field() should raise AmbiguousFieldError with ID hint when no enrichment sources."""
+        from affinity.field_resolver import AmbiguousFieldError
+
+        fields = [
+            FieldMetadata(id=FieldId(10), name="Notes", value_type=FieldValueType.TEXT),
+            FieldMetadata(id=FieldId(20), name="Notes", value_type=FieldValueType.TEXT),
+        ]
+        resolver = FieldResolver(fields)
+
+        with pytest.raises(AmbiguousFieldError, match="Candidate IDs") as exc_info:
+            resolver.find_field("Notes")
+
+        err = exc_info.value
+        assert err.field_name == "Notes"
+        assert len(err.candidates) == 2
+        # No source-qualified hint when no enrichment sources
+        assert "source:name" not in str(err)
+
+    def test_find_field_source_qualified_disambiguation(self) -> None:
+        """find_field() with source-qualified name should return the specific field."""
+        fields = [
+            FieldMetadata(
+                id=FieldId(1),
+                name="Description",
+                value_type=FieldValueType.TEXT,
+                enrichment_source="dealroom",
+            ),
+            FieldMetadata(
+                id=FieldId(2),
+                name="Description",
+                value_type=FieldValueType.TEXT,
+                enrichment_source="affinity-data",
+            ),
+        ]
+        resolver = FieldResolver(fields)
+
+        result = resolver.find_field("dealroom:Description")
+        assert result is not None
+        assert result.id == FieldId(1)
+        assert result.enrichment_source == "dealroom"
+
+        result2 = resolver.find_field("affinity-data:Description")
+        assert result2 is not None
+        assert result2.id == FieldId(2)
