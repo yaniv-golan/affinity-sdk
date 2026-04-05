@@ -14,7 +14,7 @@ from .field_resolve_utils import (
 )
 from .models.types import FieldValueType, ResolveMode
 
-__all__ = ["FieldResolver"]
+__all__ = ["AmbiguousFieldError", "FieldResolver"]
 
 if TYPE_CHECKING:
     from .models.entities import (
@@ -25,6 +25,31 @@ if TYPE_CHECKING:
         Person,
     )
     from .models.types import AnyFieldId
+
+
+class AmbiguousFieldError(Exception):
+    """Raised when find_field() matches multiple fields and disambiguation is needed."""
+
+    def __init__(self, field_name: str, candidates: list[FieldMetadata]) -> None:
+        self.field_name = field_name
+        self.candidates = candidates
+        sources = ", ".join(f.enrichment_source or f.type or "unknown" for f in candidates)
+        id_list = ", ".join(str(f.id) for f in candidates)
+        has_sources = any(f.enrichment_source for f in candidates)
+        if has_sources:
+            example = next(f for f in candidates if f.enrichment_source)
+            hint = (
+                f"Disambiguate with 'source:name' syntax "
+                f"(e.g., '{example.enrichment_source}:{field_name}'), "
+                f"or use the field ID directly. "
+                f"Candidate IDs: {id_list}"
+            )
+        else:
+            hint = f"Use the field ID directly. Candidate IDs: {id_list}"
+        super().__init__(
+            f"Ambiguous field name '{field_name}' matches "
+            f"{len(candidates)} fields ({sources}). {hint}"
+        )
 
 
 class FieldResolver:
@@ -117,32 +142,9 @@ class FieldResolver:
             )
             return None
 
-        name_key = field_name.casefold()
-        candidates = self._by_name.get(name_key, [])
-        if not candidates:
+        field = self._resolve_name(field_name, strict=False)
+        if field is None:
             return None
-
-        if len(candidates) == 1:
-            field = candidates[0]
-        else:
-            # Warn once per ambiguous bare name at access time
-            if name_key not in self._warned_names:
-                self._warned_names.add(name_key)
-                sources = ", ".join(f.enrichment_source or f.type or "unknown" for f in candidates)
-                example_source = candidates[0].enrichment_source
-                hint = (
-                    f"Disambiguate with 'source:name' syntax, "
-                    f"e.g., '{example_source}:{field_name}'."
-                    if example_source
-                    else "Use get_by_id() for unambiguous access."
-                )
-                warnings.warn(
-                    f"Ambiguous field name '{field_name}' matches {len(candidates)} fields "
-                    f"({sources}). Using first match. {hint}",
-                    UserWarning,
-                    stacklevel=2,
-                )
-            field = candidates[0]
 
         value = entity.fields.get_value(str(field.id))
 
@@ -175,6 +177,65 @@ class FieldResolver:
             {'Status': 'Active', 'Industry': 'Tech', 'Size': None}
         """
         return {name: self.get(entity, name, resolve=resolve) for name in field_names}
+
+    def find_field(self, field_name: str) -> FieldMetadata | None:
+        """
+        Find field metadata by name (case-insensitive).
+
+        Useful for getting the FieldId needed by write operations like
+        ``update_field_value()``. Supports source-qualified names like
+        ``'dealroom:Description'`` for ambiguous fields.
+
+        Returns:
+            The FieldMetadata, or None if no field matches.
+
+        Raises:
+            AmbiguousFieldError: If the name matches multiple fields.
+                Use a source-qualified name or get_by_id() to disambiguate.
+        """
+        return self._resolve_name(field_name, strict=True)
+
+    def _resolve_name(self, field_name: str, *, strict: bool) -> FieldMetadata | None:
+        """Resolve a field name to metadata.
+
+        Args:
+            field_name: Display name (case-insensitive) or source-qualified.
+            strict: If True, raise AmbiguousFieldError on ambiguity.
+                    If False, warn and return the first match.
+
+        Returns:
+            FieldMetadata or None if not found.
+        """
+        name_key = field_name.casefold()
+        candidates = self._by_name.get(name_key, [])
+        if not candidates:
+            return None
+
+        if len(candidates) == 1:
+            return candidates[0]
+
+        # Ambiguous name
+        if strict:
+            raise AmbiguousFieldError(field_name, candidates)
+
+        # Warn once per ambiguous bare name at access time
+        if name_key not in self._warned_names:
+            self._warned_names.add(name_key)
+            sources = ", ".join(f.enrichment_source or f.type or "unknown" for f in candidates)
+            example_source = candidates[0].enrichment_source
+            hint = (
+                f"Disambiguate with 'source:name' syntax, e.g., '{example_source}:{field_name}'."
+                if example_source
+                else "Use get_by_id() for unambiguous access."
+            )
+            warnings.warn(
+                f"Ambiguous field name '{field_name}' matches "
+                f"{len(candidates)} fields "
+                f"({sources}). Using first match. {hint}",
+                UserWarning,
+                stacklevel=3,
+            )
+        return candidates[0]
 
     def _resolve_value(self, value: Any, value_type: FieldValueType | None) -> Any:
         """Resolve a field value to human-readable text based on its type."""
