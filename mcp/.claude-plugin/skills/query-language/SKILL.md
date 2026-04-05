@@ -13,7 +13,10 @@ description: >
 
 Structured query language for the `query` MCP tool. For simple lookups, prefer `execute-read-command` with individual CLI commands.
 
-> Before running queries: complete the pre-flight checklist from `xaffinity://workflows-guide` (read data-model, run discover-commands, state what you learned).
+> **Before running queries**, complete these pre-flight steps:
+> 1. Read the data model: `read-xaffinity-resource(uri: "xaffinity://data-model")`
+> 2. Discover relevant commands: `discover-commands(query: "your task keywords")`
+> 3. State what you learned from each step before proceeding
 
 ## When to Use Query vs CLI Commands
 

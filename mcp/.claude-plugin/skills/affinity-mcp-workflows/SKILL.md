@@ -1,12 +1,12 @@
 ---
 name: affinity-mcp-workflows
 description: >
-  Orchestrates Affinity CRM workflows via MCP tools — entity lookup, pipeline review,
-  meeting prep, warm intros, and interaction logging.
-  Use when user works with Affinity through MCP tools, mentions "pipeline", "deals",
-  "relationship strength", "prepare briefing", "warm intro", or wants to log calls/meetings.
-  Provides CLI gateway (discover-commands, execute-read/write-command), query tool for
-  aggregation/filtering, entity dossier, and guided workflow prompts.
+  Primary skill for Affinity CRM data access when MCP tools are available
+  (discover-commands, execute-read-command, execute-write-command, query, get-entity-dossier).
+  Prefer this over direct CLI when MCP tools are present.
+  Use for entity lookup, pipeline review, meeting prep, warm intros, interaction logging,
+  or when user mentions "pipeline", "deals", "relationship strength", "prepare briefing",
+  or wants to log calls/meetings.
 ---
 
 # Affinity MCP Workflows
@@ -234,33 +234,14 @@ Access dynamic data via `xaffinity://` URIs using `read-xaffinity-resource`:
 
 ## Common Workflow Patterns
 
-⚠️ **Before using any pattern below:** Complete the pre-flight checklist (read data-model, run discover-commands, state what you learned).
+Combine the tools above to handle multi-step tasks:
 
-### Before a Meeting
-1. Use `get-entity-dossier` for full context (relationship strength, recent interactions, notes)
-2. **Or use**: `prepare-briefing` prompt for a guided flow
+- **Before a meeting**: `get-entity-dossier` for full context, or `prepare-briefing` prompt
+- **After a call**: `execute-write-command` to log interaction, `query` to find list entry, `entry field` to update status — or `log-interaction-and-update-workflow` prompt
+- **Finding warm intros**: `person ls` → `relationship-strength ls`, or `warm-intro` prompt
+- **Pipeline review**: `query` with aggregation + expand, or `pipeline-review` prompt
 
-### After a Call/Meeting
-1. Use `execute-write-command` with `interaction create` to log what happened
-2. Use `query` to find list entry: `{"from": "listEntries", "where": {"and": [{"path": "listName", "op": "eq", "value": "Dealflow"}, {"path": "entityName", "op": "contains", "value": "Acme"}]}}`
-3. Use `execute-write-command` with `entry field` if deal stage changed
-4. **Or use**: `log-interaction-and-update-workflow` prompt
-
-### Finding Warm Introductions
-1. Use `execute-read-command` with `person ls` to locate target person
-2. Use `execute-read-command` with `relationship-strength ls` for connection strength
-3. **Or use**: `warm-intro` prompt for guided flow
-
-### Pipeline Review
-1. Use `query` with aggregation: `{"from": "listEntries", "where": {"path": "listName", "op": "eq", "value": "Dealflow"}, "groupBy": "fields.Status", "aggregate": {"count": {"count": true}}}`
-2. Use `query` with expand for details: `{"from": "listEntries", "where": {"path": "listName", "op": "eq", "value": "Dealflow"}, "expand": ["interactionDates", "unreplied"]}`
-3. **Or use**: `pipeline-review` prompt
-
-### Updating Deal Status
-1. Use `query` to find the entry: `{"from": "listEntries", "where": {"and": [{"path": "listName", "op": "eq", "value": "Dealflow"}, {"path": "entityName", "op": "contains", "value": "..."}]}}`
-2. Use `execute-read-command` with `field ls --list-id` to see available statuses
-3. Use `execute-write-command` with `entry field` to update
-4. **Or use**: `change-status` prompt
+⚠️ Complete the pre-flight checklist before using any pattern.
 
 ## Tips
 
