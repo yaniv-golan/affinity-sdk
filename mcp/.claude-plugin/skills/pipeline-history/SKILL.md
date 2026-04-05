@@ -1,6 +1,11 @@
 ---
 name: pipeline-history
-description: Use when analyzing deal pipeline history, stage transitions, funnel conversion, or time-in-stage metrics. Guides the multi-step workflow of exporting deals and fetching field change history.
+description: >
+  Use when analyzing deal pipeline history, stage transitions, funnel conversion,
+  time-in-stage metrics, deal velocity, or stalled deals. Guides the multi-step workflow
+  of exporting deals and fetching field change history via MCP tools.
+  Triggers on "pipeline funnel", "how long in stage", "deal progression",
+  "stage duration", "deal history", "conversion rate by stage".
 ---
 
 # Pipeline History Analysis
@@ -14,38 +19,42 @@ description: Use when analyzing deal pipeline history, stage transitions, funnel
 
 ## Workflow
 
+All commands use `execute-read-command`. Do not pass `--json` in argv — JSON output is automatic.
+
 ### Step 1: Identify the Status Field
 
-```bash
-xaffinity --readonly field ls --list-id "YOUR_LIST_NAME" --json
+```
+execute-read-command(command: "field ls", argv: ["--list-id", "YOUR_LIST_NAME"])
 ```
 
 Look for a dropdown field tracking deal stages (typically named "Status", "Stage", or "Pipeline Stage"). Note its `fieldId` (e.g., `field-260415`).
 
 ### Step 2: Export Current State
 
-```bash
-xaffinity --readonly list export "YOUR_LIST_NAME" --field "Status" --max-results 50 --json
+```
+execute-read-command(command: "list export", argv: ["YOUR_LIST_NAME", "--field", "Status", "--max-results", "50"])
 ```
 
 JSON output key is `data.rows`. Each row contains `listEntryId`, `entityId`, `entityName`, and current field values.
 
-### Step 3: Estimate API Cost
+### Step 3: Estimate API Cost (REQUIRED)
 
-```bash
-xaffinity --readonly field history-bulk <field-id> --list-id "YOUR_LIST_NAME" --dry-run
+```
+execute-read-command(command: "field history-bulk", argv: ["<field-id>", "--list-id", "YOUR_LIST_NAME", "--dry-run"])
 ```
 
-Check `estimatedApiCalls` before proceeding.
+Check `estimatedApiCalls` before proceeding. Each list entry = 1 API call.
 
 ### Step 4: Fetch History
 
-```bash
-# All entries:
-xaffinity --readonly field history-bulk <field-id> --list-id "YOUR_LIST_NAME" --all --json
+```
+execute-read-command(command: "field history-bulk", argv: ["<field-id>", "--list-id", "YOUR_LIST_NAME", "--max-results", "50"])
+```
 
-# Or limit:
-xaffinity --readonly field history-bulk <field-id> --list-id "YOUR_LIST_NAME" --max-results 50 --json
+For all entries (only after confirming cost via dry-run is acceptable):
+
+```
+execute-read-command(command: "field history-bulk", argv: ["<field-id>", "--list-id", "YOUR_LIST_NAME", "--all"])
 ```
 
 ### Step 5: Analyze
