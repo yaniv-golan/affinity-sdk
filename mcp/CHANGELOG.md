@@ -5,6 +5,16 @@ All notable changes to the xaffinity MCP server will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.1] - 2026-04-19
+
+### Highlights
+
+Registry and data-model guidance now document that enriched fields (Phone Number, Source of Introduction, Industry, Location, etc.) are writable through `person field --set` / `company field --set` by field name or field ID, and call out ambiguous names (like company "Industry", which exists under multiple enrichment providers) so the LLM reaches for a specific field ID instead of retrying. No MCP server code change; guidance-only release paired with CLI 1.11.0.
+
+### Changed
+- `person field` and `company field` `whenToUse` text now documents enriched-field writability and ambiguity handling
+- Data-model guide documents enriched field writability and `EnrichedFieldNotWritableError` for derived-only fields like "Current Organization"
+
 ## [1.20.0] - 2026-04-04
 
 ### Highlights

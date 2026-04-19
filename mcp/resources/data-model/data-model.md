@@ -288,6 +288,13 @@ list export Dealflow --filter "Status=New"
 ### Mistake 3: Trying to set "Current Organization" via API
 "Current Organization" is a derived/system-managed field — it cannot be set or updated directly. It is driven by enrichment data and email domain. "Current Job Title" can be updated after person creation using `field update`, but neither field can be set during `person create`.
 
+### Enriched Field Writes
+Most enriched fields — "Phone Number", "Source of Introduction", "Industry", "Location", "Description", etc. — **are** writable via `person field --set` / `company field --set` / `field update`. Pass the field name ("Phone Number") or its field ID and the CLI handles the rest.
+
+Some names are ambiguous because the same concept exists under multiple enrichment providers (e.g. company "Industry" exists for both the built-in enricher and the Dealroom enricher). The CLI surfaces this as an `AmbiguousFieldError` with a table of candidate IDs — pass the specific field ID to disambiguate.
+
+A small number of enriched fields are **derived and cannot be written** — the most important is "Current Organization" on persons, which is computed from email domain. Attempting to set a derived-only field raises `EnrichedFieldNotWritableError` (exit code 2) with a clear message; no silent no-op.
+
 ### Output Format Recommendations
 
 When using the `query` tool, prefer **TOON format** (the default) for bulk data retrieval:

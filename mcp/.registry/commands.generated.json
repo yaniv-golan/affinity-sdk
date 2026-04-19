@@ -2,11 +2,11 @@
   "_generated": {
     "warning": "DO NOT EDIT - This file is auto-generated",
     "generator": "tools/generate_mcp_command_registry.py",
-    "cliVersion": "1.10.0",
+    "cliVersion": "1.11.0",
     "sourceConfig": "mcp/.registry/mcp-commands.json"
   },
   "version": 1,
-  "cliVersion": "1.10.0",
+  "cliVersion": "1.11.0",
   "commands": [
     {
       "name": "company create",
@@ -113,7 +113,7 @@
         "company field 123 --set-json '{\"Industry\": \"Tech\", \"Size\": \"Large\"}'",
         "company field 123 --get Industry --get Size"
       ],
-      "whenToUse": "Manage global field values on a company.",
+      "whenToUse": "Manage global field values on a company. Accepts field names or field IDs. Some enriched names (Industry, Location, Description) exist under multiple enrichment providers and raise AmbiguousFieldError with disambiguation candidates — pass the specific field ID in that case.",
       "relatedCommands": [
         "company get",
         "field ls"
@@ -2632,7 +2632,7 @@
         "person field 123 --set-json '{\"Phone\": \"+1...\", \"Title\": \"CEO\"}'",
         "person field 123 --get Phone --get Email"
       ],
-      "whenToUse": "Manage global field values on a person.",
+      "whenToUse": "Manage global field values on a person. Accepts field names or field IDs. Enriched fields like 'Phone Number' and 'Source of Introduction' are writable. 'Current Organization' is derived from email domain and cannot be written — raises EnrichedFieldNotWritableError.",
       "relatedCommands": [
         "person get",
         "field ls"

@@ -345,6 +345,13 @@ Cannot search opportunities globally. Access them via `list export` on their spe
 ### "Current Organization" is read-only via API
 This is a derived/system-managed field driven by enrichment data and email domain — it cannot be set or updated directly via the API. "Current Job Title" can be updated after person creation using `field update`. Neither field can be set during `person create`.
 
+### Enriched field writes
+Most enriched fields ("Phone Number", "Source of Introduction", "Industry", "Location", "Description", etc.) **are** writable. `person field --set` / `company field --set` / `field update` accept the field name or its field ID.
+
+On companies, some names are ambiguous because the same concept exists under multiple enrichment providers (e.g. "Industry" exists for both the built-in enricher and Dealroom). The CLI raises `AmbiguousFieldError` with a table of candidate field IDs — copy one into the command to disambiguate.
+
+Derived-only enriched fields like "Current Organization" raise `EnrichedFieldNotWritableError` (exit code 2) with a clear message instead of silently no-op'ing.
+
 ### Global organizations are read-only
 Companies with `global: true` cannot be modified.
 

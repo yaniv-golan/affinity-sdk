@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-04-19
+
+### Highlights
+
+`xaffinity person field --set "Phone Number" "..."` and similar enriched-field writes now work. The SDK and CLI accept the field name or its field ID and handle the rest — including disambiguating names that exist under multiple enrichment providers (e.g. company "Industry" exists for both the built-in enricher and Dealroom), which now raises `AmbiguousFieldError` with a candidate table instead of silently picking one. Truly derived fields like "Current Organization" raise the new `EnrichedFieldNotWritableError` instead of failing with an opaque message.
+
+### Added
+- `EnrichedFieldNotWritableError` exception (subclass of `UnsupportedOperationError`) — raised when an enriched field is derived-only and cannot be written
+- `FieldService.list(skip_cache=True)` / `AsyncFieldService.list(skip_cache=True)` — bypass the field-metadata cache for fresh post-write reads
+- `FieldResolver.to_v1_numeric(client, field_id, entity_type)` on the CLI resolver — resolves field IDs to the numeric form the write path needs, handling enriched IDs transparently
+
+### Fixed
+- `person field --set` / `person field --unset` / `company field --set` / `company field --unset` now correctly handle enriched field IDs in addition to field names and numeric IDs
+- Ambiguous enriched field names (e.g. company "Industry") are now disambiguated by enrichment provider instead of silently picking one of the matching fields
+
 ## [1.10.0] - 2026-04-05
 
 ### Highlights

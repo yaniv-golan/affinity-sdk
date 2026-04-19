@@ -767,6 +767,7 @@ class FieldService:
         *,
         list_id: ListId | None = None,
         entity_type: EntityType | None = None,
+        skip_cache: bool = False,
     ) -> list[FieldMetadata]:
         """
         Get field metadata.
@@ -776,6 +777,8 @@ class FieldService:
         Args:
             list_id: Filter to fields for a specific list
             entity_type: Filter to fields for a specific entity type
+            skip_cache: When True, bypass the 5-minute cache (useful when
+                resolving a field that may have been added recently).
 
         Returns:
             List of field metadata
@@ -786,16 +789,17 @@ class FieldService:
         if entity_type is not None:
             params["entity_type"] = int(entity_type)
 
-        list_key = "all" if list_id is None else int(list_id)
-        type_key = "all" if entity_type is None else int(entity_type)
-        cache_key = f"field:v1_list_{list_key}:type_{type_key}"
+        get_kwargs: dict[str, Any] = {"v1": True}
+        if not skip_cache:
+            list_key = "all" if list_id is None else int(list_id)
+            type_key = "all" if entity_type is None else int(entity_type)
+            get_kwargs["cache_key"] = f"field:v1_list_{list_key}:type_{type_key}"
+            get_kwargs["cache_ttl"] = 300
 
         data = self._client.get(
             "/fields",
             params=params or None,
-            v1=True,
-            cache_key=cache_key,
-            cache_ttl=300,
+            **get_kwargs,
         )
         items = data.get("data", [])
         if not isinstance(items, list):
@@ -2333,6 +2337,7 @@ class AsyncFieldService:
         *,
         list_id: ListId | None = None,
         entity_type: EntityType | None = None,
+        skip_cache: bool = False,
     ) -> builtins.list[FieldMetadata]:
         """
         Get field metadata.
@@ -2342,6 +2347,7 @@ class AsyncFieldService:
         Args:
             list_id: Filter to fields for a specific list
             entity_type: Filter to fields for a specific entity type
+            skip_cache: When True, bypass the 5-minute cache.
 
         Returns:
             List of field metadata
@@ -2352,16 +2358,17 @@ class AsyncFieldService:
         if entity_type is not None:
             params["entity_type"] = int(entity_type)
 
-        list_key = "all" if list_id is None else int(list_id)
-        type_key = "all" if entity_type is None else int(entity_type)
-        cache_key = f"field:v1_list_{list_key}:type_{type_key}"
+        get_kwargs: dict[str, Any] = {"v1": True}
+        if not skip_cache:
+            list_key = "all" if list_id is None else int(list_id)
+            type_key = "all" if entity_type is None else int(entity_type)
+            get_kwargs["cache_key"] = f"field:v1_list_{list_key}:type_{type_key}"
+            get_kwargs["cache_ttl"] = 300
 
         data = await self._client.get(
             "/fields",
             params=params or None,
-            v1=True,
-            cache_key=cache_key,
-            cache_ttl=300,
+            **get_kwargs,
         )
         items = data.get("data", [])
         if not isinstance(items, list):

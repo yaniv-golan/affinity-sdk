@@ -363,6 +363,18 @@ if status_meta:
 # FieldResolver(client.companies.get_fields()) / FieldResolver(client.persons.get_fields())
 ```
 
+## Enriched Fields
+
+Enriched fields (Phone Number, Source of Introduction, Industry, Location, Description, etc.) are returned on `entity.fields.data` like any other field when you request them via `field_types=[FieldType.ENRICHED]`.
+
+Most enriched fields are writable via the normal `update_field_value()` path using their `FieldMetadata.id`. A small number are purely derived (notably "Current Organization" on persons, which is computed from email domain) and cannot be written — the SDK raises `EnrichedFieldNotWritableError` (subclass of `UnsupportedOperationError`) for these.
+
+```python
+from affinity import EnrichedFieldNotWritableError
+```
+
+For fresh post-write reads where you want to skip the in-memory field-metadata cache, pass `skip_cache=True` to `client.fields.list(...)`.
+
 ## Rate Limits
 
 ```python

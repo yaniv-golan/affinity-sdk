@@ -2430,11 +2430,16 @@ def company_field(
         for field_name, value in set_operations:
             target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
 
+            # Resolve enriched ID to V1 numeric once; reuse for delete scan and create.
+            numeric_field_id = resolver.to_v1_numeric(
+                client, target_field_id, entity_type="company"
+            )
+
             # Check for existing values and delete them first (replace behavior)
             existing_values = client.field_values.list(company_id=CompanyId(company_id))
             existing_for_field = find_field_values_for_field(
                 field_values=[serialize_model_for_cli(v) for v in existing_values],
-                field_id=target_field_id,
+                field_id=numeric_field_id,
             )
             for fv in existing_for_field:
                 fv_id = fv.get("id")
@@ -2444,7 +2449,7 @@ def company_field(
             # Create new value
             created = client.field_values.create(
                 FieldValueCreate(
-                    field_id=FieldIdType(target_field_id),
+                    field_id=FieldIdType(numeric_field_id),
                     entity_id=company_id,
                     value=value,
                 )
@@ -2455,10 +2460,13 @@ def company_field(
         deleted_count = 0
         for field_name in unset_fields:
             target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
+            numeric_field_id = resolver.to_v1_numeric(
+                client, target_field_id, entity_type="company"
+            )
             existing_values = client.field_values.list(company_id=CompanyId(company_id))
             existing_for_field = find_field_values_for_field(
                 field_values=[serialize_model_for_cli(v) for v in existing_values],
-                field_id=target_field_id,
+                field_id=numeric_field_id,
             )
             for fv in existing_for_field:
                 fv_id = fv.get("id")

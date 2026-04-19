@@ -38,7 +38,7 @@
       "relatedCommands": ["person get"]
     },
     "person field": {
-      "whenToUse": "Manage global field values on a person.",
+      "whenToUse": "Manage global field values on a person. Accepts field names or field IDs. Enriched fields like 'Phone Number' and 'Source of Introduction' are writable. 'Current Organization' is derived from email domain and cannot be written — raises EnrichedFieldNotWritableError.",
       "relatedCommands": ["person get", "field ls"]
     },
     "person merge": {
@@ -108,7 +108,7 @@
       "relatedCommands": ["company get"]
     },
     "company field": {
-      "whenToUse": "Manage global field values on a company.",
+      "whenToUse": "Manage global field values on a company. Accepts field names or field IDs. Some enriched names (Industry, Location, Description) exist under multiple enrichment providers and raise AmbiguousFieldError with disambiguation candidates — pass the specific field ID in that case.",
       "relatedCommands": ["company get", "field ls"]
     },
     "company merge": {

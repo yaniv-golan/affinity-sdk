@@ -156,9 +156,11 @@ class FieldResolver:
                 error_type="usage_error",
             )
 
-        # If starts with "field-", treat as field ID
-        if value.startswith("field-"):
+        # ID-branch: accept 'field-<n>' or any known enriched literal present in _by_id
+        # (e.g. 'affinity-data-phone-number', 'source-of-introduction', 'dealroom-industry').
+        if value.startswith("field-") or value in self._by_id:
             if value not in self._by_id:
+                # Only reached for unknown 'field-<n>' values
                 available = ", ".join(self.available_names[:10])
                 suffix = "..." if len(self.available_names) > 10 else ""
                 raise CLIError(
@@ -284,6 +286,86 @@ class FieldResolver:
             if str(field.id) == field_id:
                 return field
         return None
+
+    def to_v1_numeric(
+        self,
+        client: Any,
+        field_id: str,
+        entity_type: EntityType,
+    ) -> int:
+        """Resolve any field id (regular or enriched) to its V1 numeric id.
+
+        V1 `/field-values` writes require numeric field ids. V2 enriched fields
+        (``affinity-data-*``, ``source-of-introduction``, etc.) must be mapped
+        to their V1 twin by ``(name, enrichment_source)`` with ``list_id=null``.
+
+        Args:
+            client: The Affinity client (sync or async — only `.fields.list` is used).
+            field_id: 'field-<n>' or any enriched literal returned by V2.
+            entity_type: CLI entity-type string ("person" / "company" / "opportunity").
+
+        Returns:
+            Numeric V1 field id.
+
+        Raises:
+            EnrichedFieldNotWritableError: if the enriched field has no V1 twin.
+        """
+        from affinity.exceptions import EnrichedFieldNotWritableError
+        from affinity.models.types import (
+            EntityType as EntityTypeEnum,
+        )
+        from affinity.models.types import (
+            FieldId as FieldIdType,
+        )
+        from affinity.models.types import (
+            field_id_to_v1_numeric,
+        )
+
+        if field_id.startswith("field-"):
+            return field_id_to_v1_numeric(FieldIdType(field_id))
+
+        meta = self.get_field_metadata(field_id)
+        if meta is None:
+            raise EnrichedFieldNotWritableError(field_id=field_id, reason="unknown enriched id")
+
+        enum_map: dict[str, EntityTypeEnum] = {
+            "person": EntityTypeEnum.PERSON,
+            "company": EntityTypeEnum.ORGANIZATION,
+            "opportunity": EntityTypeEnum.OPPORTUNITY,
+        }
+        if entity_type not in enum_map:
+            raise EnrichedFieldNotWritableError(
+                field_id=field_id,
+                reason=f"no V1 field lookup for entity_type={entity_type!r}",
+            )
+
+        v1_fields = client.fields.list(entity_type=enum_map[entity_type])
+        v2_src = meta.enrichment_source  # None for RI fields
+
+        def _norm_v1_src(s: str | None) -> str | None:
+            return None if s in (None, "none", "") else s
+
+        candidates = [
+            f
+            for f in v1_fields
+            if f.name == meta.name
+            and f.list_id is None
+            and _norm_v1_src(f.enrichment_source) == v2_src
+        ]
+        if not candidates:
+            raise EnrichedFieldNotWritableError(
+                field_id=field_id,
+                reason=(
+                    f"no V1 global twin for (name={meta.name!r}, enrichment_source={v2_src!r})"
+                ),
+            )
+        # Canonical write target — FieldId accepts int and normalizes to 'field-<n>'
+        v1_id = candidates[0].id
+        return (
+            int(str(v1_id).removeprefix("field-"))
+            if str(v1_id).startswith("field-")
+            else int(v1_id)
+        )
 
     def resolve_field_value(
         self, field_id: str, value: str | list[str]
@@ -510,24 +592,42 @@ def validate_field_option_mutual_exclusion(
         )
 
 
+def _norm_field_id(fid: Any) -> str:
+    """Normalize a field id for equality comparison.
+
+    V1 returns ``fieldId`` as a bare int (e.g. 260415). V2 and the CLI
+    resolver use ``'field-<n>'``. Enriched literals (``affinity-data-*``,
+    ``source-of-introduction``) pass through as-is. This canonicalizes
+    both sides so ``str(260415)`` and ``'field-260415'`` compare equal.
+    """
+    from affinity.models.types import FieldId
+
+    try:
+        return str(FieldId(fid))
+    except (ValueError, TypeError):
+        return str(fid)
+
+
 def find_field_values_for_field(
     *,
     field_values: list[dict[str, Any]],
-    field_id: str,
+    field_id: str | int,
 ) -> list[dict[str, Any]]:
     """Find all field values matching a specific field ID.
 
     Args:
         field_values: List of field value dicts from the API.
-        field_id: The field ID to match.
+        field_id: The field ID to match. Accepts 'field-<n>', '<n>',
+            numeric int, or an enriched literal.
 
     Returns:
         List of matching field value dicts.
     """
+    target = _norm_field_id(field_id)
     matches: list[dict[str, Any]] = []
     for fv in field_values:
-        fv_field_id = fv.get("fieldId") or fv.get("field_id")
-        if str(fv_field_id) == field_id:
+        fv_field_id = fv.get("fieldId") if fv.get("fieldId") is not None else fv.get("field_id")
+        if _norm_field_id(fv_field_id) == target:
             matches.append(fv)
     return matches
 

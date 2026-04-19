@@ -85,12 +85,21 @@ The SDK uses V2 field metadata endpoints for reads. Some write operations still 
 endpoints under the hood (for example, field value writes and field deletes). Those V1
 endpoints require numeric field IDs.
 
-Rules:
+For everyday use, **the SDK and CLI hide the V1/V2 split**: call the normal field-write
+methods (`update_field_value`, `person field --set`, etc.) and the right endpoint is
+chosen for you. The details below only matter if you are bypassing the SDK's resolver
+and constructing write calls by hand.
 
-- IDs of the form `field-<digits>` are convertible to V1 numeric IDs.
-- Enriched and relationship-intelligence IDs (for example, `affinity-data-*` or
-  `source-of-introduction`) have no V1 numeric equivalent and will raise an error
-  if used in V1-only write paths.
+- IDs of the form `field-<digits>` are convertible to V1 numeric IDs directly.
+- Enriched IDs (for example, `affinity-data-*`, `dealroom-*`, or `source-of-introduction`)
+  do not contain a numeric ID, but most of them have a V1 "twin" row that can be found
+  by matching `(name, list_id IS NULL, enrichment_source)` against
+  `client.fields.list(entity_type=...)`. Name alone is not sufficient — company
+  `Industry`, `Location`, and `Description` have distinct `affinity-data` and
+  `dealroom` twins.
+- A small number of enriched fields are purely derived (notably
+  `affinity-data-current-organization`) and have no V1 twin. The SDK raises
+  `EnrichedFieldNotWritableError` in that case.
 
 ## Requested vs not requested
 

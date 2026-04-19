@@ -465,6 +465,25 @@ class BetaEndpointDisabledError(UnsupportedOperationError):
     pass
 
 
+class EnrichedFieldNotWritableError(UnsupportedOperationError):
+    """
+    Attempted to write to a V2 enriched field that has no V1 numeric twin.
+
+    V1 `/field-values` is the only write endpoint for entity-global field values.
+    V2 enriched fields (e.g. ``affinity-data-current-organization``, ``companies``,
+    and relationship-intelligence fields like ``last-contact``) are returned by V2
+    reads but have no writable V1 counterpart.
+    """
+
+    def __init__(self, field_id: str, *, reason: str | None = None) -> None:
+        self.field_id = field_id
+        self.reason = reason
+        msg = f"Enriched field '{field_id}' is not writable via API"
+        if reason:
+            msg += f" ({reason})"
+        super().__init__(msg)
+
+
 class VersionCompatibilityError(AffinityError):
     """
     Response shape mismatch suggests API version incompatibility.

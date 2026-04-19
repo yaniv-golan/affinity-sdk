@@ -2285,11 +2285,14 @@ def person_field(
             target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
             resolved_name = resolver.get_field_name(target_field_id) or field_name
 
+            # Resolve enriched ID to V1 numeric once; reuse for delete scan and create.
+            numeric_field_id = resolver.to_v1_numeric(client, target_field_id, entity_type="person")
+
             # Check for existing values and delete them first (replace behavior)
             existing_values = client.field_values.list(person_id=PersonId(person_id))
             existing_for_field = find_field_values_for_field(
                 field_values=[serialize_model_for_cli(v) for v in existing_values],
-                field_id=target_field_id,
+                field_id=numeric_field_id,
             )
             for fv in existing_for_field:
                 fv_id = fv.get("id")
@@ -2299,7 +2302,7 @@ def person_field(
             # Create new value
             created = client.field_values.create(
                 FieldValueCreate(
-                    field_id=FieldIdType(target_field_id),
+                    field_id=FieldIdType(numeric_field_id),
                     entity_id=person_id,
                     value=value,
                 )
@@ -2310,10 +2313,11 @@ def person_field(
         deleted_count = 0
         for field_name in unset_fields:
             target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
+            numeric_field_id = resolver.to_v1_numeric(client, target_field_id, entity_type="person")
             existing_values = client.field_values.list(person_id=PersonId(person_id))
             existing_for_field = find_field_values_for_field(
                 field_values=[serialize_model_for_cli(v) for v in existing_values],
-                field_id=target_field_id,
+                field_id=numeric_field_id,
             )
             for fv in existing_for_field:
                 fv_id = fv.get("id")
