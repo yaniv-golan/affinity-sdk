@@ -2393,11 +2393,7 @@ Use this for global field values not tied to list entries.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 906</span>
-<span class="normal"> 907</span>
-<span class="normal"> 908</span>
-<span class="normal"> 909</span>
-<span class="normal"> 910</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 910</span>
 <span class="normal"> 911</span>
 <span class="normal"> 912</span>
 <span class="normal"> 913</span>
@@ -2616,7 +2612,11 @@ Use this for global field values not tied to list entries.</p>
 <span class="normal">1126</span>
 <span class="normal">1127</span>
 <span class="normal">1128</span>
-<span class="normal">1129</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueService</span><span class="p">:</span>
+<span class="normal">1129</span>
+<span class="normal">1130</span>
+<span class="normal">1131</span>
+<span class="normal">1132</span>
+<span class="normal">1133</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueService</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Service for managing field values.</span>
 
@@ -2875,11 +2875,7 @@ IDs are not supported.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">972</span>
-<span class="normal">973</span>
-<span class="normal">974</span>
-<span class="normal">975</span>
-<span class="normal">976</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">976</span>
 <span class="normal">977</span>
 <span class="normal">978</span>
 <span class="normal">979</span>
@@ -2887,7 +2883,11 @@ IDs are not supported.</p>
 <span class="normal">981</span>
 <span class="normal">982</span>
 <span class="normal">983</span>
-<span class="normal">984</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">FieldValueCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValue</span><span class="p">:</span>
+<span class="normal">984</span>
+<span class="normal">985</span>
+<span class="normal">986</span>
+<span class="normal">987</span>
+<span class="normal">988</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">FieldValueCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValue</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a field value (V1 API).</span>
 
@@ -2922,10 +2922,10 @@ IDs are not supported.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">995</span>
-<span class="normal">996</span>
-<span class="normal">997</span>
-<span class="normal">998</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_value_id</span><span class="p">:</span> <span class="n">FieldValueId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 999</span>
+<span class="normal">1000</span>
+<span class="normal">1001</span>
+<span class="normal">1002</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_value_id</span><span class="p">:</span> <span class="n">FieldValueId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete a field value.&quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/field-values/</span><span class="si">{</span><span class="n">field_value_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
@@ -3119,11 +3119,7 @@ else:
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1000</span>
-<span class="normal">1001</span>
-<span class="normal">1002</span>
-<span class="normal">1003</span>
-<span class="normal">1004</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1004</span>
 <span class="normal">1005</span>
 <span class="normal">1006</span>
 <span class="normal">1007</span>
@@ -3180,7 +3176,11 @@ else:
 <span class="normal">1058</span>
 <span class="normal">1059</span>
 <span class="normal">1060</span>
-<span class="normal">1061</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_for_entity</span><span class="p">(</span>
+<span class="normal">1061</span>
+<span class="normal">1062</span>
+<span class="normal">1063</span>
+<span class="normal">1064</span>
+<span class="normal">1065</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_for_entity</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">FieldId</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -3289,11 +3289,7 @@ must be provided.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">917</span>
-<span class="normal">918</span>
-<span class="normal">919</span>
-<span class="normal">920</span>
-<span class="normal">921</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">921</span>
 <span class="normal">922</span>
 <span class="normal">923</span>
 <span class="normal">924</span>
@@ -3342,7 +3338,11 @@ must be provided.</p>
 <span class="normal">967</span>
 <span class="normal">968</span>
 <span class="normal">969</span>
-<span class="normal">970</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
+<span class="normal">970</span>
+<span class="normal">971</span>
+<span class="normal">972</span>
+<span class="normal">973</span>
+<span class="normal">974</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3542,11 +3542,7 @@ for person_id, field_values in fv_map.items():
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1063</span>
-<span class="normal">1064</span>
-<span class="normal">1065</span>
-<span class="normal">1066</span>
-<span class="normal">1067</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1067</span>
 <span class="normal">1068</span>
 <span class="normal">1069</span>
 <span class="normal">1070</span>
@@ -3608,7 +3604,11 @@ for person_id, field_values in fv_map.items():
 <span class="normal">1126</span>
 <span class="normal">1127</span>
 <span class="normal">1128</span>
-<span class="normal">1129</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list_batch</span><span class="p">(</span>
+<span class="normal">1129</span>
+<span class="normal">1130</span>
+<span class="normal">1131</span>
+<span class="normal">1132</span>
+<span class="normal">1133</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list_batch</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">person_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">PersonId</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">company_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">CompanyId</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3697,14 +3697,14 @@ for person_id, field_values in fv_map.items():
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">986</span>
-<span class="normal">987</span>
-<span class="normal">988</span>
-<span class="normal">989</span>
-<span class="normal">990</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">990</span>
 <span class="normal">991</span>
 <span class="normal">992</span>
-<span class="normal">993</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_value_id</span><span class="p">:</span> <span class="n">FieldValueId</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValue</span><span class="p">:</span>
+<span class="normal">993</span>
+<span class="normal">994</span>
+<span class="normal">995</span>
+<span class="normal">996</span>
+<span class="normal">997</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_value_id</span><span class="p">:</span> <span class="n">FieldValueId</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValue</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Update a field value.&quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">put</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;/field-values/</span><span class="si">{</span><span class="n">field_value_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>

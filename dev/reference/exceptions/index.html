@@ -1555,6 +1555,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#affinity.exceptions.EnrichedFieldNotWritableError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EnrichedFieldNotWritableError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#affinity.exceptions.EntityNotFoundError" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2652,6 +2663,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#affinity.exceptions.EnrichedFieldNotWritableError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EnrichedFieldNotWritableError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#affinity.exceptions.EntityNotFoundError" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3679,17 +3701,106 @@ For example:
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/exceptions.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">513</span>
-<span class="normal">514</span>
-<span class="normal">515</span>
-<span class="normal">516</span>
-<span class="normal">517</span>
-<span class="normal">518</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DeprecationWarning</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">532</span>
+<span class="normal">533</span>
+<span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DeprecationWarning</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Feature is deprecated and may be removed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">pass</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="affinity.exceptions.EnrichedFieldNotWritableError" class="doc doc-heading">
+            <code>EnrichedFieldNotWritableError</code>
+
+
+<a href="#affinity.exceptions.EnrichedFieldNotWritableError" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="UnsupportedOperationError (affinity.exceptions.UnsupportedOperationError)" href="#affinity.exceptions.UnsupportedOperationError">UnsupportedOperationError</a></code></p>
+
+
+
+        <p>Attempted to write to a V2 enriched field that has no V1 numeric twin.</p>
+<p>V1 <code>/field-values</code> is the only write endpoint for entity-global field values.
+V2 enriched fields (e.g. <code>affinity-data-current-organization</code>, <code>companies</code>,
+and relationship-intelligence fields like <code>last-contact</code>) are returned by V2
+reads but have no writable V1 counterpart.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>affinity/exceptions.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EnrichedFieldNotWritableError</span><span class="p">(</span><span class="n">UnsupportedOperationError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Attempted to write to a V2 enriched field that has no V1 numeric twin.</span>
+
+<span class="sd">    V1 `/field-values` is the only write endpoint for entity-global field values.</span>
+<span class="sd">    V2 enriched fields (e.g. ``affinity-data-current-organization``, ``companies``,</span>
+<span class="sd">    and relationship-intelligence fields like ``last-contact``) are returned by V2</span>
+<span class="sd">    reads but have no writable V1 counterpart.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_id</span> <span class="o">=</span> <span class="n">field_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reason</span> <span class="o">=</span> <span class="n">reason</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Enriched field &#39;</span><span class="si">{</span><span class="n">field_id</span><span class="si">}</span><span class="s2">&#39; is not writable via API&quot;</span>
+        <span class="k">if</span> <span class="n">reason</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -3897,21 +4008,21 @@ For example:
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/exceptions.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">726</span>
-<span class="normal">727</span>
-<span class="normal">728</span>
-<span class="normal">729</span>
-<span class="normal">730</span>
-<span class="normal">731</span>
-<span class="normal">732</span>
-<span class="normal">733</span>
-<span class="normal">734</span>
-<span class="normal">735</span>
-<span class="normal">736</span>
-<span class="normal">737</span>
-<span class="normal">738</span>
-<span class="normal">739</span>
-<span class="normal">740</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FilterParseError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">745</span>
+<span class="normal">746</span>
+<span class="normal">747</span>
+<span class="normal">748</span>
+<span class="normal">749</span>
+<span class="normal">750</span>
+<span class="normal">751</span>
+<span class="normal">752</span>
+<span class="normal">753</span>
+<span class="normal">754</span>
+<span class="normal">755</span>
+<span class="normal">756</span>
+<span class="normal">757</span>
+<span class="normal">758</span>
+<span class="normal">759</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FilterParseError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Raised when a filter expression cannot be parsed.</span>
 
@@ -5293,26 +5404,7 @@ v2 Default API Version differs from what the SDK expects.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/exceptions.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">468</span>
-<span class="normal">469</span>
-<span class="normal">470</span>
-<span class="normal">471</span>
-<span class="normal">472</span>
-<span class="normal">473</span>
-<span class="normal">474</span>
-<span class="normal">475</span>
-<span class="normal">476</span>
-<span class="normal">477</span>
-<span class="normal">478</span>
-<span class="normal">479</span>
-<span class="normal">480</span>
-<span class="normal">481</span>
-<span class="normal">482</span>
-<span class="normal">483</span>
-<span class="normal">484</span>
-<span class="normal">485</span>
-<span class="normal">486</span>
-<span class="normal">487</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">487</span>
 <span class="normal">488</span>
 <span class="normal">489</span>
 <span class="normal">490</span>
@@ -5335,7 +5427,26 @@ v2 Default API Version differs from what the SDK expects.</p>
 <span class="normal">507</span>
 <span class="normal">508</span>
 <span class="normal">509</span>
-<span class="normal">510</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">VersionCompatibilityError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
+<span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span>
+<span class="normal">515</span>
+<span class="normal">516</span>
+<span class="normal">517</span>
+<span class="normal">518</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span>
+<span class="normal">524</span>
+<span class="normal">525</span>
+<span class="normal">526</span>
+<span class="normal">527</span>
+<span class="normal">528</span>
+<span class="normal">529</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">VersionCompatibilityError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Response shape mismatch suggests API version incompatibility.</span>
 
@@ -5430,10 +5541,10 @@ v2 Default API Version differs from what the SDK expects.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/exceptions.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">695</span>
-<span class="normal">696</span>
-<span class="normal">697</span>
-<span class="normal">698</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidJsonError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">714</span>
+<span class="normal">715</span>
+<span class="normal">716</span>
+<span class="normal">717</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidJsonError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a webhook payload cannot be decoded as JSON.&quot;&quot;&quot;</span>
 
     <span class="k">pass</span>
@@ -5489,10 +5600,10 @@ v2 Default API Version differs from what the SDK expects.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/exceptions.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">701</span>
-<span class="normal">702</span>
-<span class="normal">703</span>
-<span class="normal">704</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidPayloadError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">720</span>
+<span class="normal">721</span>
+<span class="normal">722</span>
+<span class="normal">723</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidPayloadError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a decoded webhook payload is not in the expected envelope shape.&quot;&quot;&quot;</span>
 
     <span class="k">pass</span>
@@ -5548,10 +5659,10 @@ v2 Default API Version differs from what the SDK expects.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/exceptions.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">715</span>
-<span class="normal">716</span>
-<span class="normal">717</span>
-<span class="normal">718</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidSentAtError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">734</span>
+<span class="normal">735</span>
+<span class="normal">736</span>
+<span class="normal">737</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidSentAtError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a webhook `sent_at` field is missing or invalid.&quot;&quot;&quot;</span>
 
     <span class="k">pass</span>
@@ -5607,12 +5718,12 @@ v2 Default API Version differs from what the SDK expects.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/exceptions.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">707</span>
-<span class="normal">708</span>
-<span class="normal">709</span>
-<span class="normal">710</span>
-<span class="normal">711</span>
-<span class="normal">712</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookMissingKeyError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">726</span>
+<span class="normal">727</span>
+<span class="normal">728</span>
+<span class="normal">729</span>
+<span class="normal">730</span>
+<span class="normal">731</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookMissingKeyError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a webhook payload is missing a required key.&quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
@@ -5670,10 +5781,10 @@ v2 Default API Version differs from what the SDK expects.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/exceptions.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">689</span>
-<span class="normal">690</span>
-<span class="normal">691</span>
-<span class="normal">692</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookParseError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">708</span>
+<span class="normal">709</span>
+<span class="normal">710</span>
+<span class="normal">711</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookParseError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base error for inbound webhook parsing/validation failures.&quot;&quot;&quot;</span>
 
     <span class="k">pass</span>
@@ -5869,26 +5980,7 @@ v2 Default API Version differs from what the SDK expects.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/exceptions.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">526</span>
-<span class="normal">527</span>
-<span class="normal">528</span>
-<span class="normal">529</span>
-<span class="normal">530</span>
-<span class="normal">531</span>
-<span class="normal">532</span>
-<span class="normal">533</span>
-<span class="normal">534</span>
-<span class="normal">535</span>
-<span class="normal">536</span>
-<span class="normal">537</span>
-<span class="normal">538</span>
-<span class="normal">539</span>
-<span class="normal">540</span>
-<span class="normal">541</span>
-<span class="normal">542</span>
-<span class="normal">543</span>
-<span class="normal">544</span>
-<span class="normal">545</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">545</span>
 <span class="normal">546</span>
 <span class="normal">547</span>
 <span class="normal">548</span>
@@ -6024,7 +6116,26 @@ v2 Default API Version differs from what the SDK expects.</p>
 <span class="normal">678</span>
 <span class="normal">679</span>
 <span class="normal">680</span>
-<span class="normal">681</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">error_from_response</span><span class="p">(</span>
+<span class="normal">681</span>
+<span class="normal">682</span>
+<span class="normal">683</span>
+<span class="normal">684</span>
+<span class="normal">685</span>
+<span class="normal">686</span>
+<span class="normal">687</span>
+<span class="normal">688</span>
+<span class="normal">689</span>
+<span class="normal">690</span>
+<span class="normal">691</span>
+<span class="normal">692</span>
+<span class="normal">693</span>
+<span class="normal">694</span>
+<span class="normal">695</span>
+<span class="normal">696</span>
+<span class="normal">697</span>
+<span class="normal">698</span>
+<span class="normal">699</span>
+<span class="normal">700</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">error_from_response</span><span class="p">(</span>
     <span class="n">status_code</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">response_body</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
