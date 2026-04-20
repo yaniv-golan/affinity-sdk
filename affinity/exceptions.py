@@ -484,6 +484,41 @@ class EnrichedFieldNotWritableError(UnsupportedOperationError):
         super().__init__(msg)
 
 
+class DuplicateEntityError(AffinityError):
+    """
+    Raised when an entity with the same identifying properties already exists
+    and the caller requested duplicate prevention (if_not_exists=True).
+
+    Attributes:
+        entity_type: "company", "person", or "opportunity"
+        existing_id: The ID of the already-existing entity
+        existing_name: Name of the existing entity (if known)
+        existing_domain: Domain of the existing entity (companies only)
+        existing_is_global: True iff the match is an Affinity global-directory
+            record (companies only). Global records are shared across tenants
+            and cannot be modified or deleted; callers should use the ID
+            directly (e.g., add it to a list via List Entries) rather than
+            POST a duplicate tenant-scoped record.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        entity_type: str,
+        existing_id: int,
+        existing_name: str | None = None,
+        existing_domain: str | None = None,
+        existing_is_global: bool = False,
+    ) -> None:
+        super().__init__(message)
+        self.entity_type = entity_type
+        self.existing_id = existing_id
+        self.existing_name = existing_name
+        self.existing_domain = existing_domain
+        self.existing_is_global = existing_is_global
+
+
 class VersionCompatibilityError(AffinityError):
     """
     Response shape mismatch suggests API version incompatibility.
