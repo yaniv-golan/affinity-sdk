@@ -14,7 +14,6 @@ from collections.abc import AsyncIterator, Iterator, Sequence
 from typing import TYPE_CHECKING, Any, Literal
 
 from ..exceptions import AffinityError, BetaEndpointDisabledError, NotFoundError
-from ..filters import FilterExpression
 from ..models.entities import (
     FieldMetadata,
     FieldValue,
@@ -128,9 +127,9 @@ class PersonService:
         ids: Sequence[PersonId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        **_unsupported: Any,
     ) -> PaginatedResponse[Person]:
         """
         Get a page of persons.
@@ -139,16 +138,31 @@ class PersonService:
             ids: Specific person IDs to fetch (batch lookup)
             field_ids: Specific field IDs to include in response
             field_types: Field types to include
-            filter: V2 filter expression string, or a FilterExpression built via `affinity.F`
             limit: Maximum number of results
             cursor: Cursor to resume pagination (opaque; obtained from prior responses)
 
         Returns:
             Paginated response with persons
+
+        Note:
+            The V2 /persons endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search persons
+            by name or email use ``client.persons.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /persons does not support server-side filter. "
+                "To search by name/email use client.persons.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
         validate_entity_field_types(field_types, endpoint="person")
         if cursor is not None:
-            if any(p is not None for p in (ids, field_ids, field_types, filter, limit)):
+            if any(p is not None for p in (ids, field_ids, field_types, limit)):
                 raise ValueError(
                     "Cannot combine 'cursor' with other parameters; cursor encodes all query "
                     "context. Start a new pagination sequence without a cursor to change "
@@ -163,10 +177,6 @@ class PersonService:
                 params["fieldIds"] = [str(field_id) for field_id in field_ids]
             if field_types:
                 params["fieldTypes"] = [field_type.value for field_type in field_types]
-            if filter is not None:
-                filter_text = str(filter).strip()
-                if filter_text:
-                    params["filter"] = filter_text
             if limit:
                 params["limit"] = limit
             data = self._client.get("/persons", params=params or None)
@@ -179,27 +189,41 @@ class PersonService:
     def get_first(
         self,
         *,
-        filter: str | FilterExpression | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
+        **_unsupported: Any,
     ) -> Person | None:
         """
-        Get the first person matching the filter, or None if no match.
+        Get the first person, or None if no results.
 
         This is a convenience method equivalent to:
-            page = client.persons.list(filter=filter, limit=1)
+            page = client.persons.list(limit=1)
             return page.data[0] if page.data else None
 
         Args:
-            filter: V2 filter expression
             field_ids: Specific field IDs to include
             field_types: Field types to include
 
         Returns:
-            First matching Person, or None if no results.
+            First Person, or None if no results.
+
+        Note:
+            The V2 /persons endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search persons
+            by name or email use ``client.persons.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /persons does not support server-side filter. "
+                "To search by name/email use client.persons.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
         page = self.list(
-            filter=filter,
             field_ids=field_ids,
             field_types=field_types,
             limit=1,
@@ -212,9 +236,9 @@ class PersonService:
         ids: Sequence[PersonId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        **_unsupported: Any,
     ) -> Iterator[PaginatedResponse[Person]]:
         """
         Iterate person pages (not items), yielding `PaginatedResponse[Person]`.
@@ -225,14 +249,29 @@ class PersonService:
             ids: Specific person IDs to fetch (batch lookup)
             field_ids: Specific field IDs to include in response
             field_types: Field types to include
-            filter: V2 filter expression string or FilterExpression
             limit: Maximum results per page
             cursor: Cursor to resume pagination
 
         Yields:
             PaginatedResponse[Person] for each page
+
+        Note:
+            The V2 /persons endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search persons
+            by name or email use ``client.persons.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
-        other_params = (ids, field_ids, field_types, filter, limit)
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /persons does not support server-side filter. "
+                "To search by name/email use client.persons.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
+        other_params = (ids, field_ids, field_types, limit)
         if cursor is not None and any(p is not None for p in other_params):
             raise ValueError(
                 "Cannot combine 'cursor' with other parameters; cursor encodes all query context. "
@@ -242,9 +281,7 @@ class PersonService:
         page = (
             self.list(cursor=cursor)
             if cursor is not None
-            else self.list(
-                ids=ids, field_ids=field_ids, field_types=field_types, filter=filter, limit=limit
-            )
+            else self.list(ids=ids, field_ids=field_ids, field_types=field_types, limit=limit)
         )
         while True:
             yield page
@@ -262,7 +299,7 @@ class PersonService:
         ids: Sequence[PersonId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
+        **_unsupported: Any,
     ) -> Iterator[Person]:
         """
         Iterate through all persons with automatic pagination.
@@ -271,11 +308,26 @@ class PersonService:
             ids: Specific person IDs to fetch (batch lookup)
             field_ids: Specific field IDs to include
             field_types: Field types to include
-            filter: V2 filter expression
 
         Yields:
             Person objects
+
+        Note:
+            The V2 /persons endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search persons
+            by name or email use ``client.persons.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /persons does not support server-side filter. "
+                "To search by name/email use client.persons.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
 
         def fetch_page(next_url: str | None) -> PaginatedResponse[Person]:
             if next_url:
@@ -288,7 +340,6 @@ class PersonService:
                 ids=ids,
                 field_ids=field_ids,
                 field_types=field_types,
-                filter=filter,
             )
 
         return PageIterator(fetch_page)
@@ -299,14 +350,30 @@ class PersonService:
         ids: Sequence[PersonId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
+        **_unsupported: Any,
     ) -> Iterator[Person]:
         """
         Auto-paginate all persons.
 
         Alias for `all()` (FR-006 public contract).
+
+        Note:
+            The V2 /persons endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search persons
+            by name or email use ``client.persons.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
-        return self.all(ids=ids, field_ids=field_ids, field_types=field_types, filter=filter)
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /persons does not support server-side filter. "
+                "To search by name/email use client.persons.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
+        return self.all(ids=ids, field_ids=field_ids, field_types=field_types)
 
     def get(
         self,
@@ -1017,9 +1084,9 @@ class AsyncPersonService:
         ids: Sequence[PersonId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        **_unsupported: Any,
     ) -> PaginatedResponse[Person]:
         """
         Get a page of persons.
@@ -1028,16 +1095,31 @@ class AsyncPersonService:
             ids: Specific person IDs to fetch (batch lookup)
             field_ids: Specific field IDs to include in response
             field_types: Field types to include
-            filter: V2 filter expression string, or a FilterExpression built via `affinity.F`
             limit: Maximum number of results
             cursor: Cursor to resume pagination (opaque; obtained from prior responses)
 
         Returns:
             Paginated response with persons
+
+        Note:
+            The V2 /persons endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search persons
+            by name or email use ``client.persons.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /persons does not support server-side filter. "
+                "To search by name/email use client.persons.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
         validate_entity_field_types(field_types, endpoint="person")
         if cursor is not None:
-            if any(p is not None for p in (ids, field_ids, field_types, filter, limit)):
+            if any(p is not None for p in (ids, field_ids, field_types, limit)):
                 raise ValueError(
                     "Cannot combine 'cursor' with other parameters; cursor encodes all query "
                     "context. Start a new pagination sequence without a cursor to change "
@@ -1052,10 +1134,6 @@ class AsyncPersonService:
                 params["fieldIds"] = [str(field_id) for field_id in field_ids]
             if field_types:
                 params["fieldTypes"] = [field_type.value for field_type in field_types]
-            if filter is not None:
-                filter_text = str(filter).strip()
-                if filter_text:
-                    params["filter"] = filter_text
             if limit:
                 params["limit"] = limit
             data = await self._client.get("/persons", params=params or None)
@@ -1068,17 +1146,32 @@ class AsyncPersonService:
     async def get_first(
         self,
         *,
-        filter: str | FilterExpression | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
+        **_unsupported: Any,
     ) -> Person | None:
         """
-        Get the first person matching the filter, or None if no match.
+        Get the first person, or None if no results.
 
         See PersonService.get_first() for details.
+
+        Note:
+            The V2 /persons endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search persons
+            by name or email use ``client.persons.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /persons does not support server-side filter. "
+                "To search by name/email use client.persons.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
         page = await self.list(
-            filter=filter,
             field_ids=field_ids,
             field_types=field_types,
             limit=1,
@@ -1161,15 +1254,15 @@ class AsyncPersonService:
 
         return results
 
-    async def pages(
+    def pages(
         self,
         *,
         ids: Sequence[PersonId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        **_unsupported: Any,
     ) -> AsyncIterator[PaginatedResponse[Person]]:
         """
         Iterate person pages (not items), yielding `PaginatedResponse[Person]`.
@@ -1180,14 +1273,46 @@ class AsyncPersonService:
             ids: Specific person IDs to fetch (batch lookup)
             field_ids: Specific field IDs to include in response
             field_types: Field types to include
-            filter: V2 filter expression string or FilterExpression
             limit: Maximum results per page
             cursor: Cursor to resume pagination
 
-        Yields:
-            PaginatedResponse[Person] for each page
+        Returns:
+            AsyncIterator of PaginatedResponse[Person]
+
+        Note:
+            The V2 /persons endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search persons
+            by name or email use ``client.persons.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
-        other_params = (ids, field_ids, field_types, filter, limit)
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /persons does not support server-side filter. "
+                "To search by name/email use client.persons.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
+        return self._pages_iter(
+            ids=ids,
+            field_ids=field_ids,
+            field_types=field_types,
+            limit=limit,
+            cursor=cursor,
+        )
+
+    async def _pages_iter(
+        self,
+        *,
+        ids: Sequence[PersonId] | None = None,
+        field_ids: Sequence[AnyFieldId] | None = None,
+        field_types: Sequence[FieldType] | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> AsyncIterator[PaginatedResponse[Person]]:
+        other_params = (ids, field_ids, field_types, limit)
         if cursor is not None and any(p is not None for p in other_params):
             raise ValueError(
                 "Cannot combine 'cursor' with other parameters; cursor encodes all query context. "
@@ -1201,7 +1326,6 @@ class AsyncPersonService:
                 ids=ids,
                 field_ids=field_ids,
                 field_types=field_types,
-                filter=filter,
                 limit=limit,
             )
         while True:
@@ -1220,7 +1344,7 @@ class AsyncPersonService:
         ids: Sequence[PersonId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
+        **_unsupported: Any,
     ) -> AsyncIterator[Person]:
         """
         Iterate through all persons with automatic pagination.
@@ -1229,11 +1353,26 @@ class AsyncPersonService:
             ids: Specific person IDs to fetch (batch lookup)
             field_ids: Specific field IDs to include
             field_types: Field types to include
-            filter: V2 filter expression
 
         Yields:
             Person objects
+
+        Note:
+            The V2 /persons endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search persons
+            by name or email use ``client.persons.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /persons does not support server-side filter. "
+                "To search by name/email use client.persons.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
 
         async def fetch_page(next_url: str | None) -> PaginatedResponse[Person]:
             if next_url:
@@ -1242,9 +1381,7 @@ class AsyncPersonService:
                     data=[Person.model_validate(p) for p in data.get("data", [])],
                     pagination=PaginationInfo.model_validate(data.get("pagination", {})),
                 )
-            return await self.list(
-                ids=ids, field_ids=field_ids, field_types=field_types, filter=filter
-            )
+            return await self.list(ids=ids, field_ids=field_ids, field_types=field_types)
 
         return AsyncPageIterator(fetch_page)
 
@@ -1254,14 +1391,30 @@ class AsyncPersonService:
         ids: Sequence[PersonId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
+        **_unsupported: Any,
     ) -> AsyncIterator[Person]:
         """
         Auto-paginate all persons.
 
         Alias for `all()` (FR-006 public contract).
+
+        Note:
+            The V2 /persons endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search persons
+            by name or email use ``client.persons.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
-        return self.all(ids=ids, field_ids=field_ids, field_types=field_types, filter=filter)
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /persons does not support server-side filter. "
+                "To search by name/email use client.persons.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
+        return self.all(ids=ids, field_ids=field_ids, field_types=field_types)
 
     async def get(
         self,
