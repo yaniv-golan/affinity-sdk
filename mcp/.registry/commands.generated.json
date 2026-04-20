@@ -489,7 +489,6 @@
         "company ls",
         "company ls --page-size 50",
         "company ls --field-type enriched --all",
-        "company ls --filter 'Industry = \"Software\"'",
         "company ls --query \"Acme\" --all",
         "company ls --all --csv > companies.csv",
         "company ls --all --output csv --csv-bom > companies.csv"

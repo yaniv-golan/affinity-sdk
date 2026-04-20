@@ -348,15 +348,15 @@ def company_ls(
     """
     List companies.
 
-    Supports field selection, field types, and filter expressions.
-    Use --query for free-text search.
+    Supports field selection and field types. The V2 /companies endpoint does
+    not support server-side filtering — use --query for free-text search
+    (name/domain fuzzy match).
 
     Examples:
 
     - `xaffinity company ls`
     - `xaffinity company ls --page-size 50`
     - `xaffinity company ls --field-type enriched --all`
-    - `xaffinity company ls --filter 'Industry = "Software"'`
     - `xaffinity company ls --query "Acme" --all`
     - `xaffinity company ls --all --csv > companies.csv`
     - `xaffinity company ls --all --output csv --csv-bom > companies.csv`
