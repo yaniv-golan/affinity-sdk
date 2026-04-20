@@ -120,3 +120,68 @@ def test_companies_pages_still_works_without_filter():
         assert pages_list[0].data == []
     finally:
         client.close()
+
+
+# ---------------------------------------------------------------------------
+# Async tests (Task 2.2)
+# ---------------------------------------------------------------------------
+
+import asyncio
+
+from affinity import AsyncAffinity
+
+
+def _make_async_client(handler):
+    return AsyncAffinity(
+        api_key="test",
+        v1_base_url="https://v1.example",
+        v2_base_url="https://v2.example/v2",
+        max_retries=0,
+        async_transport=httpx.MockTransport(handler),
+    )
+
+
+def test_async_companies_list_rejects_filter():
+    async def run():
+        async with _make_async_client(
+            lambda r: httpx.Response(200, json={"data": [], "pagination": {}}, request=r)
+        ) as client:
+            with pytest.raises(ValueError, match="does not support server-side filter"):
+                await client.companies.list(filter='name =~ "Acme"')
+
+    asyncio.run(run())
+
+
+def test_async_companies_get_first_rejects_filter():
+    async def run():
+        async with _make_async_client(
+            lambda r: httpx.Response(200, json={"data": [], "pagination": {}}, request=r)
+        ) as client:
+            with pytest.raises(ValueError, match="does not support server-side filter"):
+                await client.companies.get_first(filter='name =~ "Acme"')
+
+    asyncio.run(run())
+
+
+def test_async_companies_all_rejects_filter_on_call():
+    """Must fire on the sync call that constructs the iterator, NOT on first iteration."""
+
+    async def run():
+        async with _make_async_client(
+            lambda r: httpx.Response(200, json={"data": [], "pagination": {}}, request=r)
+        ) as client:
+            with pytest.raises(ValueError, match="does not support server-side filter"):
+                client.companies.all(filter='name =~ "Acme"')
+
+    asyncio.run(run())
+
+
+def test_async_companies_iter_rejects_filter_on_call():
+    async def run():
+        async with _make_async_client(
+            lambda r: httpx.Response(200, json={"data": [], "pagination": {}}, request=r)
+        ) as client:
+            with pytest.raises(ValueError, match="does not support server-side filter"):
+                client.companies.iter(filter='name =~ "Acme"')
+
+    asyncio.run(run())
