@@ -1,6 +1,7 @@
 import json
 from unittest.mock import patch
 
+import pytest
 from click.testing import CliRunner
 
 from affinity.cli.main import cli
@@ -8,6 +9,7 @@ from affinity.exceptions import DuplicateEntityError
 from affinity.models.entities import Person
 
 
+@pytest.mark.req("REQ-DEDUP-003")
 def test_person_create_refuses_duplicate_by_default(monkeypatch):
     runner = CliRunner()
     monkeypatch.setenv("AFFINITY_API_KEY", "test")
@@ -43,6 +45,7 @@ def test_person_create_refuses_duplicate_by_default(monkeypatch):
     assert payload["error"]["details"]["existing"]["personId"] == 500
 
 
+@pytest.mark.req("REQ-DEDUP-003")
 def test_person_create_allow_duplicate_bypasses(monkeypatch):
     runner = CliRunner()
     monkeypatch.setenv("AFFINITY_API_KEY", "test")

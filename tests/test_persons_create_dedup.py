@@ -35,6 +35,7 @@ def _person_search(matches):
     return {"persons": matches, "next_page_token": None}
 
 
+@pytest.mark.req("REQ-DEDUP-002")
 def test_person_create_raises_on_exact_email_match():
     def handler(request):
         url = str(request.url)
@@ -68,6 +69,7 @@ def test_person_create_raises_on_exact_email_match():
         client.close()
 
 
+@pytest.mark.req("REQ-DEDUP-002")
 def test_person_create_raises_on_exact_name_match_when_no_email():
     def handler(request):
         url = str(request.url)
@@ -98,6 +100,7 @@ def test_person_create_raises_on_exact_name_match_when_no_email():
         client.close()
 
 
+@pytest.mark.req("REQ-DEDUP-002")
 def test_person_create_same_name_different_email_does_not_block():
     calls = {"search": 0, "post": 0}
 
@@ -146,6 +149,7 @@ def test_person_create_same_name_different_email_does_not_block():
         client.close()
 
 
+@pytest.mark.req("REQ-DEDUP-002")
 def test_person_create_skips_when_flag_false():
     calls = {"search": 0, "post": 0}
 
@@ -181,6 +185,7 @@ def test_person_create_skips_when_flag_false():
         client.close()
 
 
+@pytest.mark.req("REQ-DEDUP-002")
 def test_async_person_create_raises_on_email_match():
     async def run():
         def handler(request):

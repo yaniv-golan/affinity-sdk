@@ -15,6 +15,7 @@ def _make_client(handler):
     )
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_companies_list_rejects_string_filter():
     client = _make_client(
         lambda r: httpx.Response(200, json={"data": [], "pagination": {}}, request=r)
@@ -26,6 +27,7 @@ def test_companies_list_rejects_string_filter():
         client.close()
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_companies_list_rejects_filter_expression():
     client = _make_client(
         lambda r: httpx.Response(200, json={"data": [], "pagination": {}}, request=r)
@@ -37,6 +39,7 @@ def test_companies_list_rejects_filter_expression():
         client.close()
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_companies_list_error_hints_at_alternative():
     client = _make_client(
         lambda r: httpx.Response(200, json={"data": [], "pagination": {}}, request=r)
@@ -50,6 +53,7 @@ def test_companies_list_error_hints_at_alternative():
         client.close()
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_companies_list_still_works_without_filter():
     def handler(request: httpx.Request) -> httpx.Response:
         assert "filter" not in str(request.url)
@@ -63,6 +67,7 @@ def test_companies_list_still_works_without_filter():
         client.close()
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_companies_get_first_rejects_filter():
     client = _make_client(
         lambda r: httpx.Response(200, json={"data": [], "pagination": {}}, request=r)
@@ -74,6 +79,7 @@ def test_companies_get_first_rejects_filter():
         client.close()
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_companies_all_rejects_filter():
     client = _make_client(
         lambda r: httpx.Response(200, json={"data": [], "pagination": {}}, request=r)
@@ -85,6 +91,7 @@ def test_companies_all_rejects_filter():
         client.close()
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_companies_iter_rejects_filter():
     client = _make_client(
         lambda r: httpx.Response(200, json={"data": [], "pagination": {}}, request=r)
@@ -96,6 +103,7 @@ def test_companies_iter_rejects_filter():
         client.close()
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_companies_pages_rejects_filter():
     client = _make_client(
         lambda r: httpx.Response(200, json={"data": [], "pagination": {}}, request=r)
@@ -107,6 +115,7 @@ def test_companies_pages_rejects_filter():
         client.close()
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_companies_pages_still_works_without_filter():
     # Regression: pages() should NOT pass filter=None through to list()
     def handler(request: httpx.Request) -> httpx.Response:
@@ -141,6 +150,7 @@ def _make_async_client(handler):
     )
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_async_companies_list_rejects_filter():
     async def run():
         async with _make_async_client(
@@ -152,6 +162,7 @@ def test_async_companies_list_rejects_filter():
     asyncio.run(run())
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_async_companies_get_first_rejects_filter():
     async def run():
         async with _make_async_client(
@@ -163,6 +174,7 @@ def test_async_companies_get_first_rejects_filter():
     asyncio.run(run())
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_async_companies_all_rejects_filter_on_call():
     """Must fire on the sync call that constructs the iterator, NOT on first iteration."""
 
@@ -176,6 +188,7 @@ def test_async_companies_all_rejects_filter_on_call():
     asyncio.run(run())
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_async_companies_iter_rejects_filter_on_call():
     async def run():
         async with _make_async_client(
@@ -187,6 +200,7 @@ def test_async_companies_iter_rejects_filter_on_call():
     asyncio.run(run())
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_async_companies_pages_rejects_filter_on_call():
     """Guard must fire on call, not on iteration — async pages uses wrapper pattern."""
 
@@ -200,6 +214,7 @@ def test_async_companies_pages_rejects_filter_on_call():
     asyncio.run(run())
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_async_companies_pages_still_works_without_filter():
     async def run():
         def handler(request: httpx.Request) -> httpx.Response:

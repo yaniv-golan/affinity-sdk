@@ -38,6 +38,7 @@ def _search_response(matches):
     }
 
 
+@pytest.mark.req("REQ-DEDUP-001")
 def test_create_raises_duplicate_on_exact_name_match():
     def handler(request):
         url = str(request.url)
@@ -62,6 +63,7 @@ def test_create_raises_duplicate_on_exact_name_match():
         client.close()
 
 
+@pytest.mark.req("REQ-DEDUP-001")
 def test_create_raises_duplicate_on_domain_match():
     """Domain-first search order."""
     search_terms = []
@@ -91,6 +93,7 @@ def test_create_raises_duplicate_on_domain_match():
         client.close()
 
 
+@pytest.mark.req("REQ-DEDUP-001")
 def test_create_matches_on_domains_plural_list():
     def handler(request):
         url = str(request.url)
@@ -120,6 +123,7 @@ def test_create_matches_on_domains_plural_list():
         client.close()
 
 
+@pytest.mark.req("REQ-DEDUP-001")
 def test_create_flags_global_match():
     def handler(request):
         url = str(request.url)
@@ -143,6 +147,7 @@ def test_create_flags_global_match():
         client.close()
 
 
+@pytest.mark.req("REQ-DEDUP-001")
 def test_create_succeeds_when_no_match():
     calls = {"search": 0, "post": 0}
 
@@ -168,6 +173,7 @@ def test_create_succeeds_when_no_match():
         client.close()
 
 
+@pytest.mark.req("REQ-DEDUP-001")
 def test_create_skips_dedup_when_flag_false():
     calls = {"search": 0, "post": 0}
 
@@ -193,6 +199,7 @@ def test_create_skips_dedup_when_flag_false():
         client.close()
 
 
+@pytest.mark.req("REQ-DEDUP-001")
 def test_create_name_match_is_case_insensitive():
     def handler(request):
         url = str(request.url)
@@ -213,6 +220,7 @@ def test_create_name_match_is_case_insensitive():
         client.close()
 
 
+@pytest.mark.req("REQ-DEDUP-001")
 def test_create_fuzzy_non_exact_matches_do_not_block():
     def handler(request):
         url = str(request.url)
@@ -246,6 +254,7 @@ def test_create_fuzzy_non_exact_matches_do_not_block():
 # =============================================================================
 
 
+@pytest.mark.req("REQ-DEDUP-001")
 def test_async_create_raises_duplicate_on_exact_name_match():
     def handler(request):
         url = str(request.url)
@@ -267,6 +276,7 @@ def test_async_create_raises_duplicate_on_exact_name_match():
     asyncio.run(run())
 
 
+@pytest.mark.req("REQ-DEDUP-001")
 def test_async_create_flags_global_match():
     def handler(request):
         url = str(request.url)
@@ -289,6 +299,7 @@ def test_async_create_flags_global_match():
     asyncio.run(run())
 
 
+@pytest.mark.req("REQ-DEDUP-001")
 def test_async_create_skips_dedup_when_flag_false():
     calls = {"search": 0, "post": 0}
 

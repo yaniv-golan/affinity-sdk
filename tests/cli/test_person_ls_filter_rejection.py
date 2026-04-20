@@ -1,10 +1,12 @@
 import json
 
+import pytest
 from click.testing import CliRunner
 
 from affinity.cli.main import cli
 
 
+@pytest.mark.req("REQ-FILTER-002")
 def test_person_ls_filter_exits_with_usage_error():
     runner = CliRunner()
     result = runner.invoke(

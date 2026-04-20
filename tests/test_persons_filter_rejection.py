@@ -24,6 +24,7 @@ def _make_sync_client(handler=None):
 # ---- Sync ----
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_persons_list_rejects_string_filter():
     client = _make_sync_client()
     try:
@@ -33,6 +34,7 @@ def test_persons_list_rejects_string_filter():
         client.close()
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_persons_list_rejects_filter_expression():
     client = _make_sync_client()
     try:
@@ -42,6 +44,7 @@ def test_persons_list_rejects_filter_expression():
         client.close()
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_persons_list_error_hints_at_alternative():
     client = _make_sync_client()
     try:
@@ -53,6 +56,7 @@ def test_persons_list_error_hints_at_alternative():
         client.close()
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_persons_list_still_works_without_filter():
     def handler(request):
         assert "filter" not in str(request.url)
@@ -66,6 +70,7 @@ def test_persons_list_still_works_without_filter():
         client.close()
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_persons_get_first_rejects_filter():
     client = _make_sync_client()
     try:
@@ -75,6 +80,7 @@ def test_persons_get_first_rejects_filter():
         client.close()
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_persons_all_rejects_filter():
     client = _make_sync_client()
     try:
@@ -84,6 +90,7 @@ def test_persons_all_rejects_filter():
         client.close()
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_persons_iter_rejects_filter():
     client = _make_sync_client()
     try:
@@ -93,6 +100,7 @@ def test_persons_iter_rejects_filter():
         client.close()
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_persons_pages_rejects_filter():
     client = _make_sync_client()
     try:
@@ -105,6 +113,7 @@ def test_persons_pages_rejects_filter():
 # ---- Async ----
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_async_persons_list_rejects_filter():
     async def run():
         async with AsyncAffinity(
@@ -120,6 +129,7 @@ def test_async_persons_list_rejects_filter():
     asyncio.run(run())
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_async_persons_get_first_rejects_filter():
     async def run():
         async with AsyncAffinity(
@@ -135,6 +145,7 @@ def test_async_persons_get_first_rejects_filter():
     asyncio.run(run())
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_async_persons_all_rejects_filter_on_call():
     async def run():
         async with AsyncAffinity(
@@ -150,6 +161,7 @@ def test_async_persons_all_rejects_filter_on_call():
     asyncio.run(run())
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_async_persons_iter_rejects_filter_on_call():
     async def run():
         async with AsyncAffinity(
@@ -165,6 +177,7 @@ def test_async_persons_iter_rejects_filter_on_call():
     asyncio.run(run())
 
 
+@pytest.mark.req("REQ-FILTER-001")
 def test_async_persons_pages_rejects_filter_on_call():
     async def run():
         async with AsyncAffinity(

@@ -1,10 +1,12 @@
 import json
 
+import pytest
 from click.testing import CliRunner
 
 from affinity.cli.main import cli
 
 
+@pytest.mark.req("REQ-FILTER-002")
 def test_company_ls_filter_exits_with_usage_error():
     runner = CliRunner()
     result = runner.invoke(
@@ -19,6 +21,7 @@ def test_company_ls_filter_exits_with_usage_error():
     assert "--query" in payload["error"]["hint"]
 
 
+@pytest.mark.req("REQ-FILTER-002")
 def test_company_ls_query_still_works():
     """Regression guard — --query path must not be affected by the --filter rejection."""
     runner = CliRunner()

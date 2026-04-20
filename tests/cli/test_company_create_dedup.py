@@ -1,6 +1,7 @@
 import json
 from unittest.mock import patch
 
+import pytest
 from click.testing import CliRunner
 
 from affinity.cli.main import cli
@@ -8,6 +9,7 @@ from affinity.exceptions import DuplicateEntityError
 from affinity.models.entities import Company
 
 
+@pytest.mark.req("REQ-DEDUP-003")
 def test_company_create_refuses_duplicate_by_default(monkeypatch):
     runner = CliRunner()
     monkeypatch.setenv("AFFINITY_API_KEY", "test")
@@ -38,6 +40,7 @@ def test_company_create_refuses_duplicate_by_default(monkeypatch):
     assert payload["error"]["details"]["existing"]["isGlobal"] is False
 
 
+@pytest.mark.req("REQ-DEDUP-003")
 def test_company_create_refuses_global_duplicate_with_targeted_hint(monkeypatch):
     """Global directory matches get a specific hint to use List Entries."""
     runner = CliRunner()
@@ -69,6 +72,7 @@ def test_company_create_refuses_global_duplicate_with_targeted_hint(monkeypatch)
     assert "list" in hint.lower() or "List Entries" in hint
 
 
+@pytest.mark.req("REQ-DEDUP-003")
 def test_company_create_allow_duplicate_bypasses(monkeypatch):
     runner = CliRunner()
     monkeypatch.setenv("AFFINITY_API_KEY", "test")
