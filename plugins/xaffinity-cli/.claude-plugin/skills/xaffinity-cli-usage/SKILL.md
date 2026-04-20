@@ -275,16 +275,31 @@ For full query reference (JSON structure, operators, aggregation, quantifiers, e
 
 ## Filtering
 
-### Entity commands (`person ls`, `company ls`): Filter works on ALL fields
+### Entity commands (`person ls`, `company ls`): use `--query`, NOT `--filter`
 
 ```bash
-# Core fields work:
-xaffinity --readonly person ls --filter 'Email =~ "@acme.com"' --max-results 20 --json
-xaffinity --readonly company ls --filter 'name =~ "Acme"' --max-results 20 --json
+# Global-entity search — use --query for V1 fuzzy name/email/domain search
+xaffinity --readonly person ls --query "@acme.com" --max-results 20 --json
+xaffinity --readonly company ls --query "Acme" --max-results 20 --json
 
-# Custom fields work:
-xaffinity --readonly person ls --filter 'Department = "Sales"' --max-results 20 --json
+# Department-style filters are list-specific; run on the list that defines the field
+xaffinity --readonly list export "All Contacts" --filter 'Department = "Sales"' --max-results 20 --json
 ```
+
+### `--filter` is NOT supported on `company ls` / `person ls` / `query companies|persons|opportunities`
+
+V2 API limitation. These commands raise `unsupported_filter` (exit 2) if `--filter` is passed. Use:
+- `--query TERM` for name/domain/email fuzzy search on global entities.
+- `list export <LIST> --filter ...` for list-specific field filters.
+
+### `company create` / `person create` refuses duplicates by default
+
+Since CLI 1.12.0, create refuses if an exact name/domain (companies) or email/full-name (persons) match exists:
+- Exit code: 6
+- Error type: `duplicate_exists`
+- Payload: `error.details.existing.companyId` (or `personId`) — use this ID instead of creating a duplicate.
+- For companies, `error.details.existing.isGlobal == true` indicates a global Affinity directory record — the hint points to `list entry add --company-id <id>` instead of creating a tenant-scoped copy.
+- Pass `--allow-duplicate` to force-create when you genuinely want a distinct record with the same name.
 
 ### List export: `--filter` is CLIENT-SIDE (fetches everything first)
 
