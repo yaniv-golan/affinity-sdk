@@ -234,21 +234,32 @@ def person_ls(
     """
     List persons.
 
-    Supports field selection, field types, and filter expressions.
-    Use --query for free-text search.
+    Supports field selection and field types. The V2 /persons endpoint does
+    not support server-side filtering — use --query for free-text search
+    (name/email fuzzy match).
 
     Examples:
 
     - `xaffinity person ls`
     - `xaffinity person ls --page-size 50`
     - `xaffinity person ls --field-type enriched --all`
-    - `xaffinity person ls --filter 'Email =~ "@acme.com"'`
     - `xaffinity person ls --query "alice@example.com" --all`
     - `xaffinity person ls --all --csv > people.csv`
     - `xaffinity person ls --all --output csv --csv-bom > people.csv`
     """
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
+        if filter_expr is not None:
+            raise CLIError(
+                "The V2 /persons endpoint does not support server-side filtering. "
+                "The --filter flag was silently ignored in previous versions. "
+                "Use --query TERM for name/email fuzzy search instead.",
+                exit_code=2,
+                error_type="unsupported_filter",
+                hint='Try: xaffinity person ls --query "alex@acme.com"',
+                details={"rejected_filter": str(filter_expr)},
+            )
+
         client = ctx.get_client(warnings=warnings)
 
         if cursor is not None and page_size is not None:
