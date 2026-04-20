@@ -363,6 +363,17 @@ def company_ls(
     """
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
+        if filter_expr is not None:
+            raise CLIError(
+                "The V2 /companies endpoint does not support server-side filtering. "
+                "The --filter flag was silently ignored in previous versions. "
+                "Use --query TERM for name/domain fuzzy search instead.",
+                exit_code=2,
+                error_type="unsupported_filter",
+                hint='Try: xaffinity company ls --query "Acme"',
+                details={"rejected_filter": str(filter_expr)},
+            )
+
         client = ctx.get_client(warnings=warnings)
 
         if cursor is not None and page_size is not None:
