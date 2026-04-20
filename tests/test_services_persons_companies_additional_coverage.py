@@ -260,15 +260,11 @@ def test_person_service_v2_read_v1_write_resolve_merge_and_cache_invalidation() 
         page = service.list(
             field_ids=["field-1"],
             field_types=[FieldType.GLOBAL],
-            filter="x",
             limit=1,
         )
         assert [p.id for p in page.data] == [PersonId(1)]
-        _ = service.list(filter="  ")
 
-        all_people = list(
-            service.all(field_ids=["field-1"], field_types=[FieldType.GLOBAL], filter="x")
-        )
+        all_people = list(service.all(field_ids=["field-1"], field_types=[FieldType.GLOBAL]))
         assert [p.id for p in all_people] == [PersonId(1)]
         assert [p.id for p in list(service.iter())] == [PersonId(1)]
 
@@ -809,11 +805,9 @@ async def test_async_person_and_company_services_cover_list_all_get() -> None:
         company_page = await companies.list(
             field_ids=["field-1"],
             field_types=[FieldType.GLOBAL],
-            filter="x",
             limit=1,
         )
         assert company_page.data[0].id == CompanyId(2)
-        _ = await companies.list(filter=" ")
         company = await companies.get(
             CompanyId(2), field_ids=["field-1"], field_types=[FieldType.GLOBAL]
         )
@@ -823,11 +817,9 @@ async def test_async_person_and_company_services_cover_list_all_get() -> None:
         person_page = await persons.list(
             field_ids=["field-1"],
             field_types=[FieldType.GLOBAL],
-            filter="x",
             limit=1,
         )
         assert person_page.data[0].type == PersonType.EXTERNAL
-        _ = await persons.list(filter=" ")
         all_people = [p async for p in persons.all()]
         assert [p.id for p in all_people] == [PersonId(1)]
         all_people_2 = [p async for p in persons.iter()]
@@ -1172,20 +1164,13 @@ def test_company_service_v2_params_pagination_and_related_endpoints() -> None:
     )
     try:
         svc = CompanyService(http)
-        page = svc.list(field_ids=["field-1"], field_types=[FieldType.GLOBAL], filter="x", limit=1)
+        page = svc.list(field_ids=["field-1"], field_types=[FieldType.GLOBAL], limit=1)
         assert page.data[0].id == CompanyId(2)
-        _ = svc.list(field_ids=["field-1"], field_types=[FieldType.GLOBAL], filter=" ")
         assert [
-            c.id
-            for c in list(
-                svc.all(field_ids=["field-1"], field_types=[FieldType.GLOBAL], filter="x")
-            )
+            c.id for c in list(svc.all(field_ids=["field-1"], field_types=[FieldType.GLOBAL]))
         ] == [CompanyId(2)]
         assert [
-            c.id
-            for c in list(
-                svc.iter(field_ids=["field-1"], field_types=[FieldType.GLOBAL], filter="x")
-            )
+            c.id for c in list(svc.iter(field_ids=["field-1"], field_types=[FieldType.GLOBAL]))
         ] == [CompanyId(2)]
         assert (
             svc.get(CompanyId(2), field_ids=["field-1"], field_types=[FieldType.GLOBAL]).name

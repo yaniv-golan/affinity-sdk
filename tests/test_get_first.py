@@ -62,23 +62,18 @@ def test_get_first_returns_none_when_empty() -> None:
         assert company is None
 
 
-@pytest.mark.req("SDK-GET-FIRST")
-def test_get_first_passes_filter() -> None:
-    """get_first() should pass filter and limit=1."""
-    captured_request: httpx.Request | None = None
+def test_get_first_rejects_filter() -> None:
+    """get_first() must raise ValueError — V2 /companies ignores filter server-side."""
 
     def handler(request: httpx.Request) -> httpx.Response:
-        nonlocal captured_request
-        captured_request = request
-        return httpx.Response(200, json={"data": [], "pagination": {}})
+        return httpx.Response(200, json={"data": [], "pagination": {}}, request=request)
 
     transport = httpx.MockTransport(handler)
-    with Affinity(api_key="test", max_retries=0, transport=transport) as client:
+    with (
+        Affinity(api_key="test", max_retries=0, transport=transport) as client,
+        pytest.raises(ValueError, match="does not support server-side filter"),
+    ):
         client.companies.get_first(filter=F.field("name").equals("Acme"))
-
-    assert captured_request is not None
-    assert "limit=1" in str(captured_request.url)
-    assert "filter=" in str(captured_request.url)
 
 
 @pytest.mark.req("SDK-GET-FIRST")

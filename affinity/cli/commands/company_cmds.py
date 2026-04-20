@@ -556,7 +556,6 @@ def company_ls(
                 for page in client.companies.pages(
                     field_ids=parsed_field_ids,
                     field_types=parsed_field_types,
-                    filter=filter_expr,
                     limit=page_size,
                     cursor=cursor,
                 ):

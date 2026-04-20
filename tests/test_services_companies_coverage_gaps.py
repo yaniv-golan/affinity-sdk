@@ -41,10 +41,6 @@ class TestCompanyServiceValidationErrors:
         with pytest.raises(ValueError, match="Cannot combine 'cursor' with other parameters"):
             service.list(cursor="some-cursor", field_types=[FieldType.ENRICHED])
 
-    def test_list_cursor_with_filter_raises(self, service: CompanyService) -> None:
-        with pytest.raises(ValueError, match="Cannot combine 'cursor' with other parameters"):
-            service.list(cursor="some-cursor", filter="domain:acme")
-
     def test_list_cursor_with_limit_raises(self, service: CompanyService) -> None:
         with pytest.raises(ValueError, match="Cannot combine 'cursor' with other parameters"):
             service.list(cursor="some-cursor", limit=10)
