@@ -1066,7 +1066,7 @@ class AsyncCompanyService:
         **_unsupported: Any,
     ) -> Company | None:
         """
-        Get the first company, or None if no results.
+        Get the first company from the list endpoint, or None if no results.
 
         See CompanyService.get_first() for details.
 
@@ -1169,7 +1169,7 @@ class AsyncCompanyService:
 
         return results
 
-    async def pages(
+    def pages(
         self,
         *,
         ids: Sequence[CompanyId] | None = None,
@@ -1191,8 +1191,15 @@ class AsyncCompanyService:
             limit: Maximum results per page
             cursor: Cursor to resume pagination
 
-        Yields:
-            PaginatedResponse[Company] for each page
+        Returns:
+            AsyncIterator of PaginatedResponse[Company]
+
+        Note:
+            The V2 /companies endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search companies
+            by name or domain use ``client.companies.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
         if "filter" in _unsupported:
             raise ValueError(
@@ -1203,6 +1210,23 @@ class AsyncCompanyService:
             )
         if _unsupported:
             raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
+        return self._pages_iter(
+            ids=ids,
+            field_ids=field_ids,
+            field_types=field_types,
+            limit=limit,
+            cursor=cursor,
+        )
+
+    async def _pages_iter(
+        self,
+        *,
+        ids: Sequence[CompanyId] | None = None,
+        field_ids: Sequence[AnyFieldId] | None = None,
+        field_types: Sequence[FieldType] | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> AsyncIterator[PaginatedResponse[Company]]:
         other_params = (ids, field_ids, field_types, limit)
         if cursor is not None and any(p is not None for p in other_params):
             raise ValueError(

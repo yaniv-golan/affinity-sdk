@@ -185,3 +185,32 @@ def test_async_companies_iter_rejects_filter_on_call():
                 client.companies.iter(filter='name =~ "Acme"')
 
     asyncio.run(run())
+
+
+def test_async_companies_pages_rejects_filter_on_call():
+    """Guard must fire on call, not on iteration — async pages uses wrapper pattern."""
+
+    async def run():
+        async with _make_async_client(
+            lambda r: httpx.Response(200, json={"data": [], "pagination": {}}, request=r)
+        ) as client:
+            with pytest.raises(ValueError, match="does not support server-side filter"):
+                client.companies.pages(filter='name =~ "Acme"')
+
+    asyncio.run(run())
+
+
+def test_async_companies_pages_still_works_without_filter():
+    async def run():
+        def handler(request: httpx.Request) -> httpx.Response:
+            assert "filter" not in str(request.url)
+            return httpx.Response(200, json={"data": [], "pagination": {}}, request=request)
+
+        async with _make_async_client(handler) as client:
+            pages_collected = []
+            async for page in client.companies.pages(limit=10):
+                pages_collected.append(page)
+            assert len(pages_collected) == 1
+            assert pages_collected[0].data == []
+
+    asyncio.run(run())
