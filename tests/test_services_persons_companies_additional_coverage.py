@@ -288,7 +288,8 @@ def test_person_service_v2_read_v1_write_resolve_merge_and_cache_invalidation() 
                 last_name="B",
                 emails=["a@example.com"],
                 company_ids=[CompanyId(2)],
-            )
+            ),
+            if_not_exists=False,
         )
         assert created.id == PersonId(1)
         _ = service.get_fields(field_types=[FieldType.GLOBAL])
@@ -941,7 +942,8 @@ def test_company_service_v2_read_v1_write_resolve_merge_and_cache_invalidation()
         assert calls["company_fields"] == 1
 
         created = service.create(
-            CompanyCreate(name="Acme", domain="acme.com", person_ids=[PersonId(1)])
+            CompanyCreate(name="Acme", domain="acme.com", person_ids=[PersonId(1)]),
+            if_not_exists=False,
         )
         assert created.id == CompanyId(2)
         _ = service.get_fields(field_types=None)
@@ -1056,14 +1058,15 @@ def test_person_and_company_write_ops_skip_cache_invalidation_when_cache_disable
     try:
         people = PersonService(http)
         created = people.create(
-            PersonCreate(first_name="A", last_name="B", emails=["a@example.com"])
+            PersonCreate(first_name="A", last_name="B", emails=["a@example.com"]),
+            if_not_exists=False,
         )
         assert created.id == PersonId(1)
         _ = people.update(PersonId(1), PersonUpdate())
         assert people.delete(PersonId(1)) is True
 
         companies = CompanyService(http)
-        created_company = companies.create(CompanyCreate(name="Acme"))
+        created_company = companies.create(CompanyCreate(name="Acme"), if_not_exists=False)
         assert created_company.id == CompanyId(2)
         _ = companies.update(CompanyId(2), CompanyUpdate(domain="acme.com", person_ids=[]))
         assert companies.delete(CompanyId(2)) is True
@@ -1500,7 +1503,8 @@ async def test_async_person_service_v1_write_search_resolve_merge_and_helpers() 
         assert resolved is not None
 
         created = await service.create(
-            PersonCreate(first_name="Alice", last_name="Smith", emails=["alice@example.com"])
+            PersonCreate(first_name="Alice", last_name="Smith", emails=["alice@example.com"]),
+            if_not_exists=False,
         )
         assert created.id == PersonId(2)
         updated = await service.update(PersonId(2), PersonUpdate(first_name="Alicia"))

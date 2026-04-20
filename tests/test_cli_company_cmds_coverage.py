@@ -49,27 +49,17 @@ class TestCompanyLs:
         )
         assert result.exit_code == 0
 
-    def test_ls_with_filter(self, respx_mock: respx.MockRouter) -> None:
-        """Company ls with filter parameter."""
-        respx_mock.get("https://api.affinity.co/v2/companies").mock(
-            return_value=Response(
-                200,
-                json={
-                    "data": [
-                        {"id": 1, "name": "Acme Corp", "domain": "acme.com"},
-                    ],
-                    "pagination": {"nextUrl": None},
-                },
-            )
-        )
-
+    def test_ls_with_filter(self) -> None:
+        """Company ls rejects --filter (V2 /companies does not support server-side filtering)."""
         runner = CliRunner()
         result = runner.invoke(
             cli,
             ["--json", "company", "ls", "--filter", "domain:acme.com"],
             env={"AFFINITY_API_KEY": "test-key"},
         )
-        assert result.exit_code == 0
+        assert result.exit_code == 2
+        payload = json.loads(result.output)
+        assert payload["error"]["type"] == "unsupported_filter"
 
     def test_ls_with_max_results(self, respx_mock: respx.MockRouter) -> None:
         """Company ls with --max-results should limit output."""
@@ -121,6 +111,7 @@ class TestCompanyCreate:
                 "--json",
                 "company",
                 "create",
+                "--allow-duplicate",
                 "--name",
                 "New Company",
                 "--domain",
@@ -151,6 +142,7 @@ class TestCompanyCreate:
                 "--json",
                 "company",
                 "create",
+                "--allow-duplicate",
                 "--name",
                 "New Company",
                 "--person-id",

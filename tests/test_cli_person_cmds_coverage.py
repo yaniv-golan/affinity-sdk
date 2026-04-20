@@ -76,27 +76,17 @@ class TestPersonLs:
         # Should have truncated to 2 results
         assert len(payload["data"]["persons"]) <= 2
 
-    def test_ls_with_filter(self, respx_mock: respx.MockRouter) -> None:
-        """Person ls with filter parameter."""
-        respx_mock.get("https://api.affinity.co/v2/persons").mock(
-            return_value=Response(
-                200,
-                json={
-                    "data": [
-                        {"id": 1, "firstName": "Alice", "lastName": "Smith"},
-                    ],
-                    "pagination": {"nextUrl": None},
-                },
-            )
-        )
-
+    def test_ls_with_filter(self) -> None:
+        """Person ls rejects --filter (V2 /persons does not support server-side filtering)."""
         runner = CliRunner()
         result = runner.invoke(
             cli,
             ["--json", "person", "ls", "--filter", "email:alice@example.com"],
             env={"AFFINITY_API_KEY": "test-key"},
         )
-        assert result.exit_code == 0
+        assert result.exit_code == 2
+        payload = json.loads(result.output)
+        assert payload["error"]["type"] == "unsupported_filter"
 
 
 class TestPersonCreate:
@@ -123,6 +113,7 @@ class TestPersonCreate:
                 "--json",
                 "person",
                 "create",
+                "--allow-duplicate",
                 "--first-name",
                 "New",
                 "--last-name",
@@ -334,6 +325,7 @@ class TestPersonCreateWithCompany:
                 "--json",
                 "person",
                 "create",
+                "--allow-duplicate",
                 "--first-name",
                 "Test",
                 "--last-name",

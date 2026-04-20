@@ -61,6 +61,7 @@ def test_person_crud_and_merge(respx_mock: respx.MockRouter) -> None:
             "--json",
             "person",
             "create",
+            "--allow-duplicate",
             "--first-name",
             "Ada",
             "--last-name",
@@ -135,7 +136,16 @@ def test_company_crud_and_merge(respx_mock: respx.MockRouter) -> None:
     runner = CliRunner()
     created = runner.invoke(
         cli,
-        ["--json", "company", "create", "--name", "Acme Corp", "--domain", "acme.com"],
+        [
+            "--json",
+            "company",
+            "create",
+            "--allow-duplicate",
+            "--name",
+            "Acme Corp",
+            "--domain",
+            "acme.com",
+        ],
         env={"AFFINITY_API_KEY": "test-key"},
     )
     assert created.exit_code == 0
