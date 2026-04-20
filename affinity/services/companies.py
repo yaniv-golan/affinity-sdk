@@ -13,7 +13,12 @@ import time
 from collections.abc import AsyncIterator, Iterator, Sequence
 from typing import TYPE_CHECKING, Any, Literal
 
-from ..exceptions import AffinityError, BetaEndpointDisabledError, NotFoundError
+from ..exceptions import (
+    AffinityError,
+    BetaEndpointDisabledError,
+    DuplicateEntityError,
+    NotFoundError,
+)
 from ..models.entities import (
     Company,
     CompanyCreate,
@@ -880,15 +885,33 @@ class CompanyService:
     # Write Operations (V1 API)
     # =========================================================================
 
-    def create(self, data: CompanyCreate) -> Company:
+    _DEDUP_PAGE_CAP = 3  # 3 pages x 500 = 1500 fuzzy results scanned per search term
+
+    def create(self, data: CompanyCreate, *, if_not_exists: bool = True) -> Company:
         """
         Create a new company.
 
         Args:
             data: Company creation data
+            if_not_exists: If True (default), check for an existing company with
+                the same name (case-insensitive exact match) OR the same domain
+                (matched against the company's primary domain AND all entries
+                in its `domains` list). Globals in Affinity's shared directory
+                are treated as duplicates — per the API docs, POST /organizations
+                always creates a tenant-scoped copy, so creating against an
+                existing global would produce a genuine duplicate. Raises
+                DuplicateEntityError carrying the existing company's ID and
+                `existing_is_global` flag, so callers can use the global ID
+                directly (e.g., via List Entries) instead of POSTing a copy.
+                Uses V1 search_pages() with page_size=500, capped at 3 pages.
+                Set to False to skip the check and create unconditionally.
 
         Returns:
             Created company
+
+        Raises:
+            DuplicateEntityError: When if_not_exists=True and an exact-name or
+                exact-domain match already exists (tenant-scoped OR global).
 
         Note:
             Creates use V1 API, while reads use V2 API. Due to eventual consistency
@@ -898,6 +921,30 @@ class CompanyService:
             - Add a short delay (100-500ms) before calling get()
             - Implement retry logic in your application
         """
+        if if_not_exists:
+            existing = self._find_exact_duplicate(name=data.name, domain=data.domain)
+            if existing is not None:
+                if existing.is_global:
+                    message = (
+                        f"A global Affinity directory record matches name={data.name!r} "
+                        f"or domain={data.domain!r} (id={existing.id}). Global records "
+                        f"are shared across tenants — use this ID directly (e.g., via "
+                        f"List Entries) instead of creating a tenant-scoped duplicate."
+                    )
+                else:
+                    message = (
+                        f"Company with name={data.name!r} or domain={data.domain!r} "
+                        f"already exists (id={existing.id})"
+                    )
+                raise DuplicateEntityError(
+                    message,
+                    entity_type="company",
+                    existing_id=int(existing.id),
+                    existing_name=existing.name,
+                    existing_domain=existing.domain,
+                    existing_is_global=bool(existing.is_global),
+                )
+
         payload = data.model_dump(by_alias=True, mode="json", exclude_none=True)
         if not data.person_ids:
             payload.pop("person_ids", None)
@@ -908,6 +955,54 @@ class CompanyService:
             self._client.cache.invalidate_prefix("company")
 
         return Company.model_validate(result)
+
+    @staticmethod
+    def _company_matches(company: Company, name_lower: str, domain_lower: str | None) -> bool:
+        """True iff company's name or any domain matches exactly (case-insensitive)."""
+        if company.name and company.name.lower() == name_lower:
+            return True
+        if domain_lower:
+            if company.domain and company.domain.lower() == domain_lower:
+                return True
+            for d in company.domains or []:
+                if d and d.lower() == domain_lower:
+                    return True
+        return False
+
+    def _find_exact_duplicate(self, *, name: str, domain: str | None) -> Company | None:
+        """Search V1 for an exact-name or exact-domain match. Returns None if no match.
+
+        Domain-first search order: domains are globally more unique than names,
+        so if a domain is supplied, we search by domain first. Falls back to a
+        name search only when the domain search came up empty and the name
+        differs from the domain string.
+
+        Iterates at most `_DEDUP_PAGE_CAP` pages per term (1500 fuzzy results).
+        """
+        name_lower = name.strip().lower()
+        domain_lower = domain.strip().lower() if domain else None
+
+        def _scan(term: str) -> Company | None:
+            for page_num, page in enumerate(self.search_pages(term, page_size=500)):
+                for company in page.data:
+                    if self._company_matches(company, name_lower, domain_lower):
+                        return company
+                if page_num + 1 >= self._DEDUP_PAGE_CAP:
+                    break
+                if not page.next_page_token:
+                    break
+            return None
+
+        if domain_lower:
+            # domain is guaranteed non-None when domain_lower is set
+            hit = _scan(domain or "")
+            if hit is not None:
+                return hit
+            if name_lower and name_lower != domain_lower:
+                return _scan(name)
+            return None
+
+        return _scan(name)
 
     def update(
         self,
