@@ -13,7 +13,12 @@ import time
 from collections.abc import AsyncIterator, Iterator, Sequence
 from typing import TYPE_CHECKING, Any, Literal
 
-from ..exceptions import AffinityError, BetaEndpointDisabledError, NotFoundError
+from ..exceptions import (
+    AffinityError,
+    BetaEndpointDisabledError,
+    DuplicateEntityError,
+    NotFoundError,
+)
 from ..models.entities import (
     FieldMetadata,
     FieldValue,
@@ -976,9 +981,27 @@ class PersonService:
     # Write Operations (V1 API)
     # =========================================================================
 
-    def create(self, data: PersonCreate) -> Person:
+    _DEDUP_PAGE_CAP = 3  # 3 pages x 500 = 1500 fuzzy results scanned per search term
+
+    def create(self, data: PersonCreate, *, if_not_exists: bool = True) -> Person:
         """
         Create a new person.
+
+        Args:
+            data: Person creation data
+            if_not_exists: If True (default), check for an existing person with
+                the same primary email (case-insensitive exact) — falling back
+                to exact first+last name match when no email is provided.
+                Uses V1 search_pages(term) with page_size=500, capped at
+                _DEDUP_PAGE_CAP pages. Set to False to skip the check and
+                create unconditionally.
+
+        Returns:
+            Created person
+
+        Raises:
+            DuplicateEntityError: When if_not_exists=True and an exact-email
+                OR exact full-name match already exists.
 
         Note:
             Creates use V1 API, while reads use V2 API. Due to eventual consistency
@@ -987,10 +1010,21 @@ class PersonService:
             - Use the Person object returned by this method (it contains the created data)
             - Add a short delay (100-500ms) before calling get()
             - Implement retry logic in your application
-
-        Raises:
-            ValidationError: If email conflicts with existing person
         """
+        if if_not_exists:
+            existing = self._find_exact_duplicate(
+                first_name=data.first_name,
+                last_name=data.last_name,
+                emails=list(data.emails or []),
+            )
+            if existing is not None:
+                raise DuplicateEntityError(
+                    f"Person with email or name already exists (id={existing.id})",
+                    entity_type="person",
+                    existing_id=int(existing.id),
+                    existing_name=f"{existing.first_name or ''} {existing.last_name or ''}".strip(),
+                )
+
         payload = data.model_dump(by_alias=True, mode="json")
         if not data.company_ids:
             payload.pop("organization_ids", None)
@@ -1001,6 +1035,61 @@ class PersonService:
             self._client.cache.invalidate_prefix("person")
 
         return Person.model_validate(result)
+
+    def _find_exact_duplicate(
+        self,
+        *,
+        first_name: str | None,
+        last_name: str | None,
+        emails: builtins.list[str],
+    ) -> Person | None:
+        """Search V1 for an exact-email or exact full-name match. Returns None if no match.
+
+        Email takes priority — exact case-insensitive match against any entry in the
+        person's emails list or primary_email. Falls back to exact first+last name match
+        when no emails are provided in the create payload.
+
+        Iterates at most `_DEDUP_PAGE_CAP` pages per search term (1500 fuzzy results).
+        """
+        emails_lower = {e.strip().lower() for e in emails if e}
+        fn_lower = (first_name or "").strip().lower()
+        ln_lower = (last_name or "").strip().lower()
+
+        search_terms = list(emails) if emails else [f"{first_name or ''} {last_name or ''}".strip()]
+        seen_ids: set[int] = set()
+
+        for term in search_terms:
+            if not term:
+                continue
+            for page_num, page in enumerate(self.search_pages(term, page_size=500)):
+                for person in page.data:
+                    pid = int(person.id)
+                    if pid in seen_ids:
+                        continue
+                    seen_ids.add(pid)
+
+                    person_emails = {(e or "").strip().lower() for e in (person.emails or [])}
+                    if person.primary_email:
+                        person_emails.add(person.primary_email.strip().lower())
+
+                    if emails_lower and emails_lower & person_emails:
+                        return person
+
+                    if (
+                        not emails_lower
+                        and fn_lower
+                        and ln_lower
+                        and (person.first_name or "").lower() == fn_lower
+                        and (person.last_name or "").lower() == ln_lower
+                    ):
+                        return person
+
+                if page_num + 1 >= self._DEDUP_PAGE_CAP:
+                    break
+                if not page.next_page_token:
+                    break
+
+        return None
 
     def update(
         self,
@@ -1983,9 +2072,27 @@ class AsyncPersonService:
     # Write Operations (V1 API)
     # =========================================================================
 
-    async def create(self, data: PersonCreate) -> Person:
+    _DEDUP_PAGE_CAP = 3  # 3 pages x 500 = 1500 fuzzy results scanned per search term
+
+    async def create(self, data: PersonCreate, *, if_not_exists: bool = True) -> Person:
         """
         Create a new person.
+
+        Args:
+            data: Person creation data
+            if_not_exists: If True (default), check for an existing person with
+                the same primary email (case-insensitive exact) — falling back
+                to exact first+last name match when no email is provided.
+                Uses V1 search_pages(term) with page_size=500, capped at
+                _DEDUP_PAGE_CAP pages. Set to False to skip the check and
+                create unconditionally.
+
+        Returns:
+            Created person
+
+        Raises:
+            DuplicateEntityError: When if_not_exists=True and an exact-email
+                OR exact full-name match already exists.
 
         Note:
             Creates use V1 API, while reads use V2 API. Due to eventual consistency
@@ -1994,10 +2101,21 @@ class AsyncPersonService:
             - Use the Person object returned by this method (it contains the created data)
             - Add a short delay (100-500ms) before calling get()
             - Implement retry logic in your application
-
-        Raises:
-            ValidationError: If email conflicts with existing person
         """
+        if if_not_exists:
+            existing = await self._find_exact_duplicate(
+                first_name=data.first_name,
+                last_name=data.last_name,
+                emails=list(data.emails or []),
+            )
+            if existing is not None:
+                raise DuplicateEntityError(
+                    f"Person with email or name already exists (id={existing.id})",
+                    entity_type="person",
+                    existing_id=int(existing.id),
+                    existing_name=f"{existing.first_name or ''} {existing.last_name or ''}".strip(),
+                )
+
         payload = data.model_dump(by_alias=True, mode="json")
         if not data.company_ids:
             payload.pop("organization_ids", None)
@@ -2008,6 +2126,63 @@ class AsyncPersonService:
             self._client.cache.invalidate_prefix("person")
 
         return Person.model_validate(result)
+
+    async def _find_exact_duplicate(
+        self,
+        *,
+        first_name: str | None,
+        last_name: str | None,
+        emails: builtins.list[str],
+    ) -> Person | None:
+        """Search V1 for an exact-email or exact full-name match. Returns None if no match.
+
+        Email takes priority — exact case-insensitive match against any entry in the
+        person's emails list or primary_email. Falls back to exact first+last name match
+        when no emails are provided in the create payload.
+
+        Iterates at most `_DEDUP_PAGE_CAP` pages per search term (1500 fuzzy results).
+        """
+        emails_lower = {e.strip().lower() for e in emails if e}
+        fn_lower = (first_name or "").strip().lower()
+        ln_lower = (last_name or "").strip().lower()
+
+        search_terms = list(emails) if emails else [f"{first_name or ''} {last_name or ''}".strip()]
+        seen_ids: set[int] = set()
+
+        for term in search_terms:
+            if not term:
+                continue
+            page_num = 0
+            async for page in self.search_pages(term, page_size=500):
+                for person in page.data:
+                    pid = int(person.id)
+                    if pid in seen_ids:
+                        continue
+                    seen_ids.add(pid)
+
+                    person_emails = {(e or "").strip().lower() for e in (person.emails or [])}
+                    if person.primary_email:
+                        person_emails.add(person.primary_email.strip().lower())
+
+                    if emails_lower and emails_lower & person_emails:
+                        return person
+
+                    if (
+                        not emails_lower
+                        and fn_lower
+                        and ln_lower
+                        and (person.first_name or "").lower() == fn_lower
+                        and (person.last_name or "").lower() == ln_lower
+                    ):
+                        return person
+
+                page_num += 1
+                if page_num >= self._DEDUP_PAGE_CAP:
+                    break
+                if not page.next_page_token:
+                    break
+
+        return None
 
     async def update(
         self,
