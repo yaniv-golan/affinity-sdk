@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from affinity.cli.query.exceptions import QueryParseError
+from affinity.cli.query.exceptions import QueryParseError, QueryValidationError
 from affinity.cli.query.parser import parse_query
 from affinity.models.entities import Company, ListEntryWithEntity, Person
 
@@ -170,16 +170,19 @@ class TestEntityQueryability:
             assert result.query.from_ == entity
 
     @pytest.mark.req("QUERY-INTEGRATION-004")
-    def test_global_entities_accept_arbitrary_filters(self) -> None:
-        """GLOBAL entities should accept any valid filter."""
-        result = parse_query(
-            {
-                "from": "persons",
-                "where": {"path": "firstName", "op": "eq", "value": "John"},
-                "limit": 10,
-            }
-        )
-        assert result.query.from_ == "persons"
+    def test_global_entities_reject_arbitrary_filters(self) -> None:
+        """Post Task 6.1: global entities (persons/companies/opportunities) reject
+        any where clause because the V2 API does not support server-side
+        filtering and previous versions silently returned unfiltered results.
+        """
+        with pytest.raises(QueryValidationError, match="server-side filtering"):
+            parse_query(
+                {
+                    "from": "persons",
+                    "where": {"path": "firstName", "op": "eq", "value": "John"},
+                    "limit": 10,
+                }
+            )
 
 
 class TestModelSerialization:

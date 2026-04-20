@@ -161,10 +161,11 @@ class TestIsValidFieldPath:
 
     def test_simple_filterable_field(self) -> None:
         """Simple filterable field is valid."""
-        assert is_valid_field_path("persons", "firstName") is True
-        assert is_valid_field_path("persons", "lastName") is True
-        assert is_valid_field_path("companies", "name") is True
-        assert is_valid_field_path("companies", "domain") is True
+        # Global entities (persons/companies) now have empty filterable_fields;
+        # only listEntries exposes filterable simple fields.
+        assert is_valid_field_path("listEntries", "listId") is True
+        assert is_valid_field_path("listEntries", "entityId") is True
+        assert is_valid_field_path("listEntries", "createdAt") is True
 
     def test_id_field(self) -> None:
         """ID field is valid."""

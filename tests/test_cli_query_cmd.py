@@ -41,6 +41,20 @@ def get_error_message(result) -> str:
     # Check output first (error messages are now echoed to stderr which is mixed into output)
     if result.output and "Error:" in result.output:
         return result.output
+    # When --json is active the query command emits a JSON error envelope; surface
+    # the nested error.message so keyword assertions on the message still work.
+    if result.output and result.output.lstrip().startswith("{"):
+        try:
+            payload = extract_json_from_output(result.output)
+            err = payload.get("error") or {}
+            parts = [
+                str(err.get("message") or ""),
+                str(err.get("hint") or ""),
+                str(err.get("type") or ""),
+            ]
+            return " ".join(p for p in parts if p)
+        except Exception:
+            pass
     if result.exception and hasattr(result.exception, "message"):
         return str(result.exception.message)
     if result.exception:

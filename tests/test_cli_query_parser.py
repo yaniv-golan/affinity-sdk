@@ -42,11 +42,11 @@ class TestParseQuery:
         """Parse compound WHERE with AND."""
         result = parse_query(
             {
-                "from": "persons",
+                "from": "listEntries",
                 "where": {
                     "and": [
-                        {"path": "email", "op": "contains", "value": "@acme.com"},
-                        {"path": "firstName", "op": "eq", "value": "John"},
+                        {"path": "listId", "op": "eq", "value": 123},
+                        {"path": "fields.Status", "op": "eq", "value": "Active"},
                     ]
                 },
             }
@@ -60,11 +60,11 @@ class TestParseQuery:
         """Parse compound WHERE with OR."""
         result = parse_query(
             {
-                "from": "persons",
+                "from": "listEntries",
                 "where": {
                     "or": [
-                        {"path": "email", "op": "contains", "value": "@acme.com"},
-                        {"path": "email", "op": "contains", "value": "@example.com"},
+                        {"path": "listId", "op": "eq", "value": 123},
+                        {"path": "listId", "op": "eq", "value": 456},
                     ]
                 },
             }
@@ -111,66 +111,95 @@ class TestParseQuery:
         """Parse quantifier 'all'."""
         result = parse_query(
             {
-                "from": "persons",
+                "from": "listEntries",
                 "where": {
-                    "all": {
-                        "path": "interactions",
-                        "where": {"path": "type", "op": "eq", "value": "MEETING"},
-                    }
+                    "and": [
+                        {"path": "listId", "op": "eq", "value": 123},
+                        {
+                            "all": {
+                                "path": "interactions",
+                                "where": {"path": "type", "op": "eq", "value": "MEETING"},
+                            }
+                        },
+                    ]
                 },
             }
         )
         assert result.query.where is not None
-        assert result.query.where.all_ is not None
-        assert result.query.where.all_.path == "interactions"
+        assert result.query.where.and_ is not None
+        # Find the quantifier branch
+        quant = next(b for b in result.query.where.and_ if b.all_ is not None)
+        assert quant.all_ is not None
+        assert quant.all_.path == "interactions"
 
     @pytest.mark.req("QUERY-PARSE-005")
     def test_parse_quantifier_none(self) -> None:
         """Parse quantifier 'none'."""
         result = parse_query(
             {
-                "from": "companies",
+                "from": "listEntries",
                 "where": {
-                    "none": {
-                        "path": "persons",
-                        "where": {"path": "role", "op": "eq", "value": "CEO"},
-                    }
+                    "and": [
+                        {"path": "listId", "op": "eq", "value": 123},
+                        {
+                            "none": {
+                                "path": "persons",
+                                "where": {"path": "role", "op": "eq", "value": "CEO"},
+                            }
+                        },
+                    ]
                 },
             }
         )
         assert result.query.where is not None
-        assert result.query.where.none_ is not None
+        assert result.query.where.and_ is not None
+        quant = next(b for b in result.query.where.and_ if b.none_ is not None)
+        assert quant.none_ is not None
 
     @pytest.mark.req("QUERY-PARSE-006")
     def test_parse_exists_subquery(self) -> None:
         """Parse EXISTS subquery."""
         result = parse_query(
             {
-                "from": "persons",
+                "from": "listEntries",
                 "where": {
-                    "exists": {
-                        "from": "interactions",
-                        "via": "personId",
-                        "where": {"path": "type", "op": "eq", "value": "MEETING"},
-                    }
+                    "and": [
+                        {"path": "listId", "op": "eq", "value": 123},
+                        {
+                            "exists": {
+                                "from": "interactions",
+                                "via": "personId",
+                                "where": {"path": "type", "op": "eq", "value": "MEETING"},
+                            }
+                        },
+                    ]
                 },
             }
         )
         assert result.query.where is not None
-        assert result.query.where.exists_ is not None
-        assert result.query.where.exists_.from_ == "interactions"
+        assert result.query.where.and_ is not None
+        existsb = next(b for b in result.query.where.and_ if b.exists_ is not None)
+        assert existsb.exists_ is not None
+        assert existsb.exists_.from_ == "interactions"
 
     @pytest.mark.req("QUERY-PARSE-007")
     def test_parse_count_pseudo_field(self) -> None:
         """Parse _count pseudo-field in WHERE."""
         result = parse_query(
             {
-                "from": "persons",
-                "where": {"path": "companies._count", "op": "gte", "value": 2},
+                "from": "listEntries",
+                "where": {
+                    "and": [
+                        {"path": "listId", "op": "eq", "value": 123},
+                        {"path": "companies._count", "op": "gte", "value": 2},
+                    ]
+                },
             }
         )
         assert result.query.where is not None
-        assert result.query.where.path == "companies._count"
+        assert result.query.where.and_ is not None
+        countb = next(b for b in result.query.where.and_ if b.path == "companies._count")
+        assert countb.path == "companies._count"
 
     def test_parse_all_operators(self) -> None:
         """Ensure all supported operators parse correctly."""
@@ -191,14 +220,22 @@ class TestParseQuery:
             ("contains_all", ["a", "b"]),
         ]
         for op, value in operators:
+            # Use listEntries with required listId filter plus the operator under test
             result = parse_query(
                 {
-                    "from": "persons",
-                    "where": {"path": "field", "op": op, "value": value},
+                    "from": "listEntries",
+                    "where": {
+                        "and": [
+                            {"path": "listId", "op": "eq", "value": 123},
+                            {"path": "field", "op": op, "value": value},
+                        ]
+                    },
                 }
             )
             assert result.query.where is not None
-            assert result.query.where.op == op
+            assert result.query.where.and_ is not None
+            opbranch = next(b for b in result.query.where.and_ if b.path == "field")
+            assert opbranch.op == op
 
     def test_parse_between_requires_two_elements(self) -> None:
         """Between operator requires exactly two elements."""
@@ -345,14 +382,19 @@ class TestParseQuery:
         """Parse NOT condition."""
         result = parse_query(
             {
-                "from": "persons",
+                "from": "listEntries",
                 "where": {
-                    "not": {"path": "email", "op": "is_null"},
+                    "and": [
+                        {"path": "listId", "op": "eq", "value": 123},
+                        {"not": {"path": "fields.Status", "op": "is_null"}},
+                    ]
                 },
             }
         )
         assert result.query.where is not None
-        assert result.query.where.not_ is not None
+        assert result.query.where.and_ is not None
+        notb = next(b for b in result.query.where.and_ if b.not_ is not None)
+        assert notb.not_ is not None
 
     def test_warns_on_zero_limit(self) -> None:
         """Warn when limit is 0."""
@@ -739,8 +781,13 @@ class TestParserEdgeCases:
         """is_null operator doesn't require value."""
         result = parse_query(
             {
-                "from": "persons",
-                "where": {"path": "email", "op": "is_null"},
+                "from": "listEntries",
+                "where": {
+                    "and": [
+                        {"path": "listId", "op": "eq", "value": 123},
+                        {"path": "fields.Email", "op": "is_null"},
+                    ]
+                },
             }
         )
         assert result.query.where is not None
@@ -749,8 +796,13 @@ class TestParserEdgeCases:
         """is_not_null operator doesn't require value."""
         result = parse_query(
             {
-                "from": "persons",
-                "where": {"path": "email", "op": "is_not_null"},
+                "from": "listEntries",
+                "where": {
+                    "and": [
+                        {"path": "listId", "op": "eq", "value": 123},
+                        {"path": "fields.Email", "op": "is_not_null"},
+                    ]
+                },
             }
         )
         assert result.query.where is not None

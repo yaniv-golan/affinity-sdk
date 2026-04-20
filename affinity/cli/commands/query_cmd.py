@@ -199,6 +199,38 @@ def query_cmd(
             cursor_str=cursor_str,
         )
     except CLIError as e:
+        # When --json/-o json, emit a structured error envelope on stdout so
+        # callers (MCP, scripts) can parse the failure mode via error.type.
+        if ctx.output == "json":
+            import time as _time
+
+            from ..context import build_result
+            from ..results import CommandContext, ErrorInfo
+            from ..runner import _emit_json
+
+            # `profile` is optional and may be absent on test Mock contexts
+            profile = getattr(ctx, "profile", None)
+            if not isinstance(profile, (str, type(None))):
+                profile = None
+
+            result = build_result(
+                ok=False,
+                command=CommandContext(name="query"),
+                started_at=_time.time(),
+                data=None,
+                warnings=[],
+                profile=profile,
+                rate_limit=None,
+                error=ErrorInfo(
+                    type=e.error_type,
+                    message=e.message,
+                    hint=e.hint,
+                    details=e.details,
+                ),
+            )
+            _emit_json(result)
+            raise click.exceptions.Exit(e.exit_code) from None
+
         # Display error cleanly without traceback
         click.echo(f"Error: {e.message}", err=True)
         if e.hint:
@@ -286,7 +318,11 @@ def _query_cmd_impl(
     try:
         parse_result = parse_query(query_dict, version_override=query_version)
     except (QueryParseError, QueryValidationError) as e:
-        raise CLIError(f"Query validation failed: {e}") from None
+        raise CLIError(
+            f"Query validation failed: {e}",
+            error_type="validation_error",
+            exit_code=2,
+        ) from None
 
     query = parse_result.query
 
@@ -316,7 +352,11 @@ def _query_cmd_impl(
     try:
         plan = planner.plan(query)
     except QueryValidationError as e:
-        raise CLIError(f"Query planning failed: {e}") from None
+        raise CLIError(
+            f"Query planning failed: {e}",
+            error_type="validation_error",
+            exit_code=2,
+        ) from None
 
     # Determine execution mode: full-fetch if orderBy/aggregate/groupBy
     is_full_fetch_mode = (
