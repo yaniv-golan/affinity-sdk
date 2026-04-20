@@ -94,3 +94,29 @@ def test_companies_iter_rejects_filter():
             list(client.companies.iter(filter='name =~ "Acme"'))
     finally:
         client.close()
+
+
+def test_companies_pages_rejects_filter():
+    client = _make_client(
+        lambda r: httpx.Response(200, json={"data": [], "pagination": {}}, request=r)
+    )
+    try:
+        with pytest.raises(ValueError, match="does not support server-side filter"):
+            list(client.companies.pages(filter='name =~ "Acme"'))
+    finally:
+        client.close()
+
+
+def test_companies_pages_still_works_without_filter():
+    # Regression: pages() should NOT pass filter=None through to list()
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert "filter" not in str(request.url)
+        return httpx.Response(200, json={"data": [], "pagination": {}}, request=request)
+
+    client = _make_client(handler)
+    try:
+        pages_list = list(client.companies.pages(limit=10))
+        assert len(pages_list) == 1
+        assert pages_list[0].data == []
+    finally:
+        client.close()

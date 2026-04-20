@@ -174,9 +174,9 @@ class CompanyService:
         ids: Sequence[CompanyId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        **_unsupported: Any,
     ) -> Iterator[PaginatedResponse[Company]]:
         """
         Iterate company pages (not items), yielding `PaginatedResponse[Company]`.
@@ -187,14 +187,22 @@ class CompanyService:
             ids: Specific company IDs to fetch (batch lookup)
             field_ids: Specific field IDs to include in response
             field_types: Field types to include (e.g., ["enriched", "global"])
-            filter: V2 filter expression string or FilterExpression
             limit: Maximum results per page
             cursor: Cursor to resume pagination
 
         Yields:
             PaginatedResponse[Company] for each page
         """
-        other_params = (ids, field_ids, field_types, filter, limit)
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /companies does not support server-side filter. "
+                "To search by name/domain use client.companies.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
+        other_params = (ids, field_ids, field_types, limit)
         if cursor is not None and any(p is not None for p in other_params):
             raise ValueError(
                 "Cannot combine 'cursor' with other parameters; cursor encodes all query context. "
@@ -204,9 +212,7 @@ class CompanyService:
         page = (
             self.list(cursor=cursor)
             if cursor is not None
-            else self.list(
-                ids=ids, field_ids=field_ids, field_types=field_types, filter=filter, limit=limit
-            )
+            else self.list(ids=ids, field_ids=field_ids, field_types=field_types, limit=limit)
         )
         while True:
             yield page
