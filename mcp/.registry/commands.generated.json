@@ -15,6 +15,11 @@
       "destructive": false,
       "progressCapable": false,
       "parameters": {
+        "--allow-duplicate": {
+          "type": "flag",
+          "required": false,
+          "help": "Force create even when an existing company matches by name or domain. By default (if_not_exists=True) duplicates are refused with exit code 6. Not recommended; prefer using the existing companyId."
+        },
         "--domain": {
           "type": "string",
           "required": false,
