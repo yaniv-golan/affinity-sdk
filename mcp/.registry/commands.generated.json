@@ -2526,6 +2526,11 @@
       "destructive": false,
       "progressCapable": false,
       "parameters": {
+        "--allow-duplicate": {
+          "type": "flag",
+          "required": false,
+          "help": "Force create even when an existing person matches by name or email. By default (if_not_exists=True) duplicates are refused with exit code 6. Not recommended; prefer using the existing personId."
+        },
         "--company-id": {
           "type": "int",
           "required": false,

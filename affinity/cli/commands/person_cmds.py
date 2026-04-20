@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 from rich.console import Console
 from rich.progress import BarColumn, Progress, SpinnerColumn, TaskID, TextColumn, TimeElapsedColumn
 
+from affinity.exceptions import DuplicateEntityError
 from affinity.models.entities import Person, PersonCreate, PersonUpdate
 from affinity.models.types import FieldId
 from affinity.types import CompanyId, FieldType, ListId, PersonId
@@ -1918,6 +1919,16 @@ def person_files_upload(
     type=int,
     help="Associated company id (repeatable).",
 )
+@click.option(
+    "--allow-duplicate",
+    is_flag=True,
+    default=False,
+    help=(
+        "Force create even when an existing person matches by name or email. "
+        "By default (if_not_exists=True) duplicates are refused with exit code 6. "
+        "Not recommended; prefer using the existing personId."
+    ),
+)
 @output_options
 @click.pass_obj
 def person_create(
@@ -1927,6 +1938,7 @@ def person_create(
     last_name: str,
     emails: tuple[str, ...],
     company_ids: tuple[int, ...],
+    allow_duplicate: bool,
 ) -> None:
     """
     Create a person.
@@ -1943,14 +1955,30 @@ def person_create(
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
         client = ctx.get_client(warnings=warnings)
-        created = client.persons.create(
-            PersonCreate(
-                first_name=first_name,
-                last_name=last_name,
-                emails=list(emails),
-                company_ids=[CompanyId(cid) for cid in company_ids],
+        try:
+            created = client.persons.create(
+                PersonCreate(
+                    first_name=first_name,
+                    last_name=last_name,
+                    emails=list(emails),
+                    company_ids=[CompanyId(cid) for cid in company_ids],
+                ),
+                if_not_exists=not allow_duplicate,
             )
-        )
+        except DuplicateEntityError as e:
+            raise CLIError(
+                f"Person with name or email already exists (id={e.existing_id}). "
+                f"Use --allow-duplicate to create anyway.",
+                exit_code=6,
+                error_type="duplicate_exists",
+                hint="Run with --allow-duplicate to force create, or use the existing personId.",
+                details={
+                    "existing": {
+                        "personId": e.existing_id,
+                        "name": e.existing_name,
+                    },
+                },
+            ) from e
         payload = serialize_model_for_cli(created)
 
         ctx_modifiers: dict[str, object] = {
