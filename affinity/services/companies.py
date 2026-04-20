@@ -65,9 +65,9 @@ class CompanyService:
         ids: Sequence[CompanyId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        **_unsupported: Any,
     ) -> PaginatedResponse[Company]:
         """
         Get a page of companies.
@@ -76,17 +76,31 @@ class CompanyService:
             ids: Specific company IDs to fetch (batch lookup)
             field_ids: Specific field IDs to include in response
             field_types: Field types to include (e.g., ["enriched", "global"])
-            filter: V2 filter expression string, or a FilterExpression built via `affinity.F`
-                (e.g., `F.field("domain").contains("acme")`)
             limit: Maximum number of results (API default: 100)
             cursor: Cursor to resume pagination (opaque; obtained from prior responses)
 
         Returns:
             Paginated response with companies
+
+        Note:
+            The V2 /companies endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search companies
+            by name or domain use ``client.companies.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /companies does not support server-side filter. "
+                "To search by name/domain use client.companies.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
         validate_entity_field_types(field_types, endpoint="company")
         if cursor is not None:
-            if any(p is not None for p in (ids, field_ids, field_types, filter, limit)):
+            if any(p is not None for p in (ids, field_ids, field_types, limit)):
                 raise ValueError(
                     "Cannot combine 'cursor' with other parameters; cursor encodes all query "
                     "context. Start a new pagination sequence without a cursor to change "
@@ -101,10 +115,6 @@ class CompanyService:
                 params["fieldIds"] = [str(field_id) for field_id in field_ids]
             if field_types:
                 params["fieldTypes"] = [field_type.value for field_type in field_types]
-            if filter is not None:
-                filter_text = str(filter).strip()
-                if filter_text:
-                    params["filter"] = filter_text
             if limit:
                 params["limit"] = limit
             data = self._client.get("/companies", params=params or None)
@@ -117,34 +127,41 @@ class CompanyService:
     def get_first(
         self,
         *,
-        filter: str | FilterExpression | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
+        **_unsupported: Any,
     ) -> Company | None:
         """
-        Get the first company matching the filter, or None if no match.
+        Get the first company, or None if no results.
 
         This is a convenience method equivalent to:
-            page = client.companies.list(filter=filter, limit=1)
+            page = client.companies.list(limit=1)
             return page.data[0] if page.data else None
 
         Args:
-            filter: V2 filter expression
             field_ids: Specific field IDs to include
             field_types: Field types to include
 
         Returns:
-            First matching Company, or None if no results.
+            First Company, or None if no results.
 
-        Example:
-            >>> company = client.companies.get_first(
-            ...     filter=F.field("domain").eq("acme.com")
-            ... )
-            >>> if company:
-            ...     print(company.name)
+        Note:
+            The V2 /companies endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search companies
+            by name or domain use ``client.companies.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /companies does not support server-side filter. "
+                "To search by name/domain use client.companies.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
         page = self.list(
-            filter=filter,
             field_ids=field_ids,
             field_types=field_types,
             limit=1,
@@ -207,7 +224,7 @@ class CompanyService:
         ids: Sequence[CompanyId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
+        **_unsupported: Any,
     ) -> Iterator[Company]:
         """
         Iterate through all companies with automatic pagination.
@@ -216,11 +233,26 @@ class CompanyService:
             ids: Specific company IDs to fetch (batch lookup)
             field_ids: Specific field IDs to include
             field_types: Field types to include
-            filter: V2 filter expression
 
         Yields:
             Company objects
+
+        Note:
+            The V2 /companies endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search companies
+            by name or domain use ``client.companies.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /companies does not support server-side filter. "
+                "To search by name/domain use client.companies.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
 
         def fetch_page(next_url: str | None) -> PaginatedResponse[Company]:
             if next_url:
@@ -230,7 +262,6 @@ class CompanyService:
                     ids=ids,
                     field_ids=field_ids,
                     field_types=field_types,
-                    filter=filter,
                 )
             return PaginatedResponse[Company](
                 data=[Company.model_validate(c) for c in data.get("data", [])],
@@ -245,14 +276,30 @@ class CompanyService:
         ids: Sequence[CompanyId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
+        **_unsupported: Any,
     ) -> Iterator[Company]:
         """
         Auto-paginate all companies.
 
         Alias for `all()` (FR-006 public contract).
+
+        Note:
+            The V2 /companies endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search companies
+            by name or domain use ``client.companies.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
-        return self.all(ids=ids, field_ids=field_ids, field_types=field_types, filter=filter)
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /companies does not support server-side filter. "
+                "To search by name/domain use client.companies.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
+        return self.all(ids=ids, field_ids=field_ids, field_types=field_types)
 
     def get(
         self,
