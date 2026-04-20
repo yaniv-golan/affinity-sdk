@@ -1,9 +1,15 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="1.7.0"
-CLI_MAX_VERSION="1.7.0"
+CLI_MIN_VERSION="1.12.0"
+CLI_MAX_VERSION="1.12.0"
 
+# MCP 1.21.0 requires CLI 1.12.0 for:
+# - `company ls` / `person ls` --filter raises unsupported_filter (V2 API limitation)
+# - `query` rejects `where` on companies/persons/opportunities
+# - `company create` / `person create` refuse duplicates by default (exit 6, error_type=duplicate_exists)
+# - `--allow-duplicate` flag on create; error payload includes existing id + isGlobal (companies)
+#
 # MCP 1.19.0 requires CLI 1.7.0 for:
 # - `field history-bulk` command: Batch field change history (pipeline analysis skill)
 # - `--list` alias on `field ls` and `field history-bulk`

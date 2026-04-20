@@ -5,6 +5,20 @@ All notable changes to the xaffinity MCP server will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.21.0] - 2026-04-20
+
+### Highlights
+
+Agents no longer receive silently-unfiltered results when filtering companies/persons — `company ls --filter` and `person ls --filter` now raise `unsupported_filter` with a hint to use `--query`. `company create` and `person create` refuse to create duplicates by default, surfacing a `duplicate_exists` error (exit code 6) that includes the existing entity ID so callers can recover. Global Affinity directory matches on company create get a targeted hint to use `list entry add --company-id` instead of creating a tenant-scoped copy.
+
+### Added
+- Filter-limitations section in `resources/data-model/data-model.md` covering V2 endpoints that silently ignored `filter`.
+- Registry guidance for `company ls`, `person ls`, `company create`, `person create` steers agents toward `--query` and documents dedup behavior.
+
+### Changed
+- Minimum CLI version bumped to 1.12.0 (`COMPATIBILITY` updated). Older CLIs lack the `unsupported_filter` and `duplicate_exists` error types.
+- Replaced broken `company ls --filter` examples in data-model guide with `--query` equivalents; list-specific field filtering examples now use `list export`.
+
 ## [1.20.1] - 2026-04-19
 
 ### Highlights
