@@ -33,6 +33,8 @@ class CommandOutput:
     columns: list[dict[str, Any]] | None = None
     rate_limit: Any | None = None
     summary: ResultSummary | None = None  # Standardized result summary for footer
+    truncated: bool | None = None
+    truncation_reason: str | None = None
     api_called: bool = False
     exit_code: int = 0  # Allow commands to specify non-zero exit codes (e.g., check-key)
 
@@ -188,6 +190,8 @@ def run_command(ctx: CLIContext, *, command: str, fn: CommandFn) -> None:
             resolved=out.resolved,
             columns=out.columns,
             summary=out.summary,
+            truncated=out.truncated,
+            truncation_reason=out.truncation_reason,
         )
         emit_result(ctx, result)
         raise click.exceptions.Exit(out.exit_code)
@@ -216,6 +220,8 @@ def run_command(ctx: CLIContext, *, command: str, fn: CommandFn) -> None:
             profile=ctx.profile,
             rate_limit=rate_limit,
             error=error_info_for_exception(normalized, verbosity=ctx.verbosity),
+            truncated=None,
+            truncation_reason=None,
         )
         emit_result(ctx, result)
         raise click.exceptions.Exit(code) from exc

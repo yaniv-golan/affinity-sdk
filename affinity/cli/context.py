@@ -810,6 +810,8 @@ def build_result(
     columns: list[dict[str, Any]] | None = None,
     summary: ResultSummary | None = None,
     error: ErrorInfo | None = None,
+    truncated: bool | None = None,
+    truncation_reason: str | None = None,
 ) -> CommandResult:
     duration_ms = int(max(0.0, (time.time() - started_at) * 1000))
     meta = CommandMeta(
@@ -820,6 +822,8 @@ def build_result(
         columns=columns,
         rate_limit=rate_limit,
         summary=summary,
+        truncated=truncated,
+        truncation_reason=truncation_reason,
     )
     return CommandResult(
         ok=ok,

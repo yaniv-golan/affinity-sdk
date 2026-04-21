@@ -4,6 +4,7 @@ Pytest configuration and fixtures for Affinity SDK tests.
 
 from collections.abc import Iterator
 
+import httpx
 import pytest
 
 try:
@@ -12,6 +13,7 @@ except ModuleNotFoundError:  # pragma: no cover - optional test dependency
     respx = None  # type: ignore[assignment]
 
 from affinity import Affinity
+from affinity.cli.context import CLIContext
 
 
 @pytest.fixture
@@ -147,6 +149,34 @@ def list_response() -> dict:
         "listSize": 50,
         "fields": [],
     }
+
+
+@pytest.fixture
+def make_mock_transport(monkeypatch):
+    """Return a factory that registers an httpx.MockTransport and forces the
+    CLI's get_client() to return an Affinity bound to that transport.
+    """
+
+    def factory(handler):
+        transport = httpx.MockTransport(handler)
+
+        def patched_get_client(self, *, warnings):
+            _ = warnings  # unused in test transport
+            if self._client is not None:
+                return self._client
+            self._client = Affinity(
+                api_key="test",
+                v1_base_url="https://api.affinity.co",
+                v2_base_url="https://api.affinity.co/v2",
+                max_retries=0,
+                transport=transport,
+            )
+            return self._client
+
+        monkeypatch.setattr(CLIContext, "get_client", patched_get_client)
+        return transport
+
+    return factory
 
 
 @pytest.fixture

@@ -296,6 +296,8 @@ class CommandMeta(AffinityModel):
     columns: list[dict[str, Any]] | None = None
     rate_limit: RateLimitSnapshot | None = Field(None, alias="rateLimit")
     summary: ResultSummary | None = None
+    truncated: bool | None = None
+    truncation_reason: str | None = Field(None, alias="truncationReason")
 
 
 class CommandResult(AffinityModel):
