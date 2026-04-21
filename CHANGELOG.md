@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.13.0] - 2026-04-22
+
+### Highlights
+
+**Breaking change heads-up:** `xaffinity list export --filter` without a scope flag now exits 2. Add `--all`, `--max-results N`, or `--first-page-only` to pick the scope explicitly. The previous silent page-1-only result was the root cause of the "Fusion Mantle" false-duplicate incident.
+
+Also new: entity-scoped `--company-id`/`--person-id` flags on `list export` for cheap, unambiguous duplicate checks; every JSON response now exposes `meta.truncated` and `meta.truncationReason` so automated callers can't miss an incomplete answer.
+
+### Added
+- CLI: `list export --company-id ID` / `--person-id ID` (both repeatable) for entity-scoped exports that map to the V2 `/companies/{id}/list-entries` / `/persons/{id}/list-entries` endpoints. Primary use case: dedup-check before `list add-entry` — emits `"Not on this list: company_ids=[...]"` warning when a requested ID is absent. Currently scoped to company and person lists; opportunity-list support tracked separately.
+- CLI: `list export --first-page-only` explicit opt-in for first-page-only results (required alongside `--filter` if `--all` / `--max-results` are not set).
+- CLI/SDK: `meta.truncated` (bool) and `meta.truncationReason` (string) on all `CommandResult` envelopes. Both keys are stripped from the JSON output when `None`. Known values for `truncationReason`: `firstPageOnly`.
+- SDK: `_entry_to_filter_dict` now includes `listEntryId`, `entityId`, `entityName`, `entityType` — filtering on the row-level keys the CLI outputs no longer silently matches zero rows.
+
+### Changed (breaking)
+- CLI: `list export --filter` now errors (exit code 2, `usage_error`) without one of `--all`, `--max-results`, or `--first-page-only`. Previous versions silently returned first-page-only results.
+  - **Migration:** Add the intended scope flag. For "filter all list entries" → `--all`; for "filter the first N" → `--max-results N`; for "filter what fits on page 1" → `--first-page-only`. On very large lists prefer `--saved-view` (server-side) or the new `--company-id`/`--person-id` (entity-scoped).
+
+### Fixed
+- Agents redirecting stderr to `/dev/null` no longer silently lose the truncation signal — it's in the JSON envelope at `meta.truncated`.
+- `list export --filter 'entityName =~ "..."'` (and other row-level keys: `entityId`, `entityType`, `listEntryId`) no longer silently returns zero rows. These keys were previously absent from the filter dict.
+
 ## [1.12.0] - 2026-04-20
 
 ### Highlights

@@ -2,11 +2,11 @@
   "_generated": {
     "warning": "DO NOT EDIT - This file is auto-generated",
     "generator": "tools/generate_mcp_command_registry.py",
-    "cliVersion": "1.12.0",
+    "cliVersion": "1.13.0",
     "sourceConfig": "mcp/.registry/mcp-commands.json"
   },
   "version": 1,
-  "cliVersion": "1.12.0",
+  "cliVersion": "1.13.0",
   "commands": [
     {
       "name": "company create",
@@ -1526,6 +1526,12 @@
           "required": false,
           "help": "Check for unreplied incoming messages (email/chat). Adds API call per entry."
         },
+        "--company-id": {
+          "type": "int",
+          "required": false,
+          "help": "Scope export to specific company IDs (repeatable). Valid on company lists. Uses the V2 entity->list-entries endpoint. Emits a warning if any ID is not on the list - the dedup signal for safe-to-create.",
+          "multiple": true
+        },
         "--csv": {
           "type": "flag",
           "required": false,
@@ -1633,6 +1639,11 @@
           "required": false,
           "help": "Client-side filter (field op value). Quote multi-word: Status=\"Intro Meeting\"."
         },
+        "--first-page-only": {
+          "type": "flag",
+          "required": false,
+          "help": "Explicitly opt in to first-page-only results (required with --filter if --all/--max-results are not set). Sets meta.truncated=true."
+        },
         "--max-results": {
           "type": "int",
           "required": false,
@@ -1649,6 +1660,12 @@
           "aliases": [
             "-s"
           ]
+        },
+        "--person-id": {
+          "type": "int",
+          "required": false,
+          "help": "Scope export to specific person IDs (repeatable). Valid on person lists.",
+          "multiple": true
         },
         "--saved-view": {
           "type": "string",
