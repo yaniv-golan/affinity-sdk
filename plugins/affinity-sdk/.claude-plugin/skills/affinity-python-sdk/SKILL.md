@@ -163,41 +163,50 @@ for company in client.companies.all(on_progress=log_progress):
 
 ## Filtering (Custom Fields Only)
 
-**Note:** Filtering on `persons`, `companies`, `opportunities` is server-side (efficient). Filtering on **list entries** is client-side (fetches all data first) - use saved views for large lists.
+**Note:** Global-entity lists (`companies`, `persons`, `opportunities`) do NOT accept `filter=` — the V2 API silently ignored it in earlier versions; the SDK now raises `ValueError`. Use `search_pages()` for name/domain/email fuzzy search, or filter **list entries** (which support client-side filtering).
 
 ```python
 from affinity import F
 
-# Simple comparisons
-client.persons.list(filter=F.field("Department").equals("Sales"))
-client.companies.list(filter=F.field("Industry").contains("Tech"))
-client.persons.list(filter=F.field("Title").starts_with("VP"))
-client.opportunities.list(filter=F.field("Amount").greater_than(100000))
+# Global-entity fuzzy search — V1 /organizations?term= and /persons?term=
+for page in client.companies.search_pages("Acme"):
+    for company in page.data:
+        ...
 
-# Null checks
-client.persons.list(filter=F.field("Manager").is_null())
-client.persons.list(filter=F.field("Email").is_not_null())
+for page in client.persons.search_pages("alex@acme.com"):
+    for person in page.data:
+        ...
 
-# Boolean logic: AND (&), OR (|), NOT (~)
-active_sales = client.persons.list(
-    filter=F.field("Department").equals("Sales") & F.field("Status").equals("Active")
+# For list-specific field filters, use list entries (client-side, warned)
+entries = client.lists.entries(ListId(123)).list(
+    filter=F.field("Department").equals("Sales")
 )
 
-tech_or_finance = client.companies.list(
-    filter=F.field("Industry").equals("Tech") | F.field("Industry").equals("Finance")
-)
-
-non_archived = client.persons.list(
-    filter=~F.field("Archived").equals(True)
-)
-
-# In list
-multi_region = client.companies.list(
-    filter=F.field("Region").in_list(["US", "Canada", "Mexico"])
-)
+# For filters on large lists, prefer saved views (server-side efficient)
+entries = client.lists.entries(ListId(123)).list(saved_view_id=SavedViewId(456))
 ```
 
-**Cannot filter on built-in fields**: `type`, `firstName`, `lastName`, `primaryEmail`, `name`, `domain` - fetch all, filter client-side.
+**Do NOT pass `filter=` to `client.companies.list()` / `client.persons.list()` / `client.opportunities.list()`** — it raises `ValueError` with a hint to use `search_pages()`.
+
+### Duplicate prevention on `create`
+
+`companies.create()` and `persons.create()` default to `if_not_exists=True`. On conflict they raise `DuplicateEntityError` carrying the existing entity ID so callers can recover without creating a duplicate:
+
+```python
+from affinity.exceptions import DuplicateEntityError
+from affinity.models import CompanyCreate, CompanyId
+
+try:
+    company = client.companies.create(
+        CompanyCreate(name="Elssway", domain="elssway.com")
+    )
+except DuplicateEntityError as e:
+    # e.existing_id is the pre-existing company's ID
+    # e.existing_is_global is True for global Affinity directory records
+    company = client.companies.get(CompanyId(e.existing_id))
+```
+
+Pass `if_not_exists=False` only when you deliberately want to create a distinct record that collides on name/domain.
 
 ## Services Reference
 

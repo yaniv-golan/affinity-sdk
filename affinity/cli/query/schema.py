@@ -143,17 +143,7 @@ SCHEMA_REGISTRY: dict[str, EntitySchema] = {
         name="persons",
         service_attr="persons",
         id_field="id",
-        filterable_fields=frozenset(
-            [
-                "id",
-                "firstName",
-                "lastName",
-                "primaryEmail",
-                "emails",
-                "createdAt",
-                "updatedAt",
-            ]
-        ),
+        filterable_fields=frozenset(),  # V2 /persons does not support server-side filter
         computed_fields=frozenset(["firstEmail", "lastEmail"]),
         relationships={
             "companies": RelationshipDef(
@@ -201,16 +191,7 @@ SCHEMA_REGISTRY: dict[str, EntitySchema] = {
         name="companies",
         service_attr="companies",
         id_field="id",
-        filterable_fields=frozenset(
-            [
-                "id",
-                "name",
-                "domain",
-                "domains",
-                "createdAt",
-                "updatedAt",
-            ]
-        ),
+        filterable_fields=frozenset(),  # V2 /companies does not support server-side filter
         computed_fields=frozenset([]),
         relationships={
             "persons": RelationshipDef(
@@ -258,15 +239,7 @@ SCHEMA_REGISTRY: dict[str, EntitySchema] = {
         name="opportunities",
         service_attr="opportunities",
         id_field="id",
-        filterable_fields=frozenset(
-            [
-                "id",
-                "name",
-                "listId",
-                "createdAt",
-                "updatedAt",
-            ]
-        ),
+        filterable_fields=frozenset(),  # V2 /opportunities does not support server-side filter
         computed_fields=frozenset([]),
         relationships={
             "persons": RelationshipDef(

@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 from rich.console import Console
 from rich.progress import BarColumn, Progress, SpinnerColumn, TaskID, TextColumn, TimeElapsedColumn
 
+from affinity.exceptions import DuplicateEntityError
 from affinity.models.entities import Person, PersonCreate, PersonUpdate
 from affinity.models.types import FieldId
 from affinity.types import CompanyId, FieldType, ListId, PersonId
@@ -234,21 +235,32 @@ def person_ls(
     """
     List persons.
 
-    Supports field selection, field types, and filter expressions.
-    Use --query for free-text search.
+    Supports field selection and field types. The V2 /persons endpoint does
+    not support server-side filtering — use --query for free-text search
+    (name/email fuzzy match).
 
     Examples:
 
     - `xaffinity person ls`
     - `xaffinity person ls --page-size 50`
     - `xaffinity person ls --field-type enriched --all`
-    - `xaffinity person ls --filter 'Email =~ "@acme.com"'`
     - `xaffinity person ls --query "alice@example.com" --all`
     - `xaffinity person ls --all --csv > people.csv`
     - `xaffinity person ls --all --output csv --csv-bom > people.csv`
     """
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
+        if filter_expr is not None:
+            raise CLIError(
+                "The V2 /persons endpoint does not support server-side filtering. "
+                "The --filter flag was silently ignored in previous versions. "
+                "Use --query TERM for name/email fuzzy search instead.",
+                exit_code=2,
+                error_type="unsupported_filter",
+                hint='Try: xaffinity person ls --query "alex@acme.com"',
+                details={"rejected_filter": str(filter_expr)},
+            )
+
         client = ctx.get_client(warnings=warnings)
 
         if cursor is not None and page_size is not None:
@@ -438,7 +450,6 @@ def person_ls(
                 for page in client.persons.pages(
                     field_ids=parsed_field_ids,
                     field_types=parsed_field_types,
-                    filter=filter_expr,
                     limit=page_size,
                     cursor=cursor,
                 ):
@@ -1908,6 +1919,16 @@ def person_files_upload(
     type=int,
     help="Associated company id (repeatable).",
 )
+@click.option(
+    "--allow-duplicate",
+    is_flag=True,
+    default=False,
+    help=(
+        "Force create even when an existing person matches by name or email. "
+        "By default (if_not_exists=True) duplicates are refused with exit code 6. "
+        "Not recommended; prefer using the existing personId."
+    ),
+)
 @output_options
 @click.pass_obj
 def person_create(
@@ -1917,6 +1938,7 @@ def person_create(
     last_name: str,
     emails: tuple[str, ...],
     company_ids: tuple[int, ...],
+    allow_duplicate: bool,
 ) -> None:
     """
     Create a person.
@@ -1933,14 +1955,30 @@ def person_create(
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
         client = ctx.get_client(warnings=warnings)
-        created = client.persons.create(
-            PersonCreate(
-                first_name=first_name,
-                last_name=last_name,
-                emails=list(emails),
-                company_ids=[CompanyId(cid) for cid in company_ids],
+        try:
+            created = client.persons.create(
+                PersonCreate(
+                    first_name=first_name,
+                    last_name=last_name,
+                    emails=list(emails),
+                    company_ids=[CompanyId(cid) for cid in company_ids],
+                ),
+                if_not_exists=not allow_duplicate,
             )
-        )
+        except DuplicateEntityError as e:
+            raise CLIError(
+                f"Person with name or email already exists (id={e.existing_id}). "
+                f"Use --allow-duplicate to create anyway.",
+                exit_code=6,
+                error_type="duplicate_exists",
+                hint="Run with --allow-duplicate to force create, or use the existing personId.",
+                details={
+                    "existing": {
+                        "personId": e.existing_id,
+                        "name": e.existing_name,
+                    },
+                },
+            ) from e
         payload = serialize_model_for_cli(created)
 
         ctx_modifiers: dict[str, object] = {

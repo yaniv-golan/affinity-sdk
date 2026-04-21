@@ -2,11 +2,11 @@
   "_generated": {
     "warning": "DO NOT EDIT - This file is auto-generated",
     "generator": "tools/generate_mcp_command_registry.py",
-    "cliVersion": "1.11.0",
+    "cliVersion": "1.12.0",
     "sourceConfig": "mcp/.registry/mcp-commands.json"
   },
   "version": 1,
-  "cliVersion": "1.11.0",
+  "cliVersion": "1.12.0",
   "commands": [
     {
       "name": "company create",
@@ -15,6 +15,11 @@
       "destructive": false,
       "progressCapable": false,
       "parameters": {
+        "--allow-duplicate": {
+          "type": "flag",
+          "required": false,
+          "help": "Force create even when an existing company matches by name or domain. By default (if_not_exists=True) duplicates are refused with exit code 6. Not recommended; prefer using the existing companyId."
+        },
         "--domain": {
           "type": "string",
           "required": false,
@@ -33,7 +38,7 @@
         }
       },
       "positionals": [],
-      "whenToUse": "Create a new company in the CRM.",
+      "whenToUse": "Create a new company in the CRM. Refuses by default when an exact (case-insensitive) name OR domain match exists (exit 6, error_type=duplicate_exists). The error payload includes the existing companyId and an isGlobal flag — global Affinity directory matches get a targeted hint to use `list entry add --company-id` instead of creating a tenant-scoped copy. Pass `--allow-duplicate` only when a true duplicate is intended.",
       "relatedCommands": [
         "company get",
         "company update"
@@ -489,12 +494,11 @@
         "company ls",
         "company ls --page-size 50",
         "company ls --field-type enriched --all",
-        "company ls --filter 'Industry = \"Software\"'",
         "company ls --query \"Acme\" --all",
         "company ls --all --csv > companies.csv",
         "company ls --all --output csv --csv-bom > companies.csv"
       ],
-      "whenToUse": "List or search ALL companies in CRM. Use --query for text search (name, domain). NOT for list-specific fields like Status.",
+      "whenToUse": "Use `--query TERM` for name/domain fuzzy search — `--filter` is not supported on companies (V2 API limitation) and will raise unsupported_filter. List or search ALL companies in CRM. NOT for list-specific fields like Status — use `list export` for those.",
       "relatedCommands": [
         "company get",
         "company field"
@@ -2522,6 +2526,11 @@
       "destructive": false,
       "progressCapable": false,
       "parameters": {
+        "--allow-duplicate": {
+          "type": "flag",
+          "required": false,
+          "help": "Force create even when an existing person matches by name or email. By default (if_not_exists=True) duplicates are refused with exit code 6. Not recommended; prefer using the existing personId."
+        },
         "--company-id": {
           "type": "int",
           "required": false,
@@ -2552,7 +2561,7 @@
         "person create --first-name \"Carol\" --last-name \"Lee\" --email a@x.com",
         "person create --first-name \"Dan\" --last-name \"Park\" --company-id 12345"
       ],
-      "whenToUse": "Create a new person in the CRM.",
+      "whenToUse": "Create a new person in the CRM. Refuses by default when an exact email match (primary or any) or first+last name match exists (exit 6, error_type=duplicate_exists). The error payload includes the existing personId. Pass `--allow-duplicate` only when a true duplicate is intended.",
       "relatedCommands": [
         "person get",
         "person update"
@@ -3007,7 +3016,7 @@
         "person ls --query 'John Smith'",
         "person ls --query 'john@example.com'"
       ],
-      "whenToUse": "Search persons by name/email. ALWAYS use --query for text search (simpler, more reliable). Avoid --filter with complex expressions containing quotes.",
+      "whenToUse": "Use `--query TERM` for name/email fuzzy search — `--filter` is not supported on persons (V2 API limitation) and will raise unsupported_filter. Search persons by name/email. ALWAYS use --query for text search.",
       "relatedCommands": [
         "person get",
         "person field"

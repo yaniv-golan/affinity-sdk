@@ -12,7 +12,7 @@
       "relatedCommands": ["person ls", "person field"]
     },
     "person ls": {
-      "whenToUse": "Search persons by name/email. ALWAYS use --query for text search (simpler, more reliable). Avoid --filter with complex expressions containing quotes.",
+      "whenToUse": "Use `--query TERM` for name/email fuzzy search — `--filter` is not supported on persons (V2 API limitation) and will raise unsupported_filter. Search persons by name/email. ALWAYS use --query for text search.",
       "examples": [
         "person ls --query 'John Smith'",
         "person ls --query 'john@example.com'"
@@ -26,7 +26,7 @@
       }
     },
     "person create": {
-      "whenToUse": "Create a new person in the CRM.",
+      "whenToUse": "Create a new person in the CRM. Refuses by default when an exact email match (primary or any) or first+last name match exists (exit 6, error_type=duplicate_exists). The error payload includes the existing personId. Pass `--allow-duplicate` only when a true duplicate is intended.",
       "relatedCommands": ["person get", "person update"]
     },
     "person update": {
@@ -86,7 +86,7 @@
       "relatedCommands": ["company ls", "company field"]
     },
     "company ls": {
-      "whenToUse": "List or search ALL companies in CRM. Use --query for text search (name, domain). NOT for list-specific fields like Status.",
+      "whenToUse": "Use `--query TERM` for name/domain fuzzy search — `--filter` is not supported on companies (V2 API limitation) and will raise unsupported_filter. List or search ALL companies in CRM. NOT for list-specific fields like Status — use `list export` for those.",
       "relatedCommands": ["company get", "company field"],
       "mcpBehavior": {
         "limitEnforced": true,
@@ -96,7 +96,7 @@
       }
     },
     "company create": {
-      "whenToUse": "Create a new company in the CRM.",
+      "whenToUse": "Create a new company in the CRM. Refuses by default when an exact (case-insensitive) name OR domain match exists (exit 6, error_type=duplicate_exists). The error payload includes the existing companyId and an isGlobal flag — global Affinity directory matches get a targeted hint to use `list entry add --company-id` instead of creating a tenant-scoped copy. Pass `--allow-duplicate` only when a true duplicate is intended.",
       "relatedCommands": ["company get", "company update"]
     },
     "company update": {

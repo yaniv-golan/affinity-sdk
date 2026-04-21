@@ -629,7 +629,10 @@ class TestCompanyService:
         )
 
         with Affinity(api_key="test-key") as client:
-            company = client.companies.create(CompanyCreate(name="New Corp", domain="newcorp.com"))
+            company = client.companies.create(
+                CompanyCreate(name="New Corp", domain="newcorp.com"),
+                if_not_exists=False,
+            )
 
             assert company.id == 999
             assert company.name == "New Corp"

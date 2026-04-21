@@ -394,6 +394,12 @@ class TestExpandViaSingleIdLookup:
     - REQUIRES_PARENT entities (listEntries) with both parent ID and entity ID
     """
 
+    @pytest.mark.skip(
+        reason="Task 6.1: where clauses on global entities (persons/companies/"
+        "opportunities) are now rejected at parse time. The executor's single-"
+        "ID-lookup code path is still exercised by listEntries via "
+        "test_single_id_lookup_requires_parent_with_expand below."
+    )
     @pytest.mark.asyncio
     @pytest.mark.req("QUERY-EXPAND-005")
     async def test_single_id_lookup_global_entity_with_expand(self) -> None:
@@ -930,6 +936,11 @@ class TestExpandConcurrencyOptimizations:
             "This suggests per-call semaphore instead of shared."
         )
 
+    @pytest.mark.skip(
+        reason="Task 6.1: where clauses on global entities (persons/companies/"
+        "opportunities) are now rejected at parse time. The graceful degradation "
+        "path itself is still exercised by other tests in this file."
+    )
     @pytest.mark.asyncio
     async def test_graceful_degradation_on_person_resolution_failure(self) -> None:
         """Person resolution failure keeps interactionDates with unresolved IDs."""

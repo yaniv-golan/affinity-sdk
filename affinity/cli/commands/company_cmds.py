@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 from rich.console import Console
 from rich.progress import BarColumn, Progress, SpinnerColumn, TaskID, TextColumn, TimeElapsedColumn
 
+from affinity.exceptions import DuplicateEntityError
 from affinity.models.entities import Company, CompanyCreate, CompanyUpdate
 from affinity.models.types import EnrichedFieldId, FieldId
 from affinity.types import CompanyId, FieldType, ListId, PersonId
@@ -348,21 +349,32 @@ def company_ls(
     """
     List companies.
 
-    Supports field selection, field types, and filter expressions.
-    Use --query for free-text search.
+    Supports field selection and field types. The V2 /companies endpoint does
+    not support server-side filtering — use --query for free-text search
+    (name/domain fuzzy match).
 
     Examples:
 
     - `xaffinity company ls`
     - `xaffinity company ls --page-size 50`
     - `xaffinity company ls --field-type enriched --all`
-    - `xaffinity company ls --filter 'Industry = "Software"'`
     - `xaffinity company ls --query "Acme" --all`
     - `xaffinity company ls --all --csv > companies.csv`
     - `xaffinity company ls --all --output csv --csv-bom > companies.csv`
     """
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
+        if filter_expr is not None:
+            raise CLIError(
+                "The V2 /companies endpoint does not support server-side filtering. "
+                "The --filter flag was silently ignored in previous versions. "
+                "Use --query TERM for name/domain fuzzy search instead.",
+                exit_code=2,
+                error_type="unsupported_filter",
+                hint='Try: xaffinity company ls --query "Acme"',
+                details={"rejected_filter": str(filter_expr)},
+            )
+
         client = ctx.get_client(warnings=warnings)
 
         if cursor is not None and page_size is not None:
@@ -556,7 +568,6 @@ def company_ls(
                 for page in client.companies.pages(
                     field_ids=parsed_field_ids,
                     field_types=parsed_field_types,
-                    filter=filter_expr,
                     limit=page_size,
                     cursor=cursor,
                 ):
@@ -2073,6 +2084,16 @@ def company_get(
     type=int,
     help="Associated person id (repeatable).",
 )
+@click.option(
+    "--allow-duplicate",
+    is_flag=True,
+    default=False,
+    help=(
+        "Force create even when an existing company matches by name or domain. "
+        "By default (if_not_exists=True) duplicates are refused with exit code 6. "
+        "Not recommended; prefer using the existing companyId."
+    ),
+)
 @output_options
 @click.pass_obj
 def company_create(
@@ -2081,6 +2102,7 @@ def company_create(
     name: str,
     domain: str | None,
     person_ids: tuple[int, ...],
+    allow_duplicate: bool,
 ) -> None:
     """Create a company."""
 
@@ -2088,13 +2110,55 @@ def company_create(
         validated_domain = validate_domain(domain, label="domain")
 
         client = ctx.get_client(warnings=warnings)
-        created = client.companies.create(
-            CompanyCreate(
-                name=name,
-                domain=validated_domain,
-                person_ids=[PersonId(pid) for pid in person_ids],
+        try:
+            created = client.companies.create(
+                CompanyCreate(
+                    name=name,
+                    domain=validated_domain,
+                    person_ids=[PersonId(pid) for pid in person_ids],
+                ),
+                if_not_exists=not allow_duplicate,
             )
-        )
+        except DuplicateEntityError as e:
+            details = {
+                "existing": {
+                    "companyId": e.existing_id,
+                    "name": e.existing_name,
+                    "domain": e.existing_domain,
+                    "isGlobal": e.existing_is_global,
+                }
+            }
+            if e.existing_is_global:
+                message = (
+                    f"A global Affinity directory record matches (id={e.existing_id}); "
+                    "global records cannot be duplicated as tenant-scoped companies."
+                )
+                hint = (
+                    f"Use the existing global companyId ({e.existing_id}) directly - "
+                    f"e.g., `xaffinity list entry add --list LIST --company-id {e.existing_id}` "
+                    "to add it to a list. --allow-duplicate is available but not recommended "
+                    "for global directory matches."
+                )
+            else:
+                identifier_parts = [f"name={name!r}"]
+                if validated_domain:
+                    identifier_parts.append(f"domain={validated_domain!r}")
+                message = (
+                    f"Company with {' or '.join(identifier_parts)} already exists "
+                    f"(id={e.existing_id})."
+                )
+                hint = (
+                    "Run with --allow-duplicate to force create, "
+                    f"or use the existing companyId ({e.existing_id})."
+                )
+            raise CLIError(
+                message,
+                exit_code=6,
+                error_type="duplicate_exists",
+                details=details,
+                hint=hint,
+                cause=e,
+            ) from e
         payload = serialize_model_for_cli(created)
 
         ctx_modifiers: dict[str, object] = {"name": name}

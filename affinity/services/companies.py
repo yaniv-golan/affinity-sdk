@@ -13,8 +13,12 @@ import time
 from collections.abc import AsyncIterator, Iterator, Sequence
 from typing import TYPE_CHECKING, Any, Literal
 
-from ..exceptions import AffinityError, BetaEndpointDisabledError, NotFoundError
-from ..filters import FilterExpression
+from ..exceptions import (
+    AffinityError,
+    BetaEndpointDisabledError,
+    DuplicateEntityError,
+    NotFoundError,
+)
 from ..models.entities import (
     Company,
     CompanyCreate,
@@ -65,9 +69,9 @@ class CompanyService:
         ids: Sequence[CompanyId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        **_unsupported: Any,
     ) -> PaginatedResponse[Company]:
         """
         Get a page of companies.
@@ -76,17 +80,31 @@ class CompanyService:
             ids: Specific company IDs to fetch (batch lookup)
             field_ids: Specific field IDs to include in response
             field_types: Field types to include (e.g., ["enriched", "global"])
-            filter: V2 filter expression string, or a FilterExpression built via `affinity.F`
-                (e.g., `F.field("domain").contains("acme")`)
             limit: Maximum number of results (API default: 100)
             cursor: Cursor to resume pagination (opaque; obtained from prior responses)
 
         Returns:
             Paginated response with companies
+
+        Note:
+            The V2 /companies endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search companies
+            by name or domain use ``client.companies.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /companies does not support server-side filter. "
+                "To search by name/domain use client.companies.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
         validate_entity_field_types(field_types, endpoint="company")
         if cursor is not None:
-            if any(p is not None for p in (ids, field_ids, field_types, filter, limit)):
+            if any(p is not None for p in (ids, field_ids, field_types, limit)):
                 raise ValueError(
                     "Cannot combine 'cursor' with other parameters; cursor encodes all query "
                     "context. Start a new pagination sequence without a cursor to change "
@@ -101,10 +119,6 @@ class CompanyService:
                 params["fieldIds"] = [str(field_id) for field_id in field_ids]
             if field_types:
                 params["fieldTypes"] = [field_type.value for field_type in field_types]
-            if filter is not None:
-                filter_text = str(filter).strip()
-                if filter_text:
-                    params["filter"] = filter_text
             if limit:
                 params["limit"] = limit
             data = self._client.get("/companies", params=params or None)
@@ -117,34 +131,41 @@ class CompanyService:
     def get_first(
         self,
         *,
-        filter: str | FilterExpression | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
+        **_unsupported: Any,
     ) -> Company | None:
         """
-        Get the first company matching the filter, or None if no match.
+        Get the first company, or None if no results.
 
         This is a convenience method equivalent to:
-            page = client.companies.list(filter=filter, limit=1)
+            page = client.companies.list(limit=1)
             return page.data[0] if page.data else None
 
         Args:
-            filter: V2 filter expression
             field_ids: Specific field IDs to include
             field_types: Field types to include
 
         Returns:
-            First matching Company, or None if no results.
+            First Company, or None if no results.
 
-        Example:
-            >>> company = client.companies.get_first(
-            ...     filter=F.field("domain").eq("acme.com")
-            ... )
-            >>> if company:
-            ...     print(company.name)
+        Note:
+            The V2 /companies endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search companies
+            by name or domain use ``client.companies.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /companies does not support server-side filter. "
+                "To search by name/domain use client.companies.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
         page = self.list(
-            filter=filter,
             field_ids=field_ids,
             field_types=field_types,
             limit=1,
@@ -157,9 +178,9 @@ class CompanyService:
         ids: Sequence[CompanyId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        **_unsupported: Any,
     ) -> Iterator[PaginatedResponse[Company]]:
         """
         Iterate company pages (not items), yielding `PaginatedResponse[Company]`.
@@ -170,14 +191,22 @@ class CompanyService:
             ids: Specific company IDs to fetch (batch lookup)
             field_ids: Specific field IDs to include in response
             field_types: Field types to include (e.g., ["enriched", "global"])
-            filter: V2 filter expression string or FilterExpression
             limit: Maximum results per page
             cursor: Cursor to resume pagination
 
         Yields:
             PaginatedResponse[Company] for each page
         """
-        other_params = (ids, field_ids, field_types, filter, limit)
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /companies does not support server-side filter. "
+                "To search by name/domain use client.companies.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
+        other_params = (ids, field_ids, field_types, limit)
         if cursor is not None and any(p is not None for p in other_params):
             raise ValueError(
                 "Cannot combine 'cursor' with other parameters; cursor encodes all query context. "
@@ -187,9 +216,7 @@ class CompanyService:
         page = (
             self.list(cursor=cursor)
             if cursor is not None
-            else self.list(
-                ids=ids, field_ids=field_ids, field_types=field_types, filter=filter, limit=limit
-            )
+            else self.list(ids=ids, field_ids=field_ids, field_types=field_types, limit=limit)
         )
         while True:
             yield page
@@ -207,7 +234,7 @@ class CompanyService:
         ids: Sequence[CompanyId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
+        **_unsupported: Any,
     ) -> Iterator[Company]:
         """
         Iterate through all companies with automatic pagination.
@@ -216,11 +243,26 @@ class CompanyService:
             ids: Specific company IDs to fetch (batch lookup)
             field_ids: Specific field IDs to include
             field_types: Field types to include
-            filter: V2 filter expression
 
         Yields:
             Company objects
+
+        Note:
+            The V2 /companies endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search companies
+            by name or domain use ``client.companies.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /companies does not support server-side filter. "
+                "To search by name/domain use client.companies.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
 
         def fetch_page(next_url: str | None) -> PaginatedResponse[Company]:
             if next_url:
@@ -230,7 +272,6 @@ class CompanyService:
                     ids=ids,
                     field_ids=field_ids,
                     field_types=field_types,
-                    filter=filter,
                 )
             return PaginatedResponse[Company](
                 data=[Company.model_validate(c) for c in data.get("data", [])],
@@ -245,14 +286,30 @@ class CompanyService:
         ids: Sequence[CompanyId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
+        **_unsupported: Any,
     ) -> Iterator[Company]:
         """
         Auto-paginate all companies.
 
         Alias for `all()` (FR-006 public contract).
+
+        Note:
+            The V2 /companies endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search companies
+            by name or domain use ``client.companies.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
-        return self.all(ids=ids, field_ids=field_ids, field_types=field_types, filter=filter)
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /companies does not support server-side filter. "
+                "To search by name/domain use client.companies.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
+        return self.all(ids=ids, field_ids=field_ids, field_types=field_types)
 
     def get(
         self,
@@ -828,15 +885,33 @@ class CompanyService:
     # Write Operations (V1 API)
     # =========================================================================
 
-    def create(self, data: CompanyCreate) -> Company:
+    _DEDUP_PAGE_CAP = 3  # 3 pages x 500 = 1500 fuzzy results scanned per search term
+
+    def create(self, data: CompanyCreate, *, if_not_exists: bool = True) -> Company:
         """
         Create a new company.
 
         Args:
             data: Company creation data
+            if_not_exists: If True (default), check for an existing company with
+                the same name (case-insensitive exact match) OR the same domain
+                (matched against the company's primary domain AND all entries
+                in its `domains` list). Globals in Affinity's shared directory
+                are treated as duplicates — per the API docs, POST /organizations
+                always creates a tenant-scoped copy, so creating against an
+                existing global would produce a genuine duplicate. Raises
+                DuplicateEntityError carrying the existing company's ID and
+                `existing_is_global` flag, so callers can use the global ID
+                directly (e.g., via List Entries) instead of POSTing a copy.
+                Uses V1 search_pages() with page_size=500, capped at 3 pages.
+                Set to False to skip the check and create unconditionally.
 
         Returns:
             Created company
+
+        Raises:
+            DuplicateEntityError: When if_not_exists=True and an exact-name or
+                exact-domain match already exists (tenant-scoped OR global).
 
         Note:
             Creates use V1 API, while reads use V2 API. Due to eventual consistency
@@ -846,6 +921,30 @@ class CompanyService:
             - Add a short delay (100-500ms) before calling get()
             - Implement retry logic in your application
         """
+        if if_not_exists:
+            existing = self._find_exact_duplicate(name=data.name, domain=data.domain)
+            if existing is not None:
+                if existing.is_global:
+                    message = (
+                        f"A global Affinity directory record matches name={data.name!r} "
+                        f"or domain={data.domain!r} (id={existing.id}). Global records "
+                        f"are shared across tenants — use this ID directly (e.g., via "
+                        f"List Entries) instead of creating a tenant-scoped duplicate."
+                    )
+                else:
+                    message = (
+                        f"Company with name={data.name!r} or domain={data.domain!r} "
+                        f"already exists (id={existing.id})"
+                    )
+                raise DuplicateEntityError(
+                    message,
+                    entity_type="company",
+                    existing_id=int(existing.id),
+                    existing_name=existing.name,
+                    existing_domain=existing.domain,
+                    existing_is_global=bool(existing.is_global),
+                )
+
         payload = data.model_dump(by_alias=True, mode="json", exclude_none=True)
         if not data.person_ids:
             payload.pop("person_ids", None)
@@ -856,6 +955,54 @@ class CompanyService:
             self._client.cache.invalidate_prefix("company")
 
         return Company.model_validate(result)
+
+    @staticmethod
+    def _company_matches(company: Company, name_lower: str, domain_lower: str | None) -> bool:
+        """True iff company's name or any domain matches exactly (case-insensitive)."""
+        if company.name and company.name.lower() == name_lower:
+            return True
+        if domain_lower:
+            if company.domain and company.domain.lower() == domain_lower:
+                return True
+            for d in company.domains or []:
+                if d and d.lower() == domain_lower:
+                    return True
+        return False
+
+    def _find_exact_duplicate(self, *, name: str, domain: str | None) -> Company | None:
+        """Search V1 for an exact-name or exact-domain match. Returns None if no match.
+
+        Domain-first search order: domains are globally more unique than names,
+        so if a domain is supplied, we search by domain first. Falls back to a
+        name search only when the domain search came up empty and the name
+        differs from the domain string.
+
+        Iterates at most `_DEDUP_PAGE_CAP` pages per term (1500 fuzzy results).
+        """
+        name_lower = name.strip().lower()
+        domain_lower = domain.strip().lower() if domain else None
+
+        def _scan(term: str) -> Company | None:
+            for page_num, page in enumerate(self.search_pages(term, page_size=500)):
+                for company in page.data:
+                    if self._company_matches(company, name_lower, domain_lower):
+                        return company
+                if page_num + 1 >= self._DEDUP_PAGE_CAP:
+                    break
+                if not page.next_page_token:
+                    break
+            return None
+
+        if domain_lower:
+            # domain is guaranteed non-None when domain_lower is set
+            hit = _scan(domain or "")
+            if hit is not None:
+                return hit
+            if name_lower and name_lower != domain_lower:
+                return _scan(name)
+            return None
+
+        return _scan(name)
 
     def update(
         self,
@@ -947,9 +1094,9 @@ class AsyncCompanyService:
         ids: Sequence[CompanyId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        **_unsupported: Any,
     ) -> PaginatedResponse[Company]:
         """
         Get a page of companies.
@@ -958,17 +1105,31 @@ class AsyncCompanyService:
             ids: Specific company IDs to fetch (batch lookup)
             field_ids: Specific field IDs to include in response
             field_types: Field types to include (e.g., ["enriched", "global"])
-            filter: V2 filter expression string, or a FilterExpression built via `affinity.F`
-                (e.g., `F.field("domain").contains("acme")`)
             limit: Maximum number of results (API default: 100)
             cursor: Cursor to resume pagination (opaque; obtained from prior responses)
 
         Returns:
             Paginated response with companies
+
+        Note:
+            The V2 /companies endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search companies
+            by name or domain use ``client.companies.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /companies does not support server-side filter. "
+                "To search by name/domain use client.companies.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
         validate_entity_field_types(field_types, endpoint="company")
         if cursor is not None:
-            if any(p is not None for p in (ids, field_ids, field_types, filter, limit)):
+            if any(p is not None for p in (ids, field_ids, field_types, limit)):
                 raise ValueError(
                     "Cannot combine 'cursor' with other parameters; cursor encodes all query "
                     "context. Start a new pagination sequence without a cursor to change "
@@ -983,10 +1144,6 @@ class AsyncCompanyService:
                 params["fieldIds"] = [str(field_id) for field_id in field_ids]
             if field_types:
                 params["fieldTypes"] = [field_type.value for field_type in field_types]
-            if filter is not None:
-                filter_text = str(filter).strip()
-                if filter_text:
-                    params["filter"] = filter_text
             if limit:
                 params["limit"] = limit
             data = await self._client.get("/companies", params=params or None)
@@ -999,17 +1156,32 @@ class AsyncCompanyService:
     async def get_first(
         self,
         *,
-        filter: str | FilterExpression | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
+        **_unsupported: Any,
     ) -> Company | None:
         """
-        Get the first company matching the filter, or None if no match.
+        Get the first company from the list endpoint, or None if no results.
 
         See CompanyService.get_first() for details.
+
+        Note:
+            The V2 /companies endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search companies
+            by name or domain use ``client.companies.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /companies does not support server-side filter. "
+                "To search by name/domain use client.companies.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
         page = await self.list(
-            filter=filter,
             field_ids=field_ids,
             field_types=field_types,
             limit=1,
@@ -1092,15 +1264,15 @@ class AsyncCompanyService:
 
         return results
 
-    async def pages(
+    def pages(
         self,
         *,
         ids: Sequence[CompanyId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        **_unsupported: Any,
     ) -> AsyncIterator[PaginatedResponse[Company]]:
         """
         Iterate company pages (not items), yielding `PaginatedResponse[Company]`.
@@ -1111,14 +1283,46 @@ class AsyncCompanyService:
             ids: Specific company IDs to fetch (batch lookup)
             field_ids: Specific field IDs to include in response
             field_types: Field types to include (e.g., ["enriched", "global"])
-            filter: V2 filter expression string or FilterExpression
             limit: Maximum results per page
             cursor: Cursor to resume pagination
 
-        Yields:
-            PaginatedResponse[Company] for each page
+        Returns:
+            AsyncIterator of PaginatedResponse[Company]
+
+        Note:
+            The V2 /companies endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search companies
+            by name or domain use ``client.companies.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
-        other_params = (ids, field_ids, field_types, filter, limit)
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /companies does not support server-side filter. "
+                "To search by name/domain use client.companies.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
+        return self._pages_iter(
+            ids=ids,
+            field_ids=field_ids,
+            field_types=field_types,
+            limit=limit,
+            cursor=cursor,
+        )
+
+    async def _pages_iter(
+        self,
+        *,
+        ids: Sequence[CompanyId] | None = None,
+        field_ids: Sequence[AnyFieldId] | None = None,
+        field_types: Sequence[FieldType] | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> AsyncIterator[PaginatedResponse[Company]]:
+        other_params = (ids, field_ids, field_types, limit)
         if cursor is not None and any(p is not None for p in other_params):
             raise ValueError(
                 "Cannot combine 'cursor' with other parameters; cursor encodes all query context. "
@@ -1132,7 +1336,6 @@ class AsyncCompanyService:
                 ids=ids,
                 field_ids=field_ids,
                 field_types=field_types,
-                filter=filter,
                 limit=limit,
             )
         while True:
@@ -1151,7 +1354,7 @@ class AsyncCompanyService:
         ids: Sequence[CompanyId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
+        **_unsupported: Any,
     ) -> AsyncIterator[Company]:
         """
         Iterate through all companies with automatic pagination.
@@ -1160,11 +1363,26 @@ class AsyncCompanyService:
             ids: Specific company IDs to fetch (batch lookup)
             field_ids: Specific field IDs to include
             field_types: Field types to include
-            filter: V2 filter expression
 
         Yields:
             Company objects
+
+        Note:
+            The V2 /companies endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search companies
+            by name or domain use ``client.companies.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /companies does not support server-side filter. "
+                "To search by name/domain use client.companies.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
 
         async def fetch_page(next_url: str | None) -> PaginatedResponse[Company]:
             if next_url:
@@ -1173,9 +1391,7 @@ class AsyncCompanyService:
                     data=[Company.model_validate(c) for c in data.get("data", [])],
                     pagination=PaginationInfo.model_validate(data.get("pagination", {})),
                 )
-            return await self.list(
-                ids=ids, field_ids=field_ids, field_types=field_types, filter=filter
-            )
+            return await self.list(ids=ids, field_ids=field_ids, field_types=field_types)
 
         return AsyncPageIterator(fetch_page)
 
@@ -1185,14 +1401,30 @@ class AsyncCompanyService:
         ids: Sequence[CompanyId] | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
-        filter: str | FilterExpression | None = None,
+        **_unsupported: Any,
     ) -> AsyncIterator[Company]:
         """
         Auto-paginate all companies.
 
         Alias for `all()` (FR-006 public contract).
+
+        Note:
+            The V2 /companies endpoint silently ignores any ``filter=`` parameter —
+            passing one would return unfiltered results without warning. This method
+            therefore rejects ``filter=`` with a ``ValueError``. To search companies
+            by name or domain use ``client.companies.search_pages(term)``. To filter
+            by list-specific fields use ``client.lists.entries(list_id).list(filter=...)``.
         """
-        return self.all(ids=ids, field_ids=field_ids, field_types=field_types, filter=filter)
+        if "filter" in _unsupported:
+            raise ValueError(
+                "V2 /companies does not support server-side filter. "
+                "To search by name/domain use client.companies.search_pages(term). "
+                "To filter by list-specific fields use "
+                "client.lists.entries(list_id).list(filter=...)."
+            )
+        if _unsupported:
+            raise TypeError(f"Unexpected keyword arguments: {list(_unsupported)}")
+        return self.all(ids=ids, field_ids=field_ids, field_types=field_types)
 
     async def get(
         self,
@@ -1741,11 +1973,33 @@ class AsyncCompanyService:
     # Write Operations (V1 API)
     # =========================================================================
 
-    async def create(self, data: CompanyCreate) -> Company:
+    _DEDUP_PAGE_CAP = 3  # 3 pages x 500 = 1500 fuzzy results scanned per search term
+
+    async def create(self, data: CompanyCreate, *, if_not_exists: bool = True) -> Company:
         """
         Create a new company.
 
-        Uses V1 API.
+        Args:
+            data: Company creation data
+            if_not_exists: If True (default), check for an existing company with
+                the same name (case-insensitive exact match) OR the same domain
+                (matched against the company's primary domain AND all entries
+                in its `domains` list). Globals in Affinity's shared directory
+                are treated as duplicates — per the API docs, POST /organizations
+                always creates a tenant-scoped copy, so creating against an
+                existing global would produce a genuine duplicate. Raises
+                DuplicateEntityError carrying the existing company's ID and
+                `existing_is_global` flag, so callers can use the global ID
+                directly (e.g., via List Entries) instead of POSTing a copy.
+                Uses V1 search_pages() with page_size=500, capped at 3 pages.
+                Set to False to skip the check and create unconditionally.
+
+        Returns:
+            Created company
+
+        Raises:
+            DuplicateEntityError: When if_not_exists=True and an exact-name or
+                exact-domain match already exists (tenant-scoped OR global).
 
         Note:
             Creates use V1 API, while reads use V2 API. Due to eventual consistency
@@ -1755,6 +2009,30 @@ class AsyncCompanyService:
             - Add a short delay (100-500ms) before calling get()
             - Implement retry logic in your application
         """
+        if if_not_exists:
+            existing = await self._find_exact_duplicate(name=data.name, domain=data.domain)
+            if existing is not None:
+                if existing.is_global:
+                    message = (
+                        f"A global Affinity directory record matches name={data.name!r} "
+                        f"or domain={data.domain!r} (id={existing.id}). Global records "
+                        f"are shared across tenants — use this ID directly (e.g., via "
+                        f"List Entries) instead of creating a tenant-scoped duplicate."
+                    )
+                else:
+                    message = (
+                        f"Company with name={data.name!r} or domain={data.domain!r} "
+                        f"already exists (id={existing.id})"
+                    )
+                raise DuplicateEntityError(
+                    message,
+                    entity_type="company",
+                    existing_id=int(existing.id),
+                    existing_name=existing.name,
+                    existing_domain=existing.domain,
+                    existing_is_global=bool(existing.is_global),
+                )
+
         payload = data.model_dump(by_alias=True, mode="json", exclude_none=True)
         if not data.person_ids:
             payload.pop("person_ids", None)
@@ -1764,6 +2042,56 @@ class AsyncCompanyService:
             self._client.cache.invalidate_prefix("company")
 
         return Company.model_validate(result)
+
+    @staticmethod
+    def _company_matches(company: Company, name_lower: str, domain_lower: str | None) -> bool:
+        """True iff company's name or any domain matches exactly (case-insensitive)."""
+        if company.name and company.name.lower() == name_lower:
+            return True
+        if domain_lower:
+            if company.domain and company.domain.lower() == domain_lower:
+                return True
+            for d in company.domains or []:
+                if d and d.lower() == domain_lower:
+                    return True
+        return False
+
+    async def _find_exact_duplicate(self, *, name: str, domain: str | None) -> Company | None:
+        """Search V1 for an exact-name or exact-domain match. Returns None if no match.
+
+        Domain-first search order: domains are globally more unique than names,
+        so if a domain is supplied, we search by domain first. Falls back to a
+        name search only when the domain search came up empty and the name
+        differs from the domain string.
+
+        Iterates at most `_DEDUP_PAGE_CAP` pages per term (1500 fuzzy results).
+        """
+        name_lower = name.strip().lower()
+        domain_lower = domain.strip().lower() if domain else None
+
+        async def _scan(term: str) -> Company | None:
+            page_num = 0
+            async for page in self.search_pages(term, page_size=500):
+                for company in page.data:
+                    if self._company_matches(company, name_lower, domain_lower):
+                        return company
+                if page_num + 1 >= self._DEDUP_PAGE_CAP:
+                    break
+                if not page.next_page_token:
+                    break
+                page_num += 1
+            return None
+
+        if domain_lower:
+            # domain is guaranteed non-None when domain_lower is set
+            hit = await _scan(domain or "")
+            if hit is not None:
+                return hit
+            if name_lower and name_lower != domain_lower:
+                return await _scan(name)
+            return None
+
+        return await _scan(name)
 
     async def update(self, company_id: CompanyId, data: CompanyUpdate) -> Company:
         """

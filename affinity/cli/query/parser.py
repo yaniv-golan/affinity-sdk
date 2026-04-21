@@ -386,6 +386,18 @@ def validate_entity_queryable(query: Query) -> None:
     if schema is None:
         raise QueryParseError(f"Unknown entity: '{query.from_}'")
 
+    # Global entities with empty filterable_fields (companies/persons/opportunities)
+    # accept NO server-side filters. Fail fast with a helpful hint.
+    if not schema.filterable_fields and query.where is not None:
+        singular = query.from_[:-1] if query.from_.endswith("s") else query.from_
+        raise QueryValidationError(
+            f"The {query.from_!r} endpoint does not support server-side filtering. "
+            f"Previous versions silently returned unfiltered results. "
+            f"For name/email fuzzy search, use: xaffinity {singular} ls --query TERM. "
+            f"For list-specific filters, query listEntries with a listId filter instead.",
+            field="where",
+        )
+
     # Check if entity can be queried directly
     if schema.fetch_strategy == FetchStrategy.RELATIONSHIP_ONLY:
         raise QueryParseError(

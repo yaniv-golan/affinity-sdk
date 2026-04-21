@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-04-20
+
+### Highlights
+
+Two silent-failure classes eliminated at the SDK and CLI boundary: (1) `filter=` on `companies.list()` / `persons.list()` (and the `query` command against global entities) now raises instead of silently returning unfiltered data — V2 `/companies`, `/persons`, `/opportunities` never supported server-side `filter=` and the previous behavior masked this; (2) `companies.create()` / `persons.create()` refuse to create a duplicate by default, raising `DuplicateEntityError` carrying the existing entity ID so callers can recover without producing duplicates.
+
+### Added
+- `DuplicateEntityError` exception (subclass of `AffinityError`) exposing `entity_type`, `existing_id`, `existing_name`, `existing_domain`, `existing_is_global`
+- `companies.create(data, *, if_not_exists=True)` and `persons.create(data, *, if_not_exists=True)` — sync and async. Defaults to pre-checking for duplicates via V1 fuzzy search before POST
+- CLI `--allow-duplicate` flag on `company create` / `person create` to bypass the pre-check
+- CLI `duplicate_exists` error type (exit code 6) with `error.details.existing.{companyId|personId, name, domain, isGlobal}` for recovery
+- CLI `unsupported_filter` error type (exit code 2) on `company ls --filter`, `person ls --filter`, and `query` on companies/persons/opportunities
+
+### Changed (breaking)
+- `companies.list()`, `persons.list()`, and their `.get_first() / .all() / .iter() / .pages()` variants now raise `ValueError` if `filter=` is passed. Previous versions silently returned unfiltered results (V2 API ignores the parameter).
+- `query` CLI command: `where` clauses on `companies`, `persons`, `opportunities` now raise `QueryValidationError` instead of silently returning all records. The schema registry's `filterable_fields` is empty for these entities. Use `listEntries` with a `listId` filter for list-scoped queries.
+- `companies.create()` / `persons.create()` signature adds keyword-only `if_not_exists: bool = True`. Existing callers that expected duplicate-creation must pass `if_not_exists=False` explicitly.
+- CLI `company create` / `person create` exit with code 6 (`duplicate_exists`) instead of creating duplicates, unless `--allow-duplicate` is passed.
+
+### Fixed
+- CLI `company ls` / `person ls` no longer forward the `--filter` argument to the SDK when it is `None`, avoiding false positives from the SDK-level rejection.
+- `query` CLI errors in `--json` mode now emit a structured error envelope on stdout (parseable by MCP and scripts) with `error.type`, `error.message`, `error.hint`, `error.details`.
+
 ## [1.11.0] - 2026-04-19
 
 ### Highlights
