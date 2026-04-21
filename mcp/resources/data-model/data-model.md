@@ -295,6 +295,24 @@ Some names are ambiguous because the same concept exists under multiple enrichme
 
 A small number of enriched fields are **derived and cannot be written** — the most important is "Current Organization" on persons, which is computed from email domain. Attempting to set a derived-only field raises `EnrichedFieldNotWritableError` (exit code 2) with a clear message; no silent no-op.
 
+### Duplicate checks (dedup on create)
+
+Prefer entity-scoped queries over `--filter`:
+
+    xaffinity list export "Pipeline" --company-id 555 --json
+
+Returns 0 rows + `warnings: ["Not on this list: company_ids=[555]"]` if
+the company is not on the list. No pagination ambiguity — the answer is
+unambiguous from one call.
+
+### Agent pitfalls (abbreviated; canonical list in the CLI skill)
+
+- `--json` emits a single JSON object, not NDJSON. Parse the whole blob and read `data.rows`.
+- Never redirect stderr to `/dev/null` — truncation, unknown-option, and client-side-filter warnings all go there.
+- `list export --filter` requires a scope flag (`--all`, `--max-results`, or `--first-page-only`) since v1.13. Unscoped invocations exit 2.
+- For duplicate checks, use `list export --company-id <id>` / `--person-id <id>` instead of `--filter`. Entity-scoped, cheap, unambiguous.
+- Check `meta.truncated` on every JSON response; `meta.truncationReason` names the cause (currently `firstPageOnly`).
+
 ### Output Format Recommendations
 
 When using the `query` tool, prefer **TOON format** (the default) for bulk data retrieval:

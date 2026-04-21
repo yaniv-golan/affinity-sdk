@@ -32,6 +32,31 @@ This MUST be your first action when handling any Affinity request.
 
 **Session cache:** Started automatically on first xaffinity use. If `AFFINITY_SESSION_CACHE` is not set, it will be initialized when you run your first xaffinity command — this shares metadata across commands and avoids redundant API calls.
 
+## Common pitfalls (READ THIS FIRST)
+
+**1. `--json` emits a single object, not NDJSON.**
+Parse with `json.load(proc.stdout)` and read `data["data"]["rows"]`. Do NOT
+split on newlines — there's exactly one newline (the trailing one).
+
+**2. Never redirect stderr to `/dev/null`.**
+Every CLI safety signal — "results truncated", "unknown option",
+"--filter client-side" — lives on stderr. Dropping stderr is how you ship a
+silent-zero-match result and call it a duplicate check.
+
+**3. `--filter` on `list export` requires `--all`, `--max-results`, or
+`--first-page-only`.** The CLI errors on the unscoped case (v1.13+).
+Filtering is client-side; for large lists prefer `--saved-view` (server-side)
+or `--company-id` / `--person-id` (entity-scoped, cheap).
+
+**4. Duplicate checks: use `--company-id` / `--person-id`, not `--filter`.**
+`xaffinity list export "Pipeline" --company-id 555` returns 0 or more rows
+for that exact company. Zero rows + the emitted warning is the "not on list"
+signal. No page-1 confusion possible.
+
+**5. Check `meta.truncated` on every JSON response.**
+If `payload["meta"]["truncated"]` is `true`, the answer is incomplete.
+`truncationReason` names the cause (currently: `firstPageOnly`).
+
 ## IMPORTANT: Write Operations Require Explicit User Request
 
 **Always use `--readonly` unless user explicitly requests writes.**

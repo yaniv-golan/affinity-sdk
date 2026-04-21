@@ -586,8 +586,11 @@ Options:
 - `--csv`: output as CSV (to stdout)
 - `--csv-bom`: add UTF-8 BOM for Excel compatibility
 - `--field <id-or-name>` (repeatable): include specific fields
-- `--saved-view <name>`: use a saved view's field selection
-- `--filter <expression>`: filter expression
+- `--saved-view <name>`: use a saved view's field selection (server-side filtering)
+- `--filter <expression>`: filter expression (client-side; requires a scope flag — see below)
+- `--company-id <id>` (repeatable): entity-scoped export — return only rows where the entry is for this company
+- `--person-id <id>` (repeatable): entity-scoped export — return only rows where the entry is for this person
+- `--first-page-only`: fetch a single page of results; output includes `meta.truncated=true` and `meta.truncationReason="firstPageOnly"` when there are more pages
 - `--expand <type>` (repeatable): expand associated entities or interaction data
   - `persons`, `companies`, `opportunities`: Expand related entities
   - `interactions`: Add interaction date summaries (last/next meeting, email dates)
@@ -595,11 +598,22 @@ Options:
 - `--unreplied-types <types>`: Comma-separated types to check: email, chat, all (default: email,chat)
 - `--unreplied-lookback-days <days>`: Lookback period for unreplied message detection (default: 30)
 
+**`--filter` requires a scope flag.** Since v1.13, `list export --filter <expr>` must be combined with one of `--all`, `--max-results <N>`, or `--first-page-only`; otherwise the command exits with code 2. Filtering is client-side (all matching pages are downloaded and filtered locally), so an unscoped `--filter` could silently read the entire list. For large lists prefer `--saved-view` (server-side) or the entity-scoped `--company-id` / `--person-id` forms.
+
+**Truncation envelope.** JSON output includes a `meta` object with `truncated` (boolean) and, when `truncated=true`, a `truncationReason` string naming the cause (currently: `firstPageOnly`). Always check this before treating a response as complete.
+
 ```bash
 xaffinity list export 123 --csv > out.csv
 xaffinity list export "My Pipeline" --saved-view "Board" --csv > out.csv
-xaffinity list export 123 --field Stage --field Amount --filter '"Stage" = "Active"' --csv > out.csv
+xaffinity list export 123 --field Stage --field Amount --filter '"Stage" = "Active"' --max-results 500 --csv > out.csv
 xaffinity list export 123 --csv --csv-bom > out.csv
+
+# Entity-scoped export (dedup-on-create pattern)
+xaffinity list export "Pipeline" --company-id 555 --json
+xaffinity list export "Pipeline" --person-id 12345 --json
+
+# Single-page probe — useful when you only need the first batch
+xaffinity list export "Pipeline" --first-page-only --json
 
 # Include interaction dates (last meeting, next meeting, email dates)
 xaffinity list export "Dealflow" --expand interactions --json

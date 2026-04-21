@@ -1,5 +1,11 @@
 # Filtering
 
+> **For list entries:** prefer `--saved-view` (server-side, fast) or
+> `--company-id` / `--person-id` (entity-scoped, cheap). `--filter` is
+> client-side and requires a scope flag (`--all`, `--max-results`, or
+> `--first-page-only`) on `list export` since v1.13. Without a scope flag,
+> `list export --filter` exits 2.
+
 V2 list endpoints accept `filter` expressions to query custom fields.
 
 **Important:** V2 filters only work with **custom fields**, not built-in entity properties. Built-in properties like `type`, `firstName`, `domain`, etc. cannot be filtered.
