@@ -428,6 +428,24 @@ ExpandOnError = Literal["raise", "skip"]
     ),
 )
 @click.option(
+    "--company-id",
+    "company_ids",
+    type=int,
+    multiple=True,
+    help=(
+        "Scope export to specific company IDs (repeatable). Valid on company lists. "
+        "Uses the V2 entity->list-entries endpoint. Emits a warning if any ID is not "
+        "on the list - the dedup signal for safe-to-create."
+    ),
+)
+@click.option(
+    "--person-id",
+    "person_ids",
+    type=int,
+    multiple=True,
+    help="Scope export to specific person IDs (repeatable). Valid on person lists.",
+)
+@click.option(
     "--csv-header",
     type=click.Choice(["names", "ids"]),
     default="names",
@@ -547,6 +565,8 @@ def list_export(
     max_results: int | None,
     all_pages: bool,
     first_page_only: bool,
+    company_ids: tuple[int, ...],
+    person_ids: tuple[int, ...],
     csv_header: CsvHeaderMode,
     csv_bom: bool,
     dry_run: bool,
@@ -692,6 +712,21 @@ def list_export(
                 hint="For large exports, use streaming CSV output or the SDK with checkpointing.",
             )
 
+        entity_ids_provided = bool(company_ids) or bool(person_ids)
+        if entity_ids_provided and (saved_view or filter_expr or cursor):
+            raise CLIError(
+                "--company-id / --person-id cannot be combined with "
+                "--saved-view, --filter, or --cursor.",
+                exit_code=2,
+                error_type="usage_error",
+            )
+        if company_ids and person_ids:
+            raise CLIError(
+                "--company-id and --person-id are mutually exclusive on a single list.",
+                exit_code=2,
+                error_type="usage_error",
+            )
+
         # --filter on list entries is client-side. Without explicit scope, it silently
         # returns page-1-only results. Require one of --all / --max-results /
         # --first-page-only so the caller is making an informed choice.
@@ -739,6 +774,23 @@ def list_export(
         list_type = (
             ListType(list_type_value) if isinstance(list_type_value, int) else list_type_value
         )
+
+        if company_ids and list_type != ListType.COMPANY:
+            raise CLIError(
+                f"--company-id is not valid on {list_type.name.lower()} lists. "
+                "Use --person-id for person lists. "
+                "Opportunity-list support is tracked separately.",
+                exit_code=2,
+                error_type="usage_error",
+            )
+        if person_ids and list_type != ListType.PERSON:
+            raise CLIError(
+                f"--person-id is not valid on {list_type.name.lower()} lists. "
+                "Use --company-id for company lists.",
+                exit_code=2,
+                error_type="usage_error",
+            )
+
         resolved: dict[str, Any] = dict(resolved_list.resolved)
 
         # Extract resolved list name for CommandContext (string values only)
@@ -764,6 +816,10 @@ def list_export(
             ctx_modifiers["all"] = True
         if first_page_only:
             ctx_modifiers["firstPageOnly"] = True
+        if company_ids:
+            ctx_modifiers["companyIds"] = list(company_ids)
+        if person_ids:
+            ctx_modifiers["personIds"] = list(person_ids)
         if ctx.output == "csv":
             ctx_modifiers["csv"] = True
         if expand:
@@ -950,6 +1006,50 @@ def list_export(
                 data["warnings"] = dry_run_warnings
             return CommandOutput(
                 data=data,
+                context=cmd_context,
+                resolved=resolved,
+                columns=columns,
+                api_called=True,
+            )
+
+        # Entity-scoped export via --company-id / --person-id.
+        # Uses the V2 entity->list-entries endpoint per ID, then fetches the full
+        # ListEntryWithEntity (with field values) for each match. Bypasses the
+        # streaming/expand machinery — this is a targeted lookup path, not a bulk
+        # export. Primary use case: dedup-check before `list add-entry`.
+        if entity_ids_provided:
+            entity_rows: list[dict[str, Any]] = []
+            missing_ids: list[int] = []
+            entries_service = client.lists.entries(list_id)
+
+            if company_ids:
+                id_source: tuple[int, ...] = company_ids
+                finder: Callable[[Any], list[Any]] = entries_service.find_all_company
+                id_ctor: Callable[[int], Any] = CompanyId
+                missing_label = "company_ids"
+            else:
+                id_source = person_ids
+                finder = entries_service.find_all_person
+                id_ctor = PersonId
+                missing_label = "person_ids"
+
+            for raw_id in id_source:
+                typed = id_ctor(int(raw_id))
+                stub_entries = finder(typed)
+                if not stub_entries:
+                    missing_ids.append(int(raw_id))
+                    continue
+                for stub in stub_entries:
+                    full = entries_service.get(ListEntryId(int(stub.id)))
+                    entity_rows.append(
+                        _entry_to_row(full, selected_field_ids, field_by_id, key_mode="names")
+                    )
+
+            if missing_ids:
+                warnings.append(f"Not on this list: {missing_label}={missing_ids}")
+
+            return CommandOutput(
+                data={"rows": entity_rows},
                 context=cmd_context,
                 resolved=resolved,
                 columns=columns,
