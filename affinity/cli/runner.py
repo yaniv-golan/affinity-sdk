@@ -42,8 +42,10 @@ class CommandOutput:
 def _emit_json(result: CommandResult) -> None:
     payload = result.model_dump(by_alias=True, mode="json")
     meta = payload.get("meta")
-    if isinstance(meta, dict) and meta.get("rateLimit") is None:
-        meta.pop("rateLimit", None)
+    if isinstance(meta, dict):
+        for key in ("rateLimit", "truncated", "truncationReason"):
+            if meta.get(key) is None:
+                meta.pop(key, None)
     sys.stdout.write(json.dumps(payload, ensure_ascii=False) + "\n")
 
 

@@ -162,8 +162,9 @@ def make_mock_transport(monkeypatch):
 
         def patched_get_client(self, *, warnings):
             _ = warnings  # unused in test transport
-            if self._client is not None:
-                return self._client
+            # Rebuild on each mock-transport setup so repeated factory calls
+            # within one test don't silently reuse a stale cached Affinity
+            # bound to a prior handler.
             self._client = Affinity(
                 api_key="test",
                 v1_base_url="https://api.affinity.co",

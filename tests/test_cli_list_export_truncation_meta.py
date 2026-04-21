@@ -79,5 +79,5 @@ def test_list_export_meta_truncated_absent_on_complete_all_export(
     assert result.exit_code == 0, result.output
     payload = json.loads(result.output)
     meta = payload["meta"]
-    assert meta.get("truncated") in (None, False)
-    assert meta.get("truncationReason") is None
+    assert "truncated" not in meta
+    assert "truncationReason" not in meta
