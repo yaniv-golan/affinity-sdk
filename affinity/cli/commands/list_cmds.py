@@ -419,6 +419,15 @@ ExpandOnError = Literal["raise", "skip"]
 )
 @click.option("--all", "-A", "all_pages", is_flag=True, help="Fetch all rows.")
 @click.option(
+    "--first-page-only",
+    "first_page_only",
+    is_flag=True,
+    help=(
+        "Explicitly opt in to first-page-only results (required with --filter if "
+        "--all/--max-results are not set). Sets meta.truncated=true."
+    ),
+)
+@click.option(
     "--csv-header",
     type=click.Choice(["names", "ids"]),
     default="names",
@@ -537,6 +546,7 @@ def list_export(
     cursor: str | None,
     max_results: int | None,
     all_pages: bool,
+    first_page_only: bool,
     csv_header: CsvHeaderMode,
     csv_bom: bool,
     dry_run: bool,
@@ -682,7 +692,28 @@ def list_export(
                 hint="For large exports, use streaming CSV output or the SDK with checkpointing.",
             )
 
-        # Warn about client-side filtering (API doesn't support server-side filtering)
+        # --filter on list entries is client-side. Without explicit scope, it silently
+        # returns page-1-only results. Require one of --all / --max-results /
+        # --first-page-only so the caller is making an informed choice.
+        if (
+            filter_expr
+            and not saved_view
+            and not (all_pages or max_results is not None or first_page_only)
+        ):
+            raise CLIError(
+                "--filter on list export fetches pages client-side. Without a scope flag, "
+                "this silently returns first-page results and was the root cause of "
+                "duplicate-check incidents. Add --all to scan everything, --max-results N "
+                "to cap, or --first-page-only to explicitly opt in.",
+                exit_code=2,
+                error_type="usage_error",
+                hint="Prefer --saved-view for server-side filtering on large lists.",
+                details={"rejected_filter": str(filter_expr)},
+            )
+
+        # Warn about client-side filtering (API doesn't support server-side filtering).
+        # Fires for the now-informed path: user opted in via --all / --max-results /
+        # --first-page-only but we still note the cost.
         if filter_expr and not saved_view:
             warnings.append(
                 "The Affinity API does not support server-side filtering on list entries. "
@@ -731,6 +762,8 @@ def list_export(
             ctx_modifiers["maxResults"] = max_results
         if all_pages:
             ctx_modifiers["all"] = True
+        if first_page_only:
+            ctx_modifiers["firstPageOnly"] = True
         if ctx.output == "csv":
             ctx_modifiers["csv"] = True
         if expand:
@@ -1425,6 +1458,18 @@ def list_export(
                         "Warning: Results limited by --max-results. Use --all to fetch all results."
                     )
 
+                # Asymmetry: CSV streams to stdout before CommandOutput is built, so
+                # meta.truncated/truncationReason can't be populated after the fact.
+                # Emit an equivalent stderr warning instead. (With --filter the SDK
+                # virtualizes pages and next_cursor is always None, so we key off
+                # the explicit opt-in flag.)
+                if first_page_only:
+                    Console(file=sys.stderr).print(
+                        "Warning: Results limited to first page by --first-page-only "
+                        "(more pages may be available). Use --all or --max-results "
+                        "for broader scans."
+                    )
+
                 # Print export summary to stderr
                 if show_progress:
                     elapsed = time.time() - export_start_time
@@ -1720,6 +1765,12 @@ def list_export(
                 resolved=resolved,
                 columns=columns,
                 api_called=True,
+                # Note: when --filter is set, the SDK virtualizes pages and sets
+                # next_cursor=None on every yield, so next_cursor alone can't
+                # detect unfetched pages. --first-page-only is an explicit opt-in
+                # to truncation, so mark truncated=True whenever the flag is set.
+                truncated=True if first_page_only else None,
+                truncation_reason="firstPageOnly" if first_page_only else None,
             )
         raise AssertionError("unreachable")
 
