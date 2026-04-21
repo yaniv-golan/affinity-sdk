@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Agents no longer receive silently-unfiltered results when filtering companies/persons — `company ls --filter` and `person ls --filter` now raise `unsupported_filter` with a hint to use `--query`. `company create` and `person create` refuse to create duplicates by default, surfacing a `duplicate_exists` error (exit code 6) that includes the existing entity ID so callers can recover. Global Affinity directory matches on company create get a targeted hint to use `list entry add --company-id` instead of creating a tenant-scoped copy.
 
 ### Added
-- Filter-limitations section in `resources/data-model/data-model.md` covering V2 endpoints that silently ignored `filter`.
+- Filter-limitations section in `resources/data-model/data-model.md` covering the global-entity list commands that previously ignored `filter` without warning.
 - Registry guidance for `company ls`, `person ls`, `company create`, `person create` steers agents toward `--query` and documents dedup behavior.
 
 ### Changed

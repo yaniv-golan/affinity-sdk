@@ -463,7 +463,7 @@ Returns presigned `url` (60s expiry). **⚠️ Blocked in Claude Desktop/Cowork*
 
 ---
 
-## Filter Syntax (V2 API)
+## Filter Syntax
 
 CLI commands use `--filter 'field op "value"'` syntax:
 ```bash
@@ -479,15 +479,15 @@ For the `query` tool, use JSON operators (`eq`, `contains`, `in`, etc.) - see `x
 
 ### Filter limitations (critical)
 
-The V2 API does **not** support server-side filtering on these list endpoints:
+Global-entity list commands do **not** support server-side filtering:
 
-- `GET /v2/companies`   → `xaffinity company ls --filter` raises `unsupported_filter`
-- `GET /v2/persons`     → `xaffinity person ls --filter` raises `unsupported_filter`
-- `GET /v2/opportunities` → no filter support
-- `GET /v2/lists/{id}/list-entries` → supported via client-side filter in `list export`, with a warning
+- `company ls --filter` → raises `unsupported_filter`
+- `person ls --filter` → raises `unsupported_filter`
+- `opportunity ls` → no filter support (opportunities are list-scoped; use `list export` instead)
+- `list export <LIST> --filter` → supported via client-side filtering, with a warning
 
 **Use instead:**
-- **Name/domain/email search on global entities:** `company ls --query TERM` / `person ls --query TERM` (V1 fuzzy search).
+- **Name/domain/email search on global entities:** `company ls --query TERM` / `person ls --query TERM` (fuzzy search).
 - **List-specific field filters:** `list export <LIST> --filter '...'` (client-side, warned).
 - **Saved-view-backed filters on large lists:** `list export <LIST> --saved-view "<VIEW>"` (server-side efficiency).
 
@@ -504,7 +504,7 @@ On conflict, exit code 6 with `error.type == "duplicate_exists"` and `error.deta
 ## Query vs Filter
 
 - `--filter`: Structured filtering with operators (preferred, supported on `list export` and some list-scoped reads)
-- `--query`: Free-text search (required for `company ls` / `person ls`; V1 fuzzy search)
+- `--query`: Free-text search (required for `company ls` / `person ls`; fuzzy search)
 
 Use `--filter` for precise matching on list entries, `--query` for fuzzy text search on global companies/persons.
 

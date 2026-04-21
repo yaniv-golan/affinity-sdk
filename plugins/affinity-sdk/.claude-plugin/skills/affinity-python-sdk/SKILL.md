@@ -163,12 +163,12 @@ for company in client.companies.all(on_progress=log_progress):
 
 ## Filtering (Custom Fields Only)
 
-**Note:** Global-entity lists (`companies`, `persons`, `opportunities`) do NOT accept `filter=` — the V2 API silently ignored it in earlier versions; the SDK now raises `ValueError`. Use `search_pages()` for name/domain/email fuzzy search, or filter **list entries** (which support client-side filtering).
+**Note:** Global-entity lists (`companies`, `persons`, `opportunities`) do NOT accept `filter=` — server-side filtering is not supported on these endpoints, and the SDK raises `ValueError` to prevent silently-unfiltered results. Use `search_pages()` for name/domain/email fuzzy search, or filter **list entries** (which support client-side filtering).
 
 ```python
 from affinity import F
 
-# Global-entity fuzzy search — V1 /organizations?term= and /persons?term=
+# Global-entity fuzzy search
 for page in client.companies.search_pages("Acme"):
     for company in page.data:
         ...

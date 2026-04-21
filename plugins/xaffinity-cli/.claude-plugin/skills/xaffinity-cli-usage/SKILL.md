@@ -278,7 +278,7 @@ For full query reference (JSON structure, operators, aggregation, quantifiers, e
 ### Entity commands (`person ls`, `company ls`): use `--query`, NOT `--filter`
 
 ```bash
-# Global-entity search — use --query for V1 fuzzy name/email/domain search
+# Global-entity search — use --query for fuzzy name/email/domain search
 xaffinity --readonly person ls --query "@acme.com" --max-results 20 --json
 xaffinity --readonly company ls --query "Acme" --max-results 20 --json
 
@@ -288,7 +288,7 @@ xaffinity --readonly list export "All Contacts" --filter 'Department = "Sales"' 
 
 ### `--filter` is NOT supported on `company ls` / `person ls` / `query companies|persons|opportunities`
 
-V2 API limitation. These commands raise `unsupported_filter` (exit 2) if `--filter` is passed. Use:
+Global-entity list endpoints don't support server-side filtering. These commands raise `unsupported_filter` (exit 2) if `--filter` is passed. Use:
 - `--query TERM` for name/domain/email fuzzy search on global entities.
 - `list export <LIST> --filter ...` for list-specific field filters.
 
