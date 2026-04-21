@@ -482,6 +482,20 @@ def _entry_to_filter_dict(entry: ListEntryWithEntity) -> dict[str, Any]:
         if hasattr(entry.entity, "primary_email"):
             result["primary_email"] = entry.entity.primary_email
 
+    # Row-level metadata keys — same shape the CLI exposes to agents via JSON/CSV
+    # output. Adding these here means a filter like `entityName =~ "Acme"` matches
+    # the row-level value instead of silently missing because the key was absent.
+    # These four reads mirror _entry_to_row in list_cmds.py:1949-1954 exactly —
+    # if the CLI output keys ever diverge from these, this dict is stale.
+    result["listEntryId"] = int(entry.id)
+    if entry.entity is not None:
+        result["entityId"] = int(entry.entity.id)
+        entity_name = getattr(entry.entity, "name", None)
+        if entity_name is None and hasattr(entry.entity, "full_name"):
+            entity_name = entry.entity.full_name
+        result["entityName"] = entity_name
+    result["entityType"] = entry.type
+
     return result
 
 
