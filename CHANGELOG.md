@@ -29,6 +29,10 @@ Also new: entity-scoped `--company-id`/`--person-id` flags on `list export` for 
 - Agents redirecting stderr to `/dev/null` no longer silently lose the truncation signal — it's in the JSON envelope at `meta.truncated`.
 - `list export --filter 'entityName =~ "..."'` (and other row-level keys: `entityId`, `entityType`, `listEntryId`) no longer silently returns zero rows. These keys were previously absent from the filter dict.
 
+### Plugin / MCP updates (shipped alongside)
+- `xaffinity-cli` plugin: **1.7.0 → 1.8.0** — "Common pitfalls (READ THIS FIRST)" section added to the `xaffinity-cli-usage` skill covering `--json` vs NDJSON, stderr suppression, filter-scope requirement, dedup via `--company-id`, and `meta.truncated`.
+- `xaffinity-mcp` server: **1.21.0 → 1.22.0** — minimum CLI bumped to 1.13.0 (`mcp/COMPATIBILITY`); data-model guide gains a "Duplicate checks" section with the `--company-id` workflow. See `mcp/CHANGELOG.md` for details.
+
 ## [1.12.0] - 2026-04-20
 
 ### Highlights

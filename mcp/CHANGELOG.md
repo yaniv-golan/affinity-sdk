@@ -5,6 +5,18 @@ All notable changes to the xaffinity MCP server will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.22.0] - 2026-04-22
+
+### Highlights
+
+Tracks CLI 1.13.0, which hardens `list export` against four agent-hostile silent-failure modes. Agents using the MCP `execute-read-command` gateway to run `list export --filter` without a scope flag will now see a structured `usage_error` (exit 2) — the CLI no longer silently returns first-page-only results. New `--company-id` / `--person-id` flags provide cheap, unambiguous duplicate checks; every JSON envelope now exposes `meta.truncated` / `meta.truncationReason` so MCP consumers can detect incomplete answers without reading stderr.
+
+### Added
+- `resources/data-model/data-model.md`: "Duplicate checks (dedup on create)" section showing the `list export --company-id` workflow with the `"Not on this list: company_ids=[...]"` warning format. Abbreviated agent-pitfalls subsection pointing to the canonical list in the CLI skill.
+
+### Changed
+- Minimum CLI version bumped to 1.13.0 (`COMPATIBILITY` updated). Older CLIs lack `--company-id` / `--person-id` / `--first-page-only`, the `usage_error` on unscoped `list export --filter`, and `meta.truncated` / `meta.truncationReason` on `CommandResult` envelopes.
+
 ## [1.21.0] - 2026-04-20
 
 ### Highlights

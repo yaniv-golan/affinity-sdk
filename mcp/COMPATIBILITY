@@ -1,8 +1,20 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="1.12.0"
-CLI_MAX_VERSION="1.12.0"
+CLI_MIN_VERSION="1.13.0"
+CLI_MAX_VERSION="1.13.0"
+
+# MCP 1.22.0 requires CLI 1.13.0 for:
+# - `list export --filter` without scope flag now exits 2 (breaking). MCP agents
+#   must add --all / --max-results / --first-page-only to unscoped filter calls.
+# - `list export --company-id ID` / `--person-id ID`: entity-scoped exports for
+#   dedup-check workflows (see data-model guide "Duplicate checks" section).
+# - `list export --first-page-only`: explicit opt-in required alongside --filter.
+# - JSON envelope: `meta.truncated` (bool) and `meta.truncationReason` (string)
+#   for machine-readable truncation signal. Absent when not truncated.
+# - `_entry_to_filter_dict` now includes `entityName` / `entityType` /
+#   `entityId` / `listEntryId` — filters on row-level keys match correctly
+#   instead of silently returning zero.
 
 # MCP 1.21.0 requires CLI 1.12.0 for:
 # - `company ls` / `person ls` --filter raises unsupported_filter (V2 API limitation)
