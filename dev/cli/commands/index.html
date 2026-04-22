@@ -4573,8 +4573,11 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>get<span class="w">
 <li><code>--csv</code>: output as CSV (to stdout)</li>
 <li><code>--csv-bom</code>: add UTF-8 BOM for Excel compatibility</li>
 <li><code>--field &lt;id-or-name&gt;</code> (repeatable): include specific fields</li>
-<li><code>--saved-view &lt;name&gt;</code>: use a saved view's field selection</li>
-<li><code>--filter &lt;expression&gt;</code>: filter expression</li>
+<li><code>--saved-view &lt;name&gt;</code>: use a saved view's field selection (server-side filtering)</li>
+<li><code>--filter &lt;expression&gt;</code>: filter expression (client-side; requires a scope flag — see below)</li>
+<li><code>--company-id &lt;id&gt;</code> (repeatable): entity-scoped export — return only rows where the entry is for this company</li>
+<li><code>--person-id &lt;id&gt;</code> (repeatable): entity-scoped export — return only rows where the entry is for this person</li>
+<li><code>--first-page-only</code>: fetch a single page of results; output includes <code>meta.truncated=true</code> and <code>meta.truncationReason="firstPageOnly"</code> when there are more pages</li>
 <li><code>--expand &lt;type&gt;</code> (repeatable): expand associated entities or interaction data</li>
 <li><code>persons</code>, <code>companies</code>, <code>opportunities</code>: Expand related entities</li>
 <li><code>interactions</code>: Add interaction date summaries (last/next meeting, email dates)</li>
@@ -4582,10 +4585,19 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>get<span class="w">
 <li><code>--unreplied-types &lt;types&gt;</code>: Comma-separated types to check: email, chat, all (default: email,chat)</li>
 <li><code>--unreplied-lookback-days &lt;days&gt;</code>: Lookback period for unreplied message detection (default: 30)</li>
 </ul>
+<p><strong><code>--filter</code> requires a scope flag.</strong> Since v1.13, <code>list export --filter &lt;expr&gt;</code> must be combined with one of <code>--all</code>, <code>--max-results &lt;N&gt;</code>, or <code>--first-page-only</code>; otherwise the command exits with code 2. Filtering is client-side (all matching pages are downloaded and filtered locally), so an unscoped <code>--filter</code> could silently read the entire list. For large lists prefer <code>--saved-view</code> (server-side) or the entity-scoped <code>--company-id</code> / <code>--person-id</code> forms.</p>
+<p><strong>Truncation envelope.</strong> JSON output includes a <code>meta</code> object with <code>truncated</code> (boolean) and, when <code>truncated=true</code>, a <code>truncationReason</code> string naming the cause (currently: <code>firstPageOnly</code>). Always check this before treating a response as complete.</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span>--saved-view<span class="w"> </span><span class="s2">&quot;Board&quot;</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--field<span class="w"> </span>Stage<span class="w"> </span>--field<span class="w"> </span>Amount<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;&quot;Stage&quot; = &quot;Active&quot;&#39;</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--field<span class="w"> </span>Stage<span class="w"> </span>--field<span class="w"> </span>Amount<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;&quot;Stage&quot; = &quot;Active&quot;&#39;</span><span class="w"> </span>--max-results<span class="w"> </span><span class="m">500</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>out.csv
+
+<span class="c1"># Entity-scoped export (dedup-on-create pattern)</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">555</span><span class="w"> </span>--json
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--json
+
+<span class="c1"># Single-page probe — useful when you only need the first batch</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--first-page-only<span class="w"> </span>--json
 
 <span class="c1"># Include interaction dates (last meeting, next meeting, email dates)</span>
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--expand<span class="w"> </span>interactions<span class="w"> </span>--json

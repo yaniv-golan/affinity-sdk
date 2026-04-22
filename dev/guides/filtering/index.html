@@ -2465,6 +2465,13 @@
 
 
 <h1 id="filtering">Filtering<a class="headerlink" href="#filtering" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>For list entries:</strong> prefer <code>--saved-view</code> (server-side, fast) or
+<code>--company-id</code> / <code>--person-id</code> (entity-scoped, cheap). <code>--filter</code> is
+client-side and requires a scope flag (<code>--all</code>, <code>--max-results</code>, or
+<code>--first-page-only</code>) on <code>list export</code> since v1.13. Without a scope flag,
+<code>list export --filter</code> exits 2.</p>
+</blockquote>
 <p>V2 list endpoints accept <code>filter</code> expressions to query custom fields.</p>
 <p><strong>Important:</strong> V2 filters only work with <strong>custom fields</strong>, not built-in entity properties. Built-in properties like <code>type</code>, <code>firstName</code>, <code>domain</code>, etc. cannot be filtered.</p>
 <h2 id="recommended-use-the-filter-builder">Recommended: Use the Filter Builder<a class="headerlink" href="#recommended-use-the-filter-builder" title="Permanent link">&para;</a></h2>
