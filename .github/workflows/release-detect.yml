@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger SDK release workflow
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             // Use toJSON for safe string interpolation
@@ -110,7 +110,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger MCP plugin release workflow
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             // Use toJSON for safe string interpolation
