@@ -51,7 +51,7 @@ dev = [
     "mypy>=1.10.0",
     # CLI deps are included in dev to keep type-checking and tests consistent.
     "click>=8.1",
-    "rich>=13,<15",
+    "rich>=13,<16",
     "rich-click>=1.8",
     "platformdirs>=4",
     "packaging>=21.0",
@@ -64,7 +64,7 @@ dotenv = [
 ]
 cli = [
     "click>=8.1",
-    "rich>=13,<15",
+    "rich>=13,<16",
     "rich-click>=1.8",
     "platformdirs>=4",
     "tomli>=2; python_version<'3.11'",
