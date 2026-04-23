@@ -792,7 +792,7 @@ class FieldMetadata(AffinityModel):
     value_type_raw: str | int | None = Field(None, exclude=True)
 
     # V2 field type classification
-    type: str | None = None  # "enriched", "list-specific", "global", etc.
+    type: str | None = None  # "enriched", "list", "global", "relationship-intelligence"
 
     # V1 specific fields
     list_id: ListId | None = Field(None, alias="listId")

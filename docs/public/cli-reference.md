@@ -126,7 +126,7 @@ The entity object (e.g., `person`, `company`, `opportunity`) contains:
 When field selection options are used (e.g., `--field`), the `fieldSelection` object contains:
 
 - **fieldIds** (array of strings): Specific field IDs requested
-- **fieldTypes** (array of strings): Field types requested (e.g., `"global"`, `"list-specific"`)
+- **fieldTypes** (array of strings): Field types requested (e.g., `"global"`, `"list"`, `"enriched"`, `"relationship-intelligence"`)
 
 #### Expansion
 

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.13.1] - 2026-04-23
+
+### Highlights
+
+Documentation corrections only — no behaviour changes. Fixes two places that cited `"list-specific"` as a valid `fieldTypes` value (it isn't; the correct V2 enum values are `"enriched"`, `"list"`, `"global"`, and `"relationship-intelligence"`).
+
+### Fixed
+- `docs/public/cli-reference.md`: `fieldTypes` example corrected from `"list-specific"` to the complete valid set (`"global"`, `"list"`, `"enriched"`, `"relationship-intelligence"`).
+- `affinity/models/entities.py`: `FieldMetadata.type` inline comment corrected from `"list-specific"` to `"list"` to match the actual V2 API enum value.
+- `CLAUDE.md`: V2 Filter "silently ignored" section now correctly documents that companies, persons, and opportunities also reject `filter=` (previously only mentioned list entries).
+
 ## [1.13.0] - 2026-04-22
 
 ### Highlights
