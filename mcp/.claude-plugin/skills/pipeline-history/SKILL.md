@@ -1,11 +1,13 @@
 ---
 name: pipeline-history
 description: >
+  Guides the multi-step workflow of exporting deals and fetching field change history
+  via MCP tools to analyze pipeline progression over time.
+when_to_use: >
   Use when analyzing deal pipeline history, stage transitions, funnel conversion,
-  time-in-stage metrics, deal velocity, or stalled deals. Guides the multi-step workflow
-  of exporting deals and fetching field change history via MCP tools.
-  Triggers on "pipeline funnel", "how long in stage", "deal progression",
-  "stage duration", "deal history", "conversion rate by stage".
+  time-in-stage metrics, deal velocity, or stalled deals. Triggers on "pipeline funnel",
+  "how long in stage", "deal progression", "stage duration", "deal history",
+  "conversion rate by stage".
 ---
 
 # Pipeline History Analysis

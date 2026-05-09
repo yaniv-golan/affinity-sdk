@@ -386,7 +386,7 @@ Using Claude Code? You can also install via the plugin marketplace:
 
 ```bash
 /plugin marketplace add yaniv-golan/affinity-sdk
-/plugin install mcp@xaffinity
+/plugin install affinity-crm-mcp-unofficial@xaffinity
 ```
 
 This installs the MCP server automatically. See [Claude Code plugins](../guides/claude-code-plugins.md) for additional Claude-specific features.

@@ -9,7 +9,7 @@ Download `xaffinity-mcp-*.mcpb` and double-click or drag to Claude Desktop.
 ### Claude Code
 ```bash
 /plugin marketplace add yaniv-golan/affinity-sdk
-/plugin install mcp@xaffinity
+/plugin install affinity-crm-mcp-unofficial@xaffinity
 ```
 
 ### Manual configuration

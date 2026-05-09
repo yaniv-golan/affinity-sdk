@@ -1,10 +1,12 @@
 {
   "name": "xaffinity",
   "owner": {
-    "name": "Yaniv Golan"
+    "name": "Yaniv Golan",
+    "email": "yaniv@golan.name",
+    "url": "https://github.com/yaniv-golan"
   },
   "metadata": {
-    "description": "Plugins for Affinity CRM - Python SDK, CLI, and MCP integrations"
+    "description": "Unofficial Affinity CRM integrations for Claude — Python SDK, xaffinity CLI, and MCP server."
   },
   "plugins": [
     {
@@ -14,8 +16,12 @@
         "name": "Yaniv Golan",
         "email": "yaniv@golan.name"
       },
+      "homepage": "https://yaniv-golan.github.io/affinity-sdk/",
+      "repository": "https://github.com/yaniv-golan/affinity-sdk",
+      "license": "MIT",
       "source": "./plugins/affinity-sdk/.claude-plugin",
-      "category": "development"
+      "category": "development",
+      "tags": ["affinity", "crm", "sdk", "python", "api", "async"]
     },
     {
       "name": "affinity-crm-cli-xaffinity-unofficial",
@@ -24,8 +30,12 @@
         "name": "Yaniv Golan",
         "email": "yaniv@golan.name"
       },
+      "homepage": "https://yaniv-golan.github.io/affinity-sdk/",
+      "repository": "https://github.com/yaniv-golan/affinity-sdk",
+      "license": "MIT",
       "source": "./plugins/xaffinity-cli/.claude-plugin",
-      "category": "productivity"
+      "category": "productivity",
+      "tags": ["affinity", "crm", "cli", "xaffinity", "export", "csv"]
     },
     {
       "name": "affinity-crm-mcp-unofficial",
@@ -34,8 +44,12 @@
         "name": "Yaniv Golan",
         "email": "yaniv@golan.name"
       },
+      "homepage": "https://yaniv-golan.github.io/affinity-sdk/",
+      "repository": "https://github.com/yaniv-golan/affinity-sdk",
+      "license": "MIT",
       "source": "./mcp/.claude-plugin",
-      "category": "productivity"
+      "category": "productivity",
+      "tags": ["affinity", "crm", "mcp", "workflow", "pipeline"]
     }
   ]
 }

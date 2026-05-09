@@ -25,8 +25,8 @@ The [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server conn
 
 | Plugin | Skill | What Claude Learns |
 |--------|-------|-------------------|
-| `sdk@xaffinity` | affinity-python-sdk | Typed IDs, context managers, pagination, filtering gotchas |
-| `cli@xaffinity` | xaffinity-cli-usage | `--readonly` default, `--json` output, API key verification |
+| `affinity-crm-sdk-unofficial@xaffinity` | affinity-python-sdk | Typed IDs, context managers, pagination, filtering gotchas |
+| `affinity-crm-cli-xaffinity-unofficial@xaffinity` | xaffinity-cli-usage | `--readonly` default, `--json` output, API key verification |
 
 [Claude Code Plugins documentation](../guides/claude-code-plugins.md){ .md-button }
 
@@ -63,9 +63,9 @@ Then add to your MCP client's configuration:
 
 ```bash
 /plugin marketplace add yaniv-golan/affinity-sdk
-/plugin install sdk@xaffinity   # SDK patterns
-/plugin install cli@xaffinity   # CLI patterns
-/plugin install mcp@xaffinity   # MCP server (Claude Code only)
+/plugin install affinity-crm-sdk-unofficial@xaffinity   # SDK patterns
+/plugin install affinity-crm-cli-xaffinity-unofficial@xaffinity   # CLI patterns
+/plugin install affinity-crm-mcp-unofficial@xaffinity   # MCP server (Claude Code only)
 ```
 
 ## When to Use What

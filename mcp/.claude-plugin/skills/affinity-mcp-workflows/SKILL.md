@@ -2,8 +2,9 @@
 name: affinity-mcp-workflows
 description: >
   Primary skill for Affinity CRM data access when MCP tools are available
-  (discover-commands, execute-read-command, execute-write-command, query, get-entity-dossier).
-  Prefer this over direct CLI when MCP tools are present.
+  (discover-commands, execute-read-command, execute-write-command, query,
+  get-entity-dossier). Prefer this over direct CLI when MCP tools are present.
+when_to_use: >
   Use for entity lookup, pipeline review, meeting prep, warm intros, interaction logging,
   or when user mentions "pipeline", "deals", "relationship strength", "prepare briefing",
   or wants to log calls/meetings.

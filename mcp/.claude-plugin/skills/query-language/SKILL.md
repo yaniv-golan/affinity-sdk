@@ -3,10 +3,11 @@ name: query-language
 description: >
   Executes structured JSON queries against Affinity CRM data with filtering, aggregation,
   and relationship traversal via the query MCP tool.
+when_to_use: >
   Use when user needs complex filtering (AND/OR/NOT), aggregations (count/sum/avg by field),
-  cross-entity queries (find persons by company properties), or relationship data (include/expand).
-  Also use when user says "query", "structured query", "group by", "aggregate", "count by status",
-  "sum deal values", or "find all persons where".
+  cross-entity queries (find persons by company properties), or relationship data
+  (include/expand). Triggers on "query", "structured query", "group by", "aggregate",
+  "count by status", "sum deal values", or "find all persons where".
 ---
 
 # Affinity Query Language

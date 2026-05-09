@@ -5,6 +5,25 @@ All notable changes to the xaffinity MCP server will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.22.1] - 2026-05-09
+
+### Highlights
+
+Plugin metadata cleanup driven by an audit against Claude Code v2.1.120 plugin/marketplace internals. No behavior changes, no CLI compatibility shift — patch bump only.
+
+### Changed
+
+- `plugin.json#name` aligned to the marketplace entry name: `xaffinity-mcp` → `affinity-crm-mcp-unofficial`. Removes the layer mismatch between `installed_plugins.json` keys (which use the marketplace entry name) and `plugin.json#name`. Install command for end users is unchanged: `/plugin install affinity-crm-mcp-unofficial@xaffinity`.
+- All three skill frontmatters (`affinity-mcp-workflows`, `pipeline-history`, `query-language`) split into separate `description:` and `when_to_use:` fields per the public skill schema. Combined listing text and behavior are equivalent.
+
+### Removed
+
+- Dead `mcp/.claude-plugin/.mcp.json` — was unread (inline `mcpServers` in `plugin.json` is the source of truth) and malformed (missing the `mcpServers` wrapper).
+
+### Compatibility
+
+- `mcp/COMPATIBILITY` unchanged — minimum CLI stays at 1.13.0. The CLI JSON contract is untouched.
+
 ## [1.22.0] - 2026-04-22
 
 ### Highlights

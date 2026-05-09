@@ -93,7 +93,7 @@ The `.mcpb` bundle is fully self-contained — it includes the MCP framework and
 
 ```bash
 /plugin marketplace add yaniv-golan/affinity-sdk
-/plugin install mcp@xaffinity
+/plugin install affinity-crm-mcp-unofficial@xaffinity
 ```
 
 ### Option 3: Manual Installation

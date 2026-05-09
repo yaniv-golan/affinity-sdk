@@ -2,11 +2,13 @@
 name: xaffinity-cli-usage
 description: >
   Runs xaffinity CLI commands directly in bash to search, export, filter, and manage
-  Affinity CRM data. Use when the user explicitly asks about CLI commands, bash scripts,
-  xaffinity flags, CSV export, or mentions "xaffinity" by name.
-  Also use when MCP tools are not available and user needs CRM data access.
-  Do NOT use for pipeline history analysis (use pipeline-history skill) or structured
-  queries via MCP (use query-language skill) when those skills are available.
+  Affinity CRM data.
+when_to_use: >
+  Use when the user explicitly asks about CLI commands, bash scripts, xaffinity flags,
+  CSV export, or mentions "xaffinity" by name. Also use when MCP tools are not available
+  and user needs CRM data access. Do NOT use for pipeline history analysis (use
+  pipeline-history skill) or structured queries via MCP (use query-language skill)
+  when those skills are available.
 ---
 
 # xaffinity CLI Usage
@@ -29,6 +31,8 @@ This MUST be your first action when handling any Affinity request.
 1. Tell them: "You need to configure an Affinity API key first."
 2. Direct them: Affinity -> Settings -> API -> Generate New Key
 3. Tell them to run: `xaffinity config setup-key` (do NOT run it for them - it's interactive)
+
+**Cowork-specific edge case:** if you are running inside a Claude Cowork session and the host CLI is configured but `check-key` returns `configured: false`, the key likely lives in a host-only location (env var, `~/.config/`, keychain) that the microVM does not mount. Recommend the user create a project-scope `.env` file with `AFFINITY_API_KEY=…` and use the `--dotenv` flag — the project workdir IS mounted into the VM. This is the only host-portable storage path today.
 
 **Session cache:** Started automatically on first xaffinity use. If `AFFINITY_SESSION_CACHE` is not set, it will be initialized when you run your first xaffinity command — this shares metadata across commands and avoids redundant API calls.
 

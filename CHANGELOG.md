@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Plugin / marketplace metadata cleanup (no behavior change)
+
+Audit-driven cleanup of the `xaffinity` marketplace and its three plugins. Install commands and runtime behavior are unchanged for end users; the work brings on-disk state in line with Claude Code v2.1.120 plugin/marketplace conventions (per the published reference). Patch bumps only — no SDK release required.
+
+- **`affinity-crm-sdk-unofficial` plugin: 1.6.0 → 1.6.1** — `plugin.json#name` aligned to the marketplace entry name (was `affinity-sdk`); skill frontmatter split into `description` + `when_to_use`.
+- **`affinity-crm-cli-xaffinity-unofficial` plugin: 1.8.0 → 1.8.1** — `plugin.json#name` aligned (was `xaffinity-cli`); skill frontmatter split; skill gains a Cowork-specific note for the `configured: false` branch (host-only key paths aren't visible to the in-VM CLI).
+- **Marketplace (`xaffinity`)** — added `owner.email`, `owner.url`, per-plugin `homepage`, `repository`, `license`, and `tags` fields. No new install commands; metadata only.
+- **Documentation** — all `/plugin install|update|uninstall <short>@xaffinity` references in `README.md`, `docs/public/**`, `mcp/.claude-plugin/xaffinity-mcp.sh`, `mcp/README.md`, and the GitHub release install footer updated to the correct long-form identifiers (`affinity-crm-{sdk,cli-xaffinity,mcp}-unofficial@xaffinity`). The previous short forms had never resolved against the published marketplace.
+- **Removed** — dead `mcp/.claude-plugin/.mcp.json` (inline `mcpServers` in `plugin.json` is the source of truth).
+
 ## [1.13.1] - 2026-04-23
 
 ### Highlights

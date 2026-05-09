@@ -1,6 +1,0 @@
-{
-  "xaffinity": {
-    "type": "stdio",
-    "command": "${CLAUDE_PLUGIN_ROOT}/xaffinity-mcp.sh"
-  }
-}

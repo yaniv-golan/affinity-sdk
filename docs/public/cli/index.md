@@ -29,7 +29,7 @@ Using Claude Code? Install the CLI plugin for AI-assisted usage:
 
 ```bash
 /plugin marketplace add yaniv-golan/affinity-sdk
-/plugin install cli@xaffinity
+/plugin install affinity-crm-cli-xaffinity-unofficial@xaffinity
 ```
 
 This teaches Claude CLI patterns and provides hooks for API key protection and Cowork bootstrap. See [Claude Code plugins](../guides/claude-code-plugins.md) for all available plugins.

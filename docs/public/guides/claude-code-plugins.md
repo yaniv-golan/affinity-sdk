@@ -27,10 +27,10 @@ Install the plugin(s) you need:
 
 ```bash
 # For Python SDK development
-/plugin install sdk@xaffinity
+/plugin install affinity-crm-sdk-unofficial@xaffinity
 
 # For CLI usage + hooks
-/plugin install cli@xaffinity
+/plugin install affinity-crm-cli-xaffinity-unofficial@xaffinity
 ```
 
 You can install both plugins. They complement each other.
@@ -119,7 +119,7 @@ The MCP server is protocol-agnostic and works with any MCP client (Claude Deskto
 **Install via Claude Code:**
 
 ```bash
-/plugin install mcp@xaffinity
+/plugin install affinity-crm-mcp-unofficial@xaffinity
 ```
 
 **Full documentation:** [MCP Server](../mcp/index.md)
@@ -132,15 +132,15 @@ The MCP server is protocol-agnostic and works with any MCP client (Claude Deskto
 
 ```bash
 /plugin marketplace update
-/plugin update sdk@xaffinity
-/plugin update cli@xaffinity
+/plugin update affinity-crm-sdk-unofficial@xaffinity
+/plugin update affinity-crm-cli-xaffinity-unofficial@xaffinity
 ```
 
 ### Uninstalling
 
 ```bash
-/plugin uninstall sdk@xaffinity
-/plugin uninstall cli@xaffinity
+/plugin uninstall affinity-crm-sdk-unofficial@xaffinity
+/plugin uninstall affinity-crm-cli-xaffinity-unofficial@xaffinity
 ```
 
 ---
@@ -157,8 +157,8 @@ After a fresh install, the plugin cache directory may be empty — skills and ho
 - **Claude Code CLI:**
   ```bash
   /plugin marketplace update xaffinity
-  /plugin update cli@xaffinity
-  /plugin update sdk@xaffinity
+  /plugin update affinity-crm-cli-xaffinity-unofficial@xaffinity
+  /plugin update affinity-crm-sdk-unofficial@xaffinity
   ```
 
 Then restart the session. You can verify the plugin loaded by checking if skills appear in the session.

@@ -1,7 +1,7 @@
 {
-  "name": "xaffinity-mcp",
+  "name": "affinity-crm-mcp-unofficial",
   "description": "Affinity CRM workflows for Claude \u2014 meeting prep, pipeline review, warm intros, interaction logging, and relationship intelligence",
-  "version": "1.22.0",
+  "version": "1.22.1",
   "author": {
     "name": "Yaniv Golan",
     "email": "yaniv@golan.name"

@@ -51,7 +51,7 @@ needs_extraction() {
 if needs_extraction; then
     if [[ ! -f "${ZIP_FILE}" ]]; then
         echo "Error: MCP server bundle not found: ${ZIP_FILE}" >&2
-        echo "In Claude Code, run: /plugin install mcp@xaffinity" >&2
+        echo "In Claude Code, run: /plugin install affinity-crm-mcp-unofficial@xaffinity" >&2
         echo "Or manually rebuild: cd mcp && make plugin" >&2
         exit 1
     fi
@@ -99,7 +99,7 @@ if [[ ! -x "${MCP_DIR}/xaffinity-mcp.sh" ]]; then
     echo "Error: MCP server not found after extraction." >&2
     echo "Try removing the extraction directory and reinstalling:" >&2
     echo "  rm -rf '${MCP_DIR}'" >&2
-    echo "  /plugin install mcp@xaffinity" >&2
+    echo "  /plugin install affinity-crm-mcp-unofficial@xaffinity" >&2
     exit 1
 fi
 
