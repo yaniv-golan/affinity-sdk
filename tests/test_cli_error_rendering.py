@@ -40,7 +40,7 @@ def test_missing_api_key_error_does_not_print_help_hint(
     runner = CliRunner()
     result = runner.invoke(cli, ["whoami"], env={"AFFINITY_API_KEY": ""})
     assert result.exit_code == 2
-    assert "Missing API key." in result.output
+    assert "Missing Affinity API key." in result.output
     assert "Hint: run `affinity whoami --help`" not in result.output
 
 

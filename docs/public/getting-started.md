@@ -10,6 +10,11 @@ Set `AFFINITY_API_KEY`:
 export AFFINITY_API_KEY="your-api-key"
 ```
 
+Or use one of the alternative resolution paths — file-based for container deployments
+(`AFFINITY_API_KEY_FILE=/run/secrets/affinity_api_key`) or command-based for credential
+managers (`AFFINITY_API_KEY_COMMAND="op read op://Personal/Affinity/credential"`). See
+[Authentication](guides/authentication.md) for the full resolution chain.
+
 Then create a client from the environment:
 
 ```python

@@ -288,5 +288,5 @@ Debug logs show component prefixes like `[xaffinity:tool:1.2.3]` to identify whi
 | Symptom | Likely Cause | Fix |
 |---------|--------------|-----|
 | Tools show old behavior after update | Cached MCP server process | Fully quit and restart Claude Desktop |
-| API key errors | Key not configured | Run `xaffinity config setup-key` |
+| API key errors | Key not configured | Run `xaffinity config setup-key`, or set `AFFINITY_API_KEY` / `AFFINITY_API_KEY_FILE` / `AFFINITY_API_KEY_COMMAND` env var |
 | CLI version errors | Outdated CLI | Run `pip install --upgrade "affinity-sdk[cli]"`

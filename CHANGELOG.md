@@ -7,15 +7,84 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Plugin / marketplace metadata cleanup (no behavior change)
+## [1.14.0] - 2026-05-10
 
-Audit-driven cleanup of the `xaffinity` marketplace and its three plugins. Install commands and runtime behavior are unchanged for end users; the work brings on-disk state in line with Claude Code v2.1.120 plugin/marketplace conventions (per the published reference). Patch bumps only — no SDK release required.
+### Highlights
 
-- **`affinity-crm-sdk-unofficial` plugin: 1.6.0 → 1.6.1** — `plugin.json#name` aligned to the marketplace entry name (was `affinity-sdk`); skill frontmatter split into `description` + `when_to_use`.
-- **`affinity-crm-cli-xaffinity-unofficial` plugin: 1.8.0 → 1.8.1** — `plugin.json#name` aligned (was `xaffinity-cli`); skill frontmatter split; skill gains a Cowork-specific note for the `configured: false` branch (host-only key paths aren't visible to the in-VM CLI).
-- **Marketplace (`xaffinity`)** — added `owner.email`, `owner.url`, per-plugin `homepage`, `repository`, `license`, and `tags` fields. No new install commands; metadata only.
-- **Documentation** — all `/plugin install|update|uninstall <short>@xaffinity` references in `README.md`, `docs/public/**`, `mcp/.claude-plugin/xaffinity-mcp.sh`, `mcp/README.md`, and the GitHub release install footer updated to the correct long-form identifiers (`affinity-crm-{sdk,cli-xaffinity,mcp}-unofficial@xaffinity`). The previous short forms had never resolved against the published marketplace.
-- **Removed** — dead `mcp/.claude-plugin/.mcp.json` (inline `mcpServers` in `plugin.json` is the source of truth).
+Two new environment-variable conventions for resolving the Affinity API key from
+external secret stores — `AFFINITY_API_KEY_FILE` (path to a file containing the key,
+used by Docker secrets, k8s mounted Secrets, and Hashicorp Vault agent) and
+`AFFINITY_API_KEY_COMMAND` (a shell command whose stdout is the key, used by
+1Password CLI, `pass`, `gpg`, macOS Keychain, and git-credential-style helpers).
+Both conventions are industry-standard 12-factor patterns and work with `from_env()`,
+`AsyncAffinity.from_env()`, and the `xaffinity` CLI.
+
+This release also bundles a previously-unreleased audit cleanup of the
+`xaffinity` marketplace and plugin metadata (no behavior change for users on
+existing install commands; brings on-disk state in line with Claude Code
+v2.1.120 plugin/marketplace conventions).
+
+### Added
+
+- **`AFFINITY_API_KEY_FILE`** — set this env var to a file path; the SDK and CLI
+  read the API key from that file at startup. Supports `~` expansion.  File
+  permissions are checked on Posix systems; a `UserWarning` is emitted if the file
+  is group- or world-readable. Useful with Docker secrets (`/run/secrets/…`), k8s
+  mounted Secrets, and Hashicorp Vault agent sidecar patterns.
+- **`AFFINITY_API_KEY_COMMAND`** — set this env var to a shell command; the SDK and
+  CLI run it at startup and use its stdout as the API key. Shell is used so that
+  credential helper conventions (`op read …`, `security find-generic-password -w`,
+  `pass show …`, `vault kv get -field=…`) work without quoting gymnastics. Default
+  timeout is 30 s, overridable via `AFFINITY_API_KEY_COMMAND_TIMEOUT`. Non-zero exit
+  or empty stdout raises a `ConfigurationError` / `CLIError`.
+- Both new env vars are tried **between** `AFFINITY_API_KEY` (step 2) and the
+  existing `--api-key-file` / `--api-key-stdin` CLI flags (steps 5–6) in the
+  resolver chain. Empty string is treated as unset at every step.
+- New internal module `affinity/_internal/keyfile.py` with `read_key_file` and
+  `read_key_command` helpers shared between the SDK and CLI resolver call sites.
+- `xaffinity config check-key` now recognizes `AFFINITY_API_KEY_FILE` and
+  `AFFINITY_API_KEY_COMMAND` as configured sources (reports `source: "file"` /
+  `"command"` in JSON output). Previously the check-key helper only knew about
+  `AFFINITY_API_KEY` env, `.env` files, and the profile config, so users who
+  configured the key only via `_FILE` or `_COMMAND` got a misleading
+  `configured: false`.
+- Marketplace (`xaffinity`) metadata: `owner.email`, `owner.url`, and per-plugin
+  `homepage`, `repository`, `license`, and `tags` fields (no new install commands;
+  metadata only).
+
+### Changed
+
+- CLI "missing API key" error message now enumerates all resolution paths
+  (env vars, file/stdin flags, profile config) rather than naming a subset.
+- Plugin manifest names aligned to marketplace entry names:
+  `affinity-sdk` → `affinity-crm-sdk-unofficial`,
+  `xaffinity-cli` → `affinity-crm-cli-xaffinity-unofficial`. Existing install
+  commands are unchanged for users on the published marketplace.
+- All `/plugin install|update|uninstall <short>@xaffinity` references in
+  `README.md`, `docs/public/**`, `mcp/.claude-plugin/xaffinity-mcp.sh`,
+  `mcp/README.md`, and the GitHub release install footer updated to the
+  correct long-form identifiers
+  (`affinity-crm-{sdk,cli-xaffinity,mcp}-unofficial@xaffinity`). The previous
+  short forms had never resolved against the published marketplace.
+- CLI plugin's `xaffinity-cli-usage` skill: full resolution chain documented
+  in the `configured: false` branch; Cowork-specific edge case now points
+  users at project `.env` + `--dotenv` *and* `AFFINITY_API_KEY_FILE` as
+  portable options.
+- MCP plugin's `affinity-mcp-workflows` skill: API-key-error troubleshooting
+  row lists all five resolution paths.
+- Plugin skill frontmatter split into `description` + `when_to_use` (SDK and
+  CLI plugins).
+
+### Removed
+
+- Dead `mcp/.claude-plugin/.mcp.json` (inline `mcpServers` in `plugin.json`
+  is the source of truth).
+
+### Plugins
+
+- **SDK plugin** (`affinity-crm-sdk-unofficial`): 1.6.0 → 1.6.1 — `plugin.json#name` alignment + skill frontmatter split.
+- **CLI plugin** (`affinity-crm-cli-xaffinity-unofficial`): 1.8.0 → 1.8.2 — `plugin.json#name` alignment + skill frontmatter split + new `AFFINITY_API_KEY_FILE` / `_COMMAND` documentation in the resolution-chain skill content.
+- **MCP plugin** (`affinity-crm-mcp-unofficial`): 1.22.1 → 1.22.2 — troubleshooting skill row updated to list all key-resolution paths.
 
 ## [1.13.1] - 2026-04-23
 

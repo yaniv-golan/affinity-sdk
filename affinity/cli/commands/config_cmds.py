@@ -85,8 +85,12 @@ def _find_existing_key(ctx: CLIContext) -> tuple[bool, str | None]:
     """
     Check all sources for an existing API key.
 
-    Returns (found: bool, source: str | None).
-    Source is "environment", "dotenv", "config", or None.
+    Returns ``(found, source)`` where source is one of ``"environment"``,
+    ``"dotenv"``, ``"file"``, ``"command"``, ``"config"``, or ``None``.
+
+    Order mirrors :meth:`affinity.cli.context.CLIContext.resolve_api_key`'s
+    resolution chain so check-key's verdict matches what the auth layer
+    will actually use at runtime.
     """
     # Check environment variable
     env_key = os.getenv("AFFINITY_API_KEY", "").strip()
@@ -113,6 +117,29 @@ def _find_existing_key(ctx: CLIContext) -> tuple[bool, str | None]:
                         return True, "dotenv"
         except OSError:
             pass
+
+    # Check AFFINITY_API_KEY_FILE — env var pointing at a file containing the key.
+    # Verify the file exists and has non-empty content; permission warnings are
+    # surfaced by the auth resolver at runtime, not here.
+    file_path_env = os.getenv("AFFINITY_API_KEY_FILE", "").strip()
+    if file_path_env:
+        try:
+            file_path = Path(file_path_env).expanduser()
+            if file_path.is_file() and file_path.read_text(encoding="utf-8").strip():
+                return True, "file"
+        except OSError:
+            pass
+
+    # Check AFFINITY_API_KEY_COMMAND — env var with a shell command whose stdout
+    # is the key.  We deliberately do NOT run the command here:
+    #   - it can be expensive (1Password CLI, vault, network round-trips),
+    #   - check-key is called eagerly by the xaffinity-cli-usage skill,
+    #   - the auth resolver runs the command at session-init time and surfaces
+    #     any failure there.
+    # Treat env-var-set as evidence the user has chosen this resolution path.
+    cmd_env = os.getenv("AFFINITY_API_KEY_COMMAND", "").strip()
+    if cmd_env:
+        return True, "command"
 
     # Check config.toml - only in [default] section for consistency with _store_in_config
     config_path = ctx.paths.config_path
@@ -182,7 +209,7 @@ def check_key(ctx: CLIContext) -> None:
         return CommandOutput(
             data={
                 "configured": key_found,
-                "source": source,  # "environment", "dotenv", "config", or None
+                "source": source,  # "environment" | "dotenv" | "file" | "command" | "config" | None
                 "pattern": pattern,  # Recommended command pattern to use
             },
             api_called=False,

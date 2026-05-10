@@ -188,15 +188,37 @@ class CLIContext:
         return prof.update_notify
 
     def resolve_api_key(self, *, warnings: list[str]) -> str:
-        if self.api_key_stdin:
-            raw = sys.stdin.read()
-            key = raw.strip()
-            if not key:
-                raise CLIError(
-                    "Empty API key provided via stdin.", exit_code=2, error_type="usage_error"
-                )
+        from affinity._internal.keyfile import read_key_command, read_key_file
+
+        # Step 1: AFFINITY_API_KEY env var (non-empty string wins immediately).
+        # Empty string is treated as unset (defensive against stale shell rc lines).
+        env_key = os.getenv("AFFINITY_API_KEY", "").strip()
+        if env_key:
+            return env_key
+
+        # Step 2: AFFINITY_API_KEY_FILE — path to a file containing the key
+        # (Docker secrets, k8s mounted Secrets, Hashicorp Vault agent, etc.).
+        file_env = os.environ.get("AFFINITY_API_KEY_FILE", "").strip()
+        if file_env:
+            try:
+                key = read_key_file(Path(file_env).expanduser())
+            except ValueError as exc:
+                raise CLIError(str(exc), exit_code=2, error_type="usage_error") from exc
+            # read_key_file may have emitted UserWarning(s) for permission issues
+            # via warnings.warn; no additional list appending needed here.
             return key
 
+        # Step 3: AFFINITY_API_KEY_COMMAND — command whose stdout is the key
+        # (git credential helpers, gpg --passphrase-cmd, pass, op, vault, etc.).
+        cmd_env = os.environ.get("AFFINITY_API_KEY_COMMAND", "").strip()
+        if cmd_env:
+            try:
+                key = read_key_command(cmd_env)
+            except ValueError as exc:
+                raise CLIError(str(exc), exit_code=2, error_type="usage_error") from exc
+            return key
+
+        # Step 4: --api-key-file flag (explicit CLI path).
         if self.api_key_file is not None:
             if self.api_key_file == "-":
                 raw = sys.stdin.read()
@@ -214,10 +236,17 @@ class CLIContext:
                 raise CLIError(f"Empty API key file: {path}", exit_code=2, error_type="usage_error")
             return key
 
-        env_key = os.getenv("AFFINITY_API_KEY", "").strip()
-        if env_key:
-            return env_key
+        # Step 5: --api-key-stdin flag.
+        if self.api_key_stdin:
+            raw = sys.stdin.read()
+            key = raw.strip()
+            if not key:
+                raise CLIError(
+                    "Empty API key provided via stdin.", exit_code=2, error_type="usage_error"
+                )
+            return key
 
+        # Step 6: profile / config file from `xaffinity config setup-key`.
         prof = self._profile_config()
         if prof.api_key:
             warnings.extend(config_file_permission_warnings(self._config_path()))
@@ -225,8 +254,12 @@ class CLIContext:
 
         raise CLIError(
             (
-                "Missing API key. Set AFFINITY_API_KEY, use --api-key-file/--api-key-stdin, "
-                "or configure profiles."
+                "Missing Affinity API key. Provide one of:\n"
+                "  • AFFINITY_API_KEY environment variable\n"
+                "  • AFFINITY_API_KEY_FILE (path to a file containing the key)\n"
+                "  • AFFINITY_API_KEY_COMMAND (a command whose stdout is the key)\n"
+                "  • --api-key-file <path> or --api-key-stdin\n"
+                "  • xaffinity config setup-key (saves to system keychain)"
             ),
             exit_code=2,
             error_type="usage_error",

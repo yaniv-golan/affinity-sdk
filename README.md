@@ -37,6 +37,7 @@ For a detailed comparison, see [Affinity SDK vs. Official MCP](https://yaniv-gol
 - [Usage Examples](#usage-examples)
 - [Type System](#type-system)
 - [API Coverage](#api-coverage)
+- [Authentication](#authentication)
 - [Configuration](#configuration)
 - [Error Handling](#error-handling)
 - [Async Support](#async-support)
@@ -477,6 +478,67 @@ from affinity.types import (
 | Interactions | Read-only | ✅ | V1 |
 | Entity Files | ❌ | ✅ | V1 |
 | Relationship Strengths | ❌ | ✅ | V1 |
+
+## Authentication
+
+The SDK resolves the API key through the following chain (first non-empty value wins):
+
+1. **Explicit constructor arg** — `Affinity(api_key="…")` or `--api-key` CLI flag
+2. **`AFFINITY_API_KEY`** — standard environment variable
+3. **`AFFINITY_API_KEY_FILE`** — path to a file containing the key (12-factor / Docker secrets convention)
+4. **`AFFINITY_API_KEY_COMMAND`** — shell command whose stdout is the key (credential-helper convention)
+5. **`--api-key-file <path>`** or **`--api-key-stdin`** — CLI flags
+6. **`xaffinity config setup-key`** — saved to the system keychain
+
+Empty string is treated as unset at every step (safe against stale `export AFFINITY_API_KEY=` lines).
+
+### AFFINITY_API_KEY_FILE — file-based secrets
+
+Set this env var to the path of a file containing your API key. Used by Docker secrets,
+Kubernetes mounted Secrets, and Hashicorp Vault agent sidecars.
+
+```bash
+# Docker
+docker run -e AFFINITY_API_KEY_FILE=/run/secrets/affinity_api_key …
+
+# Kubernetes — mount a Secret as a file and set the env var
+# (see your k8s Secret docs for creating the Secret object)
+env:
+  - name: AFFINITY_API_KEY_FILE
+    value: /etc/secrets/affinity-api-key
+```
+
+On Posix systems, a `UserWarning` is emitted if the file is group- or world-readable
+(mode `0644` or looser). Use `chmod 600` to silence it.
+
+### AFFINITY_API_KEY_COMMAND — command-based secrets
+
+Set this env var to a shell command. The SDK runs it at startup and uses its stdout as the key.
+Follows the same convention as `git credential.helper`, `gpg --passphrase-program`, and similar tools.
+
+```bash
+# 1Password CLI
+export AFFINITY_API_KEY_COMMAND="op read op://Personal/Affinity/credential"
+
+# macOS Keychain
+export AFFINITY_API_KEY_COMMAND="security find-generic-password -a affinity -w"
+
+# pass (Unix password manager)
+export AFFINITY_API_KEY_COMMAND="pass show affinity/api-key"
+
+# HashiCorp Vault
+export AFFINITY_API_KEY_COMMAND="vault kv get -field=api_key secret/affinity"
+```
+
+The default timeout is 30 seconds; override with `AFFINITY_API_KEY_COMMAND_TIMEOUT=<seconds>`.
+A non-zero exit code or empty stdout raises an error (stderr is included, capped at 500 chars).
+
+> **Note on `.env` files.** When `load_dotenv=True` / `--dotenv` is used, a `.env`
+> file containing `AFFINITY_API_KEY=…` will silently take precedence over a
+> shell-set `AFFINITY_API_KEY_FILE` or `AFFINITY_API_KEY_COMMAND` (because the
+> resolver checks `AFFINITY_API_KEY` at step 2, before the file/command paths).
+> Don't mix dotenv with `_FILE`/`_COMMAND` unless you want this precedence. See
+> [Authentication caveats](docs/public/guides/authentication.md#caveats).
 
 ## Configuration
 

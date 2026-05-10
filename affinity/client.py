@@ -10,6 +10,7 @@ import contextlib
 import importlib
 import importlib.util
 import os
+import pathlib
 import warnings
 from typing import Any, Literal, cast
 
@@ -98,13 +99,31 @@ def _api_key_from_env(
     dotenv_path: str | os.PathLike[str] | None,
     dotenv_override: bool,
 ) -> str:
+    from affinity._internal.keyfile import read_key_command, read_key_file  # noqa: PLC0415
+
     _maybe_load_dotenv(load_dotenv=load_dotenv, dotenv_path=dotenv_path, override=dotenv_override)
+
+    # Step 1: AFFINITY_API_KEY (or custom env_var) — non-empty string wins immediately.
     api_key = os.getenv(env_var, "").strip()
-    if not api_key:
-        raise ValueError(
-            f"Missing API key: set `{env_var}` or initialize the client with `api_key=...`."
-        )
-    return api_key
+    if api_key:
+        return api_key
+
+    # Step 2: AFFINITY_API_KEY_FILE — path to a file containing the key
+    # (Docker secrets, k8s mounted Secrets, Hashicorp Vault agent, etc.).
+    file_env = os.environ.get("AFFINITY_API_KEY_FILE", "").strip()
+    if file_env:
+        return read_key_file(pathlib.Path(file_env).expanduser())
+
+    # Step 3: AFFINITY_API_KEY_COMMAND — command whose stdout is the key
+    # (git credential helpers, gpg --passphrase-cmd, pass, op, vault, etc.).
+    cmd_env = os.environ.get("AFFINITY_API_KEY_COMMAND", "").strip()
+    if cmd_env:
+        return read_key_command(cmd_env)
+
+    raise ValueError(
+        f"Missing API key: set `{env_var}`, `AFFINITY_API_KEY_FILE`, "
+        f"`AFFINITY_API_KEY_COMMAND`, or initialize the client with `api_key=...`."
+    )
 
 
 class Affinity:
