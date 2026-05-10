@@ -2278,6 +2278,10 @@
 <p>Set <code>AFFINITY_API_KEY</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span>
 </code></pre></div>
+<p>Or use one of the alternative resolution paths — file-based for container deployments
+(<code>AFFINITY_API_KEY_FILE=/run/secrets/affinity_api_key</code>) or command-based for credential
+managers (<code>AFFINITY_API_KEY_COMMAND="op read op://Personal/Affinity/credential"</code>). See
+<a href="../guides/authentication/">Authentication</a> for the full resolution chain.</p>
 <p>Then create a client from the environment:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 

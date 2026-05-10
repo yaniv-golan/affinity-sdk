@@ -804,6 +804,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#resolution-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolution chain
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -811,6 +822,34 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Environment variables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity_api_key_file-file-based-secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AFFINITY_API_KEY_FILE — file-based secrets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity_api_key_command-command-based-secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AFFINITY_API_KEY_COMMAND — command-based secrets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -822,6 +861,45 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caveats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caveats
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Caveats">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#env-files-can-silently-shadow-affinity_api_key_file-_command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        .env files can silently shadow AFFINITY_API_KEY_FILE / _COMMAND
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-on-disk-caveat-for-affinity_api_key_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File-on-disk caveat for AFFINITY_API_KEY_FILE
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2134,6 +2212,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#resolution-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolution chain
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2141,6 +2230,34 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Environment variables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affinity_api_key_file-file-based-secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AFFINITY_API_KEY_FILE — file-based secrets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affinity_api_key_command-command-based-secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AFFINITY_API_KEY_COMMAND — command-based secrets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2152,6 +2269,45 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caveats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caveats
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Caveats">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#env-files-can-silently-shadow-affinity_api_key_file-_command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        .env files can silently shadow AFFINITY_API_KEY_FILE / _COMMAND
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-on-disk-caveat-for-affinity_api_key_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File-on-disk caveat for AFFINITY_API_KEY_FILE
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2194,6 +2350,17 @@
     <span class="n">me</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">whoami</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">me</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">)</span>
 </code></pre></div>
+<h2 id="resolution-chain">Resolution chain<a class="headerlink" href="#resolution-chain" title="Permanent link">&para;</a></h2>
+<p>The SDK resolves the API key through the following chain (first non-empty value wins):</p>
+<ol>
+<li><strong>Explicit constructor arg</strong> — <code>Affinity(api_key="…")</code> or <code>--api-key</code> CLI flag</li>
+<li><strong><code>AFFINITY_API_KEY</code></strong> — standard environment variable</li>
+<li><strong><code>AFFINITY_API_KEY_FILE</code></strong> — path to a file containing the key (12-factor / Docker secrets)</li>
+<li><strong><code>AFFINITY_API_KEY_COMMAND</code></strong> — shell command whose stdout is the key (credential-helper)</li>
+<li><strong><code>--api-key-file &lt;path&gt;</code></strong> or <strong><code>--api-key-stdin</code></strong> — CLI flags</li>
+<li><strong><code>xaffinity config setup-key</code></strong> — saved to the system keychain</li>
+</ol>
+<p>Empty string is treated as unset at every step (safe against stale <code>export AFFINITY_API_KEY=</code> lines).</p>
 <h2 id="environment-variables">Environment variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
 <p>If you prefer reading from the environment:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
@@ -2213,6 +2380,38 @@
 <span class="c1"># Load from a specific path</span>
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">load_dotenv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dotenv_path</span><span class="o">=</span><span class="s2">&quot;.env.local&quot;</span><span class="p">)</span>
 </code></pre></div>
+<h3 id="affinity_api_key_file-file-based-secrets"><code>AFFINITY_API_KEY_FILE</code> — file-based secrets<a class="headerlink" href="#affinity_api_key_file-file-based-secrets" title="Permanent link">&para;</a></h3>
+<p>Set this env var to the path of a file containing your API key. Used by Docker secrets,
+Kubernetes mounted Secrets, and Hashicorp Vault agent sidecars.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Docker</span>
+docker<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span><span class="nv">AFFINITY_API_KEY_FILE</span><span class="o">=</span>/run/secrets/affinity_api_key<span class="w"> </span>…
+
+<span class="c1"># Kubernetes — mount a Secret as a file and set the env var</span>
+env:
+<span class="w">  </span>-<span class="w"> </span>name:<span class="w"> </span>AFFINITY_API_KEY_FILE
+<span class="w">    </span>value:<span class="w"> </span>/etc/secrets/affinity-api-key
+</code></pre></div>
+<p>On Posix systems, a <code>UserWarning</code> is emitted if the file is group- or world-readable
+(mode <code>0644</code> or looser). Use <code>chmod 600</code> to silence it. The check is a no-op on Windows.
+An empty file or missing path raises <code>ConfigError</code>.</p>
+<h3 id="affinity_api_key_command-command-based-secrets"><code>AFFINITY_API_KEY_COMMAND</code> — command-based secrets<a class="headerlink" href="#affinity_api_key_command-command-based-secrets" title="Permanent link">&para;</a></h3>
+<p>Set this env var to a shell command. The SDK runs it at startup and uses its stdout as the key.
+Follows the same convention as <code>git credential.helper</code>, <code>gpg --passphrase-program</code>, and similar tools.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 1Password CLI</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY_COMMAND</span><span class="o">=</span><span class="s2">&quot;op read op://Personal/Affinity/credential&quot;</span>
+
+<span class="c1"># macOS Keychain</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY_COMMAND</span><span class="o">=</span><span class="s2">&quot;security find-generic-password -a affinity -w&quot;</span>
+
+<span class="c1"># pass (Unix password manager)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY_COMMAND</span><span class="o">=</span><span class="s2">&quot;pass show affinity/api-key&quot;</span>
+
+<span class="c1"># HashiCorp Vault</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY_COMMAND</span><span class="o">=</span><span class="s2">&quot;vault kv get -field=api_key secret/affinity&quot;</span>
+</code></pre></div>
+<p>The default timeout is 30 seconds; override with <code>AFFINITY_API_KEY_COMMAND_TIMEOUT=&lt;seconds&gt;</code>.
+A non-zero exit code, empty stdout, or timeout raises <code>ConfigError</code> (stderr is included in the
+error message, capped at 500 chars).</p>
 <p>For defensive "no writes" usage (scripts, audits), disable writes via policy:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.policies</span><span class="w"> </span><span class="kn">import</span> <span class="n">Policies</span><span class="p">,</span> <span class="n">WritePolicy</span>
@@ -2228,6 +2427,32 @@ xaffinity<span class="w"> </span>config<span class="w"> </span>check-key
 xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key
 </code></pre></div>
 <p>See <a href="../../cli/#authentication">CLI Authentication</a> for details.</p>
+<h2 id="caveats">Caveats<a class="headerlink" href="#caveats" title="Permanent link">&para;</a></h2>
+<h3 id="env-files-can-silently-shadow-affinity_api_key_file-_command"><code>.env</code> files can silently shadow <code>AFFINITY_API_KEY_FILE</code> / <code>_COMMAND</code><a class="headerlink" href="#env-files-can-silently-shadow-affinity_api_key_file-_command" title="Permanent link">&para;</a></h3>
+<p><code>load_dotenv=True</code> (SDK) and <code>--dotenv</code> (CLI) load <code>.env</code> files <strong>before</strong> the
+resolver reads any environment variable. By default, dotenv values do not override
+already-set shell variables (<code>dotenv_override=False</code>).</p>
+<p>The resolver checks <code>AFFINITY_API_KEY</code> <em>first</em>, then <code>AFFINITY_API_KEY_FILE</code>, then
+<code>AFFINITY_API_KEY_COMMAND</code>. So if your <code>.env</code> file contains
+<code>AFFINITY_API_KEY=…</code> and you also have <code>AFFINITY_API_KEY_FILE</code> set in your shell:</p>
+<ul>
+<li>After dotenv load, the shell-set <code>AFFINITY_API_KEY_FILE</code> is unchanged.</li>
+<li>But <code>AFFINITY_API_KEY</code> is now also set (from <code>.env</code>).</li>
+<li>The resolver returns the <code>.env</code> value at step 2; the file at the <code>_FILE</code> path
+  is <strong>never read</strong>.</li>
+</ul>
+<p>This is rarely intended. If you mix dotenv and <code>_FILE</code>/<code>_COMMAND</code>, either:</p>
+<ul>
+<li>Keep one mechanism per environment, or</li>
+<li>Set <code>dotenv_override=True</code> deliberately and own the precedence in the <code>.env</code> file.</li>
+</ul>
+<h3 id="file-on-disk-caveat-for-affinity_api_key_file">File-on-disk caveat for <code>AFFINITY_API_KEY_FILE</code><a class="headerlink" href="#file-on-disk-caveat-for-affinity_api_key_file" title="Permanent link">&para;</a></h3>
+<p>The SDK opens the file in three syscalls (existence check, permission stat, read).
+A co-tenant with write access to the <em>parent directory</em> could in principle swap
+the file between checks. This is the standard Unix file-handle race; the
+mitigation is to keep the key file in a directory you control (your home dir,
+a locked-down <code>/etc</code> subtree, or a Kubernetes-mounted Secret volume), not in a
+world-writable temp dir.</p>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../../getting-started/">Getting started</a></li>
