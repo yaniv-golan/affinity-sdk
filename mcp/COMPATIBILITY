@@ -1,9 +1,24 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="1.13.0"
-CLI_MAX_VERSION="1.13.0"
+CLI_MIN_VERSION="1.15.0"
+CLI_MAX_VERSION="1.15.0"
 
+# MCP 1.22.2 requires CLI 1.15.0 for:
+# - `entry/company/person/opportunity field --set` pre-flight validation: bad
+#   person/company IDs, unknown dropdown options, etc. now abort BEFORE any API
+#   write. Prior behavior partial-committed earlier --sets when a later one
+#   failed validation; agents that retried saw audit-log noise + accidental
+#   partial state. MCP gateways should require this floor so the strict
+#   "all-or-nothing client-side validation" contract is consistent.
+# - No-op short-circuit on `field --set`: when the new value already matches
+#   existing, neither DELETE nor POST is issued (clean audit log on retries).
+# - Duplicate-note warning on `note create`: stderr warning when content+author
+#   match a recent note (5-min default window). `--skip-duplicate-check` and
+#   `--duplicate-window-seconds` flags available.
+# - Opportunity field enriched-field writes now work (latent V1-numeric mapping
+#   bug fixed during the migration).
+#
 # MCP 1.22.0 requires CLI 1.13.0 for:
 # - `list export --filter` without scope flag now exits 2 (breaking). MCP agents
 #   must add --all / --max-results / --first-page-only to unscoped filter calls.

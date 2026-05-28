@@ -2383,13 +2383,12 @@ def company_field(
     import json as json_module
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
-        from affinity.models.entities import FieldValueCreate
-        from affinity.types import FieldId as FieldIdType
-
         from ..field_utils import (
             FieldResolver,
+            execute_v1_set_phase,
             fetch_field_metadata,
             find_field_values_for_field,
+            pre_validate_set_operations,
         )
 
         # Validate: at least one operation must be specified
@@ -2464,13 +2463,12 @@ def company_field(
             )
 
         # Handle --set and --json: set field values
-        set_operations: list[tuple[str, Any]] = []
+        # Phase 1: collect raw --set + --set-json operations.
+        raw_set_operations: list[tuple[str, Any]] = []
 
-        # Collect from --set options
         for field_name, value in set_values:
-            set_operations.append((field_name, value))
+            raw_set_operations.append((field_name, value))
 
-        # Collect from --json
         if json_input:
             try:
                 json_data = json_module.loads(json_input)
@@ -2481,7 +2479,7 @@ def company_field(
                         error_type="usage_error",
                     )
                 for field_name, value in json_data.items():
-                    set_operations.append((field_name, value))
+                    raw_set_operations.append((field_name, value))
             except json_module.JSONDecodeError as e:
                 raise CLIError(
                     f"Invalid JSON: {e}",
@@ -2489,47 +2487,49 @@ def company_field(
                     error_type="usage_error",
                 ) from e
 
-        # Execute set operations
-        created_values: list[dict[str, Any]] = []
-        for field_name, value in set_operations:
+        # Phase 2: hoist all field-name resolution upfront (was inside the loop).
+        # Failures here abort cleanly with no API side effects.
+        resolved_set_ops: list[tuple[str, Any]] = []
+        for field_name, value in raw_set_operations:
             target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
+            resolved_set_ops.append((target_field_id, value))
 
-            # Resolve enriched ID to V1 numeric once; reuse for delete scan and create.
-            numeric_field_id = resolver.to_v1_numeric(
-                client, target_field_id, entity_type="company"
-            )
+        # Phase 3: pre-validate ALL values up front. New behavior addition for
+        # V1 commands: entity-reference fields gain client-side validation, so
+        # e.g. ``--set Owner "<full name>"`` aborts before any write instead
+        # of partial-committing prior --sets and then failing server-side.
+        pre_resolved_set = pre_validate_set_operations(resolver, resolved_set_ops)
 
-            # Check for existing values and delete them first (replace behavior)
-            existing_values = client.field_values.list(company_id=CompanyId(company_id))
-            existing_for_field = find_field_values_for_field(
-                field_values=[serialize_model_for_cli(v) for v in existing_values],
-                field_id=numeric_field_id,
-            )
-            for fv in existing_for_field:
-                fv_id = fv.get("id")
-                if fv_id:
-                    client.field_values.delete(fv_id)
+        # Phase 4: fetch existing values, execute set phase with no-op short-circuit.
+        existing_values = client.field_values.list(company_id=CompanyId(company_id))
+        existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values]
 
-            # Create new value
-            created = client.field_values.create(
-                FieldValueCreate(
-                    field_id=FieldIdType(numeric_field_id),
-                    entity_id=company_id,
-                    value=value,
-                )
-            )
-            created_values.append(serialize_model_for_cli(created))
+        created_values, set_deleted_count = execute_v1_set_phase(
+            client=client,
+            entity_kind="company",
+            entity_id=company_id,
+            pre_resolved_ops=pre_resolved_set,
+            existing_values_serialized=existing_values_serialized,
+            resolver=resolver,
+        )
 
-        # Handle --unset: remove field values
-        deleted_count = 0
+        # Handle --unset: remove field values. Hoist name resolution + V1 mapping
+        # upfront here too so a typo in any --unset aborts before deletes happen.
+        deleted_count = set_deleted_count
+        unset_numeric_ids: list[int] = []
         for field_name in unset_fields:
             target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
             numeric_field_id = resolver.to_v1_numeric(
                 client, target_field_id, entity_type="company"
             )
+            unset_numeric_ids.append(numeric_field_id)
+        # Refresh existing values once after set phase (sets may have changed them).
+        if unset_numeric_ids:
             existing_values = client.field_values.list(company_id=CompanyId(company_id))
+            existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values]
+        for numeric_field_id in unset_numeric_ids:
             existing_for_field = find_field_values_for_field(
-                field_values=[serialize_model_for_cli(v) for v in existing_values],
+                field_values=existing_values_serialized,
                 field_id=numeric_field_id,
             )
             for fv in existing_for_field:

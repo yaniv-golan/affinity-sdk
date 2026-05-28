@@ -1,0 +1,27 @@
+---
+description: Never reveal real company or person names used as test data
+alwaysApply: true
+---
+
+# Test data privacy
+
+Real Affinity CRM data is sometimes used during local diagnosis (incident transcripts, repro screenshots, audit-log excerpts). Treat every real company name, real person name, and real deal/opportunity name that surfaces during diagnosis as confidential.
+
+## Rules
+
+- **Never embed real company, person, deal, or opportunity names from diagnosis material into committed artifacts.** This includes: source code, tests, fixtures, docstrings, comments, CHANGELOG entries, COMPATIBILITY notes, SKILL.md examples, plan files that get checked in, commit messages, PR titles/bodies, and issue descriptions.
+- **Allowed exceptions** — legitimate author/maintainer identity in package metadata only: `pyproject.toml` `authors`, `mcp/mcpb.conf` `MCPB_AUTHOR_NAME`, `*.claude-plugin/plugin.json` `author`, `.claude-plugin/marketplace.json` owner blocks. Do not introduce a real name into any new context outside of those exact metadata fields.
+- **Use placeholders for examples and test data.** Prefer `Jane Doe` / `John Doe` for people, `Acme Corp` / `Acme Holdings` for companies, `Example Deal` for deals/opportunities. Use `<full name>` when the example needs to be obviously a placeholder in a docstring or hint message.
+- **Numeric IDs from real records are also sensitive.** Replace with obviously-fake IDs (`12345`, `999`, `111111111`) in tests, examples, and docs.
+- **Incident transcripts shared in chat are diagnosis-only.** Extract the technical pattern (e.g. "agent retried after exit 2 → partial-commit") but never the entity names. Refer to the incident with a generic label like "the recent agent-driven intake incident" rather than naming a tenant, deal, or person.
+- **When in doubt, ask** before committing anything that quotes from a real Affinity record.
+
+## Auditing
+
+When reviewing diffs or committing changes, scan for accidental leaks with:
+
+```bash
+git diff --cached | rg -i '<real-name-pattern>' && echo "ABORT: real name in staged diff"
+```
+
+If a leak is discovered post-commit but pre-push, rewrite history before pushing. If already pushed, surface immediately to the maintainer.

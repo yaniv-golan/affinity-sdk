@@ -7,6 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.15.0] - 2026-05-28
+
+### Highlights
+
+Eliminates two retry hazards from a recent agent-driven intake incident: (1) the
+four entity-field commands (`entry/company/person/opportunity field --set`)
+now pre-validate every value up front — a bad person id or unknown dropdown
+option aborts with exit 2 before any API write, instead of partial-committing
+prior --sets. (2) Repeated `--set` of an unchanged value short-circuits both
+DELETE and POST, so agent retries no longer pollute the audit log. Plus a
+duplicate-note stderr warning on `note create` when an identical note from
+the same author arrived within the last 5 minutes — informational only, the
+create still proceeds.
+
+### Changed
+
+- **BREAKING (strict-by-default)**: `field --set` now performs upfront client-side
+  validation across all four entity-field commands. Failures that the SDK can
+  detect locally (invalid person/company id, unknown dropdown option, malformed
+  datetime, etc.) raise a single aggregated `CLIError` before any API write —
+  no more partial commits when only some `--set` values are valid. Server-side
+  failures (HTTP 400 mid-sequence) may still leave partial state because
+  Affinity has no transactions. See
+  [`test_entry_field_partial_failure`](tests/test_cli_entry_field.py) for the
+  server-side scenario.
+- `company/person/opportunity field` commands gain new client-side
+  entity-reference validation. Previously `--set Owner "<full name>"` raised
+  on the server after the prior `--set Status=...` had already committed;
+  now it raises locally with zero writes. The CLI also surfaces a hint
+  pointing at `person ls --query` / `company ls --query`.
+- `--output` help text corrected: defaults to `table` regardless of pipe state.
+  Pass `--json` explicitly when piping to a JSON parser.
+
+### Added
+
+- No-op short-circuit on `field --set`: when the new value already matches the
+  existing value (dropdown id, person id, number, datetime, text), skip both
+  the DELETE and the POST. Multi-value `--set` falls back to writing whenever
+  the new set differs from the existing set (subset is NOT a no-op — set
+  semantics is REPLACE). See per-type comparator rules in
+  `affinity/cli/field_utils.py::value_equals_existing`.
+- `note create --skip-duplicate-check` / `--duplicate-window-seconds` flags.
+  Default behavior emits a stderr warning when a content-identical note by
+  the same author was created within the last 5 minutes; the create itself
+  always proceeds. Useful safety net for AI agents that re-issue create after
+  a parse failure on an earlier `--json`-less run.
+- Type-aware hint on `_coerce_entity_id` errors pointing at
+  `xaffinity person ls --json --query "<name>"` or
+  `xaffinity company ls --json --query "<name>"`.
+- New helper module surface in `affinity.cli.field_utils`:
+  `pre_validate_set_operations`, `value_equals_existing`,
+  `execute_v1_set_phase`, `execute_v2_set_phase`, `execute_append_phase`.
+
+### Fixed
+
+- Opportunity field enriched-field writes (e.g. `--set "Source of Introduction" "..."`)
+  now resolve to V1 numeric ids correctly. Previous code passed the enriched
+  V2 literal directly to `FieldValueCreate`, breaking enriched-field writes
+  on opportunities. Discovered while migrating to the shared helpers.
+- `entry field --append` no longer captures a stale existing-values snapshot
+  between the set and append phases — the helper refresh handoff is explicit.
+
 ## [1.14.0] - 2026-05-10
 
 ### Highlights

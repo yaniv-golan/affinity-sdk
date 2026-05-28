@@ -1,7 +1,7 @@
 {
   "name": "affinity-crm-cli-xaffinity-unofficial",
   "description": "Affinity CRM command-line tools — search contacts, export lists to CSV, filter pipelines, and manage CRM data via xaffinity",
-  "version": "1.8.2",
+  "version": "1.9.0",
   "author": {
     "name": "Yaniv Golan",
     "email": "yaniv@golan.name"

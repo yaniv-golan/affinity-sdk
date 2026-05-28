@@ -124,6 +124,11 @@ class CLIContext:
     _session_cache_config: SessionCacheConfig = field(default_factory=SessionCacheConfig)
     _session_cache: SessionCache | None = None
     _no_cache: bool = False
+    # Cache for the authenticated user id (from /auth/whoami) within this CLI
+    # invocation. Populated lazily by :func:`get_cached_user_id`. /auth/whoami
+    # is rate-limit-exempt, but multiple writes per session shouldn't trigger
+    # the call more than once.
+    _cached_user_id: int | None = None
 
     def load_dotenv_if_requested(self) -> None:
         try:

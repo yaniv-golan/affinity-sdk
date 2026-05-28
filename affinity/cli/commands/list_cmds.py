@@ -19,7 +19,6 @@ from affinity.models.types import InteractionType, ListType
 from affinity.types import (
     AnyFieldId,
     CompanyId,
-    EnrichedFieldId,
     FieldId,
     FieldType,
     ListEntryId,
@@ -3447,24 +3446,13 @@ def list_entry_field(
                 api_called=True,
             )
 
-        # Fetch existing values once for all write operations
-        existing_values_list = list(client.field_values.list(list_entry_id=ListEntryId(entry_id)))
-        existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values_list]
+        # Phase 1a: Collect --set + --set-json into a unified ops list.
+        set_operations_raw: list[tuple[str, Any]] = []
 
-        created_values: list[dict[str, Any]] = []
-        deleted_count = 0
-
-        # Get the entries API for this list
-        entries = client.lists.entries(resolved_list.list.id)
-
-        # Phase 1: Handle --set and --set-json (replace semantics)
-        set_operations: list[tuple[str, Any]] = []
-
-        # Collect from --set options
         for field_spec, value in set_values:
-            set_operations.append((field_spec, value))
+            target_field_id = resolved_fields[field_spec]
+            set_operations_raw.append((target_field_id, value))
 
-        # Collect from --set-json
         if json_input:
             try:
                 json_data = json.loads(json_input)
@@ -3475,7 +3463,8 @@ def list_entry_field(
                         error_type="usage_error",
                     )
                 for field_spec, value in json_data.items():
-                    set_operations.append((field_spec, value))
+                    target_field_id = resolved_fields[field_spec]
+                    set_operations_raw.append((target_field_id, value))
             except json.JSONDecodeError as e:
                 raise CLIError(
                     f"Invalid JSON in --set-json: {e}",
@@ -3483,18 +3472,38 @@ def list_entry_field(
                     error_type="usage_error",
                 ) from e
 
-        # Execute set operations (delete existing, then create new)
-        for field_spec, value in set_operations:
-            target_field_id = resolved_fields[field_spec]  # Already resolved upfront
-            resolved_name = resolver.get_field_name(target_field_id) or field_spec
+        # Phase 1b: Pre-validate ALL --set values up front. Errors aggregate;
+        # if any value is invalid, abort before issuing any API write.
+        from ..field_utils import (
+            execute_append_phase,
+            execute_v2_set_phase,
+            pre_validate_set_operations,
+        )
 
-            # Delete existing values for this field (replace semantics)
+        # Validate set + append in ONE call so a bad append value also aborts
+        # the set phase before any write happens.
+        append_ops_for_validation: list[tuple[str, Any]] = [
+            (resolved_fields[field_spec], value) for field_spec, value in append_values
+        ]
+        pre_validate_set_operations(resolver, set_operations_raw + append_ops_for_validation)
+        # We still want a dict keyed by set-op field-id for the set helper; build
+        # it from set_operations_raw only.
+        pre_resolved_set = pre_validate_set_operations(resolver, set_operations_raw)
+
+        # Phase 1c: Fetch existing values, emit multi-value warnings, write.
+        existing_values_list = list(client.field_values.list(list_entry_id=ListEntryId(entry_id)))
+        existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values_list]
+
+        # Preserve the legacy "Replaced N existing values" warning. The helper
+        # handles delete/create itself; we only need to surface the warning
+        # before any write happens.
+        for target_field_id in pre_resolved_set:
             existing_for_field = find_field_values_for_field(
                 field_values=existing_values_serialized,
                 field_id=target_field_id,
             )
             if len(existing_for_field) > 1:
-                # Emit warning for multi-value replace
+                resolved_name = resolver.get_field_name(target_field_id) or target_field_id
                 old_vals = [fv.get("value") for fv in existing_for_field]
                 if len(old_vals) > 5:
                     display_vals = [*old_vals[:3], f"...{len(old_vals) - 3} more..."]
@@ -3506,120 +3515,31 @@ def list_entry_field(
                     err=True,
                 )
 
-            for fv in existing_for_field:
-                fv_id = fv.get("id")
-                if fv_id:
-                    client.field_values.delete(fv_id)
-                    deleted_count += 1
+        entries = client.lists.entries(resolved_list.list.id)
 
-            # Create new value using V2 API
-            try:
-                parsed_field_id: AnyFieldId = FieldId(target_field_id)
-            except ValueError:
-                parsed_field_id = EnrichedFieldId(target_field_id)
+        created_values, deleted_count, refreshed_existing = execute_v2_set_phase(
+            client=client,
+            entries=entries,
+            list_entry_id=int(entry_id),
+            pre_resolved_ops=pre_resolved_set,
+            existing_values_serialized=existing_values_serialized,
+            resolver=resolver,
+        )
+        existing_values_serialized = refreshed_existing
 
-            # Resolve dropdown values (text → option ID) and get correct value_type
-            resolved_value, value_type_str = resolver.resolve_field_value(target_field_id, value)
-
-            result = entries.update_field_value(
-                ListEntryId(entry_id), parsed_field_id, resolved_value, value_type=value_type_str
+        # Phase 2: --append (V2 multi-value merge logic lives in execute_append_phase).
+        # Pre-validation already ran above for both set + append values together.
+        if append_values:
+            append_created, refreshed_existing = execute_append_phase(
+                client=client,
+                entries=entries,
+                list_entry_id=int(entry_id),
+                append_ops=append_ops_for_validation,
+                existing_values_serialized=existing_values_serialized,
+                resolver=resolver,
             )
-            created_values.append(serialize_model_for_cli(result))
-
-        # Phase 2: Handle --append (add without replacing)
-        # Group appends by field to aggregate repeated --append on the same field
-        # (e.g., --append Tags A --append Tags B → single write with [existing, A, B])
-        from collections import OrderedDict
-
-        append_groups: OrderedDict[str, list[str]] = OrderedDict()
-        for field_spec, value in append_values:
-            target_field_id = resolved_fields[field_spec]
-            append_groups.setdefault(target_field_id, []).append(value)
-
-        for target_field_id, values_for_field in append_groups.items():
-            try:
-                parsed_field_id = FieldId(target_field_id)
-            except ValueError:
-                parsed_field_id = EnrichedFieldId(target_field_id)
-
-            # Resolve all values and determine value_type
-            all_new_resolved: list[Any] = []
-            value_type_str = "text"
-            for val in values_for_field:
-                resolved_value, value_type_str = resolver.resolve_field_value(target_field_id, val)
-                if isinstance(resolved_value, list):
-                    all_new_resolved.extend(resolved_value)
-                else:
-                    all_new_resolved.append(resolved_value)
-
-            # For multi-value fields (dropdown-multi, person-multi, company-multi),
-            # the V2 API replaces the entire array on POST.
-            # To truly append, merge new values with existing ones.
-            if value_type_str == "dropdown-multi" and all_new_resolved:
-                existing_for_field = find_field_values_for_field(
-                    field_values=existing_values_serialized,
-                    field_id=target_field_id,
-                )
-                existing_option_ids: set[int] = set()
-                existing_options: list[dict[str, int]] = []
-                for fv in existing_for_field:
-                    fv_value = fv.get("value")
-                    if fv_value is None:
-                        continue
-                    existing_resolved, _ = resolver.resolve_field_value(
-                        target_field_id, str(fv_value)
-                    )
-                    if isinstance(existing_resolved, list):
-                        for opt in existing_resolved:
-                            if isinstance(opt, dict):
-                                opt_id = opt.get("dropdownOptionId")
-                                if opt_id is not None and opt_id not in existing_option_ids:
-                                    existing_option_ids.add(opt_id)
-                                    existing_options.append(opt)
-                for opt in all_new_resolved:
-                    if isinstance(opt, dict):
-                        opt_id = opt.get("dropdownOptionId")
-                        if opt_id is not None and opt_id not in existing_option_ids:
-                            existing_option_ids.add(opt_id)
-                            existing_options.append(opt)
-                final_value: Any = existing_options
-
-            elif value_type_str in ("person-multi", "company-multi") and all_new_resolved:
-                from ..field_utils import _extract_entity_id
-
-                existing_for_field = find_field_values_for_field(
-                    field_values=existing_values_serialized,
-                    field_id=target_field_id,
-                )
-                existing_entity_ids: set[int] = set()
-                existing_entities: list[dict[str, int]] = []
-                for fv in existing_for_field:
-                    fv_value = fv.get("value")
-                    eid = _extract_entity_id(fv_value)
-                    if eid is not None and eid not in existing_entity_ids:
-                        existing_entity_ids.add(eid)
-                        existing_entities.append({"id": eid})
-                for opt in all_new_resolved:
-                    if isinstance(opt, dict):
-                        eid = opt.get("id")
-                        if eid is not None and eid not in existing_entity_ids:
-                            existing_entity_ids.add(eid)
-                            existing_entities.append(opt)
-                final_value = existing_entities
-
-            elif len(values_for_field) == 1:
-                # Single append on non-multi field: use resolved value directly
-                final_value = (
-                    all_new_resolved[0] if len(all_new_resolved) == 1 else all_new_resolved
-                )
-            else:
-                # Multiple appends on non-multi field: use last value
-                final_value = all_new_resolved[-1] if all_new_resolved else all_new_resolved
-
-            result = entries.update_field_value(
-                ListEntryId(entry_id), parsed_field_id, final_value, value_type=value_type_str
-            )
-            created_values.append(serialize_model_for_cli(result))
+            created_values.extend(append_created)
+            existing_values_serialized = refreshed_existing
 
         # Refresh existing values for unset operations (in case set/append modified them)
         if has_unset or has_unset_value:

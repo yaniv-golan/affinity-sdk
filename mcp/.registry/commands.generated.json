@@ -2,11 +2,11 @@
   "_generated": {
     "warning": "DO NOT EDIT - This file is auto-generated",
     "generator": "tools/generate_mcp_command_registry.py",
-    "cliVersion": "1.14.0",
+    "cliVersion": "1.15.0",
     "sourceConfig": "mcp/.registry/mcp-commands.json"
   },
   "version": 1,
-  "cliVersion": "1.14.0",
+  "cliVersion": "1.15.0",
   "commands": [
     {
       "name": "company create",
@@ -1849,6 +1849,11 @@
           "required": false,
           "help": "Creator id override."
         },
+        "--duplicate-window-seconds": {
+          "type": "int",
+          "required": false,
+          "help": "Seconds to look back for a content-identical duplicate by the same author."
+        },
         "--opportunity-id": {
           "type": "int",
           "required": false,
@@ -1865,6 +1870,11 @@
           "required": false,
           "help": "Associate person id.",
           "multiple": true
+        },
+        "--skip-duplicate-check": {
+          "type": "flag",
+          "required": false,
+          "help": "Skip the recent-duplicate-note warning. Use for high-fan-out callers (many entity IDs) where the extra read calls per entity are too costly."
         },
         "--type": {
           "type": "string",

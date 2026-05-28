@@ -1273,13 +1273,12 @@ def opportunity_field(
     import json as json_module
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
-        from affinity.models.entities import FieldValueCreate
-        from affinity.types import FieldId as FieldIdType
-
         from ..field_utils import (
             FieldResolver,
+            execute_v1_set_phase,
             fetch_field_metadata,
             find_field_values_for_field,
+            pre_validate_set_operations,
         )
 
         # Validate: at least one operation must be specified
@@ -1354,13 +1353,12 @@ def opportunity_field(
             )
 
         # Handle --set and --json: set field values
-        set_operations: list[tuple[str, Any]] = []
+        # Phase 1: collect raw --set + --set-json operations.
+        raw_set_operations: list[tuple[str, Any]] = []
 
-        # Collect from --set options
         for field_name, value in set_values:
-            set_operations.append((field_name, value))
+            raw_set_operations.append((field_name, value))
 
-        # Collect from --json
         if json_input:
             try:
                 json_data = json_module.loads(json_input)
@@ -1371,7 +1369,7 @@ def opportunity_field(
                         error_type="usage_error",
                     )
                 for field_name, value in json_data.items():
-                    set_operations.append((field_name, value))
+                    raw_set_operations.append((field_name, value))
             except json_module.JSONDecodeError as e:
                 raise CLIError(
                     f"Invalid JSON: {e}",
@@ -1379,40 +1377,48 @@ def opportunity_field(
                     error_type="usage_error",
                 ) from e
 
-        # Execute set operations
-        created_values: list[dict[str, Any]] = []
-        for field_name, value in set_operations:
+        # Phase 2: hoist field-name resolution upfront.
+        resolved_set_ops: list[tuple[str, Any]] = []
+        for field_name, value in raw_set_operations:
             target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
+            resolved_set_ops.append((target_field_id, value))
 
-            # Check for existing values and delete them first (replace behavior)
-            existing_values = client.field_values.list(opportunity_id=OpportunityId(opportunity_id))
-            existing_for_field = find_field_values_for_field(
-                field_values=[serialize_model_for_cli(v) for v in existing_values],
-                field_id=target_field_id,
-            )
-            for fv in existing_for_field:
-                fv_id = fv.get("id")
-                if fv_id:
-                    client.field_values.delete(fv_id)
+        # Phase 3: pre-validate ALL values up front (same strict default).
+        pre_resolved_set = pre_validate_set_operations(resolver, resolved_set_ops)
 
-            # Create new value
-            created = client.field_values.create(
-                FieldValueCreate(
-                    field_id=FieldIdType(target_field_id),
-                    entity_id=opportunity_id,
-                    value=value,
-                )
-            )
-            created_values.append(serialize_model_for_cli(created))
+        # Phase 4: fetch existing values + execute set phase via shared helper.
+        # The shared helper handles V1-numeric mapping for enriched fields via
+        # ``resolver.to_v1_numeric()`` — this fixes a latent bug where the
+        # in-line implementation passed the V2 enriched literal directly to
+        # ``FieldValueCreate``, breaking enriched-field writes on opportunities.
+        existing_values = client.field_values.list(opportunity_id=OpportunityId(opportunity_id))
+        existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values]
 
-        # Handle --unset: remove field values
-        deleted_count = 0
+        created_values, set_deleted_count = execute_v1_set_phase(
+            client=client,
+            entity_kind="opportunity",
+            entity_id=opportunity_id,
+            pre_resolved_ops=pre_resolved_set,
+            existing_values_serialized=existing_values_serialized,
+            resolver=resolver,
+        )
+
+        # Handle --unset: hoist resolution upfront so a typo aborts cleanly.
+        deleted_count = set_deleted_count
+        unset_numeric_ids: list[int] = []
         for field_name in unset_fields:
             target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
+            numeric_field_id = resolver.to_v1_numeric(
+                client, target_field_id, entity_type="opportunity"
+            )
+            unset_numeric_ids.append(numeric_field_id)
+        if unset_numeric_ids:
             existing_values = client.field_values.list(opportunity_id=OpportunityId(opportunity_id))
+            existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values]
+        for numeric_field_id in unset_numeric_ids:
             existing_for_field = find_field_values_for_field(
-                field_values=[serialize_model_for_cli(v) for v in existing_values],
-                field_id=target_field_id,
+                field_values=existing_values_serialized,
+                field_id=numeric_field_id,
             )
             for fv in existing_for_field:
                 fv_id = fv.get("id")

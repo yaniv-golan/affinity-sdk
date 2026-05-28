@@ -195,7 +195,7 @@ def output_options(fn: F) -> F:
         "-o",
         type=click.Choice(["table", "json", "jsonl", "markdown", "toon", "csv"]),
         default=None,
-        help="Output format (default: table for terminal, json for pipes).",
+        help="Output format (default: table). Pass --json explicitly when piping to a JSON parser.",
         callback=_set_output,
         expose_value=False,
     )(fn)

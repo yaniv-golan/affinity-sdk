@@ -1578,16 +1578,19 @@ def test_entry_field_field_name_like_id(respx_mock: respx.MockRouter) -> None:
 
 
 def test_entry_field_partial_failure(respx_mock: respx.MockRouter) -> None:
-    """When API error occurs mid-operation, command fails but partial changes may persist.
+    """SERVER-SIDE failure may still leave partial state — Affinity has no transactions.
 
-    This test verifies behavior when:
-    1. First field operation succeeds (data persisted in Affinity)
-    2. Second field operation fails (API error)
-    3. Command exits with error
-    4. User is informed of the error
+    Client-side-validatable failures (bad person ID, unknown dropdown option,
+    invalid datetime, etc.) now abort BEFORE any API write under the strict
+    default introduced in v0.7 — see
+    ``test_entry_field_invalid_person_aborts_before_any_write`` for that path.
 
-    Note: Affinity API doesn't support transactions, so partial updates remain.
-    This is documented behavior - the user should check the entry state after errors.
+    This test covers the orthogonal scenario: every value passed
+    pre-validation client-side, but the server returns HTTP 400 mid-sequence
+    (e.g. a constraint we can't check locally). In that case the prior
+    --set has already committed and Affinity has no rollback. The CLI exits
+    non-zero and surfaces the server error; the user should check the entry
+    state after such errors.
     """
     setup_list_mocks(respx_mock)
 
@@ -1986,12 +1989,10 @@ class TestEntryFieldEntityRefAppend:
         )
 
         assert result.exit_code == 0, result.output
-        assert post_route.called
-        request_body = json.loads(post_route.calls[0].request.content)
-        data = request_body["value"]["data"]
-        # Should only have one entry, not duplicated
-        assert len(data) == 1
-        assert data[0]["id"] == 111
+        # No-op short-circuit: appending an ID that already exists in
+        # person-multi is now a no-op. No POST should be issued — preserves
+        # a clean audit log on retries (CLI-SET-PHASE-ATOMICITY).
+        assert not post_route.called
 
     def test_append_person_multi_empty_field(self, respx_mock: respx.MockRouter) -> None:
         """--append on empty person-multi field works."""

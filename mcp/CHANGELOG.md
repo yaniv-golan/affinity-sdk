@@ -5,6 +5,22 @@ All notable changes to the xaffinity MCP server will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.22.2] - 2026-05-28
+
+### Highlights
+
+Compatibility-floor bump only — MCP server behavior unchanged. Requires
+CLI >= 1.15.0 so the strict-by-default pre-flight validation on
+`field --set`, the no-op short-circuit, and the duplicate-note warning are
+present for agents driving the MCP gateway. Without the floor bump, agents
+on an older CLI would still see the partial-commit behavior that caused the
+recent agent-driven intake incident.
+
+### Changed
+
+- `mcp/COMPATIBILITY`: `CLI_MIN_VERSION` and `CLI_MAX_VERSION` bumped to
+  `1.15.0`. See `mcp/COMPATIBILITY` comments for the full rationale.
+
 ## [1.22.1] - 2026-05-09
 
 ### Highlights

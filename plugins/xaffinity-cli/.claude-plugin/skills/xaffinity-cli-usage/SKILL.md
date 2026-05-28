@@ -74,6 +74,38 @@ signal. No page-1 confusion possible.
 If `payload["meta"]["truncated"]` is `true`, the answer is incomplete.
 `truncationReason` names the cause (currently: `firstPageOnly`).
 
+**6. Side-effecting commands: capture, then parse.**
+A pipeline like
+`xaffinity note create --content "..." --company-id 123 | python3 -c "json.loads(...)"`
+runs the create first, then parses. If you forgot `--json`, the parser
+crashes and the pipeline exits 1 — but the note was already created. The
+agent then "retries" and creates a duplicate. Always capture output to a
+variable first, then parse:
+
+```bash
+out=$(xaffinity --json note create --content "..." --company-id 123)
+note_id=$(printf '%s' "$out" | jq -r '.data.note.id')
+```
+
+The CLI also emits a duplicate-note warning to stderr when an identical
+content arrives within 5 minutes from the same author, but that's only a
+safety net — capture-then-parse is the actual fix.
+
+**7. Person/company field values require numeric IDs, not names.**
+`xaffinity list entry field 999 --set Owner "Jane Doe"` aborts with an
+"Invalid entity ID" error before any write. Resolve names to IDs first:
+
+```bash
+owner_id=$(xaffinity --readonly --json person ls --query "Jane Doe" \
+  | jq -r '.data.rows[0].id')
+xaffinity list entry field 999 --set Owner "$owner_id"
+```
+
+As of v0.7 the CLI pre-validates ALL `--set` values before issuing any API
+call, so a bad person id no longer leaves prior `--set Status=...` writes
+committed. The lookup is still required though — the CLI does not
+auto-resolve names.
+
 ## IMPORTANT: Write Operations Require Explicit User Request
 
 **Always use `--readonly` unless user explicitly requests writes.**

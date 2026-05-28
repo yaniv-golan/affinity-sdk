@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import sys
 from contextlib import ExitStack
+from datetime import datetime, timedelta, timezone
+from typing import Any
 
 from rich.console import Console
 from rich.progress import BarColumn, Progress, TaskID, TextColumn, TimeElapsedColumn
@@ -33,6 +35,113 @@ _NOTE_TYPE_MAP = {
     "ai-notetaker": NoteType.AI_NOTETAKER,
     "email-derived": NoteType.EMAIL_DERIVED,
 }
+
+
+def _get_cached_user_id(ctx: CLIContext, client: Any) -> int | None:
+    """Return the authenticated user's id, calling /auth/whoami at most once.
+
+    /auth/whoami is rate-limit-exempt (per CLAUDE.md). The cached value lives
+    on ``ctx._cached_user_id`` for the lifetime of this CLI invocation. On
+    transient failure (auth/network), returns ``None`` so callers can skip
+    creator-scoped logic gracefully rather than aborting the write.
+    """
+    if ctx._cached_user_id is not None:
+        return ctx._cached_user_id
+    try:
+        whoami_result = client.auth.whoami()
+        user_id = int(whoami_result.user.id)
+        ctx._cached_user_id = user_id
+        return user_id
+    except Exception:
+        return None
+
+
+def _maybe_warn_duplicate_note(
+    *,
+    ctx: CLIContext,
+    client: Any,
+    warnings: list[str],
+    content: str,
+    person_ids: tuple[int, ...],
+    company_ids: tuple[int, ...],
+    opportunity_ids: tuple[int, ...],
+    explicit_creator_id: int | None,
+    window_seconds: int,
+) -> None:
+    """Append a stderr warning to ``warnings`` if a recent duplicate exists.
+
+    Looks at each attached entity ID, queries the last few notes scoped to
+    the authenticated user (or ``explicit_creator_id`` when provided), and
+    compares stripped content + recency. Stops at the first match.
+
+    Cost: N + M + K extra V1 read calls (where N/M/K are the number of
+    attached person/company/opportunity IDs) plus 1 cached /auth/whoami call.
+    Use ``--skip-duplicate-check`` for high-fan-out callers.
+    """
+    scoped_creator_id: int
+    if explicit_creator_id is not None:
+        scoped_creator_id = explicit_creator_id
+    else:
+        resolved_id = _get_cached_user_id(ctx, client)
+        if resolved_id is None:
+            # Can't scope by creator → checking the entire entity's note feed
+            # would risk false positives across users. Bail quietly.
+            return
+        scoped_creator_id = resolved_id
+
+    normalized_new = content.strip()
+    if not normalized_new:
+        return
+
+    now = datetime.now(timezone.utc)
+    window = timedelta(seconds=max(0, window_seconds))
+
+    creator_id_typed = UserId(scoped_creator_id)
+
+    def _check(entity_kwarg: str, entity_id: int, entity_label: str) -> bool:
+        try:
+            page = client.notes.list(
+                **{entity_kwarg: entity_id},
+                creator_id=creator_id_typed,
+                page_size=5,
+            )
+        except Exception:
+            # transient list failure abort the actual note write.
+            return False
+        for existing in getattr(page, "data", []) or []:
+            existing_content = (existing.content or "").strip()
+            if existing_content != normalized_new:
+                continue
+            created_at = getattr(existing, "created_at", None)
+            if created_at is None:
+                continue
+            if isinstance(created_at, str):
+                try:
+                    created_at = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+                except ValueError:
+                    continue
+            if created_at.tzinfo is None:
+                created_at = created_at.replace(tzinfo=timezone.utc)
+            delta = now - created_at
+            if delta <= window:
+                seconds = int(delta.total_seconds())
+                warnings.append(
+                    f"Possible duplicate of note {int(existing.id)} ({seconds}s ago) "
+                    f"on {entity_label} {entity_id}. "
+                    "Pass --skip-duplicate-check to suppress this check."
+                )
+                return True
+        return False
+
+    for pid in person_ids:
+        if _check("person_id", int(pid), "person"):
+            return
+    for cid in company_ids:
+        if _check("company_id", int(cid), "company"):
+            return
+    for oid in opportunity_ids:
+        if _check("opportunity_id", int(oid), "opportunity"):
+            return
 
 
 def _note_payload(note: Note) -> dict[str, object]:
@@ -293,6 +402,22 @@ def note_get(ctx: CLIContext, note_id: int) -> None:
     default=None,
     help="Creation timestamp (ISO-8601).",
 )
+@click.option(
+    "--skip-duplicate-check",
+    is_flag=True,
+    default=False,
+    help=(
+        "Skip the recent-duplicate-note warning. Use for high-fan-out callers "
+        "(many entity IDs) where the extra read calls per entity are too costly."
+    ),
+)
+@click.option(
+    "--duplicate-window-seconds",
+    type=int,
+    default=300,
+    show_default=True,
+    help="Seconds to look back for a content-identical duplicate by the same author.",
+)
 @output_options
 @click.pass_obj
 def note_create(
@@ -306,6 +431,8 @@ def note_create(
     parent_id: int | None,
     creator_id: int | None,
     created_at: str | None,
+    skip_duplicate_check: bool,
+    duplicate_window_seconds: int,
 ) -> None:
     """
     Create a note attached to an entity.
@@ -322,7 +449,6 @@ def note_create(
     """
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
-        _ = warnings
         if not (person_ids or company_ids or opportunity_ids or parent_id):
             raise CLIError(
                 "Notes must be attached to at least one entity or parent note.",
@@ -337,6 +463,29 @@ def note_create(
         )
 
         client = ctx.get_client(warnings=warnings)
+
+        # Optional duplicate-note warning. Looks up recent notes on each
+        # attached entity (scoped to the authenticated user by default) and
+        # appends to ``warnings`` if a content-identical note was created
+        # within the configured window. Always proceeds with the create —
+        # warning is informational only, exit code unchanged.
+        if (
+            not skip_duplicate_check
+            and not ctx.quiet
+            and (person_ids or company_ids or opportunity_ids)
+        ):
+            _maybe_warn_duplicate_note(
+                ctx=ctx,
+                client=client,
+                warnings=warnings,
+                content=content,
+                person_ids=person_ids,
+                company_ids=company_ids,
+                opportunity_ids=opportunity_ids,
+                explicit_creator_id=creator_id,
+                window_seconds=duplicate_window_seconds,
+            )
+
         note = client.notes.create(
             NoteCreate(
                 content=content,
