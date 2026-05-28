@@ -29,9 +29,8 @@ create still proceeds.
   datetime, etc.) raise a single aggregated `CLIError` before any API write —
   no more partial commits when only some `--set` values are valid. Server-side
   failures (HTTP 400 mid-sequence) may still leave partial state because
-  Affinity has no transactions. See
-  [`test_entry_field_partial_failure`](tests/test_cli_entry_field.py) for the
-  server-side scenario.
+  Affinity has no transactions. See `test_entry_field_partial_failure` in
+  `tests/test_cli_entry_field.py` for the server-side scenario.
 - `company/person/opportunity field` commands gain new client-side
   entity-reference validation. Previously `--set Owner "<full name>"` raised
   on the server after the prior `--set Status=...` had already committed;

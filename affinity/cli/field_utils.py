@@ -813,7 +813,9 @@ def value_equals_existing(
             old_raw = existing_for_field[0].get("value")
             if isinstance(old_raw, dict):
                 old_raw = old_raw.get("data", old_raw)
-            old_n = float(old_raw)
+            if old_raw is None:
+                return False
+            old_n = float(old_raw)  # type: ignore[arg-type]
         except (ValueError, TypeError):
             return False
         return new_n == old_n
