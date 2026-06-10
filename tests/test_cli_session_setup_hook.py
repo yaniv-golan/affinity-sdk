@@ -11,12 +11,7 @@ from pathlib import Path
 import pytest
 
 HOOK_PATH = str(
-    Path(__file__).parent.parent
-    / "plugins"
-    / "xaffinity-cli"
-    / ".claude-plugin"
-    / "hooks"
-    / "session-setup.sh"
+    Path(__file__).parent.parent / "plugins" / "xaffinity-cli" / "hooks" / "session-setup.sh"
 )
 
 # Resolve absolute path to bash so tests that override PATH still work.
