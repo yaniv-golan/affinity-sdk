@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Highlights
+
+Packaging groundwork for set-once API-key entry in Claude Cowork. The CLI plugin
+manifest now declares a `clis.xaffinity` block with an `env.api_key` credential
+(`AFFINITY_API_KEY`, `secret: true`) and an `api.affinity.co` egress entry. This
+targets Claude Desktop's host-side CLI-credential broker — the user enters the
+key once under **Customize → Plugins** and it is injected into every Cowork
+session that runs `xaffinity`, with no per-project `.env` needed.
+
+**Status: packaged but not yet user-visible.** The desktop broker (UI field +
+`cowork-plugin-env` encrypted store + invocation-time env injection) is
+dark-launched behind an Anthropic server-side feature gate (`2307090146`,
+internal name `cli_plugin`) that is **off by default** as of 2026-06-10. The
+manifest is parsed and validated correctly by the current desktop build
+(v1.11847.5) — verified against the binary — but the credential field will not
+appear until Anthropic enables the gate for an account. **No plugin update will
+be required when it flips.** Until then, end-user behavior is unchanged: provide
+the key via `AFFINITY_API_KEY`, project `.env` + `--dotenv`, or
+`AFFINITY_API_KEY_FILE` / `_COMMAND` (see 1.14.0).
+
+### Changed
+
+- CLI plugin restructured to the standard Claude Code layout: `skills/` and
+  `hooks/` moved out of `.claude-plugin/` to the plugin root, with
+  `.claude-plugin/plugin.json` now carrying only the manifest. The marketplace
+  `source` for `affinity-crm-cli-xaffinity-unofficial` was corrected to point at
+  the plugin root (`./plugins/xaffinity-cli`) so Claude Code loads the real
+  manifest rather than a stub. Hook test paths updated to match
+  (`tests/test_cli_{pre_xaffinity,session_setup}_hook.py`).
+
+### Plugins
+
+- **CLI plugin** (`affinity-crm-cli-xaffinity-unofficial`): 1.9.0 → 1.10.0 —
+  added `clis.xaffinity` credential-broker manifest block (`env.api_key` →
+  `AFFINITY_API_KEY`, `network: ["api.affinity.co"]`) for forward-compatible
+  set-once key entry in Cowork (gated off server-side, see Highlights); plugin
+  restructured to standard layout + marketplace `source` fix.
+
 ## [1.15.0] - 2026-05-28
 
 ### Highlights
