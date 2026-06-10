@@ -33,7 +33,7 @@
       "homepage": "https://yaniv-golan.github.io/affinity-sdk/",
       "repository": "https://github.com/yaniv-golan/affinity-sdk",
       "license": "MIT",
-      "source": "./plugins/xaffinity-cli/.claude-plugin",
+      "source": "./plugins/xaffinity-cli",
       "category": "productivity",
       "tags": ["affinity", "crm", "cli", "xaffinity", "export", "csv"]
     },
