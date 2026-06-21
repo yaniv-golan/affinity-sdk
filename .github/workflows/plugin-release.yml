@@ -59,7 +59,7 @@ jobs:
             echo "Mode: workflow_dispatch (manual), tag=$TAG_NAME, version=$VERSION"
           fi
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ steps.version.outputs.is_api_trigger == 'true' && 'main' || (github.event.inputs.tag || github.ref) }}
 
