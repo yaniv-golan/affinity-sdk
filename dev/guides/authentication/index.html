@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -2346,7 +2346,7 @@
 <p>The SDK authenticates using an Affinity API key.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">"your-api-key"</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="n">me</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">whoami</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">me</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">)</span>
 </code></pre></div>
@@ -2369,7 +2369,7 @@
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
 
 <span class="c1"># Use a custom environment variable name</span>
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">env_var</span><span class="o">=</span><span class="s2">&quot;MY_AFFINITY_KEY&quot;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">env_var</span><span class="o">=</span><span class="s2">"MY_AFFINITY_KEY"</span><span class="p">)</span>
 </code></pre></div>
 <p>For local development, you can load a <code>.env</code> file (requires <code>python-dotenv</code>):</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
@@ -2378,7 +2378,7 @@
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">load_dotenv</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Load from a specific path</span>
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">load_dotenv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dotenv_path</span><span class="o">=</span><span class="s2">&quot;.env.local&quot;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">load_dotenv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dotenv_path</span><span class="o">=</span><span class="s2">".env.local"</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="affinity_api_key_file-file-based-secrets"><code>AFFINITY_API_KEY_FILE</code> — file-based secrets<a class="headerlink" href="#affinity_api_key_file-file-based-secrets" title="Permanent link">&para;</a></h3>
 <p>Set this env var to the path of a file containing your API key. Used by Docker secrets,
@@ -2398,16 +2398,16 @@ An empty file or missing path raises <code>ConfigError</code>.</p>
 <p>Set this env var to a shell command. The SDK runs it at startup and uses its stdout as the key.
 Follows the same convention as <code>git credential.helper</code>, <code>gpg --passphrase-program</code>, and similar tools.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># 1Password CLI</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY_COMMAND</span><span class="o">=</span><span class="s2">&quot;op read op://Personal/Affinity/credential&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY_COMMAND</span><span class="o">=</span><span class="s2">"op read op://Personal/Affinity/credential"</span>
 
 <span class="c1"># macOS Keychain</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY_COMMAND</span><span class="o">=</span><span class="s2">&quot;security find-generic-password -a affinity -w&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY_COMMAND</span><span class="o">=</span><span class="s2">"security find-generic-password -a affinity -w"</span>
 
 <span class="c1"># pass (Unix password manager)</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY_COMMAND</span><span class="o">=</span><span class="s2">&quot;pass show affinity/api-key&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY_COMMAND</span><span class="o">=</span><span class="s2">"pass show affinity/api-key"</span>
 
 <span class="c1"># HashiCorp Vault</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY_COMMAND</span><span class="o">=</span><span class="s2">&quot;vault kv get -field=api_key secret/affinity&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY_COMMAND</span><span class="o">=</span><span class="s2">"vault kv get -field=api_key secret/affinity"</span>
 </code></pre></div>
 <p>The default timeout is 30 seconds; override with <code>AFFINITY_API_KEY_COMMAND_TIMEOUT=&lt;seconds&gt;</code>.
 A non-zero exit code, empty stdout, or timeout raises <code>ConfigError</code> (stderr is included in the
@@ -2517,7 +2517,7 @@ world-writable temp dir.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

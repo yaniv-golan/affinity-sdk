@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -2316,14 +2316,14 @@
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity.models.secondary</span><span class="w"> </span><span class="kn">import</span> <span class="n">Note</span>
 
 <span class="c1"># API response with Z suffix - parsed as UTC</span>
-<span class="n">note</span> <span class="o">=</span> <span class="n">Note</span><span class="o">.</span><span class="n">model_validate</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;createdAt&quot;</span><span class="p">:</span> <span class="s2">&quot;2024-01-01T12:00:00Z&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">})</span>
+<span class="n">note</span> <span class="o">=</span> <span class="n">Note</span><span class="o">.</span><span class="n">model_validate</span><span class="p">({</span><span class="s2">"id"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"createdAt"</span><span class="p">:</span> <span class="s2">"2024-01-01T12:00:00Z"</span><span class="p">,</span> <span class="o">...</span><span class="p">})</span>
 <span class="k">assert</span> <span class="n">note</span><span class="o">.</span><span class="n">created_at</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># UTC-aware</span>
 
 <span class="c1"># You can safely compare datetimes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="n">cutoff</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">note</span><span class="o">.</span><span class="n">created_at</span> <span class="o">&gt;</span> <span class="n">cutoff</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Recent note&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Recent note"</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="passing-datetimes-to-models">Passing datetimes to models<a class="headerlink" href="#passing-datetimes-to-models" title="Permanent link">&para;</a></h3>
 <p>When constructing models directly, naive datetimes are assumed UTC:</p>
@@ -2484,7 +2484,7 @@ xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span clas
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

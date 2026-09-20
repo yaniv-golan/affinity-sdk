@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -2568,7 +2568,7 @@
 <span class="k">with</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="n">webhook</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">webhooks</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
         <span class="n">WebhookCreate</span><span class="p">(</span>
-            <span class="n">webhook_url</span><span class="o">=</span><span class="s2">&quot;https://example.com/webhooks/affinity/&lt;random-secret&gt;&quot;</span><span class="p">,</span>
+            <span class="n">webhook_url</span><span class="o">=</span><span class="s2">"https://example.com/webhooks/affinity/&lt;random-secret&gt;"</span><span class="p">,</span>
             <span class="n">subscriptions</span><span class="o">=</span><span class="p">[</span>
                 <span class="n">WebhookEvent</span><span class="o">.</span><span class="n">FIELD_VALUE_UPDATED</span><span class="p">,</span>
                 <span class="n">WebhookEvent</span><span class="o">.</span><span class="n">LIST_ENTRY_CREATED</span><span class="p">,</span>
@@ -2629,12 +2629,12 @@
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
 
 <span class="c1"># Generate a dedupe key from event properties</span>
-<span class="n">dedupe_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">envelope</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">envelope</span><span class="o">.</span><span class="n">sent_at_epoch</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">raw_body</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()[:</span><span class="mi">16</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="n">dedupe_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">envelope</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">envelope</span><span class="o">.</span><span class="n">sent_at_epoch</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">raw_body</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()[:</span><span class="mi">16</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
 
 <span class="c1"># Check against a cache (Redis, memcached, etc.) with 5-10 minute TTL</span>
 <span class="k">if</span> <span class="n">cache</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dedupe_key</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>  <span class="c1"># Already processed, acknowledge silently</span>
-<span class="n">cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">dedupe_key</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">ttl</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
+<span class="n">cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">dedupe_key</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">,</span> <span class="n">ttl</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="recommended-ip-allowlisting">Recommended: IP allowlisting<a class="headerlink" href="#recommended-ip-allowlisting" title="Permanent link">&para;</a></h3>
 <p>If Affinity provides stable egress IP ranges for your account:</p>
@@ -2685,35 +2685,35 @@
 <span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
 
 <span class="c1"># Generate with: secrets.token_urlsafe(32)</span>
-<span class="n">WEBHOOK_SECRET</span> <span class="o">=</span> <span class="s2">&quot;replace-with-a-long-random-string-at-least-32-chars&quot;</span>
+<span class="n">WEBHOOK_SECRET</span> <span class="o">=</span> <span class="s2">"replace-with-a-long-random-string-at-least-32-chars"</span>
 
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/webhooks/affinity/</span><span class="si">{secret}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/webhooks/affinity/</span><span class="si">{secret}</span><span class="s2">"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">affinity_webhook</span><span class="p">(</span>
     <span class="n">secret</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span>
-    <span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Header</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
+    <span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Header</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">""</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
     <span class="c1"># 1. Validate secret path</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">secrets</span><span class="o">.</span><span class="n">compare_digest</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span> <span class="n">WEBHOOK_SECRET</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">)</span>  <span class="c1"># 404 to avoid confirming endpoint exists</span>
 
     <span class="c1"># 2. Validate content type</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">content_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;application/json&quot;</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">415</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;unsupported media type&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">content_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"application/json"</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">415</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">"unsupported media type"</span><span class="p">)</span>
 
     <span class="c1"># 3. Read and validate body size</span>
     <span class="n">raw</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1_000_000</span><span class="p">:</span>  <span class="c1"># 1MB limit</span>
-        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">413</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;payload too large&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">413</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">"payload too large"</span><span class="p">)</span>
 
     <span class="c1"># 4. Parse with replay protection (rejects events older than 5 minutes)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">envelope</span> <span class="o">=</span> <span class="n">parse_webhook</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">max_age_seconds</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">WebhookInvalidSentAtError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;stale event&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">"stale event"</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">WebhookParseError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;invalid payload&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">"invalid payload"</span><span class="p">)</span>
 
     <span class="c1"># 5. Optional: Check dedupe key against cache here</span>
 
@@ -2723,7 +2723,7 @@
     <span class="c1"># TODO: Enqueue for async processing instead of processing inline</span>
     <span class="c1"># process_webhook_event.delay(event)</span>
 
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;ok&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"ok"</span><span class="p">:</span> <span class="s2">"true"</span><span class="p">}</span>
 </code></pre></div>
 
 
@@ -2781,7 +2781,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

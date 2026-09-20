@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -2252,7 +2252,7 @@
 
 <h1 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h1>
 <p>All examples assume <code>AFFINITY_API_KEY</code> is set:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY</span><span class="o">=</span><span class="s2">"your-api-key"</span>
 </code></pre></div>
 <p>Run an example with:</p>
 <div class="highlight"><pre><span></span><code>python<span class="w"> </span>examples/basic_usage.py
@@ -2283,18 +2283,18 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompanyId</span><span class="p">,</span> <span class="n">FieldId</span><span class="p">,</span> <span class="n">FieldValueChangeAction</span>
 
 <span class="k">with</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-    <span class="c1"># Get all changes to field &quot;field-123&quot; for company 456</span>
+    <span class="c1"># Get all changes to field "field-123" for company 456</span>
     <span class="n">changes</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">field_value_changes</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
-        <span class="n">FieldId</span><span class="p">(</span><span class="s2">&quot;field-123&quot;</span><span class="p">),</span>
+        <span class="n">FieldId</span><span class="p">(</span><span class="s2">"field-123"</span><span class="p">),</span>
         <span class="n">company_id</span><span class="o">=</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">456</span><span class="p">),</span>
     <span class="p">)</span>
 
     <span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">changes</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">changed_at</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> (action=</span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">action_type</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">changed_at</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> (action=</span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">action_type</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
 
     <span class="c1"># Filter by action type (e.g., only updates)</span>
     <span class="n">updates</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">field_value_changes</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
-        <span class="n">FieldId</span><span class="p">(</span><span class="s2">&quot;field-123&quot;</span><span class="p">),</span>
+        <span class="n">FieldId</span><span class="p">(</span><span class="s2">"field-123"</span><span class="p">),</span>
         <span class="n">company_id</span><span class="o">=</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">456</span><span class="p">),</span>
         <span class="n">action_type</span><span class="o">=</span><span class="n">FieldValueChangeAction</span><span class="o">.</span><span class="n">UPDATE</span><span class="p">,</span>
     <span class="p">)</span>
@@ -2366,7 +2366,7 @@ organizations API and are documented as exceptions:</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

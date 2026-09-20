@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -4155,7 +4155,7 @@ xaffinity<span class="w"> </span>config<span class="w"> </span>init<span class="
 3. User config file (<code>config.toml</code>)</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>check-key
 xaffinity<span class="w"> </span>config<span class="w"> </span>check-key<span class="w"> </span>--json
-xaffinity<span class="w"> </span>config<span class="w"> </span>check-key<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Key exists&quot;</span>
+xaffinity<span class="w"> </span>config<span class="w"> </span>check-key<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Key exists"</span>
 </code></pre></div>
 <p>The <code>--json</code> output includes:
 - <code>configured</code>: boolean indicating if a key was found
@@ -4173,7 +4173,7 @@ xaffinity<span class="w"> </span>config<span class="w"> </span>check-key<span cl
 <div class="highlight"><pre><span></span><code><span class="c1"># Interactive setup (prompts for scope)</span>
 xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key
 
-<span class="c1"># Store in current project&#39;s .env file</span>
+<span class="c1"># Store in current project's .env file</span>
 xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key<span class="w"> </span>--scope<span class="w"> </span>project
 
 <span class="c1"># Store in user config (works across all projects)</span>
@@ -4203,7 +4203,7 @@ xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key<span cl
 <span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_SESSION_CACHE</span><span class="o">=</span><span class="k">$(</span>xaffinity<span class="w"> </span>session<span class="w"> </span>start<span class="k">)</span>
 
 <span class="c1"># Run your commands - metadata is cached across invocations</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My List&quot;</span><span class="w"> </span>--json<span class="w"> </span>&gt;<span class="w"> </span>entries.json
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">"My List"</span><span class="w"> </span>--json<span class="w"> </span>&gt;<span class="w"> </span>entries.json
 xaffinity<span class="w"> </span>field<span class="w"> </span>ls<span class="w"> </span>--list-id<span class="w"> </span><span class="m">12345</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">12345</span>
 
@@ -4217,16 +4217,16 @@ xaffinity<span class="w"> </span>session<span class="w"> </span>end
 <h3 id="best-practice-for-scripts-with-automatic-cleanup">Best practice for scripts (with automatic cleanup)<a class="headerlink" href="#best-practice-for-scripts-with-automatic-cleanup" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 <span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_SESSION_CACHE</span><span class="o">=</span><span class="k">$(</span>xaffinity<span class="w"> </span>session<span class="w"> </span>start<span class="k">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
-<span class="nb">trap</span><span class="w"> </span><span class="s1">&#39;xaffinity session end; unset AFFINITY_SESSION_CACHE&#39;</span><span class="w"> </span>EXIT
+<span class="nb">trap</span><span class="w"> </span><span class="s1">'xaffinity session end; unset AFFINITY_SESSION_CACHE'</span><span class="w"> </span>EXIT
 
 <span class="c1"># Your commands here - cleanup happens automatically on exit, error, or Ctrl+C</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My List&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.entries[]&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xaffinity<span class="w"> </span>person<span class="w"> </span>get
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">"My List"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.entries[]'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xaffinity<span class="w"> </span>person<span class="w"> </span>get
 </code></pre></div>
 <h3 id="quick-one-liner-pattern-subshell">Quick one-liner pattern (subshell)<a class="headerlink" href="#quick-one-liner-pattern-subshell" title="Permanent link">&para;</a></h3>
 <p>For simple pipelines, use a subshell - the session dir is cleaned up by TTL:</p>
 <div class="highlight"><pre><span></span><code><span class="o">(</span>
 <span class="w">  </span><span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_SESSION_CACHE</span><span class="o">=</span><span class="k">$(</span>xaffinity<span class="w"> </span>session<span class="w"> </span>start<span class="k">)</span>
-<span class="w">  </span>xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My List&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xaffinity<span class="w"> </span>person<span class="w"> </span>get
+<span class="w">  </span>xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">"My List"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xaffinity<span class="w"> </span>person<span class="w"> </span>get
 <span class="o">)</span>
 </code></pre></div>
 <h3 id="cache-behavior">Cache behavior<a class="headerlink" href="#cache-behavior" title="Permanent link">&para;</a></h3>
@@ -4280,12 +4280,12 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 </table>
 <h3 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">&para;</a></h3>
 <p>Use <code>--trace</code> to see cache hit/miss information:</p>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>--trace<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My List&quot;</span>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>--trace<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">"My List"</span>
 <span class="c1"># trace #+ cache hit: list_fields_12345</span>
 <span class="c1"># trace #- cache miss: saved_views_12345</span>
 </code></pre></div>
 <p>Use <code>--no-cache</code> to bypass session cache:</p>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>--no-cache<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My List&quot;</span>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>--no-cache<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">"My List"</span>
 </code></pre></div>
 <h2 id="identity">Identity<a class="headerlink" href="#identity" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-whoami"><code>xaffinity whoami</code><a class="headerlink" href="#xaffinity-whoami" title="Permanent link">&para;</a></h3>
@@ -4296,26 +4296,26 @@ xaffinity<span class="w"> </span>whoami<span class="w"> </span>--json<span class
 <h2 id="url-resolution">URL resolution<a class="headerlink" href="#url-resolution" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-resolve-url-url"><code>xaffinity resolve-url &lt;url&gt;</code><a class="headerlink" href="#xaffinity-resolve-url-url" title="Permanent link">&para;</a></h3>
 <p>Parses an Affinity UI URL (including tenant hosts like <code>https://&lt;tenant&gt;.affinity.co/...</code> or <code>https://&lt;tenant&gt;.affinity.com/...</code>) and validates it by fetching the referenced object.</p>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>resolve-url<span class="w"> </span><span class="s2">&quot;https://app.affinity.co/companies/263169568&quot;</span>
-xaffinity<span class="w"> </span>resolve-url<span class="w"> </span><span class="s2">&quot;https://mydomain.affinity.com/companies/263169568&quot;</span><span class="w"> </span>--json
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>resolve-url<span class="w"> </span><span class="s2">"https://app.affinity.co/companies/263169568"</span>
+xaffinity<span class="w"> </span>resolve-url<span class="w"> </span><span class="s2">"https://mydomain.affinity.com/companies/263169568"</span><span class="w"> </span>--json
 </code></pre></div>
 <h2 id="query">Query<a class="headerlink" href="#query" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-query"><code>xaffinity query</code><a class="headerlink" href="#xaffinity-query" title="Permanent link">&para;</a></h3>
 <p>Execute structured JSON queries against Affinity data. Supports complex filtering, aggregations, grouping, and including related entities.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Simple query</span>
-xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;persons&quot;, &quot;limit&quot;: 10}&#39;</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">'{"from": "persons", "limit": 10}'</span>
 
 <span class="c1"># Filter with conditions</span>
-xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;persons&quot;, &quot;where&quot;: {&quot;path&quot;: &quot;email&quot;, &quot;op&quot;: &quot;contains&quot;, &quot;value&quot;: &quot;@acme.com&quot;}}&#39;</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">'{"from": "persons", "where": {"path": "email", "op": "contains", "value": "@acme.com"}}'</span>
 
 <span class="c1"># Include related entities</span>
-xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;persons&quot;, &quot;include&quot;: [&quot;companies&quot;], &quot;limit&quot;: 50}&#39;</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">'{"from": "persons", "include": ["companies"], "limit": 50}'</span>
 
 <span class="c1"># Aggregation</span>
-xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;opportunities&quot;, &quot;groupBy&quot;: &quot;status&quot;, &quot;aggregate&quot;: {&quot;count&quot;: {&quot;count&quot;: true}}}&#39;</span>
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">'{"from": "opportunities", "groupBy": "status", "aggregate": {"count": {"count": true}}}'</span>
 
 <span class="c1"># Dry-run to preview execution plan</span>
-xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;{&quot;from&quot;: &quot;persons&quot;, &quot;include&quot;: [&quot;companies&quot;]}&#39;</span><span class="w"> </span>--dry-run
+xaffinity<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">'{"from": "persons", "include": ["companies"]}'</span><span class="w"> </span>--dry-run
 
 <span class="c1"># From file</span>
 xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class="w"> </span>query.json
@@ -4349,9 +4349,9 @@ xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class=
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>ls
 xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--page-size<span class="w"> </span><span class="m">50</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
-xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Email =~ &quot;@acme.com&quot;&#39;</span>
-xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;alice@example.com&quot;</span>
-xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Email =~ "@acme.com"'</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">"alice@example.com"</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">"Alice"</span><span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
 xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>people.csv
 xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>people.csv
 </code></pre></div>
@@ -4360,9 +4360,9 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"
 <p>Fetch a person by id, UI URL (including tenant hosts), or a resolver selector.</p>
 <p>Examples:</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span>
-xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="s2">&quot;https://mydomain.affinity.com/persons/26229794&quot;</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="s2">"https://mydomain.affinity.com/persons/26229794"</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span>email:alice@example.com
-xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="s1">&#39;name:&quot;Alice Smith&quot;&#39;</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="s1">'name:"Alice Smith"'</span>
 </code></pre></div>
 <p>Field selection:</p>
 <ul>
@@ -4386,11 +4386,11 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w
 <li><code>--with-interaction-persons</code>: include person IDs involved in each interaction (requires <code>--with-interaction-dates</code>).</li>
 </ul>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--all-fields<span class="w"> </span>--expand<span class="w"> </span>lists
-xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--max-results<span class="w"> </span><span class="m">200</span>
-xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--list-entry-field<span class="w"> </span>Stage<span class="w"> </span>--list-entry-field<span class="w"> </span>Amount
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">"Dealflow"</span><span class="w"> </span>--max-results<span class="w"> </span><span class="m">200</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">"Dealflow"</span><span class="w"> </span>--list-entry-field<span class="w"> </span>Stage<span class="w"> </span>--list-entry-field<span class="w"> </span>Amount
 xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--max-results<span class="w"> </span><span class="m">1</span><span class="w"> </span>--show-list-entry-fields
 xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--max-results<span class="w"> </span><span class="m">1</span><span class="w"> </span>--show-list-entry-fields<span class="w"> </span>--list-entry-fields-scope<span class="w"> </span>all
-xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--all-fields<span class="w"> </span>--expand<span class="w"> </span>lists<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.person.name&#39;</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--all-fields<span class="w"> </span>--expand<span class="w"> </span>lists<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data.person.name'</span>
 
 <span class="c1"># Include interaction dates (last meeting, next meeting, email dates)</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--with-interaction-dates<span class="w"> </span>--json
@@ -4437,9 +4437,9 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>files<span class=
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>ls
 xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--page-size<span class="w"> </span><span class="m">50</span>
 xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
-xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Industry = &quot;Software&quot;&#39;</span>
-xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;example.com&quot;</span>
-xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;Example&quot;</span><span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Industry = "Software"'</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">"example.com"</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span><span class="s2">"Example"</span><span class="w"> </span>--field-type<span class="w"> </span>enriched<span class="w"> </span>--all
 xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>companies.csv
 xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>companies.csv
 </code></pre></div>
@@ -4448,9 +4448,9 @@ xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w
 <p>Fetch a company by id, UI URL (including tenant hosts), or a resolver selector.</p>
 <p>Examples:</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span>
-xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="s2">&quot;https://mydomain.affinity.com/companies/224925494&quot;</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="s2">"https://mydomain.affinity.com/companies/224925494"</span>
 xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span>domain:wellybox.com
-xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="s1">&#39;name:&quot;WellyBox&quot;&#39;</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="s1">'name:"WellyBox"'</span>
 </code></pre></div>
 <p>Field selection:</p>
 <ul>
@@ -4475,20 +4475,20 @@ xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="
 <li><code>--with-interaction-persons</code>: include person IDs involved in each interaction (requires <code>--with-interaction-dates</code>).</li>
 </ul>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--all-fields<span class="w"> </span>--expand<span class="w"> </span>lists
-xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--max-results<span class="w"> </span><span class="m">200</span>
-xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--list-entry-field<span class="w"> </span>Stage<span class="w"> </span>--list-entry-field<span class="w"> </span>Amount
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">"Dealflow"</span><span class="w"> </span>--max-results<span class="w"> </span><span class="m">200</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--list<span class="w"> </span><span class="s2">"Dealflow"</span><span class="w"> </span>--list-entry-field<span class="w"> </span>Stage<span class="w"> </span>--list-entry-field<span class="w"> </span>Amount
 xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--max-results<span class="w"> </span><span class="m">1</span><span class="w"> </span>--show-list-entry-fields
 xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>list-entries<span class="w"> </span>--max-results<span class="w"> </span><span class="m">1</span><span class="w"> </span>--show-list-entry-fields<span class="w"> </span>--list-entry-fields-scope<span class="w"> </span>all
 xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--expand<span class="w"> </span>persons<span class="w"> </span>--max-results<span class="w"> </span><span class="m">50</span>
-xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--all-fields<span class="w"> </span>--expand<span class="w"> </span>lists<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.company.name&#39;</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--all-fields<span class="w"> </span>--expand<span class="w"> </span>lists<span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data.company.name'</span>
 
 <span class="c1"># Include interaction dates (last meeting, next meeting, email dates)</span>
 xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--with-interaction-dates<span class="w"> </span>--json
 xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--with-interaction-dates<span class="w"> </span>--with-interaction-persons<span class="w"> </span>--json
 </code></pre></div>
 <h3 id="xaffinity-company-create"><code>xaffinity company create</code><a class="headerlink" href="#xaffinity-company-create" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Acme Corp&quot;</span><span class="w"> </span>--domain<span class="w"> </span>acme.com
-xaffinity<span class="w"> </span>company<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Acme Corp&quot;</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">26229794</span>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">"Acme Corp"</span><span class="w"> </span>--domain<span class="w"> </span>acme.com
+xaffinity<span class="w"> </span>company<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">"Acme Corp"</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">26229794</span>
 </code></pre></div>
 <h3 id="xaffinity-company-update-companyid"><code>xaffinity company update &lt;companyId&gt;</code><a class="headerlink" href="#xaffinity-company-update-companyid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>update<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--domain<span class="w"> </span>acme.com
@@ -4528,19 +4528,19 @@ xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span clas
 <h3 id="xaffinity-opportunity-get-opportunityselector"><code>xaffinity opportunity get &lt;opportunitySelector&gt;</code><a class="headerlink" href="#xaffinity-opportunity-get-opportunityselector" title="Permanent link">&para;</a></h3>
 <p>Fetch an opportunity by id or UI URL (including tenant hosts).</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>opportunity<span class="w"> </span>get<span class="w"> </span><span class="m">123</span>
-xaffinity<span class="w"> </span>opportunity<span class="w"> </span>get<span class="w"> </span><span class="s2">&quot;https://mydomain.affinity.com/opportunities/123&quot;</span>
+xaffinity<span class="w"> </span>opportunity<span class="w"> </span>get<span class="w"> </span><span class="s2">"https://mydomain.affinity.com/opportunities/123"</span>
 xaffinity<span class="w"> </span>opportunity<span class="w"> </span>get<span class="w"> </span><span class="m">123</span><span class="w"> </span>--details
 </code></pre></div>
 <p>Notes:
 - <code>--details</code> fetches a fuller payload with associations and list entries.</p>
 <h3 id="xaffinity-opportunity-create"><code>xaffinity opportunity create</code><a class="headerlink" href="#xaffinity-opportunity-create" title="Permanent link">&para;</a></h3>
 <p>Create a new opportunity.</p>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>opportunity<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Series A&quot;</span><span class="w"> </span>--list<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span>
-xaffinity<span class="w"> </span>opportunity<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Series A&quot;</span><span class="w"> </span>--list<span class="w"> </span><span class="m">123</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">1</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">2</span>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>opportunity<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">"Series A"</span><span class="w"> </span>--list<span class="w"> </span><span class="s2">"Dealflow"</span>
+xaffinity<span class="w"> </span>opportunity<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">"Series A"</span><span class="w"> </span>--list<span class="w"> </span><span class="m">123</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">1</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">2</span>
 </code></pre></div>
 <h3 id="xaffinity-opportunity-update-opportunityid"><code>xaffinity opportunity update &lt;opportunityId&gt;</code><a class="headerlink" href="#xaffinity-opportunity-update-opportunityid" title="Permanent link">&para;</a></h3>
 <p>Update an opportunity (replaces association arrays when provided).</p>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>opportunity<span class="w"> </span>update<span class="w"> </span><span class="m">123</span><span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Series A (Closed)&quot;</span>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>opportunity<span class="w"> </span>update<span class="w"> </span><span class="m">123</span><span class="w"> </span>--name<span class="w"> </span><span class="s2">"Series A (Closed)"</span>
 xaffinity<span class="w"> </span>opportunity<span class="w"> </span>update<span class="w"> </span><span class="m">123</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">1</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">2</span>
 </code></pre></div>
 <h3 id="xaffinity-opportunity-delete-opportunityid"><code>xaffinity opportunity delete &lt;opportunityId&gt;</code><a class="headerlink" href="#xaffinity-opportunity-delete-opportunityid" title="Permanent link">&para;</a></h3>
@@ -4557,14 +4557,14 @@ xaffinity<span class="w"> </span>opportunity<span class="w"> </span>files<span c
 xaffinity<span class="w"> </span>list<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--json
 </code></pre></div>
 <h3 id="xaffinity-list-create"><code>xaffinity list create</code><a class="headerlink" href="#xaffinity-list-create" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--type<span class="w"> </span>opportunity<span class="w"> </span>--private
-xaffinity<span class="w"> </span>list<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;People&quot;</span><span class="w"> </span>--type<span class="w"> </span>person<span class="w"> </span>--public<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">"Dealflow"</span><span class="w"> </span>--type<span class="w"> </span>opportunity<span class="w"> </span>--private
+xaffinity<span class="w"> </span>list<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">"People"</span><span class="w"> </span>--type<span class="w"> </span>person<span class="w"> </span>--public<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span>
 </code></pre></div>
 <h3 id="xaffinity-list-get-list"><code>xaffinity list get &lt;list&gt;</code><a class="headerlink" href="#xaffinity-list-get-list" title="Permanent link">&para;</a></h3>
 <p>Accepts a list ID or an exact list name.</p>
 <p>The Fields table includes a <code>valueType</code> column (e.g., <code>dropdown-multi</code>, <code>ranked-dropdown</code>).</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>get<span class="w"> </span><span class="m">123</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span>get<span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span>--json
+xaffinity<span class="w"> </span>list<span class="w"> </span>get<span class="w"> </span><span class="s2">"My Pipeline"</span><span class="w"> </span>--json
 </code></pre></div>
 <h3 id="xaffinity-list-export-list"><code>xaffinity list export &lt;list&gt;</code><a class="headerlink" href="#xaffinity-list-export-list" title="Permanent link">&para;</a></h3>
 <p>Exports list entries with selected fields. This is the most powerful CSV export command, supporting custom fields and complex filtering.</p>
@@ -4588,27 +4588,27 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>get<span class="w">
 <p><strong><code>--filter</code> requires a scope flag.</strong> Since v1.13, <code>list export --filter &lt;expr&gt;</code> must be combined with one of <code>--all</code>, <code>--max-results &lt;N&gt;</code>, or <code>--first-page-only</code>; otherwise the command exits with code 2. Filtering is client-side (all matching pages are downloaded and filtered locally), so an unscoped <code>--filter</code> could silently read the entire list. For large lists prefer <code>--saved-view</code> (server-side) or the entity-scoped <code>--company-id</code> / <code>--person-id</code> forms.</p>
 <p><strong>Truncation envelope.</strong> JSON output includes a <code>meta</code> object with <code>truncated</code> (boolean) and, when <code>truncated=true</code>, a <code>truncationReason</code> string naming the cause (currently: <code>firstPageOnly</code>). Always check this before treating a response as complete.</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My Pipeline&quot;</span><span class="w"> </span>--saved-view<span class="w"> </span><span class="s2">&quot;Board&quot;</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--field<span class="w"> </span>Stage<span class="w"> </span>--field<span class="w"> </span>Amount<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;&quot;Stage&quot; = &quot;Active&quot;&#39;</span><span class="w"> </span>--max-results<span class="w"> </span><span class="m">500</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">"My Pipeline"</span><span class="w"> </span>--saved-view<span class="w"> </span><span class="s2">"Board"</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--field<span class="w"> </span>Stage<span class="w"> </span>--field<span class="w"> </span>Amount<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'"Stage" = "Active"'</span><span class="w"> </span>--max-results<span class="w"> </span><span class="m">500</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>out.csv
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>out.csv
 
 <span class="c1"># Entity-scoped export (dedup-on-create pattern)</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">555</span><span class="w"> </span>--json
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--json
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">"Pipeline"</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">555</span><span class="w"> </span>--json
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">"Pipeline"</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--json
 
 <span class="c1"># Single-page probe — useful when you only need the first batch</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--first-page-only<span class="w"> </span>--json
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">"Pipeline"</span><span class="w"> </span>--first-page-only<span class="w"> </span>--json
 
 <span class="c1"># Include interaction dates (last meeting, next meeting, email dates)</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--expand<span class="w"> </span>interactions<span class="w"> </span>--json
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--expand<span class="w"> </span>interactions<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>pipeline.csv
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">"Dealflow"</span><span class="w"> </span>--expand<span class="w"> </span>interactions<span class="w"> </span>--json
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">"Dealflow"</span><span class="w"> </span>--expand<span class="w"> </span>interactions<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>pipeline.csv
 
 <span class="c1"># Check for unreplied incoming messages (email + chat)</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--check-unreplied<span class="w"> </span>--json
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--check-unreplied<span class="w"> </span>--unreplied-lookback-days<span class="w"> </span><span class="m">60</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>unreplied.csv
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">"Pipeline"</span><span class="w"> </span>--check-unreplied<span class="w"> </span>--json
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">"Pipeline"</span><span class="w"> </span>--check-unreplied<span class="w"> </span>--unreplied-lookback-days<span class="w"> </span><span class="m">60</span><span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>unreplied.csv
 
 <span class="c1"># Check email-only unreplied messages</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;Pipeline&quot;</span><span class="w"> </span>--check-unreplied<span class="w"> </span>--unreplied-types<span class="w"> </span>email<span class="w"> </span>--json
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">"Pipeline"</span><span class="w"> </span>--check-unreplied<span class="w"> </span>--unreplied-types<span class="w"> </span>email<span class="w"> </span>--json
 </code></pre></div>
 <p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
 <h3 id="list-entry-commands">List Entry Commands<a class="headerlink" href="#list-entry-commands" title="Permanent link">&para;</a></h3>
@@ -4618,7 +4618,7 @@ xaffinity<span class="w"> </span>entry<span class="w"> </span>field<span class="
 </code></pre></div></p>
 <h3 id="xaffinity-list-entry-add-list"><code>xaffinity list entry add &lt;list&gt;</code><a class="headerlink" href="#xaffinity-list-entry-add-list" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>add<span class="w"> </span><span class="m">123</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">26229794</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;Dealflow&quot;</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">224925494</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>add<span class="w"> </span><span class="s2">"Dealflow"</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">224925494</span>
 </code></pre></div>
 <h3 id="xaffinity-list-entry-delete-list-entryid"><code>xaffinity list entry delete &lt;list&gt; &lt;entryId&gt;</code><a class="headerlink" href="#xaffinity-list-entry-delete-list-entryid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>delete<span class="w"> </span><span class="m">123</span><span class="w"> </span><span class="m">98765</span>
@@ -4626,28 +4626,28 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w
 <h3 id="xaffinity-list-entry-field-list-entryid"><code>xaffinity list entry field &lt;list&gt; &lt;entryId&gt;</code><a class="headerlink" href="#xaffinity-list-entry-field-list-entryid" title="Permanent link">&para;</a></h3>
 <p>Unified command for getting, setting, appending, and unsetting field values.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Set a single field</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">&quot;Portfolio&quot;</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--set<span class="w"> </span>Status<span class="w"> </span><span class="s2">&quot;Active&quot;</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">"Portfolio"</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--set<span class="w"> </span>Status<span class="w"> </span><span class="s2">"Active"</span>
 
 <span class="c1"># Set multiple fields</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">&quot;Portfolio&quot;</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--set<span class="w"> </span>Status<span class="w"> </span><span class="s2">&quot;Active&quot;</span><span class="w"> </span>--set<span class="w"> </span>Priority<span class="w"> </span><span class="s2">&quot;High&quot;</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">"Portfolio"</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--set<span class="w"> </span>Status<span class="w"> </span><span class="s2">"Active"</span><span class="w"> </span>--set<span class="w"> </span>Priority<span class="w"> </span><span class="s2">"High"</span>
 
 <span class="c1"># Append to a multi-value field (e.g., tags)</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">&quot;Portfolio&quot;</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--append<span class="w"> </span>Tags<span class="w"> </span><span class="s2">&quot;Priority&quot;</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">"Portfolio"</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--append<span class="w"> </span>Tags<span class="w"> </span><span class="s2">"Priority"</span>
 
 <span class="c1"># Unset a field (remove all values)</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">&quot;Portfolio&quot;</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--unset<span class="w"> </span>OldField
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">"Portfolio"</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--unset<span class="w"> </span>OldField
 
 <span class="c1"># Unset a specific value from a multi-value field</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">&quot;Portfolio&quot;</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--unset-value<span class="w"> </span>Tags<span class="w"> </span><span class="s2">&quot;OldTag&quot;</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">"Portfolio"</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--unset-value<span class="w"> </span>Tags<span class="w"> </span><span class="s2">"OldTag"</span>
 
 <span class="c1"># Batch set via JSON</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">&quot;Portfolio&quot;</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--set-json<span class="w"> </span><span class="s1">&#39;{&quot;Status&quot;: &quot;Active&quot;, &quot;Priority&quot;: &quot;High&quot;}&#39;</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">"Portfolio"</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--set-json<span class="w"> </span><span class="s1">'{"Status": "Active", "Priority": "High"}'</span>
 
 <span class="c1"># Get specific field values</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">&quot;Portfolio&quot;</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--get<span class="w"> </span>Status<span class="w"> </span>--get<span class="w"> </span>Priority
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">"Portfolio"</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--get<span class="w"> </span>Status<span class="w"> </span>--get<span class="w"> </span>Priority
 
 <span class="c1"># Swap tags (append new, remove old)</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">&quot;Portfolio&quot;</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--append<span class="w"> </span>Tags<span class="w"> </span><span class="s2">&quot;NewTag&quot;</span><span class="w"> </span>--unset-value<span class="w"> </span>Tags<span class="w"> </span><span class="s2">&quot;OldTag&quot;</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">"Portfolio"</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--append<span class="w"> </span>Tags<span class="w"> </span><span class="s2">"NewTag"</span><span class="w"> </span>--unset-value<span class="w"> </span>Tags<span class="w"> </span><span class="s2">"OldTag"</span>
 </code></pre></div>
 <p><strong>Notes:</strong>
 - Field names are resolved case-insensitively
@@ -4665,11 +4665,11 @@ xaffinity<span class="w"> </span>note<span class="w"> </span>ls<span class="w"> 
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>get<span class="w"> </span><span class="m">9876</span>
 </code></pre></div>
 <h3 id="xaffinity-note-create"><code>xaffinity note create</code><a class="headerlink" href="#xaffinity-note-create" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>create<span class="w"> </span>--content<span class="w"> </span><span class="s2">&quot;Met with the team&quot;</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span>
-xaffinity<span class="w"> </span>note<span class="w"> </span>create<span class="w"> </span>--content<span class="w"> </span><span class="s2">&quot;&lt;p&gt;Meeting notes&lt;/p&gt;&quot;</span><span class="w"> </span>--type<span class="w"> </span>html<span class="w"> </span>--company-id<span class="w"> </span><span class="m">456</span>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>create<span class="w"> </span>--content<span class="w"> </span><span class="s2">"Met with the team"</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span>
+xaffinity<span class="w"> </span>note<span class="w"> </span>create<span class="w"> </span>--content<span class="w"> </span><span class="s2">"&lt;p&gt;Meeting notes&lt;/p&gt;"</span><span class="w"> </span>--type<span class="w"> </span>html<span class="w"> </span>--company-id<span class="w"> </span><span class="m">456</span>
 </code></pre></div>
 <h3 id="xaffinity-note-update-noteid"><code>xaffinity note update &lt;noteId&gt;</code><a class="headerlink" href="#xaffinity-note-update-noteid" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>update<span class="w"> </span><span class="m">9876</span><span class="w"> </span>--content<span class="w"> </span><span class="s2">&quot;Updated note content&quot;</span>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>update<span class="w"> </span><span class="m">9876</span><span class="w"> </span>--content<span class="w"> </span><span class="s2">"Updated note content"</span>
 </code></pre></div>
 <h3 id="xaffinity-note-delete-noteid"><code>xaffinity note delete &lt;noteId&gt;</code><a class="headerlink" href="#xaffinity-note-delete-noteid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>delete<span class="w"> </span><span class="m">9876</span>
@@ -4698,7 +4698,7 @@ xaffinity<span class="w"> </span>reminder<span class="w"> </span>create<span cla
 xaffinity<span class="w"> </span>reminder<span class="w"> </span>create<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span><span class="w"> </span>--type<span class="w"> </span>recurring<span class="w"> </span>--reset-type<span class="w"> </span>interaction<span class="w"> </span>--reminder-days<span class="w"> </span><span class="m">3</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">456</span>
 </code></pre></div>
 <h3 id="xaffinity-reminder-update-reminderid"><code>xaffinity reminder update &lt;reminderId&gt;</code><a class="headerlink" href="#xaffinity-reminder-update-reminderid" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>reminder<span class="w"> </span>update<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--content<span class="w"> </span><span class="s2">&quot;Follow up after demo&quot;</span>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>reminder<span class="w"> </span>update<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--content<span class="w"> </span><span class="s2">"Follow up after demo"</span>
 xaffinity<span class="w"> </span>reminder<span class="w"> </span>update<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--completed
 </code></pre></div>
 <h3 id="xaffinity-reminder-delete-reminderid"><code>xaffinity reminder delete &lt;reminderId&gt;</code><a class="headerlink" href="#xaffinity-reminder-delete-reminderid" title="Permanent link">&para;</a></h3>
@@ -4715,11 +4715,11 @@ xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span clas
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>get<span class="w"> </span><span class="m">2468</span><span class="w"> </span>--type<span class="w"> </span>meeting
 </code></pre></div>
 <h3 id="xaffinity-interaction-create"><code>xaffinity interaction create</code><a class="headerlink" href="#xaffinity-interaction-create" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>create<span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--content<span class="w"> </span><span class="s2">&quot;Met to discuss roadmap&quot;</span><span class="w"> </span>--date<span class="w"> </span><span class="m">2025</span>-01-10T14:00:00Z
-xaffinity<span class="w"> </span>interaction<span class="w"> </span>create<span class="w"> </span>--type<span class="w"> </span>email<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--content<span class="w"> </span><span class="s2">&quot;Intro email&quot;</span><span class="w"> </span>--date<span class="w"> </span><span class="m">2025</span>-01-05T09:15:00Z<span class="w"> </span>--direction<span class="w"> </span>outgoing
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>create<span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--content<span class="w"> </span><span class="s2">"Met to discuss roadmap"</span><span class="w"> </span>--date<span class="w"> </span><span class="m">2025</span>-01-10T14:00:00Z
+xaffinity<span class="w"> </span>interaction<span class="w"> </span>create<span class="w"> </span>--type<span class="w"> </span>email<span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--content<span class="w"> </span><span class="s2">"Intro email"</span><span class="w"> </span>--date<span class="w"> </span><span class="m">2025</span>-01-05T09:15:00Z<span class="w"> </span>--direction<span class="w"> </span>outgoing
 </code></pre></div>
 <h3 id="xaffinity-interaction-update-interactionid"><code>xaffinity interaction update &lt;interactionId&gt;</code><a class="headerlink" href="#xaffinity-interaction-update-interactionid" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>update<span class="w"> </span><span class="m">2468</span><span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--content<span class="w"> </span><span class="s2">&quot;Updated meeting notes&quot;</span>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>update<span class="w"> </span><span class="m">2468</span><span class="w"> </span>--type<span class="w"> </span>meeting<span class="w"> </span>--content<span class="w"> </span><span class="s2">"Updated meeting notes"</span>
 </code></pre></div>
 <h3 id="xaffinity-interaction-delete-interactionid"><code>xaffinity interaction delete &lt;interactionId&gt;</code><a class="headerlink" href="#xaffinity-interaction-delete-interactionid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>interaction<span class="w"> </span>delete<span class="w"> </span><span class="m">2468</span><span class="w"> </span>--type<span class="w"> </span>meeting
@@ -4730,7 +4730,7 @@ xaffinity<span class="w"> </span>interaction<span class="w"> </span>create<span 
 xaffinity<span class="w"> </span>field<span class="w"> </span>ls<span class="w"> </span>--list-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--json
 </code></pre></div>
 <h3 id="xaffinity-field-create"><code>xaffinity field create</code><a class="headerlink" href="#xaffinity-field-create" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;Stage&quot;</span><span class="w"> </span>--entity-type<span class="w"> </span>opportunity<span class="w"> </span>--value-type<span class="w"> </span>dropdown<span class="w"> </span>--list-specific
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">"Stage"</span><span class="w"> </span>--entity-type<span class="w"> </span>opportunity<span class="w"> </span>--value-type<span class="w"> </span>dropdown<span class="w"> </span>--list-specific
 </code></pre></div>
 <h3 id="xaffinity-field-delete-fieldid"><code>xaffinity field delete &lt;fieldId&gt;</code><a class="headerlink" href="#xaffinity-field-delete-fieldid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span>delete<span class="w"> </span>field-123
@@ -4825,7 +4825,7 @@ xaffinity<span class="w"> </span>relationship-strength<span class="w"> </span>ge
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

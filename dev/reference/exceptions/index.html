@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -3136,7 +3136,7 @@
 <span class="normal">54</span>
 <span class="normal">55</span>
 <span class="normal">56</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AffinityError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base exception for all Affinity API errors.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Base exception for all Affinity API errors."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3155,15 +3155,15 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_code</span><span class="p">:</span>
-            <span class="n">base</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">diagnostics</span><span class="p">:</span>
             <span class="c1"># Include method + url if both present, or just url if only url present</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">method</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">url</span><span class="p">:</span>
-                <span class="n">base</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="n">base</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">)"</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">url</span><span class="p">:</span>
-                <span class="n">base</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2"> (url=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="n">base</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2"> (url=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">)"</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">request_id</span><span class="p">:</span>
-                <span class="n">base</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2"> [request_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">request_id</span><span class="si">}</span><span class="s2">]&quot;</span>
+                <span class="n">base</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2"> [request_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">request_id</span><span class="si">}</span><span class="s2">]"</span>
         <span class="k">return</span> <span class="n">base</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -3226,11 +3226,11 @@
 <span class="normal">69</span>
 <span class="normal">70</span>
 <span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AuthenticationError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    401 Unauthorized - Invalid or missing API key.</span>
 
 <span class="sd">    Your API key is invalid or was not provided.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -3302,15 +3302,15 @@ This can happen with:
 <span class="normal">83</span>
 <span class="normal">84</span>
 <span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AuthorizationError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    403 Forbidden - Insufficient permissions.</span>
 
-<span class="sd">    You don&#39;t have permission to access this resource or perform this action.</span>
+<span class="sd">    You don't have permission to access this resource or perform this action.</span>
 <span class="sd">    This can happen with:</span>
-<span class="sd">    - Private lists you don&#39;t have access to</span>
+<span class="sd">    - Private lists you don't have access to</span>
 <span class="sd">    - Admin-only actions</span>
 <span class="sd">    - Resource-level permission restrictions</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -3369,7 +3369,7 @@ This can happen with:
 <span class="normal">463</span>
 <span class="normal">464</span>
 <span class="normal">465</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">BetaEndpointDisabledError</span><span class="p">(</span><span class="n">UnsupportedOperationError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Attempted to call a beta endpoint without opt-in.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Attempted to call a beta endpoint without opt-in."""</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -3442,7 +3442,7 @@ This can happen with:
 <span class="normal">422</span>
 <span class="normal">423</span>
 <span class="normal">424</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CompanyMergedError</span><span class="p">(</span><span class="n">MergedEntityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A company was merged into another company.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A company was merged into another company."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3456,7 +3456,7 @@ This can happen with:
             <span class="n">message</span><span class="p">,</span>
             <span class="n">source_id</span><span class="o">=</span><span class="n">source_id</span><span class="p">,</span>
             <span class="n">target_id</span><span class="o">=</span><span class="n">target_id</span><span class="p">,</span>
-            <span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;Company&quot;</span><span class="p">,</span>
+            <span class="n">entity_type</span><span class="o">=</span><span class="s2">"Company"</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -3516,10 +3516,10 @@ This can happen with:
 <span class="normal">342</span>
 <span class="normal">343</span>
 <span class="normal">344</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CompanyNotFoundError</span><span class="p">(</span><span class="n">EntityNotFoundError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Company with the specified ID was not found.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Company with the specified ID was not found."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">company_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;Company&quot;</span><span class="p">,</span> <span class="n">company_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">"Company"</span><span class="p">,</span> <span class="n">company_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -3585,13 +3585,13 @@ This can happen with:
 <span class="normal">198</span>
 <span class="normal">199</span>
 <span class="normal">200</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ConfigurationError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Configuration error - missing or invalid client configuration.</span>
 
-<span class="sd">    Check that you&#39;ve provided:</span>
+<span class="sd">    Check that you've provided:</span>
 <span class="sd">    - A valid API key</span>
 <span class="sd">    - Correct base URLs (if customizing)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -3661,14 +3661,14 @@ For example:
 <span class="normal">170</span>
 <span class="normal">171</span>
 <span class="normal">172</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ConflictError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    409 Conflict - Resource conflict.</span>
 
 <span class="sd">    The request conflicts with the current state of the resource.</span>
 <span class="sd">    For example:</span>
 <span class="sd">    - Trying to create a person with an email that already exists</span>
 <span class="sd">    - Concurrent modification conflicts</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -3729,9 +3729,9 @@ For example:
 <span class="normal">570</span>
 <span class="normal">571</span>
 <span class="normal">572</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DeprecationWarning</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Feature is deprecated and may be removed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -3888,12 +3888,12 @@ POST a duplicate tenant-scoped record.</p>
 <span class="normal">517</span>
 <span class="normal">518</span>
 <span class="normal">519</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DuplicateEntityError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Raised when an entity with the same identifying properties already exists</span>
 <span class="sd">    and the caller requested duplicate prevention (if_not_exists=True).</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        entity_type: &quot;company&quot;, &quot;person&quot;, or &quot;opportunity&quot;</span>
+<span class="sd">        entity_type: "company", "person", or "opportunity"</span>
 <span class="sd">        existing_id: The ID of the already-existing entity</span>
 <span class="sd">        existing_name: Name of the existing entity (if known)</span>
 <span class="sd">        existing_domain: Domain of the existing entity (companies only)</span>
@@ -3902,7 +3902,7 @@ POST a duplicate tenant-scoped record.</p>
 <span class="sd">            and cannot be modified or deleted; callers should use the ID</span>
 <span class="sd">            directly (e.g., add it to a list via List Entries) rather than</span>
 <span class="sd">            POST a duplicate tenant-scoped record.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3993,21 +3993,21 @@ reads but have no writable V1 counterpart.</p>
 <span class="normal">482</span>
 <span class="normal">483</span>
 <span class="normal">484</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EnrichedFieldNotWritableError</span><span class="p">(</span><span class="n">UnsupportedOperationError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Attempted to write to a V2 enriched field that has no V1 numeric twin.</span>
 
 <span class="sd">    V1 `/field-values` is the only write endpoint for entity-global field values.</span>
 <span class="sd">    V2 enriched fields (e.g. ``affinity-data-current-organization``, ``companies``,</span>
 <span class="sd">    and relationship-intelligence fields like ``last-contact``) are returned by V2</span>
 <span class="sd">    reads but have no writable V1 counterpart.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">field_id</span> <span class="o">=</span> <span class="n">field_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reason</span> <span class="o">=</span> <span class="n">reason</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Enriched field &#39;</span><span class="si">{</span><span class="n">field_id</span><span class="si">}</span><span class="s2">&#39; is not writable via API&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Enriched field '</span><span class="si">{</span><span class="n">field_id</span><span class="si">}</span><span class="s2">' is not writable via API"</span>
         <span class="k">if</span> <span class="n">reason</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">" (</span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">)"</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -4079,11 +4079,11 @@ reads but have no writable V1 counterpart.</p>
 <span class="normal">316</span>
 <span class="normal">317</span>
 <span class="normal">318</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EntityNotFoundError</span><span class="p">(</span><span class="n">NotFoundError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Specific entity not found.</span>
 
 <span class="sd">    Provides type-safe context about which entity type was not found.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -4091,7 +4091,7 @@ reads but have no writable V1 counterpart.</p>
         <span class="n">entity_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2"> with ID </span><span class="si">{</span><span class="n">entity_id</span><span class="si">}</span><span class="s2"> not found&quot;</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2"> with ID </span><span class="si">{</span><span class="n">entity_id</span><span class="si">}</span><span class="s2"> not found"</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">entity_type</span> <span class="o">=</span> <span class="n">entity_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">entity_id</span> <span class="o">=</span> <span class="n">entity_id</span>
@@ -4151,7 +4151,7 @@ reads but have no writable V1 counterpart.</p>
 <span class="normal">322</span>
 <span class="normal">323</span>
 <span class="normal">324</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldNotFoundError</span><span class="p">(</span><span class="n">NotFoundError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Field with the specified ID was not found.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Field with the specified ID was not found."""</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -4231,7 +4231,7 @@ reads but have no writable V1 counterpart.</p>
 <span class="normal">792</span>
 <span class="normal">793</span>
 <span class="normal">794</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FilterParseError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Raised when a filter expression cannot be parsed.</span>
 
 <span class="sd">    Common causes:</span>
@@ -4240,9 +4240,9 @@ reads but have no writable V1 counterpart.</p>
 <span class="sd">    - Malformed expressions</span>
 
 <span class="sd">    Example fix:</span>
-<span class="sd">        # Wrong: --filter &#39;Status=Intro Meeting&#39;</span>
-<span class="sd">        # Right: --filter &#39;Status=&quot;Intro Meeting&quot;&#39;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        # Wrong: --filter 'Status=Intro Meeting'</span>
+<span class="sd">        # Right: --filter 'Status="Intro Meeting"'</span>
+<span class="sd">    """</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -4284,7 +4284,7 @@ reads but have no writable V1 counterpart.</p>
 <span class="normal">328</span>
 <span class="normal">329</span>
 <span class="normal">330</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListNotFoundError</span><span class="p">(</span><span class="n">NotFoundError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;List with the specified ID was not found.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""List with the specified ID was not found."""</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -4430,20 +4430,20 @@ returns a 422 with a message like:
 <span class="normal">402</span>
 <span class="normal">403</span>
 <span class="normal">404</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">MergedEntityError</span><span class="p">(</span><span class="n">ValidationError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    422 error indicating an entity was merged into another.</span>
 
 <span class="sd">    When accessing a company or person that has been merged, the Affinity API</span>
 <span class="sd">    returns a 422 with a message like:</span>
-<span class="sd">    &quot;292479388 no longer exists as it has been merged into 301128758&quot;</span>
+<span class="sd">    "292479388 no longer exists as it has been merged into 301128758"</span>
 
 <span class="sd">    This exception provides structured access to both IDs.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        source_id: The ID of the entity that was merged away (no longer exists).</span>
 <span class="sd">        target_id: The ID of the entity it was merged into (the surviving entity).</span>
-<span class="sd">        entity_type: The type of entity (&quot;Company&quot;, &quot;Person&quot;, or None if unknown).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        entity_type: The type of entity ("Company", "Person", or None if unknown).</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -4470,7 +4470,7 @@ returns a 422 with a message like:
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">match</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if an error message matches the merged entity pattern.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Check if an error message matches the merged entity pattern."""</span>
         <span class="k">return</span> <span class="n">_MERGED_PATTERN</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -4513,7 +4513,7 @@ returns a 422 with a message like:
 <span class="normal">403</span>
 <span class="normal">404</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">match</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if an error message matches the merged entity pattern.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Check if an error message matches the merged entity pattern."""</span>
     <span class="k">return</span> <span class="n">_MERGED_PATTERN</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4574,12 +4574,12 @@ Check your internet connection and firewall settings.</p>
 <span class="normal">235</span>
 <span class="normal">236</span>
 <span class="normal">237</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">NetworkError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Network-level error.</span>
 
 <span class="sd">    Failed to connect to the Affinity API.</span>
 <span class="sd">    Check your internet connection and firewall settings.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -4657,15 +4657,15 @@ This could mean:
 <span class="normal">97</span>
 <span class="normal">98</span>
 <span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">NotFoundError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    404 Not Found - Resource doesn&#39;t exist.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    404 Not Found - Resource doesn't exist.</span>
 
 <span class="sd">    The requested resource (person, company, list, etc.) was not found.</span>
 <span class="sd">    This could mean:</span>
 <span class="sd">    - The ID is invalid</span>
 <span class="sd">    - The resource was deleted</span>
-<span class="sd">    - You don&#39;t have access to view it</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    - You don't have access to view it</span>
+<span class="sd">    """</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -4725,10 +4725,10 @@ This could mean:
 <span class="normal">349</span>
 <span class="normal">350</span>
 <span class="normal">351</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OpportunityNotFoundError</span><span class="p">(</span><span class="n">EntityNotFoundError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Opportunity with the specified ID was not found.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Opportunity with the specified ID was not found."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;Opportunity&quot;</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">"Opportunity"</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -4799,7 +4799,7 @@ This could mean:
 <span class="normal">442</span>
 <span class="normal">443</span>
 <span class="normal">444</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PersonMergedError</span><span class="p">(</span><span class="n">MergedEntityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A person was merged into another person.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A person was merged into another person."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -4813,7 +4813,7 @@ This could mean:
             <span class="n">message</span><span class="p">,</span>
             <span class="n">source_id</span><span class="o">=</span><span class="n">source_id</span><span class="p">,</span>
             <span class="n">target_id</span><span class="o">=</span><span class="n">target_id</span><span class="p">,</span>
-            <span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;Person&quot;</span><span class="p">,</span>
+            <span class="n">entity_type</span><span class="o">=</span><span class="s2">"Person"</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -4873,10 +4873,10 @@ This could mean:
 <span class="normal">335</span>
 <span class="normal">336</span>
 <span class="normal">337</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PersonNotFoundError</span><span class="p">(</span><span class="n">EntityNotFoundError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Person with the specified ID was not found.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Person with the specified ID was not found."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">person_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;Person&quot;</span><span class="p">,</span> <span class="n">person_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">"Person"</span><span class="p">,</span> <span class="n">person_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -4933,7 +4933,7 @@ This could mean:
 <span class="normal">241</span>
 <span class="normal">242</span>
 <span class="normal">243</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PolicyError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a client policy blocks an attempted operation.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Raised when a client policy blocks an attempted operation."""</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -5018,14 +5018,14 @@ Check the response headers for rate limit info:
 <span class="normal">157</span>
 <span class="normal">158</span>
 <span class="normal">159</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RateLimitError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    429 Too Many Requests - Rate limit exceeded.</span>
 
-<span class="sd">    You&#39;ve exceeded the API rate limit. Wait before retrying.</span>
+<span class="sd">    You've exceeded the API rate limit. Wait before retrying.</span>
 <span class="sd">    Check the response headers for rate limit info:</span>
 <span class="sd">    - X-Ratelimit-Limit-User-Reset: Seconds until per-minute limit resets</span>
 <span class="sd">    - X-Ratelimit-Limit-Org-Reset: Seconds until monthly limit resets</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -5106,12 +5106,12 @@ Try again later, and contact support if the problem persists.</p>
 <span class="normal">181</span>
 <span class="normal">182</span>
 <span class="normal">183</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ServerError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    500/503 Internal Server Error - Server-side problem.</span>
 
-<span class="sd">    Something went wrong on Affinity&#39;s servers.</span>
+<span class="sd">    Something went wrong on Affinity's servers.</span>
 <span class="sd">    Try again later, and contact support if the problem persists.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -5189,7 +5189,7 @@ This could be due to:
 <span class="normal">218</span>
 <span class="normal">219</span>
 <span class="normal">220</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TimeoutError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Request timeout.</span>
 
 <span class="sd">    The request took too long to complete.</span>
@@ -5197,7 +5197,7 @@ This could be due to:
 <span class="sd">    - Network issues</span>
 <span class="sd">    - Large data sets</span>
 <span class="sd">    - Server overload</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -5280,7 +5280,7 @@ This protects against OOM errors when paginating large datasets.</p>
 <span class="normal">272</span>
 <span class="normal">273</span>
 <span class="normal">274</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TooManyResultsError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Raised when ``.all()`` exceeds the limit.</span>
 
 <span class="sd">    The default limit is 100,000 items (approximately 100MB for typical Person objects).</span>
@@ -5289,9 +5289,9 @@ This protects against OOM errors when paginating large datasets.</p>
 <span class="sd">    To resolve:</span>
 <span class="sd">    - Use ``.pages()`` for streaming iteration (memory-efficient)</span>
 <span class="sd">    - Add filters to reduce result size</span>
-<span class="sd">    - Pass ``limit=None`` to ``.all()`` if you&#39;re certain you need all results</span>
+<span class="sd">    - Pass ``limit=None`` to ``.all()`` if you're certain you need all results</span>
 <span class="sd">    - Pass a custom ``limit=500_000`` if you need more than the default</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -5360,11 +5360,11 @@ This protects against OOM errors when paginating large datasets.</p>
 <span class="normal">292</span>
 <span class="normal">293</span>
 <span class="normal">294</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">UnsafeUrlError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    SDK blocked following a server-provided URL.</span>
 
 <span class="sd">    Raised when SafeFollowUrl policy rejects a URL (scheme/host/userinfo/redirect).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -5433,11 +5433,11 @@ This protects against OOM errors when paginating large datasets.</p>
 <span class="normal">457</span>
 <span class="normal">458</span>
 <span class="normal">459</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">UnsupportedOperationError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Operation not supported by the current API version.</span>
 
 <span class="sd">    Some operations are only available in V1 or V2.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -5524,12 +5524,12 @@ Check the error message for details about what's wrong.</p>
 <span class="normal">129</span>
 <span class="normal">130</span>
 <span class="normal">131</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ValidationError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    400/422 Bad Request/Unprocessable Entity - Invalid request data.</span>
 
 <span class="sd">    The request data is malformed or logically invalid.</span>
-<span class="sd">    Check the error message for details about what&#39;s wrong.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Check the error message for details about what's wrong.</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -5551,7 +5551,7 @@ Check the error message for details about what's wrong.</p>
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">base</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2"> (param: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2"> (param: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="si">}</span><span class="s2">)"</span>
         <span class="k">return</span> <span class="n">base</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -5655,18 +5655,18 @@ v2 Default API Version differs from what the SDK expects.</p>
 <span class="normal">562</span>
 <span class="normal">563</span>
 <span class="normal">564</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">VersionCompatibilityError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Response shape mismatch suggests API version incompatibility.</span>
 
 <span class="sd">    TR-015: Raised when the SDK detects response-shape mismatches that</span>
-<span class="sd">    appear version-related. This typically means the API key&#39;s configured</span>
+<span class="sd">    appear version-related. This typically means the API key's configured</span>
 <span class="sd">    v2 Default API Version differs from what the SDK expects.</span>
 
 <span class="sd">    Guidance:</span>
-<span class="sd">    1. Check your API key&#39;s v2 Default API Version in the Affinity dashboard</span>
+<span class="sd">    1. Check your API key's v2 Default API Version in the Affinity dashboard</span>
 <span class="sd">    2. Ensure it matches the expected_v2_version configured in the SDK</span>
 <span class="sd">    3. See: https://developer.affinity.co/#section/Getting-Started/Versioning</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -5691,11 +5691,11 @@ v2 Default API Version differs from what the SDK expects.</p>
         <span class="n">base</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
         <span class="n">hints</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_version</span><span class="p">:</span>
-            <span class="n">hints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;expected_v2_version=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">expected_version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">hints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"expected_v2_version=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">expected_version</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">:</span>
-            <span class="n">hints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;parsing_error=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">hints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"parsing_error=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">hints</span><span class="p">:</span>
-            <span class="n">base</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hints</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hints</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span>
         <span class="k">return</span> <span class="n">base</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -5753,7 +5753,7 @@ v2 Default API Version differs from what the SDK expects.</p>
 <span class="normal">750</span>
 <span class="normal">751</span>
 <span class="normal">752</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidJsonError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a webhook payload cannot be decoded as JSON.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Raised when a webhook payload cannot be decoded as JSON."""</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -5812,7 +5812,7 @@ v2 Default API Version differs from what the SDK expects.</p>
 <span class="normal">756</span>
 <span class="normal">757</span>
 <span class="normal">758</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidPayloadError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a decoded webhook payload is not in the expected envelope shape.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Raised when a decoded webhook payload is not in the expected envelope shape."""</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -5871,7 +5871,7 @@ v2 Default API Version differs from what the SDK expects.</p>
 <span class="normal">770</span>
 <span class="normal">771</span>
 <span class="normal">772</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidSentAtError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a webhook `sent_at` field is missing or invalid.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Raised when a webhook `sent_at` field is missing or invalid."""</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -5932,7 +5932,7 @@ v2 Default API Version differs from what the SDK expects.</p>
 <span class="normal">764</span>
 <span class="normal">765</span>
 <span class="normal">766</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookMissingKeyError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a webhook payload is missing a required key.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Raised when a webhook payload is missing a required key."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
@@ -5993,7 +5993,7 @@ v2 Default API Version differs from what the SDK expects.</p>
 <span class="normal">744</span>
 <span class="normal">745</span>
 <span class="normal">746</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookParseError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base error for inbound webhook parsing/validation failures.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Base error for inbound webhook parsing/validation failures."""</span>
 
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -6055,7 +6055,7 @@ v2 Default API Version differs from what the SDK expects.</p>
 <span class="normal">250</span>
 <span class="normal">251</span>
 <span class="normal">252</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WriteNotAllowedError</span><span class="p">(</span><span class="n">PolicyError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a write operation is attempted while the write policy denies writes.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Raised when a write operation is attempted while the write policy denies writes."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">diagnostics</span><span class="o">=</span><span class="n">ErrorDiagnostics</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">))</span>
@@ -6350,31 +6350,31 @@ v2 Default API Version differs from what the SDK expects.</p>
     <span class="n">retry_after</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diagnostics</span><span class="p">:</span> <span class="n">ErrorDiagnostics</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AffinityError</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create the appropriate exception from an API error response.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        status_code: HTTP status code</span>
-<span class="sd">        response_body: Parsed response body (usually dict with &#39;errors&#39;)</span>
+<span class="sd">        response_body: Parsed response body (usually dict with 'errors')</span>
 <span class="sd">        retry_after: Retry-After header value for rate limits</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Appropriate AffinityError subclass</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Try to extract message from response</span>
-    <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Unknown error&quot;</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="s2">"Unknown error"</span>
     <span class="n">param</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="n">extracted</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response_body</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="n">errors</span> <span class="o">=</span> <span class="n">response_body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;errors&quot;</span><span class="p">)</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="n">response_body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"errors"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">errors</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">errors</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                    <span class="n">msg</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">)</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"message"</span><span class="p">)</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">msg</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
                         <span class="n">message</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                        <span class="n">p</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;param&quot;</span><span class="p">)</span>
+                        <span class="n">p</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"param"</span><span class="p">)</span>
                         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
                             <span class="n">param</span> <span class="o">=</span> <span class="n">p</span>
                         <span class="n">extracted</span> <span class="o">=</span> <span class="kc">True</span>
@@ -6385,19 +6385,19 @@ v2 Default API Version differs from what the SDK expects.</p>
                     <span class="k">break</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">extracted</span><span class="p">:</span>
-            <span class="n">top_message</span> <span class="o">=</span> <span class="n">response_body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">)</span>
+            <span class="n">top_message</span> <span class="o">=</span> <span class="n">response_body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"message"</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">top_message</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">top_message</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
                 <span class="n">message</span> <span class="o">=</span> <span class="n">top_message</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                 <span class="n">extracted</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">detail</span> <span class="o">=</span> <span class="n">response_body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;detail&quot;</span><span class="p">)</span>
+                <span class="n">detail</span> <span class="o">=</span> <span class="n">response_body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"detail"</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">detail</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">detail</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
                     <span class="n">message</span> <span class="o">=</span> <span class="n">detail</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                     <span class="n">extracted</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">error_obj</span> <span class="o">=</span> <span class="n">response_body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">)</span>
+                    <span class="n">error_obj</span> <span class="o">=</span> <span class="n">response_body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"error"</span><span class="p">)</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error_obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                        <span class="n">nested_message</span> <span class="o">=</span> <span class="n">error_obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">)</span>
+                        <span class="n">nested_message</span> <span class="o">=</span> <span class="n">error_obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"message"</span><span class="p">)</span>
                         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nested_message</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">nested_message</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
                             <span class="n">message</span> <span class="o">=</span> <span class="n">nested_message</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                             <span class="n">extracted</span> <span class="o">=</span> <span class="kc">True</span>
@@ -6408,7 +6408,7 @@ v2 Default API Version differs from what the SDK expects.</p>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">extracted</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response_body</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">response_body</span><span class="p">:</span>
         <span class="n">first</span> <span class="o">=</span> <span class="n">response_body</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="n">first</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">first</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">first</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;detail&quot;</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">first</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"message"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">first</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"error"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">first</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"detail"</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">msg</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
                 <span class="n">message</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                 <span class="n">extracted</span> <span class="o">=</span> <span class="kc">True</span>
@@ -6417,12 +6417,12 @@ v2 Default API Version differs from what the SDK expects.</p>
             <span class="n">extracted</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">if</span> <span class="p">(</span>
-        <span class="n">message</span> <span class="o">==</span> <span class="s2">&quot;Unknown error&quot;</span>
+        <span class="n">message</span> <span class="o">==</span> <span class="s2">"Unknown error"</span>
         <span class="ow">and</span> <span class="n">diagnostics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">response_body_snippet</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
     <span class="p">):</span>
         <span class="n">snippet</span> <span class="o">=</span> <span class="n">diagnostics</span><span class="o">.</span><span class="n">response_body_snippet</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">snippet</span> <span class="ow">and</span> <span class="n">snippet</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;[]&quot;</span><span class="p">}:</span>
+        <span class="k">if</span> <span class="n">snippet</span> <span class="ow">and</span> <span class="n">snippet</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">"</span><span class="si">{}</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"[]"</span><span class="p">}:</span>
             <span class="n">message</span> <span class="o">=</span> <span class="n">snippet</span>
 
     <span class="c1"># Map status codes to exceptions</span>
@@ -6453,14 +6453,14 @@ v2 Default API Version differs from what the SDK expects.</p>
             <span class="n">entity_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">diagnostics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">diagnostics</span><span class="o">.</span><span class="n">url</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">url</span> <span class="o">=</span> <span class="n">diagnostics</span><span class="o">.</span><span class="n">url</span>
-                <span class="k">if</span> <span class="s2">&quot;/companies/&quot;</span> <span class="ow">in</span> <span class="n">url</span> <span class="ow">or</span> <span class="s2">&quot;/organizations/&quot;</span> <span class="ow">in</span> <span class="n">url</span><span class="p">:</span>
-                    <span class="n">entity_type</span> <span class="o">=</span> <span class="s2">&quot;Company&quot;</span>
-                <span class="k">elif</span> <span class="s2">&quot;/persons/&quot;</span> <span class="ow">in</span> <span class="n">url</span> <span class="ow">or</span> <span class="s2">&quot;/people/&quot;</span> <span class="ow">in</span> <span class="n">url</span><span class="p">:</span>
-                    <span class="n">entity_type</span> <span class="o">=</span> <span class="s2">&quot;Person&quot;</span>
+                <span class="k">if</span> <span class="s2">"/companies/"</span> <span class="ow">in</span> <span class="n">url</span> <span class="ow">or</span> <span class="s2">"/organizations/"</span> <span class="ow">in</span> <span class="n">url</span><span class="p">:</span>
+                    <span class="n">entity_type</span> <span class="o">=</span> <span class="s2">"Company"</span>
+                <span class="k">elif</span> <span class="s2">"/persons/"</span> <span class="ow">in</span> <span class="n">url</span> <span class="ow">or</span> <span class="s2">"/people/"</span> <span class="ow">in</span> <span class="n">url</span><span class="p">:</span>
+                    <span class="n">entity_type</span> <span class="o">=</span> <span class="s2">"Person"</span>
 
-            <span class="k">if</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="s2">&quot;Company&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="s2">"Company"</span><span class="p">:</span>
                 <span class="bp">cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">MergedEntityError</span><span class="p">]</span> <span class="o">=</span> <span class="n">CompanyMergedError</span>
-            <span class="k">elif</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="s2">&quot;Person&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="s2">"Person"</span><span class="p">:</span>
                 <span class="bp">cls</span> <span class="o">=</span> <span class="n">PersonMergedError</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">cls</span> <span class="o">=</span> <span class="n">MergedEntityError</span>
@@ -6568,7 +6568,7 @@ v2 Default API Version differs from what the SDK expects.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

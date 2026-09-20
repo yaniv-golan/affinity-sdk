@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -2478,10 +2478,10 @@ client-side and requires a scope flag (<code>--all</code>, <code>--max-results</
 <p>Use <code>affinity.F</code> to build type-safe filter expressions:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span><span class="p">,</span> <span class="n">F</span>
 
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">"your-api-key"</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="c1"># Recommended: Type-safe filter builder</span>
     <span class="n">companies</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
-        <span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Industry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Software&quot;</span><span class="p">)</span>
+        <span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Industry"</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">"Software"</span><span class="p">)</span>
     <span class="p">)</span>
 </code></pre></div>
 <p>Benefits of the filter builder:
@@ -2495,51 +2495,51 @@ client-side and requires a scope flag (<code>--all</code>, <code>--max-results</
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span><span class="p">,</span> <span class="n">F</span>
 
 <span class="c1"># Equals</span>
-<span class="n">persons</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Department&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Sales&quot;</span><span class="p">))</span>
+<span class="n">persons</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Department"</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">"Sales"</span><span class="p">))</span>
 
 <span class="c1"># Contains (case-insensitive substring match)</span>
-<span class="n">companies</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Industry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;Tech&quot;</span><span class="p">))</span>
+<span class="n">companies</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Industry"</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">"Tech"</span><span class="p">))</span>
 
 <span class="c1"># Starts with</span>
-<span class="n">persons</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Title&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">starts_with</span><span class="p">(</span><span class="s2">&quot;VP&quot;</span><span class="p">))</span>
+<span class="n">persons</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Title"</span><span class="p">)</span><span class="o">.</span><span class="n">starts_with</span><span class="p">(</span><span class="s2">"VP"</span><span class="p">))</span>
 
 <span class="c1"># Ends with</span>
-<span class="n">persons</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Email&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">ends_with</span><span class="p">(</span><span class="s2">&quot;@acme.com&quot;</span><span class="p">))</span>
+<span class="n">persons</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Email"</span><span class="p">)</span><span class="o">.</span><span class="n">ends_with</span><span class="p">(</span><span class="s2">"@acme.com"</span><span class="p">))</span>
 
 <span class="c1"># Greater than (for numbers/dates)</span>
-<span class="n">opportunities</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">opportunities</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Amount&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">100000</span><span class="p">))</span>
+<span class="n">opportunities</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">opportunities</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Amount"</span><span class="p">)</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">100000</span><span class="p">))</span>
 
 <span class="c1"># Is null / is not null</span>
-<span class="n">persons</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Manager&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_null</span><span class="p">())</span>
+<span class="n">persons</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Manager"</span><span class="p">)</span><span class="o">.</span><span class="n">is_null</span><span class="p">())</span>
 </code></pre></div>
 <p><strong>Complex logic (AND/OR/NOT):</strong></p>
 <div class="highlight"><pre><span></span><code><span class="c1"># AND: Both conditions must be true</span>
 <span class="n">active_sales</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
-    <span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Department&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Sales&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Status&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Active&quot;</span><span class="p">)</span>
+    <span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Department"</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">"Sales"</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Status"</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">"Active"</span><span class="p">)</span>
 <span class="p">)</span>
 
 <span class="c1"># OR: Either condition can be true</span>
 <span class="n">tech_or_finance</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
-    <span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Industry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Technology&quot;</span><span class="p">)</span> <span class="o">|</span> <span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Industry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Finance&quot;</span><span class="p">)</span>
+    <span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Industry"</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">"Technology"</span><span class="p">)</span> <span class="o">|</span> <span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Industry"</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">"Finance"</span><span class="p">)</span>
 <span class="p">)</span>
 
 <span class="c1"># NOT: Negate a condition</span>
 <span class="n">non_archived</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
-    <span class="nb">filter</span><span class="o">=~</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Archived&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">filter</span><span class="o">=~</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Archived"</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 <span class="p">)</span>
 
 <span class="c1"># Complex: (A AND B) OR (C AND D)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
     <span class="nb">filter</span><span class="o">=</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Industry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Software&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Region&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;US&quot;</span><span class="p">))</span>
-        <span class="o">|</span> <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Industry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;Hardware&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Region&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;EU&quot;</span><span class="p">))</span>
+        <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Industry"</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">"Software"</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Region"</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">"US"</span><span class="p">))</span>
+        <span class="o">|</span> <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Industry"</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">"Hardware"</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Region"</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">"EU"</span><span class="p">))</span>
     <span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
 <p><strong>In list (multiple values):</strong></p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Match any value in the list</span>
 <span class="n">multi_region</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
-    <span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Region&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">in_list</span><span class="p">([</span><span class="s2">&quot;US&quot;</span><span class="p">,</span> <span class="s2">&quot;Canada&quot;</span><span class="p">,</span> <span class="s2">&quot;Mexico&quot;</span><span class="p">])</span>
+    <span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Region"</span><span class="p">)</span><span class="o">.</span><span class="n">in_list</span><span class="p">([</span><span class="s2">"US"</span><span class="p">,</span> <span class="s2">"Canada"</span><span class="p">,</span> <span class="s2">"Mexico"</span><span class="p">])</span>
 <span class="p">)</span>
 </code></pre></div>
 <h2 id="raw-filter-strings">Raw Filter Strings<a class="headerlink" href="#raw-filter-strings" title="Permanent link">&para;</a></h2>
@@ -2756,37 +2756,37 @@ client-side and requires a scope flag (<code>--all</code>, <code>--max-results</
 </table>
 <p><strong>Example equivalents (prefer official syntax for API portability):</strong></p>
 <div class="highlight"><pre><span></span><code><span class="c1"># These are equivalent:</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">&#39;&quot;Team Member&quot; =~ LB&#39;</span><span class="w">       </span><span class="c1"># Official V2 API</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">&#39;&quot;Team Member&quot; contains LB&#39;</span><span class="w"> </span><span class="c1"># SDK alias</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">'"Team Member" =~ LB'</span><span class="w">       </span><span class="c1"># Official V2 API</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">'"Team Member" contains LB'</span><span class="w"> </span><span class="c1"># SDK alias</span>
 
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">&#39;email = *&#39;</span><span class="w">           </span><span class="c1"># Official V2 API</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">&#39;email is not null&#39;</span><span class="w">   </span><span class="c1"># SDK alias</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">'email = *'</span><span class="w">           </span><span class="c1"># Official V2 API</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">'email is not null'</span><span class="w">   </span><span class="c1"># SDK alias</span>
 
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">&#39;count &gt; 5&#39;</span><span class="w">   </span><span class="c1"># Official V2 API</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">&#39;count gt 5&#39;</span><span class="w">  </span><span class="c1"># SDK alias</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">'count &gt; 5'</span><span class="w">   </span><span class="c1"># Official V2 API</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">'count gt 5'</span><span class="w">  </span><span class="c1"># SDK alias</span>
 </code></pre></div>
 <h2 id="cli-examples">CLI Examples<a class="headerlink" href="#cli-examples" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="c1"># Simple filter</span>
-xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Department = &quot;Sales&quot;&#39;</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Department = "Sales"'</span>
 
 <span class="c1"># Contains (case-insensitive)</span>
-xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Industry =~ &quot;tech&quot;&#39;</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Industry =~ "tech"'</span>
 
 <span class="c1"># Numeric comparison</span>
-xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Amount &gt; 100000&#39;</span>
+xaffinity<span class="w"> </span>opportunity<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Amount &gt; 100000'</span>
 
 <span class="c1"># Multiple conditions with AND</span>
-xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Status = &quot;Active&quot; &amp; Department = &quot;Sales&quot;&#39;</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Status = "Active" &amp; Department = "Sales"'</span>
 
 <span class="c1"># Multiple conditions with OR</span>
-xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Region = &quot;US&quot; | Region = &quot;Canada&quot;&#39;</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Region = "US" | Region = "Canada"'</span>
 
 <span class="c1"># Null check</span>
-xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">&#39;Manager != *&#39;</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Manager != *'</span>
 
 <span class="c1"># Collection operators (SDK extension)</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">&#39;Status in [Active, Pending]&#39;</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">&#39;Tags has_any [priority, urgent]&#39;</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">'Status in [Active, Pending]'</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--expand-filter<span class="w"> </span><span class="s1">'Tags has_any [priority, urgent]'</span>
 </code></pre></div>
 <h2 id="what-can-be-filtered">What Can Be Filtered?<a class="headerlink" href="#what-can-be-filtered" title="Permanent link">&para;</a></h2>
 <p><strong>Custom fields</strong> (added to entities in Affinity):</p>
@@ -2843,9 +2843,9 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 <div class="highlight"><pre><span></span><code><span class="c1"># Server-side: only fetch Active opportunities</span>
 <span class="c1"># Client-side: only include people with valid email status</span>
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="m">275454</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--filter<span class="w"> </span><span class="s2">&quot;Status=Active&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--filter<span class="w"> </span><span class="s2">"Status=Active"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--expand<span class="w"> </span>persons<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--expand-filter<span class="w"> </span><span class="s1">&#39;&quot;Primary Email Status&quot;=Valid | &quot;Primary Email Status&quot;=Unknown | &quot;Primary Email Status&quot; is null&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--expand-filter<span class="w"> </span><span class="s1">'"Primary Email Status"=Valid | "Primary Email Status"=Unknown | "Primary Email Status" is null'</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>output.csv
 </code></pre></div>
 <h3 id="performance-consideration">Performance consideration<a class="headerlink" href="#performance-consideration" title="Permanent link">&para;</a></h3>
@@ -2915,7 +2915,7 @@ reduces the final output significantly. Use <code>--dry-run</code> to estimate A
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

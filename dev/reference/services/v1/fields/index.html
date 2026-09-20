@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -2430,12 +2430,12 @@ Use V1 for creating/deleting fields.</p>
 <span class="normal">900</span>
 <span class="normal">901</span>
 <span class="normal">902</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldService</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Service for managing custom fields.</span>
 
 <span class="sd">    Use V2 /fields endpoints for reading field metadata.</span>
 <span class="sd">    Use V1 for creating/deleting fields.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">HTTPClient</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
@@ -2447,7 +2447,7 @@ Use V1 for creating/deleting fields.</p>
         <span class="n">entity_type</span><span class="p">:</span> <span class="n">EntityType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">skip_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">FieldMetadata</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get field metadata.</span>
 
 <span class="sd">        Results are cached for 5 minutes when caching is enabled on the client.</span>
@@ -2460,75 +2460,75 @@ Use V1 for creating/deleting fields.</p>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of field metadata</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">list_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;list_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">list_id</span><span class="p">)</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">"list_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">list_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">entity_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;entity_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">entity_type</span><span class="p">)</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">"entity_type"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">entity_type</span><span class="p">)</span>
 
-        <span class="n">get_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;v1&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+        <span class="n">get_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"v1"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_cache</span><span class="p">:</span>
-            <span class="n">list_key</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span> <span class="k">if</span> <span class="n">list_id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">list_id</span><span class="p">)</span>
-            <span class="n">type_key</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span> <span class="k">if</span> <span class="n">entity_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">entity_type</span><span class="p">)</span>
-            <span class="n">get_kwargs</span><span class="p">[</span><span class="s2">&quot;cache_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;field:v1_list_</span><span class="si">{</span><span class="n">list_key</span><span class="si">}</span><span class="s2">:type_</span><span class="si">{</span><span class="n">type_key</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">get_kwargs</span><span class="p">[</span><span class="s2">&quot;cache_ttl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span>
+            <span class="n">list_key</span> <span class="o">=</span> <span class="s2">"all"</span> <span class="k">if</span> <span class="n">list_id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">list_id</span><span class="p">)</span>
+            <span class="n">type_key</span> <span class="o">=</span> <span class="s2">"all"</span> <span class="k">if</span> <span class="n">entity_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">entity_type</span><span class="p">)</span>
+            <span class="n">get_kwargs</span><span class="p">[</span><span class="s2">"cache_key"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"field:v1_list_</span><span class="si">{</span><span class="n">list_key</span><span class="si">}</span><span class="s2">:type_</span><span class="si">{</span><span class="n">type_key</span><span class="si">}</span><span class="s2">"</span>
+            <span class="n">get_kwargs</span><span class="p">[</span><span class="s2">"cache_ttl"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s2">&quot;/fields&quot;</span><span class="p">,</span>
+            <span class="s2">"/fields"</span><span class="p">,</span>
             <span class="n">params</span><span class="o">=</span><span class="n">params</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
             <span class="o">**</span><span class="n">get_kwargs</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data"</span><span class="p">,</span> <span class="p">[])</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">FieldMetadata</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">FieldCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldMetadata</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a custom field.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Create a custom field."""</span>
         <span class="n">value_type_code</span> <span class="o">=</span> <span class="n">to_v1_value_type_code</span><span class="p">(</span><span class="n">value_type</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">value_type</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value_type_code</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Field value_type has no V1 numeric mapping: </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">value_type</span><span class="si">!s}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">payload</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">by_alias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">exclude_unset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;entity_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">entity_type</span><span class="p">)</span>
-        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;value_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value_type_code</span>
-        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;allows_multiple&quot;</span><span class="p">,</span> <span class="s2">&quot;is_list_specific&quot;</span><span class="p">,</span> <span class="s2">&quot;is_required&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Field value_type has no V1 numeric mapping: </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">value_type</span><span class="si">!s}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">by_alias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">,</span> <span class="n">exclude_unset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">payload</span><span class="p">[</span><span class="s2">"entity_type"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">entity_type</span><span class="p">)</span>
+        <span class="n">payload</span><span class="p">[</span><span class="s2">"value_type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">value_type_code</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"allows_multiple"</span><span class="p">,</span> <span class="s2">"is_list_specific"</span><span class="p">,</span> <span class="s2">"is_required"</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
                 <span class="n">payload</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/fields&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/fields"</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Invalidate field caches</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">&quot;field&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">&quot;list_&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">&quot;person_fields&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">&quot;company_fields&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">"field"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">"list_"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">"person_fields"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">"company_fields"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">FieldMetadata</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="n">FieldId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Delete a custom field (V1 API).</span>
 
 <span class="sd">        Note: V1 deletes require numeric field IDs. The SDK accepts V2-style</span>
 <span class="sd">        `field-&lt;digits&gt;` IDs and converts them; enriched/relationship-intelligence</span>
 <span class="sd">        IDs are not supported.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">numeric_id</span> <span class="o">=</span> <span class="n">field_id_to_v1_numeric</span><span class="p">(</span><span class="n">field_id</span><span class="p">)</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/fields/</span><span class="si">{</span><span class="n">numeric_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/fields/</span><span class="si">{</span><span class="n">numeric_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Invalidate field caches</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">&quot;field&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">&quot;list_&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">&quot;person_fields&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">&quot;company_fields&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">"field"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">"list_"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">"person_fields"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">"company_fields"</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="n">AnyFieldId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Check if a field exists.</span>
 
 <span class="sd">        Useful for validation before setting field values.</span>
@@ -2544,15 +2544,15 @@ Use V1 for creating/deleting fields.</p>
 <span class="sd">            True if the field exists, False otherwise</span>
 
 <span class="sd">        Example:</span>
-<span class="sd">            if client.fields.exists(FieldId(&quot;field-123&quot;)):</span>
+<span class="sd">            if client.fields.exists(FieldId("field-123")):</span>
 <span class="sd">                client.field_values.create(...)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">target_id</span> <span class="o">=</span> <span class="n">FieldId</span><span class="p">(</span><span class="n">field_id</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field_id</span><span class="p">,</span> <span class="n">FieldId</span><span class="p">)</span> <span class="k">else</span> <span class="n">field_id</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">target_id</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldMetadata</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Find a field by its display name.</span>
 
 <span class="sd">        Uses case-insensitive matching (casefold for i18n support).</span>
@@ -2568,10 +2568,10 @@ Use V1 for creating/deleting fields.</p>
 <span class="sd">            FieldMetadata if found, None otherwise</span>
 
 <span class="sd">        Example:</span>
-<span class="sd">            field = client.fields.get_by_name(&quot;Primary Email Status&quot;)</span>
+<span class="sd">            field = client.fields.get_by_name("Primary Email Status")</span>
 <span class="sd">            if field:</span>
 <span class="sd">                fv = client.field_values.get_for_entity(field.id, person_id=pid)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
         <span class="n">name_folded</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>  <span class="c1"># Strip whitespace, then casefold for i18n</span>
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
@@ -2632,25 +2632,25 @@ Use V1 for creating/deleting fields.</p>
 <span class="normal">828</span>
 <span class="normal">829</span>
 <span class="normal">830</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">FieldCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldMetadata</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a custom field.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Create a custom field."""</span>
     <span class="n">value_type_code</span> <span class="o">=</span> <span class="n">to_v1_value_type_code</span><span class="p">(</span><span class="n">value_type</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">value_type</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">value_type_code</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Field value_type has no V1 numeric mapping: </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">value_type</span><span class="si">!s}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">payload</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">by_alias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">exclude_unset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;entity_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">entity_type</span><span class="p">)</span>
-    <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;value_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value_type_code</span>
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;allows_multiple&quot;</span><span class="p">,</span> <span class="s2">&quot;is_list_specific&quot;</span><span class="p">,</span> <span class="s2">&quot;is_required&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Field value_type has no V1 numeric mapping: </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">value_type</span><span class="si">!s}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">by_alias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">,</span> <span class="n">exclude_unset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">payload</span><span class="p">[</span><span class="s2">"entity_type"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">entity_type</span><span class="p">)</span>
+    <span class="n">payload</span><span class="p">[</span><span class="s2">"value_type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">value_type_code</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"allows_multiple"</span><span class="p">,</span> <span class="s2">"is_list_specific"</span><span class="p">,</span> <span class="s2">"is_required"</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
             <span class="n">payload</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-    <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/fields&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/fields"</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Invalidate field caches</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">&quot;field&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">&quot;list_&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">&quot;person_fields&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">&quot;company_fields&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">"field"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">"list_"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">"person_fields"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">"company_fields"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">FieldMetadata</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -2697,24 +2697,24 @@ IDs are not supported.</p>
 <span class="normal">848</span>
 <span class="normal">849</span>
 <span class="normal">850</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="n">FieldId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Delete a custom field (V1 API).</span>
 
 <span class="sd">    Note: V1 deletes require numeric field IDs. The SDK accepts V2-style</span>
 <span class="sd">    `field-&lt;digits&gt;` IDs and converts them; enriched/relationship-intelligence</span>
 <span class="sd">    IDs are not supported.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">numeric_id</span> <span class="o">=</span> <span class="n">field_id_to_v1_numeric</span><span class="p">(</span><span class="n">field_id</span><span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/fields/</span><span class="si">{</span><span class="n">numeric_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/fields/</span><span class="si">{</span><span class="n">numeric_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Invalidate field caches</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">&quot;field&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">&quot;list_&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">&quot;person_fields&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">&quot;company_fields&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">"field"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">"list_"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">"person_fields"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">invalidate_prefix</span><span class="p">(</span><span class="s2">"company_fields"</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2824,7 +2824,7 @@ yourself.</p>
 <span class="normal">872</span>
 <span class="normal">873</span>
 <span class="normal">874</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="n">AnyFieldId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Check if a field exists.</span>
 
 <span class="sd">    Useful for validation before setting field values.</span>
@@ -2840,9 +2840,9 @@ yourself.</p>
 <span class="sd">        True if the field exists, False otherwise</span>
 
 <span class="sd">    Example:</span>
-<span class="sd">        if client.fields.exists(FieldId(&quot;field-123&quot;)):</span>
+<span class="sd">        if client.fields.exists(FieldId("field-123")):</span>
 <span class="sd">            client.field_values.create(...)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">target_id</span> <span class="o">=</span> <span class="n">FieldId</span><span class="p">(</span><span class="n">field_id</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field_id</span><span class="p">,</span> <span class="n">FieldId</span><span class="p">)</span> <span class="k">else</span> <span class="n">field_id</span>
     <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
     <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">target_id</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">)</span>
@@ -2960,7 +2960,7 @@ if field:
 <span class="normal">900</span>
 <span class="normal">901</span>
 <span class="normal">902</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldMetadata</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Find a field by its display name.</span>
 
 <span class="sd">    Uses case-insensitive matching (casefold for i18n support).</span>
@@ -2976,10 +2976,10 @@ if field:
 <span class="sd">        FieldMetadata if found, None otherwise</span>
 
 <span class="sd">    Example:</span>
-<span class="sd">        field = client.fields.get_by_name(&quot;Primary Email Status&quot;)</span>
+<span class="sd">        field = client.fields.get_by_name("Primary Email Status")</span>
 <span class="sd">        if field:</span>
 <span class="sd">            fv = client.field_values.get_for_entity(field.id, person_id=pid)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
     <span class="n">name_folded</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>  <span class="c1"># Strip whitespace, then casefold for i18n</span>
     <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
@@ -3145,7 +3145,7 @@ resolving a field that may have been added recently).</p>
     <span class="n">entity_type</span><span class="p">:</span> <span class="n">EntityType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">skip_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">FieldMetadata</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get field metadata.</span>
 
 <span class="sd">    Results are cached for 5 minutes when caching is enabled on the client.</span>
@@ -3158,26 +3158,26 @@ resolving a field that may have been added recently).</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        List of field metadata</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">list_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;list_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">list_id</span><span class="p">)</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">"list_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">list_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">entity_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;entity_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">entity_type</span><span class="p">)</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">"entity_type"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">entity_type</span><span class="p">)</span>
 
-    <span class="n">get_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;v1&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+    <span class="n">get_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"v1"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_cache</span><span class="p">:</span>
-        <span class="n">list_key</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span> <span class="k">if</span> <span class="n">list_id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">list_id</span><span class="p">)</span>
-        <span class="n">type_key</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span> <span class="k">if</span> <span class="n">entity_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">entity_type</span><span class="p">)</span>
-        <span class="n">get_kwargs</span><span class="p">[</span><span class="s2">&quot;cache_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;field:v1_list_</span><span class="si">{</span><span class="n">list_key</span><span class="si">}</span><span class="s2">:type_</span><span class="si">{</span><span class="n">type_key</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">get_kwargs</span><span class="p">[</span><span class="s2">&quot;cache_ttl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span>
+        <span class="n">list_key</span> <span class="o">=</span> <span class="s2">"all"</span> <span class="k">if</span> <span class="n">list_id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">list_id</span><span class="p">)</span>
+        <span class="n">type_key</span> <span class="o">=</span> <span class="s2">"all"</span> <span class="k">if</span> <span class="n">entity_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">entity_type</span><span class="p">)</span>
+        <span class="n">get_kwargs</span><span class="p">[</span><span class="s2">"cache_key"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"field:v1_list_</span><span class="si">{</span><span class="n">list_key</span><span class="si">}</span><span class="s2">:type_</span><span class="si">{</span><span class="n">type_key</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">get_kwargs</span><span class="p">[</span><span class="s2">"cache_ttl"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span>
 
     <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="s2">&quot;/fields&quot;</span><span class="p">,</span>
+        <span class="s2">"/fields"</span><span class="p">,</span>
         <span class="n">params</span><span class="o">=</span><span class="n">params</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">get_kwargs</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data"</span><span class="p">,</span> <span class="p">[])</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">FieldMetadata</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
@@ -3250,7 +3250,7 @@ resolving a field that may have been added recently).</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": [], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

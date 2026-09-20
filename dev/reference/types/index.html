@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -2810,7 +2810,7 @@
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">44</span>
 <span class="normal">45</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CompanyId</span><span class="p">(</span><span class="n">IntId</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Called Organization in V1.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Called Organization in V1."""</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2879,11 +2879,11 @@
 <span class="normal">607</span>
 <span class="normal">608</span>
 <span class="normal">609</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DropdownOptionColor</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Colors for dropdown options.</span>
 
 <span class="sd">    Affinity uses integer color codes for dropdown field options.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">DEFAULT</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">BLUE</span> <span class="o">=</span> <span class="mi">1</span>
@@ -2947,7 +2947,7 @@
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">190</span>
 <span class="normal">191</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EnrichedFieldId</span><span class="p">(</span><span class="n">StrId</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enriched field IDs are strings in V2 (e.g., &#39;affinity-data-description&#39;).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Enriched field IDs are strings in V2 (e.g., 'affinity-data-description')."""</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -3006,7 +3006,7 @@
 <span class="normal">285</span>
 <span class="normal">286</span>
 <span class="normal">287</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EntityType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Entity types in Affinity.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Entity types in Affinity."""</span>
 
     <span class="n">PERSON</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">ORGANIZATION</span> <span class="o">=</span> <span class="mi">1</span>
@@ -3148,33 +3148,33 @@ have this problem - they consistently use integers.</p>
 <span class="normal">137</span>
 <span class="normal">138</span>
 <span class="normal">139</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldId</span><span class="p">(</span><span class="n">StrId</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    V2-style field id (e.g. &#39;field-123&#39;).</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    V2-style field id (e.g. 'field-123').</span>
 
 <span class="sd">    FieldId provides normalized comparison semantics:</span>
-<span class="sd">    - ``FieldId(123) == FieldId(&quot;123&quot;)`` → ``True``</span>
-<span class="sd">    - ``FieldId(&quot;field-123&quot;) == &quot;field-123&quot;`` → ``True``</span>
-<span class="sd">    - ``FieldId(&quot;field-123&quot;) == 123`` → ``True``</span>
+<span class="sd">    - ``FieldId(123) == FieldId("123")`` → ``True``</span>
+<span class="sd">    - ``FieldId("field-123") == "field-123"`` → ``True``</span>
+<span class="sd">    - ``FieldId("field-123") == 123`` → ``True``</span>
 
 <span class="sd">    This normalization is specific to FieldId because field IDs uniquely come</span>
 <span class="sd">    from mixed sources (some APIs return integers, some return strings like</span>
-<span class="sd">    &quot;field-123&quot;). Other TypedId subclasses (PersonId, CompanyId, etc.) don&#39;t</span>
+<span class="sd">    "field-123"). Other TypedId subclasses (PersonId, CompanyId, etc.) don't</span>
 <span class="sd">    have this problem - they consistently use integers.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldId</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Normalize value to &#39;field-xxx&#39; format at construction time.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Normalize value to 'field-xxx' format at construction time."""</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">value</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;field-</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"field-</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">candidate</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">candidate</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
-                <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;field-</span><span class="si">{</span><span class="n">candidate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"field-</span><span class="si">{</span><span class="n">candidate</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">_FIELD_ID_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">candidate</span><span class="p">):</span>
                 <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">candidate</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;FieldId must be an int, digits, or &#39;field-&lt;digits&gt;&#39;&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"FieldId must be an int, digits, or 'field-&lt;digits&gt;'"</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">__get_pydantic_core_schema__</span><span class="p">(</span>
@@ -3190,19 +3190,19 @@ have this problem - they consistently use integers.</p>
         <span class="k">return</span> <span class="n">core_schema</span><span class="o">.</span><span class="n">no_info_plain_validator_function</span><span class="p">(</span><span class="n">validate</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Normalize comparison for FieldId.</span>
 
 <span class="sd">        Supports comparison with:</span>
 <span class="sd">        - Other FieldId instances</span>
-<span class="sd">        - Strings (e.g., &quot;field-123&quot; or &quot;123&quot;)</span>
+<span class="sd">        - Strings (e.g., "field-123" or "123")</span>
 <span class="sd">        - Integers (e.g., 123)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">FieldId</span><span class="p">):</span>
             <span class="c1"># Both are FieldId - compare string representations</span>
             <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="c1"># Compare with string - could be &quot;field-123&quot; or &quot;123&quot;</span>
+            <span class="c1"># Compare with string - could be "field-123" or "123"</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">other_normalized</span> <span class="o">=</span> <span class="n">FieldId</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
                 <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_normalized</span><span class="p">)</span>
@@ -3210,19 +3210,19 @@ have this problem - they consistently use integers.</p>
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="c1"># Compare with integer</span>
-            <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;field-</span><span class="si">{</span><span class="n">other</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"field-</span><span class="si">{</span><span class="n">other</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Hash the string representation for dict/set usage.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Hash the string representation for dict/set usage."""</span>
         <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a representation useful for debugging.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;FieldId(</span><span class="si">{</span><span class="nb">str</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a representation useful for debugging."""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"FieldId(</span><span class="si">{</span><span class="nb">str</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the canonical string value (e.g., &#39;field-123&#39;).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the canonical string value (e.g., 'field-123')."""</span>
         <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -3283,19 +3283,19 @@ have this problem - they consistently use integers.</p>
 <span class="normal">125</span>
 <span class="normal">126</span>
 <span class="normal">127</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Normalize comparison for FieldId.</span>
 
 <span class="sd">    Supports comparison with:</span>
 <span class="sd">    - Other FieldId instances</span>
-<span class="sd">    - Strings (e.g., &quot;field-123&quot; or &quot;123&quot;)</span>
+<span class="sd">    - Strings (e.g., "field-123" or "123")</span>
 <span class="sd">    - Integers (e.g., 123)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">FieldId</span><span class="p">):</span>
         <span class="c1"># Both are FieldId - compare string representations</span>
         <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="c1"># Compare with string - could be &quot;field-123&quot; or &quot;123&quot;</span>
+        <span class="c1"># Compare with string - could be "field-123" or "123"</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">other_normalized</span> <span class="o">=</span> <span class="n">FieldId</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
             <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_normalized</span><span class="p">)</span>
@@ -3303,7 +3303,7 @@ have this problem - they consistently use integers.</p>
             <span class="k">return</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
         <span class="c1"># Compare with integer</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;field-</span><span class="si">{</span><span class="n">other</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"field-</span><span class="si">{</span><span class="n">other</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">NotImplemented</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3330,7 +3330,7 @@ have this problem - they consistently use integers.</p>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">129</span>
 <span class="normal">130</span>
 <span class="normal">131</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Hash the string representation for dict/set usage.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Hash the string representation for dict/set usage."""</span>
     <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3367,18 +3367,18 @@ have this problem - they consistently use integers.</p>
 <span class="normal">88</span>
 <span class="normal">89</span>
 <span class="normal">90</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldId</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize value to &#39;field-xxx&#39; format at construction time.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Normalize value to 'field-xxx' format at construction time."""</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">value</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;field-</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"field-</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">candidate</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">candidate</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
-            <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;field-</span><span class="si">{</span><span class="n">candidate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"field-</span><span class="si">{</span><span class="n">candidate</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">_FIELD_ID_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">candidate</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">candidate</span><span class="p">)</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;FieldId must be an int, digits, or &#39;field-&lt;digits&gt;&#39;&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"FieldId must be an int, digits, or 'field-&lt;digits&gt;'"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3404,8 +3404,8 @@ have this problem - they consistently use integers.</p>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">133</span>
 <span class="normal">134</span>
 <span class="normal">135</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a representation useful for debugging.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;FieldId(</span><span class="si">{</span><span class="nb">str</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a representation useful for debugging."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"FieldId(</span><span class="si">{</span><span class="nb">str</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3431,7 +3431,7 @@ have this problem - they consistently use integers.</p>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">137</span>
 <span class="normal">138</span>
 <span class="normal">139</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the canonical string value (e.g., &#39;field-123&#39;).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the canonical string value (e.g., 'field-123')."""</span>
     <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3491,18 +3491,18 @@ RELATIONSHIP_INTELLIGENCE only.</p>
 <span class="normal">439</span>
 <span class="normal">440</span>
 <span class="normal">441</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldType</span><span class="p">(</span><span class="n">OpenStrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Field type for API parameters and response metadata.</span>
 
 <span class="sd">    Note: LIST is only valid in requests to list entry endpoints.</span>
 <span class="sd">    Company/person endpoints accept ENRICHED, GLOBAL, and</span>
 <span class="sd">    RELATIONSHIP_INTELLIGENCE only.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">ENRICHED</span> <span class="o">=</span> <span class="s2">&quot;enriched&quot;</span>
-    <span class="n">LIST</span> <span class="o">=</span> <span class="s2">&quot;list&quot;</span>
-    <span class="n">GLOBAL</span> <span class="o">=</span> <span class="s2">&quot;global&quot;</span>
-    <span class="n">RELATIONSHIP_INTELLIGENCE</span> <span class="o">=</span> <span class="s2">&quot;relationship-intelligence&quot;</span>
+    <span class="n">ENRICHED</span> <span class="o">=</span> <span class="s2">"enriched"</span>
+    <span class="n">LIST</span> <span class="o">=</span> <span class="s2">"list"</span>
+    <span class="n">GLOBAL</span> <span class="o">=</span> <span class="s2">"global"</span>
+    <span class="n">RELATIONSHIP_INTELLIGENCE</span> <span class="o">=</span> <span class="s2">"relationship-intelligence"</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -3561,7 +3561,7 @@ RELATIONSHIP_INTELLIGENCE only.</p>
 <span class="normal">536</span>
 <span class="normal">537</span>
 <span class="normal">538</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueChangeAction</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Types of changes that can occur to field values.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Types of changes that can occur to field values."""</span>
 
     <span class="n">CREATE</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">DELETE</span> <span class="o">=</span> <span class="mi">1</span>
@@ -3702,38 +3702,38 @@ V2 string type where possible.</p>
 <span class="normal">376</span>
 <span class="normal">377</span>
 <span class="normal">378</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueType</span><span class="p">(</span><span class="n">OpenStrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Field value types (V2-first).</span>
 
-<span class="sd">    V2 represents `valueType` as strings (e.g. &quot;dropdown-multi&quot;, &quot;ranked-dropdown&quot;, &quot;interaction&quot;).</span>
+<span class="sd">    V2 represents `valueType` as strings (e.g. "dropdown-multi", "ranked-dropdown", "interaction").</span>
 <span class="sd">    V1 represents field value types as numeric codes; numeric inputs are normalized into the closest</span>
 <span class="sd">    V2 string type where possible.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">TEXT</span> <span class="o">=</span> <span class="s2">&quot;text&quot;</span>
+    <span class="n">TEXT</span> <span class="o">=</span> <span class="s2">"text"</span>
 
-    <span class="n">NUMBER</span> <span class="o">=</span> <span class="s2">&quot;number&quot;</span>
-    <span class="n">NUMBER_MULTI</span> <span class="o">=</span> <span class="s2">&quot;number-multi&quot;</span>
+    <span class="n">NUMBER</span> <span class="o">=</span> <span class="s2">"number"</span>
+    <span class="n">NUMBER_MULTI</span> <span class="o">=</span> <span class="s2">"number-multi"</span>
 
-    <span class="n">DATETIME</span> <span class="o">=</span> <span class="s2">&quot;datetime&quot;</span>  <span class="c1"># V2 canonical (V1 docs call this &quot;Date&quot;)</span>
+    <span class="n">DATETIME</span> <span class="o">=</span> <span class="s2">"datetime"</span>  <span class="c1"># V2 canonical (V1 docs call this "Date")</span>
 
-    <span class="n">LOCATION</span> <span class="o">=</span> <span class="s2">&quot;location&quot;</span>
-    <span class="n">LOCATION_MULTI</span> <span class="o">=</span> <span class="s2">&quot;location-multi&quot;</span>
+    <span class="n">LOCATION</span> <span class="o">=</span> <span class="s2">"location"</span>
+    <span class="n">LOCATION_MULTI</span> <span class="o">=</span> <span class="s2">"location-multi"</span>
 
-    <span class="n">DROPDOWN</span> <span class="o">=</span> <span class="s2">&quot;dropdown&quot;</span>
-    <span class="n">DROPDOWN_MULTI</span> <span class="o">=</span> <span class="s2">&quot;dropdown-multi&quot;</span>
-    <span class="n">RANKED_DROPDOWN</span> <span class="o">=</span> <span class="s2">&quot;ranked-dropdown&quot;</span>
+    <span class="n">DROPDOWN</span> <span class="o">=</span> <span class="s2">"dropdown"</span>
+    <span class="n">DROPDOWN_MULTI</span> <span class="o">=</span> <span class="s2">"dropdown-multi"</span>
+    <span class="n">RANKED_DROPDOWN</span> <span class="o">=</span> <span class="s2">"ranked-dropdown"</span>
 
-    <span class="n">PERSON</span> <span class="o">=</span> <span class="s2">&quot;person&quot;</span>
-    <span class="n">PERSON_MULTI</span> <span class="o">=</span> <span class="s2">&quot;person-multi&quot;</span>
+    <span class="n">PERSON</span> <span class="o">=</span> <span class="s2">"person"</span>
+    <span class="n">PERSON_MULTI</span> <span class="o">=</span> <span class="s2">"person-multi"</span>
 
-    <span class="n">COMPANY</span> <span class="o">=</span> <span class="s2">&quot;company&quot;</span>  <span class="c1"># V1 calls this &quot;organization&quot;</span>
-    <span class="n">COMPANY_MULTI</span> <span class="o">=</span> <span class="s2">&quot;company-multi&quot;</span>
+    <span class="n">COMPANY</span> <span class="o">=</span> <span class="s2">"company"</span>  <span class="c1"># V1 calls this "organization"</span>
+    <span class="n">COMPANY_MULTI</span> <span class="o">=</span> <span class="s2">"company-multi"</span>
 
-    <span class="n">FILTERABLE_TEXT</span> <span class="o">=</span> <span class="s2">&quot;filterable-text&quot;</span>
-    <span class="n">FILTERABLE_TEXT_MULTI</span> <span class="o">=</span> <span class="s2">&quot;filterable-text-multi&quot;</span>
+    <span class="n">FILTERABLE_TEXT</span> <span class="o">=</span> <span class="s2">"filterable-text"</span>
+    <span class="n">FILTERABLE_TEXT_MULTI</span> <span class="o">=</span> <span class="s2">"filterable-text-multi"</span>
 
-    <span class="n">INTERACTION</span> <span class="o">=</span> <span class="s2">&quot;interaction&quot;</span>  <span class="c1"># V2-only (relationship-intelligence)</span>
+    <span class="n">INTERACTION</span> <span class="o">=</span> <span class="s2">"interaction"</span>  <span class="c1"># V2-only (relationship-intelligence)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OpenStrEnum</span><span class="p">:</span>
@@ -3747,18 +3747,18 @@ V2 string type where possible.</p>
             <span class="n">mapping</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">FieldValueType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="mi">0</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">PERSON</span><span class="p">,</span>
                 <span class="mi">1</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">COMPANY</span><span class="p">,</span>
-                <span class="mi">2</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DROPDOWN</span><span class="p">,</span>  <span class="c1"># V1 &quot;Dropdown&quot; (simple, free text)</span>
+                <span class="mi">2</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DROPDOWN</span><span class="p">,</span>  <span class="c1"># V1 "Dropdown" (simple, free text)</span>
                 <span class="mi">3</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">NUMBER</span><span class="p">,</span>
                 <span class="mi">4</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DATETIME</span><span class="p">,</span>
                 <span class="mi">5</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">LOCATION</span><span class="p">,</span>
-                <span class="mi">6</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>  <span class="c1"># V1 &quot;Text&quot; (long text block)</span>
-                <span class="mi">7</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">RANKED_DROPDOWN</span><span class="p">,</span>  <span class="c1"># V1 &quot;Ranked Dropdown&quot; (with colors)</span>
+                <span class="mi">6</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>  <span class="c1"># V1 "Text" (long text block)</span>
+                <span class="mi">7</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">RANKED_DROPDOWN</span><span class="p">,</span>  <span class="c1"># V1 "Ranked Dropdown" (with colors)</span>
                 <span class="mi">10</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">FILTERABLE_TEXT</span><span class="p">,</span>
             <span class="p">}</span>
             <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">mapping</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
 
-            <span class="c1"># Keep &quot;unknown numeric&quot; inputs stable by caching under the int key as well.</span>
+            <span class="c1"># Keep "unknown numeric" inputs stable by caching under the int key as well.</span>
             <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
             <span class="n">existing</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_value2member_map_</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">existing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -3772,13 +3772,13 @@ V2 string type where possible.</p>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">text</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="n">lowered</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">lowered</span> <span class="o">==</span> <span class="s2">&quot;date&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">lowered</span> <span class="o">==</span> <span class="s2">"date"</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DATETIME</span>
-            <span class="k">if</span> <span class="n">lowered</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;organization&quot;</span><span class="p">,</span> <span class="s2">&quot;organisation&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">lowered</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"organization"</span><span class="p">,</span> <span class="s2">"organisation"</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">COMPANY</span>
-            <span class="k">if</span> <span class="n">lowered</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;organization-multi&quot;</span><span class="p">,</span> <span class="s2">&quot;organisation-multi&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">lowered</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"organization-multi"</span><span class="p">,</span> <span class="s2">"organisation-multi"</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">COMPANY_MULTI</span>
-            <span class="k">if</span> <span class="n">lowered</span> <span class="o">==</span> <span class="s2">&quot;filterable_text&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">lowered</span> <span class="o">==</span> <span class="s2">"filterable_text"</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">FILTERABLE_TEXT</span>
 
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_missing_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -3839,7 +3839,7 @@ V2 string type where possible.</p>
 <span class="normal">481</span>
 <span class="normal">482</span>
 <span class="normal">483</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">InteractionDirection</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Direction of communication for interactions.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Direction of communication for interactions."""</span>
 
     <span class="n">OUTGOING</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">INCOMING</span> <span class="o">=</span> <span class="mi">1</span>
@@ -3900,7 +3900,7 @@ V2 string type where possible.</p>
 <span class="normal">488</span>
 <span class="normal">489</span>
 <span class="normal">490</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">InteractionLoggingType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;How the interaction was logged.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""How the interaction was logged."""</span>
 
     <span class="n">AUTOMATIC</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">MANUAL</span> <span class="o">=</span> <span class="mi">1</span>
@@ -3963,7 +3963,7 @@ V2 string type where possible.</p>
 <span class="normal">474</span>
 <span class="normal">475</span>
 <span class="normal">476</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">InteractionType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Types of interactions.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Types of interactions."""</span>
 
     <span class="n">MEETING</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Also called Event</span>
     <span class="n">CALL</span> <span class="o">=</span> <span class="mi">1</span>
@@ -4027,7 +4027,7 @@ V2 string type where possible.</p>
 <span class="normal">528</span>
 <span class="normal">529</span>
 <span class="normal">530</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListRole</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Roles for list-level permissions.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Roles for list-level permissions."""</span>
 
     <span class="n">ADMIN</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">BASIC</span> <span class="o">=</span> <span class="mi">1</span>
@@ -4106,7 +4106,7 @@ V2 string type where possible.</p>
 <span class="normal">277</span>
 <span class="normal">278</span>
 <span class="normal">279</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Type of entities a list can contain.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Type of entities a list can contain."""</span>
 
     <span class="n">PERSON</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">COMPANY</span> <span class="o">=</span> <span class="mi">1</span>
@@ -4117,14 +4117,14 @@ V2 string type where possible.</p>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OpenIntEnum</span><span class="p">:</span>
-        <span class="c1"># V2 list endpoints commonly return string types (e.g. &quot;company&quot;).</span>
+        <span class="c1"># V2 list endpoints commonly return string types (e.g. "company").</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">text</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">text</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;person&quot;</span><span class="p">,</span> <span class="s2">&quot;people&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">text</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"person"</span><span class="p">,</span> <span class="s2">"people"</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">PERSON</span>
-            <span class="k">if</span> <span class="n">text</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;company&quot;</span><span class="p">,</span> <span class="s2">&quot;organization&quot;</span><span class="p">,</span> <span class="s2">&quot;organisation&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">text</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"company"</span><span class="p">,</span> <span class="s2">"organization"</span><span class="p">,</span> <span class="s2">"organisation"</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">COMPANY</span>
-            <span class="k">if</span> <span class="n">text</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;opportunity&quot;</span><span class="p">,</span> <span class="s2">&quot;opportunities&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">text</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"opportunity"</span><span class="p">,</span> <span class="s2">"opportunities"</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">OPPORTUNITY</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_missing_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -4186,7 +4186,7 @@ V2 string type where possible.</p>
 <span class="normal">520</span>
 <span class="normal">521</span>
 <span class="normal">522</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">NoteType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Types of notes.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Types of notes."""</span>
 
     <span class="n">PLAIN_TEXT</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">EMAIL_DERIVED</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Deprecated creation method</span>
@@ -4250,11 +4250,11 @@ V2 string type where possible.</p>
 <span class="normal">293</span>
 <span class="normal">294</span>
 <span class="normal">295</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PersonType</span><span class="p">(</span><span class="n">OpenStrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Types of persons in Affinity.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Types of persons in Affinity."""</span>
 
-    <span class="n">INTERNAL</span> <span class="o">=</span> <span class="s2">&quot;internal&quot;</span>
-    <span class="n">EXTERNAL</span> <span class="o">=</span> <span class="s2">&quot;external&quot;</span>
-    <span class="n">COLLABORATOR</span> <span class="o">=</span> <span class="s2">&quot;collaborator&quot;</span>
+    <span class="n">INTERNAL</span> <span class="o">=</span> <span class="s2">"internal"</span>
+    <span class="n">EXTERNAL</span> <span class="o">=</span> <span class="s2">"external"</span>
+    <span class="n">COLLABORATOR</span> <span class="o">=</span> <span class="s2">"collaborator"</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -4313,7 +4313,7 @@ V2 string type where possible.</p>
 <span class="normal">503</span>
 <span class="normal">504</span>
 <span class="normal">505</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ReminderResetType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;How recurring reminders get reset.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""How recurring reminders get reset."""</span>
 
     <span class="n">INTERACTION</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Email or meeting</span>
     <span class="n">EMAIL</span> <span class="o">=</span> <span class="mi">1</span>
@@ -4376,7 +4376,7 @@ V2 string type where possible.</p>
 <span class="normal">511</span>
 <span class="normal">512</span>
 <span class="normal">513</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ReminderStatus</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Current status of a reminder.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Current status of a reminder."""</span>
 
     <span class="n">COMPLETED</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">ACTIVE</span> <span class="o">=</span> <span class="mi">1</span>
@@ -4438,7 +4438,7 @@ V2 string type where possible.</p>
 <span class="normal">495</span>
 <span class="normal">496</span>
 <span class="normal">497</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ReminderType</span><span class="p">(</span><span class="n">OpenIntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Types of reminders.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Types of reminders."""</span>
 
     <span class="n">ONE_TIME</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">RECURRING</span> <span class="o">=</span> <span class="mi">1</span>
@@ -4499,10 +4499,10 @@ V2 string type where possible.</p>
 <span class="normal">465</span>
 <span class="normal">466</span>
 <span class="normal">467</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ResolveMode</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Controls how FieldResolver.get() returns complex field values.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Controls how FieldResolver.get() returns complex field values."""</span>
 
-    <span class="n">RAW</span> <span class="o">=</span> <span class="s2">&quot;raw&quot;</span>  <span class="c1"># Return extracted values as-is (default)</span>
-    <span class="n">TEXT</span> <span class="o">=</span> <span class="s2">&quot;text&quot;</span>  <span class="c1"># Resolve all complex types to human-readable strings</span>
+    <span class="n">RAW</span> <span class="o">=</span> <span class="s2">"raw"</span>  <span class="c1"># Return extracted values as-is (default)</span>
+    <span class="n">TEXT</span> <span class="o">=</span> <span class="s2">"text"</span>  <span class="c1"># Resolve all complex types to human-readable strings</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -4557,7 +4557,7 @@ V2 string type where possible.</p>
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">174</span>
 <span class="normal">175</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">UserId</span><span class="p">(</span><span class="n">PersonId</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Workspace member ID. A subtype of PersonId — users are internal persons in Affinity.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Workspace member ID. A subtype of PersonId — users are internal persons in Affinity."""</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -4678,7 +4678,7 @@ events from Affinity are preserved as strings rather than raising errors.</p>
 <span class="normal">590</span>
 <span class="normal">591</span>
 <span class="normal">592</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookEvent</span><span class="p">(</span><span class="n">OpenStrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Supported webhook events (27 total).</span>
 
 <span class="sd">    Events cover CRUD operations on Affinity entities:</span>
@@ -4698,37 +4698,37 @@ events from Affinity are preserved as strings rather than raising errors.</p>
 <span class="sd">    events from Affinity are preserved as strings rather than raising errors.</span>
 
 <span class="sd">    See the webhooks guide for complete documentation and usage examples.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">LIST_CREATED</span> <span class="o">=</span> <span class="s2">&quot;list.created&quot;</span>
-    <span class="n">LIST_UPDATED</span> <span class="o">=</span> <span class="s2">&quot;list.updated&quot;</span>
-    <span class="n">LIST_DELETED</span> <span class="o">=</span> <span class="s2">&quot;list.deleted&quot;</span>
-    <span class="n">LIST_ENTRY_CREATED</span> <span class="o">=</span> <span class="s2">&quot;list_entry.created&quot;</span>
-    <span class="n">LIST_ENTRY_DELETED</span> <span class="o">=</span> <span class="s2">&quot;list_entry.deleted&quot;</span>
-    <span class="n">NOTE_CREATED</span> <span class="o">=</span> <span class="s2">&quot;note.created&quot;</span>
-    <span class="n">NOTE_UPDATED</span> <span class="o">=</span> <span class="s2">&quot;note.updated&quot;</span>
-    <span class="n">NOTE_DELETED</span> <span class="o">=</span> <span class="s2">&quot;note.deleted&quot;</span>
-    <span class="n">FIELD_CREATED</span> <span class="o">=</span> <span class="s2">&quot;field.created&quot;</span>
-    <span class="n">FIELD_UPDATED</span> <span class="o">=</span> <span class="s2">&quot;field.updated&quot;</span>
-    <span class="n">FIELD_DELETED</span> <span class="o">=</span> <span class="s2">&quot;field.deleted&quot;</span>
-    <span class="n">FIELD_VALUE_CREATED</span> <span class="o">=</span> <span class="s2">&quot;field_value.created&quot;</span>
-    <span class="n">FIELD_VALUE_UPDATED</span> <span class="o">=</span> <span class="s2">&quot;field_value.updated&quot;</span>
-    <span class="n">FIELD_VALUE_DELETED</span> <span class="o">=</span> <span class="s2">&quot;field_value.deleted&quot;</span>
-    <span class="n">PERSON_CREATED</span> <span class="o">=</span> <span class="s2">&quot;person.created&quot;</span>
-    <span class="n">PERSON_UPDATED</span> <span class="o">=</span> <span class="s2">&quot;person.updated&quot;</span>
-    <span class="n">PERSON_DELETED</span> <span class="o">=</span> <span class="s2">&quot;person.deleted&quot;</span>
-    <span class="n">ORGANIZATION_CREATED</span> <span class="o">=</span> <span class="s2">&quot;organization.created&quot;</span>
-    <span class="n">ORGANIZATION_UPDATED</span> <span class="o">=</span> <span class="s2">&quot;organization.updated&quot;</span>
-    <span class="n">ORGANIZATION_DELETED</span> <span class="o">=</span> <span class="s2">&quot;organization.deleted&quot;</span>
-    <span class="n">ORGANIZATION_MERGED</span> <span class="o">=</span> <span class="s2">&quot;organization.merged&quot;</span>
-    <span class="n">OPPORTUNITY_CREATED</span> <span class="o">=</span> <span class="s2">&quot;opportunity.created&quot;</span>
-    <span class="n">OPPORTUNITY_UPDATED</span> <span class="o">=</span> <span class="s2">&quot;opportunity.updated&quot;</span>
-    <span class="n">OPPORTUNITY_DELETED</span> <span class="o">=</span> <span class="s2">&quot;opportunity.deleted&quot;</span>
-    <span class="n">FILE_CREATED</span> <span class="o">=</span> <span class="s2">&quot;file.created&quot;</span>
-    <span class="n">FILE_DELETED</span> <span class="o">=</span> <span class="s2">&quot;file.deleted&quot;</span>
-    <span class="n">REMINDER_CREATED</span> <span class="o">=</span> <span class="s2">&quot;reminder.created&quot;</span>
-    <span class="n">REMINDER_UPDATED</span> <span class="o">=</span> <span class="s2">&quot;reminder.updated&quot;</span>
-    <span class="n">REMINDER_DELETED</span> <span class="o">=</span> <span class="s2">&quot;reminder.deleted&quot;</span>
+    <span class="n">LIST_CREATED</span> <span class="o">=</span> <span class="s2">"list.created"</span>
+    <span class="n">LIST_UPDATED</span> <span class="o">=</span> <span class="s2">"list.updated"</span>
+    <span class="n">LIST_DELETED</span> <span class="o">=</span> <span class="s2">"list.deleted"</span>
+    <span class="n">LIST_ENTRY_CREATED</span> <span class="o">=</span> <span class="s2">"list_entry.created"</span>
+    <span class="n">LIST_ENTRY_DELETED</span> <span class="o">=</span> <span class="s2">"list_entry.deleted"</span>
+    <span class="n">NOTE_CREATED</span> <span class="o">=</span> <span class="s2">"note.created"</span>
+    <span class="n">NOTE_UPDATED</span> <span class="o">=</span> <span class="s2">"note.updated"</span>
+    <span class="n">NOTE_DELETED</span> <span class="o">=</span> <span class="s2">"note.deleted"</span>
+    <span class="n">FIELD_CREATED</span> <span class="o">=</span> <span class="s2">"field.created"</span>
+    <span class="n">FIELD_UPDATED</span> <span class="o">=</span> <span class="s2">"field.updated"</span>
+    <span class="n">FIELD_DELETED</span> <span class="o">=</span> <span class="s2">"field.deleted"</span>
+    <span class="n">FIELD_VALUE_CREATED</span> <span class="o">=</span> <span class="s2">"field_value.created"</span>
+    <span class="n">FIELD_VALUE_UPDATED</span> <span class="o">=</span> <span class="s2">"field_value.updated"</span>
+    <span class="n">FIELD_VALUE_DELETED</span> <span class="o">=</span> <span class="s2">"field_value.deleted"</span>
+    <span class="n">PERSON_CREATED</span> <span class="o">=</span> <span class="s2">"person.created"</span>
+    <span class="n">PERSON_UPDATED</span> <span class="o">=</span> <span class="s2">"person.updated"</span>
+    <span class="n">PERSON_DELETED</span> <span class="o">=</span> <span class="s2">"person.deleted"</span>
+    <span class="n">ORGANIZATION_CREATED</span> <span class="o">=</span> <span class="s2">"organization.created"</span>
+    <span class="n">ORGANIZATION_UPDATED</span> <span class="o">=</span> <span class="s2">"organization.updated"</span>
+    <span class="n">ORGANIZATION_DELETED</span> <span class="o">=</span> <span class="s2">"organization.deleted"</span>
+    <span class="n">ORGANIZATION_MERGED</span> <span class="o">=</span> <span class="s2">"organization.merged"</span>
+    <span class="n">OPPORTUNITY_CREATED</span> <span class="o">=</span> <span class="s2">"opportunity.created"</span>
+    <span class="n">OPPORTUNITY_UPDATED</span> <span class="o">=</span> <span class="s2">"opportunity.updated"</span>
+    <span class="n">OPPORTUNITY_DELETED</span> <span class="o">=</span> <span class="s2">"opportunity.deleted"</span>
+    <span class="n">FILE_CREATED</span> <span class="o">=</span> <span class="s2">"file.created"</span>
+    <span class="n">FILE_DELETED</span> <span class="o">=</span> <span class="s2">"file.deleted"</span>
+    <span class="n">REMINDER_CREATED</span> <span class="o">=</span> <span class="s2">"reminder.created"</span>
+    <span class="n">REMINDER_UPDATED</span> <span class="o">=</span> <span class="s2">"reminder.updated"</span>
+    <span class="n">REMINDER_DELETED</span> <span class="o">=</span> <span class="s2">"reminder.deleted"</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -4798,27 +4798,27 @@ Rejects:
 <span class="normal">219</span>
 <span class="normal">220</span>
 <span class="normal">221</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">field_id_to_v1_numeric</span><span class="p">(</span><span class="n">field_id</span><span class="p">:</span> <span class="n">AnyFieldId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert v2 FieldId into v1 numeric field_id.</span>
 
 <span class="sd">    Accepts:</span>
-<span class="sd">    - FieldId(&#39;field-123&#39;) -&gt; 123</span>
+<span class="sd">    - FieldId('field-123') -&gt; 123</span>
 <span class="sd">    Rejects:</span>
 <span class="sd">    - EnrichedFieldId(...) (cannot be represented as v1 numeric id)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field_id</span><span class="p">,</span> <span class="n">EnrichedFieldId</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Field IDs must be &#39;field-&lt;digits&gt;&#39; for v1 conversion; &quot;</span>
-            <span class="s2">&quot;enriched/relationship-intelligence IDs (e.g., &#39;affinity-data-*&#39;, &quot;</span>
-            <span class="s2">&quot;&#39;source-of-introduction&#39;) are not supported.&quot;</span>
+            <span class="s2">"Field IDs must be 'field-&lt;digits&gt;' for v1 conversion; "</span>
+            <span class="s2">"enriched/relationship-intelligence IDs (e.g., 'affinity-data-*', "</span>
+            <span class="s2">"'source-of-introduction') are not supported."</span>
         <span class="p">)</span>
 
     <span class="n">match</span> <span class="o">=</span> <span class="n">_FIELD_ID_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">field_id</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Field IDs must be &#39;field-&lt;digits&gt;&#39; for v1 conversion; &quot;</span>
-            <span class="s2">&quot;enriched/relationship-intelligence IDs (e.g., &#39;affinity-data-*&#39;, &quot;</span>
-            <span class="s2">&quot;&#39;source-of-introduction&#39;) are not supported.&quot;</span>
+            <span class="s2">"Field IDs must be 'field-&lt;digits&gt;' for v1 conversion; "</span>
+            <span class="s2">"enriched/relationship-intelligence IDs (e.g., 'affinity-data-*', "</span>
+            <span class="s2">"'source-of-introduction') are not supported."</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
@@ -4890,7 +4890,7 @@ Rejects:
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

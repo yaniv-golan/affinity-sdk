@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -2617,12 +2617,12 @@ Use this for global field values not tied to list entries.</p>
 <span class="normal">1131</span>
 <span class="normal">1132</span>
 <span class="normal">1133</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueService</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Service for managing field values.</span>
 
 <span class="sd">    For list entry field values, prefer ListEntryService.update_field_value().</span>
 <span class="sd">    Use this for global field values not tied to list entries.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">HTTPClient</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
@@ -2635,7 +2635,7 @@ Use this for global field values not tied to list entries.</p>
         <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">list_entry_id</span><span class="p">:</span> <span class="n">ListEntryId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">FieldValue</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get field values for an entity.</span>
 
 <span class="sd">        Exactly one of person_id, company_id, opportunity_id, or list_entry_id</span>
@@ -2643,72 +2643,72 @@ Use this for global field values not tied to list entries.</p>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If zero or multiple IDs are provided.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">provided</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">name</span><span class="p">:</span> <span class="n">value</span>
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span>
-                <span class="p">(</span><span class="s2">&quot;person_id&quot;</span><span class="p">,</span> <span class="n">person_id</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;company_id&quot;</span><span class="p">,</span> <span class="n">company_id</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;opportunity_id&quot;</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;list_entry_id&quot;</span><span class="p">,</span> <span class="n">list_entry_id</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"person_id"</span><span class="p">,</span> <span class="n">person_id</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"company_id"</span><span class="p">,</span> <span class="n">company_id</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"opportunity_id"</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">"list_entry_id"</span><span class="p">,</span> <span class="n">list_entry_id</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="p">}</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;field_values.list() requires exactly one entity ID. &quot;</span>
-                <span class="s2">&quot;Example: client.field_values.list(person_id=PersonId(123))&quot;</span>
+                <span class="s2">"field_values.list() requires exactly one entity ID. "</span>
+                <span class="s2">"Example: client.field_values.list(person_id=PersonId(123))"</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;field_values.list() accepts only one entity ID, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;but received </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">provided</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="s2">&quot;Call list() separately for each entity.&quot;</span>
+                <span class="sa">f</span><span class="s2">"field_values.list() accepts only one entity ID, "</span>
+                <span class="sa">f</span><span class="s2">"but received </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">provided</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">. "</span>
+                <span class="s2">"Call list() separately for each entity."</span>
             <span class="p">)</span>
 
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">person_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;person_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">"person_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">company_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;organization_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">"organization_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">opportunity_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;opportunity_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">"opportunity_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">list_entry_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;list_entry_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">list_entry_id</span><span class="p">)</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">"list_entry_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">list_entry_id</span><span class="p">)</span>
 
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/field-values&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/field-values"</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data"</span><span class="p">,</span> <span class="p">[])</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">FieldValue</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">FieldValueCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValue</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a field value (V1 API).</span>
 
 <span class="sd">        Note: V1 writes require numeric field IDs. The SDK accepts V2-style</span>
 <span class="sd">        `field-&lt;digits&gt;` IDs and converts them; enriched/relationship-intelligence</span>
 <span class="sd">        IDs are not supported.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">payload</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">by_alias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">exclude_unset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;field_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_id_to_v1_numeric</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">field_id</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">by_alias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">,</span> <span class="n">exclude_unset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">payload</span><span class="p">[</span><span class="s2">"field_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_id_to_v1_numeric</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">field_id</span><span class="p">)</span>
 
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/field-values&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/field-values"</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">FieldValue</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_value_id</span><span class="p">:</span> <span class="n">FieldValueId</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValue</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update a field value.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Update a field value."""</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">put</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;/field-values/</span><span class="si">{</span><span class="n">field_value_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">},</span>
+            <span class="sa">f</span><span class="s2">"/field-values/</span><span class="si">{</span><span class="n">field_value_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">"value"</span><span class="p">:</span> <span class="n">value</span><span class="p">},</span>
             <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">FieldValue</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_value_id</span><span class="p">:</span> <span class="n">FieldValueId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete a field value.&quot;&quot;&quot;</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/field-values/</span><span class="si">{</span><span class="n">field_value_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+<span class="w">        </span><span class="sd">"""Delete a field value."""</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/field-values/</span><span class="si">{</span><span class="n">field_value_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_for_entity</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2720,7 +2720,7 @@ Use this for global field values not tied to list entries.</p>
         <span class="n">list_entry_id</span><span class="p">:</span> <span class="n">ListEntryId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">T</span> <span class="o">=</span> <span class="n">_UNSET</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValue</span> <span class="o">|</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get a specific field value for an entity.</span>
 
 <span class="sd">        Convenience method that fetches all field values and returns the one</span>
@@ -2740,26 +2740,26 @@ Use this for global field values not tied to list entries.</p>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            FieldValue if the field has a value, default otherwise.</span>
-<span class="sd">            Note: A FieldValue with ``.value is None`` still counts as &quot;present&quot; (explicit empty).</span>
+<span class="sd">            Note: A FieldValue with ``.value is None`` still counts as "present" (explicit empty).</span>
 
 <span class="sd">        Example:</span>
 <span class="sd">            # Check if a person has a specific field value</span>
 <span class="sd">            status = client.field_values.get_for_entity(</span>
-<span class="sd">                &quot;field-123&quot;,  # or FieldId(&quot;field-123&quot;)</span>
+<span class="sd">                "field-123",  # or FieldId("field-123")</span>
 <span class="sd">                person_id=PersonId(456),</span>
 <span class="sd">            )</span>
 <span class="sd">            if status is None:</span>
-<span class="sd">                print(&quot;Field is empty&quot;)</span>
+<span class="sd">                print("Field is empty")</span>
 <span class="sd">            else:</span>
-<span class="sd">                print(f&quot;Value: {status.value}&quot;)</span>
+<span class="sd">                print(f"Value: {status.value}")</span>
 
 <span class="sd">            # With default value</span>
 <span class="sd">            status = client.field_values.get_for_entity(</span>
-<span class="sd">                &quot;field-123&quot;,</span>
+<span class="sd">                "field-123",</span>
 <span class="sd">                person_id=PersonId(456),</span>
-<span class="sd">                default=&quot;N/A&quot;,</span>
+<span class="sd">                default="N/A",</span>
 <span class="sd">            )</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">all_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
             <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
             <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
@@ -2779,9 +2779,9 @@ Use this for global field values not tied to list entries.</p>
         <span class="n">company_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">CompanyId</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">opportunity_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">OpportunityId</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">on_error</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;raise&quot;</span><span class="p">,</span> <span class="s2">&quot;skip&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;raise&quot;</span><span class="p">,</span>
+        <span class="n">on_error</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"raise"</span><span class="p">,</span> <span class="s2">"skip"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"raise"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">PersonId</span> <span class="o">|</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="n">OpportunityId</span><span class="p">,</span> <span class="n">builtins</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">FieldValue</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get field values for multiple entities.</span>
 
 <span class="sd">        **Performance note:** This makes one API call per entity (O(n) calls).</span>
@@ -2793,7 +2793,7 @@ Use this for global field values not tied to list entries.</p>
 <span class="sd">            person_ids: Sequence of person IDs (mutually exclusive with others)</span>
 <span class="sd">            company_ids: Sequence of company IDs</span>
 <span class="sd">            opportunity_ids: Sequence of opportunity IDs</span>
-<span class="sd">            on_error: How to handle errors - &quot;raise&quot; (default) or &quot;skip&quot; failed IDs</span>
+<span class="sd">            on_error: How to handle errors - "raise" (default) or "skip" failed IDs</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Dict mapping entity_id -&gt; list of field values.</span>
@@ -2804,38 +2804,38 @@ Use this for global field values not tied to list entries.</p>
 <span class="sd">            fv_map = client.field_values.list_batch(person_ids=person_ids)</span>
 <span class="sd">            for person_id, field_values in fv_map.items():</span>
 <span class="sd">                has_status = any(fv.field_id == target_field for fv in field_values)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Validate exactly one sequence provided</span>
         <span class="n">provided</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;person_ids&quot;</span><span class="p">,</span> <span class="n">person_ids</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;company_ids&quot;</span><span class="p">,</span> <span class="n">company_ids</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;opportunity_ids&quot;</span><span class="p">,</span> <span class="n">opportunity_ids</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"person_ids"</span><span class="p">,</span> <span class="n">person_ids</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"company_ids"</span><span class="p">,</span> <span class="n">company_ids</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"opportunity_ids"</span><span class="p">,</span> <span class="n">opportunity_ids</span><span class="p">),</span>
         <span class="p">]</span>
         <span class="n">non_none</span> <span class="o">=</span> <span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">seq</span> <span class="ow">in</span> <span class="n">provided</span> <span class="k">if</span> <span class="n">seq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">non_none</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Exactly one of person_ids, company_ids, or opportunity_ids required&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Exactly one of person_ids, company_ids, or opportunity_ids required"</span><span class="p">)</span>
 
         <span class="n">name</span><span class="p">,</span> <span class="n">ids</span> <span class="o">=</span> <span class="n">non_none</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">PersonId</span> <span class="o">|</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="n">OpportunityId</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">FieldValue</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">for</span> <span class="n">entity_id</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;person_ids&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"person_ids"</span><span class="p">:</span>
                     <span class="n">result</span><span class="p">[</span><span class="n">entity_id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">person_id</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">PersonId</span><span class="p">,</span> <span class="n">entity_id</span><span class="p">))</span>
-                <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;company_ids&quot;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"company_ids"</span><span class="p">:</span>
                     <span class="n">result</span><span class="p">[</span><span class="n">entity_id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">company_id</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">,</span> <span class="n">entity_id</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">result</span><span class="p">[</span><span class="n">entity_id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">opportunity_id</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">OpportunityId</span><span class="p">,</span> <span class="n">entity_id</span><span class="p">))</span>
             <span class="k">except</span> <span class="n">AffinityError</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">on_error</span> <span class="o">==</span> <span class="s2">&quot;raise&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">on_error</span> <span class="o">==</span> <span class="s2">"raise"</span><span class="p">:</span>
                     <span class="k">raise</span>
                 <span class="c1"># skip: continue without this entity</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">on_error</span> <span class="o">==</span> <span class="s2">&quot;raise&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">on_error</span> <span class="o">==</span> <span class="s2">"raise"</span><span class="p">:</span>
                     <span class="c1"># Preserve status_code if available</span>
-                    <span class="n">status_code</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s2">&quot;status_code&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">status_code</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s2">"status_code"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                     <span class="k">raise</span> <span class="n">AffinityError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Failed to get field values for </span><span class="si">{</span><span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">entity_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">"Failed to get field values for </span><span class="si">{</span><span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">entity_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
                         <span class="n">status_code</span><span class="o">=</span><span class="n">status_code</span><span class="p">,</span>
                     <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
@@ -2888,17 +2888,17 @@ IDs are not supported.</p>
 <span class="normal">986</span>
 <span class="normal">987</span>
 <span class="normal">988</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">FieldValueCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValue</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create a field value (V1 API).</span>
 
 <span class="sd">    Note: V1 writes require numeric field IDs. The SDK accepts V2-style</span>
 <span class="sd">    `field-&lt;digits&gt;` IDs and converts them; enriched/relationship-intelligence</span>
 <span class="sd">    IDs are not supported.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">payload</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">by_alias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">exclude_unset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;field_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_id_to_v1_numeric</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">field_id</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">by_alias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">,</span> <span class="n">exclude_unset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">payload</span><span class="p">[</span><span class="s2">"field_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_id_to_v1_numeric</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">field_id</span><span class="p">)</span>
 
-    <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/field-values&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/field-values"</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">FieldValue</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2926,9 +2926,9 @@ IDs are not supported.</p>
 <span class="normal">1000</span>
 <span class="normal">1001</span>
 <span class="normal">1002</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_value_id</span><span class="p">:</span> <span class="n">FieldValueId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete a field value.&quot;&quot;&quot;</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/field-values/</span><span class="si">{</span><span class="n">field_value_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+<span class="w">    </span><span class="sd">"""Delete a field value."""</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/field-values/</span><span class="si">{</span><span class="n">field_value_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3190,7 +3190,7 @@ else:
     <span class="n">list_entry_id</span><span class="p">:</span> <span class="n">ListEntryId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">default</span><span class="p">:</span> <span class="n">T</span> <span class="o">=</span> <span class="n">_UNSET</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValue</span> <span class="o">|</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get a specific field value for an entity.</span>
 
 <span class="sd">    Convenience method that fetches all field values and returns the one</span>
@@ -3210,26 +3210,26 @@ else:
 
 <span class="sd">    Returns:</span>
 <span class="sd">        FieldValue if the field has a value, default otherwise.</span>
-<span class="sd">        Note: A FieldValue with ``.value is None`` still counts as &quot;present&quot; (explicit empty).</span>
+<span class="sd">        Note: A FieldValue with ``.value is None`` still counts as "present" (explicit empty).</span>
 
 <span class="sd">    Example:</span>
 <span class="sd">        # Check if a person has a specific field value</span>
 <span class="sd">        status = client.field_values.get_for_entity(</span>
-<span class="sd">            &quot;field-123&quot;,  # or FieldId(&quot;field-123&quot;)</span>
+<span class="sd">            "field-123",  # or FieldId("field-123")</span>
 <span class="sd">            person_id=PersonId(456),</span>
 <span class="sd">        )</span>
 <span class="sd">        if status is None:</span>
-<span class="sd">            print(&quot;Field is empty&quot;)</span>
+<span class="sd">            print("Field is empty")</span>
 <span class="sd">        else:</span>
-<span class="sd">            print(f&quot;Value: {status.value}&quot;)</span>
+<span class="sd">            print(f"Value: {status.value}")</span>
 
 <span class="sd">        # With default value</span>
 <span class="sd">        status = client.field_values.get_for_entity(</span>
-<span class="sd">            &quot;field-123&quot;,</span>
+<span class="sd">            "field-123",</span>
 <span class="sd">            person_id=PersonId(456),</span>
-<span class="sd">            default=&quot;N/A&quot;,</span>
+<span class="sd">            default="N/A",</span>
 <span class="sd">        )</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">all_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
         <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
         <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
@@ -3350,7 +3350,7 @@ must be provided.</p>
     <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">list_entry_id</span><span class="p">:</span> <span class="n">ListEntryId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">FieldValue</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get field values for an entity.</span>
 
 <span class="sd">    Exactly one of person_id, company_id, opportunity_id, or list_entry_id</span>
@@ -3358,41 +3358,41 @@ must be provided.</p>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If zero or multiple IDs are provided.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">provided</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">value</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="p">(</span><span class="s2">&quot;person_id&quot;</span><span class="p">,</span> <span class="n">person_id</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;company_id&quot;</span><span class="p">,</span> <span class="n">company_id</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;opportunity_id&quot;</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;list_entry_id&quot;</span><span class="p">,</span> <span class="n">list_entry_id</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"person_id"</span><span class="p">,</span> <span class="n">person_id</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"company_id"</span><span class="p">,</span> <span class="n">company_id</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"opportunity_id"</span><span class="p">,</span> <span class="n">opportunity_id</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"list_entry_id"</span><span class="p">,</span> <span class="n">list_entry_id</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;field_values.list() requires exactly one entity ID. &quot;</span>
-            <span class="s2">&quot;Example: client.field_values.list(person_id=PersonId(123))&quot;</span>
+            <span class="s2">"field_values.list() requires exactly one entity ID. "</span>
+            <span class="s2">"Example: client.field_values.list(person_id=PersonId(123))"</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;field_values.list() accepts only one entity ID, &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;but received </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">provided</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">. &quot;</span>
-            <span class="s2">&quot;Call list() separately for each entity.&quot;</span>
+            <span class="sa">f</span><span class="s2">"field_values.list() accepts only one entity ID, "</span>
+            <span class="sa">f</span><span class="s2">"but received </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">provided</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">. "</span>
+            <span class="s2">"Call list() separately for each entity."</span>
         <span class="p">)</span>
 
     <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">person_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;person_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">"person_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">company_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;organization_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">"organization_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">opportunity_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;opportunity_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">"opportunity_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">list_entry_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;list_entry_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">list_entry_id</span><span class="p">)</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">"list_entry_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">list_entry_id</span><span class="p">)</span>
 
-    <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/field-values&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/field-values"</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data"</span><span class="p">,</span> <span class="p">[])</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">FieldValue</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
@@ -3406,7 +3406,7 @@ must be provided.</p>
 
 
 <h2 id="affinity.services.v1_only.FieldValueService.list_batch" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">list_batch</span><span class="p">(</span><span class="n">person_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">PersonId</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">company_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">CompanyId</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">opportunity_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">OpportunityId</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">on_error</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;raise&#39;</span><span class="p">,</span> <span class="s1">&#39;skip&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;raise&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">PersonId</span> <span class="o">|</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="n">OpportunityId</span><span class="p">,</span> <span class="n">builtins</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">FieldValue</span><span class="p">]]</span></code>
+            <code class="highlight language-python"><span class="n">list_batch</span><span class="p">(</span><span class="n">person_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">PersonId</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">company_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">CompanyId</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">opportunity_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">OpportunityId</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">on_error</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">'raise'</span><span class="p">,</span> <span class="s1">'skip'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'raise'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">PersonId</span> <span class="o">|</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="n">OpportunityId</span><span class="p">,</span> <span class="n">builtins</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">FieldValue</span><span class="p">]]</span></code>
 
 <a href="#affinity.services.v1_only.FieldValueService.list_batch" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -3614,9 +3614,9 @@ for person_id, field_values in fv_map.items():
     <span class="n">company_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">CompanyId</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">opportunity_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">OpportunityId</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">on_error</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;raise&quot;</span><span class="p">,</span> <span class="s2">&quot;skip&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;raise&quot;</span><span class="p">,</span>
+    <span class="n">on_error</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"raise"</span><span class="p">,</span> <span class="s2">"skip"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"raise"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">PersonId</span> <span class="o">|</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="n">OpportunityId</span><span class="p">,</span> <span class="n">builtins</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">FieldValue</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get field values for multiple entities.</span>
 
 <span class="sd">    **Performance note:** This makes one API call per entity (O(n) calls).</span>
@@ -3628,7 +3628,7 @@ for person_id, field_values in fv_map.items():
 <span class="sd">        person_ids: Sequence of person IDs (mutually exclusive with others)</span>
 <span class="sd">        company_ids: Sequence of company IDs</span>
 <span class="sd">        opportunity_ids: Sequence of opportunity IDs</span>
-<span class="sd">        on_error: How to handle errors - &quot;raise&quot; (default) or &quot;skip&quot; failed IDs</span>
+<span class="sd">        on_error: How to handle errors - "raise" (default) or "skip" failed IDs</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict mapping entity_id -&gt; list of field values.</span>
@@ -3639,38 +3639,38 @@ for person_id, field_values in fv_map.items():
 <span class="sd">        fv_map = client.field_values.list_batch(person_ids=person_ids)</span>
 <span class="sd">        for person_id, field_values in fv_map.items():</span>
 <span class="sd">            has_status = any(fv.field_id == target_field for fv in field_values)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Validate exactly one sequence provided</span>
     <span class="n">provided</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="s2">&quot;person_ids&quot;</span><span class="p">,</span> <span class="n">person_ids</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;company_ids&quot;</span><span class="p">,</span> <span class="n">company_ids</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;opportunity_ids&quot;</span><span class="p">,</span> <span class="n">opportunity_ids</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"person_ids"</span><span class="p">,</span> <span class="n">person_ids</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"company_ids"</span><span class="p">,</span> <span class="n">company_ids</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"opportunity_ids"</span><span class="p">,</span> <span class="n">opportunity_ids</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="n">non_none</span> <span class="o">=</span> <span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">seq</span> <span class="ow">in</span> <span class="n">provided</span> <span class="k">if</span> <span class="n">seq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">non_none</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Exactly one of person_ids, company_ids, or opportunity_ids required&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Exactly one of person_ids, company_ids, or opportunity_ids required"</span><span class="p">)</span>
 
     <span class="n">name</span><span class="p">,</span> <span class="n">ids</span> <span class="o">=</span> <span class="n">non_none</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">PersonId</span> <span class="o">|</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="n">OpportunityId</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">FieldValue</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">for</span> <span class="n">entity_id</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;person_ids&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"person_ids"</span><span class="p">:</span>
                 <span class="n">result</span><span class="p">[</span><span class="n">entity_id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">person_id</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">PersonId</span><span class="p">,</span> <span class="n">entity_id</span><span class="p">))</span>
-            <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;company_ids&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"company_ids"</span><span class="p">:</span>
                 <span class="n">result</span><span class="p">[</span><span class="n">entity_id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">company_id</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">,</span> <span class="n">entity_id</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">result</span><span class="p">[</span><span class="n">entity_id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">opportunity_id</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">OpportunityId</span><span class="p">,</span> <span class="n">entity_id</span><span class="p">))</span>
         <span class="k">except</span> <span class="n">AffinityError</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">on_error</span> <span class="o">==</span> <span class="s2">&quot;raise&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">on_error</span> <span class="o">==</span> <span class="s2">"raise"</span><span class="p">:</span>
                 <span class="k">raise</span>
             <span class="c1"># skip: continue without this entity</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">on_error</span> <span class="o">==</span> <span class="s2">&quot;raise&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">on_error</span> <span class="o">==</span> <span class="s2">"raise"</span><span class="p">:</span>
                 <span class="c1"># Preserve status_code if available</span>
-                <span class="n">status_code</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s2">&quot;status_code&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">status_code</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s2">"status_code"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="k">raise</span> <span class="n">AffinityError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Failed to get field values for </span><span class="si">{</span><span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">entity_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"Failed to get field values for </span><span class="si">{</span><span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">entity_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">status_code</span><span class="o">=</span><span class="n">status_code</span><span class="p">,</span>
                 <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
@@ -3705,10 +3705,10 @@ for person_id, field_values in fv_map.items():
 <span class="normal">995</span>
 <span class="normal">996</span>
 <span class="normal">997</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_value_id</span><span class="p">:</span> <span class="n">FieldValueId</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValue</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update a field value.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Update a field value."""</span>
     <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">put</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;/field-values/</span><span class="si">{</span><span class="n">field_value_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">},</span>
+        <span class="sa">f</span><span class="s2">"/field-values/</span><span class="si">{</span><span class="n">field_value_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">"value"</span><span class="p">:</span> <span class="n">value</span><span class="p">},</span>
         <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">FieldValue</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
@@ -3781,7 +3781,7 @@ for person_id, field_values in fv_map.items():
       <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": [], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

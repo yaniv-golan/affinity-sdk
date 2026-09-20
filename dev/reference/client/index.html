@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -3332,10 +3332,10 @@ for operations not yet supported in V2.</p>
   <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
 <span class="c1"># Initialize with API key</span>
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">"your-api-key"</span><span class="p">)</span>
 
 <span class="c1"># Use as context manager for automatic cleanup</span>
-<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">"your-api-key"</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="c1"># Get all companies</span>
     <span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">company</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -3343,7 +3343,7 @@ for operations not yet supported in V2.</p>
     <span class="c1"># Get a specific person with field data</span>
     <span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
         <span class="n">PersonId</span><span class="p">(</span><span class="mi">12345</span><span class="p">),</span>
-        <span class="n">field_types</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;enriched&quot;</span><span class="p">,</span> <span class="s2">&quot;global&quot;</span><span class="p">]</span>
+        <span class="n">field_types</span><span class="o">=</span><span class="p">[</span><span class="s2">"enriched"</span><span class="p">,</span> <span class="s2">"global"</span><span class="p">]</span>
     <span class="p">)</span>
 
     <span class="c1"># Add a company to a list</span>
@@ -3354,7 +3354,7 @@ for operations not yet supported in V2.</p>
     <span class="n">entries</span><span class="o">.</span><span class="n">update_field_value</span><span class="p">(</span>
         <span class="n">entry</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
         <span class="n">FieldId</span><span class="p">(</span><span class="mi">101</span><span class="p">),</span>
-        <span class="s2">&quot;New value&quot;</span>
+        <span class="s2">"New value"</span>
     <span class="p">)</span>
 </code></pre></div>
 </details>
@@ -3992,7 +3992,7 @@ for operations not yet supported in V2.</p>
 <span class="normal">542</span>
 <span class="normal">543</span>
 <span class="normal">544</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Affinity</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Synchronous Affinity API client.</span>
 
 <span class="sd">    Provides access to all Affinity API functionality with a clean,</span>
@@ -4004,10 +4004,10 @@ for operations not yet supported in V2.</p>
 <span class="sd">        from affinity import Affinity</span>
 
 <span class="sd">        # Initialize with API key</span>
-<span class="sd">        client = Affinity(api_key=&quot;your-api-key&quot;)</span>
+<span class="sd">        client = Affinity(api_key="your-api-key")</span>
 
 <span class="sd">        # Use as context manager for automatic cleanup</span>
-<span class="sd">        with Affinity(api_key=&quot;your-api-key&quot;) as client:</span>
+<span class="sd">        with Affinity(api_key="your-api-key") as client:</span>
 <span class="sd">            # Get all companies</span>
 <span class="sd">            for company in client.companies.all():</span>
 <span class="sd">                print(company.name)</span>
@@ -4015,7 +4015,7 @@ for operations not yet supported in V2.</p>
 <span class="sd">            # Get a specific person with field data</span>
 <span class="sd">            person = client.persons.get(</span>
 <span class="sd">                PersonId(12345),</span>
-<span class="sd">                field_types=[&quot;enriched&quot;, &quot;global&quot;]</span>
+<span class="sd">                field_types=["enriched", "global"]</span>
 <span class="sd">            )</span>
 
 <span class="sd">            # Add a company to a list</span>
@@ -4026,7 +4026,7 @@ for operations not yet supported in V2.</p>
 <span class="sd">            entries.update_field_value(</span>
 <span class="sd">                entry.id,</span>
 <span class="sd">                FieldId(101),</span>
-<span class="sd">                &quot;New value&quot;</span>
+<span class="sd">                "New value"</span>
 <span class="sd">            )</span>
 <span class="sd">        ```</span>
 
@@ -4044,7 +4044,7 @@ for operations not yet supported in V2.</p>
 <span class="sd">        files: Entity file operations</span>
 <span class="sd">        relationships: Relationship strength queries</span>
 <span class="sd">        auth: Authentication and rate limit info</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -4052,7 +4052,7 @@ for operations not yet supported in V2.</p>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">v1_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">V1_BASE_URL</span><span class="p">,</span>
         <span class="n">v2_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">V2_BASE_URL</span><span class="p">,</span>
-        <span class="n">v1_auth_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;bearer&quot;</span><span class="p">,</span> <span class="s2">&quot;basic&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bearer&quot;</span><span class="p">,</span>
+        <span class="n">v1_auth_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"bearer"</span><span class="p">,</span> <span class="s2">"basic"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"bearer"</span><span class="p">,</span>
         <span class="n">transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">BaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">async_transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncBaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">enable_beta_endpoints</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -4067,17 +4067,17 @@ for operations not yet supported in V2.</p>
         <span class="n">on_response</span><span class="p">:</span> <span class="n">ResponseHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_error</span><span class="p">:</span> <span class="n">ErrorHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_event</span><span class="p">:</span> <span class="n">AnyEventHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;swallow&quot;</span><span class="p">,</span> <span class="s2">&quot;raise&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;swallow&quot;</span><span class="p">,</span>
+        <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"swallow"</span><span class="p">,</span> <span class="s2">"raise"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"swallow"</span><span class="p">,</span>
         <span class="n">policies</span><span class="p">:</span> <span class="n">Policies</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the Affinity client.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            api_key: Your Affinity API key</span>
 <span class="sd">            v1_base_url: V1 API base URL (default: https://api.affinity.co)</span>
 <span class="sd">            v2_base_url: V2 API base URL (default: https://api.affinity.co/v2)</span>
-<span class="sd">            v1_auth_mode: Auth mode for V1 API (&quot;bearer&quot; or &quot;basic&quot;)</span>
+<span class="sd">            v1_auth_mode: Auth mode for V1 API ("bearer" or "basic")</span>
 <span class="sd">            transport: Optional `httpx` transport (advanced; useful for mocking in tests)</span>
 <span class="sd">            async_transport: Optional async `httpx` transport (advanced; useful for mocking in</span>
 <span class="sd">                tests)</span>
@@ -4085,7 +4085,7 @@ for operations not yet supported in V2.</p>
 <span class="sd">            allow_insecure_download_redirects: Allow `http://` redirects for file downloads.</span>
 <span class="sd">                Not recommended; prefer HTTPS-only downloads.</span>
 <span class="sd">            expected_v2_version: Expected V2 API version for diagnostics (e.g.,</span>
-<span class="sd">                &quot;2024-01-01&quot;). Used to detect version compatibility issues.</span>
+<span class="sd">                "2024-01-01"). Used to detect version compatibility issues.</span>
 <span class="sd">                See TR-015.</span>
 <span class="sd">            timeout: Request timeout in seconds</span>
 <span class="sd">            max_retries: Maximum retries for rate-limited requests</span>
@@ -4096,9 +4096,9 @@ for operations not yet supported in V2.</p>
 <span class="sd">            on_response: Hook called after each response (DX-008)</span>
 <span class="sd">            on_error: Hook called when a request raises (DX-008)</span>
 <span class="sd">            on_event: Event hook called for request/response lifecycle events (DX-008)</span>
-<span class="sd">            hook_error_policy: What to do if hooks raise (&quot;swallow&quot; or &quot;raise&quot;)</span>
+<span class="sd">            hook_error_policy: What to do if hooks raise ("swallow" or "raise")</span>
 <span class="sd">            policies: Client policies (e.g., disable writes)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">ClientConfig</span><span class="p">(</span>
             <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
             <span class="n">v1_base_url</span><span class="o">=</span><span class="n">v1_base_url</span><span class="p">,</span>
@@ -4157,15 +4157,15 @@ for operations not yet supported in V2.</p>
         <span class="n">async_transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncBaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">policies</span><span class="p">:</span> <span class="n">Policies</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_event</span><span class="p">:</span> <span class="n">AnyEventHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;swallow&quot;</span><span class="p">,</span> <span class="s2">&quot;raise&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;swallow&quot;</span><span class="p">,</span>
+        <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"swallow"</span><span class="p">,</span> <span class="s2">"raise"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"swallow"</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Affinity</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a client using an API key from the environment.</span>
 
 <span class="sd">        By default, reads `AFFINITY_API_KEY`. For local development, you can optionally</span>
 <span class="sd">        load a `.env` file (requires `python-dotenv`).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">api_key</span> <span class="o">=</span> <span class="n">_api_key_from_env</span><span class="p">(</span>
             <span class="n">env_var</span><span class="o">=</span><span class="n">env_var</span><span class="p">,</span>
             <span class="n">load_dotenv</span><span class="o">=</span><span class="n">load_dotenv</span><span class="p">,</span>
@@ -4188,7 +4188,7 @@ for operations not yet supported in V2.</p>
         <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Affinity</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a read-only client that blocks all write operations.</span>
 
 <span class="sd">        This is a convenience factory equivalent to:</span>
@@ -4205,14 +4205,14 @@ for operations not yet supported in V2.</p>
 <span class="sd">            Affinity client configured to reject write operations.</span>
 
 <span class="sd">        Example:</span>
-<span class="sd">            &gt;&gt;&gt; with Affinity.read_only(&quot;your-key&quot;) as client:</span>
+<span class="sd">            &gt;&gt;&gt; with Affinity.read_only("your-key") as client:</span>
 <span class="sd">            ...     companies = client.companies.list()</span>
 <span class="sd">            ...     client.companies.create(...)  # Raises WriteNotAllowedError</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;policies&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="s2">"policies"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Cannot specify &#39;policies&#39; with read_only(); &quot;</span>
-                <span class="s2">&quot;use Affinity() constructor directly for custom policies&quot;</span>
+                <span class="s2">"Cannot specify 'policies' with read_only(); "</span>
+                <span class="s2">"use Affinity() constructor directly for custom policies"</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
@@ -4227,7 +4227,7 @@ for operations not yet supported in V2.</p>
         <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_API_KEY_ENV_VAR</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Affinity</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a read-only client using API key from environment.</span>
 
 <span class="sd">        Equivalent to Affinity.from_env() with WritePolicy.DENY.</span>
@@ -4239,11 +4239,11 @@ for operations not yet supported in V2.</p>
 <span class="sd">        Example:</span>
 <span class="sd">            &gt;&gt;&gt; with Affinity.read_only_from_env() as client:</span>
 <span class="sd">            ...     companies = client.companies.list()</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;policies&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="s2">"policies"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Cannot specify &#39;policies&#39; with read_only_from_env(); &quot;</span>
-                <span class="s2">&quot;use Affinity.from_env() directly for custom policies&quot;</span>
+                <span class="s2">"Cannot specify 'policies' with read_only_from_env(); "</span>
+                <span class="s2">"use Affinity.from_env() directly for custom policies"</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span>
             <span class="n">env_var</span><span class="o">=</span><span class="n">env_var</span><span class="p">,</span>
@@ -4259,19 +4259,19 @@ for operations not yet supported in V2.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Close the HTTP client and release resources.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Close the HTTP client and release resources."""</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Warn if client was not properly closed.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Warn if client was not properly closed."""</span>
         <span class="c1"># Use getattr to handle case where __init__ failed before setting _closed</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_closed&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_entered_context&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_closed"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_entered_context"</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;Affinity client was not closed. &quot;</span>
-                <span class="s2">&quot;Use &#39;with Affinity.from_env() as client:&#39; &quot;</span>
-                <span class="s2">&quot;or call client.close() when done.&quot;</span><span class="p">,</span>
+                <span class="s2">"Affinity client was not closed. "</span>
+                <span class="s2">"Use 'with Affinity.from_env() as client:' "</span>
+                <span class="s2">"or call client.close() when done."</span><span class="p">,</span>
                 <span class="ne">ResourceWarning</span><span class="p">,</span>
                 <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
             <span class="p">)</span>
@@ -4285,112 +4285,112 @@ for operations not yet supported in V2.</p>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">companies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompanyService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Company (organization) operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Company (organization) operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_companies</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_companies</span> <span class="o">=</span> <span class="n">CompanyService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_companies</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">persons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PersonService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Person (contact) operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Person (contact) operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_persons</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_persons</span> <span class="o">=</span> <span class="n">PersonService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_persons</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">lists</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ListService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;List operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""List operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lists</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_lists</span> <span class="o">=</span> <span class="n">ListService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lists</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">opportunities</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OpportunityService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Opportunity operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Opportunity operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opportunities</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_opportunities</span> <span class="o">=</span> <span class="n">OpportunityService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opportunities</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Long-running task operations (polling, waiting).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Long-running task operations (polling, waiting)."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span> <span class="o">=</span> <span class="n">TaskService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">notes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoteService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Note operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Note operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_notes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_notes</span> <span class="o">=</span> <span class="n">NoteService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_notes</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">reminders</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReminderService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reminder operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Reminder operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reminders</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_reminders</span> <span class="o">=</span> <span class="n">ReminderService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reminders</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">webhooks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WebhookService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Webhook subscription operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Webhook subscription operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_webhooks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_webhooks</span> <span class="o">=</span> <span class="n">WebhookService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_webhooks</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">interactions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InteractionService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Interaction operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Interaction operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interactions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_interactions</span> <span class="o">=</span> <span class="n">InteractionService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interactions</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Custom field operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Custom field operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span> <span class="o">=</span> <span class="n">FieldService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">field_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValueService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Field value operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Field value operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_field_values</span> <span class="o">=</span> <span class="n">FieldValueService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_values</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">field_value_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldValueChangesService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Field value change history queries.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Field value change history queries."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_value_changes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_field_value_changes</span> <span class="o">=</span> <span class="n">FieldValueChangesService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_value_changes</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EntityFileService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Entity file operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Entity file operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_files</span> <span class="o">=</span> <span class="n">EntityFileService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">relationships</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RelationshipStrengthService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Relationship strength queries.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Relationship strength queries."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relationships</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_relationships</span> <span class="o">=</span> <span class="n">RelationshipStrengthService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relationships</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">auth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AuthService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Authentication info.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Authentication info."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_auth</span> <span class="o">=</span> <span class="n">AuthService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auth</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">rate_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RateLimitService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Unified rate limit information (version-agnostic).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Unified rate limit information (version-agnostic)."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rate_limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rate_limits</span> <span class="o">=</span> <span class="n">RateLimitService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rate_limits</span>
@@ -4400,12 +4400,12 @@ for operations not yet supported in V2.</p>
     <span class="c1"># =========================================================================</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear the response cache.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Clear the response cache."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">whoami</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WhoAmI</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convenience wrapper for `client.auth.whoami()`.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Convenience wrapper for `client.auth.whoami()`."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">whoami</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -4805,13 +4805,13 @@ for operations not yet supported in V2.</p>
 <span class="normal">413</span>
 <span class="normal">414</span>
 <span class="normal">415</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Warn if client was not properly closed.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Warn if client was not properly closed."""</span>
     <span class="c1"># Use getattr to handle case where __init__ failed before setting _closed</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_closed&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_entered_context&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_closed"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_entered_context"</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;Affinity client was not closed. &quot;</span>
-            <span class="s2">&quot;Use &#39;with Affinity.from_env() as client:&#39; &quot;</span>
-            <span class="s2">&quot;or call client.close() when done.&quot;</span><span class="p">,</span>
+            <span class="s2">"Affinity client was not closed. "</span>
+            <span class="s2">"Use 'with Affinity.from_env() as client:' "</span>
+            <span class="s2">"or call client.close() when done."</span><span class="p">,</span>
             <span class="ne">ResourceWarning</span><span class="p">,</span>
             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
@@ -4828,7 +4828,7 @@ for operations not yet supported in V2.</p>
 
 
 <h2 id="affinity.Affinity.__init__" class="doc doc-heading">
-            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">v1_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">V1_BASE_URL</span><span class="p">,</span> <span class="n">v2_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">V2_BASE_URL</span><span class="p">,</span> <span class="n">v1_auth_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;bearer&#39;</span><span class="p">,</span> <span class="s1">&#39;basic&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;bearer&#39;</span><span class="p">,</span> <span class="n">transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">BaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">async_transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncBaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">enable_beta_endpoints</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">allow_insecure_download_redirects</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">expected_v2_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span> <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">enable_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">cache_ttl</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">log_requests</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">on_request</span><span class="p">:</span> <span class="n">RequestHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_response</span><span class="p">:</span> <span class="n">ResponseHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_error</span><span class="p">:</span> <span class="n">ErrorHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_event</span><span class="p">:</span> <span class="n">AnyEventHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;swallow&#39;</span><span class="p">,</span> <span class="s1">&#39;raise&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;swallow&#39;</span><span class="p">,</span> <span class="n">policies</span><span class="p">:</span> <span class="n">Policies</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">v1_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">V1_BASE_URL</span><span class="p">,</span> <span class="n">v2_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">V2_BASE_URL</span><span class="p">,</span> <span class="n">v1_auth_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">'bearer'</span><span class="p">,</span> <span class="s1">'basic'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'bearer'</span><span class="p">,</span> <span class="n">transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">BaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">async_transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncBaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">enable_beta_endpoints</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">allow_insecure_download_redirects</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">expected_v2_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span> <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">enable_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">cache_ttl</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">log_requests</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">on_request</span><span class="p">:</span> <span class="n">RequestHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_response</span><span class="p">:</span> <span class="n">ResponseHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_error</span><span class="p">:</span> <span class="n">ErrorHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_event</span><span class="p">:</span> <span class="n">AnyEventHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">'swallow'</span><span class="p">,</span> <span class="s1">'raise'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'swallow'</span><span class="p">,</span> <span class="n">policies</span><span class="p">:</span> <span class="n">Policies</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#affinity.Affinity.__init__" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -5282,7 +5282,7 @@ See TR-015.</p>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">v1_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">V1_BASE_URL</span><span class="p">,</span>
     <span class="n">v2_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">V2_BASE_URL</span><span class="p">,</span>
-    <span class="n">v1_auth_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;bearer&quot;</span><span class="p">,</span> <span class="s2">&quot;basic&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bearer&quot;</span><span class="p">,</span>
+    <span class="n">v1_auth_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"bearer"</span><span class="p">,</span> <span class="s2">"basic"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"bearer"</span><span class="p">,</span>
     <span class="n">transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">BaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">async_transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncBaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">enable_beta_endpoints</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -5297,17 +5297,17 @@ See TR-015.</p>
     <span class="n">on_response</span><span class="p">:</span> <span class="n">ResponseHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">on_error</span><span class="p">:</span> <span class="n">ErrorHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">on_event</span><span class="p">:</span> <span class="n">AnyEventHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;swallow&quot;</span><span class="p">,</span> <span class="s2">&quot;raise&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;swallow&quot;</span><span class="p">,</span>
+    <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"swallow"</span><span class="p">,</span> <span class="s2">"raise"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"swallow"</span><span class="p">,</span>
     <span class="n">policies</span><span class="p">:</span> <span class="n">Policies</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Initialize the Affinity client.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        api_key: Your Affinity API key</span>
 <span class="sd">        v1_base_url: V1 API base URL (default: https://api.affinity.co)</span>
 <span class="sd">        v2_base_url: V2 API base URL (default: https://api.affinity.co/v2)</span>
-<span class="sd">        v1_auth_mode: Auth mode for V1 API (&quot;bearer&quot; or &quot;basic&quot;)</span>
+<span class="sd">        v1_auth_mode: Auth mode for V1 API ("bearer" or "basic")</span>
 <span class="sd">        transport: Optional `httpx` transport (advanced; useful for mocking in tests)</span>
 <span class="sd">        async_transport: Optional async `httpx` transport (advanced; useful for mocking in</span>
 <span class="sd">            tests)</span>
@@ -5315,7 +5315,7 @@ See TR-015.</p>
 <span class="sd">        allow_insecure_download_redirects: Allow `http://` redirects for file downloads.</span>
 <span class="sd">            Not recommended; prefer HTTPS-only downloads.</span>
 <span class="sd">        expected_v2_version: Expected V2 API version for diagnostics (e.g.,</span>
-<span class="sd">            &quot;2024-01-01&quot;). Used to detect version compatibility issues.</span>
+<span class="sd">            "2024-01-01"). Used to detect version compatibility issues.</span>
 <span class="sd">            See TR-015.</span>
 <span class="sd">        timeout: Request timeout in seconds</span>
 <span class="sd">        max_retries: Maximum retries for rate-limited requests</span>
@@ -5326,9 +5326,9 @@ See TR-015.</p>
 <span class="sd">        on_response: Hook called after each response (DX-008)</span>
 <span class="sd">        on_error: Hook called when a request raises (DX-008)</span>
 <span class="sd">        on_event: Event hook called for request/response lifecycle events (DX-008)</span>
-<span class="sd">        hook_error_policy: What to do if hooks raise (&quot;swallow&quot; or &quot;raise&quot;)</span>
+<span class="sd">        hook_error_policy: What to do if hooks raise ("swallow" or "raise")</span>
 <span class="sd">        policies: Client policies (e.g., disable writes)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">ClientConfig</span><span class="p">(</span>
         <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
         <span class="n">v1_base_url</span><span class="o">=</span><span class="n">v1_base_url</span><span class="p">,</span>
@@ -5400,7 +5400,7 @@ See TR-015.</p>
 <span class="normal">538</span>
 <span class="normal">539</span>
 <span class="normal">540</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clear the response cache.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Clear the response cache."""</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
@@ -5430,7 +5430,7 @@ See TR-015.</p>
 <span class="normal">398</span>
 <span class="normal">399</span>
 <span class="normal">400</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Close the HTTP client and release resources.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Close the HTTP client and release resources."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span> <span class="o">=</span> <span class="kc">True</span>
@@ -5444,7 +5444,7 @@ See TR-015.</p>
 
 
 <h2 id="affinity.Affinity.from_env" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">from_env</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_API_KEY_ENV_VAR</span><span class="p">,</span> <span class="n">load_dotenv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">dotenv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dotenv_override</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">BaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">async_transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncBaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">policies</span><span class="p">:</span> <span class="n">Policies</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_event</span><span class="p">:</span> <span class="n">AnyEventHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;swallow&#39;</span><span class="p">,</span> <span class="s1">&#39;raise&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;swallow&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Affinity</span></code>
+            <code class="highlight language-python"><span class="n">from_env</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_API_KEY_ENV_VAR</span><span class="p">,</span> <span class="n">load_dotenv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">dotenv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dotenv_override</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">BaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">async_transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncBaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">policies</span><span class="p">:</span> <span class="n">Policies</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_event</span><span class="p">:</span> <span class="n">AnyEventHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">'swallow'</span><span class="p">,</span> <span class="s1">'raise'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'swallow'</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Affinity</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
@@ -5509,15 +5509,15 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
     <span class="n">async_transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncBaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">policies</span><span class="p">:</span> <span class="n">Policies</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">on_event</span><span class="p">:</span> <span class="n">AnyEventHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;swallow&quot;</span><span class="p">,</span> <span class="s2">&quot;raise&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;swallow&quot;</span><span class="p">,</span>
+    <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"swallow"</span><span class="p">,</span> <span class="s2">"raise"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"swallow"</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Affinity</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create a client using an API key from the environment.</span>
 
 <span class="sd">    By default, reads `AFFINITY_API_KEY`. For local development, you can optionally</span>
 <span class="sd">    load a `.env` file (requires `python-dotenv`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">api_key</span> <span class="o">=</span> <span class="n">_api_key_from_env</span><span class="p">(</span>
         <span class="n">env_var</span><span class="o">=</span><span class="n">env_var</span><span class="p">,</span>
         <span class="n">load_dotenv</span><span class="o">=</span><span class="n">load_dotenv</span><span class="p">,</span>
@@ -5691,7 +5691,7 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
     <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Affinity</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create a read-only client that blocks all write operations.</span>
 
 <span class="sd">    This is a convenience factory equivalent to:</span>
@@ -5708,14 +5708,14 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
 <span class="sd">        Affinity client configured to reject write operations.</span>
 
 <span class="sd">    Example:</span>
-<span class="sd">        &gt;&gt;&gt; with Affinity.read_only(&quot;your-key&quot;) as client:</span>
+<span class="sd">        &gt;&gt;&gt; with Affinity.read_only("your-key") as client:</span>
 <span class="sd">        ...     companies = client.companies.list()</span>
 <span class="sd">        ...     client.companies.create(...)  # Raises WriteNotAllowedError</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s2">&quot;policies&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"policies"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Cannot specify &#39;policies&#39; with read_only(); &quot;</span>
-            <span class="s2">&quot;use Affinity() constructor directly for custom policies&quot;</span>
+            <span class="s2">"Cannot specify 'policies' with read_only(); "</span>
+            <span class="s2">"use Affinity() constructor directly for custom policies"</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
         <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
@@ -5844,7 +5844,7 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
     <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_API_KEY_ENV_VAR</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Affinity</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create a read-only client using API key from environment.</span>
 
 <span class="sd">    Equivalent to Affinity.from_env() with WritePolicy.DENY.</span>
@@ -5856,11 +5856,11 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
 <span class="sd">    Example:</span>
 <span class="sd">        &gt;&gt;&gt; with Affinity.read_only_from_env() as client:</span>
 <span class="sd">        ...     companies = client.companies.list()</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s2">&quot;policies&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"policies"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Cannot specify &#39;policies&#39; with read_only_from_env(); &quot;</span>
-            <span class="s2">&quot;use Affinity.from_env() directly for custom policies&quot;</span>
+            <span class="s2">"Cannot specify 'policies' with read_only_from_env(); "</span>
+            <span class="s2">"use Affinity.from_env() directly for custom policies"</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span>
         <span class="n">env_var</span><span class="o">=</span><span class="n">env_var</span><span class="p">,</span>
@@ -5892,7 +5892,7 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">542</span>
 <span class="normal">543</span>
 <span class="normal">544</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">whoami</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WhoAmI</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convenience wrapper for `client.auth.whoami()`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Convenience wrapper for `client.auth.whoami()`."""</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">whoami</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5924,7 +5924,7 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
 
 <details class="example" open>
   <summary>Example</summary>
-  <div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">with</span> <span class="n">AsyncAffinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+  <div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">with</span> <span class="n">AsyncAffinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">"your-key"</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="k">async</span> <span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">company</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 </code></pre></div>
@@ -6284,18 +6284,18 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
 <span class="normal">899</span>
 <span class="normal">900</span>
 <span class="normal">901</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AsyncAffinity</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Asynchronous Affinity API client.</span>
 
 <span class="sd">    Same interface as Affinity but with async/await support.</span>
 
 <span class="sd">    Example:</span>
 <span class="sd">        ```python</span>
-<span class="sd">        async with AsyncAffinity(api_key=&quot;your-key&quot;) as client:</span>
+<span class="sd">        async with AsyncAffinity(api_key="your-key") as client:</span>
 <span class="sd">            async for company in client.companies.all():</span>
 <span class="sd">                print(company.name)</span>
 <span class="sd">        ```</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -6303,7 +6303,7 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">v1_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">V1_BASE_URL</span><span class="p">,</span>
         <span class="n">v2_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">V2_BASE_URL</span><span class="p">,</span>
-        <span class="n">v1_auth_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;bearer&quot;</span><span class="p">,</span> <span class="s2">&quot;basic&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bearer&quot;</span><span class="p">,</span>
+        <span class="n">v1_auth_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"bearer"</span><span class="p">,</span> <span class="s2">"basic"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"bearer"</span><span class="p">,</span>
         <span class="n">transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">BaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">async_transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncBaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">enable_beta_endpoints</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -6318,17 +6318,17 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
         <span class="n">on_response</span><span class="p">:</span> <span class="n">ResponseHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_error</span><span class="p">:</span> <span class="n">ErrorHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_event</span><span class="p">:</span> <span class="n">AnyEventHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;swallow&quot;</span><span class="p">,</span> <span class="s2">&quot;raise&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;swallow&quot;</span><span class="p">,</span>
+        <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"swallow"</span><span class="p">,</span> <span class="s2">"raise"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"swallow"</span><span class="p">,</span>
         <span class="n">policies</span><span class="p">:</span> <span class="n">Policies</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the async Affinity client.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            api_key: Your Affinity API key</span>
 <span class="sd">            v1_base_url: V1 API base URL (default: https://api.affinity.co)</span>
 <span class="sd">            v2_base_url: V2 API base URL (default: https://api.affinity.co/v2)</span>
-<span class="sd">            v1_auth_mode: Auth mode for V1 API (&quot;bearer&quot; or &quot;basic&quot;)</span>
+<span class="sd">            v1_auth_mode: Auth mode for V1 API ("bearer" or "basic")</span>
 <span class="sd">            transport: Optional `httpx` transport (advanced; useful for mocking in tests)</span>
 <span class="sd">            async_transport: Optional async `httpx` transport (advanced; useful for mocking in</span>
 <span class="sd">                tests)</span>
@@ -6336,7 +6336,7 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
 <span class="sd">            allow_insecure_download_redirects: Allow `http://` redirects for file downloads.</span>
 <span class="sd">                Not recommended; prefer HTTPS-only downloads.</span>
 <span class="sd">            expected_v2_version: Expected V2 API version for diagnostics (e.g.,</span>
-<span class="sd">                &quot;2024-01-01&quot;). Used to detect version compatibility issues.</span>
+<span class="sd">                "2024-01-01"). Used to detect version compatibility issues.</span>
 <span class="sd">                See TR-015.</span>
 <span class="sd">            timeout: Request timeout in seconds</span>
 <span class="sd">            max_retries: Maximum retries for rate-limited requests</span>
@@ -6347,8 +6347,8 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
 <span class="sd">            on_response: Hook called after each response (DX-008)</span>
 <span class="sd">            on_error: Hook called when a request raises (DX-008)</span>
 <span class="sd">            on_event: Event hook called for request/response lifecycle events (DX-008)</span>
-<span class="sd">            hook_error_policy: What to do if hooks raise (&quot;swallow&quot; or &quot;raise&quot;)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            hook_error_policy: What to do if hooks raise ("swallow" or "raise")</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">ClientConfig</span><span class="p">(</span>
             <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
             <span class="n">v1_base_url</span><span class="o">=</span><span class="n">v1_base_url</span><span class="p">,</span>
@@ -6406,15 +6406,15 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
         <span class="n">async_transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncBaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">policies</span><span class="p">:</span> <span class="n">Policies</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_event</span><span class="p">:</span> <span class="n">AnyEventHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;swallow&quot;</span><span class="p">,</span> <span class="s2">&quot;raise&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;swallow&quot;</span><span class="p">,</span>
+        <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"swallow"</span><span class="p">,</span> <span class="s2">"raise"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"swallow"</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncAffinity</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create an async client using an API key from the environment.</span>
 
 <span class="sd">        By default, reads `AFFINITY_API_KEY`. For local development, you can optionally</span>
 <span class="sd">        load a `.env` file (requires `python-dotenv`).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">api_key</span> <span class="o">=</span> <span class="n">_api_key_from_env</span><span class="p">(</span>
             <span class="n">env_var</span><span class="o">=</span><span class="n">env_var</span><span class="p">,</span>
             <span class="n">load_dotenv</span><span class="o">=</span><span class="n">load_dotenv</span><span class="p">,</span>
@@ -6437,15 +6437,15 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
         <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncAffinity</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a read-only async client that blocks all write operations.</span>
 
 <span class="sd">        See Affinity.read_only() for details.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;policies&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="s2">"policies"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Cannot specify &#39;policies&#39; with read_only(); &quot;</span>
-                <span class="s2">&quot;use AsyncAffinity() constructor directly for custom policies&quot;</span>
+                <span class="s2">"Cannot specify 'policies' with read_only(); "</span>
+                <span class="s2">"use AsyncAffinity() constructor directly for custom policies"</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
@@ -6460,15 +6460,15 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
         <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_API_KEY_ENV_VAR</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncAffinity</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a read-only async client using API key from environment.</span>
 
 <span class="sd">        See Affinity.read_only_from_env() for details.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;policies&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="s2">"policies"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Cannot specify &#39;policies&#39; with read_only_from_env(); &quot;</span>
-                <span class="s2">&quot;use AsyncAffinity.from_env() directly for custom policies&quot;</span>
+                <span class="s2">"Cannot specify 'policies' with read_only_from_env(); "</span>
+                <span class="s2">"use AsyncAffinity.from_env() directly for custom policies"</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span>
             <span class="n">env_var</span><span class="o">=</span><span class="n">env_var</span><span class="p">,</span>
@@ -6478,156 +6478,156 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">companies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncCompanyService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Company (organization) operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Company (organization) operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_companies</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_companies</span> <span class="o">=</span> <span class="n">AsyncCompanyService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_companies</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">persons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncPersonService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Person (contact) operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Person (contact) operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_persons</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_persons</span> <span class="o">=</span> <span class="n">AsyncPersonService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_persons</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">opportunities</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncOpportunityService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Opportunity operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Opportunity operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opportunities</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_opportunities</span> <span class="o">=</span> <span class="n">AsyncOpportunityService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opportunities</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">lists</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncListService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;List and list entry operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""List and list entry operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lists</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_lists</span> <span class="o">=</span> <span class="n">AsyncListService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lists</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncTaskService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Long-running task operations (polling, waiting).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Long-running task operations (polling, waiting)."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span> <span class="o">=</span> <span class="n">AsyncTaskService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">notes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncNoteService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Note operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Note operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_notes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_notes</span> <span class="o">=</span> <span class="n">AsyncNoteService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_notes</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">reminders</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncReminderService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reminder operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Reminder operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reminders</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_reminders</span> <span class="o">=</span> <span class="n">AsyncReminderService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reminders</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">webhooks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncWebhookService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Webhook subscription operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Webhook subscription operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_webhooks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_webhooks</span> <span class="o">=</span> <span class="n">AsyncWebhookService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_webhooks</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">interactions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncInteractionService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Interaction operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Interaction operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interactions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_interactions</span> <span class="o">=</span> <span class="n">AsyncInteractionService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interactions</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncFieldService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Custom field operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Custom field operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span> <span class="o">=</span> <span class="n">AsyncFieldService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">field_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncFieldValueService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Field value operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Field value operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_field_values</span> <span class="o">=</span> <span class="n">AsyncFieldValueService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_values</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">field_value_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncFieldValueChangesService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Field value change history queries.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Field value change history queries."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_value_changes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_field_value_changes</span> <span class="o">=</span> <span class="n">AsyncFieldValueChangesService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_value_changes</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncEntityFileService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Entity file operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Entity file operations."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_files</span> <span class="o">=</span> <span class="n">AsyncEntityFileService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">relationships</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncRelationshipStrengthService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Relationship strength queries.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Relationship strength queries."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relationships</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_relationships</span> <span class="o">=</span> <span class="n">AsyncRelationshipStrengthService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relationships</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">auth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncAuthService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Authentication info.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Authentication info."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_auth</span> <span class="o">=</span> <span class="n">AsyncAuthService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auth</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">rate_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncRateLimitService</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Unified rate limit information (version-agnostic).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Unified rate limit information (version-agnostic)."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rate_limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rate_limits</span> <span class="o">=</span> <span class="n">AsyncRateLimitService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rate_limits</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__aenter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncAffinity</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Enter an async context and return this client.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Enter an async context and return this client."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_entered_context</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__aexit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exit the async context and close the underlying HTTP client.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Exit the async context and close the underlying HTTP client."""</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Close the HTTP client.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Close the HTTP client."""</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Warn if client was not properly closed.</span>
+<span class="w">        </span><span class="sd">"""Warn if client was not properly closed.</span>
 
 <span class="sd">        NOTE: We intentionally do NOT attempt async cleanup here.</span>
 <span class="sd">        asyncio.create_task() in __del__ is unsafe - the task may be garbage</span>
 <span class="sd">        collected before completion, leading to resource leaks or errors.</span>
 <span class="sd">        Users must use context managers or call close() explicitly.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Use getattr to handle case where __init__ failed before setting _closed</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_closed&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_entered_context&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_closed"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_entered_context"</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;AsyncAffinity client was not closed. &quot;</span>
-                <span class="s2">&quot;Use &#39;async with AsyncAffinity.from_env() as client:&#39; &quot;</span>
-                <span class="s2">&quot;or call await client.close() when done.&quot;</span><span class="p">,</span>
+                <span class="s2">"AsyncAffinity client was not closed. "</span>
+                <span class="s2">"Use 'async with AsyncAffinity.from_env() as client:' "</span>
+                <span class="s2">"or call await client.close() when done."</span><span class="p">,</span>
                 <span class="ne">ResourceWarning</span><span class="p">,</span>
                 <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
             <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear the response cache.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Clear the response cache."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">whoami</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WhoAmI</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convenience wrapper for `client.auth.whoami()`.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Convenience wrapper for `client.auth.whoami()`."""</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">whoami</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -7021,7 +7021,7 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
 <span class="normal">862</span>
 <span class="normal">863</span>
 <span class="normal">864</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__aenter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncAffinity</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enter an async context and return this client.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Enter an async context and return this client."""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_entered_context</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">return</span> <span class="bp">self</span>
 </code></pre></div></td></tr></table></div>
@@ -7053,7 +7053,7 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">866</span>
 <span class="normal">867</span>
 <span class="normal">868</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__aexit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exit the async context and close the underlying HTTP client.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Exit the async context and close the underlying HTTP client."""</span>
     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -7098,19 +7098,19 @@ Users must use context managers or call close() explicitly.</p>
 <span class="normal">890</span>
 <span class="normal">891</span>
 <span class="normal">892</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Warn if client was not properly closed.</span>
+<span class="w">    </span><span class="sd">"""Warn if client was not properly closed.</span>
 
 <span class="sd">    NOTE: We intentionally do NOT attempt async cleanup here.</span>
 <span class="sd">    asyncio.create_task() in __del__ is unsafe - the task may be garbage</span>
 <span class="sd">    collected before completion, leading to resource leaks or errors.</span>
 <span class="sd">    Users must use context managers or call close() explicitly.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Use getattr to handle case where __init__ failed before setting _closed</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_closed&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_entered_context&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_closed"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_entered_context"</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;AsyncAffinity client was not closed. &quot;</span>
-            <span class="s2">&quot;Use &#39;async with AsyncAffinity.from_env() as client:&#39; &quot;</span>
-            <span class="s2">&quot;or call await client.close() when done.&quot;</span><span class="p">,</span>
+            <span class="s2">"AsyncAffinity client was not closed. "</span>
+            <span class="s2">"Use 'async with AsyncAffinity.from_env() as client:' "</span>
+            <span class="s2">"or call await client.close() when done."</span><span class="p">,</span>
             <span class="ne">ResourceWarning</span><span class="p">,</span>
             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
@@ -7124,7 +7124,7 @@ Users must use context managers or call close() explicitly.</p>
 
 
 <h2 id="affinity.AsyncAffinity.__init__" class="doc doc-heading">
-            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">v1_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">V1_BASE_URL</span><span class="p">,</span> <span class="n">v2_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">V2_BASE_URL</span><span class="p">,</span> <span class="n">v1_auth_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;bearer&#39;</span><span class="p">,</span> <span class="s1">&#39;basic&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;bearer&#39;</span><span class="p">,</span> <span class="n">transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">BaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">async_transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncBaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">enable_beta_endpoints</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">allow_insecure_download_redirects</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">expected_v2_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span> <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">enable_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">cache_ttl</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">log_requests</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">on_request</span><span class="p">:</span> <span class="n">RequestHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_response</span><span class="p">:</span> <span class="n">ResponseHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_error</span><span class="p">:</span> <span class="n">ErrorHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_event</span><span class="p">:</span> <span class="n">AnyEventHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;swallow&#39;</span><span class="p">,</span> <span class="s1">&#39;raise&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;swallow&#39;</span><span class="p">,</span> <span class="n">policies</span><span class="p">:</span> <span class="n">Policies</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">v1_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">V1_BASE_URL</span><span class="p">,</span> <span class="n">v2_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">V2_BASE_URL</span><span class="p">,</span> <span class="n">v1_auth_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">'bearer'</span><span class="p">,</span> <span class="s1">'basic'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'bearer'</span><span class="p">,</span> <span class="n">transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">BaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">async_transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncBaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">enable_beta_endpoints</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">allow_insecure_download_redirects</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">expected_v2_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span> <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">enable_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">cache_ttl</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span> <span class="n">log_requests</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">on_request</span><span class="p">:</span> <span class="n">RequestHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_response</span><span class="p">:</span> <span class="n">ResponseHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_error</span><span class="p">:</span> <span class="n">ErrorHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_event</span><span class="p">:</span> <span class="n">AnyEventHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">'swallow'</span><span class="p">,</span> <span class="s1">'raise'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'swallow'</span><span class="p">,</span> <span class="n">policies</span><span class="p">:</span> <span class="n">Policies</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#affinity.AsyncAffinity.__init__" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -7560,7 +7560,7 @@ See TR-015.</p>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">v1_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">V1_BASE_URL</span><span class="p">,</span>
     <span class="n">v2_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">V2_BASE_URL</span><span class="p">,</span>
-    <span class="n">v1_auth_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;bearer&quot;</span><span class="p">,</span> <span class="s2">&quot;basic&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bearer&quot;</span><span class="p">,</span>
+    <span class="n">v1_auth_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"bearer"</span><span class="p">,</span> <span class="s2">"basic"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"bearer"</span><span class="p">,</span>
     <span class="n">transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">BaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">async_transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncBaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">enable_beta_endpoints</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -7575,17 +7575,17 @@ See TR-015.</p>
     <span class="n">on_response</span><span class="p">:</span> <span class="n">ResponseHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">on_error</span><span class="p">:</span> <span class="n">ErrorHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">on_event</span><span class="p">:</span> <span class="n">AnyEventHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;swallow&quot;</span><span class="p">,</span> <span class="s2">&quot;raise&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;swallow&quot;</span><span class="p">,</span>
+    <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"swallow"</span><span class="p">,</span> <span class="s2">"raise"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"swallow"</span><span class="p">,</span>
     <span class="n">policies</span><span class="p">:</span> <span class="n">Policies</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Initialize the async Affinity client.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        api_key: Your Affinity API key</span>
 <span class="sd">        v1_base_url: V1 API base URL (default: https://api.affinity.co)</span>
 <span class="sd">        v2_base_url: V2 API base URL (default: https://api.affinity.co/v2)</span>
-<span class="sd">        v1_auth_mode: Auth mode for V1 API (&quot;bearer&quot; or &quot;basic&quot;)</span>
+<span class="sd">        v1_auth_mode: Auth mode for V1 API ("bearer" or "basic")</span>
 <span class="sd">        transport: Optional `httpx` transport (advanced; useful for mocking in tests)</span>
 <span class="sd">        async_transport: Optional async `httpx` transport (advanced; useful for mocking in</span>
 <span class="sd">            tests)</span>
@@ -7593,7 +7593,7 @@ See TR-015.</p>
 <span class="sd">        allow_insecure_download_redirects: Allow `http://` redirects for file downloads.</span>
 <span class="sd">            Not recommended; prefer HTTPS-only downloads.</span>
 <span class="sd">        expected_v2_version: Expected V2 API version for diagnostics (e.g.,</span>
-<span class="sd">            &quot;2024-01-01&quot;). Used to detect version compatibility issues.</span>
+<span class="sd">            "2024-01-01"). Used to detect version compatibility issues.</span>
 <span class="sd">            See TR-015.</span>
 <span class="sd">        timeout: Request timeout in seconds</span>
 <span class="sd">        max_retries: Maximum retries for rate-limited requests</span>
@@ -7604,8 +7604,8 @@ See TR-015.</p>
 <span class="sd">        on_response: Hook called after each response (DX-008)</span>
 <span class="sd">        on_error: Hook called when a request raises (DX-008)</span>
 <span class="sd">        on_event: Event hook called for request/response lifecycle events (DX-008)</span>
-<span class="sd">        hook_error_policy: What to do if hooks raise (&quot;swallow&quot; or &quot;raise&quot;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        hook_error_policy: What to do if hooks raise ("swallow" or "raise")</span>
+<span class="sd">    """</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">ClientConfig</span><span class="p">(</span>
         <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
         <span class="n">v1_base_url</span><span class="o">=</span><span class="n">v1_base_url</span><span class="p">,</span>
@@ -7676,7 +7676,7 @@ See TR-015.</p>
 <span class="normal">895</span>
 <span class="normal">896</span>
 <span class="normal">897</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clear the response cache.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Clear the response cache."""</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
@@ -7710,7 +7710,7 @@ See TR-015.</p>
 <span class="normal">872</span>
 <span class="normal">873</span>
 <span class="normal">874</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Close the HTTP client.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Close the HTTP client."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span><span class="p">:</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span> <span class="o">=</span> <span class="kc">True</span>
@@ -7724,7 +7724,7 @@ See TR-015.</p>
 
 
 <h2 id="affinity.AsyncAffinity.from_env" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">from_env</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_API_KEY_ENV_VAR</span><span class="p">,</span> <span class="n">load_dotenv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">dotenv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dotenv_override</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">BaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">async_transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncBaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">policies</span><span class="p">:</span> <span class="n">Policies</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_event</span><span class="p">:</span> <span class="n">AnyEventHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;swallow&#39;</span><span class="p">,</span> <span class="s1">&#39;raise&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;swallow&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncAffinity</span></code>
+            <code class="highlight language-python"><span class="n">from_env</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_API_KEY_ENV_VAR</span><span class="p">,</span> <span class="n">load_dotenv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">dotenv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dotenv_override</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">BaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">async_transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncBaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">policies</span><span class="p">:</span> <span class="n">Policies</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">on_event</span><span class="p">:</span> <span class="n">AnyEventHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">'swallow'</span><span class="p">,</span> <span class="s1">'raise'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'swallow'</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncAffinity</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
@@ -7789,15 +7789,15 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
     <span class="n">async_transport</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncBaseTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">policies</span><span class="p">:</span> <span class="n">Policies</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">on_event</span><span class="p">:</span> <span class="n">AnyEventHook</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;swallow&quot;</span><span class="p">,</span> <span class="s2">&quot;raise&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;swallow&quot;</span><span class="p">,</span>
+    <span class="n">hook_error_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"swallow"</span><span class="p">,</span> <span class="s2">"raise"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"swallow"</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncAffinity</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create an async client using an API key from the environment.</span>
 
 <span class="sd">    By default, reads `AFFINITY_API_KEY`. For local development, you can optionally</span>
 <span class="sd">    load a `.env` file (requires `python-dotenv`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">api_key</span> <span class="o">=</span> <span class="n">_api_key_from_env</span><span class="p">(</span>
         <span class="n">env_var</span><span class="o">=</span><span class="n">env_var</span><span class="p">,</span>
         <span class="n">load_dotenv</span><span class="o">=</span><span class="n">load_dotenv</span><span class="p">,</span>
@@ -7866,15 +7866,15 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
     <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncAffinity</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create a read-only async client that blocks all write operations.</span>
 
 <span class="sd">    See Affinity.read_only() for details.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s2">&quot;policies&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"policies"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Cannot specify &#39;policies&#39; with read_only(); &quot;</span>
-            <span class="s2">&quot;use AsyncAffinity() constructor directly for custom policies&quot;</span>
+            <span class="s2">"Cannot specify 'policies' with read_only(); "</span>
+            <span class="s2">"use AsyncAffinity() constructor directly for custom policies"</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
         <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
@@ -7936,15 +7936,15 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
     <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_API_KEY_ENV_VAR</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncAffinity</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create a read-only async client using API key from environment.</span>
 
 <span class="sd">    See Affinity.read_only_from_env() for details.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s2">&quot;policies&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"policies"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Cannot specify &#39;policies&#39; with read_only_from_env(); &quot;</span>
-            <span class="s2">&quot;use AsyncAffinity.from_env() directly for custom policies&quot;</span>
+            <span class="s2">"Cannot specify 'policies' with read_only_from_env(); "</span>
+            <span class="s2">"use AsyncAffinity.from_env() directly for custom policies"</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span>
         <span class="n">env_var</span><span class="o">=</span><span class="n">env_var</span><span class="p">,</span>
@@ -7980,7 +7980,7 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">899</span>
 <span class="normal">900</span>
 <span class="normal">901</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">whoami</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WhoAmI</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convenience wrapper for `client.auth.whoami()`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Convenience wrapper for `client.auth.whoami()`."""</span>
     <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">whoami</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -8051,7 +8051,7 @@ load a <code>.env</code> file (requires <code>python-dotenv</code>).</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

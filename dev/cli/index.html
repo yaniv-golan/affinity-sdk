@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -2700,10 +2700,10 @@
 <p>This teaches Claude CLI patterns and provides hooks for API key protection and Cowork bootstrap. See <a href="../guides/claude-code-plugins/">Claude Code plugins</a> for all available plugins.</p>
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
 <p>Recommended for end-users:</p>
-<div class="highlight"><pre><span></span><code>pipx<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;affinity-sdk[cli]&quot;</span>
+<div class="highlight"><pre><span></span><code>pipx<span class="w"> </span>install<span class="w"> </span><span class="s2">"affinity-sdk[cli]"</span>
 </code></pre></div>
 <p>Or in a virtualenv:</p>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;affinity-sdk[cli]&quot;</span>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"affinity-sdk[cli]"</span>
 </code></pre></div>
 <h2 id="verify-installation">Verify Installation<a class="headerlink" href="#verify-installation" title="Permanent link">&para;</a></h2>
 <p><strong>Step 1</strong>: Check the CLI is installed:</p>
@@ -2711,7 +2711,7 @@
 </code></pre></div>
 <p><strong>Expected</strong>: Version number (e.g., <code>0.15.0</code>)</p>
 <p><strong>Step 2</strong>: Verify API connectivity with your API key:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">AFFINITY_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-key-here&quot;</span><span class="w"> </span>xaffinity<span class="w"> </span>whoami
+<div class="highlight"><pre><span></span><code><span class="nv">AFFINITY_API_KEY</span><span class="o">=</span><span class="s2">"your-key-here"</span><span class="w"> </span>xaffinity<span class="w"> </span>whoami
 </code></pre></div>
 <p><strong>Expected</strong>: Your user information and tenant details</p>
 <p>If <code>whoami</code> hangs, check network connectivity (firewall, proxy, VPN). If it returns an authentication error, verify your API key is correct (Settings → API Keys in Affinity).</p>
@@ -2744,7 +2744,7 @@ xaffinity<span class="w"> </span>--api-key-file<span class="w"> </span>/run/secr
 vault<span class="w"> </span>kv<span class="w"> </span>get<span class="w"> </span>-field<span class="o">=</span>api_key<span class="w"> </span>secret/affinity<span class="w"> </span><span class="p">|</span><span class="w"> </span>xaffinity<span class="w"> </span>--api-key-stdin<span class="w"> </span>whoami
 
 <span class="c1"># Equivalent: --api-key-file - reads from stdin</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SECRET_KEY</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xaffinity<span class="w"> </span>--api-key-file<span class="w"> </span>-<span class="w"> </span>whoami
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="nv">$SECRET_KEY</span><span class="s2">"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xaffinity<span class="w"> </span>--api-key-file<span class="w"> </span>-<span class="w"> </span>whoami
 </code></pre></div>
 <h3 id="using-env-files">Using .env Files<a class="headerlink" href="#using-env-files" title="Permanent link">&para;</a></h3>
 <p>For project-specific keys, use <code>--dotenv</code> to load from <code>.env</code>:</p>
@@ -2765,7 +2765,7 @@ xaffinity<span class="w"> </span>--dotenv<span class="w"> </span>--env-file<span
 <p>The CLI enables SDK in-memory caching for cacheable metadata requests (e.g., field metadata) automatically.</p>
 <p>For pipelines running multiple commands, use <strong>session caching</strong> to share metadata across invocations:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_SESSION_CACHE</span><span class="o">=</span><span class="k">$(</span>xaffinity<span class="w"> </span>session<span class="w"> </span>start<span class="k">)</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">&quot;My List&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xaffinity<span class="w"> </span>person<span class="w"> </span>get
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="s2">"My List"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xaffinity<span class="w"> </span>person<span class="w"> </span>get
 xaffinity<span class="w"> </span>session<span class="w"> </span>end
 </code></pre></div>
 <p>See <a href="commands/#pipeline-optimization">Pipeline Optimization</a> for details.</p>
@@ -2792,7 +2792,7 @@ xaffinity<span class="w"> </span>session<span class="w"> </span>end
 <p>The CLI checks for available updates once per day and displays a notification after command execution:</p>
 <div class="highlight"><pre><span></span><code>┌──────────────────────────────────────────────────────┐
 │  Update available: 1.0.0 → 1.1.0                     │
-│  Run: pip install --upgrade &quot;affinity-sdk[cli]&quot;      │
+│  Run: pip install --upgrade "affinity-sdk[cli]"      │
 └──────────────────────────────────────────────────────┘
 </code></pre></div>
 <p>The upgrade command is auto-detected based on your installation method (pipx, uv, pip).</p>
@@ -2813,7 +2813,7 @@ xaffinity<span class="w"> </span>session<span class="w"> </span>end
 </code></pre></div>
 <p>Control notification behavior with <code>update_notify</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="k">[default]</span>
-<span class="n">update_notify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;interactive&quot;</span><span class="w">  </span><span class="c1"># &quot;interactive&quot; (default), &quot;always&quot;, or &quot;never&quot;</span>
+<span class="n">update_notify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"interactive"</span><span class="w">  </span><span class="c1"># "interactive" (default), "always", or "never"</span>
 </code></pre></div>
 <h3 id="manual-check">Manual Check<a class="headerlink" href="#manual-check" title="Permanent link">&para;</a></h3>
 <p>Check your update status (queries PyPI if no recent cache):</p>
@@ -2924,7 +2924,7 @@ It exits immediately with no output on success, exit code 1 on failure.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

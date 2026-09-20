@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -2532,17 +2532,17 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">AffinityError</span><span class="p">,</span> <span class="n">RateLimitError</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">"your-api-key"</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
 <span class="k">except</span> <span class="n">RateLimitError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Rate limited:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Retry after:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">retry_after</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Rate limited:"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Retry after:"</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">retry_after</span><span class="p">)</span>
 <span class="k">except</span> <span class="n">AffinityError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Affinity error:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Affinity error:"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">diagnostics</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Request:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Status:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Request ID:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">request_id</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Request:"</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Status:"</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Request ID:"</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">request_id</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="production-playbook">Production playbook<a class="headerlink" href="#production-playbook" title="Permanent link">&para;</a></h2>
 <p>The SDK retries some failures for safe reads (<code>GET</code>/<code>HEAD</code>), but production systems typically need additional policies: alerting, bounded retries, idempotency for writes, and circuit breaking during outages.</p>
@@ -2618,7 +2618,7 @@
     <span class="n">company</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">target_id</span><span class="p">))</span>
 <span class="k">except</span> <span class="n">MergedEntityError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
     <span class="c1"># Generic handler (works for any entity type)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Entity </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">source_id</span><span class="si">}</span><span class="s2"> merged into </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">target_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Entity </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">source_id</span><span class="si">}</span><span class="s2"> merged into </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">target_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 <p><code>MergedEntityError</code> is a subclass of <code>ValidationError</code>, so existing <code>except ValidationError</code> handlers continue to work. The entity-specific subclasses (<code>CompanyMergedError</code>, <code>PersonMergedError</code>) are auto-detected from the request URL.</p>
 <p><strong>CLI</strong>: The CLI surfaces this as <code>error.type: "entity_merged"</code> with <code>sourceId</code>, <code>targetId</code>, and <code>entityType</code> in <code>error.details</code>. Exit code is 4 (same as not-found — the entity is effectively gone from its original ID).</p>
@@ -2628,13 +2628,13 @@
 <h3 id="solutions">Solutions<a class="headerlink" href="#solutions" title="Permanent link">&para;</a></h3>
 <p><strong>Option 1: Use the returned object (recommended)</strong></p>
 <p>The <code>create()</code> method returns the created entity - use it directly instead of re-fetching:</p>
-<div class="highlight"><pre><span></span><code><span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">PersonCreate</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s2">&quot;Jane&quot;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s2">&quot;Doe&quot;</span><span class="p">))</span>
+<div class="highlight"><pre><span></span><code><span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">PersonCreate</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s2">"Jane"</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s2">"Doe"</span><span class="p">))</span>
 <span class="c1"># Use person directly - no need to call get()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">person</span><span class="o">.</span><span class="n">first_name</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Option 2: Use the <code>retries</code> parameter</strong></p>
 <p>The <code>get()</code> methods on <code>persons</code>, <code>companies</code>, and <code>opportunities</code> accept a <code>retries</code> parameter:</p>
-<div class="highlight"><pre><span></span><code><span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">PersonCreate</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s2">&quot;Jane&quot;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s2">&quot;Doe&quot;</span><span class="p">))</span>
+<div class="highlight"><pre><span></span><code><span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">PersonCreate</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s2">"Jane"</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s2">"Doe"</span><span class="p">))</span>
 <span class="c1"># Retry up to 3 times on 404 with exponential backoff</span>
 <span class="n">fetched</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">retries</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </code></pre></div>
@@ -2646,11 +2646,11 @@
 <p><strong>Solution: Trust the write response</strong></p>
 <p>The <code>update()</code> method returns the updated entity from V1 (strongly consistent). Use it directly:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Good: Use the response from update()</span>
-<span class="n">updated_person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">PersonUpdate</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s2">&quot;Jane&quot;</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">updated_person</span><span class="o">.</span><span class="n">first_name</span><span class="p">)</span>  <span class="c1"># &quot;Jane&quot; - immediate, from V1 response</span>
+<span class="n">updated_person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">PersonUpdate</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s2">"Jane"</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">updated_person</span><span class="o">.</span><span class="n">first_name</span><span class="p">)</span>  <span class="c1"># "Jane" - immediate, from V1 response</span>
 
 <span class="c1"># Risky: Re-fetching may return stale data</span>
-<span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">PersonUpdate</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s2">&quot;Jane&quot;</span><span class="p">))</span>
+<span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">PersonUpdate</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s2">"Jane"</span><span class="p">))</span>
 <span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>  <span class="c1"># May still show old name!</span>
 </code></pre></div>
 <p>This applies to all <code>update()</code> methods: persons, companies, opportunities, notes, etc.</p>
@@ -2660,12 +2660,12 @@
 <p>If you see <code>BetaEndpointDisabledError</code>, enable beta endpoints:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">enable_beta_endpoints</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">"your-api-key"</span><span class="p">,</span> <span class="n">enable_beta_endpoints</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 <p>If you see <code>VersionCompatibilityError</code>, this often indicates a V2 API version mismatch between your API key settings and what the SDK expects. Check your API key’s “Default API Version”, and consider setting <code>expected_v2_version</code> for clearer diagnostics:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span><span class="p">,</span> <span class="n">expected_v2_version</span><span class="o">=</span><span class="s2">&quot;2024-01-01&quot;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">"your-api-key"</span><span class="p">,</span> <span class="n">expected_v2_version</span><span class="o">=</span><span class="s2">"2024-01-01"</span><span class="p">)</span>
 </code></pre></div>
 <p>See <a href="../api-versions-and-routing/">API versions &amp; routing</a> and the <a href="../../glossary/">Glossary</a>.</p>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
@@ -2732,7 +2732,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

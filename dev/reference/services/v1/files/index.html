@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -2836,7 +2836,7 @@
 <span class="normal">1679</span>
 <span class="normal">1680</span>
 <span class="normal">1681</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EntityFileService</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Service for managing files attached to entities.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Service for managing files attached to entities."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">HTTPClient</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
@@ -2853,8 +2853,8 @@
         <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Exactly one of person_id, company_id, or opportunity_id is required&quot;</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one of person_id, company_id, or opportunity_id may be provided&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Exactly one of person_id, company_id, or opportunity_id is required"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Only one of person_id, company_id, or opportunity_id may be provided"</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2865,7 +2865,7 @@
         <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">page_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">EntityFile</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get files attached to an entity.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Get files attached to an entity."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_exactly_one_target</span><span class="p">(</span>
             <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
             <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
@@ -2873,33 +2873,33 @@
         <span class="p">)</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">person_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;person_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">"person_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">company_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;organization_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">"organization_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">opportunity_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;opportunity_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">"opportunity_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">page_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;page_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">page_size</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">"page_size"</span><span class="p">]</span> <span class="o">=</span> <span class="n">page_size</span>
         <span class="k">if</span> <span class="n">page_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;page_token&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">page_token</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">"page_token"</span><span class="p">]</span> <span class="o">=</span> <span class="n">page_token</span>
 
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/entity-files&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/entity-files"</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">items</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;entity_files&quot;</span><span class="p">)</span>
-            <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;entityFiles&quot;</span><span class="p">)</span>
-            <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;files&quot;</span><span class="p">)</span>
-            <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"entity_files"</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"entityFiles"</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"files"</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data"</span><span class="p">,</span> <span class="p">[])</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">EntityFile</span><span class="p">](</span>
             <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">EntityFile</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">items</span><span class="p">],</span>
-            <span class="n">next_page_token</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;next_page_token&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nextPageToken&quot;</span><span class="p">),</span>
+            <span class="n">next_page_token</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"next_page_token"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"nextPageToken"</span><span class="p">),</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EntityFile</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get file metadata.&quot;&quot;&quot;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/entity-files/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Get file metadata."""</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/entity-files/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">EntityFile</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span>
@@ -2909,9 +2909,9 @@
         <span class="n">timeout</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Timeout</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">deadline_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Download file content.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Download file content."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
             <span class="n">deadline_seconds</span><span class="o">=</span><span class="n">deadline_seconds</span><span class="p">,</span>
@@ -2923,11 +2923,11 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">timeout</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Timeout</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PresignedUrl</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get a presigned download URL for a file without downloading its content.</span>
 
 <span class="sd">        The returned URL is valid for approximately 60 seconds and can be</span>
-<span class="sd">        fetched without authentication (it&#39;s self-authenticating via signature).</span>
+<span class="sd">        fetched without authentication (it's self-authenticating via signature).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            file_id: The entity file ID</span>
@@ -2937,29 +2937,29 @@
 <span class="sd">            PresignedUrl with the URL, file metadata, and expiration info</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AffinityError: If the API doesn&#39;t return a redirect URL</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            AffinityError: If the API doesn't return a redirect URL</span>
+<span class="sd">        """</span>
         <span class="c1"># Fetch file metadata first</span>
         <span class="n">file_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file_id</span><span class="p">)</span>
 
         <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get_redirect_url</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">AffinityError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Failed to get presigned URL for file </span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">: no redirect returned&quot;</span>
+                <span class="sa">f</span><span class="s2">"Failed to get presigned URL for file </span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">: no redirect returned"</span>
             <span class="p">)</span>
 
         <span class="c1"># Parse X-Amz-Expires from the presigned URL to determine TTL</span>
-        <span class="c1"># Default to 60 seconds if not found (Affinity&#39;s typical TTL)</span>
+        <span class="c1"># Default to 60 seconds if not found (Affinity's typical TTL)</span>
         <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">qs</span> <span class="o">=</span> <span class="n">parse_qs</span><span class="p">(</span><span class="n">parsed</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
         <span class="n">expires_in</span> <span class="o">=</span> <span class="mi">60</span>  <span class="c1"># default</span>
-        <span class="k">if</span> <span class="s2">&quot;X-Amz-Expires&quot;</span> <span class="ow">in</span> <span class="n">qs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"X-Amz-Expires"</span> <span class="ow">in</span> <span class="n">qs</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
-                <span class="n">expires_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">qs</span><span class="p">[</span><span class="s2">&quot;X-Amz-Expires&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">expires_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">qs</span><span class="p">[</span><span class="s2">"X-Amz-Expires"</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
         <span class="n">expires_at</span> <span class="o">=</span> <span class="n">now</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">expires_in</span><span class="p">)</span>
@@ -2983,9 +2983,9 @@
         <span class="n">timeout</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Timeout</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">deadline_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stream-download file content in chunks.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Stream-download file content in chunks."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">stream_download</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">chunk_size</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">,</span>
             <span class="n">on_progress</span><span class="o">=</span><span class="n">on_progress</span><span class="p">,</span>
@@ -3002,16 +3002,16 @@
         <span class="n">timeout</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Timeout</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">deadline_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DownloadedFile</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Stream-download a file and return response metadata (headers/filename/size).</span>
 
 <span class="sd">        Notes:</span>
 <span class="sd">        - `filename` is derived from `Content-Disposition` when present.</span>
 <span class="sd">        - If the server does not provide a filename, callers can fall back to</span>
 <span class="sd">          `files.get(file_id).name`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">stream_download_with_info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">chunk_size</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">,</span>
             <span class="n">on_progress</span><span class="o">=</span><span class="n">on_progress</span><span class="p">,</span>
@@ -3030,7 +3030,7 @@
         <span class="n">timeout</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Timeout</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">deadline_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Download a file to disk.</span>
 
 <span class="sd">        Args:</span>
@@ -3041,13 +3041,13 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The destination path</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">target</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">target</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">target</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_stream</span><span class="p">(</span>
                     <span class="n">file_id</span><span class="p">,</span>
                     <span class="n">chunk_size</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">,</span>
@@ -3072,7 +3072,7 @@
         <span class="n">company_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Upload files to an entity.</span>
 
 <span class="sd">        Args:</span>
@@ -3083,7 +3083,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of created file records</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_exactly_one_target</span><span class="p">(</span>
             <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
             <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
@@ -3091,20 +3091,20 @@
         <span class="p">)</span>
         <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">person_id</span><span class="p">:</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;person_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"person_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">company_id</span><span class="p">:</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;organization_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"organization_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">opportunity_id</span><span class="p">:</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;opportunity_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"opportunity_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span>
-            <span class="s2">&quot;/entity-files&quot;</span><span class="p">,</span>
+            <span class="s2">"/entity-files"</span><span class="p">,</span>
             <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">,</span>
             <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
             <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;success&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;success&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s2">"success"</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">))</span>
         <span class="c1"># If the API returns something else on success (e.g., created object),</span>
         <span class="c1"># treat any 2xx JSON response as success (4xx/5xx raise earlier).</span>
         <span class="k">return</span> <span class="kc">True</span>
@@ -3120,13 +3120,13 @@
         <span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_progress</span><span class="p">:</span> <span class="n">ProgressCallback</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Upload a file from disk.</span>
 
 <span class="sd">        Notes:</span>
-<span class="sd">        - Returns only a boolean because the API returns `{&quot;success&quot;: true}` for uploads.</span>
+<span class="sd">        - Returns only a boolean because the API returns `{"success": true}` for uploads.</span>
 <span class="sd">        - Progress reporting is best-effort for uploads (start/end only).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_exactly_one_target</span><span class="p">(</span>
             <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
             <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
@@ -3136,22 +3136,22 @@
         <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">upload_filename</span> <span class="o">=</span> <span class="n">filename</span> <span class="ow">or</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span>
         <span class="n">guessed</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mimetypes</span><span class="o">.</span><span class="n">guess_type</span><span class="p">(</span><span class="n">upload_filename</span><span class="p">)</span>
-        <span class="n">final_content_type</span> <span class="o">=</span> <span class="n">content_type</span> <span class="ow">or</span> <span class="n">guessed</span> <span class="ow">or</span> <span class="s2">&quot;application/octet-stream&quot;</span>
+        <span class="n">final_content_type</span> <span class="o">=</span> <span class="n">content_type</span> <span class="ow">or</span> <span class="n">guessed</span> <span class="ow">or</span> <span class="s2">"application/octet-stream"</span>
         <span class="n">total</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
 
         <span class="k">if</span> <span class="n">on_progress</span><span class="p">:</span>
-            <span class="n">on_progress</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">&quot;upload&quot;</span><span class="p">)</span>
+            <span class="n">on_progress</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">"upload"</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="n">p</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">p</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">ok</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span>
-                <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">upload_filename</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">final_content_type</span><span class="p">)},</span>
+                <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s2">"file"</span><span class="p">:</span> <span class="p">(</span><span class="n">upload_filename</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">final_content_type</span><span class="p">)},</span>
                 <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
                 <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
                 <span class="n">opportunity_id</span><span class="o">=</span><span class="n">opportunity_id</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">on_progress</span><span class="p">:</span>
-            <span class="n">on_progress</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">&quot;upload&quot;</span><span class="p">)</span>
+            <span class="n">on_progress</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">"upload"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">ok</span>
 
@@ -3166,13 +3166,13 @@
         <span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_progress</span><span class="p">:</span> <span class="n">ProgressCallback</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Upload in-memory bytes as a file.</span>
 
 <span class="sd">        Notes:</span>
-<span class="sd">        - Returns only a boolean because the API returns `{&quot;success&quot;: true}` for uploads.</span>
+<span class="sd">        - Returns only a boolean because the API returns `{"success": true}` for uploads.</span>
 <span class="sd">        - Progress reporting is best-effort for uploads (start/end only).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_exactly_one_target</span><span class="p">(</span>
             <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
             <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
@@ -3180,21 +3180,21 @@
         <span class="p">)</span>
 
         <span class="n">guessed</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mimetypes</span><span class="o">.</span><span class="n">guess_type</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="n">final_content_type</span> <span class="o">=</span> <span class="n">content_type</span> <span class="ow">or</span> <span class="n">guessed</span> <span class="ow">or</span> <span class="s2">&quot;application/octet-stream&quot;</span>
+        <span class="n">final_content_type</span> <span class="o">=</span> <span class="n">content_type</span> <span class="ow">or</span> <span class="n">guessed</span> <span class="ow">or</span> <span class="s2">"application/octet-stream"</span>
         <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">on_progress</span><span class="p">:</span>
-            <span class="n">on_progress</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">&quot;upload&quot;</span><span class="p">)</span>
+            <span class="n">on_progress</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">"upload"</span><span class="p">)</span>
 
         <span class="n">ok</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span>
-            <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">final_content_type</span><span class="p">)},</span>
+            <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s2">"file"</span><span class="p">:</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">final_content_type</span><span class="p">)},</span>
             <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
             <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
             <span class="n">opportunity_id</span><span class="o">=</span><span class="n">opportunity_id</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">on_progress</span><span class="p">:</span>
-            <span class="n">on_progress</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">&quot;upload&quot;</span><span class="p">)</span>
+            <span class="n">on_progress</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">"upload"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">ok</span>
 
@@ -3205,7 +3205,7 @@
         <span class="n">company_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">EntityFile</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iterate through all files for an entity with automatic pagination.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Iterate through all files for an entity with automatic pagination."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_exactly_one_target</span><span class="p">(</span>
             <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
             <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
@@ -3232,7 +3232,7 @@
         <span class="n">company_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">EntityFile</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Auto-paginate all files (alias for `all()`).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Auto-paginate all files (alias for `all()`)."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
             <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
             <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
@@ -3302,7 +3302,7 @@
     <span class="n">company_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">EntityFile</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Iterate through all files for an entity with automatic pagination.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Iterate through all files for an entity with automatic pagination."""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_validate_exactly_one_target</span><span class="p">(</span>
         <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
         <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
@@ -3363,9 +3363,9 @@
     <span class="n">timeout</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Timeout</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">deadline_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download file content.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Download file content."""</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
         <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
         <span class="n">deadline_seconds</span><span class="o">=</span><span class="n">deadline_seconds</span><span class="p">,</span>
@@ -3418,9 +3418,9 @@
     <span class="n">timeout</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Timeout</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">deadline_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stream-download file content in chunks.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Stream-download file content in chunks."""</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">stream_download</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
         <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">chunk_size</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">,</span>
         <span class="n">on_progress</span><span class="o">=</span><span class="n">on_progress</span><span class="p">,</span>
@@ -3486,16 +3486,16 @@
     <span class="n">timeout</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Timeout</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">deadline_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DownloadedFile</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Stream-download a file and return response metadata (headers/filename/size).</span>
 
 <span class="sd">    Notes:</span>
 <span class="sd">    - `filename` is derived from `Content-Disposition` when present.</span>
 <span class="sd">    - If the server does not provide a filename, callers can fall back to</span>
 <span class="sd">      `files.get(file_id).name`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">stream_download_with_info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
         <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">chunk_size</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">,</span>
         <span class="n">on_progress</span><span class="o">=</span><span class="n">on_progress</span><span class="p">,</span>
@@ -3680,7 +3680,7 @@
     <span class="n">timeout</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Timeout</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">deadline_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Download a file to disk.</span>
 
 <span class="sd">    Args:</span>
@@ -3691,13 +3691,13 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The destination path</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">target</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">target</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">target</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_stream</span><span class="p">(</span>
                 <span class="n">file_id</span><span class="p">,</span>
                 <span class="n">chunk_size</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">,</span>
@@ -3739,8 +3739,8 @@
 <span class="normal">1342</span>
 <span class="normal">1343</span>
 <span class="normal">1344</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EntityFile</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get file metadata.&quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/entity-files/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Get file metadata."""</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/entity-files/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">EntityFile</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3920,11 +3920,11 @@ fetched without authentication (it's self-authenticating via signature).</p>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">timeout</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Timeout</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PresignedUrl</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get a presigned download URL for a file without downloading its content.</span>
 
 <span class="sd">    The returned URL is valid for approximately 60 seconds and can be</span>
-<span class="sd">    fetched without authentication (it&#39;s self-authenticating via signature).</span>
+<span class="sd">    fetched without authentication (it's self-authenticating via signature).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        file_id: The entity file ID</span>
@@ -3934,29 +3934,29 @@ fetched without authentication (it's self-authenticating via signature).</p>
 <span class="sd">        PresignedUrl with the URL, file metadata, and expiration info</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        AffinityError: If the API doesn&#39;t return a redirect URL</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        AffinityError: If the API doesn't return a redirect URL</span>
+<span class="sd">    """</span>
     <span class="c1"># Fetch file metadata first</span>
     <span class="n">file_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file_id</span><span class="p">)</span>
 
     <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get_redirect_url</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"/entity-files/download/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
         <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">AffinityError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Failed to get presigned URL for file </span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">: no redirect returned&quot;</span>
+            <span class="sa">f</span><span class="s2">"Failed to get presigned URL for file </span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">: no redirect returned"</span>
         <span class="p">)</span>
 
     <span class="c1"># Parse X-Amz-Expires from the presigned URL to determine TTL</span>
-    <span class="c1"># Default to 60 seconds if not found (Affinity&#39;s typical TTL)</span>
+    <span class="c1"># Default to 60 seconds if not found (Affinity's typical TTL)</span>
     <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
     <span class="n">qs</span> <span class="o">=</span> <span class="n">parse_qs</span><span class="p">(</span><span class="n">parsed</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
     <span class="n">expires_in</span> <span class="o">=</span> <span class="mi">60</span>  <span class="c1"># default</span>
-    <span class="k">if</span> <span class="s2">&quot;X-Amz-Expires&quot;</span> <span class="ow">in</span> <span class="n">qs</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">"X-Amz-Expires"</span> <span class="ow">in</span> <span class="n">qs</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
-            <span class="n">expires_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">qs</span><span class="p">[</span><span class="s2">&quot;X-Amz-Expires&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">expires_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">qs</span><span class="p">[</span><span class="s2">"X-Amz-Expires"</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
     <span class="n">expires_at</span> <span class="o">=</span> <span class="n">now</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">expires_in</span><span class="p">)</span>
@@ -4011,7 +4011,7 @@ fetched without authentication (it's self-authenticating via signature).</p>
     <span class="n">company_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">EntityFile</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Auto-paginate all files (alias for `all()`).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Auto-paginate all files (alias for `all()`)."""</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
         <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
         <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
@@ -4087,7 +4087,7 @@ fetched without authentication (it's self-authenticating via signature).</p>
     <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">page_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">EntityFile</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get files attached to an entity.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Get files attached to an entity."""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_validate_exactly_one_target</span><span class="p">(</span>
         <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
         <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
@@ -4095,28 +4095,28 @@ fetched without authentication (it's self-authenticating via signature).</p>
     <span class="p">)</span>
     <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">person_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;person_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">"person_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">company_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;organization_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">"organization_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">opportunity_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;opportunity_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">"opportunity_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">page_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;page_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">page_size</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">"page_size"</span><span class="p">]</span> <span class="o">=</span> <span class="n">page_size</span>
     <span class="k">if</span> <span class="n">page_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;page_token&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">page_token</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">"page_token"</span><span class="p">]</span> <span class="o">=</span> <span class="n">page_token</span>
 
-    <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/entity-files&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/entity-files"</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">items</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;entity_files&quot;</span><span class="p">)</span>
-        <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;entityFiles&quot;</span><span class="p">)</span>
-        <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;files&quot;</span><span class="p">)</span>
-        <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"entity_files"</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"entityFiles"</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"files"</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data"</span><span class="p">,</span> <span class="p">[])</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">return</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">EntityFile</span><span class="p">](</span>
         <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">EntityFile</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">items</span><span class="p">],</span>
-        <span class="n">next_page_token</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;next_page_token&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nextPageToken&quot;</span><span class="p">),</span>
+        <span class="n">next_page_token</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"next_page_token"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"nextPageToken"</span><span class="p">),</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4293,7 +4293,7 @@ fetched without authentication (it's self-authenticating via signature).</p>
     <span class="n">company_id</span><span class="p">:</span> <span class="n">CompanyId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">opportunity_id</span><span class="p">:</span> <span class="n">OpportunityId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Upload files to an entity.</span>
 
 <span class="sd">    Args:</span>
@@ -4304,7 +4304,7 @@ fetched without authentication (it's self-authenticating via signature).</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        List of created file records</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_validate_exactly_one_target</span><span class="p">(</span>
         <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
         <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
@@ -4312,20 +4312,20 @@ fetched without authentication (it's self-authenticating via signature).</p>
     <span class="p">)</span>
     <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">person_id</span><span class="p">:</span>
-        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;person_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">"person_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">person_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">company_id</span><span class="p">:</span>
-        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;organization_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">"organization_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">company_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">opportunity_id</span><span class="p">:</span>
-        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;opportunity_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">"opportunity_id"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opportunity_id</span><span class="p">)</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span>
-        <span class="s2">&quot;/entity-files&quot;</span><span class="p">,</span>
+        <span class="s2">"/entity-files"</span><span class="p">,</span>
         <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">,</span>
         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
         <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">if</span> <span class="s2">&quot;success&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;success&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="s2">"success"</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">))</span>
     <span class="c1"># If the API returns something else on success (e.g., created object),</span>
     <span class="c1"># treat any 2xx JSON response as success (4xx/5xx raise earlier).</span>
     <span class="k">return</span> <span class="kc">True</span>
@@ -4406,13 +4406,13 @@ fetched without authentication (it's self-authenticating via signature).</p>
     <span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">on_progress</span><span class="p">:</span> <span class="n">ProgressCallback</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Upload in-memory bytes as a file.</span>
 
 <span class="sd">    Notes:</span>
-<span class="sd">    - Returns only a boolean because the API returns `{&quot;success&quot;: true}` for uploads.</span>
+<span class="sd">    - Returns only a boolean because the API returns `{"success": true}` for uploads.</span>
 <span class="sd">    - Progress reporting is best-effort for uploads (start/end only).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_validate_exactly_one_target</span><span class="p">(</span>
         <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
         <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
@@ -4420,21 +4420,21 @@ fetched without authentication (it's self-authenticating via signature).</p>
     <span class="p">)</span>
 
     <span class="n">guessed</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mimetypes</span><span class="o">.</span><span class="n">guess_type</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-    <span class="n">final_content_type</span> <span class="o">=</span> <span class="n">content_type</span> <span class="ow">or</span> <span class="n">guessed</span> <span class="ow">or</span> <span class="s2">&quot;application/octet-stream&quot;</span>
+    <span class="n">final_content_type</span> <span class="o">=</span> <span class="n">content_type</span> <span class="ow">or</span> <span class="n">guessed</span> <span class="ow">or</span> <span class="s2">"application/octet-stream"</span>
     <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">on_progress</span><span class="p">:</span>
-        <span class="n">on_progress</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">&quot;upload&quot;</span><span class="p">)</span>
+        <span class="n">on_progress</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">"upload"</span><span class="p">)</span>
 
     <span class="n">ok</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span>
-        <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">final_content_type</span><span class="p">)},</span>
+        <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s2">"file"</span><span class="p">:</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">final_content_type</span><span class="p">)},</span>
         <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
         <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
         <span class="n">opportunity_id</span><span class="o">=</span><span class="n">opportunity_id</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">on_progress</span><span class="p">:</span>
-        <span class="n">on_progress</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">&quot;upload&quot;</span><span class="p">)</span>
+        <span class="n">on_progress</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">"upload"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ok</span>
 </code></pre></div></td></tr></table></div>
@@ -4517,13 +4517,13 @@ fetched without authentication (it's self-authenticating via signature).</p>
     <span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">on_progress</span><span class="p">:</span> <span class="n">ProgressCallback</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Upload a file from disk.</span>
 
 <span class="sd">    Notes:</span>
-<span class="sd">    - Returns only a boolean because the API returns `{&quot;success&quot;: true}` for uploads.</span>
+<span class="sd">    - Returns only a boolean because the API returns `{"success": true}` for uploads.</span>
 <span class="sd">    - Progress reporting is best-effort for uploads (start/end only).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_validate_exactly_one_target</span><span class="p">(</span>
         <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
         <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
@@ -4533,22 +4533,22 @@ fetched without authentication (it's self-authenticating via signature).</p>
     <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">upload_filename</span> <span class="o">=</span> <span class="n">filename</span> <span class="ow">or</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span>
     <span class="n">guessed</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mimetypes</span><span class="o">.</span><span class="n">guess_type</span><span class="p">(</span><span class="n">upload_filename</span><span class="p">)</span>
-    <span class="n">final_content_type</span> <span class="o">=</span> <span class="n">content_type</span> <span class="ow">or</span> <span class="n">guessed</span> <span class="ow">or</span> <span class="s2">&quot;application/octet-stream&quot;</span>
+    <span class="n">final_content_type</span> <span class="o">=</span> <span class="n">content_type</span> <span class="ow">or</span> <span class="n">guessed</span> <span class="ow">or</span> <span class="s2">"application/octet-stream"</span>
     <span class="n">total</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
 
     <span class="k">if</span> <span class="n">on_progress</span><span class="p">:</span>
-        <span class="n">on_progress</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">&quot;upload&quot;</span><span class="p">)</span>
+        <span class="n">on_progress</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">"upload"</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="n">p</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">p</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">ok</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span>
-            <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">upload_filename</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">final_content_type</span><span class="p">)},</span>
+            <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s2">"file"</span><span class="p">:</span> <span class="p">(</span><span class="n">upload_filename</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">final_content_type</span><span class="p">)},</span>
             <span class="n">person_id</span><span class="o">=</span><span class="n">person_id</span><span class="p">,</span>
             <span class="n">company_id</span><span class="o">=</span><span class="n">company_id</span><span class="p">,</span>
             <span class="n">opportunity_id</span><span class="o">=</span><span class="n">opportunity_id</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">on_progress</span><span class="p">:</span>
-        <span class="n">on_progress</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">&quot;upload&quot;</span><span class="p">)</span>
+        <span class="n">on_progress</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s2">"upload"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ok</span>
 </code></pre></div></td></tr></table></div>
@@ -4620,7 +4620,7 @@ fetched without authentication (it's self-authenticating via signature).</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": [], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
