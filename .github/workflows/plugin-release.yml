@@ -135,7 +135,7 @@ jobs:
           git push origin "${{ steps.version.outputs.tag_name }}"
 
       - name: Set up Python for release notes
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 

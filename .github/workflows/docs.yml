@@ -31,7 +31,7 @@ jobs:
           ref: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', inputs.version) || '' }}
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -79,7 +79,7 @@ jobs:
           ref: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', inputs.version) || '' }}
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
