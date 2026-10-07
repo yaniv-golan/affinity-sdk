@@ -430,7 +430,7 @@ def _query_cmd_impl(
             from affinity import AsyncAffinity
             from affinity.hooks import ResponseInfo
 
-            from ..query.executor import RateLimitedExecutor
+            from ..query.executor import RateLimitedExecutor, user_rate_limit_remaining
 
             # Create rate limiter for adaptive throttling
             rate_limiter = RateLimitedExecutor()
@@ -443,11 +443,7 @@ def _query_cmd_impl(
                 if original_on_response is not None:
                     original_on_response(res)
                 # Feed rate limiter with status and remaining quota
-                remaining_str = res.headers.get("X-RateLimit-Remaining")
-                remaining = (
-                    int(remaining_str) if remaining_str and remaining_str.isdigit() else None
-                )
-                rate_limiter.on_response(res.status_code, remaining)
+                rate_limiter.on_response(res.status_code, user_rate_limit_remaining(res.headers))
 
             async with AsyncAffinity(
                 api_key=settings.api_key,

@@ -32,6 +32,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MCP `company merge` / `person merge` always failed with `BetaEndpointDisabledError`, because
   the MCP gateway never passes `--beta` and the flag cannot be set by config or environment.
   Fixed by the merge change above.
+- CLI: the proactive rate-limit throttle in `query` and the bulk `field` commands never fired.
+  It read `X-RateLimit-Remaining`, which Affinity does not send, from a lowercase-keyed dict;
+  it now reads `x-ratelimit-limit-user-remaining` (any case) and pauses 0.5 s when fewer than
+  10 requests remain in the per-minute quota. The 429 backoff was unaffected.
 
 ## [1.16.0] - 2026-10-07
 

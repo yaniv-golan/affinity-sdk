@@ -11,7 +11,7 @@ import contextlib
 import logging
 import os
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol
 
@@ -557,6 +557,19 @@ DEFAULT_CONCURRENCY = 15
 # =============================================================================
 
 
+def user_rate_limit_remaining(headers: Mapping[str, str]) -> int | None:
+    """Remaining per-minute API-key quota from Affinity's response headers, or None.
+
+    Affinity sends ``x-ratelimit-limit-user-remaining`` (there is no ``X-RateLimit-Remaining``).
+    ``ResponseInfo.headers`` is a plain dict with lowercase keys, so match case-insensitively.
+    """
+    for name, value in headers.items():
+        if name.lower() == "x-ratelimit-limit-user-remaining":
+            text = value.strip()
+            return int(text) if text.isdigit() else None
+    return None
+
+
 class RateLimitedExecutor:
     """Executor helper that respects rate limits via adaptive delays.
 
@@ -598,7 +611,7 @@ class RateLimitedExecutor:
 
         Args:
             status_code: HTTP status code
-            remaining: X-RateLimit-Remaining header value if available
+            remaining: per-minute quota left, from user_rate_limit_remaining()
         """
         if status_code == 429:
             self._consecutive_429s += 1

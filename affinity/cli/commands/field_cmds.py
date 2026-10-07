@@ -604,7 +604,7 @@ def field_history_bulk(
             from affinity import AsyncAffinity
             from affinity.hooks import ResponseInfo
 
-            from ..query.executor import RateLimitedExecutor
+            from ..query.executor import RateLimitedExecutor, user_rate_limit_remaining
 
             rate_limiter = RateLimitedExecutor(concurrency=concurrency)
 
@@ -615,11 +615,7 @@ def field_history_bulk(
             def combined_on_response(res: ResponseInfo) -> None:
                 if original_on_response is not None:
                     original_on_response(res)
-                remaining_str = res.headers.get("X-RateLimit-Remaining")
-                remaining = (
-                    int(remaining_str) if remaining_str and remaining_str.isdigit() else None
-                )
-                rate_limiter.on_response(res.status_code, remaining)
+                rate_limiter.on_response(res.status_code, user_rate_limit_remaining(res.headers))
 
             async with AsyncAffinity(
                 api_key=settings.api_key,
