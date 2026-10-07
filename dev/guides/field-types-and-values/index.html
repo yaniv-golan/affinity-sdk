@@ -1206,6 +1206,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#writing-numbers-and-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing numbers and locations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#writing-dates" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2311,6 +2322,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#writing-numbers-and-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing numbers and locations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#writing-dates" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2544,7 +2566,19 @@ Unknown future values are treated as open enums and preserved as strings.</p>
   company, person, number, text or location multi-value field (Affinity rejects them; the
   dropdown-multi write schema declares no cap). <code>batch_update_fields()</code> accepts at most 100
   updates per call and no list values (use <code>update_field_value(..., value_type=...)</code> for those).
-  The CLI's <code>list entry field</code> checks the final count before changing anything.</li>
+  The CLI's <code>list entry field</code> checks the final count before changing anything.
+  dropdown-multi has no such cap (Affinity accepted 101 values in testing).</li>
+<li><strong>Replacing values:</strong> a V2 write replaces the field's whole value; if Affinity rejects it,
+  the field keeps its old values. Nothing needs to be deleted first.</li>
+</ul>
+<h2 id="writing-numbers-and-locations">Writing numbers and locations<a class="headerlink" href="#writing-numbers-and-locations" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>number</code> data must be a JSON number: Affinity rejects <code>"5"</code>. The CLI converts numeric
+  input and refuses anything else before writing.</li>
+<li><code>location</code> data must contain all five keys <code>streetAddress</code>, <code>city</code>, <code>state</code>, <code>country</code>,
+  <code>continent</code> (<code>null</code> allowed). <code>update_field_value(..., value_type="location")</code> fills in the
+  missing ones (and accepts <code>street_address</code>); the CLI takes a JSON object such as
+  <code>{"city": "Paris", "country": "France"}</code>.</li>
 </ul>
 <h2 id="writing-dates">Writing dates<a class="headerlink" href="#writing-dates" title="Permanent link">&para;</a></h2>
 <p>Since 2026-01-01 Affinity stores date fields at midnight Pacific Time, so a stored value reads

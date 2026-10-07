@@ -4642,6 +4642,9 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w
 <span class="c1"># Append to a multi-value field (e.g., tags)</span>
 xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">"Portfolio"</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--append<span class="w"> </span>Tags<span class="w"> </span><span class="s2">"Priority"</span>
 
+<span class="c1"># Set a location</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">"Portfolio"</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--set<span class="w"> </span>HQ<span class="w"> </span><span class="s1">'{"city": "Paris", "country": "France"}'</span>
+
 <span class="c1"># Unset a field (remove all values)</span>
 xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w"> </span>field<span class="w"> </span><span class="s2">"Portfolio"</span><span class="w"> </span><span class="m">123</span><span class="w"> </span>--unset<span class="w"> </span>OldField
 
@@ -4660,7 +4663,14 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w
 <p><strong>Notes:</strong>
 - Field names are resolved case-insensitively
 - Field IDs (<code>field-123</code>) can be used directly
-- <code>--set</code> replaces all existing values; use <code>--append</code> to add to multi-value fields
+- <code>--set</code> replaces all existing values in one write: if Affinity rejects it, the field keeps
+  its old values. Use <code>--append</code> to add to multi-value fields; <code>--append</code> on a single-value
+  field is refused (use <code>--set</code>)
+- Numbers are sent as numbers (<code>--set Amount 5</code>); anything else is refused before any write
+- Locations are JSON objects with any of <code>streetAddress</code> (or <code>street_address</code>), <code>city</code>, <code>state</code>,
+  <code>country</code>, <code>continent</code>: <code>--set HQ '{"city": "Paris", "country": "France"}'</code>
+- Multi-value company, person and location fields hold at most 100 values per write; a request
+  that would exceed it is refused before anything changes
 - <code>--get</code> is exclusive with write operations
 - <code>--get</code> returns resolved objects for person/company reference fields (with <code>firstName</code>, <code>lastName</code>, <code>primaryEmailAddress</code>, etc.) and full dropdown option data (with <code>text</code>, <code>color</code>). Output format matches <code>list export</code>.
 - Operation order: <code>--set</code>/<code>--set-json</code> → <code>--append</code> → <code>--unset</code>/<code>--unset-value</code></p>
