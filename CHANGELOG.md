@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Models now keep response fields Affinity added to the V2 API in 2026 (previously parsed and
+  silently dropped): `Opportunity.list_name` / `is_restricted` / `is_redacted` (a redacted
+  opportunity's `name` is masked as `[Hidden]`), `AffinityList.created_at`,
+  `ListSummary.created_at`, `ListEntry.list_name`, and `FieldMetadata.created_at` /
+  `description` / `filterability` / `sortability`. `FieldMetadata.is_filterable` /
+  `is_sortable` return `None` when the information was not requested, so "not requested" is
+  never reported as "not filterable". All are optional with safe defaults (V1 payloads lack
+  them). CLI JSON output gains these keys where the models are serialized (additive).
+
 ## [1.16.0] - 2026-10-07
 
 ### Highlights

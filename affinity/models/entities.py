@@ -466,6 +466,13 @@ class Opportunity(AffinityModel):
     id: OpportunityId
     name: str
     list_id: ListId | None = Field(None, alias="listId")
+    list_name: str | None = Field(None, alias="listName")
+
+    # Restricted Opportunities (V2). When is_redacted is True the requesting user cannot see
+    # this opportunity and ``name`` is masked as "[Hidden]". V1 payloads never carry these,
+    # so they default to False even though the V2 spec marks them required.
+    is_restricted: bool = Field(False, alias="isRestricted")
+    is_redacted: bool = Field(False, alias="isRedacted")
 
     # Associations (Note: V2 API returns empty arrays; use get_details() or
     # get_associated_person_ids() for populated data)
@@ -557,6 +564,7 @@ class AffinityList(AffinityModel):
     is_public: bool = Field(alias="public")
     owner_id: UserId = Field(alias="ownerId")
     creator_id: UserId | None = Field(None, alias="creatorId")
+    created_at: ISODatetime | None = Field(None, alias="createdAt")
 
     # Fields on this list (returned for single list fetch)
     fields: list[FieldMetadata] | None = None
@@ -605,6 +613,7 @@ class ListSummary(AffinityModel):
     is_public: bool | None = Field(None, alias="public")
     owner_id: UserId | None = Field(None, alias="ownerId")
     list_size: int | None = Field(None, alias="listSize")
+    created_at: ISODatetime | None = Field(None, alias="createdAt")
 
     @model_validator(mode="before")
     @classmethod
@@ -640,6 +649,7 @@ class ListEntry(AffinityModel):
 
     id: ListEntryId
     list_id: ListId = Field(alias="listId")
+    list_name: str | None = Field(None, alias="listName")
     creator_id: UserId | None = Field(None, alias="creatorId")
     entity_id: int | None = Field(None, alias="entityId")
     entity_type: EntityType | None = Field(None, alias="entityType")
@@ -800,8 +810,32 @@ class FieldMetadata(AffinityModel):
     enrichment_source: str | None = Field(None, alias="enrichmentSource")
     is_required: bool = Field(False, alias="isRequired")
 
+    # V2: null for built-in fields (no creation time) and fields without a description
+    created_at: ISODatetime | None = Field(None, alias="createdAt")
+    description: str | None = None
+
+    # V2, only when requested via the fields endpoints' `includes` parameter. Tri-state:
+    # key absent = not requested, null = not filterable/sortable, object = how. Kept raw until
+    # typed models land; use is_filterable / is_sortable to read the state.
+    filterability: dict[str, Any] | None = None
+    sortability: dict[str, Any] | None = None
+
     # Dropdown options for dropdown fields
     dropdown_options: list[DropdownOption] = Field(default_factory=list, alias="dropdownOptions")
+
+    @property
+    def is_filterable(self) -> bool | None:
+        """True/False when filterability was requested; None when it was not."""
+        if "filterability" not in self.model_fields_set:
+            return None
+        return self.filterability is not None
+
+    @property
+    def is_sortable(self) -> bool | None:
+        """True/False when sortability was requested; None when it was not."""
+        if "sortability" not in self.model_fields_set:
+            return None
+        return self.sortability is not None
 
     @model_validator(mode="before")
     @classmethod
