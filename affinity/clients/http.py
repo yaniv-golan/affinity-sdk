@@ -35,7 +35,11 @@ from urllib.parse import urljoin, urlsplit, urlunsplit
 
 import httpx
 
-from ..api_versions import AFFINITY_API_VERSION_HEADER, normalize_affinity_api_version
+from ..api_versions import (
+    AFFINITY_API_VERSION_HEADER,
+    KNOWN_AFFINITY_API_VERSIONS,
+    normalize_affinity_api_version,
+)
 from ..downloads import (
     AsyncDownloadedFile,
     DownloadedFile,
@@ -1153,7 +1157,7 @@ class _ApiVersionTracker:
         shown = version if version is not None else "(none)"
         return UnsupportedApiVersionError(
             f"Affinity rejected API version {shown!r} (X-Affinity-Api-Version): "
-            f"{exc.message} Use 2024-01-01, 2026-07-15, 2026-09-17 or 'current', or unset "
+            f"{exc.message} Use {', '.join(KNOWN_AFFINITY_API_VERSIONS)} or 'current', or unset "
             "affinity_api_version (CLI: --api-version / AFFINITY_API_VERSION / profile "
             "api_version) to use the API key's default version.",
             requested_version=version,

@@ -281,9 +281,19 @@ class TestCheckKey:
         assert result.exit_code == 0, result.output
         assert json.loads(result.output)["data"]["keyDefaultApiVersion"] is None
 
-    def test_check_key_never_runs_key_command(self) -> None:
+    def test_check_key_never_runs_key_command(self, monkeypatch: pytest.MonkeyPatch) -> None:
         ctx = _ctx()
         assert real_probe_key_default_api_version(ctx, "command") is None
+
+        # Even when check-key found another source first, the probe must not resolve the key
+        # through AFFINITY_API_KEY_COMMAND (resolve_api_key checks it before the config file).
+        def no_command(_cmd: str) -> str:
+            raise AssertionError("key command must not run")
+
+        monkeypatch.delenv("AFFINITY_API_KEY", raising=False)
+        monkeypatch.setenv("AFFINITY_API_KEY_COMMAND", "echo secret")
+        monkeypatch.setattr("affinity._internal.keyfile.read_key_command", no_command)
+        assert real_probe_key_default_api_version(ctx, "dotenv") is None
 
 
 # ---------------------------------------------------------------------------

@@ -235,7 +235,13 @@ def _probe_key_default_api_version(ctx: CLIContext, source: str | None) -> str |
     One unversioned V2 request with a short timeout and no retries. Never raises, never
     runs AFFINITY_API_KEY_COMMAND (check-key deliberately doesn't) and never reads stdin.
     """
-    if source == "command" or ctx.api_key_stdin or ctx.api_key_file == "-":
+    if (
+        source == "command"
+        # resolve_api_key() would run the command even when check-key found another source.
+        or os.getenv("AFFINITY_API_KEY_COMMAND", "").strip()
+        or ctx.api_key_stdin
+        or ctx.api_key_file == "-"
+    ):
         return None
     try:
         from affinity import Affinity

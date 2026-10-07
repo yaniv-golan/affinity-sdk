@@ -528,8 +528,9 @@ class VersionCompatibilityError(AffinityError):
     v2 Default API Version differs from what the SDK expects.
 
     Guidance:
-    1. Check your API key's v2 Default API Version in the Affinity dashboard
-    2. Ensure it matches the expected_v2_version configured in the SDK
+    1. Check which version answered (``client.affinity_api_versions_seen``) and your API
+       key's v2 Default API Version in the Affinity dashboard
+    2. Pin a version with ``affinity_api_version=...`` if needed
     3. See: https://developer.affinity.co/#section/Getting-Started/Versioning
     """
 
