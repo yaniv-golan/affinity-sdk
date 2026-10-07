@@ -11,7 +11,15 @@ import logging
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator, model_validator
+from pydantic import (
+    AliasChoices,
+    BaseModel,
+    ConfigDict,
+    Field,
+    PrivateAttr,
+    field_validator,
+    model_validator,
+)
 
 from .types import (
     AnyFieldId,
@@ -420,7 +428,10 @@ class Company(AffinityModel):
     name: str
     domain: str | None = None
     domains: list[str] = Field(default_factory=list)
-    is_global: bool = Field(False, alias="global")
+    # V1 sends "global", V2 sends "isGlobal"; output keeps "global" (unchanged JSON contract).
+    is_global: bool = Field(
+        False, alias="global", validation_alias=AliasChoices("global", "isGlobal")
+    )
 
     # Associations
     person_ids: list[PersonId] = Field(default_factory=list, alias="personIds")

@@ -41,6 +41,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   every page.
 - CLI: warnings a command returned replaced the warnings collected while it ran instead of
   being merged with them.
+- `Company.is_global` was always `False` for companies read through the V2 API, which sends
+  `isGlobal` (the SDK read only V1's `global`). Both keys are read now; JSON output still uses
+  `global`.
 
 ## [1.17.0] - 2026-10-07
 

@@ -133,3 +133,13 @@ class TestFieldMetadataAdditions:
         assert meta.is_filterable is True
         assert meta.is_sortable is True
         assert meta.filterability == {"type": "field-only", "operators": ["=", "=~"]}
+
+
+def test_company_is_global_reads_v2_and_v1_keys() -> None:
+    """V2 sends ``isGlobal``; the SDK used to read only V1's ``global`` (always False on V2)."""
+    from affinity.models.entities import Company
+
+    assert Company.model_validate({"id": 1, "name": "A", "isGlobal": True}).is_global is True
+    assert Company.model_validate({"id": 1, "name": "A", "global": True}).is_global is True
+    company = Company.model_validate({"id": 1, "name": "A", "isGlobal": True})
+    assert company.model_dump(by_alias=True)["global"] is True  # output key unchanged

@@ -101,7 +101,6 @@ KNOWN_EXTENSIONS: dict[str, set[str]] = {
         "list_entries",
     },
     "Company": {
-        "is_global",  # V1 key "global"; see KNOWN_GAPS (Company, isGlobal)
         "person_ids",
         "opportunity_ids",
         "fields_raw",
@@ -127,10 +126,6 @@ KNOWN_EXTENSIONS: dict[str, set[str]] = {
 # Strict list of deliberate gaps: {(model or enum name, spec property or member): reason}.
 KNOWN_GAPS: dict[tuple[str, str], str] = {
     # --- models ---
-    ("Company", "isGlobal"): (
-        "SDK reads only the V1 key `global`, so Company.is_global is always False on V2 "
-        "responses; fix = accept `isGlobal` as a validation alias (follow-up)"
-    ),
     ("AffinityList", "isPublic"): (
         "read by a mode='before' validator that copies isPublic -> public; invisible to "
         "the alias check"
