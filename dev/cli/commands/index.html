@@ -4375,8 +4375,8 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w
 <ul>
 <li><code>--expand lists</code>: include lists the person is on (auto-paginates up to a safe cap; use <code>--max-results</code> / <code>--all</code> to adjust).</li>
 <li><code>--expand list-entries</code>: include list entries for the person (first page by default; use <code>--max-results</code> / <code>--all</code> to fetch more).</li>
-<li><code>--list &lt;id-or-exact-name&gt;</code>: filter list entries to a specific list (requires <code>--expand list-entries</code>).</li>
-<li><code>--list-entry-field &lt;id-or-exact-name&gt;</code> (repeatable): project list-entry fields into columns (requires <code>--expand list-entries</code>). Field names are only allowed with <code>--list</code>.</li>
+<li><code>--list &lt;id-or-exact-name&gt;</code>: filter list entries to a specific list (implies <code>--expand list-entries</code>).</li>
+<li><code>--list-entry-field &lt;id-or-exact-name&gt;</code> (repeatable): project list-entry fields into columns (implies <code>--expand list-entries</code>). Field names are only allowed with <code>--list</code>.</li>
 <li><code>--show-list-entry-fields</code>: render per-list-entry Fields tables in human output (requires <code>--expand list-entries</code> and <code>--max-results &lt;= 3</code>). Mutually exclusive with <code>--list-entry-field</code>.</li>
 <li><code>--list-entry-fields-scope list-only|all</code>: control which fields appear in list-entry tables (human output only).</li>
 </ul>
@@ -4452,6 +4452,14 @@ xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="
 xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span>domain:wellybox.com
 xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="w"> </span><span class="s1">'name:"WellyBox"'</span>
 </code></pre></div>
+<p><strong>Default output is a cheap lookup.</strong> Without flags, no field values and no list
+entries are fetched: <code>data.company.fields</code> is <code>{"requested": false, "data": {}}</code>
+and <code>data.listEntries</code> is absent. That means <em>not fetched</em>, not <em>empty</em>. In JSON,
+<code>meta.notRequested</code> lists what was skipped and the flag that fetches it, e.g.
+<code>[{"key": "data.company.fields", "flag": "--all-fields"}, {"key": "data.listEntries", "flag": "--expand list-entries"}]</code>.
+Expansions are returned next to the entity (<code>data.listEntries</code>, <code>data.lists</code>,
+<code>data.persons</code>), not inside <code>data.company</code>. <code>person get</code> behaves the same way;
+<code>opportunity get</code> reports <code>data.opportunity.fields</code> (fetch with <code>--details</code>).</p>
 <p>Field selection:</p>
 <ul>
 <li><code>--all-fields</code>: include all supported (non-list-specific) fields.</li>
@@ -4464,8 +4472,8 @@ xaffinity<span class="w"> </span>company<span class="w"> </span>get<span class="
 <li><code>--expand lists</code>: include lists the company is on (auto-paginates up to a safe cap; use <code>--max-results</code> / <code>--all</code> to adjust).</li>
 <li><code>--expand list-entries</code>: include list entries for the company (first page by default; use <code>--max-results</code> / <code>--all</code> to fetch more).</li>
 <li><code>--expand persons</code>: include people associated with the company (use <code>--max-results</code> / <code>--all</code> to control volume).</li>
-<li><code>--list &lt;id-or-exact-name&gt;</code>: filter list entries to a specific list (requires <code>--expand list-entries</code>).</li>
-<li><code>--list-entry-field &lt;id-or-exact-name&gt;</code> (repeatable): project list-entry fields into columns (requires <code>--expand list-entries</code>). Field names are only allowed with <code>--list</code>.</li>
+<li><code>--list &lt;id-or-exact-name&gt;</code>: filter list entries to a specific list (implies <code>--expand list-entries</code>).</li>
+<li><code>--list-entry-field &lt;id-or-exact-name&gt;</code> (repeatable): project list-entry fields into columns (implies <code>--expand list-entries</code>). Field names are only allowed with <code>--list</code>.</li>
 <li><code>--show-list-entry-fields</code>: render per-list-entry Fields tables in human output (requires <code>--expand list-entries</code> and <code>--max-results &lt;= 3</code>). Mutually exclusive with <code>--list-entry-field</code>.</li>
 <li><code>--list-entry-fields-scope list-only|all</code>: control which fields appear in list-entry tables (human output only).</li>
 </ul>
