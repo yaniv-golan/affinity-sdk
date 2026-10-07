@@ -21,8 +21,13 @@ xaffinity --readonly company files download "domain:acme.com" --output-dir ./dow
 xaffinity --readonly company files read "domain:acme.com" --file-id 67890 --json
 
 # Upload files (write operation — requires explicit user request)
-xaffinity company files upload "domain:acme.com" ./document.pdf
+xaffinity company files upload 12345 --file ./document.pdf --json
 ```
+
+Upload takes a numeric entity id and one `--file` per file. Each `data.uploads[]` row has
+`fileId` (and `createdAt`) of the new file — use it with `files read --file-id` without a
+follow-up `files ls`. `fileId` is `null` if the API didn't return the created file
+(CLI <= 1.18.x never included it).
 
 ## `company create` / `person create` refuse duplicates by default
 

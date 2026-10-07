@@ -37,6 +37,7 @@ from ..runner import CommandOutput, run_command
 from ..serialization import serialize_model_for_cli
 from ._entity_files_dump import download_single_file, dump_entity_files_bundle
 from ._entity_files_read import parse_size, read_file_content
+from ._entity_files_upload import uploaded_file_ref
 from .resolve_url_cmd import _parse_affinity_url
 
 
@@ -1190,7 +1191,7 @@ def opportunity_files_upload(
                     description=f"upload {p.name}",
                     total_bytes=file_size,
                 )
-                success = client.files.upload_path(
+                created = client.files.upload_path_returning_files(
                     p,
                     opportunity_id=OpportunityId(opportunity_id),
                     on_progress=cb,
@@ -1200,7 +1201,9 @@ def opportunity_files_upload(
                         "file": str(p),
                         "filename": p.name,
                         "size": file_size,
-                        "success": success,
+                        # 4xx/5xx raise, so reaching here means the upload succeeded.
+                        "success": True,
+                        **uploaded_file_ref(created),
                     }
                 )
 

@@ -9,6 +9,8 @@ from __future__ import annotations
 import asyncio
 import builtins
 import contextlib
+import functools
+import logging
 import mimetypes
 import uuid
 from collections.abc import AsyncIterator, Iterator, Sequence
@@ -19,6 +21,7 @@ from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 from urllib.parse import parse_qs, urlparse
 
 import httpx
+from pydantic import AliasChoices, TypeAdapter, ValidationError
 
 from ..downloads import AsyncDownloadedFile, DownloadedFile
 from ..exceptions import AffinityError
@@ -134,6 +137,109 @@ def _coerce_isoformat(payload: dict[str, Any], keys: tuple[str, ...]) -> None:
         value = payload.get(key)
         if isinstance(value, datetime):
             payload[key] = value.isoformat()
+
+
+logger = logging.getLogger("affinity_sdk")
+
+
+@functools.cache
+def _entity_file_adapters() -> dict[str, tuple[tuple[str, ...], TypeAdapter[Any]]]:
+    """Per-field (input keys, validator) for EntityFile, built once."""
+    adapters: dict[str, tuple[tuple[str, ...], TypeAdapter[Any]]] = {}
+    for name, info in EntityFile.model_fields.items():
+        keys = [name]
+        if info.alias:
+            keys.append(info.alias)
+        va = info.validation_alias
+        if isinstance(va, str):
+            keys.append(va)
+        elif isinstance(va, AliasChoices):
+            keys.extend(c for c in va.choices if isinstance(c, str))
+        adapters[name] = (tuple(dict.fromkeys(keys)), TypeAdapter(info.rebuild_annotation()))
+    return adapters
+
+
+def _partial_entity_file(item: dict[str, Any]) -> EntityFile | None:
+    """
+    Best-effort EntityFile for an item that failed full validation.
+
+    Each field is validated on its own; a field that is missing or invalid is
+    set to None. Returns None when the item has no usable id.
+    """
+    values: dict[str, Any] = {}
+    for name, (keys, adapter) in _entity_file_adapters().items():
+        raw = next((item[k] for k in keys if k in item), None)
+        value: Any = None
+        if raw is not None:
+            try:
+                value = adapter.validate_python(raw)
+            except ValidationError:
+                value = None
+        values[name] = value
+    if values.get("id") is None:
+        return None
+    return EntityFile.model_construct(**values)
+
+
+def _parse_uploaded_files(result: Any) -> builtins.list[EntityFile]:
+    """
+    Parse the `entity_files` array of a V1 `POST /entity-files` response.
+
+    Never raises: the upload already succeeded (2xx), so a response shape the
+    SDK doesn't expect must not turn it into an error. A missing or malformed
+    `entity_files` gives `[]` (older API responses were just `{"success": true}`).
+    Items that fail validation are kept as partial records (unvalidated, missing
+    fields None) when they carry an id, and skipped otherwise.
+    """
+    if not isinstance(result, dict):
+        return []
+    items = result.get("entity_files")
+    if not isinstance(items, builtins.list):
+        return []
+    parsed: builtins.list[EntityFile] = []
+    for item in items:
+        if not isinstance(item, dict):
+            logger.warning("Ignoring non-object entry in upload response: %r", item)
+            continue
+        try:
+            parsed.append(EntityFile.model_validate(item))
+            continue
+        except ValidationError as exc:
+            partial = _partial_entity_file(item)
+            if partial is None:
+                logger.warning("Ignoring uploaded file entry without a valid id: %s", exc)
+                continue
+            logger.warning(
+                "Uploaded file %s returned an unexpected shape; fields that failed "
+                "validation are None: %s",
+                partial.id,
+                exc,
+            )
+            parsed.append(partial)
+    return parsed
+
+
+def _upload_target_data(
+    *,
+    person_id: PersonId | None,
+    company_id: CompanyId | None,
+    opportunity_id: OpportunityId | None,
+) -> dict[str, Any]:
+    data: dict[str, Any] = {}
+    if person_id:
+        data["person_id"] = int(person_id)
+    if company_id:
+        data["organization_id"] = int(company_id)
+    if opportunity_id:
+        data["opportunity_id"] = int(opportunity_id)
+    return data
+
+
+def _upload_succeeded(result: dict[str, Any]) -> bool:
+    if "success" in result:
+        return bool(result.get("success"))
+    # Any other 2xx JSON response is a success (4xx/5xx raise earlier).
+    return True
 
 
 # =============================================================================
@@ -1505,69 +1611,41 @@ class EntityFileService:
 
         return target
 
-    def upload(
+    def _post_upload(
         self,
         files: dict[str, Any],
         *,
-        person_id: PersonId | None = None,
-        company_id: CompanyId | None = None,
-        opportunity_id: OpportunityId | None = None,
-    ) -> bool:
-        """
-        Upload files to an entity.
-
-        Args:
-            files: Dict of filename to file-like object
-            person_id: Person to attach to
-            company_id: Company to attach to
-            opportunity_id: Opportunity to attach to
-
-        Returns:
-            List of created file records
-        """
+        person_id: PersonId | None,
+        company_id: CompanyId | None,
+        opportunity_id: OpportunityId | None,
+    ) -> dict[str, Any]:
         self._validate_exactly_one_target(
             person_id=person_id,
             company_id=company_id,
             opportunity_id=opportunity_id,
         )
-        data: dict[str, Any] = {}
-        if person_id:
-            data["person_id"] = int(person_id)
-        if company_id:
-            data["organization_id"] = int(company_id)
-        if opportunity_id:
-            data["opportunity_id"] = int(opportunity_id)
-
-        result = self._client.upload_file(
+        return self._client.upload_file(
             "/entity-files",
             files=files,
-            data=data,
+            data=_upload_target_data(
+                person_id=person_id,
+                company_id=company_id,
+                opportunity_id=opportunity_id,
+            ),
             v1=True,
         )
-        if "success" in result:
-            return bool(result.get("success"))
-        # If the API returns something else on success (e.g., created object),
-        # treat any 2xx JSON response as success (4xx/5xx raise earlier).
-        return True
 
-    def upload_path(
+    def _post_upload_path(
         self,
         path: str | Path,
         *,
-        person_id: PersonId | None = None,
-        company_id: CompanyId | None = None,
-        opportunity_id: OpportunityId | None = None,
-        filename: str | None = None,
-        content_type: str | None = None,
-        on_progress: ProgressCallback | None = None,
-    ) -> bool:
-        """
-        Upload a file from disk.
-
-        Notes:
-        - Returns only a boolean because the API returns `{"success": true}` for uploads.
-        - Progress reporting is best-effort for uploads (start/end only).
-        """
+        person_id: PersonId | None,
+        company_id: CompanyId | None,
+        opportunity_id: OpportunityId | None,
+        filename: str | None,
+        content_type: str | None,
+        on_progress: ProgressCallback | None,
+    ) -> dict[str, Any]:
         self._validate_exactly_one_target(
             person_id=person_id,
             company_id=company_id,
@@ -1584,7 +1662,7 @@ class EntityFileService:
             on_progress(0, total, phase="upload")
 
         with p.open("rb") as f:
-            ok = self.upload(
+            result = self._post_upload(
                 files={"file": (upload_filename, f, final_content_type)},
                 person_id=person_id,
                 company_id=company_id,
@@ -1594,7 +1672,163 @@ class EntityFileService:
         if on_progress:
             on_progress(total, total, phase="upload")
 
-        return ok
+        return result
+
+    def _post_upload_bytes(
+        self,
+        data: bytes,
+        filename: str,
+        *,
+        person_id: PersonId | None,
+        company_id: CompanyId | None,
+        opportunity_id: OpportunityId | None,
+        content_type: str | None,
+        on_progress: ProgressCallback | None,
+    ) -> dict[str, Any]:
+        self._validate_exactly_one_target(
+            person_id=person_id,
+            company_id=company_id,
+            opportunity_id=opportunity_id,
+        )
+
+        guessed, _ = mimetypes.guess_type(filename)
+        final_content_type = content_type or guessed or "application/octet-stream"
+        total = len(data)
+
+        if on_progress:
+            on_progress(0, total, phase="upload")
+
+        result = self._post_upload(
+            files={"file": (filename, data, final_content_type)},
+            person_id=person_id,
+            company_id=company_id,
+            opportunity_id=opportunity_id,
+        )
+
+        if on_progress:
+            on_progress(total, total, phase="upload")
+
+        return result
+
+    def upload(
+        self,
+        files: dict[str, Any],
+        *,
+        person_id: PersonId | None = None,
+        company_id: CompanyId | None = None,
+        opportunity_id: OpportunityId | None = None,
+    ) -> bool:
+        """
+        Upload files to an entity.
+
+        Args:
+            files: Multipart files mapping, e.g. `{"file": (filename, content, content_type)}`
+            person_id: Person to attach to
+            company_id: Company to attach to
+            opportunity_id: Opportunity to attach to
+
+        Returns:
+            True when the upload succeeded (the response's `success` flag when
+            present). Use `upload_returning_files()` to get the created file records.
+        """
+        return _upload_succeeded(
+            self._post_upload(
+                files,
+                person_id=person_id,
+                company_id=company_id,
+                opportunity_id=opportunity_id,
+            )
+        )
+
+    def upload_returning_files(
+        self,
+        files: dict[str, Any],
+        *,
+        person_id: PersonId | None = None,
+        company_id: CompanyId | None = None,
+        opportunity_id: OpportunityId | None = None,
+    ) -> builtins.list[EntityFile]:
+        """
+        Upload files to an entity and return the created file records.
+
+        Same request as `upload()`; returns the `entity_files` from the response,
+        so the new file ids can be used with `get()`/`download()` straight away.
+
+        Returns:
+            The created files. Empty if the API returned no `entity_files` (older
+            responses were just `{"success": true}`). Never raises after a successful
+            (2xx) upload: an entry that fails validation is returned as a partial
+            record (unvalidated; fields that failed are None) when it has an id,
+            and skipped otherwise.
+        """
+        return _parse_uploaded_files(
+            self._post_upload(
+                files,
+                person_id=person_id,
+                company_id=company_id,
+                opportunity_id=opportunity_id,
+            )
+        )
+
+    def upload_path(
+        self,
+        path: str | Path,
+        *,
+        person_id: PersonId | None = None,
+        company_id: CompanyId | None = None,
+        opportunity_id: OpportunityId | None = None,
+        filename: str | None = None,
+        content_type: str | None = None,
+        on_progress: ProgressCallback | None = None,
+    ) -> bool:
+        """
+        Upload a file from disk.
+
+        Notes:
+        - Returns True when the upload succeeded. Use `upload_path_returning_files()`
+          to get the created file record (with its id).
+        - Progress reporting is best-effort for uploads (start/end only).
+        """
+        return _upload_succeeded(
+            self._post_upload_path(
+                path,
+                person_id=person_id,
+                company_id=company_id,
+                opportunity_id=opportunity_id,
+                filename=filename,
+                content_type=content_type,
+                on_progress=on_progress,
+            )
+        )
+
+    def upload_path_returning_files(
+        self,
+        path: str | Path,
+        *,
+        person_id: PersonId | None = None,
+        company_id: CompanyId | None = None,
+        opportunity_id: OpportunityId | None = None,
+        filename: str | None = None,
+        content_type: str | None = None,
+        on_progress: ProgressCallback | None = None,
+    ) -> builtins.list[EntityFile]:
+        """
+        Upload a file from disk and return the created file records.
+
+        Same as `upload_path()`, but returns the response's `entity_files`
+        (see `upload_returning_files()` for the parsing rules).
+        """
+        return _parse_uploaded_files(
+            self._post_upload_path(
+                path,
+                person_id=person_id,
+                company_id=company_id,
+                opportunity_id=opportunity_id,
+                filename=filename,
+                content_type=content_type,
+                on_progress=on_progress,
+            )
+        )
 
     def upload_bytes(
         self,
@@ -1611,33 +1845,50 @@ class EntityFileService:
         Upload in-memory bytes as a file.
 
         Notes:
-        - Returns only a boolean because the API returns `{"success": true}` for uploads.
+        - Returns True when the upload succeeded. Use `upload_bytes_returning_files()`
+          to get the created file record (with its id).
         - Progress reporting is best-effort for uploads (start/end only).
         """
-        self._validate_exactly_one_target(
-            person_id=person_id,
-            company_id=company_id,
-            opportunity_id=opportunity_id,
+        return _upload_succeeded(
+            self._post_upload_bytes(
+                data,
+                filename,
+                person_id=person_id,
+                company_id=company_id,
+                opportunity_id=opportunity_id,
+                content_type=content_type,
+                on_progress=on_progress,
+            )
         )
 
-        guessed, _ = mimetypes.guess_type(filename)
-        final_content_type = content_type or guessed or "application/octet-stream"
-        total = len(data)
+    def upload_bytes_returning_files(
+        self,
+        data: bytes,
+        filename: str,
+        *,
+        person_id: PersonId | None = None,
+        company_id: CompanyId | None = None,
+        opportunity_id: OpportunityId | None = None,
+        content_type: str | None = None,
+        on_progress: ProgressCallback | None = None,
+    ) -> builtins.list[EntityFile]:
+        """
+        Upload in-memory bytes as a file and return the created file records.
 
-        if on_progress:
-            on_progress(0, total, phase="upload")
-
-        ok = self.upload(
-            files={"file": (filename, data, final_content_type)},
-            person_id=person_id,
-            company_id=company_id,
-            opportunity_id=opportunity_id,
+        Same as `upload_bytes()`, but returns the response's `entity_files`
+        (see `upload_returning_files()` for the parsing rules).
+        """
+        return _parse_uploaded_files(
+            self._post_upload_bytes(
+                data,
+                filename,
+                person_id=person_id,
+                company_id=company_id,
+                opportunity_id=opportunity_id,
+                content_type=content_type,
+                on_progress=on_progress,
+            )
         )
-
-        if on_progress:
-            on_progress(total, total, phase="upload")
-
-        return ok
 
     def all(
         self,
@@ -3169,48 +3420,41 @@ class AsyncEntityFileService:
 
         return target
 
-    async def upload(
+    async def _post_upload(
         self,
         files: dict[str, Any],
         *,
-        person_id: PersonId | None = None,
-        company_id: CompanyId | None = None,
-        opportunity_id: OpportunityId | None = None,
-    ) -> bool:
+        person_id: PersonId | None,
+        company_id: CompanyId | None,
+        opportunity_id: OpportunityId | None,
+    ) -> dict[str, Any]:
         self._validate_exactly_one_target(
             person_id=person_id,
             company_id=company_id,
             opportunity_id=opportunity_id,
         )
-        data: dict[str, Any] = {}
-        if person_id:
-            data["person_id"] = int(person_id)
-        if company_id:
-            data["organization_id"] = int(company_id)
-        if opportunity_id:
-            data["opportunity_id"] = int(opportunity_id)
-
-        result = await self._client.upload_file(
+        return await self._client.upload_file(
             "/entity-files",
             files=files,
-            data=data,
+            data=_upload_target_data(
+                person_id=person_id,
+                company_id=company_id,
+                opportunity_id=opportunity_id,
+            ),
             v1=True,
         )
-        if "success" in result:
-            return bool(result.get("success"))
-        return True
 
-    async def upload_path(
+    async def _post_upload_path(
         self,
         path: str | Path,
         *,
-        person_id: PersonId | None = None,
-        company_id: CompanyId | None = None,
-        opportunity_id: OpportunityId | None = None,
-        filename: str | None = None,
-        content_type: str | None = None,
-        on_progress: ProgressCallback | None = None,
-    ) -> bool:
+        person_id: PersonId | None,
+        company_id: CompanyId | None,
+        opportunity_id: OpportunityId | None,
+        filename: str | None,
+        content_type: str | None,
+        on_progress: ProgressCallback | None,
+    ) -> dict[str, Any]:
         self._validate_exactly_one_target(
             person_id=person_id,
             company_id=company_id,
@@ -3227,7 +3471,7 @@ class AsyncEntityFileService:
             on_progress(0, total, phase="upload")
 
         with p.open("rb") as f:
-            ok = await self.upload(
+            result = await self._post_upload(
                 files={"file": (upload_filename, f, final_content_type)},
                 person_id=person_id,
                 company_id=company_id,
@@ -3237,19 +3481,19 @@ class AsyncEntityFileService:
         if on_progress:
             on_progress(total, total, phase="upload")
 
-        return ok
+        return result
 
-    async def upload_bytes(
+    async def _post_upload_bytes(
         self,
         data: bytes,
         filename: str,
         *,
-        person_id: PersonId | None = None,
-        company_id: CompanyId | None = None,
-        opportunity_id: OpportunityId | None = None,
-        content_type: str | None = None,
-        on_progress: ProgressCallback | None = None,
-    ) -> bool:
+        person_id: PersonId | None,
+        company_id: CompanyId | None,
+        opportunity_id: OpportunityId | None,
+        content_type: str | None,
+        on_progress: ProgressCallback | None,
+    ) -> dict[str, Any]:
         self._validate_exactly_one_target(
             person_id=person_id,
             company_id=company_id,
@@ -3263,7 +3507,7 @@ class AsyncEntityFileService:
         if on_progress:
             on_progress(0, total, phase="upload")
 
-        ok = await self.upload(
+        result = await self._post_upload(
             files={"file": (filename, data, final_content_type)},
             person_id=person_id,
             company_id=company_id,
@@ -3273,7 +3517,187 @@ class AsyncEntityFileService:
         if on_progress:
             on_progress(total, total, phase="upload")
 
-        return ok
+        return result
+
+    async def upload(
+        self,
+        files: dict[str, Any],
+        *,
+        person_id: PersonId | None = None,
+        company_id: CompanyId | None = None,
+        opportunity_id: OpportunityId | None = None,
+    ) -> bool:
+        """
+        Upload files to an entity.
+
+        Args:
+            files: Multipart files mapping, e.g. `{"file": (filename, content, content_type)}`
+            person_id: Person to attach to
+            company_id: Company to attach to
+            opportunity_id: Opportunity to attach to
+
+        Returns:
+            True when the upload succeeded (the response's `success` flag when
+            present). Use `upload_returning_files()` to get the created file records.
+        """
+        return _upload_succeeded(
+            await self._post_upload(
+                files,
+                person_id=person_id,
+                company_id=company_id,
+                opportunity_id=opportunity_id,
+            )
+        )
+
+    async def upload_returning_files(
+        self,
+        files: dict[str, Any],
+        *,
+        person_id: PersonId | None = None,
+        company_id: CompanyId | None = None,
+        opportunity_id: OpportunityId | None = None,
+    ) -> builtins.list[EntityFile]:
+        """
+        Upload files to an entity and return the created file records.
+
+        Same request as `upload()`; returns the `entity_files` from the response,
+        so the new file ids can be used with `get()`/`download()` straight away.
+
+        Returns:
+            The created files. Empty if the API returned no `entity_files` (older
+            responses were just `{"success": true}`). Never raises after a successful
+            (2xx) upload: an entry that fails validation is returned as a partial
+            record (unvalidated; fields that failed are None) when it has an id,
+            and skipped otherwise.
+        """
+        return _parse_uploaded_files(
+            await self._post_upload(
+                files,
+                person_id=person_id,
+                company_id=company_id,
+                opportunity_id=opportunity_id,
+            )
+        )
+
+    async def upload_path(
+        self,
+        path: str | Path,
+        *,
+        person_id: PersonId | None = None,
+        company_id: CompanyId | None = None,
+        opportunity_id: OpportunityId | None = None,
+        filename: str | None = None,
+        content_type: str | None = None,
+        on_progress: ProgressCallback | None = None,
+    ) -> bool:
+        """
+        Upload a file from disk.
+
+        Notes:
+        - Returns True when the upload succeeded. Use `upload_path_returning_files()`
+          to get the created file record (with its id).
+        - Progress reporting is best-effort for uploads (start/end only).
+        """
+        return _upload_succeeded(
+            await self._post_upload_path(
+                path,
+                person_id=person_id,
+                company_id=company_id,
+                opportunity_id=opportunity_id,
+                filename=filename,
+                content_type=content_type,
+                on_progress=on_progress,
+            )
+        )
+
+    async def upload_path_returning_files(
+        self,
+        path: str | Path,
+        *,
+        person_id: PersonId | None = None,
+        company_id: CompanyId | None = None,
+        opportunity_id: OpportunityId | None = None,
+        filename: str | None = None,
+        content_type: str | None = None,
+        on_progress: ProgressCallback | None = None,
+    ) -> builtins.list[EntityFile]:
+        """
+        Upload a file from disk and return the created file records.
+
+        Same as `upload_path()`, but returns the response's `entity_files`
+        (see `upload_returning_files()` for the parsing rules).
+        """
+        return _parse_uploaded_files(
+            await self._post_upload_path(
+                path,
+                person_id=person_id,
+                company_id=company_id,
+                opportunity_id=opportunity_id,
+                filename=filename,
+                content_type=content_type,
+                on_progress=on_progress,
+            )
+        )
+
+    async def upload_bytes(
+        self,
+        data: bytes,
+        filename: str,
+        *,
+        person_id: PersonId | None = None,
+        company_id: CompanyId | None = None,
+        opportunity_id: OpportunityId | None = None,
+        content_type: str | None = None,
+        on_progress: ProgressCallback | None = None,
+    ) -> bool:
+        """
+        Upload in-memory bytes as a file.
+
+        Notes:
+        - Returns True when the upload succeeded. Use `upload_bytes_returning_files()`
+          to get the created file record (with its id).
+        - Progress reporting is best-effort for uploads (start/end only).
+        """
+        return _upload_succeeded(
+            await self._post_upload_bytes(
+                data,
+                filename,
+                person_id=person_id,
+                company_id=company_id,
+                opportunity_id=opportunity_id,
+                content_type=content_type,
+                on_progress=on_progress,
+            )
+        )
+
+    async def upload_bytes_returning_files(
+        self,
+        data: bytes,
+        filename: str,
+        *,
+        person_id: PersonId | None = None,
+        company_id: CompanyId | None = None,
+        opportunity_id: OpportunityId | None = None,
+        content_type: str | None = None,
+        on_progress: ProgressCallback | None = None,
+    ) -> builtins.list[EntityFile]:
+        """
+        Upload in-memory bytes as a file and return the created file records.
+
+        Same as `upload_bytes()`, but returns the response's `entity_files`
+        (see `upload_returning_files()` for the parsing rules).
+        """
+        return _parse_uploaded_files(
+            await self._post_upload_bytes(
+                data,
+                filename,
+                person_id=person_id,
+                company_id=company_id,
+                opportunity_id=opportunity_id,
+                content_type=content_type,
+                on_progress=on_progress,
+            )
+        )
 
     async def all(
         self,

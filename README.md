@@ -380,6 +380,11 @@ with Affinity(api_key="your-key") as client:
     client.files.upload_path("report.pdf", person_id=PersonId(123))
     client.files.upload_bytes(b"hello", "report.txt", person_id=PersonId(123))
 
+    # The upload helpers return a bool; the *_returning_files variants return the
+    # created file records (EntityFile), e.g. to read the new file id
+    created = client.files.upload_path_returning_files("report.pdf", person_id=PersonId(123))
+    file_ids = [f.id for f in created]
+
     # Iterate all files attached to an entity
     for f in client.files.all(person_id=PersonId(123)):
         print(f.name, f.size)
