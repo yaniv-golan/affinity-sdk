@@ -564,7 +564,7 @@ class TestExecuteV1SetPhase:
         existing = [_make_field_value(1, "field-100", "Active")]
         execute_v1_set_phase(
             client=client,
-            entity_kind="company",
+            entity_kind="opportunity",
             entity_id=555,
             pre_resolved_ops={
                 "field-100": ("intro meeting", {"dropdownOptionId": 202}, "dropdown")
@@ -573,6 +573,66 @@ class TestExecuteV1SetPhase:
             resolver=resolver,
         )
         client.field_values.update.assert_called_once_with(1, "Intro Meeting")
+
+    def test_ranked_dropdown_sent_as_option_id(self, resolver: FieldResolver) -> None:
+        """V1 rejects text for ranked dropdowns; it takes the option id."""
+        client = MagicMock()
+        meta = resolver.get_field_metadata("field-100")
+        assert meta is not None
+        object.__setattr__(meta, "value_type", "ranked-dropdown")
+        existing = [_make_field_value(1, "field-100", {"id": 200, "text": "Active"})]
+        execute_v1_set_phase(
+            client=client,
+            entity_kind="opportunity",
+            entity_id=555,
+            pre_resolved_ops={
+                "field-100": ("Intro Meeting", {"dropdownOptionId": 202}, "ranked-dropdown")
+            },
+            existing_values_serialized=existing,
+            resolver=resolver,
+        )
+        client.field_values.update.assert_called_once_with(1, 202)
+
+    @pytest.mark.parametrize("entity_kind", ["company", "person"])
+    def test_company_person_plain_dropdown_written_by_id_via_v2(
+        self, resolver: FieldResolver, entity_kind: str
+    ) -> None:
+        """Plain dropdowns on companies/persons go through the V2 write (option ids), which
+        can't create options; nothing is written through V1."""
+        client = MagicMock()
+        existing = [_make_field_value(1, "field-100", "Active")]
+        created, deleted = execute_v1_set_phase(
+            client=client,
+            entity_kind=entity_kind,  # type: ignore[arg-type]
+            entity_id=555,
+            pre_resolved_ops={"field-100": ("closed", {"dropdownOptionId": 201}, "dropdown")},
+            existing_values_serialized=existing,
+            resolver=resolver,
+        )
+        collection = "companies" if entity_kind == "company" else "persons"
+        client._http.post.assert_called_once_with(
+            f"/{collection}/555/fields/field-100",
+            json={"value": {"type": "dropdown", "data": {"dropdownOptionId": 201}}},
+        )
+        client.field_values.update.assert_not_called()
+        client.field_values.create.assert_not_called()
+        client.field_values.delete.assert_not_called()
+        assert deleted == 0
+        assert len(created) == 1
+
+    def test_text_dropdown_row_is_noop_when_same_option(self, resolver: FieldResolver) -> None:
+        """V1 stores plain dropdown values as text; re-setting the same option writes nothing."""
+        client = MagicMock()
+        created, _ = execute_v1_set_phase(
+            client=client,
+            entity_kind="company",
+            entity_id=555,
+            pre_resolved_ops={"field-100": ("active", {"dropdownOptionId": 200}, "dropdown")},
+            existing_values_serialized=[_make_field_value(1, "field-100", "Active")],
+            resolver=resolver,
+        )
+        assert created == []
+        client._http.post.assert_not_called()
 
     def test_multi_value_adds_before_removing(self, resolver: FieldResolver) -> None:
         client = MagicMock()

@@ -2354,7 +2354,18 @@ def person_field(
         # Phase 3: pre-validate. V1 commands gain client-side entity-reference
         # validation; e.g. ``--set Owner "<full name>"`` now aborts before any
         # write instead of partial-committing prior --sets and failing server-side.
+        # Dropdown options, read fresh: V2 field metadata has none, and V1 writes plain
+        # dropdowns by text (unknown text creates a new option).
+        resolver.load_dropdown_options(
+            client, [fid for fid, _ in resolved_set_ops], entity_type="person"
+        )
         pre_resolved_set = pre_validate_set_operations(resolver, resolved_set_ops)
+        # Resolve --unset names before any write, so a typo aborts cleanly.
+        unset_numeric_ids: list[int] = []
+        for field_name in unset_fields:
+            target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
+            numeric_field_id = resolver.to_v1_numeric(client, target_field_id, entity_type="person")
+            unset_numeric_ids.append(numeric_field_id)
 
         # Phase 4: fetch existing values and execute the set phase with no-op
         # short-circuit (clean audit log on retries).
@@ -2370,13 +2381,8 @@ def person_field(
             resolver=resolver,
         )
 
-        # Handle --unset: hoist resolution upfront so a typo aborts cleanly.
+        # Handle --unset (names resolved before any write).
         deleted_count = set_deleted_count
-        unset_numeric_ids: list[int] = []
-        for field_name in unset_fields:
-            target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
-            numeric_field_id = resolver.to_v1_numeric(client, target_field_id, entity_type="person")
-            unset_numeric_ids.append(numeric_field_id)
         if unset_numeric_ids:
             existing_values = client.field_values.list(person_id=PersonId(person_id))
             existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values]

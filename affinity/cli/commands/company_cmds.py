@@ -2518,7 +2518,20 @@ def company_field(
         # V1 commands: entity-reference fields gain client-side validation, so
         # e.g. ``--set Owner "<full name>"`` aborts before any write instead
         # of partial-committing prior --sets and then failing server-side.
+        # Dropdown options, read fresh: V2 field metadata has none, and V1 writes plain
+        # dropdowns by text (unknown text creates a new option).
+        resolver.load_dropdown_options(
+            client, [fid for fid, _ in resolved_set_ops], entity_type="company"
+        )
         pre_resolved_set = pre_validate_set_operations(resolver, resolved_set_ops)
+        # Resolve --unset names before any write, so a typo aborts cleanly.
+        unset_numeric_ids: list[int] = []
+        for field_name in unset_fields:
+            target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
+            numeric_field_id = resolver.to_v1_numeric(
+                client, target_field_id, entity_type="company"
+            )
+            unset_numeric_ids.append(numeric_field_id)
 
         # Phase 4: fetch existing values, execute set phase with no-op short-circuit.
         existing_values = client.field_values.list(company_id=CompanyId(company_id))
@@ -2533,16 +2546,8 @@ def company_field(
             resolver=resolver,
         )
 
-        # Handle --unset: remove field values. Hoist name resolution + V1 mapping
-        # upfront here too so a typo in any --unset aborts before deletes happen.
+        # Handle --unset: remove field values (names resolved before any write).
         deleted_count = set_deleted_count
-        unset_numeric_ids: list[int] = []
-        for field_name in unset_fields:
-            target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
-            numeric_field_id = resolver.to_v1_numeric(
-                client, target_field_id, entity_type="company"
-            )
-            unset_numeric_ids.append(numeric_field_id)
         # Refresh existing values once after set phase (sets may have changed them).
         if unset_numeric_ids:
             existing_values = client.field_values.list(company_id=CompanyId(company_id))

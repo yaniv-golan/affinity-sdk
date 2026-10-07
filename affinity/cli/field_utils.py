@@ -61,6 +61,57 @@ def fetch_field_metadata(
         )
 
 
+# Dropdown kinds whose V1 write value is the option id (V1 rejects text for them); plain
+# dropdowns take the option text.
+_DROPDOWN_BY_ID = ("ranked-dropdown", "status-dropdown")
+_DROPDOWN_KINDS = ("dropdown", "dropdown-multi", *_DROPDOWN_BY_ID)
+
+
+def is_dropdown_type(type_str: str) -> bool:
+    return "dropdown" in type_str
+
+
+def _type_str(field: FieldMetadata) -> str:
+    from ..models.types import FieldValueType
+
+    vt = field.value_type
+    return vt.value if isinstance(vt, FieldValueType) else str(vt)
+
+
+def fetch_dropdown_options(
+    client: Any, *, entity_type: EntityType, field_id: str, list_id: int | None = None
+) -> list[Any]:
+    """All options of a dropdown field from the V2 API, uncached (every page)."""
+    from affinity.models.entities import DropdownOption
+
+    if entity_type == "company":
+        path = f"/companies/fields/{field_id}/dropdown-options"
+    elif entity_type == "person":
+        path = f"/persons/fields/{field_id}/dropdown-options"
+    else:
+        if list_id is None:
+            raise CLIError(
+                f"list_id is required to read the options of {field_id}.",
+                exit_code=2,
+                error_type="internal_error",
+            )
+        path = f"/lists/{list_id}/fields/{field_id}/dropdown-options"
+    options: list[Any] = []
+    payload = client._http.get(path, params={"limit": 100})
+    while True:
+        for item in payload.get("data") or []:
+            if isinstance(item, dict) and "id" in item and "text" in item:
+                options.append(
+                    DropdownOption.model_validate(
+                        {k: item.get(k) for k in ("id", "text", "rank", "color")}
+                    )
+                )
+        next_url = (payload.get("pagination") or {}).get("nextUrl")
+        if not next_url:
+            return options
+        payload = client._http.get_url(next_url)
+
+
 def build_field_id_to_name_map(fields: list[FieldMetadata]) -> dict[str, str]:
     """Build a mapping from field ID to field name.
 
@@ -274,6 +325,36 @@ class FieldResolver:
         """
         return self._by_id.get(field_id, "")
 
+    def load_dropdown_options(
+        self,
+        client: Any,
+        field_ids: Iterable[str],
+        *,
+        entity_type: EntityType,
+        list_id: int | None = None,
+    ) -> None:
+        """Attach dropdown options, read fresh from the V2 API, to the given dropdown fields.
+
+        V2 field metadata carries no options, and cached options can be stale: V1 writes
+        dropdown values by text and create a new option for text that no longer matches one.
+        Only global and list fields (``field-<n>``) are loaded; enriched and
+        relationship-intelligence fields have no options endpoint and are left as they are.
+        """
+        for field_id in dict.fromkeys(field_ids):
+            field = self.get_field_metadata(field_id)
+            if field is None or not is_dropdown_type(_type_str(field)):
+                continue
+            if not str(field.id).startswith("field-") or field.type in (
+                "enriched",
+                "relationship-intelligence",
+            ):
+                continue
+            options = fetch_dropdown_options(
+                client, entity_type=entity_type, field_id=field_id, list_id=list_id
+            )
+            fresh = field.model_copy(update={"dropdown_options": options})
+            self._fields = [fresh if f is field else f for f in self._fields]
+
     def get_field_metadata(self, field_id: str) -> FieldMetadata | None:
         """Get field metadata by field ID.
 
@@ -409,7 +490,14 @@ class FieldResolver:
         # V2 API expects:
         #   dropdown/ranked-dropdown: {"data": {"dropdownOptionId": ID}, "type": "..."}
         #   dropdown-multi: {"data": [{"dropdownOptionId": ID}], "type": "dropdown-multi"}
-        if type_str in ("dropdown", "ranked-dropdown", "dropdown-multi"):
+        if is_dropdown_type(type_str) and type_str not in _DROPDOWN_KINDS:
+            raise CLIError(
+                f"Field '{field.name}' has dropdown type '{type_str}', which the CLI cannot "
+                "write yet. Nothing was changed.",
+                exit_code=2,
+                error_type="validation_error",
+            )
+        if type_str in _DROPDOWN_KINDS:
             # For dropdown-multi, accept list values (e.g., from --set-json ["AN", "YG"])
             if isinstance(value, list):
                 if type_str != "dropdown-multi":
@@ -842,7 +930,7 @@ def canonical_item(type_str: str, value: Any) -> Any:
     existing V1 row value; ``None`` when it can't be determined."""
     if isinstance(value, dict) and "data" in value and "type" in value:
         value = value["data"]
-    if type_str.startswith(("dropdown", "ranked-dropdown")):
+    if is_dropdown_type(type_str):
         return _extract_dropdown_option_id(value)
     if type_str.startswith(("person", "company")):
         return _extract_entity_id(value)
@@ -859,6 +947,22 @@ def canonical_item(type_str: str, value: Any) -> Any:
         norm = {_LOCATION_KEY_ALIASES.get(k, k): v for k, v in value.items()}
         return tuple((k, (norm.get(k) or None)) for k in LOCATION_KEYS)
     return None if value is None else format_value_for_comparison(value).strip()
+
+
+def _existing_dropdown_option_id(field_meta: FieldMetadata | None, value: Any) -> int | None:
+    """Option id of an existing dropdown row: V1 stores plain dropdown values as the option
+    text, ranked ones as an option object. A text row is matched against the field's options
+    by text (never parsed as an id: "2024" can be an option's text)."""
+    if isinstance(value, dict):
+        return _extract_dropdown_option_id(value)
+    if isinstance(value, int) and not isinstance(value, bool):
+        return value
+    if isinstance(value, str) and field_meta is not None:
+        wanted = value.strip().lower()
+        for opt in field_meta.dropdown_options:
+            if opt.text.strip().lower() == wanted:
+                return int(opt.id)
+    return None
 
 
 def _is_empty_new_value(value: Any) -> bool:
@@ -968,11 +1072,11 @@ def value_equals_existing(
             return False
         return sorted(map(repr, new_keys)) == sorted(map(repr, old_keys))
 
-    if type_str in ("dropdown", "ranked-dropdown"):
+    if type_str in ("dropdown", *_DROPDOWN_BY_ID):
         if len(existing_for_field) != 1:
             return False
         new_id = _extract_dropdown_option_id(resolved_new)
-        old_id = _extract_dropdown_option_id(existing_for_field[0].get("value"))
+        old_id = _existing_dropdown_option_id(field_meta, existing_for_field[0].get("value"))
         return new_id is not None and new_id == old_id
 
     if type_str == "dropdown-multi":
@@ -985,7 +1089,7 @@ def value_equals_existing(
             new_ids.add(oid)
         old_ids: set[int] = set()
         for fv in existing_for_field:
-            oid = _extract_dropdown_option_id(fv.get("value"))
+            oid = _existing_dropdown_option_id(field_meta, fv.get("value"))
             if oid is None:
                 return False
             old_ids.add(oid)
@@ -1229,16 +1333,18 @@ def _v1_wire_value(field_meta: FieldMetadata | None, type_str: str, raw: Any, re
     """The value to send to a V1 write.
 
     V1 creates a new dropdown option when given unknown text, so dropdown values are sent as
-    the exact text of the option pre-validation matched, never as typed. Numbers go as
+    the exact text of the option pre-validation matched, never as typed; ranked and status
+    dropdowns take the option id. Numbers go as
     numbers, locations in V1's snake_case shape, entity references as ids; anything else as
     the user typed it (V1 parses dates and text itself).
     """
-    if type_str.startswith(("dropdown", "ranked-dropdown")):
+    if is_dropdown_type(type_str):
         option_id = _extract_dropdown_option_id(resolved)
         options = field_meta.dropdown_options if field_meta is not None else []
         for opt in options:
             if option_id is not None and int(opt.id) == option_id:
-                return opt.text
+                # Ranked/status dropdowns take the option id (V1 rejects text for them).
+                return int(opt.id) if type_str in _DROPDOWN_BY_ID else opt.text
         raise CLIError(
             f"Dropdown value {raw!r} could not be matched to an option; nothing was written.",
             exit_code=2,
@@ -1256,7 +1362,7 @@ def _v1_wire_value(field_meta: FieldMetadata | None, type_str: str, raw: Any, re
 def _v1_row_key(type_str: str, value: Any) -> Any:
     """Comparable key for a V1 row value or a V1 wire value (dropdowns compare by text, which
     is how V1 stores them; everything else as :func:`canonical_item`)."""
-    if type_str.startswith(("dropdown", "ranked-dropdown")):
+    if is_dropdown_type(type_str):
         text = value.get("text") if isinstance(value, dict) else value
         return None if text is None else str(text).strip().lower()
     return canonical_item(type_str, value)
@@ -1270,8 +1376,12 @@ def execute_v1_set_phase(
     pre_resolved_ops: dict[str, tuple[Any, Any, str]],
     existing_values_serialized: list[dict[str, Any]],
     resolver: FieldResolver,
+    list_entry_id: int | None = None,
 ) -> tuple[list[dict[str, Any]], int]:
     """Apply pre-validated --set operations via V1, never deleting before writing.
+
+    ``list_entry_id`` is required for opportunities: V1 creates an opportunity's field value
+    only with the id of its list entry.
 
     Single-value fields are updated in place (``PUT``) or created; multi-value fields get
     their missing values created first and unwanted rows deleted after.
@@ -1286,7 +1396,7 @@ def execute_v1_set_phase(
     """
     from affinity.models.entities import FieldValueCreate
     from affinity.models.types import FieldId as FieldIdType
-    from affinity.models.types import FieldValueId
+    from affinity.models.types import FieldValueId, ListEntryId
 
     created: list[dict[str, Any]] = []
     deleted_count = 0
@@ -1303,6 +1413,21 @@ def execute_v1_set_phase(
         if value_equals_existing(field_meta, resolved_value, existing_for_field):
             continue
 
+        if entity_kind in ("company", "person") and value_type_str in (
+            "dropdown",
+            "dropdown-multi",
+        ):
+            # V1 writes plain dropdowns by text and creates a new option for text that no
+            # longer matches one (e.g. renamed since validation) - on an account-wide field,
+            # with no API to delete it. The V2 write takes option ids and replaces the value.
+            collection = "companies" if entity_kind == "company" else "persons"
+            client._http.post(
+                f"/{collection}/{entity_id}/fields/{field_id}",
+                json={"value": {"type": value_type_str, "data": resolved_value}},
+            )
+            created.append({"fieldId": field_id, "value": resolved_value})
+            continue
+
         name = resolver.get_field_name(field_id) or field_id
         is_multi = value_type_str.endswith("-multi") or bool(
             field_meta is not None and field_meta.allows_multiple
@@ -1315,6 +1440,7 @@ def execute_v1_set_phase(
                         field_id=FieldIdType(_fid),
                         entity_id=entity_id,
                         value=value,
+                        list_entry_id=ListEntryId(list_entry_id) if list_entry_id else None,
                     )
                 )
             )

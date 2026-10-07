@@ -1231,6 +1231,16 @@ def _get_opportunity_list_id(*, client: Any, opportunity_id: int) -> int:
     return int(opp.list_id)
 
 
+def _get_opportunity_list_entry_id(*, client: Any, opportunity_id: int) -> int | None:
+    """The id of the opportunity's list entry (V1 needs it to create a field value)."""
+    data = client._http.get(f"/opportunities/{opportunity_id}", v1=True)
+    entries = data.get("list_entries") if isinstance(data, dict) else None
+    if isinstance(entries, list) and entries and isinstance(entries[0], dict):
+        entry_id = entries[0].get("id")
+        return int(entry_id) if entry_id is not None else None
+    return None
+
+
 @category("write")
 @opportunity_group.command(name="field", cls=RichCommand)
 @click.argument("opportunity_id", type=int)
@@ -1405,7 +1415,20 @@ def opportunity_field(
             resolved_set_ops.append((target_field_id, value))
 
         # Phase 3: pre-validate ALL values up front (same strict default).
+        # Dropdown options, read fresh: V2 field metadata has none, and V1 writes plain
+        # dropdowns by text (unknown text creates a new option).
+        resolver.load_dropdown_options(
+            client, [fid for fid, _ in resolved_set_ops], entity_type="opportunity", list_id=list_id
+        )
         pre_resolved_set = pre_validate_set_operations(resolver, resolved_set_ops)
+        # Resolve --unset names before any write, so a typo aborts cleanly.
+        unset_numeric_ids: list[int] = []
+        for field_name in unset_fields:
+            target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
+            numeric_field_id = resolver.to_v1_numeric(
+                client, target_field_id, entity_type="opportunity"
+            )
+            unset_numeric_ids.append(numeric_field_id)
 
         # Phase 4: fetch existing values + execute set phase via shared helper.
         # The shared helper handles V1-numeric mapping for enriched fields via
@@ -1422,17 +1445,15 @@ def opportunity_field(
             pre_resolved_ops=pre_resolved_set,
             existing_values_serialized=existing_values_serialized,
             resolver=resolver,
+            list_entry_id=(
+                _get_opportunity_list_entry_id(client=client, opportunity_id=opportunity_id)
+                if pre_resolved_set
+                else None
+            ),
         )
 
-        # Handle --unset: hoist resolution upfront so a typo aborts cleanly.
+        # Handle --unset (names resolved before any write).
         deleted_count = set_deleted_count
-        unset_numeric_ids: list[int] = []
-        for field_name in unset_fields:
-            target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
-            numeric_field_id = resolver.to_v1_numeric(
-                client, target_field_id, entity_type="opportunity"
-            )
-            unset_numeric_ids.append(numeric_field_id)
         if unset_numeric_ids:
             existing_values = client.field_values.list(opportunity_id=OpportunityId(opportunity_id))
             existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values]

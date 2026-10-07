@@ -465,6 +465,8 @@ def test_opportunity_field_set_reaches_the_write() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         path = request.url.path
         seen.append((request.method, path))
+        if path == "/opportunities/42":
+            return httpx.Response(200, json={"id": 42, "list_entries": [{"id": 555}]})
         if path == "/v2/opportunities/42":
             return httpx.Response(200, json={"id": 42, "name": "Deal", "listId": 9})
         if path == "/v2/lists/9/fields":

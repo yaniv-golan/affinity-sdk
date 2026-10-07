@@ -3596,7 +3596,22 @@ def list_entry_field(
         append_ops_for_validation: list[tuple[str, Any]] = [
             (resolved_fields[field_spec], value) for field_spec, value in append_values
         ]
-        pre_validate_set_operations(resolver, set_operations_raw + append_ops_for_validation)
+        try:
+            pre_validate_set_operations(resolver, set_operations_raw + append_ops_for_validation)
+        except CLIError as exc:
+            # A dropdown option added moments ago may be missing from the (V1, possibly
+            # cached) list fields: read the options of those fields fresh and retry once.
+            missing = [
+                f["fieldId"]
+                for f in (exc.details or {}).get("failures", [])
+                if "Dropdown option" in str(f.get("reason"))
+            ]
+            if not missing:
+                raise
+            resolver.load_dropdown_options(
+                client, missing, entity_type="list-entry", list_id=int(resolved_list.list.id)
+            )
+            pre_validate_set_operations(resolver, set_operations_raw + append_ops_for_validation)
         # We still want a dict keyed by set-op field-id for the set helper; build
         # it from set_operations_raw only.
         pre_resolved_set = pre_validate_set_operations(resolver, set_operations_raw)
