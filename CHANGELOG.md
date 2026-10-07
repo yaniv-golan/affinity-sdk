@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.17.0] - 2026-10-07
+
+### Highlights
+
+**Company and person merges no longer need `--beta`** (or
+`enable_beta_endpoints=True`): Affinity made the merge endpoints generally available.
+This also fixes merges through the MCP server, which always failed because it never
+passes `--beta`. If you relied on `BetaEndpointDisabledError` to block merges, they
+now run.
+
+**Date fields can be written reliably.** `--set <date field> 2024-04-01` used to fail
+with HTTP 400, and the SDK's `update_field_value()` / `batch_update_fields()` raised
+`TypeError` for a `date` or `datetime`. Both now land on the calendar day you gave,
+and setting the date a field already holds is a no-op instead of a rewrite.
+
+**Fields created moments ago work in the CLI.** `list entry field --set` and
+`list export --field` no longer fail with "not found" while Affinity's V1 field listing
+catches up with a new field.
+
+Also: `get_fields()` returns every field in orgs with more than one page of them, the
+CLI's proactive rate-limit throttle now actually fires, `rate_limits.refresh()` works on
+plans without a monthly cap, and models keep the response fields Affinity added to V2
+this year.
+
 ### Added
 
 - Models now keep response fields Affinity added to the V2 API in 2026 (previously parsed and

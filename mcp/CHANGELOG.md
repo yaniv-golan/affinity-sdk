@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.22.5] - 2026-10-07
+
+### Highlights
+
+`company merge` and `person merge` work through the MCP server. They always failed
+with `BetaEndpointDisabledError`, because the gateway never passes `--beta`; CLI 1.17.0
+no longer requires it (Affinity made merges generally available). Requires CLI 1.17.0,
+which also fixes setting date fields and using list fields created moments earlier.
+
+### Changed
+
+- Requires CLI 1.17.0 (`mcp/COMPATIBILITY`).
+
 ### Fixed
 
 - `task status` description in the command registry now lists the status as `in-progress`

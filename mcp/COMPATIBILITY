@@ -1,9 +1,17 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="1.16.0"
-CLI_MAX_VERSION="1.16.0"
+CLI_MIN_VERSION="1.17.0"
+CLI_MAX_VERSION="1.17.0"
 
+# MCP 1.22.5 requires CLI 1.17.0 for:
+# - `company merge` / `person merge` without `--beta`: the gateway never passes
+#   `--beta`, so on CLI <= 1.16.0 every merge failed with BetaEndpointDisabledError.
+# - `field --set` on date fields: a plain date (YYYY-MM-DD) was rejected by the
+#   API with HTTP 400 on CLI <= 1.16.0; setting the same date is now a no-op.
+# - `list entry field --set` / `list export --field` find list fields created
+#   moments earlier (V1 field listing lag).
+#
 # MCP 1.22.3 requires CLI 1.16.0 for:
 # - List field values on targeted lookups: `list export --company-id` /
 #   `--person-id`, `list entry get`, and `query` listEntries direct lookups
