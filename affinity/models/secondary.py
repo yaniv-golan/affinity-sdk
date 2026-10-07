@@ -388,7 +388,9 @@ class RateLimitInfo(AffinityModel):
 class RateLimits(AffinityModel):
     """Current rate limit status."""
 
-    org_monthly: RateLimitInfo = Field(alias="orgMonthly")
+    # Absent when no monthly quota applies (documented for v2 `orgPerMonth`; v1 and v2 share
+    # one request pool, so v1's `org_monthly` is treated the same way).
+    org_monthly: RateLimitInfo | None = Field(None, alias="orgMonthly")
     api_key_per_minute: RateLimitInfo = Field(alias="apiKeyPerMinute")
 
 

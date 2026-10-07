@@ -103,11 +103,15 @@ def _snapshot_from_endpoint(
             reset_seconds=limits.api_key_per_minute.reset,
             used=limits.api_key_per_minute.used,
         ),
-        org_monthly=RateLimitBucket(
-            limit=limits.org_monthly.limit,
-            remaining=limits.org_monthly.remaining,
-            reset_seconds=limits.org_monthly.reset,
-            used=limits.org_monthly.used,
+        org_monthly=(
+            RateLimitBucket(
+                limit=limits.org_monthly.limit,
+                remaining=limits.org_monthly.remaining,
+                reset_seconds=limits.org_monthly.reset,
+                used=limits.org_monthly.used,
+            )
+            if limits.org_monthly is not None
+            else RateLimitBucket()  # no monthly quota applies
         ),
         observed_at=observed_at,
         age_seconds=0.0,

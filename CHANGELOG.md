@@ -36,6 +36,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   It read `X-RateLimit-Remaining`, which Affinity does not send, from a lowercase-keyed dict;
   it now reads `x-ratelimit-limit-user-remaining` (any case) and pauses 0.5 s when fewer than
   10 requests remain in the per-minute quota. The 429 backoff was unaffected.
+- `client.rate_limits.refresh()` raised a validation error when the rate-limit response had no
+  monthly org bucket, which happens on plans with no monthly cap (documented for v2; v1 and v2
+  share one request pool). The org bucket now comes back empty (all fields `None`), matching
+  the header-derived snapshot, and `RateLimits.org_monthly` is optional.
 
 ## [1.16.0] - 2026-10-07
 

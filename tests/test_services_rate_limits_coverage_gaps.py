@@ -285,3 +285,43 @@ class TestRateLimitServiceRefreshFallback:
         assert snapshot.api_key_per_minute.limit == 500
         assert snapshot.api_key_per_minute.remaining == 400
         assert snapshot.org_monthly.limit == 50000
+
+    def test_refresh_without_org_monthly_bucket(self) -> None:
+        """Plans with no monthly cap omit the org bucket; refresh must not raise.
+
+        v2 `/v2/rate-limit` documents `orgPerMonth` as absent when no monthly quota applies, and
+        v1 and v2 share one request pool, so v1's `org_monthly` is treated as optional too.
+        """
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            if "/rate-limit" in str(request.url):
+                return httpx.Response(
+                    200,
+                    json={
+                        "rate": {
+                            "api_key_per_minute": {
+                                "limit": 900,
+                                "remaining": 899,
+                                "reset": 42,
+                                "used": 1,
+                            }
+                        }
+                    },
+                    request=request,
+                )
+            return httpx.Response(404, request=request)
+
+        http = HTTPClient(
+            ClientConfig(
+                api_key="test",
+                v1_base_url="https://v1.example",
+                v2_base_url="https://v2.example/v2",
+                max_retries=0,
+                transport=httpx.MockTransport(handler),
+            )
+        )
+        snapshot = RateLimitService(http).refresh()
+        assert snapshot.source == "endpoint"
+        assert snapshot.api_key_per_minute.remaining == 899
+        assert snapshot.org_monthly.limit is None
+        assert snapshot.org_monthly.remaining is None
