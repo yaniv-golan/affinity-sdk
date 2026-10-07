@@ -1195,6 +1195,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#writing-dates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing dates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2278,6 +2289,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#writing-dates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing dates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2453,7 +2475,7 @@ Unknown future values are treated as open enums and preserved as strings.</p>
 <tr>
 <td><code>datetime</code></td>
 <td><code>str</code> / <code>datetime.datetime</code></td>
-<td>Typically ISO-8601 datetime strings on read</td>
+<td>Typically ISO-8601 datetime strings on read. Affinity stores date fields at midnight Pacific Time; see <a href="#writing-dates">Writing dates</a></td>
 </tr>
 <tr>
 <td><code>person</code> / <code>person-multi</code></td>
@@ -2487,6 +2509,18 @@ Unknown future values are treated as open enums and preserved as strings.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="writing-dates">Writing dates<a class="headerlink" href="#writing-dates" title="Permanent link">&para;</a></h2>
+<p>Since 2026-01-01 Affinity stores date fields at midnight Pacific Time, so a stored value reads
+back as e.g. <code>2024-04-01T07:00:00Z</code> (PDT) or <code>2024-01-15T08:00:00Z</code> (PST).</p>
+<ul>
+<li><strong>SDK:</strong> pass a <code>datetime.date</code> or <code>datetime.datetime</code> to <code>update_field_value()</code> /
+  <code>batch_update_fields()</code>. A <code>date</code> is sent as noon UTC, which falls on the same calendar day in
+  Pacific Time, so it is stored on the date you passed.</li>
+<li><strong>CLI:</strong> <code>--set &lt;field&gt; 2024-04-01</code> works the same way; a full date-time is converted to UTC,
+  and anything unparseable is rejected before any write.</li>
+<li>Setting the date a field already holds is a no-op: the CLI compares calendar dates, not exact
+  timestamps.</li>
+</ul>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../filtering/">Filtering</a></li>
