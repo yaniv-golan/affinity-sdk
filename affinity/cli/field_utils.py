@@ -368,15 +368,15 @@ class FieldResolver:
             else int(v1_id)
         )
 
-    def resolve_field_value(
-        self, field_id: str, value: str | list[str]
-    ) -> tuple[list[dict[str, int]] | dict[str, int] | str | list[str], str]:
+    def resolve_field_value(self, field_id: str, value: Any) -> tuple[Any, str]:
         """Resolve a field value to the format expected by the V2 API.
 
         Handles type-specific wrapping:
         - Dropdown/ranked-dropdown/dropdown-multi: text/ID → ``{"dropdownOptionId": ID}``
         - Person/company: ID → ``{"id": ID}``
         - Person-multi/company-multi: ID(s) → ``[{"id": ID}, ...]``
+        - Number(-multi): numeric string(s) → int/float
+        - Location(-multi): JSON object(s) → the five-key V2 location shape
         - Other types: returns value unchanged with inferred type
 
         Args:
@@ -402,7 +402,7 @@ class FieldResolver:
         # V1 API returns the base type (e.g., "dropdown", "person", "company") for
         # both single and multi fields, relying on allows_multiple to distinguish.
         # Promote to "-multi" so the correct API payload format is used downstream.
-        if field.allows_multiple and type_str in ("dropdown", "person", "company"):
+        if field.allows_multiple and type_str in _PROMOTABLE_TO_MULTI:
             type_str = f"{type_str}-multi"
 
         # Handle dropdown, ranked-dropdown, and dropdown-multi fields
@@ -497,11 +497,130 @@ class FieldResolver:
         if type_str == "datetime" and isinstance(value, str):
             return _normalize_datetime_input(value, field.name), type_str
 
+        # Numbers: the V2 API rejects numeric strings ("5" -> 400).
+        if type_str == "number":
+            if isinstance(value, list):
+                raise CLIError(
+                    f"List values not supported for number field '{field.name}'.",
+                    exit_code=2,
+                    error_type="validation_error",
+                )
+            return _coerce_number(value, field.name), type_str
+        if type_str == "number-multi":
+            items = value if isinstance(value, list) else [value]
+            return [_coerce_number(item, field.name) for item in items], type_str
+
+        # Locations: the V2 API requires an object with all five address keys.
+        if type_str == "location":
+            parsed = _parse_location_input(value, field.name)
+            if isinstance(parsed, list):
+                raise CLIError(
+                    f"List values not supported for location field '{field.name}'.",
+                    exit_code=2,
+                    error_type="validation_error",
+                )
+            return parsed, type_str
+        if type_str == "location-multi":
+            parsed = _parse_location_input(value, field.name)
+            return (parsed if isinstance(parsed, list) else [parsed]), type_str
+
         # For non-dropdown fields, return value and inferred type
         return value, type_str
 
     # Backward-compat alias
     resolve_dropdown_value = resolve_field_value
+
+
+# V1 metadata reports the base type plus ``allows_multiple``; these become ``<type>-multi``.
+_PROMOTABLE_TO_MULTI = ("dropdown", "person", "company", "number", "location")
+
+LOCATION_KEYS = ("streetAddress", "city", "state", "country", "continent")
+_LOCATION_KEY_ALIASES = {"street_address": "streetAddress"}
+
+
+def _coerce_number(value: Any, field_name: str) -> int | float:
+    """A JSON number or numeric string as int/float; anything else is a validation error."""
+    import math
+
+    if isinstance(value, bool):
+        pass
+    elif isinstance(value, (int, float)):
+        return value
+    elif isinstance(value, str):
+        s = value.strip()
+        try:
+            return int(s)
+        except ValueError:
+            try:
+                f = float(s)
+            except ValueError:
+                pass
+            else:
+                if math.isfinite(f):
+                    return f
+    raise CLIError(
+        f"Invalid number '{value}' for field '{field_name}'.",
+        exit_code=2,
+        error_type="validation_error",
+    )
+
+
+def normalize_location(value: Any, field_name: str) -> dict[str, Any]:
+    """A location object in the V2 shape: camelCase keys, all five present (missing -> None)."""
+    if not isinstance(value, dict):
+        raise CLIError(
+            f"Invalid location for field '{field_name}': expected a JSON object such as "
+            '{"city": "Paris", "country": "France"}.',
+            exit_code=2,
+            error_type="validation_error",
+        )
+    out: dict[str, Any] = dict.fromkeys(LOCATION_KEYS)
+    unknown: list[str] = []
+    for k, v in value.items():
+        key = _LOCATION_KEY_ALIASES.get(k, k)
+        if key not in out:
+            unknown.append(str(k))
+            continue
+        if v is not None and not isinstance(v, str):
+            raise CLIError(
+                f"Invalid location for field '{field_name}': '{k}' must be a string.",
+                exit_code=2,
+                error_type="validation_error",
+            )
+        out[key] = v
+    if unknown:
+        raise CLIError(
+            f"Invalid location for field '{field_name}': unknown key(s) {', '.join(unknown)} "
+            f"(allowed: {', '.join(LOCATION_KEYS)}).",
+            exit_code=2,
+            error_type="validation_error",
+        )
+    if all(v is None for v in out.values()):
+        raise CLIError(
+            f"Invalid location for field '{field_name}': no address part given.",
+            exit_code=2,
+            error_type="validation_error",
+        )
+    return out
+
+
+def _parse_location_input(value: Any, field_name: str) -> dict[str, Any] | list[dict[str, Any]]:
+    """Parse a location from ``--set`` (JSON text) or ``--set-json`` (object or list)."""
+    import json
+
+    if isinstance(value, str):
+        try:
+            value = json.loads(value)
+        except json.JSONDecodeError:
+            raise CLIError(
+                f"Invalid location for field '{field_name}': expected a JSON object such as "
+                '{"city": "Paris", "country": "France"}.',
+                exit_code=2,
+                error_type="validation_error",
+            ) from None
+    if isinstance(value, list):
+        return [normalize_location(item, field_name) for item in value]
+    return normalize_location(value, field_name)
 
 
 def _coerce_entity_id(value: Any, field_name: str, type_str: str) -> int:
@@ -718,6 +837,30 @@ def _extract_dropdown_option_id(value: Any) -> int | None:
         return None
 
 
+def canonical_item(type_str: str, value: Any) -> Any:
+    """A comparable key for one value of a field, from either a resolved (V2) value or an
+    existing V1 row value; ``None`` when it can't be determined."""
+    if isinstance(value, dict) and "data" in value and "type" in value:
+        value = value["data"]
+    if type_str.startswith(("dropdown", "ranked-dropdown")):
+        return _extract_dropdown_option_id(value)
+    if type_str.startswith(("person", "company")):
+        return _extract_entity_id(value)
+    if type_str.startswith("number"):
+        if isinstance(value, bool) or value is None:
+            return None
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return None
+    if type_str.startswith("location"):
+        if not isinstance(value, dict):
+            return None
+        norm = {_LOCATION_KEY_ALIASES.get(k, k): v for k, v in value.items()}
+        return tuple((k, (norm.get(k) or None)) for k in LOCATION_KEYS)
+    return None if value is None else format_value_for_comparison(value).strip()
+
+
 def _is_empty_new_value(value: Any) -> bool:
     """Is the new value semantically empty? (matches empty existing for no-op)."""
     if value is None:
@@ -814,8 +957,16 @@ def value_equals_existing(
 
     value_type = field_meta.value_type
     type_str = value_type.value if isinstance(value_type, FieldValueType) else str(value_type)
-    if field_meta.allows_multiple and type_str in ("dropdown", "person", "company"):
+    if field_meta.allows_multiple and type_str in _PROMOTABLE_TO_MULTI:
         type_str = f"{type_str}-multi"
+
+    if type_str in ("number-multi", "location", "location-multi"):
+        new_items = resolved_new if isinstance(resolved_new, list) else [resolved_new]
+        new_keys = [canonical_item(type_str, v) for v in new_items]
+        old_keys = [canonical_item(type_str, fv.get("value")) for fv in existing_for_field]
+        if None in new_keys or None in old_keys:
+            return False
+        return sorted(map(repr, new_keys)) == sorted(map(repr, old_keys))
 
     if type_str in ("dropdown", "ranked-dropdown"):
         if len(existing_for_field) != 1:
@@ -1008,7 +1159,7 @@ def _serialize(obj: Any) -> dict[str, Any]:
 
 def execute_v2_set_phase(
     *,
-    client: Any,
+    client: Any,  # noqa: ARG001 - kept for symmetry with the V1 set helper
     entries: Any,
     list_entry_id: int,
     pre_resolved_ops: dict[str, tuple[Any, Any, str]],
@@ -1017,10 +1168,11 @@ def execute_v2_set_phase(
 ) -> tuple[list[dict[str, Any]], int, list[dict[str, Any]]]:
     """Apply pre-validated --set operations via V2 ``entries.update_field_value``.
 
-    Skips delete+create when :func:`value_equals_existing` reports a no-op
-    (the audit log stays clean on retries). Returns refreshed existing-values
-    so a subsequent :func:`execute_append_phase` does not re-fetch and does
-    not see stale data.
+    Skips the write when :func:`value_equals_existing` reports a no-op (the audit
+    log stays clean on retries). Existing values are replaced by the V2 write
+    itself; nothing is deleted beforehand, so ``deleted_count`` is always 0.
+    Returns refreshed existing-values so a subsequent :func:`execute_append_phase`
+    does not re-fetch and does not see stale data.
 
     Args:
         client: Sync ``Affinity`` client.
@@ -1049,45 +1201,65 @@ def execute_v2_set_phase(
         if value_equals_existing(field_meta, resolved_value, existing_for_field):
             continue
 
-        deleted_ids: list[int] = []
-        for fv in existing_for_field:
-            fv_id = fv.get("id")
-            if fv_id is not None:
-                client.field_values.delete(fv_id)
-                deleted_ids.append(int(fv_id))
-                deleted_count += 1
-
         try:
             parsed_field_id: Any = FieldId(field_id)
         except (ValueError, TypeError):
             parsed_field_id = EnrichedFieldId(field_id)
 
-        try:
-            result = entries.update_field_value(
-                ListEntryId(list_entry_id),
-                parsed_field_id,
-                resolved_value,
-                value_type=value_type_str,
-            )
-        except Exception as exc:
-            if not deleted_ids:
-                raise
-            # The old values are already gone; say so instead of failing silently.
-            removed = [fv.get("value") for fv in existing_for_field]
-            name = resolver.get_field_name(field_id) or field_id
-            raise CLIError(
-                f"Writing field '{name}' failed after its {len(deleted_ids)} existing value(s) "
-                f"were deleted, so the field is now empty. Removed values: {removed!r}. "
-                f"Cause: {exc}",
-                exit_code=1,
-                error_type="partial_write",
-                details={"fieldId": field_id, "removedValues": removed},
-            ) from exc
+        # One V2 write replaces the whole value (single and multi-value fields); a rejected
+        # write leaves the field as it was. Never delete the old rows first: a write that
+        # then fails would leave the field empty.
+        result = entries.update_field_value(
+            ListEntryId(list_entry_id),
+            parsed_field_id,
+            resolved_value,
+            value_type=value_type_str,
+        )
         new_serialized = _serialize(result)
         created.append(new_serialized)
-        refreshed = _refresh_existing_after_change(refreshed, field_id, deleted_ids, new_serialized)
+        replaced_ids = [int(fv["id"]) for fv in existing_for_field if fv.get("id") is not None]
+        refreshed = _refresh_existing_after_change(
+            refreshed, field_id, replaced_ids, new_serialized
+        )
 
     return created, deleted_count, refreshed
+
+
+def _v1_wire_value(field_meta: FieldMetadata | None, type_str: str, raw: Any, resolved: Any) -> Any:
+    """The value to send to a V1 write.
+
+    V1 creates a new dropdown option when given unknown text, so dropdown values are sent as
+    the exact text of the option pre-validation matched, never as typed. Numbers go as
+    numbers, locations in V1's snake_case shape, entity references as ids; anything else as
+    the user typed it (V1 parses dates and text itself).
+    """
+    if type_str.startswith(("dropdown", "ranked-dropdown")):
+        option_id = _extract_dropdown_option_id(resolved)
+        options = field_meta.dropdown_options if field_meta is not None else []
+        for opt in options:
+            if option_id is not None and int(opt.id) == option_id:
+                return opt.text
+        raise CLIError(
+            f"Dropdown value {raw!r} could not be matched to an option; nothing was written.",
+            exit_code=2,
+            error_type="validation_error",
+        )
+    if type_str.startswith("number"):
+        return resolved
+    if type_str.startswith(("person", "company")):
+        return _extract_entity_id(resolved)
+    if type_str.startswith("location") and isinstance(resolved, dict):
+        return {("street_address" if k == "streetAddress" else k): v for k, v in resolved.items()}
+    return raw
+
+
+def _v1_row_key(type_str: str, value: Any) -> Any:
+    """Comparable key for a V1 row value or a V1 wire value (dropdowns compare by text, which
+    is how V1 stores them; everything else as :func:`canonical_item`)."""
+    if type_str.startswith(("dropdown", "ranked-dropdown")):
+        text = value.get("text") if isinstance(value, dict) else value
+        return None if text is None else str(text).strip().lower()
+    return canonical_item(type_str, value)
 
 
 def execute_v1_set_phase(
@@ -1099,9 +1271,12 @@ def execute_v1_set_phase(
     existing_values_serialized: list[dict[str, Any]],
     resolver: FieldResolver,
 ) -> tuple[list[dict[str, Any]], int]:
-    """Apply pre-validated --set operations via V1 ``field_values.create``.
+    """Apply pre-validated --set operations via V1, never deleting before writing.
 
-    Sends the **raw** user value (not the resolved payload) on the wire
+    Single-value fields are updated in place (``PUT``) or created; multi-value fields get
+    their missing values created first and unwanted rows deleted after.
+
+    Sends the user value in V1 form (see :func:`_v1_wire_value`), not the V2 payload,
     because V1's ``FieldValueCreate`` schema expects scalars/strings and
     server-side resolves dropdown text and entity references. The no-op
     short-circuit still uses the resolved value for accurate comparison.
@@ -1111,11 +1286,12 @@ def execute_v1_set_phase(
     """
     from affinity.models.entities import FieldValueCreate
     from affinity.models.types import FieldId as FieldIdType
+    from affinity.models.types import FieldValueId
 
     created: list[dict[str, Any]] = []
     deleted_count = 0
 
-    for field_id, (raw_value, resolved_value, _value_type_str) in pre_resolved_ops.items():
+    for field_id, (raw_value, resolved_value, value_type_str) in pre_resolved_ops.items():
         numeric_field_id = resolver.to_v1_numeric(client, field_id, entity_type=entity_kind)
         # V1 field-value rows are keyed by numeric field-id, so the no-op
         # comparison must match on that canonical form.
@@ -1127,20 +1303,87 @@ def execute_v1_set_phase(
         if value_equals_existing(field_meta, resolved_value, existing_for_field):
             continue
 
-        for fv in existing_for_field:
-            fv_id = fv.get("id")
-            if fv_id is not None:
-                client.field_values.delete(fv_id)
-                deleted_count += 1
-
-        result = client.field_values.create(
-            FieldValueCreate(
-                field_id=FieldIdType(numeric_field_id),
-                entity_id=entity_id,
-                value=raw_value,
-            )
+        name = resolver.get_field_name(field_id) or field_id
+        is_multi = value_type_str.endswith("-multi") or bool(
+            field_meta is not None and field_meta.allows_multiple
         )
-        created.append(_serialize(result))
+
+        def _create(value: Any, _fid: int = numeric_field_id) -> dict[str, Any]:
+            return _serialize(
+                client.field_values.create(
+                    FieldValueCreate(
+                        field_id=FieldIdType(_fid),
+                        entity_id=entity_id,
+                        value=value,
+                    )
+                )
+            )
+
+        if not is_multi:
+            # Update in place: a rejected write leaves the old value. Never delete first.
+            wire = _v1_wire_value(field_meta, value_type_str, raw_value, resolved_value)
+            rows = [fv for fv in existing_for_field if fv.get("id") is not None]
+            if rows:
+                created.append(
+                    _serialize(client.field_values.update(FieldValueId(int(rows[0]["id"])), wire))
+                )
+                # Legacy extra rows on a single-value field: remove only after the update.
+                for fv in rows[1:]:
+                    client.field_values.delete(FieldValueId(int(fv["id"])))
+                    deleted_count += 1
+            else:
+                created.append(_create(wire))
+            continue
+
+        # Multi-value field: add the missing values first, then remove the ones no longer
+        # wanted. A failure part-way leaves extra values, never an empty field.
+        targets_raw = raw_value if isinstance(raw_value, list) else [raw_value]
+        targets_res = resolved_value if isinstance(resolved_value, list) else [resolved_value]
+        if len(targets_raw) != len(targets_res):
+            targets_raw = targets_res
+        keep_ids: set[int] = set()
+        to_add: list[Any] = []
+        existing_keys = {
+            int(fv["id"]): _v1_row_key(value_type_str, fv.get("value"))
+            for fv in existing_for_field
+            if fv.get("id") is not None
+        }
+        seen: set[str] = set()
+        for raw_item, res_item in zip(targets_raw, targets_res, strict=True):
+            wire = _v1_wire_value(field_meta, value_type_str, raw_item, res_item)
+            key = _v1_row_key(value_type_str, wire)
+            if repr(key) in seen:
+                continue
+            seen.add(repr(key))
+            match = next(
+                (fid for fid, k in existing_keys.items() if key is not None and k == key), None
+            )
+            if match is not None:
+                keep_ids.add(match)
+            else:
+                to_add.append(wire)
+        added: list[dict[str, Any]] = []
+        removed: list[Any] = []
+        try:
+            for value in to_add:
+                added.append(_create(value))
+            for fv_id, _key in existing_keys.items():
+                if fv_id not in keep_ids:
+                    client.field_values.delete(FieldValueId(fv_id))
+                    removed.append(fv_id)
+                    deleted_count += 1
+        except Exception as exc:
+            if not added and not removed:
+                raise
+            raise CLIError(
+                f"Writing field '{name}' stopped part-way: {len(added)} value(s) added, "
+                f"{len(removed)} old value(s) removed; no value was lost. Re-running the "
+                f"command finishes it. Cause: {exc}",
+                exit_code=1,
+                error_type="partial_write",
+                details={"fieldId": field_id, "added": added, "removedRowIds": removed},
+            ) from exc
+        created.extend(added)
 
     return created, deleted_count
 
@@ -1215,8 +1458,8 @@ def check_multi_value_limits(
 ) -> None:
     """Fail before any write if a multi-value field would exceed Affinity's 100-value cap.
 
-    Must run before :func:`execute_v2_set_phase`, which deletes the existing V1 rows before
-    the V2 write: a write rejected after the deletes would leave the field empty.
+    Runs before any write, so an over-cap request changes nothing (the server would reject
+    the write anyway, and a multi-field command must not stop half-way).
     ``--append`` counts the existing values plus the new ones not already present, the same
     way :func:`execute_append_phase` merges them.
     """
@@ -1247,13 +1490,11 @@ def check_multi_value_limits(
             existing = find_field_values_for_field(
                 field_values=existing_values_serialized, field_id=field_id
             )
-            existing_ids = {
-                eid for fv in existing if (eid := _extract_entity_id(fv.get("value"))) is not None
-            }
-            base_count = len(existing_ids) or len(existing)
-        added = {
-            item.get("id") if isinstance(item, dict) else item for item in new_items
-        } - existing_ids
+            existing_ids = {canonical_item(type_str, fv.get("value")) for fv in existing}
+            base_count = len(existing)
+        added = {repr(canonical_item(type_str, item)) for item in new_items} - {
+            repr(k) for k in existing_ids
+        }
         final_counts[field_id] = (type_str, base_count + len(added))
 
     over = {fid: n for fid, (_t, n) in final_counts.items() if n > MAX_MULTI_VALUES}
@@ -1271,6 +1512,37 @@ def check_multi_value_limits(
         )
 
 
+def _v2_item_from_v1(type_str: str, value: Any) -> Any:
+    """One existing V1 row value in the V2 write shape of ``type_str``."""
+    if type_str.startswith(("person", "company")):
+        eid = _extract_entity_id(value)
+        return None if eid is None else {"id": eid}
+    if type_str.startswith("location") and isinstance(value, dict):
+        norm = {_LOCATION_KEY_ALIASES.get(k, k): v for k, v in value.items()}
+        return {k: norm.get(k) for k in LOCATION_KEYS}
+    if type_str.startswith("number"):
+        return canonical_item(type_str, value)
+    return value
+
+
+def check_append_targets(*, resolver: FieldResolver, append_ops: list[tuple[str, Any]]) -> None:
+    """Fail before any write if ``--append`` targets a field that holds a single value."""
+    single = sorted(
+        {
+            resolver.get_field_name(field_id) or field_id
+            for field_id, value in append_ops
+            if not resolver.resolve_field_value(field_id, value)[1].endswith("-multi")
+        }
+    )
+    if single:
+        raise CLIError(
+            f"--append adds to multi-value fields; {', '.join(repr(n) for n in single)} "
+            "hold(s) one value. Use --set to replace it. Nothing was changed.",
+            exit_code=2,
+            error_type="usage_error",
+        )
+
+
 def execute_append_phase(
     *,
     client: Any,  # noqa: ARG001 - kept for symmetry with set helpers + future use
@@ -1283,13 +1555,14 @@ def execute_append_phase(
     """V2-only --append phase. Merges with existing values for multi-fields.
 
     Group multiple ``--append`` flags by field, resolve, then merge with the
-    existing dropdown-multi / person-multi / company-multi values so the
+    existing values of the multi-value field (dropdown, person, company,
+    number, location) so the
     write is a true append (the V2 endpoint replaces the whole array, so we
     have to include the existing IDs).
 
-    For single-value fields, ``--append`` is just an overwrite — there is
-    only one slot. For each grouped field, short-circuits when all new IDs
-    are already in existing.
+    Single-value fields are refused (:func:`check_append_targets` runs before any
+    write). For each grouped field, short-circuits when all new values are
+    already present.
 
     ``append_ops`` MUST be the *resolved* field-id list (callers should run
     pre-validation first to catch invalid values before any side-effect).
@@ -1363,31 +1636,38 @@ def execute_append_phase(
                 continue
             final_value: Any = pre_existing_opts + new_opts_to_add
 
-        elif value_type_str in ("person-multi", "company-multi") and all_new_resolved:
-            pre_existing_entity_ids: set[int] = {
-                eid
-                for fv in existing_for_field
-                if (eid := _extract_entity_id(fv.get("value"))) is not None
-            }
-            new_entity_ids: set[int] = set()
-            entities_to_add: list[dict[str, int]] = []
-            for opt in all_new_resolved:
-                if isinstance(opt, dict):
-                    eid = opt.get("id")
-                    if eid is not None:
-                        new_entity_ids.add(int(eid))
-                        if int(eid) not in pre_existing_entity_ids:
-                            entities_to_add.append(opt)
-
-            if new_entity_ids and new_entity_ids.issubset(pre_existing_entity_ids):
+        elif value_type_str.endswith("-multi") and all_new_resolved:
+            # person/company/number/location multi: keep existing values, add the new ones.
+            existing_items = [
+                _v2_item_from_v1(value_type_str, fv.get("value")) for fv in existing_for_field
+            ]
+            existing_keys = [canonical_item(value_type_str, v) for v in existing_items]
+            if None in existing_keys:
+                raise CLIError(
+                    f"Cannot append to field '{resolver.get_field_name(field_id) or field_id}': "
+                    "an existing value could not be read back, so the merged list could drop "
+                    "it. Nothing was changed; use --set-json with the full list instead.",
+                    exit_code=2,
+                    error_type="usage_error",
+                )
+            to_add: list[Any] = []
+            for item in all_new_resolved:
+                key = canonical_item(value_type_str, item)
+                if key not in existing_keys:
+                    existing_keys.append(key)
+                    to_add.append(item)
+            if not to_add:
                 continue
-            final_value = [{"id": eid} for eid in pre_existing_entity_ids] + entities_to_add
-
-        elif len(values_for_field) == 1:
-            final_value = all_new_resolved[0] if len(all_new_resolved) == 1 else all_new_resolved
+            final_value = existing_items + to_add
 
         else:
-            final_value = all_new_resolved[-1] if all_new_resolved else all_new_resolved
+            # Single-value fields are refused before any write (check_append_targets).
+            raise CLIError(
+                f"Field '{resolver.get_field_name(field_id) or field_id}' holds one value; "
+                "use --set to replace it.",
+                exit_code=2,
+                error_type="usage_error",
+            )
 
         result = entries.update_field_value(
             ListEntryId(list_entry_id),

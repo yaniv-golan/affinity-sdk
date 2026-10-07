@@ -144,6 +144,18 @@ Affinity's V2 API returns and accepts at most **100 values per multi-value field
   dropdown-multi write schema declares no cap). `batch_update_fields()` accepts at most 100
   updates per call and no list values (use `update_field_value(..., value_type=...)` for those).
   The CLI's `list entry field` checks the final count before changing anything.
+  dropdown-multi has no such cap (Affinity accepted 101 values in testing).
+- **Replacing values:** a V2 write replaces the field's whole value; if Affinity rejects it,
+  the field keeps its old values. Nothing needs to be deleted first.
+
+## Writing numbers and locations
+
+- `number` data must be a JSON number: Affinity rejects `"5"`. The CLI converts numeric
+  input and refuses anything else before writing.
+- `location` data must contain all five keys `streetAddress`, `city`, `state`, `country`,
+  `continent` (`null` allowed). `update_field_value(..., value_type="location")` fills in the
+  missing ones (and accepts `street_address`); the CLI takes a JSON object such as
+  `{"city": "Paris", "country": "France"}`.
 
 ## Writing dates
 

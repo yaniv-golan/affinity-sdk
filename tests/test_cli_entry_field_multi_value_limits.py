@@ -1,8 +1,5 @@
-"""`list entry field` refuses to exceed Affinity's 100-value cap BEFORE touching anything.
-
-The set phase deletes the existing V1 rows and then writes through V2; a write rejected after the
-deletes would leave the field empty, so the size check must run before any DELETE or POST.
-"""
+"""`list entry field` refuses to exceed Affinity's 100-value cap BEFORE touching anything,
+so a multi-field command never stops half-way on a request the server would reject."""
 
 from __future__ import annotations
 
@@ -128,10 +125,10 @@ def test_set_json_at_cap_is_written(respx_mock: respx.MockRouter) -> None:
     assert len(sent["value"]["data"]) == 100
 
 
-def test_write_failure_after_delete_reports_removed_values(respx_mock: respx.MockRouter) -> None:
+def test_rejected_write_leaves_existing_values(respx_mock: respx.MockRouter) -> None:
+    """A rejected V2 write changes nothing server-side, and nothing was deleted before it."""
     routes = _setup(respx_mock, existing_company_ids=[1, 2])
     routes["post"].mock(return_value=Response(400, json={"errors": [{"message": "bad value"}]}))
     result = _run("--set-json", json.dumps({"field-200": [3]}))
     assert result.exit_code != 0
-    assert "field is now empty" in result.output
-    assert routes["delete"].call_count == 2
+    assert routes["delete"].call_count == 0

@@ -500,8 +500,9 @@ def test_entry_field_set_multi_subset_writes(respx_mock: respx.MockRouter) -> No
     )
 
     assert result.exit_code == 0, result.output
-    # All three existing rows must be removed; the new value is a write.
-    assert delete_route.call_count == 3
+    # The V2 write replaces all three values itself; nothing is deleted first (a write
+    # rejected after the deletes would leave the field empty).
+    assert delete_route.call_count == 0
     assert post_route.called
 
 

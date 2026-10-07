@@ -673,6 +673,9 @@ xaffinity list entry field "Portfolio" 123 --set Status "Active" --set Priority 
 # Append to a multi-value field (e.g., tags)
 xaffinity list entry field "Portfolio" 123 --append Tags "Priority"
 
+# Set a location
+xaffinity list entry field "Portfolio" 123 --set HQ '{"city": "Paris", "country": "France"}'
+
 # Unset a field (remove all values)
 xaffinity list entry field "Portfolio" 123 --unset OldField
 
@@ -692,7 +695,14 @@ xaffinity list entry field "Portfolio" 123 --append Tags "NewTag" --unset-value 
 **Notes:**
 - Field names are resolved case-insensitively
 - Field IDs (`field-123`) can be used directly
-- `--set` replaces all existing values; use `--append` to add to multi-value fields
+- `--set` replaces all existing values in one write: if Affinity rejects it, the field keeps
+  its old values. Use `--append` to add to multi-value fields; `--append` on a single-value
+  field is refused (use `--set`)
+- Numbers are sent as numbers (`--set Amount 5`); anything else is refused before any write
+- Locations are JSON objects with any of `streetAddress` (or `street_address`), `city`, `state`,
+  `country`, `continent`: `--set HQ '{"city": "Paris", "country": "France"}'`
+- Multi-value company, person and location fields hold at most 100 values per write; a request
+  that would exceed it is refused before anything changes
 - `--get` is exclusive with write operations
 - `--get` returns resolved objects for person/company reference fields (with `firstName`, `lastName`, `primaryEmailAddress`, etc.) and full dropdown option data (with `text`, `color`). Output format matches `list export`.
 - Operation order: `--set`/`--set-json` → `--append` → `--unset`/`--unset-value`

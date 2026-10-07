@@ -3583,10 +3583,12 @@ def list_entry_field(
         # Phase 1b: Pre-validate ALL --set values up front. Errors aggregate;
         # if any value is invalid, abort before issuing any API write.
         from ..field_utils import (
+            check_append_targets,
             check_multi_value_limits,
             execute_append_phase,
             execute_v2_set_phase,
             pre_validate_set_operations,
+            value_equals_existing,
         )
 
         # Validate set + append in ONE call so a bad append value also aborts
@@ -3598,20 +3600,22 @@ def list_entry_field(
         # We still want a dict keyed by set-op field-id for the set helper; build
         # it from set_operations_raw only.
         pre_resolved_set = pre_validate_set_operations(resolver, set_operations_raw)
+        check_append_targets(resolver=resolver, append_ops=append_ops_for_validation)
 
         # Phase 1c: Fetch existing values, emit multi-value warnings, write.
         existing_values_list = list(client.field_values.list(list_entry_id=ListEntryId(entry_id)))
         existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values_list]
 
-        # Preserve the legacy "Replaced N existing values" warning. The helper
-        # handles delete/create itself; we only need to surface the warning
-        # before any write happens.
-        for target_field_id in pre_resolved_set:
+        # Preserve the legacy "Replaced N existing values" warning for fields that
+        # will actually be written (not for no-ops).
+        for target_field_id, (_raw, new_value, _t) in pre_resolved_set.items():
             existing_for_field = find_field_values_for_field(
                 field_values=existing_values_serialized,
                 field_id=target_field_id,
             )
-            if len(existing_for_field) > 1:
+            if len(existing_for_field) > 1 and not value_equals_existing(
+                resolver.get_field_metadata(target_field_id), new_value, existing_for_field
+            ):
                 resolved_name = resolver.get_field_name(target_field_id) or target_field_id
                 old_vals = [fv.get("value") for fv in existing_for_field]
                 if len(old_vals) > 5:
@@ -3624,7 +3628,7 @@ def list_entry_field(
                     err=True,
                 )
 
-        # Size check BEFORE any write: the set phase deletes existing rows first.
+        # Size check BEFORE any write, so an over-cap request changes nothing.
         check_multi_value_limits(
             resolver=resolver,
             pre_resolved_set=pre_resolved_set,

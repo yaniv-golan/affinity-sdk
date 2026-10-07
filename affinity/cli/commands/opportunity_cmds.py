@@ -1319,7 +1319,11 @@ def opportunity_field(
             )
 
         client = ctx.get_client(warnings=warnings)
-        field_metadata = fetch_field_metadata(client=client, entity_type="opportunity")
+        # Opportunity fields belong to the opportunity's list.
+        list_id = _get_opportunity_list_id(client=client, opportunity_id=opportunity_id)
+        field_metadata = fetch_field_metadata(
+            client=client, entity_type="opportunity", list_id=list_id
+        )
         resolver = FieldResolver(field_metadata)
 
         results: dict[str, Any] = {}

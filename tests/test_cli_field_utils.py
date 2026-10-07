@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 
+from affinity.cli.errors import CLIError
 from affinity.cli.field_utils import FieldResolver as CLIFieldResolver
 from affinity.models.entities import DropdownOption, FieldMetadata
 from affinity.models.types import DropdownOptionId, FieldId, FieldValueType
@@ -366,11 +367,18 @@ class TestResolveFieldValueBackwardCompat:
         assert type_str == "text"
         assert value == "hello"
 
-    def test_number_passthrough(self, entity_ref_resolver: CLIFieldResolver) -> None:
-        """Number fields pass through unchanged."""
-        value, type_str = entity_ref_resolver.resolve_field_value("field-500", "42")
-        assert type_str == "number"
-        assert value == "42"
+    def test_number_coerced(self, entity_ref_resolver: CLIFieldResolver) -> None:
+        """Numeric strings become numbers: the V2 API rejects "42" for a number field."""
+        assert entity_ref_resolver.resolve_field_value("field-500", "42") == (42, "number")
+        assert entity_ref_resolver.resolve_field_value("field-500", " 4.5 ") == (4.5, "number")
+        assert entity_ref_resolver.resolve_field_value("field-500", 7) == (7, "number")
+
+    @pytest.mark.parametrize("bad", ["abc", "", "nan", "inf", True, [1]])
+    def test_number_invalid_rejected(
+        self, entity_ref_resolver: CLIFieldResolver, bad: object
+    ) -> None:
+        with pytest.raises(CLIError):
+            entity_ref_resolver.resolve_field_value("field-500", bad)
 
 
 @pytest.mark.req("CLI-ENTITY-REF-FIELD-FIX")

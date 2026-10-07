@@ -107,6 +107,19 @@ def _saved_views_list_id_from_cursor(cursor: str) -> int | None:
         return None
 
 
+_LOCATION_KEYS = ("streetAddress", "city", "state", "country", "continent")
+
+
+def _location_payload(value: Mapping[str, Any]) -> dict[str, Any]:
+    """A location in the V2 write shape: camelCase keys, all five present (the API rejects a
+    location missing any of them). ``street_address`` is accepted for ``streetAddress``;
+    other keys are passed through for the API to reject."""
+    out: dict[str, Any] = dict.fromkeys(_LOCATION_KEYS)
+    for key, v in value.items():
+        out["streetAddress" if key == "street_address" else key] = v
+    return out
+
+
 def _field_value_payload(
     value: Any, value_type: FieldValueType | str | None = None
 ) -> dict[str, Any]:
@@ -115,6 +128,7 @@ def _field_value_payload(
     Without an explicit ``value_type``: str -> text, int/float -> number, datetime/date ->
     datetime (ISO 8601), anything else -> text. Multi-value fields (lists) cannot be inferred
     (a list could be persons, companies or dropdown options); pass ``value_type`` for them.
+    Locations are completed to the five keys the API requires.
     """
     if value_type is not None:
         type_str = value_type.value if isinstance(value_type, FieldValueType) else value_type
@@ -127,7 +141,11 @@ def _field_value_payload(
     else:
         type_str = "text"
     data: Any
-    if isinstance(value, datetime):
+    if type_str == "location" and isinstance(value, Mapping):
+        data = _location_payload(value)
+    elif type_str == "location-multi" and isinstance(value, (list, tuple)):
+        data = [_location_payload(v) if isinstance(v, Mapping) else v for v in value]
+    elif isinstance(value, datetime):
         data = value.isoformat()
     elif isinstance(value, date):
         # The API takes a date-time and stores its Pacific calendar date. Midnight UTC is the
@@ -143,7 +161,8 @@ def _field_value_payload(
 MAX_MULTI_VALUES = 100
 MAX_BATCH_UPDATES = 100
 
-# Multi-value types whose V2 write schema declares ``maxItems: 100``. dropdown-multi declares none.
+# Multi-value types whose V2 write schema declares ``maxItems: 100`` (verified live for company,
+# person and location). dropdown-multi declares none, and the API accepts more than 100.
 CAPPED_MULTI_VALUE_TYPES = frozenset(
     {"company-multi", "person-multi", "number-multi", "filterable-text-multi", "location-multi"}
 )

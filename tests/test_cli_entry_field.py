@@ -50,6 +50,7 @@ FIELDS_RESPONSE = [
     {"id": "field-100", "name": "Status", "valueType": "text", "allowsMultiple": False},
     {"id": "field-101", "name": "Priority", "valueType": "text", "allowsMultiple": False},
     {"id": "field-102", "name": "Tags", "valueType": "text", "allowsMultiple": True},
+    {"id": "field-103", "name": "Investors", "valueType": "company-multi", "allowsMultiple": True},
 ]
 
 # V1 API format uses snake_case and numeric value types (6 = text)
@@ -57,6 +58,8 @@ FIELDS_RESPONSE_V1 = [
     {"id": "field-100", "name": "Status", "value_type": 6, "allows_multiple": False},
     {"id": "field-101", "name": "Priority", "value_type": 6, "allows_multiple": False},
     {"id": "field-102", "name": "Tags", "value_type": 6, "allows_multiple": True},
+    # 1 = organization (company); allows_multiple -> company-multi
+    {"id": "field-103", "name": "Investors", "value_type": 1, "allows_multiple": True},
 ]
 
 FIELD_VALUE_RESPONSE = {
@@ -187,37 +190,23 @@ def test_entry_field_set_multiple(respx_mock: respx.MockRouter) -> None:
 
 
 def test_entry_field_append(respx_mock: respx.MockRouter) -> None:
-    """--append adds to multi-value field."""
+    """--append adds to a multi-value field, keeping the existing values."""
     setup_list_mocks(respx_mock)
 
-    # Existing tag value
     respx_mock.get("https://api.affinity.co/field-values").mock(
         return_value=Response(
             200,
-            json=[{"id": 500, "fieldId": "field-102", "entityId": 224925, "value": "Existing"}],
+            json=[{"id": 500, "fieldId": "field-103", "entityId": 224925, "value": 7}],
         )
     )
-    respx_mock.post(
-        f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-102"
-    ).mock(
-        return_value=Response(
-            200, json={"id": 501, "fieldId": "field-102", "entityId": 224925, "value": "NewTag"}
-        )
-    )
+    post = respx_mock.post(
+        f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-103"
+    ).mock(return_value=Response(204))
 
     runner = CliRunner()
     result = runner.invoke(
         cli,
-        [
-            "--json",
-            "entry",
-            "field",
-            "Portfolio",
-            str(ENTRY_ID),
-            "--append",
-            "Tags",
-            "NewTag",
-        ],
+        ["--json", "entry", "field", "Portfolio", str(ENTRY_ID), "--append", "Investors", "8"],
         env={"AFFINITY_API_KEY": "test-key"},
     )
 
@@ -226,6 +215,41 @@ def test_entry_field_append(respx_mock: respx.MockRouter) -> None:
     assert "created" in payload["data"]
     # Append doesn't delete existing, so no deleted count
     assert "deleted" not in payload["data"]
+    assert json.loads(post.calls[0].request.content)["value"] == {
+        "type": "company-multi",
+        "data": [{"id": 7}, {"id": 8}],
+    }
+
+
+def test_entry_field_append_to_single_value_field_refused(respx_mock: respx.MockRouter) -> None:
+    """--append on a field that holds one value would replace it; refuse before any write."""
+    setup_list_mocks(respx_mock)
+    respx_mock.get("https://api.affinity.co/field-values").mock(
+        return_value=Response(
+            200, json=[{"id": 500, "fieldId": "field-102", "entityId": 224925, "value": "Old"}]
+        )
+    )
+    post = respx_mock.post(url__regex=r".*/v2/lists/.*/fields/.*").mock(return_value=Response(204))
+    result = CliRunner().invoke(
+        cli,
+        [
+            "--json",
+            "entry",
+            "field",
+            "Portfolio",
+            str(ENTRY_ID),
+            "--set",
+            "Status",
+            "x",
+            "--append",
+            "Tags",
+            "NewTag",
+        ],
+        env={"AFFINITY_API_KEY": "test-key"},
+    )
+    assert result.exit_code == 2, result.output
+    assert "Use --set" in result.output
+    assert post.call_count == 0
 
 
 def test_entry_field_unset(respx_mock: respx.MockRouter) -> None:
@@ -902,20 +926,20 @@ def test_entry_field_same_field_unset_unset_value_conflict(
 def test_entry_field_append_unset_value_same_field_allowed(
     respx_mock: respx.MockRouter,
 ) -> None:
-    """Same field in --append and --unset-value is allowed (tag swap pattern)."""
+    """Same field in --append and --unset-value is allowed (swap pattern)."""
     setup_list_mocks(respx_mock)
 
     respx_mock.get("https://api.affinity.co/field-values").mock(
         return_value=Response(
             200,
-            json=[{"id": 500, "fieldId": "field-102", "entityId": 224925, "value": "OldTag"}],
+            json=[{"id": 500, "fieldId": "field-103", "entityId": 224925, "value": 7}],
         )
     )
     respx_mock.post(
-        f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-102"
+        f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-103"
     ).mock(
         return_value=Response(
-            200, json={"id": 501, "fieldId": "field-102", "entityId": 224925, "value": "NewTag"}
+            200, json={"id": 501, "fieldId": "field-103", "entityId": 224925, "value": 8}
         )
     )
     respx_mock.delete("https://api.affinity.co/field-values/500").mock(
@@ -932,11 +956,11 @@ def test_entry_field_append_unset_value_same_field_allowed(
             "Portfolio",
             str(ENTRY_ID),
             "--append",
-            "Tags",
-            "NewTag",
+            "Investors",
+            "8",
             "--unset-value",
-            "Tags",
-            "OldTag",
+            "Investors",
+            "7",
         ],
         env={"AFFINITY_API_KEY": "test-key"},
     )
@@ -1161,7 +1185,8 @@ def test_entry_field_json_output_format(respx_mock: respx.MockRouter) -> None:
     assert payload["command"]["name"] == "entry field"
     assert payload["command"]["inputs"]["entryId"] == ENTRY_ID
     assert "created" in payload["data"]
-    assert "deleted" in payload["data"]
+    # --set replaces through the V2 write; nothing is deleted first
+    assert "deleted" not in payload["data"]
 
 
 def test_entry_field_mixed_operations(respx_mock: respx.MockRouter) -> None:
@@ -1218,10 +1243,7 @@ def test_entry_field_multivalue_set_replaces(respx_mock: respx.MockRouter) -> No
             ],
         )
     )
-    respx_mock.delete("https://api.affinity.co/field-values/500").mock(
-        return_value=Response(200, json={"success": True})
-    )
-    respx_mock.delete("https://api.affinity.co/field-values/501").mock(
+    delete = respx_mock.delete(url__regex=r".*/field-values/\d+").mock(
         return_value=Response(200, json={"success": True})
     )
     respx_mock.post(
@@ -1254,7 +1276,9 @@ def test_entry_field_multivalue_set_replaces(respx_mock: respx.MockRouter) -> No
     # Extract JSON from output (skip warning line)
     json_line = next(line for line in result.output.split("\n") if line.startswith("{"))
     payload = json.loads(json_line)
-    assert payload["data"]["deleted"] == 2
+    # The V2 write replaces both values itself; no row is deleted first.
+    assert "deleted" not in payload["data"]
+    assert delete.call_count == 0
 
 
 def test_entry_field_duplicate_field_in_set_operations(
@@ -1417,7 +1441,7 @@ def test_entry_field_operation_order(respx_mock: respx.MockRouter) -> None:
     This test verifies that when combining operations on DIFFERENT fields,
     the order is correct:
     1. Set operations run first (Status field)
-    2. Append operations run second (Tags field)
+    2. Append operations run second (Investors field)
     3. Unset operations run last (Priority field)
 
     We verify this by checking the API calls are made in the correct sequence.
@@ -1433,7 +1457,7 @@ def test_entry_field_operation_order(respx_mock: respx.MockRouter) -> None:
             json=[
                 {"id": 500, "fieldId": "field-100", "entityId": 224925, "value": "Old"},
                 {"id": 501, "fieldId": "field-101", "entityId": 224925, "value": "Low"},
-                {"id": 502, "fieldId": "field-102", "entityId": 224925, "value": "OldTag"},
+                {"id": 502, "fieldId": "field-103", "entityId": 224925, "value": 7},
             ],
         )
 
@@ -1446,7 +1470,7 @@ def test_entry_field_operation_order(respx_mock: respx.MockRouter) -> None:
     def track_append(_request):
         call_order.append("append")
         return Response(
-            200, json={"id": 601, "fieldId": "field-102", "entityId": 224925, "value": "NewTag"}
+            200, json={"id": 601, "fieldId": "field-103", "entityId": 224925, "value": 8}
         )
 
     def track_delete(_request):
@@ -1458,9 +1482,9 @@ def test_entry_field_operation_order(respx_mock: respx.MockRouter) -> None:
         f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-100"
     ).mock(side_effect=track_set)
     respx_mock.post(
-        f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-102"
+        f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-103"
     ).mock(side_effect=track_append)
-    # Delete for set (existing Status value) and unset (Priority value)
+    # Delete for unset (Priority value); --set replaces without deleting
     respx_mock.delete("https://api.affinity.co/field-values/500").mock(side_effect=track_delete)
     respx_mock.delete("https://api.affinity.co/field-values/501").mock(side_effect=track_delete)
 
@@ -1477,8 +1501,8 @@ def test_entry_field_operation_order(respx_mock: respx.MockRouter) -> None:
             "--unset",
             "Priority",  # Should run LAST (different field)
             "--append",
-            "Tags",
-            "NewTag",  # Should run SECOND
+            "Investors",
+            "8",  # Should run SECOND
             "--set",
             "Status",
             "New",  # Should run FIRST
@@ -1488,7 +1512,6 @@ def test_entry_field_operation_order(respx_mock: respx.MockRouter) -> None:
 
     assert result.exit_code == 0, result.output
     # Verify order: set runs before append, append runs before unset
-    # Note: set deletes existing first, so order includes delete calls
     assert call_order.index("set") < call_order.index("append")
     # The unset delete for Priority happens after append
     # Find the last unset (should be the Priority unset after refresh)

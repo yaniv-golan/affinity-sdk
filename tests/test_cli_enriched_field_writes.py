@@ -451,17 +451,50 @@ def test_field_id_accepts_int() -> None:
 
 
 @pytest.mark.req("SDK-ENRICHED-FIELD-WRITES")
-@pytest.mark.xfail(
-    strict=True,
-    reason="opportunity field command unconditionally raises — list_id wiring missing; "
-    "tracked separately. Opportunities have 0 global V1 fields in this tenant.",
-)
-def test_opportunity_field_command_currently_broken() -> None:
-    """When opportunity field gets fixed, this will XPASS and force an update."""
-    from affinity.cli.field_utils import fetch_field_metadata
+def test_opportunity_field_set_reaches_the_write() -> None:
+    """`opportunity field --set` loads the fields of the opportunity's list (it used to call
+    fetch_field_metadata without a list id and always exit 2) and updates the value in place."""
+    import json
 
-    # Calling without list_id raises today (field_utils.py:45-51)
-    transport = httpx.MockTransport(lambda _r: httpx.Response(500))
-    with Affinity(api_key="test", max_retries=0, transport=transport) as client:
-        # If this stops raising, the xfail fires and we need to update the plan.
-        fetch_field_metadata(client=client, entity_type="opportunity", list_id=None)
+    from click.testing import CliRunner
+
+    from affinity.cli.main import cli
+
+    seen: list[tuple[str, str]] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        path = request.url.path
+        seen.append((request.method, path))
+        if path == "/v2/opportunities/42":
+            return httpx.Response(200, json={"id": 42, "name": "Deal", "listId": 9})
+        if path == "/v2/lists/9/fields":
+            return httpx.Response(
+                200,
+                json={
+                    "data": [
+                        {"id": "field-7", "name": "Amount", "type": "list", "valueType": "number"}
+                    ],
+                    "pagination": {"nextUrl": None},
+                },
+            )
+        if path == "/field-values" and request.method == "GET":
+            return httpx.Response(
+                200, json=[{"id": 500, "field_id": 7, "entity_id": 42, "value": 3}]
+            )
+        if path == "/field-values/500" and request.method == "PUT":
+            assert json.loads(request.content) == {"value": 5}
+            return httpx.Response(200, json={"id": 500, "field_id": 7, "entity_id": 42, "value": 5})
+        return httpx.Response(404, json={"errors": [{"message": f"unmocked {path}"}]})
+
+    import respx
+
+    with respx.mock(assert_all_called=False) as router:
+        router.route(host="api.affinity.co").mock(side_effect=handler)
+        result = CliRunner().invoke(
+            cli,
+            ["--json", "opportunity", "field", "42", "--set", "Amount", "5"],
+            env={"AFFINITY_API_KEY": "test"},
+        )
+    assert result.exit_code == 0, result.output
+    assert ("PUT", "/field-values/500") in seen
+    assert not any(method == "DELETE" for method, _ in seen)

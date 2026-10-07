@@ -184,5 +184,10 @@ def test_list_export_csv_warns_on_stderr(respx_mock: respx.MockRouter) -> None:
         catch_exceptions=False,
     )
     assert result.exit_code == 0, result.output
-    assert "shows 100 of 250 values" in result.stderr
-    assert "shows 100 of 250" not in result.stdout
+    try:
+        stderr = result.stderr
+    except ValueError:  # click < 8.2 mixes stderr into output
+        assert "shows 100 of 250 values" in result.output
+    else:
+        assert "shows 100 of 250 values" in stderr
+        assert "shows 100 of 250" not in result.stdout

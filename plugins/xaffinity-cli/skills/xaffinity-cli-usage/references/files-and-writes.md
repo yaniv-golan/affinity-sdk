@@ -49,3 +49,8 @@ Since CLI 1.12.0, create refuses if an exact name/domain (companies) or email/fu
 - **Derived-only enriched fields** like "Current Organization" raise `EnrichedFieldNotWritableError`
   (exit 2) with a clear message instead of silently no-op'ing.
 - **Global organizations are read-only:** companies with `global: true` cannot be modified.
+- **`--set` replaces, `--append` adds.** `--set` replaces a field's whole value (a rejected write
+  leaves the old value). `--append` only works on multi-value fields; on a single-value field it
+  exits 2 — use `--set`. Numbers are plain (`--set Amount 5`); locations are JSON objects
+  (`--set HQ '{"city": "Paris", "country": "France"}'`). Requires CLI 1.18.0+: earlier versions
+  could leave a field empty when a write failed.
