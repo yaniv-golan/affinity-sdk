@@ -839,7 +839,14 @@ xaffinity field ls --list-id 123 --json
 
 ```bash
 xaffinity field create --name "Stage" --entity-type opportunity --value-type dropdown --list-specific
+xaffinity field create --name "Co-investors" --entity-type company --value-type company-multi
 ```
+
+`--value-type` accepts what the API can create: `text`, `number`, `datetime`, `location`,
+`dropdown`, `ranked-dropdown`, `person`, `company`, and the `-multi` variants `number-multi`,
+`location-multi`, `dropdown-multi`, `person-multi`, `company-multi` (a `-multi` type implies
+`--allows-multiple`). Read-only types such as `interaction`, `formula-number` or
+`filterable-text` cannot be created.
 
 ### `xaffinity field delete <fieldId>`
 

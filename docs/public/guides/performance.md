@@ -217,6 +217,23 @@ Choose the appropriate source based on your needs:
 
 All methods cache results for 5 minutes when caching is enabled.
 
+The three `get_fields()` methods also take `filter=` and `includes=` (each combination is
+cached separately):
+
+```python
+# Name filter: name="X" matches exactly, name=~X matches a substring (both case-sensitive);
+# combine clauses with |. Only `name` is filterable.
+client.companies.get_fields(filter='name="Location" | name="Industry"')
+client.lists.get_fields(list_id, filter="name=~Stat")
+
+# Ask for filterability / sortability; read them with is_filterable / is_sortable
+fields = client.persons.get_fields(includes=["filterability", "sortability"])
+sortable = [f.name for f in fields if f.is_sortable]
+```
+
+The `field_types=` argument of `get_fields()` is sent as `fieldTypes`, but the fields
+endpoints ignore it and return every field; filter on `FieldMetadata.type` instead.
+
 ### Caching Considerations
 
 Field metadata changes infrequently (only when admins add/modify fields), so caching

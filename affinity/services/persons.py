@@ -42,6 +42,7 @@ from ..models.types import (
     PersonId,
     validate_entity_field_types,
 )
+from ._field_listing import build_fields_query
 
 if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
@@ -597,20 +598,35 @@ class PersonService:
         self,
         *,
         field_types: Sequence[FieldType] | None = None,
+        filter: str | None = None,
+        includes: Sequence[str] | None = None,
     ) -> builtins.list[FieldMetadata]:
         """
         Get metadata about person fields.
 
         Cached for performance.
+
+        Args:
+            field_types: Sent as ``fieldTypes``. The fields endpoints currently ignore it
+                (verified live on API versions 2024-01-01 and 2026-09-17: every field is
+                returned); filter on ``FieldMetadata.type`` instead.
+            filter: Filter on the field name: ``name="Location"`` (exact) or ``name=~Loc``
+                (substring); both case-sensitive. Combine clauses with ``|``. Only ``name``
+                is filterable; anything else is rejected with 400.
+            includes: Extra properties per field: ``"filterability"``, ``"sortability"``
+                (read them via ``is_filterable`` / ``is_sortable``).
         """
-        params: dict[str, Any] = {}
-        if field_types:
-            params["fieldTypes"] = [field_type.value for field_type in field_types]
+        params, cache_key = build_fields_query(
+            f"person_fields:{','.join(field_types or [])}",
+            field_types=field_types,
+            filter=filter,
+            includes=includes,
+        )
 
         data = self._client.get_all_pages(
             "/persons/fields",
             params=params or None,
-            cache_key=f"person_fields:{','.join(field_types or [])}",
+            cache_key=cache_key,
             cache_ttl=300,
         )
 
@@ -1715,20 +1731,35 @@ class AsyncPersonService:
         self,
         *,
         field_types: Sequence[FieldType] | None = None,
+        filter: str | None = None,
+        includes: Sequence[str] | None = None,
     ) -> builtins.list[FieldMetadata]:
         """
         Get metadata about person fields.
 
         Cached for performance.
+
+        Args:
+            field_types: Sent as ``fieldTypes``. The fields endpoints currently ignore it
+                (verified live on API versions 2024-01-01 and 2026-09-17: every field is
+                returned); filter on ``FieldMetadata.type`` instead.
+            filter: Filter on the field name: ``name="Location"`` (exact) or ``name=~Loc``
+                (substring); both case-sensitive. Combine clauses with ``|``. Only ``name``
+                is filterable; anything else is rejected with 400.
+            includes: Extra properties per field: ``"filterability"``, ``"sortability"``
+                (read them via ``is_filterable`` / ``is_sortable``).
         """
-        params: dict[str, Any] = {}
-        if field_types:
-            params["fieldTypes"] = [field_type.value for field_type in field_types]
+        params, cache_key = build_fields_query(
+            f"person_fields:{','.join(field_types or [])}",
+            field_types=field_types,
+            filter=filter,
+            includes=includes,
+        )
 
         data = await self._client.get_all_pages(
             "/persons/fields",
             params=params or None,
-            cache_key=f"person_fields:{','.join(field_types or [])}",
+            cache_key=cache_key,
             cache_ttl=300,
         )
 

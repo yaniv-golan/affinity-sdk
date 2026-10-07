@@ -128,6 +128,14 @@ Unknown future values are treated as open enums and preserved as strings.
 | `ranked-dropdown` | `DropdownOption` | Has `.id`, `.text`, `.rank`, `.color` |
 | `location` / `location-multi` | `dict[str, Any]` / `list[dict[str, Any]]` | Structured location object(s); shape varies by API |
 | `interaction` | `Any` | Relationship-intelligence fields; shape varies by API |
+| `formula-number` | `dict[str, Any]` | Computed by Affinity: `{"calculatedValue": number \| None}`. Read-only |
+| `list-multi` | `list[dict[str, Any]]` | The lists the entity is on (`id`, `name`, `type`, `entityCount`). API version 2026-09-17+. Read-only |
+| `note` | `dict[str, Any] \| None` | The entity's latest note (`id`, `content.html`, `creator`, …). API version 2026-09-17+. Read-only |
+| `reminder` | `dict[str, Any] \| None` | The entity's next uncompleted reminder (`id`, `content`, `dueDate`, …). API version 2026-09-17+. Read-only |
+
+`FieldMetadata.type` can also be `hidden` (API version 2026-07-15+): restricted opportunity
+fields come back with `type: "hidden"` and a null value. `FieldType.HIDDEN` is response-only;
+the company and person services reject it in `field_types=` with `ValueError`.
 
 ## Multi-value limits
 
