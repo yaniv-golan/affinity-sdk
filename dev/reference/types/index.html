@@ -2864,9 +2864,7 @@
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">595</span>
-<span class="normal">596</span>
-<span class="normal">597</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">597</span>
 <span class="normal">598</span>
 <span class="normal">599</span>
 <span class="normal">600</span>
@@ -2878,7 +2876,9 @@
 <span class="normal">606</span>
 <span class="normal">607</span>
 <span class="normal">608</span>
-<span class="normal">609</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DropdownOptionColor</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DropdownOptionColor</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Colors for dropdown options.</span>
 
@@ -4599,7 +4599,7 @@ V2 string type where possible.</p>
 
 
 
-        <p>Supported webhook events (27 total).</p>
+        <p>Supported webhook events (30 total).</p>
 <p>Events cover CRUD operations on Affinity entities:</p>
 <ul>
 <li><strong>Lists</strong>: created, updated, deleted</li>
@@ -4611,6 +4611,7 @@ V2 string type where possible.</p>
 <li><strong>Organizations (companies)</strong>: created, updated, deleted, merged</li>
 <li><strong>Opportunities</strong>: created, updated, deleted</li>
 <li><strong>Files</strong>: created, deleted</li>
+<li><strong>Smart interaction values</strong>: updated</li>
 <li><strong>Reminders</strong>: created, updated, deleted</li>
 </ul>
 <p>This enum extends <code>OpenStrEnum</code> for forward compatibility - any unknown
@@ -4677,9 +4678,11 @@ events from Affinity are preserved as strings rather than raising errors.</p>
 <span class="normal">589</span>
 <span class="normal">590</span>
 <span class="normal">591</span>
-<span class="normal">592</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookEvent</span><span class="p">(</span><span class="n">OpenStrEnum</span><span class="p">):</span>
+<span class="normal">592</span>
+<span class="normal">593</span>
+<span class="normal">594</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookEvent</span><span class="p">(</span><span class="n">OpenStrEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Supported webhook events (27 total).</span>
+<span class="sd">    Supported webhook events (30 total).</span>
 
 <span class="sd">    Events cover CRUD operations on Affinity entities:</span>
 
@@ -4692,6 +4695,7 @@ events from Affinity are preserved as strings rather than raising errors.</p>
 <span class="sd">    - **Organizations (companies)**: created, updated, deleted, merged</span>
 <span class="sd">    - **Opportunities**: created, updated, deleted</span>
 <span class="sd">    - **Files**: created, deleted</span>
+<span class="sd">    - **Smart interaction values**: updated</span>
 <span class="sd">    - **Reminders**: created, updated, deleted</span>
 
 <span class="sd">    This enum extends ``OpenStrEnum`` for forward compatibility - any unknown</span>
@@ -4726,6 +4730,7 @@ events from Affinity are preserved as strings rather than raising errors.</p>
     <span class="n">OPPORTUNITY_DELETED</span> <span class="o">=</span> <span class="s2">"opportunity.deleted"</span>
     <span class="n">FILE_CREATED</span> <span class="o">=</span> <span class="s2">"file.created"</span>
     <span class="n">FILE_DELETED</span> <span class="o">=</span> <span class="s2">"file.deleted"</span>
+    <span class="n">SMART_INTERACTION_VALUE_UPDATED</span> <span class="o">=</span> <span class="s2">"smart_interaction_value.updated"</span>
     <span class="n">REMINDER_CREATED</span> <span class="o">=</span> <span class="s2">"reminder.created"</span>
     <span class="n">REMINDER_UPDATED</span> <span class="o">=</span> <span class="s2">"reminder.updated"</span>
     <span class="n">REMINDER_DELETED</span> <span class="o">=</span> <span class="s2">"reminder.deleted"</span>

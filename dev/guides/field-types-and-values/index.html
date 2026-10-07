@@ -1195,6 +1195,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#multi-value-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-value limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#writing-dates" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2289,6 +2300,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#multi-value-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-value limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#writing-dates" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2509,6 +2531,21 @@ Unknown future values are treated as open enums and preserved as strings.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="multi-value-limits">Multi-value limits<a class="headerlink" href="#multi-value-limits" title="Permanent link">&para;</a></h2>
+<p>Affinity's V2 API returns and accepts at most <strong>100 values per multi-value field</strong>:</p>
+<ul>
+<li><strong>Reads:</strong> when a field holds more, the response includes the first 100 values plus a
+  <code>totalCount</code>. Check with <code>entity.fields.is_truncated(field_id)</code>,
+  <code>entity.fields.total_count(field_id)</code> or <code>entity.fields.truncated_fields()</code>. The CLI adds a
+  warning (<code>Field 'Tags' on … shows 100 of 250 values</code>) to <code>company get</code>, <code>person get</code>,
+  <code>opportunity get</code>, <code>list entry get</code>, <code>list entry field --get</code>, <code>list export</code> and <code>query</code>.
+  Filters evaluated on a truncated field only see the returned values.</li>
+<li><strong>Writes:</strong> <code>update_field_value()</code> raises <code>ValueError</code> before sending more than 100 values for a
+  company, person, number, text or location multi-value field (Affinity rejects them; the
+  dropdown-multi write schema declares no cap). <code>batch_update_fields()</code> accepts at most 100
+  updates per call and no list values (use <code>update_field_value(..., value_type=...)</code> for those).
+  The CLI's <code>list entry field</code> checks the final count before changing anything.</li>
+</ul>
 <h2 id="writing-dates">Writing dates<a class="headerlink" href="#writing-dates" title="Permanent link">&para;</a></h2>
 <p>Since 2026-01-01 Affinity stores date fields at midnight Pacific Time, so a stored value reads
 back as e.g. <code>2024-04-01T07:00:00Z</code> (PDT) or <code>2024-01-15T08:00:00Z</code> (PST).</p>
