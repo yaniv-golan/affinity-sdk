@@ -170,7 +170,7 @@ HookEvent: TypeAlias = (
 
 EventHook: TypeAlias = Callable[[HookEvent], None]
 AsyncEventHook: TypeAlias = Callable[[HookEvent], Awaitable[None]]
-AnyEventHook: TypeAlias = Callable[[HookEvent], None | Awaitable[None]]
+AnyEventHook: TypeAlias = Callable[[HookEvent], Awaitable[None] | None]
 
 
 __all__ = [

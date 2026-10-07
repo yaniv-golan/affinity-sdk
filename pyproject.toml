@@ -47,7 +47,10 @@ dev = [
     "pytest-asyncio>=0.23.0",
     "pytest-cov>=4.0.0",
     "respx>=0.21.0",  # httpx mocking
-    "ruff>=0.14.0",  # Minimum for PLC0207/PLW0108 rules; used by pre-commit (local)
+    # Exact pin: ruff 0.x minors change defaults (format scope, newly stable rules in
+    # selected groups), so an open range turns CI red with no code change. Bump via
+    # Dependabot PR. Used by CI and pre-commit (local).
+    "ruff==0.16.8",
     "mypy>=1.10.0",
     # CLI deps are included in dev to keep type-checking and tests consistent.
     "click>=8.1",
@@ -100,6 +103,11 @@ packages = ["affinity"]
 line-length = 100
 target-version = "py310"
 
+[tool.ruff.format]
+# ruff >= 0.16 formats Python code blocks in Markdown by default. Doc samples are
+# hand-formatted for reading (aligned comments), so keep the formatter out of them.
+exclude = ["*.md"]
+
 [tool.ruff.lint]
 select = [
     "E",      # pycodestyle errors
@@ -118,6 +126,7 @@ select = [
 ignore = [
     "PLR0912",  # too many branches
     "PLR0913",  # too many arguments
+    "PLR0917",  # too many positional arguments - same rationale as PLR0913
     "PLR2004",  # magic values
     "PLW2901",  # loop variable overwritten
     "RUF022",   # __all__ sorting is a readability choice

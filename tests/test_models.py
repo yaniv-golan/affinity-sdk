@@ -595,7 +595,8 @@ def test_dependency_management_pyproject_contains_core_deps() -> None:
     assert "[project.optional-dependencies]" in text
     assert "dev = [" in text
     assert '"pytest>=' in text
-    assert '"ruff>=' in text
+    # ruff is pinned exactly: its 0.x minors change defaults and broke CI unannounced
+    assert '"ruff==' in text
     assert '"mypy>=' in text
 
 

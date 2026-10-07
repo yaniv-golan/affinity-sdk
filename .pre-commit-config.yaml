@@ -34,7 +34,8 @@ repos:
 
   - repo: local
     hooks:
-      # Use system ruff (from pyproject.toml) to ensure version parity with CI
+      # Use system ruff: pyproject.toml pins it exactly, so this matches CI once
+      # installed with `pip install -e ".[dev]"`
       - id: ruff-check
         name: ruff check
         entry: ruff check --fix
