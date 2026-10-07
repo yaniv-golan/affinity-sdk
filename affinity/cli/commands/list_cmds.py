@@ -38,6 +38,7 @@ from ..render import format_duration
 from ..resolve import (
     list_all_saved_views,
     list_fields_for_list,
+    refresh_list_fields,
     resolve_list_selector,
     resolve_saved_view,
 )
@@ -3330,6 +3331,20 @@ def list_entry_field(
             client=client, list_id=resolved_list.list.id, cache=cache
         )
         resolver = FieldResolver(field_metadata)
+        fields_refreshed = False
+
+        def refresh_fields_once() -> bool:
+            """On a lookup miss, refetch once: Affinity's V1 field listing can lag field
+            creation (V2 is current), and the SDK/session caches can pin a stale copy."""
+            nonlocal resolver, field_metadata, fields_refreshed
+            if fields_refreshed:
+                return False
+            fields_refreshed = True
+            field_metadata = refresh_list_fields(
+                client=client, list_id=resolved_list.list.id, cache=cache
+            )
+            resolver = FieldResolver(field_metadata)
+            return True
 
         # Pattern for field IDs: must be "field-" followed by digits
         # Note: pure numeric strings like "2024" are treated as field NAMES, not IDs
@@ -3354,7 +3369,9 @@ def list_entry_field(
             # Note: pure numeric strings like "2024" are treated as field names
             if _field_id_pattern.match(field_spec):
                 # Validate field ID exists on this list
-                if not resolver.get_field_name(field_spec):
+                if not resolver.get_field_name(field_spec) and not (
+                    refresh_fields_once() and resolver.get_field_name(field_spec)
+                ):
                     raise CLIError(
                         f"Field '{field_spec}' not found on list '{list_selector}'.",
                         exit_code=2,
@@ -3368,7 +3385,12 @@ def list_entry_field(
             ):
                 return field_spec  # It's a valid enriched field ID
             # Resolve as field name (this already throws if not found)
-            return resolver.resolve_field_name_or_id(field_spec, context="field")
+            try:
+                return resolver.resolve_field_name_or_id(field_spec, context="field")
+            except CLIError as exc:
+                if exc.error_type != "not_found" or not refresh_fields_once():
+                    raise
+                return resolver.resolve_field_name_or_id(field_spec, context="field")
 
         # Build modifiers for CommandContext
         ctx_modifiers: dict[str, object] = {}

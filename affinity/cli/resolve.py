@@ -239,6 +239,33 @@ def list_fields_for_list(
     return fields
 
 
+def refresh_list_fields(
+    *,
+    client: Affinity,
+    list_id: ListId,
+    cache: SessionCache | None = None,
+) -> list[FieldMetadata]:
+    """Re-fetch list fields after a lookup miss, working around stale V1 metadata.
+
+    Affinity's V1 ``GET /fields?list_id=`` can lag field creation/deletion (observed: a frozen
+    snapshot for 3+ minutes, even uncached), while V2 ``/lists/{id}/fields`` is current. So:
+    re-read V1 bypassing the SDK cache (``skip_cache``, 1.11.0) and refresh the session cache,
+    then add list-specific fields V2 knows that V1 does not list yet. Fields found only via V2
+    have no ``dropdown_options`` (V2 omits them) until V1 catches up.
+    """
+    fields = client.fields.list(list_id=list_id, skip_cache=True)
+    if cache and cache.enabled:
+        cache.set(f"list_fields_{list_id}", fields)
+
+    known = {str(f.id) for f in fields}
+    try:
+        v2_fields = client.lists.get_fields(list_id)
+    except Exception:
+        return fields
+    missing = [f for f in v2_fields if str(f.id) not in known and f.type == "list"]
+    return [*fields, *missing]
+
+
 def get_person_fields(
     *,
     client: Affinity,

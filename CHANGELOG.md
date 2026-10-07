@@ -45,6 +45,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the V2 API requires a full date-time. Date-only input is now sent as noon UTC (the same
   calendar date in Pacific time, where Affinity stores it); a date-time is converted to UTC;
   unparseable input is rejected before any write. Found by a live write test.
+- CLI `list entry field --set` on a list field created moments earlier could fail with "Field
+  not found on list". Affinity's V1 field listing (which the CLI reads for dropdown options) can
+  lag field creation by minutes, while V2 is current; the SDK and session caches could also pin
+  a stale copy. On a miss the CLI now refetches once — V1 bypassing the cache
+  (`skip_cache`, added in 1.11.0 but never used by the CLI) and refreshing the session cache —
+  and adds list-specific fields that V2 already knows. A dropdown field found only via V2 has no
+  options until V1 catches up.
 - CLI `field --set` rewrote date fields on every run. Since 2026-01-01 Affinity stores date
   fields at midnight Pacific Time, so the exact-timestamp "already set" check never matched and
   the no-op short-circuit (1.15.0) never applied to dates. Setting the same calendar date is now

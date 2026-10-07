@@ -2092,3 +2092,62 @@ class TestEntryFieldEntityRefAppend:
         ids = [item["id"] for item in data]
         assert 500 in ids
         assert 600 in ids
+
+
+# ============================================================================
+# Stale V1 field metadata (field just created; v1 /fields?list_id lags, v2 is current)
+# ============================================================================
+
+NEW_V2_LIST_FIELD = {
+    "id": "field-200",
+    "name": "Close Date",
+    "valueType": "datetime",
+    "type": "list",
+}
+
+
+def _setup_stale_v1_mocks(respx_mock: respx.MockRouter) -> respx.Route:
+    setup_list_mocks(respx_mock)  # v1 /fields lists only field-100..102 (stale)
+    respx_mock.get(f"https://api.affinity.co/v2/lists/{LIST_ID}/fields").mock(
+        return_value=Response(
+            200, json={"data": [*FIELDS_RESPONSE, NEW_V2_LIST_FIELD], "pagination": {}}
+        )
+    )
+    respx_mock.get("https://api.affinity.co/field-values").mock(return_value=Response(200, json=[]))
+    return respx_mock.post(
+        f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-200"
+    ).mock(return_value=Response(200, json={"id": 1, "fieldId": "field-200"}))
+
+
+@pytest.mark.parametrize("field_spec", ["field-200", "Close Date"])
+def test_entry_field_set_field_missing_from_stale_v1_uses_v2(
+    respx_mock: respx.MockRouter, field_spec: str
+) -> None:
+    """A field Affinity's v1 listing doesn't show yet (observed stale for 3+ minutes after
+    creation) is found via v2 instead of failing with 'not found on list'."""
+    write = _setup_stale_v1_mocks(respx_mock)
+
+    result = CliRunner().invoke(
+        cli,
+        ["--json", "entry", "field", "Portfolio", str(ENTRY_ID), "--set", field_spec, "2024-04-01"],
+        env={"AFFINITY_API_KEY": "test-key"},
+    )
+
+    assert result.exit_code == 0, result.output
+    assert write.called
+    assert json.loads(write.calls.last.request.content) == {
+        "value": {"type": "datetime", "data": "2024-04-01T12:00:00Z"}
+    }
+
+
+def test_entry_field_set_unknown_field_still_not_found(respx_mock: respx.MockRouter) -> None:
+    _setup_stale_v1_mocks(respx_mock)
+
+    result = CliRunner().invoke(
+        cli,
+        ["--json", "entry", "field", "Portfolio", str(ENTRY_ID), "--set", "field-999", "x"],
+        env={"AFFINITY_API_KEY": "test-key"},
+    )
+
+    assert result.exit_code == 2
+    assert json.loads(result.output.strip().splitlines()[-1])["error"]["type"] == "not_found"
