@@ -15,8 +15,14 @@ command=$(echo "$input" | jq -r '
   end
 ' 2>/dev/null || echo "")
 
-# Not an xaffinity command - allow
-if [[ "$command" != *"xaffinity"* ]]; then
+# Not an xaffinity command - allow.
+# Match xaffinity only in command position (start of a segment after ; & | ( or
+# a newline, optionally behind VAR=val prefixes, a wrapper like `uv run`, or a
+# directory path) so paths/file names such as plugins/xaffinity-cli/... or
+# pre-xaffinity.sh in grep/cat/git commands are not treated as CLI calls.
+flat_command="${command//$'\n'/;}"
+invocation_re='(^|[;&|(`])[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*((sudo|env|exec|time|command|nohup|uvx|uv[[:space:]]+run|pipx[[:space:]]+run)[[:space:]]+)*([^[:space:];&|()]*/)?xaffinity([[:space:];&|)]|$)'
+if ! [[ "$flat_command" =~ $invocation_re ]]; then
   exit 0
 fi
 

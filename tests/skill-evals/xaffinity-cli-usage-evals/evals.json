@@ -1,0 +1,30 @@
+{
+  "skill_name": "xaffinity-cli-usage",
+  "_note": "Regression prompts for plugins/xaffinity-cli/skills/xaffinity-cli-usage. Company/list names are placeholders: substitute ones that exist in the tenant you run against. Kept outside the skill dir so they do not ship with the plugin.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Using xaffinity, what's the current status of Acme Robotics on our Dealflow list, and who sourced it?",
+      "expected_output": "Reports the real Status and Sourced-by values for the company's Dealflow entry, fetched with `company get <id> --expand list-entries` / `--list Dealflow` (read from .data.listEntries) or `list export Dealflow --company-id <id>`. Does not conclude the company is on no lists or that fields are empty from a plain `company get` (fields.requested=false / meta.notRequested). Does not offer to write field values.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Before I add Acme Robotics to the Dealflow list with xaffinity, check whether it's already there.",
+      "expected_output": "Resolves the company ID, then runs `list export \"Dealflow\" --company-id <id> --json` (not --filter), keeps stderr, and answers from .data.rows: on the list (with its entry ID) or not on the list (zero rows + the 'Not on this list' warning). Makes no write.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "With xaffinity, set the Owner of list entry 12345 on the Pipeline list to Jane Doe.",
+      "expected_output": "Looks up Jane Doe with `person ls --query` and reads the ID from .data.persons[0].id (not .data.rows), refuses to continue if the ID is null or ambiguous, reads the current Owner first, then runs `list entry field \"Pipeline\" 12345 --set Owner <numeric id>` without --readonly, since the user asked for this write.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Use the xaffinity CLI to summarize how many emails vs meetings we've had with acme.com in the last 90 days.",
+      "expected_output": "Runs `interaction ls --type all --company-id <id> --days 90 --max-results N --json`, treats .data as a bare array (no .data.interactions), groups by type, and reports counts. Bounded by --days and --max-results; one script rather than several raw JSON dumps.",
+      "files": []
+    }
+  ]
+}

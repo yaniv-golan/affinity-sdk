@@ -1,130 +1,133 @@
 ---
 name: xaffinity-cli-usage
 description: >
-  Runs xaffinity CLI commands directly in bash to search, export, filter, and manage
-  Affinity CRM data.
-when_to_use: >
-  Use when the user explicitly asks about CLI commands, bash scripts, xaffinity flags,
-  CSV export, or mentions "xaffinity" by name. Also use when MCP tools are not available
-  and user needs CRM data access. Do NOT use for pipeline history analysis (use
-  pipeline-history skill) or structured queries via MCP (use query-language skill)
-  when those skills are available.
+  Runs the xaffinity CLI in bash to read and manage Affinity CRM data: look up companies and
+  people, see which lists/pipelines a company is on and its list field values (Status, Owner),
+  export lists to JSON/CSV, filter pipelines, dedup-check before adding to a list, and create
+  notes, interactions and list entries. Use when the user mentions xaffinity, asks for Affinity
+  CLI commands, bash scripts, flags or CSV exports, or needs Affinity CRM data and no Affinity
+  MCP tools are available. Not for pipeline-history analysis (pipeline-history skill) or
+  structured MCP queries (query-language skill) when those skills are available.
 ---
 
 # xaffinity CLI Usage
 
 ## REQUIRED FIRST STEP: Verify API Key
 
-**STOP. Before doing ANYTHING else, run this command:**
+Before anything else, run:
 
 ```bash
 xaffinity config check-key --json
 ```
 
-This MUST be your first action when handling any Affinity request.
+- **`"configured": true`** — use the `pattern` field from the output for ALL subsequent commands:
+  `"xaffinity --dotenv --readonly <command> --json"` means add `--dotenv`; otherwise no `--dotenv`.
+- **`"configured": false`** — stop and help the user set up. Read `references/setup.md` (key
+  resolution order, `xaffinity config setup-key` — interactive, the user must run it — and the
+  Cowork `.env` / `AFFINITY_API_KEY_FILE` workaround).
 
-**If `"configured": true`** - Use the `pattern` field from the output for ALL subsequent commands:
-- If `"pattern": "xaffinity --dotenv --readonly <command> --json"` -> use `--dotenv`
-- If `"pattern": "xaffinity --readonly <command> --json"` -> no `--dotenv` needed
+## Read JSON from the right key
 
-**If `"configured": false`** - Stop and help user set up. The xaffinity CLI resolves the API key in this order:
-1. `AFFINITY_API_KEY` env var
-2. `AFFINITY_API_KEY_FILE` env var (path to a file containing the key — Docker secrets / k8s convention)
-3. `AFFINITY_API_KEY_COMMAND` env var (shell command whose stdout is the key — git-credential-helper style; works with `op` / `pass` / `vault` / macOS `security`)
-4. `--api-key-file <path>` or `--api-key-stdin` CLI flags
-5. `xaffinity config setup-key` config file (saved to system keychain on supported platforms)
+`--json` emits **one** JSON object (not NDJSON): `{"ok", "data", "warnings", "meta", ...}`. The
+shape of `data` differs by command — reading the wrong key gives `null`, which looks like real
+"empty" data. Use this table:
 
-For most users:
-- Tell them: "You need to configure an Affinity API key first."
-- Direct them: Affinity -> Settings -> API -> Generate New Key
-- Tell them to run: `xaffinity config setup-key` (do NOT run it for them - it's interactive)
+| Command | Read |
+|---------|------|
+| `list export` | `.data.rows[]` — `listEntryId`, `entityId`, `entityName`, + field values by name |
+| `person ls` / `company ls` | `.data.persons[]` / `.data.companies[]` |
+| `person get` / `company get` / `opportunity get` | `.data.person` / `.data.company` / `.data.opportunity` |
+| …with `--expand list-entries` / `lists` / `persons` | `.data.listEntries` / `.data.lists` / `.data.persons` — **next to** the entity, not inside it |
+| `list entry field … --get` | `.data.fields` |
+| `interaction ls` / `note ls` / `<entity> files ls` | `.data[]` — a **bare array** |
+| `note create` / `interaction create` | `.data.note` / `.data.interaction` |
 
-For users with an existing secret manager (1Password, vault, pass, Keychain), suggest `AFFINITY_API_KEY_COMMAND` as a credential-helper-style integration instead.
+When in doubt, look before you extract:
+`... --json | jq '.data | if type == "object" then keys else "array of \(length)" end'`.
 
-**Cowork-specific edge case:** if you are running inside a Claude Cowork session and the host CLI is configured but `check-key` returns `configured: false`, the key likely lives in a host-only location (env var, `~/.config/`, keychain, host-only credential helper) that the microVM does not mount. Two host-portable options:
-- **Project `.env` + `--dotenv`** — create a project-scope `.env` file with `AFFINITY_API_KEY=…`. The project workdir IS mounted into the VM. This is the most common Cowork path.
-- **`AFFINITY_API_KEY_FILE`** — write the key to a file in the project workdir (e.g., `.xaffinity-key`, gitignored, `chmod 600`) and `export AFFINITY_API_KEY_FILE=/path/to/.xaffinity-key`. Equivalent reach as `.env` but works without `--dotenv` on the command line.
-
-`AFFINITY_API_KEY_COMMAND` is generally NOT useful in Cowork because the helper binaries (`op`, `pass`, `vault`, `security`) typically aren't installed in the VM.
-
-**Session cache:** Started automatically on first xaffinity use. If `AFFINITY_SESSION_CACHE` is not set, it will be initialized when you run your first xaffinity command — this shares metadata across commands and avoids redundant API calls.
+**`null` / missing does not mean empty.** A plain `company get` / `person get` / `opportunity get`
+is a cheap lookup that fetches **no field values and no list entries**: `fields: {"requested":
+false}` and a missing `listEntries` key mean *not fetched*. `meta.notRequested` names what was
+skipped and the flag that fetches it. Never tell the user a record "has no lists" or "empty fields"
+— and never offer to write values — without having fetched them.
 
 ## Common pitfalls (READ THIS FIRST)
 
-**1. `--json` emits a single object, not NDJSON.**
-Parse with `json.load(proc.stdout)` and read `data["data"]["rows"]`. Do NOT
-split on newlines — there's exactly one newline (the trailing one).
-
-**2. Never redirect stderr to `/dev/null`.**
-Every CLI safety signal — "results truncated", "unknown option",
-"--filter client-side" — lives on stderr. Dropping stderr is how you ship a
+**1. Never redirect stderr to `/dev/null`.** Every CLI safety signal — "results truncated",
+"unknown option", "--filter client-side" — lives on stderr. Dropping stderr is how you ship a
 silent-zero-match result and call it a duplicate check.
 
-**3. `--filter` on `list export` requires `--all`, `--max-results`, or
-`--first-page-only`.** The CLI errors on the unscoped case (v1.13+).
-Filtering is client-side; for large lists prefer `--saved-view` (server-side)
-or `--company-id` / `--person-id` (entity-scoped, cheap).
+**2. `--filter` on `list export` requires `--all`, `--max-results`, or `--first-page-only`.** The
+CLI errors on the unscoped case (v1.13+). Filtering is client-side; for large lists prefer
+`--saved-view` (server-side) or `--company-id` / `--person-id` (entity-scoped, cheap). Details:
+`references/filtering.md`.
 
-**4. Duplicate checks: use `--company-id` / `--person-id`, not `--filter`.**
-`xaffinity list export "Pipeline" --company-id 555` returns 0 or more rows
-for that exact company. Zero rows + the emitted warning is the "not on list"
-signal. No page-1 confusion possible.
+**3. Duplicate checks: use `--company-id` / `--person-id`, not `--filter`.**
+`xaffinity list export "Pipeline" --company-id 555 --json` returns 0 or more rows for that exact
+company, with its list field values. Zero rows + the emitted warning is the "not on list" signal.
 
-**5. Check `meta.truncated` on every JSON response.**
-If `payload["meta"]["truncated"]` is `true`, the answer is incomplete.
-`truncationReason` names the cause (currently: `firstPageOnly`).
+**4. Check `meta.truncated` on every JSON response.** If `true`, the answer is incomplete;
+`meta.truncationReason` names the cause (currently `firstPageOnly`).
 
-**6. Side-effecting commands: capture, then parse.**
-A pipeline like
-`xaffinity note create --content "..." --company-id 123 | python3 -c "json.loads(...)"`
-runs the create first, then parses. If you forgot `--json`, the parser
-crashes and the pipeline exits 1 — but the note was already created. The
-agent then "retries" and creates a duplicate. Always capture output to a
-variable first, then parse:
+**5. Side-effecting commands: capture, then parse.** A pipeline like
+`xaffinity note create --content "..." --company-id 123 | python3 -c "json.loads(...)"` runs the
+create first, then parses. If you forgot `--json`, the parser crashes and the pipeline exits 1 —
+but the note was already created, and a "retry" creates a duplicate. Capture first:
 
 ```bash
 out=$(xaffinity --json note create --content "..." --company-id 123)
 note_id=$(printf '%s' "$out" | jq -r '.data.note.id')
 ```
 
-The CLI also emits a duplicate-note warning to stderr when an identical
-content arrives within 5 minutes from the same author, but that's only a
-safety net — capture-then-parse is the actual fix.
+The CLI also warns on stderr when identical content from the same author arrives within 5
+minutes, but that's a safety net — capture-then-parse is the fix.
 
-**7. Person/company field values require numeric IDs, not names.**
-`xaffinity list entry field 999 --set Owner "Jane Doe"` aborts with an
-"Invalid entity ID" error before any write. Resolve names to IDs first:
+**6. Person/company field values require numeric IDs, not names.**
+`xaffinity list entry field "Pipeline" 999 --set Owner "Jane Doe"` aborts with an "Invalid entity
+ID" error before any write. Resolve names to IDs first, and check the ID is not `null`:
 
 ```bash
-owner_id=$(xaffinity --readonly --json person ls --query "Jane Doe" \
-  | jq -r '.data.rows[0].id')
-xaffinity list entry field 999 --set Owner "$owner_id"
+owner_id=$(xaffinity --readonly --json person ls --query "Jane Doe" --max-results 5 \
+  | jq -r '.data.persons[0].id')
+[ "$owner_id" != "null" ] || { echo "no match for Jane Doe" >&2; exit 1; }
+xaffinity list entry field "Pipeline" 999 --set Owner "$owner_id"
 ```
 
-As of v0.7 the CLI pre-validates ALL `--set` values before issuing any API
-call, so a bad person id no longer leaves prior `--set Status=...` writes
-committed. The lookup is still required though — the CLI does not
-auto-resolve names.
+Since CLI 1.15.0 every `--set` value is validated before any API call, so a bad person ID no longer
+leaves earlier `--set Status=...` writes committed. The CLI still does not resolve names for you.
+
+## Reading One Company's / Person's Lists and List Fields
+
+```bash
+# Which lists is this company on, with each entry's list fields (Status, Owner, ...)
+xaffinity --readonly company get 314557093 --expand list-entries --json | jq '.data.listEntries'
+
+# Only one list (--list implies --expand list-entries)
+xaffinity --readonly company get 314557093 --list "Dealflow" --json | jq '.data.listEntries'
+
+# Rows for that company on a known list (same values, list-export row shape)
+xaffinity --readonly list export "Dealflow" --company-id 314557093 --json | jq '.data.rows'
+```
+
+Read `.data.listEntries`, not `.data.company.listEntries`.
 
 ## IMPORTANT: Write Operations Require Explicit User Request
 
-**Always use `--readonly` unless user explicitly requests writes.**
-
-Write operations include creating, updating, or deleting:
-- Notes, interactions, reminders
-- List entries, field values
-- Persons, companies, opportunities
+**Always use `--readonly` unless the user explicitly requests writes.** Writes include creating,
+updating, or deleting notes, interactions, reminders, list entries, field values, persons,
+companies and opportunities. Before writing over an existing field value, read it first and show
+the user the current value. Write-side gotchas (duplicate refusal on create, read-only and
+ambiguous fields, global companies, file uploads): `references/files-and-writes.md`.
 
 ## Destructive Commands Require Double Confirmation
 
-**IMPORTANT**: Before executing ANY delete command, you MUST:
+Before executing ANY delete command:
 
 1. **Look up the entity first** to show the user what will be deleted
-2. **Ask the user in your response** by showing them the entity details and requesting confirmation
-3. **Wait for user's next message** - do NOT proceed until they explicitly confirm
-4. **Only after user confirms** should you run the delete with `--yes`
+2. **Ask the user in your response**, showing the entity details and requesting confirmation
+3. **Wait for the user's next message** — do NOT proceed until they explicitly confirm
+4. **Only after the user confirms**, run the delete with `--yes`
 
-Example flow:
 ```
 User: "Delete person 123"
 You: xaffinity --readonly person get 123 --json
@@ -136,9 +139,11 @@ User: "yes"
 You: xaffinity person delete 123 --yes
 ```
 
-**Destructive commands**: `person delete`, `company delete`, `opportunity delete`, `note delete`, `reminder delete`, `field delete`, `list entry delete`, `interaction delete`
+**Destructive commands**: `person delete`, `company delete`, `opportunity delete`, `note delete`,
+`reminder delete`, `field delete`, `list entry delete`, `interaction delete`
 
-**Note**: This is conversation-based confirmation - you ask, then wait for the user's next message. The `--yes` flag bypasses the CLI's interactive prompt, but you must get explicit user confirmation in the conversation first.
+The `--yes` flag bypasses the CLI's interactive prompt; the confirmation must come from the user in
+the conversation.
 
 ## Critical Patterns
 
@@ -147,70 +152,49 @@ You: xaffinity person delete 123 --yes
 | `--readonly` | Prevent accidental data modification (ALWAYS use unless writing) |
 | `--json` | Structured, parseable output (ALWAYS use for commands you will parse) |
 | `--max-results N` | **Limit results (ALWAYS use on list/search commands)**. Aliases: `--limit`, `-n` |
-| `--yes` | Skip confirmation on delete commands (use after user confirms) |
+| `--yes` | Skip confirmation on delete commands (use after the user confirms) |
 | `--help` | Discover command options (USE THIS, don't guess flags) |
 
-**IMPORTANT: Always limit results.** Use `--max-results` on every `ls`, `list export`, `interaction ls`, and `note ls` command. Start small (10-50), increase only if needed. Unbounded queries can return hundreds of KB of data and make many API calls.
+**Always limit results.** Use `--max-results` on every `ls`, `list export`, `interaction ls`, and
+`note ls`. Start small (10-50), increase only if needed — unbounded queries can return hundreds of
+KB and make many API calls.
 
-**Extract only what you need.** When you know which fields you need, pipe through `jq` instead of dumping the full JSON response. Skip this when exploring data for the first time.
+**Extract only what you need** with `jq` once you know the shape (see the table above):
 
 ```bash
-# Get a person's ID for a follow-up command
+# A person's ID for a follow-up command
 xaffinity --readonly person get email:alice@example.com --json | jq -r '.data.person.id'
 
-# Get just the fields you need to answer the user
-xaffinity --readonly person get 123 --json | jq '.data.person | {id, firstName, lastName, primaryEmail}'
+# Just the fields you need to answer the user
+xaffinity --readonly person get 123 --json \
+  | jq '.data.person | {id, firstName, lastName, primaryEmailAddress}'
 
-# Get entity names from a list export
-xaffinity --readonly list export "Pipeline" --max-results 20 --json | jq '[.data.rows[] | {entityName, entityId}]'
+# Entity names from a list export
+xaffinity --readonly list export "Pipeline" --max-results 20 --json \
+  | jq '[.data.rows[] | {entityName, entityId}]'
 ```
 
 ## Multi-Source Tasks: Use a Script
 
-When a task needs data from **2 or more** CLI commands (e.g., person details + interactions + list entries), write a **single bash script** instead of running commands one-by-one. Each separate command dumps its full JSON into the conversation — chaining 3-5 commands can waste hundreds of KB of context on raw data you only need a few facts from.
+When a task needs data from **2 or more** CLI commands (e.g., person details + interactions + list
+entries), write a **single bash script** that prints only the summary, instead of running commands
+one by one — each separate command dumps its full JSON into the conversation. A single command is
+fine for simple lookups, single writes and quick searches. Worked example (company → interactions
+summary): `references/interactions.md`.
 
-**Use a script when:** combining entity details with interactions, cross-referencing list entries with entities, generating summaries from multiple queries.
-
-**A single command is fine when:** simple lookups (`person get email:...`), single writes (`note create`), quick searches (`person ls --query`).
-
-### Bash + jq
-
-Session caching is already active (set up at session start), so just use `jq` to extract the summary:
-
-```bash
-# Example: "Summarize my interactions with Acme in Q1"
-CID=$(xaffinity --readonly company get domain:acme.com --json \
-  | jq -r '.data.company.id')
-
-xaffinity --readonly interaction ls --type all --company-id "$CID" \
-  --after 2025-01-01T00:00:00Z --before 2025-03-31T23:59:59Z \
-  --max-results 200 --json \
-  | jq '{
-    company: "Acme",
-    total: (.data.interactions | length),
-    by_type: (.data.interactions | group_by(.type)
-              | map({type: .[0].type, count: length}))
-  }'
-```
-
-This outputs ~200 bytes instead of ~100 KB of raw JSON.
-
-### When to use Python instead
-
-For complex joins across 3+ sources, conditional logic, pagination over large datasets, or when you need SDK features like `F` filters or `FieldResolver`, write a Python script using the Affinity SDK. The SDK skill has patterns for this.
+For complex joins across 3+ sources, conditional logic, pagination over large datasets, or SDK
+features like `F` filters or `FieldResolver`, write a Python script using the Affinity SDK (the SDK
+skill has patterns).
 
 ## Selectors: Use Names, Not Just IDs
 
-Most commands accept names, emails, or domains directly — no need to look up IDs first:
+Most commands accept names, emails, or domains directly — no ID lookup needed:
 
 ```bash
-# These all work — no ID lookup needed:
 xaffinity --readonly person get email:alice@example.com --json
 xaffinity --readonly company get domain:acme.com --json
 xaffinity --readonly list export "My Pipeline" --max-results 20 --json
-
-# IDs also work:
-xaffinity --readonly person get 12345 --json
+xaffinity --readonly person get 12345 --json      # IDs also work
 ```
 
 ## Common Commands
@@ -220,99 +204,42 @@ xaffinity --readonly person get 12345 --json
 xaffinity --readonly person ls --query "John Smith" --max-results 10 --json
 xaffinity --readonly company ls --query "Acme" --max-results 10 --json
 
-# Get single entity by identifier
-xaffinity --readonly person get email:alice@example.com --json
-xaffinity --readonly company get domain:acme.com --json
-
-# List entries from a named list
-xaffinity --readonly list export "Pipeline" --max-results 20 --json
-```
-
-**JSON output key is `data.rows`** (not `data.listEntries` or `data.entries`). Each row contains `listEntryId`, `entityType`, `entityId`, `entityName`, plus field values keyed by field name.
-
-```bash
-# List all available lists
+# All lists; entries of one list
 xaffinity --readonly list ls --json
+xaffinity --readonly list export "Pipeline" --max-results 20 --json
 
 # Export to CSV
 xaffinity --readonly person ls --all --csv --csv-bom > contacts.csv
 xaffinity --readonly list export "Pipeline" --all --csv --csv-bom > output.csv
 ```
 
+Searching and filtering (`--query` vs `--filter`, saved views, operators): `references/filtering.md`.
+Interactions (types, date ranges, creating them): `references/interactions.md`.
+
 ## List Entry Fields
 
-Read or update field values on a list entry:
-
 ```bash
-# Read specific fields (returns resolved person/company objects, matching list export format)
+# Read specific fields (resolved person/company objects, matching list export format)
 xaffinity --readonly list entry field "Pipeline" 12345 --get Owner --get Status --json
 
 # Set a field value (requires write permission)
 xaffinity list entry field "Pipeline" 12345 --set Status "Active"
-
-# --get and --set are mutually exclusive
 ```
 
-`--get` returns resolved objects for person/company reference fields (with `firstName`, `lastName`, `primaryEmailAddress`) and full dropdown option data (with `text`, `color`).
-
-## Interactions
-
-Interactions require `--type` and exactly one entity ID (`--person-id`, `--company-id`, or `--opportunity-id`).
-
-**Valid types:** `email`, `meeting`, `call`, `chat`, `chat-message`, `all`
-
-**Date range:** Defaults to **all time** if not specified. Use `--days` or `--after`/`--before` to limit.
-
-```bash
-# Recent interactions (recommended: use --days and --max-results)
-xaffinity --readonly interaction ls --type all --company-id 123 \
-  --days 90 --max-results 50 --json
-
-# Specific date range (max 1 year per API call; auto-chunked for larger ranges)
-xaffinity --readonly interaction ls --type email --person-id 456 \
-  --after 2025-01-01 --before 2025-12-31 --max-results 100 --json
-
-# --days and --after are mutually exclusive
-# Dates without timezone suffix are interpreted as local time; use Z for UTC:
-#   --after 2025-01-01T00:00:00Z
-```
-
-**WARNING:** Without `--days` or `--after`, the CLI fetches ALL interactions since 2010. Multi-year ranges are auto-chunked into 365-day API calls. `--days 3650` = ~10 API calls per type. **Always use `--days` or `--max-results` to bound the query.**
-
-### Creating Interactions
-
-Interactions require **both internal AND external** person IDs:
-- **Internal**: A workspace user (team member). Find yours with `xaffinity whoami`.
-- **External**: A contact (non-team-member person in your CRM).
-
-```bash
-# Create a meeting — use --include-me to auto-add your person ID
-xaffinity interaction create --type meeting \
-  --person-id EXTERNAL_CONTACT_ID --include-me \
-  --content "Discussed partnership" --date 2025-06-15T14:00:00Z --json
-
-# Without --include-me, specify all person IDs explicitly
-xaffinity interaction create --type email \
-  --person-id YOUR_PERSON_ID --person-id CONTACT_ID \
-  --content "Follow-up email" --date 2025-06-15T14:00:00Z --json
-```
-
-**Common error:** Forgetting to include an internal person ID causes a validation error. Use `--include-me` to avoid this.
+`--get` and `--set` are mutually exclusive. `--get` returns resolved objects for person/company
+reference fields (`firstName`, `lastName`, `primaryEmailAddress`) and full dropdown option data
+(`text`, `color`).
 
 ## Expand/Include (N+1 Warning)
 
-`--expand` on `list export` triggers **one additional API call per record**. Use `--max-results` to control cost.
+`--expand` on `list export` triggers **one additional API call per record**. Use `--max-results`
+to control cost.
 
 ```bash
 # Safe: 20 records = ~21 API calls
 xaffinity --readonly list export "Pipeline" --expand persons --max-results 20 --json
 
-# Multiple expands compound the cost:
-xaffinity --readonly list export "Pipeline" --expand persons --expand companies \
-  --max-results 20 --json
-
-# DANGEROUS: --expand with --all on a large list
-# 500 entries = 501+ API calls, ~10 minutes
+# DANGEROUS: --expand with --all on a large list (500 entries = 501+ API calls, ~10 minutes)
 # xaffinity list export "Pipeline" --expand persons --all  # DON'T do this blindly
 ```
 
@@ -320,152 +247,28 @@ xaffinity --readonly list export "Pipeline" --expand persons --expand companies 
 
 ## Query Command (Advanced)
 
-For complex data retrieval beyond simple `ls` / `list export`, use `xaffinity query`:
-- Aggregation & groupBy (count, sum, avg by field)
-- Cross-entity filtering (find persons based on their companies)
-- Nested boolean logic (AND/OR/NOT)
-- Dry-run mode to preview API cost
+For aggregation/groupBy, cross-entity filtering, nested AND/OR/NOT, or a cost preview, use
+`xaffinity query`. **Always `--dry-run` first** for queries with include/expand/quantifiers. Full
+reference (JSON structure, operators, aggregation, examples): `references/query-guide.md`.
 
 | Need | Use |
 |------|-----|
 | Simple search by name/email | `person ls --query` or `person get email:...` |
 | Export list entries | `list export "ListName"` |
 | Server-side filtered list | `list export --saved-view "ViewName"` |
-| Aggregate/group data | `query` |
-| Filter by related entities | `query` |
+| Aggregate/group data, filter by related entities | `query` |
 | Preview API cost first | `query --dry-run` |
-
-**Always `--dry-run` first** for queries with include/expand/quantifiers.
-
-```bash
-# From file (recommended for complex queries)
-xaffinity --readonly query --dry-run --file query.json --json
-
-# Inline
-xaffinity --readonly query --query '{"from": "persons", "where": {"path": "email", "op": "contains", "value": "@acme.com"}, "limit": 20}' --json
-```
-
-For full query reference (JSON structure, operators, aggregation, quantifiers, examples): see `references/query-guide.md`
-
-## Filtering
-
-### Entity commands (`person ls`, `company ls`): use `--query`, NOT `--filter`
-
-```bash
-# Global-entity search — use --query for fuzzy name/email/domain search
-xaffinity --readonly person ls --query "@acme.com" --max-results 20 --json
-xaffinity --readonly company ls --query "Acme" --max-results 20 --json
-
-# Department-style filters are list-specific; run on the list that defines the field
-xaffinity --readonly list export "All Contacts" --filter 'Department = "Sales"' --max-results 20 --json
-```
-
-### `--filter` is NOT supported on `company ls` / `person ls` / `query companies|persons|opportunities`
-
-Global-entity list endpoints don't support server-side filtering. These commands raise `unsupported_filter` (exit 2) if `--filter` is passed. Use:
-- `--query TERM` for name/domain/email fuzzy search on global entities.
-- `list export <LIST> --filter ...` for list-specific field filters.
-
-### `company create` / `person create` refuses duplicates by default
-
-Since CLI 1.12.0, create refuses if an exact name/domain (companies) or email/full-name (persons) match exists:
-- Exit code: 6
-- Error type: `duplicate_exists`
-- Payload: `error.details.existing.companyId` (or `personId`) — use this ID instead of creating a duplicate.
-- For companies, `error.details.existing.isGlobal == true` indicates a global Affinity directory record — the hint points to `list entry add --company-id <id>` instead of creating a tenant-scoped copy.
-- Pass `--allow-duplicate` to force-create when you genuinely want a distinct record with the same name.
-
-### List export: `--filter` is CLIENT-SIDE (fetches everything first)
-
-```bash
-# SLOW on large lists — downloads ALL entries, then filters locally:
-xaffinity --readonly list export "Pipeline" --filter 'Status = "Active"' --all --json
-
-# FAST — use saved views for server-side filtering:
-xaffinity --readonly list export "Pipeline" --saved-view "Active Deals" --max-results 50 --json
-```
-
-**For large lists (1000+ entries), prefer `--saved-view` over `--filter`.**
-
-### Filter operators
-
-```
-=    exact match           'Status = "Active"'
-!=   not equal             'Status != "Closed"'
-=~   contains              'Email =~ "@acme"'
-=^   starts with           'Name =^ "John"'
-=$   ends with             'Domain =$ ".com"'
->    greater than           'Revenue > "1000000"'
-<    less than
->=   greater or equal
-<=   less or equal
-&    AND                   'Status = "Active" & Region = "US"'
-|    OR                    'Status = "New" | Status = "Pending"'
-```
-
-## Smart Fields ("Last Meeting", "Next Meeting")
-
-These are UI-only and not in the API. Use `--with-interaction-dates` on **get** commands (not `ls`):
-
-```bash
-xaffinity --readonly person get email:alice@example.com --with-interaction-dates --json
-xaffinity --readonly company get domain:acme.com --with-interaction-dates --json
-```
 
 ## Gotchas & Workarounds
 
-### Internal meetings NOT in interactions
-The interactions API only shows meetings with **external** contacts.
-```bash
-# Workaround - use notes:
-xaffinity --readonly note ls --person-id 123 --max-results 20 --json
-# Then filter for isMeeting: true in the output
-```
-
-### Cannot associate interactions with companies/opportunities
-The UI's "Also add to... search for an entity" feature has no API equivalent. The API only supports adding person IDs as participants — you cannot directly link an interaction to a company or opportunity.
-
-### --query and --filter are mutually exclusive
-Use `--query` for fuzzy text search or `--filter` for structured filtering. Cannot combine both.
-
-### Opportunities are bound to one list
-Cannot search opportunities globally. Access them via `list export` on their specific list.
-
-### "Current Organization" is read-only via API
-This is a derived/system-managed field driven by enrichment data and email domain — it cannot be set or updated directly via the API. "Current Job Title" can be updated after person creation using `field update`. Neither field can be set during `person create`.
-
-### Enriched field writes
-Most enriched fields ("Phone Number", "Source of Introduction", "Industry", "Location", "Description", etc.) **are** writable. `person field --set` / `company field --set` / `field update` accept the field name or its field ID.
-
-On companies, some names are ambiguous because the same concept exists under multiple enrichment providers (e.g. "Industry" exists for both the built-in enricher and Dealroom). The CLI raises `AmbiguousFieldError` with a table of candidate field IDs — copy one into the command to disambiguate.
-
-Derived-only enriched fields like "Current Organization" raise `EnrichedFieldNotWritableError` (exit code 2) with a clear message instead of silently no-op'ing.
-
-### Global organizations are read-only
-Companies with `global: true` cannot be modified.
-
-### Progress output goes to stderr
-When piping JSON output through another program, progress messages appear on stderr (not stdout). JSON on stdout is clean. If you need to suppress progress: use `--quiet` or `-q`.
-
-## File Commands
-
-Files can be listed, downloaded, read, and uploaded for **companies**, **persons**, and **opportunities**. These are nested subcommands under `<entity> files`:
-
-```bash
-# List files attached to an entity
-xaffinity --readonly company files ls "domain:acme.com" --max-results 20 --json
-xaffinity --readonly person files ls "email:alice@example.com" --max-results 20 --json
-xaffinity --readonly opportunity files ls 12345 --max-results 20 --json
-
-# Download files
-xaffinity --readonly company files download "domain:acme.com" --output-dir ./downloads
-
-# Read file content (with chunking support for large files)
-xaffinity --readonly company files read "domain:acme.com" --file-id 67890 --json
-
-# Upload files (write operation — requires explicit user request)
-xaffinity company files upload "domain:acme.com" ./document.pdf
-```
+- **Smart fields ("Last Meeting", "Next Meeting") are UI-only.** Use `--with-interaction-dates` on
+  **get** commands (not `ls`): `xaffinity --readonly company get domain:acme.com --with-interaction-dates --json`.
+- **Internal meetings are NOT in interactions** (only meetings with external contacts) — use notes;
+  see `references/interactions.md`.
+- **Opportunities are bound to one list.** You cannot search opportunities globally; use
+  `list export` on their list. `opportunity get` needs `--details` for field values.
+- **Progress output goes to stderr**, so JSON on stdout stays clean. Use `--quiet` / `-q` to
+  suppress progress — but don't discard stderr (pitfall 1).
 
 ## Quick Reference
 
@@ -473,25 +276,16 @@ xaffinity company files upload "domain:acme.com" ./document.pdf
 |------|---------|
 | Find person by email | `person get email:user@example.com --json` |
 | Find company by domain | `company get domain:acme.com --json` |
+| Company's lists + list field values | `company get <id> --expand list-entries --json` |
+| Is company on list X? (dedup) | `list export "X" --company-id <id> --json` |
 | Search people | `person ls --query "name" --max-results 10 --json` |
 | Recent interactions | `interaction ls --type all --company-id ID --days 90 --max-results 50 --json` |
 | Export list (bounded) | `list export "ListName" --max-results 100 --json` |
 | Export list (full CSV) | `list export "ListName" --all --csv --csv-bom > out.csv` |
 | List with server filter | `list export "ListName" --saved-view "ViewName" --max-results 50 --json` |
 | List entity files | `company files ls "domain:acme.com" --max-results 20 --json` |
-| Download entity files | `company files download "domain:acme.com" --output-dir ./downloads` |
 | Aggregate/group data | `query --dry-run --file query.json --json` (preview cost first) |
 | Get command help | `xaffinity <command> --help` (USE THIS — don't guess flags) |
 
-**Remember:** Prefix all commands with `xaffinity --readonly` (and `--dotenv` if `check-key` says so).
-
-## Installation
-
-```bash
-pip install "affinity-sdk[cli]"
-```
-
-## Documentation
-
-- Full CLI reference: `xaffinity --help`
-- SDK docs: https://yaniv-golan.github.io/affinity-sdk/latest/
+**Remember:** prefix all commands with `xaffinity --readonly` (and `--dotenv` if `check-key` says
+so). Install: `pip install "affinity-sdk[cli]"`. Docs: https://yaniv-golan.github.io/affinity-sdk/latest/

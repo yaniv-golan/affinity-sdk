@@ -216,3 +216,51 @@ def test_hook_allows_when_install_succeeded(tmp_path):
         cwd=str(tmp_path),
     )
     assert result.returncode == 0
+
+
+def _unconfigured_env(tmp_path: Path) -> dict[str, str]:
+    """PATH with a mock xaffinity that always reports no key configured."""
+    mock_bin = tmp_path / "xaffinity"
+    mock_bin.write_text('#!/bin/bash\necho \'{"data":{"configured":false}}\'\n')
+    mock_bin.chmod(mock_bin.stat().st_mode | stat.S_IEXEC)
+    jq_dir = str(Path(shutil.which("jq") or "/usr/bin/jq").parent)
+    minimal_path = os.pathsep.join([str(tmp_path), *sorted({jq_dir, "/bin", "/usr/bin"})])
+    return {"PATH": minimal_path, "HOME": str(tmp_path)}
+
+
+@pytest.mark.req("CLI-PRETOOL-HOOK")
+@pytest.mark.parametrize(
+    "command",
+    [
+        "grep -n requested plugins/xaffinity-cli/skills/xaffinity-cli-usage/SKILL.md",
+        "cat plugins/xaffinity-cli/hooks/pre-xaffinity.sh",
+        "ls ~/.xaffinity-install-status",
+        "cd mcp && ./xaffinity-mcp.sh validate",
+        "git add plugins/xaffinity-cli/hooks/pre-xaffinity.sh",
+    ],
+)
+def test_hook_ignores_commands_that_only_mention_xaffinity(tmp_path, command):
+    """A path or file name containing 'xaffinity' is not a CLI invocation."""
+    result = _run_hook(command, env_override=_unconfigured_env(tmp_path), cwd=str(tmp_path))
+    assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.req("CLI-PRETOOL-HOOK")
+@pytest.mark.parametrize(
+    "command",
+    [
+        "xaffinity --readonly person ls --json",
+        "cd /tmp && xaffinity person ls",
+        "true; xaffinity person ls",
+        "echo x | xaffinity person ls",
+        'out=$(xaffinity --json person ls); echo "$out"',
+        "AFFINITY_SESSION_CACHE=/tmp/c xaffinity person ls",
+        "/usr/local/bin/xaffinity person ls",
+        "uv run xaffinity person ls",
+        "set -e\nxaffinity person ls",
+    ],
+)
+def test_hook_still_gates_real_invocations(tmp_path, command):
+    """Every way of actually running the CLI still hits the key check."""
+    result = _run_hook(command, env_override=_unconfigured_env(tmp_path), cwd=str(tmp_path))
+    assert result.returncode == 2, command
