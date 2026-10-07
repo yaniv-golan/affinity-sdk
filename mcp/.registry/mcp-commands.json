@@ -145,6 +145,22 @@
       "examples": ["company files upload 123 --file doc.pdf"],
       "relatedCommands": ["company get", "company files ls"]
     },
+    "company search": {
+      "whenToUse": "Find companies from a natural-language description (semantic search), e.g. 'AI infrastructure startups' or 'seed-stage fintech in Europe'. Returns up to 100 companies ranked by relevance score; meta.explanation says how the prompt was read. Use --list to restrict to company lists. NOT for finding a company by its name or domain - use `company ls --query` or `company get \"domain:acme.com\"` for that.",
+      "examples": [
+        "company search \"AI infrastructure startups\"",
+        "company search \"seed-stage fintech in Europe\" --list \"Dealflow\" --max-results 20"
+      ],
+      "relatedCommands": ["company ls", "company get"]
+    },
+    "file search": {
+      "whenToUse": "Search inside file contents (PDFs, decks, docs) by keyword across ALL files (or one company's files with --company-id). Returns up to 100 matches, one per file, with fileId, name, pageNumber and the matching passage. Then use `company files read` or get-file-url with the fileId to fetch the file. To list the files on one record, use `company files ls`.",
+      "examples": [
+        "file search \"pitch deck\"",
+        "file search \"revenue projections\" --company-id 12345 --max-results 5"
+      ],
+      "relatedCommands": ["company files ls", "company files read"]
+    },
     "opportunity get": {
       "whenToUse": "Get opportunity details. Use --expand persons/companies for associations.",
       "relatedCommands": ["opportunity ls", "opportunity field"]
@@ -341,6 +357,14 @@
     "note get": {
       "whenToUse": "Get details of a specific note by ID.",
       "relatedCommands": ["note ls", "note update"]
+    },
+    "note search": {
+      "whenToUse": "Search note text by keyword across ALL notes (or one company's notes with --company-id). Returns up to 100 matches ranked by relevance, each with noteId, kind and the matching passage (preview). Use `note get` for the full note. To list the notes attached to a specific person/company/opportunity, use `note ls` instead.",
+      "examples": [
+        "note search \"Series B terms\"",
+        "note search \"pricing\" --company-id \"domain:acme.com\" --max-results 10"
+      ],
+      "relatedCommands": ["note get", "note ls"]
     },
     "note create": {
       "whenToUse": "Add a note to an entity. Simpler than interactions for quick notes.",

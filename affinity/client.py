@@ -166,17 +166,17 @@ class Affinity:
         ```
 
     Attributes:
-        companies: Company (organization) operations
+        companies: Company (organization) operations, incl. ``semantic_search``
         persons: Person (contact) operations
         lists: List operations
-        notes: Note operations
+        notes: Note operations, incl. keyword ``search``
         reminders: Reminder operations
         webhooks: Webhook subscription operations
         interactions: Interaction (email, meeting, etc.) operations
         fields: Custom field operations
         field_values: Field value operations
         field_value_changes: Field value change history operations
-        files: Entity file operations
+        files: Entity file operations, incl. keyword ``search`` of file contents
         relationships: Relationship strength queries
         auth: Authentication and rate limit info
     """

@@ -195,16 +195,21 @@ def _retry_outcome(
     max_retries: int,
     retry_delay: float,
     error: Exception,
+    idempotent: bool = False,
 ) -> _RetryOutcome:
     """
     Decide whether to retry after an exception.
+
+    ``idempotent`` marks a request that is safe to repeat although its method is not
+    (a read-only POST such as search); it gets the GET/HEAD retry policy.
 
     The caller is responsible for raising via `raise` (to preserve tracebacks) when
     outcome.action == "raise", and for chaining `from error` when
     outcome.action == "raise_wrapped".
     """
+    retryable = idempotent or method in _RETRYABLE_METHODS
     if isinstance(error, RateLimitError):
-        if method not in _RETRYABLE_METHODS:
+        if not retryable:
             return _RetryOutcome(action="raise")
         if attempt >= max_retries:
             return _RetryOutcome(action="break", last_error=error)
@@ -222,7 +227,7 @@ def _retry_outcome(
 
     if isinstance(error, AffinityError):
         status = error.status_code
-        if method not in _RETRYABLE_METHODS or status is None or status < 500 or status >= 600:
+        if not retryable or status is None or status < 500 or status >= 600:
             return _RetryOutcome(action="raise")
         if attempt >= max_retries:
             return _RetryOutcome(action="break", last_error=error)
@@ -235,7 +240,7 @@ def _retry_outcome(
         )
 
     if isinstance(error, httpx.TimeoutException):
-        if method not in _RETRYABLE_METHODS:
+        if not retryable:
             return _RetryOutcome(
                 action="raise_wrapped",
                 wrapped_error=TimeoutError(f"Request timed out: {error}"),
@@ -248,7 +253,7 @@ def _retry_outcome(
         return _RetryOutcome(action="sleep", wait_time=wait_time, last_error=error)
 
     if isinstance(error, httpx.NetworkError):
-        if method not in _RETRYABLE_METHODS:
+        if not retryable:
             return _RetryOutcome(
                 action="raise_wrapped",
                 wrapped_error=NetworkError(f"Network error: {error}"),
@@ -1262,6 +1267,7 @@ class HTTPClient:
                         max_retries=config.max_retries,
                         retry_delay=config.retry_delay,
                         error=e,
+                        idempotent=bool(req.context.get("idempotent", False)),
                     )
                     if isinstance(e, RateLimitError):
                         rate_limit_wait = (
@@ -2011,6 +2017,7 @@ class HTTPClient:
         v1: bool,
         safe_follow: bool = False,
         write_intent: bool = False,
+        idempotent: bool = False,
         cache_key: str | None = None,
         cache_ttl: float | None = None,
         **kwargs: Any,
@@ -2027,6 +2034,8 @@ class HTTPClient:
         context: RequestContext = {}
         if safe_follow:
             context["safe_follow"] = True
+        if idempotent:
+            context["idempotent"] = True
         if cache_key is not None:
             context["cache_key"] = cache_key
         if cache_ttl is not None:
@@ -2163,10 +2172,17 @@ class HTTPClient:
         *,
         json: Any = None,
         v1: bool = False,
+        read_only: bool = False,
     ) -> dict[str, Any]:
-        """Make a POST request."""
+        """Make a POST request.
+
+        ``read_only=True`` marks a POST that only reads (search endpoints): it is allowed
+        under ``WritePolicy.DENY`` and retried like a GET.
+        """
         url = self._build_url(path, v1=v1)
-        return self._request_with_retry("POST", url, v1=v1, json=json, write_intent=True)
+        return self._request_with_retry(
+            "POST", url, v1=v1, json=json, write_intent=not read_only, idempotent=read_only
+        )
 
     def put(
         self,
@@ -2674,6 +2690,7 @@ class AsyncHTTPClient:
                         max_retries=config.max_retries,
                         retry_delay=config.retry_delay,
                         error=e,
+                        idempotent=bool(req.context.get("idempotent", False)),
                     )
                     if isinstance(e, RateLimitError):
                         rate_limit_wait = (
@@ -3441,6 +3458,7 @@ class AsyncHTTPClient:
         v1: bool,
         safe_follow: bool = False,
         write_intent: bool = False,
+        idempotent: bool = False,
         cache_key: str | None = None,
         cache_ttl: float | None = None,
         **kwargs: Any,
@@ -3457,6 +3475,8 @@ class AsyncHTTPClient:
         context: RequestContext = {}
         if safe_follow:
             context["safe_follow"] = True
+        if idempotent:
+            context["idempotent"] = True
         if cache_key is not None:
             context["cache_key"] = cache_key
         if cache_ttl is not None:
@@ -3575,9 +3595,12 @@ class AsyncHTTPClient:
         *,
         json: Any = None,
         v1: bool = False,
+        read_only: bool = False,
     ) -> dict[str, Any]:
         url = self._build_url(path, v1=v1)
-        return await self._request_with_retry("POST", url, v1=v1, json=json, write_intent=True)
+        return await self._request_with_retry(
+            "POST", url, v1=v1, json=json, write_intent=not read_only, idempotent=read_only
+        )
 
     async def put(
         self,

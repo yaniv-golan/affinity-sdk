@@ -301,6 +301,8 @@ class CommandMeta(AffinityModel):
     # Data the command deliberately skipped (cheap default) and the flag that
     # fetches it, so absent keys aren't mistaken for empty data.
     not_requested: list[dict[str, str]] | None = Field(None, alias="notRequested")
+    # Server-provided explanation of how a query was interpreted (semantic search).
+    explanation: str | None = None
 
 
 class CommandResult(AffinityModel):

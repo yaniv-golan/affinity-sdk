@@ -33,6 +33,8 @@ class RequestContext(TypedDict, total=False):
     external: bool
     ever_external: bool
     safe_follow: bool
+    # Safe to repeat although the method is not (read-only POST, e.g. search): retried like GET.
+    idempotent: bool
     streaming: bool
     chunk_size: int
     on_progress: Any

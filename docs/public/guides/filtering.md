@@ -258,6 +258,43 @@ Since `--expand-filter` is client-side, all associations are still fetched from 
 For large lists with many associations, the export may take time even if the filter
 reduces the final output significantly. Use `--dry-run` to estimate API calls.
 
+## Searching notes, files and companies
+
+Filters match field values. To find records by **content or description**, use the V2
+search endpoints instead:
+
+| Need | CLI | SDK |
+|---|---|---|
+| Notes whose text mentions something | `note search "pricing"` | `client.notes.search("pricing")` |
+| Files whose contents mention something | `file search "pitch deck"` | `client.files.search("pitch deck")` |
+| Companies matching a description | `company search "AI infrastructure startups"` | `client.companies.semantic_search("AI infrastructure startups")` |
+| A company by name or domain | `company ls --query acme` | `client.companies.search("acme")` |
+
+- Each call returns at most 100 results, ranked by relevance, with no pagination
+  (`--max-results`/`limit` 1–100; defaults 20 for notes and files, 100 for companies).
+- Note and file search take a 3–500 character prompt and can be narrowed to one company
+  (`--company-id` / `company_id`) or to given ids (`--note-id`, `--file-id` /
+  `note_ids`, `file_ids`), not both.
+- Company search can be narrowed to company lists (`--list` / `list_ids`) and returns an
+  `explanation` of how the prompt was read (`meta.explanation` in CLI JSON).
+- Results carry ids: follow up with `note get`, `file-url` / `company files read`, or
+  `company get`.
+- The searches are `POST` requests that only read: they work under `--readonly` /
+  `WritePolicy.DENY` and are retried on rate limits like other reads.
+
+```python
+from affinity import Affinity
+
+with Affinity(api_key="your-api-key") as client:
+    for hit in client.notes.search("Series B terms", limit=5):
+        print(hit.note.id, hit.note.kind, hit.preview[:80])
+
+    result = client.companies.semantic_search("seed-stage fintech in Europe", limit=10)
+    print(result.explanation)
+    for company in result.data:
+        print(company.id, company.name, company.score_float)
+```
+
 ## Next steps
 
 - [Pagination](pagination.md)

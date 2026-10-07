@@ -37,6 +37,7 @@ class CommandOutput:
     truncation_reason: str | None = None
     # [{"key": "data.listEntries", "flag": "--expand list-entries"}, ...]
     not_requested: list[dict[str, str]] | None = None
+    explanation: str | None = None  # meta.explanation (semantic search)
     api_called: bool = False
     exit_code: int = 0  # Allow commands to specify non-zero exit codes (e.g., check-key)
 
@@ -45,7 +46,7 @@ def _emit_json(result: CommandResult) -> None:
     payload = result.model_dump(by_alias=True, mode="json")
     meta = payload.get("meta")
     if isinstance(meta, dict):
-        for key in ("rateLimit", "truncated", "truncationReason", "notRequested"):
+        for key in ("rateLimit", "truncated", "truncationReason", "notRequested", "explanation"):
             if meta.get(key) is None:
                 meta.pop(key, None)
     sys.stdout.write(json.dumps(payload, ensure_ascii=False) + "\n")
@@ -200,6 +201,7 @@ def run_command(ctx: CLIContext, *, command: str, fn: CommandFn) -> None:
             truncated=out.truncated,
             truncation_reason=out.truncation_reason,
             not_requested=out.not_requested,
+            explanation=out.explanation,
         )
         emit_result(ctx, result)
         raise click.exceptions.Exit(out.exit_code)

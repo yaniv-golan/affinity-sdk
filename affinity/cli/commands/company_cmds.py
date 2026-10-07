@@ -15,7 +15,9 @@ from rich.progress import BarColumn, Progress, SpinnerColumn, TaskID, TextColumn
 
 from affinity.exceptions import DuplicateEntityError
 from affinity.models.entities import Company, CompanyCreate, CompanyUpdate
-from affinity.models.types import EnrichedFieldId, FieldId
+from affinity.models.types import EnrichedFieldId, FieldId, ListType
+from affinity.services.search import MAX_IDS as SEARCH_MAX_IDS
+from affinity.services.search import SEMANTIC_SEARCH_DEFAULT_LIMIT, build_semantic_search_body
 from affinity.types import CompanyId, FieldType, ListId, PersonId
 
 from ..click_compat import RichCommand, RichGroup, click
@@ -38,6 +40,13 @@ from ._list_entry_fields import (
     ListEntryFieldsScope,
     build_list_entry_field_rows,
     filter_list_entry_fields,
+)
+from ._search_common import (
+    check_sdk_args,
+    clamp_limit,
+    is_table_output,
+    max_results_option,
+    usage_error,
 )
 from ._v1_parsing import validate_domain
 from .resolve_url_cmd import _parse_affinity_url
@@ -324,7 +333,8 @@ def _parse_field_types(values: tuple[str, ...]) -> list[FieldType] | None:
     "-q",
     type=str,
     default=None,
-    help="Fuzzy text search (simple matching). Use --filter for structured queries.",
+    help="Fuzzy text search (simple matching). Use --filter for structured queries, "
+    "`company search` for natural-language (semantic) search.",
 )
 @click.option(
     "--csv-bom",
@@ -623,6 +633,111 @@ def company_ls(
         )
 
     run_command(ctx, command="company ls", fn=fn)
+
+
+@category("read")
+@company_group.command(name="search", cls=RichCommand)
+@click.argument("prompt", type=str)
+@click.option(
+    "--list",
+    "list_selectors",
+    type=str,
+    multiple=True,
+    help="Only companies on this company list (name or id; repeatable, max 100).",
+)
+@max_results_option(SEMANTIC_SEARCH_DEFAULT_LIMIT)
+@output_options
+@click.pass_obj
+def company_search(
+    ctx: CLIContext,
+    prompt: str,
+    *,
+    list_selectors: tuple[str, ...],
+    max_results: int | None,
+) -> None:
+    """
+    Find companies from a natural-language description (V2 semantic search).
+
+    PROMPT (1-500 characters) describes what you want, e.g. "fintech companies in the
+    US with over 50 employees". Results are ranked by a relevance `score` (at most 100,
+    no pagination); JSON output carries the API's reading of the prompt in
+    `meta.explanation`.
+
+    To match a company by name or domain, use `company ls --query` (or `company get
+    "name:..."`/`"domain:..."`) instead.
+
+    Examples:
+
+    - `xaffinity company search "AI infrastructure startups"`
+    - `xaffinity company search "seed-stage fintech in Europe" --list "Dealflow" -n 20`
+    """
+
+    def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
+        limit = clamp_limit(max_results, warnings)
+        if len(list_selectors) > SEARCH_MAX_IDS:
+            raise usage_error(f"--list accepts at most {SEARCH_MAX_IDS} lists.")
+        check_sdk_args(lambda: build_semantic_search_body(prompt, list_ids=None, limit=limit))
+
+        client = ctx.get_client(warnings=warnings)
+        list_ids: list[int] = []
+        resolved_lists: list[dict[str, Any]] = []
+        for selector in list_selectors:
+            resolved_list = resolve_list_selector(
+                client=client, selector=selector, cache=ctx.session_cache
+            )
+            lst = resolved_list.list
+            if ListType(lst.type) is not ListType.COMPANY:
+                raise usage_error(
+                    f'List "{lst.name}" ({int(lst.id)}) is not a company list; '
+                    "semantic search only filters by company lists.",
+                    listId=int(lst.id),
+                    listType=str(ListType(lst.type).name).lower(),
+                )
+            list_ids.append(int(lst.id))
+            resolved_lists.append(resolved_list.resolved["list"])
+
+        result = client.companies.semantic_search(prompt, list_ids=list_ids or None, limit=limit)
+        table = is_table_output(ctx)
+        rows: list[dict[str, object]] = []
+        for company in result.data:
+            score: object = company.score_float
+            if score is None:
+                score = company.score
+            elif table:
+                score = round(cast(float, score), 3)
+            row: dict[str, object] = {
+                "id": int(company.id),
+                "name": company.name,
+                "domain": company.domain,
+                "domains": company.domains,
+                "isGlobal": company.is_global,
+                "score": score,
+            }
+            if table:
+                del row["domains"]  # keep the table narrow; JSON has all domains
+            rows.append(row)
+
+        modifiers: dict[str, object] = {}
+        if list_ids:
+            modifiers["listIds"] = list_ids
+        if limit is not None:
+            modifiers["maxResults"] = limit
+
+        data: object = rows
+        if table and result.explanation:
+            data = {"Explanation": {"_text": result.explanation}, "companies": rows}
+
+        return CommandOutput(
+            data=data,
+            context=CommandContext(
+                name="company search", inputs={"prompt": prompt}, modifiers=modifiers
+            ),
+            resolved={"lists": resolved_lists} if resolved_lists else None,
+            explanation=result.explanation,
+            api_called=True,
+        )
+
+    run_command(ctx, command="company search", fn=fn)
 
 
 def _company_ls_row(company: Company) -> dict[str, object]:

@@ -538,6 +538,17 @@ class NoteType(OpenIntEnum):
     AI_NOTETAKER = 3
 
 
+class NoteKind(OpenStrEnum):
+    """Kind of a note as reported by V2 note search (``note.kind``)."""
+
+    NOTE = "note"
+    MEETING_NOTE = "meeting-note"
+    EMAIL_NOTE = "email-note"
+    AI_SUMMARY = "ai-summary"
+    MEETING_AI_SUMMARY = "meeting-ai-summary"
+    CHAT_MESSAGE_NOTE = "chat-message-note"
+
+
 class ListRole(OpenIntEnum):
     """Roles for list-level permissions."""
 
