@@ -216,6 +216,7 @@ xaffinity --readonly list export "Pipeline" --all --csv --csv-bom > output.csv
 ```
 
 Searching and filtering (`--query` vs `--filter`, saved views, operators): `references/filtering.md`.
+Content search (max 100, no paging): `note search "text"`, `file search "text"` (inside files), `company search "description"` (semantic; for name/domain use `company ls --query`).
 Interactions (types, date ranges, creating them): `references/interactions.md`.
 
 ## List Entry Fields

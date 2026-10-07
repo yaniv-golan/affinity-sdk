@@ -10,6 +10,7 @@ from rich.progress import BarColumn, Progress, TaskID, TextColumn, TimeElapsedCo
 
 from affinity.models.secondary import Note, NoteCreate, NoteUpdate
 from affinity.models.types import InteractionType, NoteType
+from affinity.services.search import NOTE_SEARCH_DEFAULT_LIMIT, build_keyword_search_body
 from affinity.types import CompanyId, NoteId, OpportunityId, PersonId, UserId
 
 from ..click_compat import RichCommand, RichGroup, click
@@ -20,7 +21,15 @@ from ..mcp_limits import apply_mcp_limits
 from ..options import output_options
 from ..results import CommandContext
 from ..runner import CommandOutput, run_command
+from ._search_common import (
+    check_sdk_args,
+    clamp_limit,
+    max_results_option,
+    trim_preview,
+    usage_error,
+)
 from ._v1_parsing import parse_choice, parse_iso_datetime
+from .company_cmds import _resolve_company_selector
 
 
 @click.group(name="note", cls=RichGroup)
@@ -367,6 +376,107 @@ def note_get(ctx: CLIContext, note_id: int) -> None:
         )
 
     run_command(ctx, command="note get", fn=fn)
+
+
+@category("read")
+@note_group.command(name="search", cls=RichCommand)
+@click.argument("prompt", type=str)
+@click.option(
+    "--company-id",
+    "company",
+    type=str,
+    default=None,
+    help="Only notes on this company (id, URL, name:NAME or domain:DOMAIN).",
+)
+@click.option(
+    "--note-id",
+    "note_ids",
+    type=int,
+    multiple=True,
+    help="Only search these notes (repeatable, max 100). Exclusive with --company-id.",
+)
+@max_results_option(NOTE_SEARCH_DEFAULT_LIMIT)
+@output_options
+@click.pass_obj
+def note_search(
+    ctx: CLIContext,
+    prompt: str,
+    *,
+    company: str | None,
+    note_ids: tuple[int, ...],
+    max_results: int | None,
+) -> None:
+    """
+    Search note text by keyword, across all notes (V2 note search).
+
+    PROMPT is 3-500 characters. Results are ordered by relevance (at most 100, no
+    pagination) and include the matching passage (`preview`); a prompt with no strong
+    match can still return low-relevance hits. Use `note get <noteId>` for the full note.
+
+    To list the notes attached to an entity instead, use `note ls`.
+
+    Examples:
+
+    - `xaffinity note search "Series B terms"`
+    - `xaffinity note search "pricing" --company-id "domain:acme.com" -n 5`
+    - `xaffinity note search "follow up" --note-id 101 --note-id 102`
+    """
+
+    def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
+        if company is not None and note_ids:
+            raise usage_error("--company-id and --note-id are mutually exclusive.")
+        limit = clamp_limit(max_results, warnings)
+        check_sdk_args(
+            lambda: build_keyword_search_body(
+                prompt,
+                company_id=None,
+                ids=list(note_ids) or None,
+                ids_key="--note-id",
+                limit=limit,
+            )
+        )
+
+        client = ctx.get_client(warnings=warnings)
+        resolved: dict[str, Any] | None = None
+        company_id: CompanyId | None = None
+        if company is not None:
+            company_id, resolved = _resolve_company_selector(
+                client=client, selector=company, cache=ctx.session_cache
+            )
+
+        hits = client.notes.search(
+            prompt,
+            company_id=company_id,
+            note_ids=list(note_ids) or None,
+            limit=limit,
+        )
+        rows: list[dict[str, object]] = [
+            {
+                "noteId": int(hit.note.id),
+                "kind": str(hit.note.kind) if hit.note.kind is not None else None,
+                "preview": trim_preview(hit.preview, ctx),
+            }
+            for hit in hits
+        ]
+
+        modifiers: dict[str, object] = {}
+        if company_id is not None:
+            modifiers["companyId"] = int(company_id)
+        if note_ids:
+            modifiers["noteIds"] = list(note_ids)
+        if limit is not None:
+            modifiers["maxResults"] = limit
+
+        return CommandOutput(
+            data=rows,
+            context=CommandContext(
+                name="note search", inputs={"prompt": prompt}, modifiers=modifiers
+            ),
+            resolved=resolved,
+            api_called=True,
+        )
+
+    run_command(ctx, command="note search", fn=fn)
 
 
 @category("write")

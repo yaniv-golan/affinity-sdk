@@ -72,6 +72,12 @@ from ..models.types import (
     to_v1_value_type_code,
 )
 from ..progress import ProgressCallback
+from .search import (
+    AsyncFileSearchMixin,
+    AsyncNoteSearchMixin,
+    FileSearchMixin,
+    NoteSearchMixin,
+)
 
 if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
@@ -141,7 +147,7 @@ def _coerce_isoformat(payload: dict[str, Any], keys: tuple[str, ...]) -> None:
 # =============================================================================
 
 
-class NoteService:
+class NoteService(NoteSearchMixin):
     """
     Service for managing notes.
 
@@ -1276,7 +1282,7 @@ class RelationshipStrengthService:
 # =============================================================================
 
 
-class EntityFileService:
+class EntityFileService(FileSearchMixin):
     """Service for managing files attached to entities."""
 
     def __init__(self, client: HTTPClient):
@@ -1706,7 +1712,7 @@ class AuthService:
 # =============================================================================
 
 
-class AsyncNoteService:
+class AsyncNoteService(AsyncNoteSearchMixin):
     """
     Async service for managing notes (V1 API).
 
@@ -2808,7 +2814,7 @@ class AsyncRelationshipStrengthService:
         return [RelationshipStrength.model_validate(r) for r in items]
 
 
-class AsyncEntityFileService:
+class AsyncEntityFileService(AsyncFileSearchMixin):
     """Async service for managing files attached to entities (V1 API)."""
 
     def __init__(self, client: AsyncHTTPClient):

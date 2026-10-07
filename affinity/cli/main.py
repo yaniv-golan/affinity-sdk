@@ -412,6 +412,7 @@ from .commands.completion_cmd import completion_cmd as _completion_cmd
 from .commands.config_cmds import config_group as _config_group
 from .commands.entry_cmds import entry_group as _entry_group
 from .commands.field_cmds import field_group as _field_group
+from .commands.file_cmds import file_group as _file_group
 from .commands.file_url_cmd import file_url_cmd as _file_url_cmd
 from .commands.interaction_cmds import interaction_group as _interaction_group
 from .commands.list_cmds import list_group as _list_group
@@ -433,6 +434,7 @@ cli.add_command(_completion_cmd)
 cli.add_command(_version_cmd)
 cli.add_command(_config_group)
 cli.add_command(_whoami_cmd)
+cli.add_command(_file_group)
 cli.add_command(_file_url_cmd)
 cli.add_command(_resolve_url_cmd)
 cli.add_command(_person_group)

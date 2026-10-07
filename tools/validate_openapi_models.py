@@ -73,6 +73,10 @@ MODEL_MAPPINGS: dict[str, tuple[str, ...]] = {
     "ListEntryWithEntity": ("ListEntryWithEntity",),
     "NoteV2": ("notes.Note",),
     "MergeTask": ("CompanyMergeTask", "PersonMergeTask"),
+    "NoteSearchResult": ("notes.SearchResult",),  # POST /v2/notes/search
+    "FileSearchResult": ("files.SearchResult",),  # POST /v2/files/search
+    "SemanticSearchResult": ("SemanticSearchResult",),  # POST /v2/semantic-search
+    "SemanticCompany": ("companies.SemanticSearchCompany",),
 }
 
 # SDK models deliberately not checked, with the reason.
@@ -86,6 +90,8 @@ SKIPPED_MODELS: dict[str, str] = {
     "FieldValue": "V1 field-value row; V2 FieldValue is the nested value union (other concept)",
     "ListPermission": "V1-only (additionalPermissions)",
     "DropdownOption": "spans V1 dropdown options and extracted V2 values; no single V2 schema",
+    "NoteRef": "inline `note` object of notes.SearchResult (no component); kind -> NoteKind check",
+    "FileRef": "inline `file` object of files.SearchResult (no component schema)",
 }
 
 # Known SDK extensions beyond OpenAPI (documented exceptions, by Python field name).
@@ -202,6 +208,7 @@ def default_enum_checks() -> tuple[EnumCheck, ...]:
         FieldValueType,
         ListType,
         MergeStatus,
+        NoteKind,
         PersonType,
         WebhookEvent,
     )
@@ -256,6 +263,10 @@ def default_enum_checks() -> tuple[EnumCheck, ...]:
                 EnumLocation(_schema_ptr("CompanyMergeState", "status")),
                 EnumLocation(_schema_ptr("PersonMergeState", "status")),
             ),
+        ),
+        EnumCheck(
+            NoteKind,
+            (EnumLocation(_schema_ptr("notes.SearchResult", "note", "kind")),),
         ),
         EnumCheck(
             DropdownOptionColor,
@@ -429,6 +440,14 @@ def get_sdk_models() -> dict[str, type]:
         PersonSummary,
         SavedView,
     )
+    from affinity.models.search import (
+        FileRef,
+        FileSearchResult,
+        NoteRef,
+        NoteSearchResult,
+        SemanticCompany,
+        SemanticSearchResult,
+    )
     from affinity.models.secondary import (
         EntityFile,
         Interaction,
@@ -469,6 +488,13 @@ def get_sdk_models() -> dict[str, type]:
         "MergeTask": MergeTask,
         # Auth
         "WhoAmI": WhoAmI,
+        # Search (V2)
+        "NoteSearchResult": NoteSearchResult,
+        "NoteRef": NoteRef,
+        "FileSearchResult": FileSearchResult,
+        "FileRef": FileRef,
+        "SemanticSearchResult": SemanticSearchResult,
+        "SemanticCompany": SemanticCompany,
     }
 
 

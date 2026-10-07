@@ -42,12 +42,13 @@ from ..models.types import (
     PersonId,
     validate_entity_field_types,
 )
+from .search import AsyncCompanySemanticSearchMixin, CompanySemanticSearchMixin
 
 if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
 
 
-class CompanyService:
+class CompanyService(CompanySemanticSearchMixin):
     """
     Service for managing companies (organizations).
 
@@ -1073,7 +1074,7 @@ class CompanyService:
         return MergeTask.model_validate(data)
 
 
-class AsyncCompanyService:
+class AsyncCompanyService(AsyncCompanySemanticSearchMixin):
     """
     Async version of CompanyService.
 

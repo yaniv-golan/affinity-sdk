@@ -27,6 +27,8 @@ def file_url_cmd(ctx: CLIContext, file_id: int) -> None:
     Returns a presigned URL that can be used to download the file
     without authentication. The URL is valid for approximately 60 seconds.
 
+    To find a file by its contents, use `file search`.
+
     Example:
         xaffinity file-url 9192757
     """

@@ -390,6 +390,27 @@ xaffinity company ls --all --csv --csv-bom > companies.csv
 
 See the [CSV Export Guide](../guides/csv-export.md) for more details.
 
+### `xaffinity company search <prompt>`
+
+Find companies from a natural-language description (V2 semantic search). The prompt
+(1–500 characters) describes what you want rather than a name; results come ranked by a
+relevance `score`. To find a company by name or domain, use `company ls --query` or
+`company get "domain:..."` instead.
+
+Options:
+
+- `--list <name-or-id>` (repeatable, max 100): only companies on these lists (company lists only)
+- `--max-results N` / `--limit N` / `-n N`: 1–100 (API default 100; larger values are clamped to 100)
+
+No pagination: one request returns at most 100 companies. JSON output has one row per
+company (`id`, `name`, `domain`, `domains`, `isGlobal`, `score`) and the API's reading of
+the prompt in `meta.explanation`; table output shows the explanation above the rows.
+
+```bash
+xaffinity company search "AI infrastructure startups"
+xaffinity company search "seed-stage fintech in Europe" --list "Dealflow" -n 20 --json
+```
+
 ### `xaffinity company get <companySelector>`
 
 Fetch a company by id, UI URL (including tenant hosts), or a resolver selector.
@@ -722,6 +743,29 @@ xaffinity note ls --person-id 123 --json
 xaffinity note get 9876
 ```
 
+### `xaffinity note search <prompt>`
+
+Keyword search over the text of all notes (V2 note search). The prompt is 3–500
+characters. Use `note ls` to list the notes attached to a record instead.
+
+Options:
+
+- `--company-id <companySelector>`: only notes on this company (id, URL, `name:...`, `domain:...`)
+- `--note-id <id>` (repeatable, max 100): only search these notes; exclusive with `--company-id`
+- `--max-results N` / `--limit N` / `-n N`: 1–100 (API default 20; larger values are clamped to 100)
+
+Each row has `noteId`, `kind` (`note`, `meeting-note`, `email-note`, `ai-summary`,
+`meeting-ai-summary`, `chat-message-note`) and `preview`, the matching passage. Table
+output trims the preview to about 200 characters; JSON and the other formats keep it in
+full. Results are ordered by relevance with no pagination; a prompt with no strong match
+can still return low-relevance hits.
+
+```bash
+xaffinity note search "Series B terms"
+xaffinity note search "pricing" --company-id "domain:acme.com" -n 5 --json
+xaffinity note get 9876   # full text of a hit
+```
+
 ### `xaffinity note create`
 
 ```bash
@@ -739,6 +783,31 @@ xaffinity note update 9876 --content "Updated note content"
 
 ```bash
 xaffinity note delete 9876
+```
+
+## Files
+
+Files on one record are under `company|person|opportunity files ...`; `file-url <fileId>`
+returns a presigned download link.
+
+### `xaffinity file search <prompt>`
+
+Keyword search inside the contents of all files (V2 file search). The prompt is 3–500
+characters.
+
+Options:
+
+- `--company-id <companySelector>`: only files on this company
+- `--file-id <id>` (repeatable, max 100): only search these files; exclusive with `--company-id`
+- `--max-results N` / `--limit N` / `-n N`: 1–100 (API default 20; larger values are clamped to 100)
+
+One row per file: `fileId`, `name`, `pageNumber` (null for files without pages) and
+`preview`, the matching passage (trimmed in table output, full in JSON).
+
+```bash
+xaffinity file search "pitch deck"
+xaffinity file search "revenue projections" --company-id 12345 --json
+xaffinity file-url 9192757   # download link for a hit
 ```
 
 ## Reminders

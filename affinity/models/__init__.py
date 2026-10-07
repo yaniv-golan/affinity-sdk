@@ -60,6 +60,16 @@ from .pagination import (
 # Rate limit snapshot (unified)
 from .rate_limit_snapshot import RateLimitBucket, RateLimitSnapshot
 
+# Search (V2)
+from .search import (
+    FileRef,
+    FileSearchResult,
+    NoteRef,
+    NoteSearchResult,
+    SemanticCompany,
+    SemanticSearchResult,
+)
+
 # Secondary models
 from .secondary import (
     # File
@@ -142,6 +152,13 @@ __all__ = [
     "InteractionUpdate",
     # File
     "EntityFile",
+    # Search (V2)
+    "NoteRef",
+    "NoteSearchResult",
+    "FileRef",
+    "FileSearchResult",
+    "SemanticCompany",
+    "SemanticSearchResult",
     # Relationship
     "RelationshipStrength",
     # Auth
