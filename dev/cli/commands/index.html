@@ -4192,7 +4192,7 @@ xaffinity<span class="w"> </span>config<span class="w"> </span>setup-key<span cl
 <li><code>--json</code> / <code>--output json</code>: emit machine-readable <code>CommandResult</code> JSON to stdout.</li>
 <li><code>--help --json</code>: emit machine-readable command documentation (see <a href="../scripting/#machine-readable-help">Scripting: Machine-Readable Help</a>).</li>
 <li><code>--trace</code>: emit request/response/error trace lines to stderr (safe redaction). Recommended with <code>--no-progress</code> for long-running commands.</li>
-<li><code>--beta</code>: enable beta endpoints (required for merge commands).</li>
+<li><code>--beta</code>: enable beta V2 endpoints. No current command requires it (merges are GA).</li>
 <li><code>--session-cache &lt;dir&gt;</code>: enable session caching using the specified directory.</li>
 <li><code>--no-cache</code>: disable session caching for this command.</li>
 </ul>
@@ -4408,7 +4408,7 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>update<span class
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>delete<span class="w"> </span><span class="m">26229794</span>
 </code></pre></div>
 <h3 id="xaffinity-person-merge-primaryid-duplicateid"><code>xaffinity person merge &lt;primaryId&gt; &lt;duplicateId&gt;</code><a class="headerlink" href="#xaffinity-person-merge-primaryid-duplicateid" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>--beta<span class="w"> </span>person<span class="w"> </span>merge<span class="w"> </span><span class="m">111</span><span class="w"> </span><span class="m">222</span>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>merge<span class="w"> </span><span class="m">111</span><span class="w"> </span><span class="m">222</span>
 </code></pre></div>
 <h3 id="xaffinity-person-files-dump-personid"><code>xaffinity person files dump &lt;personId&gt;</code><a class="headerlink" href="#xaffinity-person-files-dump-personid" title="Permanent link">&para;</a></h3>
 <p>Downloads all files attached to a person into a folder bundle with a <code>manifest.json</code>.</p>
@@ -4506,7 +4506,7 @@ xaffinity<span class="w"> </span>company<span class="w"> </span>update<span clas
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>delete<span class="w"> </span><span class="m">224925494</span>
 </code></pre></div>
 <h3 id="xaffinity-company-merge-primaryid-duplicateid"><code>xaffinity company merge &lt;primaryId&gt; &lt;duplicateId&gt;</code><a class="headerlink" href="#xaffinity-company-merge-primaryid-duplicateid" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>--beta<span class="w"> </span>company<span class="w"> </span>merge<span class="w"> </span><span class="m">111</span><span class="w"> </span><span class="m">222</span>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>merge<span class="w"> </span><span class="m">111</span><span class="w"> </span><span class="m">222</span>
 </code></pre></div>
 <h3 id="xaffinity-company-files-dump-companyid"><code>xaffinity company files dump &lt;companyId&gt;</code><a class="headerlink" href="#xaffinity-company-files-dump-companyid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>files<span class="w"> </span>dump<span class="w"> </span><span class="m">9876</span><span class="w"> </span>--out<span class="w"> </span>./bundle

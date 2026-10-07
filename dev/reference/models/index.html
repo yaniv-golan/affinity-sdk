@@ -10121,10 +10121,14 @@ updated after creation via the field-values endpoint.</p>
 <span class="normal">389</span>
 <span class="normal">390</span>
 <span class="normal">391</span>
-<span class="normal">392</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RateLimits</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RateLimits</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Current rate limit status."""</span>
 
-    <span class="n">org_monthly</span><span class="p">:</span> <span class="n">RateLimitInfo</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">"orgMonthly"</span><span class="p">)</span>
+    <span class="c1"># Absent when no monthly quota applies (documented for v2 `orgPerMonth`; v1 and v2 share</span>
+    <span class="c1"># one request pool, so v1's `org_monthly` is treated the same way).</span>
+    <span class="n">org_monthly</span><span class="p">:</span> <span class="n">RateLimitInfo</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">"orgMonthly"</span><span class="p">)</span>
     <span class="n">api_key_per_minute</span><span class="p">:</span> <span class="n">RateLimitInfo</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">"apiKeyPerMinute"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
