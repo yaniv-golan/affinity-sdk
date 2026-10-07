@@ -456,6 +456,7 @@ def _query_cmd_impl(
                 on_response=combined_on_response,
                 on_error=settings.on_error,
                 policies=settings.policies,
+                affinity_api_version=settings.affinity_api_version,
             ) as client:
                 # Create progress callback
                 if quiet:
@@ -502,6 +503,11 @@ def _query_cmd_impl(
 
                 # Capture rate limit before client closes
                 exec_result.rate_limit = client.rate_limits.snapshot()
+                versions = sorted(client.affinity_api_versions_seen)
+                if versions:
+                    exec_result.meta["affinityApiVersion"] = (
+                        versions[0] if len(versions) == 1 else versions
+                    )
                 return exec_result
 
         try:

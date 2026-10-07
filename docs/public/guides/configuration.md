@@ -225,9 +225,10 @@ client = Affinity(
 )
 ```
 
-## Beta endpoints and version diagnostics
+## Beta endpoints and the Affinity API version
 
-If you opt into beta endpoints or want stricter diagnostics around v2 response shapes:
+Opt into beta endpoints, and pin the Affinity V2 API version (sent as `X-Affinity-Api-Version`
+on every V2 request; default: your API key's default version):
 
 ```python
 from affinity import Affinity
@@ -235,12 +236,13 @@ from affinity import Affinity
 client = Affinity(
     api_key="your-api-key",
     enable_beta_endpoints=True,
-    expected_v2_version="2024-01-01",
+    affinity_api_version="2026-09-17",
 )
 ```
 
 See also:
 
+- [Affinity API versions](api-versions.md)
 - [API versions & routing](api-versions-and-routing.md)
 - [Errors & retries](errors-and-retries.md)
 

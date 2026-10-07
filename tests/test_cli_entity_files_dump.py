@@ -96,6 +96,7 @@ def test_dump_entity_files_bundle_skips_existing_files(monkeypatch: object, tmp_
             on_response=None,
             on_error=None,
             policies=Policies(),
+            affinity_api_version=None,
         ),
     )
 

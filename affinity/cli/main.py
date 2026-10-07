@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
+import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, cast
 
@@ -228,6 +229,18 @@ RootGroup: type[click.Group] = type("RootGroup", (_RootGroupMixin, RichGroup), {
     help="Read API key from file (or '-' for stdin).",
 )
 @click.option("--api-key-stdin", is_flag=True, help="Alias for --api-key-file -.")
+@click.option(
+    "--api-version",
+    "api_version",
+    type=str,
+    default=None,
+    metavar="VERSION",
+    help=(
+        "Affinity V2 API version, e.g. 2026-09-17, or 'current' (newest). "
+        "Default: your API key's default version (also: AFFINITY_API_VERSION, "
+        "profile api_version)."
+    ),
+)
 @click.option("--timeout", type=float, default=None, help="Per-request timeout in seconds.")
 @click.option(
     "--max-retries",
@@ -281,6 +294,7 @@ def cli(
     env_file: str,
     api_key_file: str | None,
     api_key_stdin: bool,
+    api_version: str | None,
     timeout: float | None,
     max_retries: int,
     beta: bool,
@@ -297,6 +311,17 @@ def cli(
         raise click.BadParameter("must be positive", param_hint="'--timeout'")
     if max_columns is not None and max_columns <= 0:
         raise click.BadParameter("must be positive", param_hint="'--max-columns'")
+    if api_version is not None:
+        from affinity.api_versions import normalize_affinity_api_version
+        from affinity.exceptions import ConfigurationError
+
+        try:
+            normalize_affinity_api_version(api_version)
+        except ConfigurationError as exc:
+            raise click.BadParameter(exc.message, param_hint="'--api-version'") from exc
+    # The CLI reports an unknown API version in its own warnings list (see
+    # CLIContext.resolve_api_version); drop the SDK's duplicate Python warning.
+    warnings.filterwarnings("ignore", message="Unknown Affinity API version")
     # Detect whether --env-file was explicitly provided vs default
     env_file_is_explicit = False
     get_source = getattr(click_ctx, "get_parameter_source", None)
@@ -380,6 +405,7 @@ def cli(
         enable_log_file=enable_log_file,
         all_columns=all_columns,
         max_columns=max_columns,
+        api_version=api_version,
         _paths=paths,
         _output_source=output_source,
     )

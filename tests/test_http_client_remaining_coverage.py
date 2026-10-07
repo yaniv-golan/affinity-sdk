@@ -955,6 +955,7 @@ def test_stream_download_redirect_no_attempts_raises_download_failed() -> None:
         http.close()
 
 
+@pytest.mark.filterwarnings("ignore:expected_v2_version is deprecated")
 def test_expected_v2_version_property_and_async_wrap_validation_error() -> None:
     http = HTTPClient(ClientConfig(api_key="k", expected_v2_version="2024-01-01"))
     try:

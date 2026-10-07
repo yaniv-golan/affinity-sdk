@@ -303,6 +303,9 @@ class CommandMeta(AffinityModel):
     not_requested: list[dict[str, str]] | None = Field(None, alias="notRequested")
     # Server-provided explanation of how a query was interpreted (semantic search).
     explanation: str | None = None
+    # Affinity V2 API version(s) that answered this command (echoed X-Affinity-Api-Version,
+    # incl. cache hits): a string, or a sorted list when more than one answered.
+    affinity_api_version: str | list[str] | None = Field(None, alias="affinityApiVersion")
 
 
 class CommandResult(AffinityModel):

@@ -178,7 +178,9 @@ def check_key(ctx: CLIContext) -> None:
     This follows the pattern of `git diff --exit-code` where non-zero exit
     indicates a specific condition (difference/missing), not an error.
 
-    Does not validate the key against the API - only checks if one exists.
+    The verdict never depends on the API. When a key is found, one best-effort
+    request (5s timeout, no retries) also reports the key's default Affinity API
+    version (`keyDefaultApiVersion`, null if it can't be determined).
 
     Examples:
         xaffinity config check-key
@@ -190,6 +192,9 @@ def check_key(ctx: CLIContext) -> None:
         key_found, source = _find_existing_key(ctx)
         if key_found:
             click.echo(f"✓ API key configured (source: {source})")
+            key_default = _probe_key_default_api_version(ctx, source)
+            if key_default:
+                click.echo(f"  Default Affinity API version: {key_default}")
         else:
             click.echo("✗ No API key configured")
         raise click.exceptions.Exit(0 if key_found else 1)
@@ -211,12 +216,50 @@ def check_key(ctx: CLIContext) -> None:
                 "configured": key_found,
                 "source": source,  # "environment" | "dotenv" | "file" | "command" | "config" | None
                 "pattern": pattern,  # Recommended command pattern to use
+                # The key's default Affinity V2 API version (best-effort; None if unknown)
+                "keyDefaultApiVersion": (
+                    _probe_key_default_api_version(ctx, source) if key_found else None
+                ),
             },
             api_called=False,
             exit_code=0 if key_found else 1,
         )
 
     run_command(ctx, command="config check-key", fn=fn)
+
+
+def _probe_key_default_api_version(ctx: CLIContext, source: str | None) -> str | None:
+    """
+    Best-effort: the API key's default Affinity V2 API version, or None.
+
+    One unversioned V2 request with a short timeout and no retries. Never raises, never
+    runs AFFINITY_API_KEY_COMMAND (check-key deliberately doesn't) and never reads stdin.
+    """
+    if (
+        source == "command"
+        # resolve_api_key() would run the command even when check-key found another source.
+        or os.getenv("AFFINITY_API_KEY_COMMAND", "").strip()
+        or ctx.api_key_stdin
+        or ctx.api_key_file == "-"
+    ):
+        return None
+    try:
+        from affinity import Affinity
+
+        settings = ctx.resolve_client_settings(warnings=[])
+        client = Affinity(
+            api_key=settings.api_key,
+            v1_base_url=settings.v1_base_url,
+            v2_base_url=settings.v2_base_url,
+            timeout=5.0,
+            max_retries=0,
+        )
+        try:
+            return client.get_key_default_api_version()
+        finally:
+            client.close()
+    except Exception:
+        return None
 
 
 def _validate_key(api_key: str, warnings: list[str]) -> bool:

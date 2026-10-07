@@ -574,12 +574,19 @@ client = Affinity(
     # Debugging
     log_requests=False,     # Log all HTTP requests
 
+    # Affinity V2 API version (default: your API key's default version)
+    # affinity_api_version="2026-09-17",   # or "current"; CLI: --api-version / AFFINITY_API_VERSION
+
     # Hooks (DX-008)
     # on_event=lambda event: print(event.type),
     # on_request=lambda req: print(req.method, req.url),
     # on_response=lambda resp: print(resp.status_code, resp.request.url),
 )
 ```
+
+Affinity has three dated V2 API versions (`2024-01-01`, `2026-07-15`, `2026-09-17`). See
+[Affinity API versions](https://yaniv-golan.github.io/affinity-sdk/latest/guides/api-versions/)
+for pinning one, `client.affinity_api_versions_seen`, and the CLI's `meta.affinityApiVersion`.
 
 ## Error Handling
 

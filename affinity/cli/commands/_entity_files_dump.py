@@ -139,6 +139,7 @@ async def dump_entity_files_bundle(
         on_response=settings.on_response,
         on_error=settings.on_error,
         policies=settings.policies,
+        affinity_api_version=settings.affinity_api_version,
     ) as async_client:
 
         async def producer() -> None:

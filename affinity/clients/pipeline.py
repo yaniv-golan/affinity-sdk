@@ -43,6 +43,10 @@ class RequestContext(TypedDict, total=False):
     tenant_hash: str
     # Stop at redirect and return the redirect URL instead of following it.
     stop_at_redirect: bool
+    # Per-request X-Affinity-Api-Version override: a version string to send, or None to send
+    # no header (the API key's default applies). Absent -> the client's configured version.
+    # Responses to overridden requests are not added to the client's versions-seen set.
+    affinity_api_version: str | None
 
 
 class ResponseContext(TypedDict, total=False):
@@ -56,6 +60,8 @@ class ResponseContext(TypedDict, total=False):
     retry_count: int
     # Redirect URL when stop_at_redirect is used.
     redirect_location: str
+    # V2 API version echoed by Affinity (X-Affinity-Api-Version response header).
+    affinity_api_version: str
 
 
 class SDKBaseResponse(Protocol):

@@ -22,6 +22,8 @@ class ProfileConfig:
     timeout_seconds: float | None = None
     v1_base_url: str | None = None
     v2_base_url: str | None = None
+    # Affinity V2 API version (X-Affinity-Api-Version); None -> the API key's default.
+    api_version: str | None = None
     # Update checking configuration
     update_check: bool = True  # Enable/disable update checks
     update_notify: str = "interactive"  # "interactive", "always", "never"
@@ -40,6 +42,7 @@ def _profile_from_mapping(data: dict[str, Any]) -> ProfileConfig:
         timeout_seconds=float(timeout) if timeout is not None else None,
         v1_base_url=data.get("v1_base_url") or None,
         v2_base_url=data.get("v2_base_url") or None,
+        api_version=str(data["api_version"]) if data.get("api_version") else None,
         # Update checking configuration
         update_check=data.get("update_check", True),
         update_notify=data.get("update_notify", "interactive"),
@@ -139,6 +142,7 @@ def config_init_template() -> str:
 [default]
 # api_key = "..."
 # timeout_seconds = 30
+# api_version = "2026-09-17"   # Affinity V2 API version (default: the API key's default)
 
 # Update checking configuration (optional)
 # update_check = true          # Enable/disable update checks (default: true)

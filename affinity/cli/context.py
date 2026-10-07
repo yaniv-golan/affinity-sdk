@@ -13,6 +13,7 @@ from urllib.parse import parse_qs, urlsplit, urlunsplit
 from urllib.parse import urlsplit as _urlsplit_for_qs
 
 from affinity import Affinity
+from affinity.api_versions import KNOWN_AFFINITY_API_VERSIONS, normalize_affinity_api_version
 from affinity.client import maybe_load_dotenv
 from affinity.exceptions import (
     AffinityError,
@@ -26,6 +27,7 @@ from affinity.exceptions import (
     RateLimitError,
     ServerError,
     UnsafeUrlError,
+    UnsupportedApiVersionError,
     UnsupportedOperationError,
     ValidationError,
     WriteNotAllowedError,
@@ -88,6 +90,8 @@ class ClientSettings:
     on_response: ResponseHook | None
     on_error: ErrorHook | None
     on_event: EventHook | None
+    # Affinity V2 API version to pin (X-Affinity-Api-Version); None -> the key's default.
+    affinity_api_version: str | None = None
 
 
 @dataclass
@@ -111,6 +115,7 @@ class CLIContext:
     enable_beta_endpoints: bool
     all_columns: bool = False  # Show all columns in table output
     max_columns: int | None = None  # Override auto-calculated max columns
+    api_version: str | None = None  # --api-version (Affinity V2 API version)
 
     _paths: CliPaths = field(default_factory=get_paths)
     _output_source: str | None = field(
@@ -129,6 +134,52 @@ class CLIContext:
     # is rate-limit-exempt, but multiple writes per session shouldn't trigger
     # the call more than once.
     _cached_user_id: int | None = None
+    # Affinity V2 API versions echoed by clients this command created outside get_client()
+    # (e.g. AsyncAffinity in query/field/file commands).
+    _extra_api_versions: set[str] = field(default_factory=set)
+
+    def note_api_versions(self, versions: frozenset[str] | set[str]) -> None:
+        """Record API versions seen by a client not created via get_client()."""
+        self._extra_api_versions.update(versions)
+
+    def api_versions_seen(self) -> list[str]:
+        """Sorted Affinity V2 API versions that answered this command (incl. cache hits)."""
+        seen: set[str] = set(self._extra_api_versions)
+        if self._client is not None:
+            with suppress(Exception):
+                seen.update(self._client.affinity_api_versions_seen)
+        if self._session_cache is not None:
+            seen.update(self._session_cache.api_versions_seen)
+        return sorted(seen)
+
+    def resolve_api_version(self, *, warnings: list[str]) -> str | None:
+        """
+        Resolve the Affinity V2 API version: --api-version > AFFINITY_API_VERSION > profile.
+
+        Empty values fall through to the next source; "auto"/"key-default" at any level mean
+        "no header" (the API key's default version) and stop the lookup.
+        """
+        prof = self._profile_config()
+        candidates = (
+            ("--api-version", self.api_version),
+            ("AFFINITY_API_VERSION", os.getenv("AFFINITY_API_VERSION")),
+            ("profile api_version", prof.api_version),
+        )
+        for source, raw in candidates:
+            if raw is None or not raw.strip():
+                continue
+            try:
+                version, warning = normalize_affinity_api_version(raw)
+            except ConfigurationError as exc:
+                raise CLIError(
+                    f"{exc.message} (from {source})",
+                    exit_code=2,
+                    error_type="usage_error",
+                ) from exc
+            if warning:
+                warnings.append(warning)
+            return version
+        return None
 
     def load_dotenv_if_requested(self) -> None:
         try:
@@ -284,6 +335,7 @@ class CLIContext:
 
         v1_base_url = os.getenv("AFFINITY_V1_BASE_URL") or prof.v1_base_url or V1_BASE_URL
         v2_base_url = os.getenv("AFFINITY_V2_BASE_URL") or prof.v2_base_url or V2_BASE_URL
+        affinity_api_version = self.resolve_api_version(warnings=warnings)
 
         def _write_stderr(line: str) -> None:
             sys.stderr.write(line + "\n")
@@ -342,6 +394,7 @@ class CLIContext:
             on_response=on_response,
             on_error=on_error,
             on_event=on_event,
+            affinity_api_version=affinity_api_version,
         )
 
     @property
@@ -363,7 +416,9 @@ class CLIContext:
         Uses settings.api_key (public) rather than client internals.
         """
         if self._session_cache_config.enabled and not self._no_cache:
-            self._session_cache_config.set_tenant_hash(settings.api_key)
+            self._session_cache_config.set_tenant_hash(
+                settings.api_key, api_version=settings.affinity_api_version
+            )
 
     def get_client(self, *, warnings: list[str]) -> Affinity:
         if self._client is not None:
@@ -387,7 +442,10 @@ class CLIContext:
             on_error=settings.on_error,
             on_event=settings.on_event,
             policies=settings.policies,
+            affinity_api_version=settings.affinity_api_version,
         )
+        client = self._client
+        self.session_cache.version_provider = lambda: client._http.last_affinity_api_version
         return self._client
 
     def close(self) -> None:
@@ -524,6 +582,24 @@ def normalize_exception(exc: Exception, *, verbosity: int = 0) -> CLIError:
             hint=(
                 f"{entity_label} {exc.source_id} was merged into {exc.target_id}. "
                 f"Use the target ID instead."
+            ),
+            details=details,
+            cause=exc,
+        )
+
+    if isinstance(exc, UnsupportedApiVersionError):
+        details = _details_for_affinity_error(exc, verbosity=verbosity) or {}
+        details["affinityApiVersion"] = exc.requested_version
+        cause = exc.__cause__
+        server_message = cause.message if isinstance(cause, AffinityError) else ""
+        return CLIError(
+            f"Affinity rejected API version {exc.requested_version!r}. {server_message}".strip(),
+            error_type="api_version_error",
+            exit_code=2,
+            hint=(
+                f"Use one of {', '.join(KNOWN_AFFINITY_API_VERSIONS)} or 'current' with "
+                "--api-version, or remove --api-version / AFFINITY_API_VERSION / the profile's "
+                "api_version to use your API key's default version."
             ),
             details=details,
             cause=exc,
@@ -852,9 +928,11 @@ def build_result(
     truncation_reason: str | None = None,
     not_requested: list[dict[str, str]] | None = None,
     explanation: str | None = None,
+    affinity_api_version: str | list[str] | None = None,
 ) -> CommandResult:
     duration_ms = int(max(0.0, (time.time() - started_at) * 1000))
     meta = CommandMeta(
+        affinity_api_version=affinity_api_version,
         duration_ms=duration_ms,
         profile=profile,
         pagination=pagination,

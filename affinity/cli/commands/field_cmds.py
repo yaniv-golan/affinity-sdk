@@ -652,6 +652,7 @@ def field_history_bulk(
                 on_response=combined_on_response,
                 on_error=settings.on_error,
                 policies=settings.policies,
+                affinity_api_version=settings.affinity_api_version,
             ) as async_client:
                 results: list[dict[str, object]] = []
                 async_warnings: list[str] = []

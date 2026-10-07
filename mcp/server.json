@@ -25,6 +25,12 @@
           "description": "Your Affinity API key (Settings > API in Affinity)",
           "isRequired": true,
           "isSecret": true
+        },
+        {
+          "name": "AFFINITY_API_VERSION",
+          "description": "Affinity V2 API version to use (e.g. 2026-09-17 or current). Default: the API key's default version",
+          "isRequired": false,
+          "isSecret": false
         }
       ]
     }

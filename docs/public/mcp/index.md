@@ -338,6 +338,21 @@ Adjust cache duration (default 10 minutes):
 AFFINITY_SESSION_CACHE_TTL=300 ./xaffinity-mcp.sh
 ```
 
+### Affinity API version
+
+By default every request uses your API key's default Affinity V2 API version. To pin one
+(e.g. to get the newest response shapes), set `AFFINITY_API_VERSION` (or the **Affinity API
+Version** field in Claude Desktop's extension settings):
+
+```bash
+AFFINITY_API_VERSION=2026-09-17 ./xaffinity-mcp.sh
+```
+
+Accepted values: `2024-01-01`, `2026-07-15`, `2026-09-17`, or `current` (always the newest).
+`AFFINITY_PROFILE` is also passed through, so a profile from the xaffinity config file
+(including its `api_version`) can be selected. Tool results report the version that answered
+in `meta.affinityApiVersion`. See the [API versions guide](../guides/api-versions.md).
+
 ### Debug Mode
 
 Enable comprehensive logging for troubleshooting:

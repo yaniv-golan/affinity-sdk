@@ -1618,6 +1618,13 @@ def render_result(result: CommandResult, *, settings: RenderSettings) -> int:
                 lines.append(f"User ID: {user_id}")
             if tenant_id is not None:
                 lines.append(f"Tenant ID: {tenant_id}")
+            key_default = result.data.get("keyDefaultApiVersion")
+            if key_default:
+                lines.append(f"Key default API version: {key_default}")
+            used = result.meta.affinity_api_version
+            if used and used != key_default:
+                shown = ", ".join(used) if isinstance(used, list) else used
+                lines.append(f"API version used: {shown}")
         renderable = Text("\n".join(lines)) if lines else Text("OK")
     else:
         renderable = _render_human_data(

@@ -26,6 +26,13 @@
     "max": 3600,
     "default": 600
   },
+  "api_version": {
+    "type": "string",
+    "title": "Affinity API Version",
+    "description": "Affinity V2 API version to use, e.g. 2026-09-17 or current. Leave empty to use your API key's default version",
+    "required": false,
+    "default": ""
+  },
   "debug_mode": {
     "type": "boolean",
     "title": "Debug Mode",

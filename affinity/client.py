@@ -193,6 +193,7 @@ class Affinity:
         enable_beta_endpoints: bool = False,
         allow_insecure_download_redirects: bool = False,
         expected_v2_version: str | None = None,
+        affinity_api_version: str | None = None,
         timeout: float = 30.0,
         max_retries: int = 3,
         enable_cache: bool = False,
@@ -219,9 +220,15 @@ class Affinity:
             enable_beta_endpoints: Enable beta V2 endpoints
             allow_insecure_download_redirects: Allow `http://` redirects for file downloads.
                 Not recommended; prefer HTTPS-only downloads.
-            expected_v2_version: Expected V2 API version for diagnostics (e.g.,
-                "2024-01-01"). Used to detect version compatibility issues.
-                See TR-015.
+            expected_v2_version: Deprecated. Expected V2 API version, used only to label
+                diagnostics (a mismatch with the echoed version is logged once). Use
+                ``affinity_api_version`` to pin the version instead.
+            affinity_api_version: Affinity V2 API version to request, sent as the
+                ``X-Affinity-Api-Version`` header on every V2 request (e.g. "2026-09-17",
+                or "current" for the newest). None (default), "auto" or "key-default"
+                send no header, so the API key's default version applies. V1 requests
+                never carry it. Invalid values raise ``ConfigurationError``; a version
+                Affinity rejects raises ``UnsupportedApiVersionError``.
             timeout: Request timeout in seconds
             max_retries: Maximum retries for rate-limited requests
             enable_cache: Enable response caching for field metadata
@@ -244,6 +251,7 @@ class Affinity:
             enable_beta_endpoints=enable_beta_endpoints,
             allow_insecure_download_redirects=allow_insecure_download_redirects,
             expected_v2_version=expected_v2_version,
+            affinity_api_version=affinity_api_version,
             timeout=timeout,
             max_retries=max_retries,
             enable_cache=enable_cache,
@@ -543,6 +551,20 @@ class Affinity:
         """Convenience wrapper for `client.auth.whoami()`."""
         return self.auth.whoami()
 
+    @property
+    def affinity_api_version(self) -> str | None:
+        """Configured V2 API version (``X-Affinity-Api-Version``); None = the key's default."""
+        return self._http.affinity_api_version
+
+    @property
+    def affinity_api_versions_seen(self) -> frozenset[str]:
+        """V2 API versions Affinity reported answering with so far (incl. cache hits)."""
+        return self._http.affinity_api_versions_seen
+
+    def get_key_default_api_version(self) -> str | None:
+        """The API key's default V2 API version (one unversioned V2 request)."""
+        return self._http.probe_key_default_api_version()
+
     # Note: dict-style `rate_limit_state` is intentionally not part of the public API.
 
 
@@ -579,6 +601,7 @@ class AsyncAffinity:
         enable_beta_endpoints: bool = False,
         allow_insecure_download_redirects: bool = False,
         expected_v2_version: str | None = None,
+        affinity_api_version: str | None = None,
         timeout: float = 30.0,
         max_retries: int = 3,
         enable_cache: bool = False,
@@ -605,9 +628,15 @@ class AsyncAffinity:
             enable_beta_endpoints: Enable beta V2 endpoints
             allow_insecure_download_redirects: Allow `http://` redirects for file downloads.
                 Not recommended; prefer HTTPS-only downloads.
-            expected_v2_version: Expected V2 API version for diagnostics (e.g.,
-                "2024-01-01"). Used to detect version compatibility issues.
-                See TR-015.
+            expected_v2_version: Deprecated. Expected V2 API version, used only to label
+                diagnostics (a mismatch with the echoed version is logged once). Use
+                ``affinity_api_version`` to pin the version instead.
+            affinity_api_version: Affinity V2 API version to request, sent as the
+                ``X-Affinity-Api-Version`` header on every V2 request (e.g. "2026-09-17",
+                or "current" for the newest). None (default), "auto" or "key-default"
+                send no header, so the API key's default version applies. V1 requests
+                never carry it. Invalid values raise ``ConfigurationError``; a version
+                Affinity rejects raises ``UnsupportedApiVersionError``.
             timeout: Request timeout in seconds
             max_retries: Maximum retries for rate-limited requests
             enable_cache: Enable response caching for field metadata
@@ -629,6 +658,7 @@ class AsyncAffinity:
             enable_beta_endpoints=enable_beta_endpoints,
             allow_insecure_download_redirects=allow_insecure_download_redirects,
             expected_v2_version=expected_v2_version,
+            affinity_api_version=affinity_api_version,
             timeout=timeout,
             max_retries=max_retries,
             enable_cache=enable_cache,
@@ -899,3 +929,17 @@ class AsyncAffinity:
     async def whoami(self) -> WhoAmI:
         """Convenience wrapper for `client.auth.whoami()`."""
         return await self.auth.whoami()
+
+    @property
+    def affinity_api_version(self) -> str | None:
+        """Configured V2 API version (``X-Affinity-Api-Version``); None = the key's default."""
+        return self._http.affinity_api_version
+
+    @property
+    def affinity_api_versions_seen(self) -> frozenset[str]:
+        """V2 API versions Affinity reported answering with so far (incl. cache hits)."""
+        return self._http.affinity_api_versions_seen
+
+    async def get_key_default_api_version(self) -> str | None:
+        """The API key's default V2 API version (one unversioned V2 request)."""
+        return await self._http.probe_key_default_api_version()

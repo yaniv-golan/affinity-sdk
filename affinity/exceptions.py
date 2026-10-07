@@ -528,8 +528,9 @@ class VersionCompatibilityError(AffinityError):
     v2 Default API Version differs from what the SDK expects.
 
     Guidance:
-    1. Check your API key's v2 Default API Version in the Affinity dashboard
-    2. Ensure it matches the expected_v2_version configured in the SDK
+    1. Check which version answered (``client.affinity_api_versions_seen``) and your API
+       key's v2 Default API Version in the Affinity dashboard
+    2. Pin a version with ``affinity_api_version=...`` if needed
     3. See: https://developer.affinity.co/#section/Getting-Started/Versioning
     """
 
@@ -562,6 +563,41 @@ class VersionCompatibilityError(AffinityError):
         if hints:
             base = f"{base} ({', '.join(hints)})"
         return base
+
+
+class UnsupportedApiVersionError(VersionCompatibilityError, ValidationError):
+    """
+    Affinity rejected the requested V2 API version (``X-Affinity-Api-Version``).
+
+    Raised for a 400 response whose error ``param`` is ``X-Affinity-Api-Version`` - the
+    pinned version (``affinity_api_version=...`` / CLI ``--api-version``) is not one this
+    API key can use. The SDK never falls back silently to another version.
+
+    Also a :class:`ValidationError`, so existing ``except ValidationError`` handlers still
+    catch it.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        requested_version: str | None = None,
+        status_code: int | None = None,
+        response_body: Any | None = None,
+        diagnostics: ErrorDiagnostics | None = None,
+    ):
+        super().__init__(
+            message,
+            expected_version=requested_version,
+            status_code=status_code,
+            response_body=response_body,
+            diagnostics=diagnostics,
+        )
+        self.param = "X-Affinity-Api-Version"
+        self.requested_version = requested_version
+
+    def __str__(self) -> str:
+        return AffinityError.__str__(self)
 
 
 class DeprecationWarning(AffinityError):

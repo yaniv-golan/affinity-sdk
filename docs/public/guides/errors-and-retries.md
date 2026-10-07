@@ -220,15 +220,17 @@ from affinity import Affinity
 client = Affinity(api_key="your-api-key", enable_beta_endpoints=True)
 ```
 
-If you see `VersionCompatibilityError`, this often indicates a V2 API version mismatch between your API key settings and what the SDK expects. Check your API key’s “Default API Version”, and consider setting `expected_v2_version` for clearer diagnostics:
+If you see `VersionCompatibilityError`, this often indicates a V2 API version mismatch between your API key settings and what the SDK expects. Check which version answered (`client.affinity_api_versions_seen`) and your API key’s “Default API Version”, and consider pinning one:
 
 ```python
 from affinity import Affinity
 
-client = Affinity(api_key="your-api-key", expected_v2_version="2024-01-01")
+client = Affinity(api_key="your-api-key", affinity_api_version="2026-09-17")
 ```
 
-See [API versions & routing](api-versions-and-routing.md) and the [Glossary](../glossary.md).
+If Affinity rejects the pinned version, the SDK raises `UnsupportedApiVersionError` (a `VersionCompatibilityError` and a `ValidationError`) naming the value — it never falls back to another version silently.
+
+See [Affinity API versions](api-versions.md), [API versions & routing](api-versions-and-routing.md) and the [Glossary](../glossary.md).
 
 ## Next steps
 

@@ -46,7 +46,14 @@ def _emit_json(result: CommandResult) -> None:
     payload = result.model_dump(by_alias=True, mode="json")
     meta = payload.get("meta")
     if isinstance(meta, dict):
-        for key in ("rateLimit", "truncated", "truncationReason", "notRequested", "explanation"):
+        for key in (
+            "rateLimit",
+            "truncated",
+            "truncationReason",
+            "notRequested",
+            "explanation",
+            "affinityApiVersion",
+        ):
             if meta.get(key) is None:
                 meta.pop(key, None)
     sys.stdout.write(json.dumps(payload, ensure_ascii=False) + "\n")
@@ -169,6 +176,30 @@ def emit_result(ctx: CLIContext, result: CommandResult) -> None:
 CommandFn = Callable[[CLIContext, list[str]], CommandOutput]
 
 
+def api_version_meta(ctx: CLIContext, warnings: list[str]) -> str | list[str] | None:
+    """
+    Value for ``meta.affinityApiVersion``: the V2 API version(s) that answered.
+
+    A single version is reported as a string; several (e.g. the key's default changed
+    mid-command) as a sorted list plus a warning.
+    """
+    try:
+        versions = ctx.api_versions_seen()
+    except Exception:
+        return None
+    if not isinstance(versions, list) or not versions:
+        return None
+    if len(versions) == 1:
+        return str(versions[0])
+    message = (
+        "Responses in this command came from more than one Affinity API version "
+        f"({', '.join(versions)}); pin one with --api-version for consistent results."
+    )
+    if message not in warnings:
+        warnings.append(message)
+    return [str(v) for v in versions]
+
+
 def run_command(ctx: CLIContext, *, command: str, fn: CommandFn) -> None:
     started = time.time()
     warnings: list[str] = []
@@ -181,6 +212,7 @@ def run_command(ctx: CLIContext, *, command: str, fn: CommandFn) -> None:
 
         # Use provided context or create minimal one from command name
         cmd_context = out.context or CommandContext(name=command)
+        api_version = api_version_meta(ctx, warnings)
 
         result = build_result(
             ok=True,
@@ -202,6 +234,7 @@ def run_command(ctx: CLIContext, *, command: str, fn: CommandFn) -> None:
             truncation_reason=out.truncation_reason,
             not_requested=out.not_requested,
             explanation=out.explanation,
+            affinity_api_version=api_version,
         )
         emit_result(ctx, result)
         raise click.exceptions.Exit(out.exit_code)
@@ -219,6 +252,7 @@ def run_command(ctx: CLIContext, *, command: str, fn: CommandFn) -> None:
 
         # Create minimal context for error case
         cmd_context = CommandContext(name=command)
+        api_version = api_version_meta(ctx, warnings)
 
         result = build_result(
             ok=False,
@@ -232,6 +266,7 @@ def run_command(ctx: CLIContext, *, command: str, fn: CommandFn) -> None:
             error=error_info_for_exception(normalized, verbosity=ctx.verbosity),
             truncated=None,
             truncation_reason=None,
+            affinity_api_version=api_version,
         )
         emit_result(ctx, result)
         raise click.exceptions.Exit(code) from exc

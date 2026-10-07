@@ -51,6 +51,7 @@ nav:
       - Configuration: guides/configuration.md
       - Performance tuning: guides/performance.md
       - API versions & routing: guides/api-versions-and-routing.md
+      - Affinity API versions: guides/api-versions.md
       - Pagination: guides/pagination.md
       - Errors & retries: guides/errors-and-retries.md
       - Rate limits: guides/rate-limits.md

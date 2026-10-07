@@ -33,8 +33,10 @@ If Affinity changes V2 response shapes (or your API key is pinned to an unexpect
 
 Suggested steps:
 
-1. Check your API key’s “Default API Version” in the Affinity dashboard.
-2. Set `expected_v2_version=...` if you want that mismatch called out in errors.
+1. Check which version answered: `client.affinity_api_versions_seen` (CLI: `meta.affinityApiVersion`), and your API key’s “Default API Version” (`xaffinity whoami`).
+2. Pin a version with `affinity_api_version=...` (CLI: `--api-version`). See [Affinity API versions](api-versions.md).
+
+`expected_v2_version=...` is deprecated: it only labels diagnostics (and logs once if the echoed version differs).
 
 References:
 
