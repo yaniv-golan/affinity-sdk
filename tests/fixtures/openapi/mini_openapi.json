@@ -1,0 +1,151 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Trimmed Affinity-like API for validator tests",
+    "version": "",
+    "x-affinity-api-version": "2026-01-01",
+    "description": "A small spec with the constructs tools/validate_openapi_models.py must handle."
+  },
+  "paths": {
+    "/v2/widgets": {
+      "get": {
+        "operationId": "widgets_GET",
+        "summary": "List widgets",
+        "description": "Returns widgets.",
+        "x-stability-level": "beta",
+        "parameters": [
+          {"$ref": "#/components/parameters/limit"},
+          {
+            "name": "fieldTypes",
+            "in": "query",
+            "required": false,
+            "description": "Field types to include.",
+            "schema": {
+              "type": "array",
+              "items": {"type": "string", "enum": ["enriched", "global"]}
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {"schema": {"$ref": "#/components/schemas/Widget"}}
+            }
+          },
+          "400": {"description": "Bad request"}
+        }
+      },
+      "post": {
+        "operationId": "widgets_POST",
+        "summary": "Create a widget",
+        "requestBody": {
+          "content": {
+            "application/json": {"schema": {"$ref": "#/components/schemas/Widget"}}
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {"schema": {"$ref": "#/components/schemas/Widget"}}
+            }
+          }
+        }
+      }
+    },
+    "/v2/notes/{noteId}": {
+      "get": {
+        "operationId": "note_GET",
+        "parameters": [
+          {
+            "name": "noteId",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "integer"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {"schema": {"$ref": "#/components/schemas/Note"}}
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "limit": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "description": "Page size.",
+        "schema": {"type": "integer", "maximum": 100}
+      }
+    },
+    "schemas": {
+      "Base": {
+        "type": "object",
+        "description": "Shared fields.",
+        "properties": {
+          "id": {"type": "integer", "description": "The id."},
+          "createdAt": {"type": "string", "format": "date-time"}
+        },
+        "required": ["id", "createdAt"]
+      },
+      "Widget": {
+        "allOf": [{"$ref": "#/components/schemas/Base"}],
+        "properties": {
+          "name": {"type": ["string", "null"], "description": "Widget name.", "example": "w"},
+          "kind": {"type": "string", "enum": ["round", "square"]},
+          "isPublic": {"type": "boolean"},
+          "tags": {"type": "array", "maxItems": 100, "items": {"type": "string"}}
+        },
+        "required": ["name", "kind"]
+      },
+      "Note": {
+        "oneOf": [
+          {"$ref": "#/components/schemas/TextNote"},
+          {"$ref": "#/components/schemas/ReplyNote"}
+        ],
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "text": "#/components/schemas/TextNote",
+            "reply": "#/components/schemas/ReplyNote"
+          }
+        }
+      },
+      "TextNote": {
+        "allOf": [{"$ref": "#/components/schemas/Base"}],
+        "properties": {
+          "type": {"type": "string", "const": "text"},
+          "body": {"type": "string"}
+        },
+        "required": ["type"]
+      },
+      "ReplyNote": {
+        "allOf": [{"$ref": "#/components/schemas/Base"}],
+        "properties": {
+          "type": {"type": "string", "const": "reply"},
+          "parent": {
+            "type": "object",
+            "properties": {"id": {"type": "integer"}},
+            "required": ["id"]
+          }
+        },
+        "required": ["type", "parent"]
+      },
+      "ListThing": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "type": {"type": "string", "enum": ["person", "company", "opportunity"]}
+        }
+      }
+    }
+  }
+}

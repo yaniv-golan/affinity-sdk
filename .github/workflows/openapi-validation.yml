@@ -1,14 +1,40 @@
 name: OpenAPI Validation
 
+# Weekly: check the SDK against the upstream spec on affinity-api-docs `main`; a failure
+# opens (or updates) one tracking issue labelled `openapi-drift`.
+# PR / push: check model changes against the spec pinned at the sha recorded in
+# tools/openapi_snapshot.json, so upstream drift never turns an unrelated PR red.
+
 on:
   workflow_dispatch:
   schedule:
     - cron: "0 7 * * 1" # Mondays at 07:00 UTC
+  pull_request:
+    paths:
+      - "affinity/models/**"
+      - "affinity/types.py"
+      - "tools/validate_openapi_models.py"
+      - "tools/openapi_snapshot.json"
+      - ".github/workflows/openapi-validation.yml"
+  push:
+    branches: [main]
+    paths:
+      - "affinity/models/**"
+      - "affinity/types.py"
+      - "tools/validate_openapi_models.py"
+      - "tools/openapi_snapshot.json"
+      - ".github/workflows/openapi-validation.yml"
+
+permissions:
+  contents: read
 
 jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
 
     steps:
       - uses: actions/checkout@v6
@@ -26,5 +52,56 @@ jobs:
           python -m pip install -e ".[dev]"
 
       - name: Validate OpenAPI alignment
+        id: validate
         run: |
-          python tools/validate_openapi_models.py
+          set -o pipefail
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            python tools/validate_openapi_models.py 2>&1 | tee openapi-report.txt
+          else
+            python tools/validate_openapi_models.py --pinned 2>&1 | tee openapi-report.txt
+          fi
+
+      - name: Write job summary
+        if: always()
+        run: |
+          {
+            echo "## OpenAPI validation (${{ github.event_name }})"
+            echo
+            echo '```'
+            if [ -f openapi-report.txt ]; then cat openapi-report.txt; else echo "No report produced."; fi
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open or update the openapi-drift tracking issue
+        if: failure() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create openapi-drift --color D93F0B \
+            --description "Affinity V2 OpenAPI spec drifted from the SDK" --force
+          {
+            echo "The weekly OpenAPI check failed: the upstream Affinity V2 spec no longer"
+            echo "matches the SDK models, enums, or \`tools/openapi_snapshot.json\`."
+            echo
+            echo "Run: $RUN_URL"
+            echo
+            echo "Fix the SDK if needed, then refresh the snapshot with"
+            echo "\`python tools/validate_openapi_models.py --update-snapshot --url <pinned raw URL>\`."
+            echo
+            echo "<details><summary>Report</summary>"
+            echo
+            echo '```'
+            if [ -f openapi-report.txt ]; then tail -c 60000 openapi-report.txt; fi
+            echo '```'
+            echo
+            echo "</details>"
+          } > issue-body.md
+          number=$(gh issue list --label openapi-drift --state open --json number -q '.[0].number')
+          if [ -n "$number" ]; then
+            gh issue edit "$number" --body-file issue-body.md
+            gh issue comment "$number" --body "Still failing: $RUN_URL"
+          else
+            gh issue create --title "OpenAPI spec drift detected" \
+              --label openapi-drift --body-file issue-body.md
+          fi

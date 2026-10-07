@@ -34,6 +34,7 @@ The SDK defines all webhook events in `WebhookEvent`. You can subscribe to any c
 | `OPPORTUNITY_DELETED` | `opportunity.deleted` | An opportunity was deleted |
 | `FILE_CREATED` | `file.created` | A file was uploaded to an entity |
 | `FILE_DELETED` | `file.deleted` | A file was deleted |
+| `SMART_INTERACTION_VALUE_UPDATED` | `smart_interaction_value.updated` | A smart interaction field value was updated (listed by the V2 API; Affinity does not document the payload) |
 | `REMINDER_CREATED` | `reminder.created` | A reminder was created |
 | `REMINDER_UPDATED` | `reminder.updated` | A reminder's properties were modified |
 | `REMINDER_DELETED` | `reminder.deleted` | A reminder was deleted |

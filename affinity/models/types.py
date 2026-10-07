@@ -540,7 +540,7 @@ class FieldValueChangeAction(OpenIntEnum):
 
 class WebhookEvent(OpenStrEnum):
     """
-    Supported webhook events (27 total).
+    Supported webhook events (30 total).
 
     Events cover CRUD operations on Affinity entities:
 
@@ -553,6 +553,7 @@ class WebhookEvent(OpenStrEnum):
     - **Organizations (companies)**: created, updated, deleted, merged
     - **Opportunities**: created, updated, deleted
     - **Files**: created, deleted
+    - **Smart interaction values**: updated
     - **Reminders**: created, updated, deleted
 
     This enum extends ``OpenStrEnum`` for forward compatibility - any unknown
@@ -587,6 +588,7 @@ class WebhookEvent(OpenStrEnum):
     OPPORTUNITY_DELETED = "opportunity.deleted"
     FILE_CREATED = "file.created"
     FILE_DELETED = "file.deleted"
+    SMART_INTERACTION_VALUE_UPDATED = "smart_interaction_value.updated"
     REMINDER_CREATED = "reminder.created"
     REMINDER_UPDATED = "reminder.updated"
     REMINDER_DELETED = "reminder.deleted"

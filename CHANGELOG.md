@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `query --output json` now includes a `warnings` array when the run produced warnings.
   Execution warnings were previously dropped in every output format; other formats now print
   them to stderr.
+- `WebhookEvent.SMART_INTERACTION_VALUE_UPDATED` (`smart_interaction_value.updated`), a
+  webhook subscription type the V2 API now lists. Before, the event still parsed, but only as
+  an unnamed `UNKNOWN_…` member.
 
 ### Changed
 

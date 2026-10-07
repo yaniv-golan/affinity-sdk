@@ -103,7 +103,8 @@ class NoteV2(AffinityModel):
     """V2 API note format."""
 
     id: NoteId
-    type: str  # "user_root_note", "user_reply_note", etc.
+    # Discriminator: "entities", "interaction", "ai-notetaker", "ai-notetaker-reply", "user-reply"
+    type: str
     content: NoteContent
     creator: PersonSummary
     created_at: ISODatetime = Field(alias="createdAt")
