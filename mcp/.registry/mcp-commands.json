@@ -42,7 +42,7 @@
       "relatedCommands": ["person get", "field ls"]
     },
     "person merge": {
-      "whenToUse": "Merge a duplicate person into a primary person (beta). Combines data from both records. Returns a taskUrl - use 'task wait' to poll for completion.",
+      "whenToUse": "Merge a duplicate person into a primary person. Combines data from both records. Returns a taskUrl - use 'task wait' to poll for completion.",
       "examples": [
         "person merge 123 456"
       ],
@@ -112,7 +112,7 @@
       "relatedCommands": ["company get", "field ls"]
     },
     "company merge": {
-      "whenToUse": "Merge a duplicate company into a primary company (beta). Combines data from both records. Returns a taskUrl - use 'task wait' to poll for completion.",
+      "whenToUse": "Merge a duplicate company into a primary company. Combines data from both records. Returns a taskUrl - use 'task wait' to poll for completion.",
       "examples": [
         "company merge 123 456"
       ],

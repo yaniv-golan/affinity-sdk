@@ -355,7 +355,7 @@ list export Dealflow --cursor abc123 --max-results 10000
 
 Some operations run asynchronously and return a **task URL** instead of completing immediately.
 
-### Merge Operations (Beta)
+### Merge Operations
 Merge duplicate companies or persons into a primary record:
 ```bash
 company merge 123 456    # Merge company 456 into company 123

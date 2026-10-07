@@ -8,7 +8,6 @@ import httpx
 import pytest
 
 from affinity.clients.http import AsyncHTTPClient, ClientConfig, HTTPClient
-from affinity.exceptions import BetaEndpointDisabledError
 from affinity.models import CompanyCreate, CompanyUpdate, PersonCreate, PersonUpdate
 from affinity.models.secondary import MergeTask
 from affinity.models.types import (
@@ -327,8 +326,8 @@ def test_person_service_v2_read_v1_write_resolve_merge_and_cache_invalidation() 
         assert service.resolve(email="missing@example.com") is None
         assert service.resolve(email="missing@example.com", name="A B") is not None
 
-        with pytest.raises(BetaEndpointDisabledError):
-            service.merge(PersonId(1), PersonId(2))
+        # GA since 2026: merges no longer require enable_beta_endpoints
+        assert service.merge(PersonId(1), PersonId(2))
 
         beta_http = HTTPClient(
             ClientConfig(
@@ -969,8 +968,8 @@ def test_company_service_v2_read_v1_write_resolve_merge_and_cache_invalidation()
         )
         assert searched.data[0].id == CompanyId(2)
 
-        with pytest.raises(BetaEndpointDisabledError):
-            service.merge(CompanyId(2), CompanyId(3))
+        # GA since 2026: merges no longer require enable_beta_endpoints
+        assert service.merge(CompanyId(2), CompanyId(3))
 
         beta_http = HTTPClient(
             ClientConfig(

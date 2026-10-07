@@ -18,6 +18,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   never reported as "not filterable". All are optional with safe defaults (V1 payloads lack
   them). CLI JSON output gains these keys where the models are serialized (additive).
 
+### Changed
+
+- **Behavior change:** `client.companies.merge()` / `client.persons.merge()` (sync and async)
+  and the `company merge` / `person merge` CLI commands no longer require
+  `enable_beta_endpoints=True` / `--beta`. Affinity moved the merge endpoints from beta to GA in
+  2026. Code that relied on `BetaEndpointDisabledError` to stop merges from running will now
+  run them. `enable_beta_endpoints`, `--beta` and `BetaEndpointDisabledError` remain for future
+  beta endpoints; none currently requires them.
+
+### Fixed
+
+- MCP `company merge` / `person merge` always failed with `BetaEndpointDisabledError`, because
+  the MCP gateway never passes `--beta` and the flag cannot be set by config or environment.
+  Fixed by the merge change above.
+
 ## [1.16.0] - 2026-10-07
 
 ### Highlights

@@ -6,7 +6,7 @@ This example demonstrates:
 
 To run:
 - Set `AFFINITY_API_KEY`
-- Set `AFFINITY_TASK_URL` to a taskUrl returned by a beta endpoint (e.g., merges)
+- Set `AFFINITY_TASK_URL` to a taskUrl returned by an async endpoint (e.g., merges)
 """
 
 import os
@@ -25,7 +25,7 @@ def main() -> None:
         print("Please set AFFINITY_TASK_URL to a taskUrl you want to poll")
         return
 
-    with Affinity(api_key=api_key, enable_beta_endpoints=True) as client:
+    with Affinity(api_key=api_key) as client:
         task = client.tasks.wait(task_url, timeout=60.0)
         print(f"Task status: {task.status}")
 

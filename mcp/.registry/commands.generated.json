@@ -527,7 +527,7 @@
     },
     {
       "name": "company merge",
-      "description": "Merge a duplicate company into a primary (beta).",
+      "description": "Merge a duplicate company into a primary.",
       "category": "write",
       "destructive": false,
       "progressCapable": false,
@@ -544,7 +544,7 @@
           "required": true
         }
       ],
-      "whenToUse": "Merge a duplicate company into a primary company (beta). Combines data from both records. Returns a taskUrl - use 'task wait' to poll for completion.",
+      "whenToUse": "Merge a duplicate company into a primary company. Combines data from both records. Returns a taskUrl - use 'task wait' to poll for completion.",
       "examples": [
         "company merge 123 456"
       ],
@@ -3072,7 +3072,7 @@
     },
     {
       "name": "person merge",
-      "description": "Merge a duplicate person into a primary (beta).",
+      "description": "Merge a duplicate person into a primary.",
       "category": "write",
       "destructive": false,
       "progressCapable": false,
@@ -3089,7 +3089,7 @@
           "required": true
         }
       ],
-      "whenToUse": "Merge a duplicate person into a primary person (beta). Combines data from both records. Returns a taskUrl - use 'task wait' to poll for completion.",
+      "whenToUse": "Merge a duplicate person into a primary person. Combines data from both records. Returns a taskUrl - use 'task wait' to poll for completion.",
       "examples": [
         "person merge 123 456"
       ],

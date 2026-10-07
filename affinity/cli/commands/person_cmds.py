@@ -2135,7 +2135,7 @@ def person_merge(
     primary_id: int,
     duplicate_id: int,
 ) -> None:
-    """Merge a duplicate person into a primary (beta).
+    """Merge a duplicate person into a primary.
 
     Returns a taskUrl for tracking progress. Use 'task wait <url>' to wait for completion.
     """

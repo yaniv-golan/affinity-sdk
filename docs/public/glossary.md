@@ -21,7 +21,7 @@ V2 has dated versions (for example `2024-01-01`). In the Affinity dashboard, you
 
 ## Beta Endpoints
 
-Some V2 endpoints are opt-in and require `enable_beta_endpoints=True` in the SDK. Currently includes merge operations.
+Some V2 endpoints are opt-in and require `enable_beta_endpoints=True` in the SDK. None currently do: company and person merges were beta but became generally available in 2026 and no longer need it.
 
 ## Typed IDs
 

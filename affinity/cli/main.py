@@ -239,7 +239,7 @@ RootGroup: type[click.Group] = type("RootGroup", (_RootGroupMixin, RichGroup), {
 @click.option(
     "--beta",
     is_flag=True,
-    help="Enable beta endpoints (required for merge commands).",
+    help="Enable beta V2 endpoints. No current command requires it (merges are GA).",
 )
 @click.option(
     "--readonly",

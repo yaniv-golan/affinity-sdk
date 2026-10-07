@@ -32,7 +32,7 @@ from affinity.clients.http import (
     _encode_query_params,
     _freeze_v1_query_signature,
 )
-from affinity.exceptions import BetaEndpointDisabledError, UnsafeUrlError
+from affinity.exceptions import UnsafeUrlError
 from affinity.models import (
     CompanyCreate,
     ListCreate,
@@ -491,17 +491,19 @@ class TestRetryPolicy:
 class TestBetaEndpoints:
     """Beta endpoint gating tests."""
 
-    def test_person_merge_requires_opt_in(self, respx_mock: respx.MockRouter) -> None:
+    def test_person_merge_works_without_beta_opt_in(self, respx_mock: respx.MockRouter) -> None:
+        """Merges are GA since 2026: no enable_beta_endpoints needed."""
         route = respx_mock.post("https://api.affinity.co/v2/person-merges").mock(
             return_value=Response(
                 200, json={"taskUrl": "https://api.affinity.co/v2/tasks/person-merges/1"}
             )
         )
 
-        with Affinity(api_key="test-key") as client, pytest.raises(BetaEndpointDisabledError):
-            _ = client.persons.merge(PersonId(1), PersonId(2))
+        with Affinity(api_key="test-key") as client:
+            task_url = client.persons.merge(PersonId(1), PersonId(2))
 
-        assert route.call_count == 0
+        assert route.call_count == 1
+        assert task_url.endswith("/tasks/person-merges/1")
 
     def test_person_merge_works_with_opt_in(self, respx_mock: respx.MockRouter) -> None:
         route = respx_mock.post("https://api.affinity.co/v2/person-merges").mock(
@@ -516,17 +518,19 @@ class TestBetaEndpoints:
         assert route.call_count == 1
         assert task_url.endswith("/tasks/person-merges/1")
 
-    def test_company_merge_requires_opt_in(self, respx_mock: respx.MockRouter) -> None:
+    def test_company_merge_works_without_beta_opt_in(self, respx_mock: respx.MockRouter) -> None:
+        """Merges are GA since 2026: no enable_beta_endpoints needed."""
         route = respx_mock.post("https://api.affinity.co/v2/company-merges").mock(
             return_value=Response(
                 200, json={"taskUrl": "https://api.affinity.co/v2/tasks/company-merges/1"}
             )
         )
 
-        with Affinity(api_key="test-key") as client, pytest.raises(BetaEndpointDisabledError):
-            _ = client.companies.merge(CompanyId(1), CompanyId(2))
+        with Affinity(api_key="test-key") as client:
+            task_url = client.companies.merge(CompanyId(1), CompanyId(2))
 
-        assert route.call_count == 0
+        assert route.call_count == 1
+        assert task_url.endswith("/tasks/company-merges/1")
 
     def test_company_merge_works_with_opt_in(self, respx_mock: respx.MockRouter) -> None:
         route = respx_mock.post("https://api.affinity.co/v2/company-merges").mock(

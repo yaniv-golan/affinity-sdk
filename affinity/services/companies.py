@@ -15,7 +15,6 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from ..exceptions import (
     AffinityError,
-    BetaEndpointDisabledError,
     DuplicateEntityError,
     NotFoundError,
 )
@@ -1059,10 +1058,6 @@ class CompanyService:
 
         Returns a task URL to check merge status.
         """
-        if not self._client.enable_beta_endpoints:
-            raise BetaEndpointDisabledError(
-                "Company merge is a beta endpoint; set enable_beta_endpoints=True to use it."
-            )
         result = self._client.post(
             "/company-merges",
             json={
@@ -2143,10 +2138,6 @@ class AsyncCompanyService:
 
         Returns a task URL to check merge status.
         """
-        if not self._client.enable_beta_endpoints:
-            raise BetaEndpointDisabledError(
-                "Company merge is a beta endpoint; set enable_beta_endpoints=True to use it."
-            )
         result = await self._client.post(
             "/company-merges",
             json={

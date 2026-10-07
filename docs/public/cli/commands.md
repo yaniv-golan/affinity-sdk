@@ -87,7 +87,7 @@ These options can be used with any command:
 - `--json` / `--output json`: emit machine-readable `CommandResult` JSON to stdout.
 - `--help --json`: emit machine-readable command documentation (see [Scripting: Machine-Readable Help](scripting.md#machine-readable-help)).
 - `--trace`: emit request/response/error trace lines to stderr (safe redaction). Recommended with `--no-progress` for long-running commands.
-- `--beta`: enable beta endpoints (required for merge commands).
+- `--beta`: enable beta V2 endpoints. No current command requires it (merges are GA).
 - `--session-cache <dir>`: enable session caching using the specified directory.
 - `--no-cache`: disable session caching for this command.
 
@@ -337,7 +337,7 @@ xaffinity person delete 26229794
 ### `xaffinity person merge <primaryId> <duplicateId>`
 
 ```bash
-xaffinity --beta person merge 111 222
+xaffinity person merge 111 222
 ```
 
 ### `xaffinity person files dump <personId>`
@@ -471,7 +471,7 @@ xaffinity company delete 224925494
 ### `xaffinity company merge <primaryId> <duplicateId>`
 
 ```bash
-xaffinity --beta company merge 111 222
+xaffinity company merge 111 222
 ```
 
 ### `xaffinity company files dump <companyId>`
