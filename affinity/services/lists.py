@@ -862,9 +862,34 @@ class ListEntryService:
         """
         return self.all(field_ids=field_ids, field_types=field_types, filter=filter)
 
-    def get(self, entry_id: ListEntryId) -> ListEntryWithEntity:
-        """Get a single list entry by ID."""
-        data = self._client.get(f"/lists/{self._list_id}/list-entries/{entry_id}")
+    def get(
+        self,
+        entry_id: ListEntryId,
+        *,
+        field_ids: Sequence[AnyFieldId] | None = None,
+        field_types: Sequence[FieldType] | None = None,
+    ) -> ListEntryWithEntity:
+        """
+        Get a single list entry by ID.
+
+        Args:
+            entry_id: The list entry ID
+            field_ids: Specific field IDs to include in the response
+            field_types: Field types to include in the response
+
+        Note:
+            The V2 API omits field values unless ``field_ids`` or ``field_types``
+            is given. Values are returned in entity.fields_raw as an array.
+        """
+        params: dict[str, Any] = {}
+        if field_ids:
+            params["fieldIds"] = [str(field_id) for field_id in field_ids]
+        if field_types:
+            params["fieldTypes"] = [field_type.value for field_type in field_types]
+        data = self._client.get(
+            f"/lists/{self._list_id}/list-entries/{entry_id}",
+            params=params or None,
+        )
         return _safe_model_validate(ListEntryWithEntity, data)
 
     def from_saved_view(
@@ -1874,9 +1899,34 @@ class AsyncListEntryService:
         async for entry in self.all(field_ids=field_ids, field_types=field_types, filter=filter):
             yield entry
 
-    async def get(self, entry_id: ListEntryId) -> ListEntryWithEntity:
-        """Get a single list entry by ID."""
-        data = await self._client.get(f"/lists/{self._list_id}/list-entries/{entry_id}")
+    async def get(
+        self,
+        entry_id: ListEntryId,
+        *,
+        field_ids: Sequence[AnyFieldId] | None = None,
+        field_types: Sequence[FieldType] | None = None,
+    ) -> ListEntryWithEntity:
+        """
+        Get a single list entry by ID.
+
+        Args:
+            entry_id: The list entry ID
+            field_ids: Specific field IDs to include in the response
+            field_types: Field types to include in the response
+
+        Note:
+            The V2 API omits field values unless ``field_ids`` or ``field_types``
+            is given. Values are returned in entity.fields_raw as an array.
+        """
+        params: dict[str, Any] = {}
+        if field_ids:
+            params["fieldIds"] = [str(field_id) for field_id in field_ids]
+        if field_types:
+            params["fieldTypes"] = [field_type.value for field_type in field_types]
+        data = await self._client.get(
+            f"/lists/{self._list_id}/list-entries/{entry_id}",
+            params=params or None,
+        )
         return _safe_model_validate(ListEntryWithEntity, data)
 
     # -------------------------------------------------------------------------

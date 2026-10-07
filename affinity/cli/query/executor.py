@@ -993,13 +993,20 @@ class QueryExecutor:
             parent_service = getattr(self.client, schema.service_attr)
             # e.g., client.lists.entries(list_id)
             child_service = getattr(parent_service, parent_method)(parent_id)
-            # Call get() on the child service
+            # Call get() on the child service. V2 omits field values unless
+            # requested, so ask for the fields the query references (same as
+            # the streaming path).
             from affinity.types import ListEntryId
 
-            record = await child_service.get(ListEntryId(entity_id))
+            field_ids = await self._resolve_field_ids_for_list_entries(ctx, int(parent_id))
+            get_kwargs: dict[str, Any] = {}
+            if field_ids is not None:
+                get_kwargs["field_ids"] = field_ids
+            record = await child_service.get(ListEntryId(entity_id), **get_kwargs)
 
-            # Convert to dict
-            ctx.records = [record.model_dump(mode="json", by_alias=True)]
+            # Convert to dict, normalized for query-friendly access (fields.X, entityName)
+            record_dict = record.model_dump(mode="json", by_alias=True)
+            ctx.records = [_normalize_list_entry_fields(record_dict)]
             self.progress.on_step_complete(fetch_step, 1)
 
             # Handle includes and expands if present

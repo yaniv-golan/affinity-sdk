@@ -81,6 +81,109 @@ def test_company_id_scopes_export_to_one_row(make_mock_transport, monkeypatch):
     assert rows[0]["entityName"] == "Fusion Mantle"
 
 
+@pytest.mark.req("REQ-EXPORT-ENTITY-SCOPE-001")
+def test_company_id_export_returns_list_field_values(make_mock_transport, monkeypatch):
+    """Regression: the targeted path must request field values, not report them as null.
+
+    V2 GET /lists/{id}/list-entries/{entryId} omits ``entity.fields`` unless
+    ``fieldIds``/``fieldTypes`` is passed, so the mock only returns values when
+    the selected field IDs are actually sent.
+    """
+    monkeypatch.setenv("AFFINITY_API_KEY", "test")
+    entry_requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        url = str(request.url)
+        if url.endswith("/lists/10"):
+            return httpx.Response(
+                200,
+                json={
+                    "id": 10,
+                    "name": "Pipeline",
+                    "type": 1,
+                    "public": True,
+                    "owner_id": 1,
+                    "creator_id": 1,
+                    "list_size": 1,
+                },
+                request=request,
+            )
+        if "/fields" in url and "list-entries" not in url:
+            return httpx.Response(
+                200,
+                json={
+                    "data": [
+                        {
+                            "id": "field-100",
+                            "name": "Status",
+                            "type": "list",
+                            "valueType": "ranked-dropdown",
+                        }
+                    ],
+                    "pagination": {"nextUrl": None},
+                },
+                request=request,
+            )
+        if "/companies/555/list-entries" in url:
+            return httpx.Response(
+                200,
+                json={
+                    "data": [
+                        {
+                            "id": 901,
+                            "listId": 10,
+                            "type": "company",
+                            "createdAt": "2026-01-01T00:00:00Z",
+                        }
+                    ],
+                    "pagination": {"nextCursor": None, "prevCursor": None},
+                },
+                request=request,
+            )
+        if "/lists/10/list-entries/901" in url:
+            entry_requests.append(request)
+            entity: dict[str, object] = {"id": 555, "name": "Fusion Mantle"}
+            if "field-100" in request.url.params.get_list("fieldIds"):
+                entity["fields"] = [
+                    {
+                        "id": "field-100",
+                        "name": "Status",
+                        "type": "list",
+                        "value": {
+                            "type": "ranked-dropdown",
+                            "data": {"dropdownOptionId": 7, "text": "Intro Meeting", "rank": 2},
+                        },
+                    }
+                ]
+            return httpx.Response(
+                200,
+                json={
+                    "id": 901,
+                    "listId": 10,
+                    "type": "company",
+                    "entity": entity,
+                    "createdAt": "2026-01-01T00:00:00Z",
+                },
+                request=request,
+            )
+        return httpx.Response(404, json={}, request=request)
+
+    make_mock_transport(handler)
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        ["--readonly", "--json", "--quiet", "list", "export", "10", "--company-id", "555"],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, result.output
+    payload = json.loads([ln for ln in result.output.strip().splitlines() if ln.strip()][-1])
+    rows = payload["data"]["rows"]
+    assert len(rows) == 1
+    assert entry_requests, "list entry was never fetched"
+    assert entry_requests[-1].url.params.get_list("fieldIds") == ["field-100"]
+    assert rows[0]["Status"] == {"dropdownOptionId": 7, "text": "Intro Meeting", "rank": 2}
+
+
 @pytest.mark.req("REQ-EXPORT-ENTITY-SCOPE-002")
 def test_company_id_not_on_list_returns_empty_with_warning(make_mock_transport, monkeypatch):
     """Dedup-check case: entity not on list → 0 rows + explicit warning."""

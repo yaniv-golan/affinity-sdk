@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 pytest.importorskip("rich_click")
@@ -406,6 +408,64 @@ class TestListEntryGet:
             env={"AFFINITY_API_KEY": "test-key"},
         )
         assert result.exit_code == 0
+
+    def test_entry_get_requests_and_returns_list_field_values(
+        self, respx_mock: respx.MockRouter
+    ) -> None:
+        """V2 omits field values unless requested; entry get must ask for list fields."""
+        respx_mock.get("https://api.affinity.co/lists/100").mock(
+            return_value=Response(
+                200,
+                json={"id": 100, "name": "Pipeline", "type": 1, "public": False, "owner_id": 100},
+            )
+        )
+        respx_mock.get("https://api.affinity.co/v2/lists/100/fields").mock(
+            return_value=Response(
+                200,
+                json={
+                    "data": [
+                        {"id": "field-7", "name": "Status", "type": "list", "valueType": "text"}
+                    ],
+                    "pagination": {"nextUrl": None},
+                },
+            )
+        )
+        entry_route = respx_mock.get("https://api.affinity.co/v2/lists/100/list-entries/999").mock(
+            return_value=Response(
+                200,
+                json={
+                    "id": 999,
+                    "listId": 100,
+                    "type": "company",
+                    "createdAt": "2024-01-15T10:00:00Z",
+                    "entity": {
+                        "id": 500,
+                        "name": "Acme",
+                        "fields": [
+                            {
+                                "id": "field-7",
+                                "name": "Status",
+                                "type": "list",
+                                "value": {"type": "text", "data": "Intro Meeting"},
+                            }
+                        ],
+                    },
+                },
+            )
+        )
+
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            ["--json", "list", "entry", "get", "100", "999"],
+            env={"AFFINITY_API_KEY": "test-key"},
+        )
+        assert result.exit_code == 0, result.output
+        assert entry_route.calls.last.request.url.params.get_list("fieldTypes") == ["list"]
+        payload = json.loads(result.output)
+        fields = payload["data"]["listEntry"]["fields"]
+        assert fields[0]["id"] == "field-7"
+        assert fields[0]["value"]["data"] == "Intro Meeting"
 
 
 class TestListEntryAdd:

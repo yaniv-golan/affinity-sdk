@@ -1039,7 +1039,10 @@ def list_export(
                     missing_ids.append(int(raw_id))
                     continue
                 for stub in stub_entries:
-                    full = entries_service.get(ListEntryId(int(stub.id)))
+                    full = entries_service.get(
+                        ListEntryId(int(stub.id)),
+                        field_ids=cast(list[AnyFieldId], selected_field_ids),
+                    )
                     entity_rows.append(
                         _entry_to_row(full, selected_field_ids, field_by_id, key_mode="names")
                     )
@@ -2966,11 +2969,14 @@ def list_entry_get(
         cache = ctx.session_cache
         resolved_list = resolve_list_selector(client=client, selector=list_selector, cache=cache)
         entries = client.lists.entries(resolved_list.list.id)
-        entry = entries.get(ListEntryId(entry_id))
+        # V2 omits field values unless requested; ask for the list's own fields.
+        entry = entries.get(ListEntryId(entry_id), field_types=[FieldType.LIST])
         payload = serialize_model_for_cli(entry)
 
-        # Include raw fields if available
+        # Include raw fields if available (V2 returns them on the entity)
         fields_raw = getattr(entry, "fields_raw", None)
+        if not isinstance(fields_raw, list) and entry.entity is not None:
+            fields_raw = getattr(entry.entity, "fields_raw", None)
         if isinstance(fields_raw, list):
             payload["fields"] = fields_raw
 

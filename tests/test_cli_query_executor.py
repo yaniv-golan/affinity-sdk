@@ -4543,3 +4543,73 @@ class TestMultiParentNormalization:
         assert normalized["entityName"] == "Acme Corp"
         assert normalized["entityId"] == 500
         assert normalized["listEntryId"] == 1
+
+
+class TestListEntryDirectLookupFields:
+    """listId + id equality uses entries.get(); it must request and normalize fields."""
+
+    @pytest.mark.asyncio
+    async def test_direct_lookup_returns_referenced_field_values(self) -> None:
+        from affinity.cli.query.parser import parse_query
+        from affinity.cli.query.planner import create_planner
+        from affinity.models.entities import FieldMetadata, ListEntryWithEntity
+
+        query = parse_query(
+            {
+                "from": "listEntries",
+                "where": {
+                    "and": [
+                        {"path": "listId", "op": "eq", "value": 100},
+                        {"path": "id", "op": "eq", "value": 456},
+                    ]
+                },
+                "select": ["id", "entityName", "fields.Status"],
+            }
+        ).query
+        plan = create_planner().plan(query)
+
+        get_kwargs: list[dict[str, Any]] = []
+
+        async def mock_entry_get(_entry_id: Any, **kwargs: Any) -> ListEntryWithEntity:
+            get_kwargs.append(kwargs)
+            entity: dict[str, Any] = {"id": 789, "name": "Acme"}
+            # V2 omits entity.fields unless fieldIds/fieldTypes is requested.
+            if "field-7" in [str(f) for f in kwargs.get("field_ids") or []]:
+                entity["fields"] = [
+                    {
+                        "id": "field-7",
+                        "name": "Status",
+                        "type": "list",
+                        "value": {"type": "text", "data": "Intro Meeting"},
+                    }
+                ]
+            return ListEntryWithEntity.model_validate(
+                {
+                    "id": 456,
+                    "listId": 100,
+                    "type": "company",
+                    "createdAt": "2026-01-01T00:00:00Z",
+                    "entity": entity,
+                }
+            )
+
+        mock_client = AsyncMock()
+        mock_client.lists.get_fields = AsyncMock(
+            return_value=[
+                FieldMetadata.model_validate(
+                    {"id": "field-7", "name": "Status", "type": "list", "valueType": "text"}
+                )
+            ]
+        )
+        mock_entries_service = MagicMock()
+        mock_entries_service.get = mock_entry_get
+        mock_client.lists.entries = MagicMock(return_value=mock_entries_service)
+
+        executor = QueryExecutor(client=mock_client, max_records=100, concurrency=1)
+        result = await executor.execute(plan)
+
+        assert get_kwargs, "direct lookup should call entries.get()"
+        assert [str(f) for f in get_kwargs[0].get("field_ids") or []] == ["field-7"]
+        assert result.data == [
+            {"id": 456, "entityName": "Acme", "fields": {"Status": "Intro Meeting"}}
+        ]
