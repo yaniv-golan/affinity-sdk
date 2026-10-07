@@ -11,6 +11,7 @@ import re
 import time
 import warnings
 from collections.abc import AsyncIterator, Callable, Iterator, Sequence
+from datetime import date, datetime
 from typing import TYPE_CHECKING, Any, TypeVar
 from urllib.parse import urlsplit
 
@@ -104,6 +105,29 @@ def _saved_views_list_id_from_cursor(cursor: str) -> int | None:
         return int(m.group("list_id"))
     except ValueError:
         return None
+
+
+def _field_value_payload(
+    value: Any, value_type: FieldValueType | str | None = None
+) -> dict[str, Any]:
+    """Build the V2 ``{"type", "data"}`` value for a field write.
+
+    Without an explicit ``value_type``: str -> text, int/float -> number, datetime/date ->
+    datetime (ISO 8601), anything else -> text. Multi-value fields (lists) cannot be inferred
+    (a list could be persons, companies or dropdown options); pass ``value_type`` for them.
+    """
+    if value_type is not None:
+        type_str = value_type.value if isinstance(value_type, FieldValueType) else value_type
+    elif isinstance(value, (str, bool)):  # bool before int: bool is an int subclass
+        type_str = "text"
+    elif isinstance(value, (int, float)):
+        type_str = "number"
+    elif isinstance(value, (datetime, date)):
+        type_str = "datetime"
+    else:
+        type_str = "text"
+    data = value.isoformat() if isinstance(value, (datetime, date)) else value
+    return {"type": type_str, "data": data}
 
 
 class ListService:
@@ -1173,25 +1197,15 @@ class ListEntryService:
             value: New value (type depends on field type)
             value_type: The field value type (e.g., FieldValueType.TEXT).
                 Required by the V2 API. If not provided, attempts to infer
-                from the value (str→text, int/float→number, datetime→datetime).
+                from the value (str→text, int/float→number, datetime/date→datetime);
+                pass it explicitly for multi-value fields.
 
         Returns:
             Updated field value data
         """
-        # Determine the type string for the API
-        if value_type is not None:
-            type_str = value_type.value if isinstance(value_type, FieldValueType) else value_type
-        elif isinstance(value, str):
-            type_str = "text"
-        elif isinstance(value, (int, float)):
-            type_str = "number"
-        else:
-            # Default to text for unknown types
-            type_str = "text"
-
         result = self._client.post(
             f"/lists/{self._list_id}/list-entries/{entry_id}/fields/{field_id}",
-            json={"value": {"type": type_str, "data": value}},
+            json={"value": _field_value_payload(value, value_type)},
         )
         return _safe_model_validate(FieldValues, result)
 
@@ -1208,23 +1222,17 @@ class ListEntryService:
         Args:
             entry_id: The list entry
             updates: Dict mapping field IDs to new values. Values are auto-typed
-                (str→text, int/float→number, otherwise→text).
+                (str→text, int/float→number, datetime/date→datetime, otherwise→text);
+                for multi-value fields use update_field_value with value_type.
 
         Returns:
             Batch operation response with success/failure per field
         """
 
-        def infer_type(value: Any) -> str:
-            if isinstance(value, str):
-                return "text"
-            elif isinstance(value, (int, float)):
-                return "number"
-            return "text"
-
         update_items = [
             {
                 "id": str(field_id),
-                "value": {"type": infer_type(value), "data": value},
+                "value": _field_value_payload(value),
             }
             for field_id, value in updates.items()
         ]
@@ -2157,6 +2165,7 @@ class AsyncListEntryService:
         entry_id: ListEntryId,
         field_id: AnyFieldId,
         value: Any,
+        value_type: FieldValueType | str | None = None,
     ) -> FieldValues:
         """
         Update a single field value on a list entry.
@@ -2165,13 +2174,17 @@ class AsyncListEntryService:
             entry_id: The list entry
             field_id: The field to update
             value: New value (type depends on field type)
+            value_type: The field value type (e.g., FieldValueType.TEXT).
+                Required by the V2 API. If not provided, inferred from the value
+                (str->text, int/float->number, datetime/date->datetime); pass it
+                explicitly for multi-value fields.
 
         Returns:
             Updated field value data
         """
         result = await self._client.post(
             f"/lists/{self._list_id}/list-entries/{entry_id}/fields/{field_id}",
-            json={"value": value},
+            json={"value": _field_value_payload(value, value_type)},
         )
         return _safe_model_validate(FieldValues, result)
 
@@ -2188,23 +2201,17 @@ class AsyncListEntryService:
         Args:
             entry_id: The list entry
             updates: Dict mapping field IDs to new values. Values are auto-typed
-                (str→text, int/float→number, otherwise→text).
+                (str→text, int/float→number, datetime/date→datetime, otherwise→text);
+                for multi-value fields use update_field_value with value_type.
 
         Returns:
             Batch operation response with success/failure per field
         """
 
-        def infer_type(value: Any) -> str:
-            if isinstance(value, str):
-                return "text"
-            elif isinstance(value, (int, float)):
-                return "number"
-            return "text"
-
         update_items = [
             {
                 "id": str(field_id),
-                "value": {"type": infer_type(value), "data": value},
+                "value": _field_value_payload(value),
             }
             for field_id, value in updates.items()
         ]

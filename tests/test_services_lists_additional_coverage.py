@@ -980,7 +980,8 @@ async def test_async_list_service_create_fields_and_entry_write_ops() -> None:
             "https://v2.example/v2/lists/11/list-entries/99/fields/field-1"
         ):
             payload = json.loads(request.content.decode("utf-8"))
-            assert payload == {"value": "y"}
+            # V2 requires the {"type", "data"} wrapper (async used to send the bare value)
+            assert payload == {"value": {"type": "text", "data": "y"}}
             return httpx.Response(200, json={"field-1": "y"}, request=request)
 
         if request.method == "PATCH" and url == httpx.URL(
@@ -1172,3 +1173,74 @@ async def test_async_list_service_get_size_force_bypasses_cache() -> None:
         assert call_count == 2  # No additional API call
     finally:
         await client.close()
+
+
+def _capture_field_write_bodies() -> tuple[list[dict], httpx.MockTransport]:
+    bodies: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        bodies.append(json.loads(request.content))
+        if request.method == "PATCH":
+            return httpx.Response(200, json={"results": []}, request=request)
+        return httpx.Response(200, json={"data": []}, request=request)
+
+    return bodies, httpx.MockTransport(handler)
+
+
+def test_field_writes_infer_datetime_type_and_serialize_iso() -> None:
+    """Docstrings promise datetime -> 'datetime'; it used to send 'text' with an unserializable
+    datetime object (TypeError before the request was even made)."""
+    from affinity.services.lists import ListEntryService
+
+    bodies, transport = _capture_field_write_bodies()
+    http = HTTPClient(
+        ClientConfig(
+            api_key="k",
+            v1_base_url="https://v1.example",
+            v2_base_url="https://v2.example/v2",
+            max_retries=0,
+            transport=transport,
+        )
+    )
+    try:
+        entries = ListEntryService(http, ListId(10))
+        when = datetime(2024, 4, 1, 15, 30, tzinfo=timezone.utc)
+        entries.update_field_value(ListEntryId(5), "field-1", when)
+        entries.batch_update_fields(ListEntryId(5), {"field-1": when, "field-2": 3, "field-3": "x"})
+    finally:
+        http.close()
+
+    assert bodies[0] == {"value": {"type": "datetime", "data": "2024-04-01T15:30:00+00:00"}}
+    assert bodies[1]["updates"] == [
+        {"id": "field-1", "value": {"type": "datetime", "data": "2024-04-01T15:30:00+00:00"}},
+        {"id": "field-2", "value": {"type": "number", "data": 3}},
+        {"id": "field-3", "value": {"type": "text", "data": "x"}},
+    ]
+
+
+@pytest.mark.asyncio
+async def test_async_field_writes_infer_datetime_type_and_serialize_iso() -> None:
+    from affinity.services.lists import AsyncListEntryService
+
+    bodies, transport = _capture_field_write_bodies()
+    http = AsyncHTTPClient(
+        ClientConfig(
+            api_key="k",
+            v1_base_url="https://v1.example",
+            v2_base_url="https://v2.example/v2",
+            max_retries=0,
+            async_transport=transport,
+        )
+    )
+    try:
+        entries = AsyncListEntryService(http, ListId(10))
+        when = datetime(2024, 4, 1, 15, 30, tzinfo=timezone.utc)
+        await entries.update_field_value(ListEntryId(5), "field-1", when)
+        await entries.batch_update_fields(ListEntryId(5), {"field-1": when})
+    finally:
+        await http.close()
+
+    assert bodies[0] == {"value": {"type": "datetime", "data": "2024-04-01T15:30:00+00:00"}}
+    assert bodies[1]["updates"] == [
+        {"id": "field-1", "value": {"type": "datetime", "data": "2024-04-01T15:30:00+00:00"}}
+    ]
