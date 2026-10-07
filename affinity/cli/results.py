@@ -301,6 +301,9 @@ class CommandMeta(AffinityModel):
     # Data the command deliberately skipped (cheap default) and the flag that
     # fetches it, so absent keys aren't mistaken for empty data.
     not_requested: list[dict[str, str]] | None = Field(None, alias="notRequested")
+    # Affinity V2 API version(s) that answered this command (echoed X-Affinity-Api-Version,
+    # incl. cache hits): a string, or a sorted list when more than one answered.
+    affinity_api_version: str | list[str] | None = Field(None, alias="affinityApiVersion")
 
 
 class CommandResult(AffinityModel):

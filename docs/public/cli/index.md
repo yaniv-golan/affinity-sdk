@@ -253,6 +253,11 @@ These flags expose useful SDK behaviors directly from the CLI:
 - `--readonly`: disallow write operations (guard rail for scripts).
 - `--max-retries N`: tune rate-limit retry behavior.
 - `--trace`: trace request/response/error events to stderr (safe redaction).
+- `--api-version VERSION`: Affinity V2 API version to use, e.g. `2026-09-17`, or `current` (newest).
+  Default: your API key's default version. Also `AFFINITY_API_VERSION` or a profile's `api_version`
+  (precedence: flag > env > profile). JSON output reports the version that answered in
+  `meta.affinityApiVersion`; `xaffinity whoami` shows the key's default. See
+  [Affinity API versions](../guides/api-versions.md).
 
 ## Advanced configuration (testing)
 

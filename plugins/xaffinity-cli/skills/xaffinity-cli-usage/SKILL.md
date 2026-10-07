@@ -271,6 +271,9 @@ reference (JSON structure, operators, aggregation, examples): `references/query-
   `list export` on their list. `opportunity get` needs `--details` for field values.
 - **Progress output goes to stderr**, so JSON on stdout stays clean. Use `--quiet` / `-q` to
   suppress progress — but don't discard stderr (pitfall 1).
+- **Affinity API versions differ.** Results come from the API key's default version unless
+  `--api-version` (e.g. `2026-09-17`) / `AFFINITY_API_VERSION` is set; `meta.affinityApiVersion`
+  says which answered. Don't add `--api-version` unless the user asks.
 
 ## Quick Reference
 

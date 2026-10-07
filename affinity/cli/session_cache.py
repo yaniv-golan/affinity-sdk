@@ -19,7 +19,7 @@ import os
 import re
 import sys
 import time
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any, TypeVar
 
@@ -101,9 +101,14 @@ class SessionCacheConfig:
         except OSError:
             pass  # Ignore errors listing directory
 
-    def set_tenant_hash(self, api_key: str) -> None:
-        """Set tenant hash from API key for cache isolation."""
-        self.tenant_hash = hashlib.sha256(api_key.encode()).hexdigest()[:12]
+    def set_tenant_hash(self, api_key: str, *, api_version: str | None = None) -> None:
+        """Set tenant hash from API key + Affinity API version for cache isolation.
+
+        Responses differ between Affinity V2 API versions, so entries written under one
+        version (or the key's default) are never served to another.
+        """
+        material = f"{api_key}|apiver={api_version or 'default'}"
+        self.tenant_hash = hashlib.sha256(material.encode()).hexdigest()[:12]
 
 
 def _write_stderr(msg: str) -> None:
@@ -117,6 +122,16 @@ class SessionCache:
     def __init__(self, config: SessionCacheConfig, *, trace: bool = False) -> None:
         self.config = config
         self.trace = trace
+        # Returns the Affinity V2 API version that answered the latest request; stored
+        # with each entry so a cache hit still reports which version produced the data.
+        self.version_provider: Callable[[], str | None] | None = None
+        # Versions recorded on entries served from this cache (CLI meta.affinityApiVersion).
+        self.api_versions_seen: set[str] = set()
+
+    def _note_entry_version(self, data: Any) -> None:
+        version = data.get("affinityApiVersion") if isinstance(data, dict) else None
+        if isinstance(version, str) and version:
+            self.api_versions_seen.add(version)
 
     @property
     def enabled(self) -> bool:
@@ -175,6 +190,7 @@ class SessionCache:
         try:
             data = json.loads(path.read_text())
             result = model_class.model_validate(data["value"])
+            self._note_entry_version(data)
             logger.debug("[CACHE] HIT: %s (session)", key)
             if self.trace:
                 _write_stderr(f"trace #+ cache hit: {key}")
@@ -208,6 +224,7 @@ class SessionCache:
         try:
             data = json.loads(path.read_text())
             result = [model_class.model_validate(item) for item in data["value"]]
+            self._note_entry_version(data)
             logger.debug("[CACHE] HIT: %s (%d items) (session)", key, len(result))
             if self.trace:
                 _write_stderr(f"trace #+ cache hit: {key} ({len(result)} items)")
@@ -234,7 +251,14 @@ class SessionCache:
         else:
             serialized = [v.model_dump(mode="json") for v in value]
 
-        data = {"value": serialized}
+        data: dict[str, Any] = {"value": serialized}
+        if self.version_provider is not None:
+            try:
+                version = self.version_provider()
+            except Exception:
+                version = None
+            if version:
+                data["affinityApiVersion"] = version
 
         try:
             # Atomic write: write to temp file, then rename

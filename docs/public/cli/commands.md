@@ -138,7 +138,7 @@ For simple pipelines, use a subshell - the session dir is cleaned up by TTL:
 
 ### Cache behavior
 
-- Cache is scoped to your API key (multi-tenant safe)
+- Cache is scoped to your API key and Affinity API version (multi-tenant safe)
 - Default TTL is 10 minutes (configurable via `AFFINITY_SESSION_CACHE_TTL`)
 - Cache is file-based in the specified directory
 - `session end` is idempotent - safe to call multiple times

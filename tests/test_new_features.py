@@ -611,6 +611,7 @@ class TestRequestHooks:
 # =============================================================================
 
 
+@pytest.mark.filterwarnings("ignore:expected_v2_version is deprecated")
 class TestVersionCompatibility:
     """Tests for v2 version compatibility features (TR-015)."""
 

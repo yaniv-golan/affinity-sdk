@@ -25,6 +25,7 @@ import sys
 import threading
 import time
 import uuid
+import warnings
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
@@ -34,6 +35,7 @@ from urllib.parse import urljoin, urlsplit, urlunsplit
 
 import httpx
 
+from ..api_versions import AFFINITY_API_VERSION_HEADER, normalize_affinity_api_version
 from ..downloads import (
     AsyncDownloadedFile,
     DownloadedFile,
@@ -47,6 +49,8 @@ from ..exceptions import (
     RateLimitError,
     TimeoutError,
     UnsafeUrlError,
+    UnsupportedApiVersionError,
+    ValidationError,
     VersionCompatibilityError,
     WriteNotAllowedError,
     error_from_response,
@@ -485,6 +489,8 @@ _CREDENTIAL_HEADER_NAMES: frozenset[str] = frozenset(
         "cookie",
         "set-cookie",
         "x-api-key",
+        # Not a credential, but Affinity-specific: never forward it to another host.
+        "x-affinity-api-version",
     }
 )
 
@@ -927,6 +933,8 @@ class CacheEntry:
 
     value: dict[str, Any]
     expires_at: float
+    # V2 API version Affinity echoed for the cached response (X-Affinity-Api-Version).
+    api_version: str | None = None
 
 
 class SimpleCache:
@@ -944,6 +952,11 @@ class SimpleCache:
 
     def get(self, key: str) -> dict[str, Any] | None:
         """Get value if not expired."""
+        entry = self.get_entry(key)
+        return entry.value if entry is not None else None
+
+    def get_entry(self, key: str) -> CacheEntry | None:
+        """Get the full entry (value + echoed API version) if not expired."""
         with self._lock:
             entry = self._cache.get(key)
             if entry is None:
@@ -951,13 +964,22 @@ class SimpleCache:
             if time.time() > entry.expires_at:
                 del self._cache[key]
                 return None
-            return entry.value
+            return entry
 
-    def set(self, key: str, value: dict[str, Any], ttl: float | None = None) -> None:
-        """Set value with TTL."""
+    def set(
+        self,
+        key: str,
+        value: dict[str, Any],
+        ttl: float | None = None,
+        *,
+        api_version: str | None = None,
+    ) -> None:
+        """Set value with TTL (and the API version Affinity echoed for it, if known)."""
         expires_at = time.time() + (ttl or self._default_ttl)
         with self._lock:
-            self._cache[key] = CacheEntry(value=value, expires_at=expires_at)
+            self._cache[key] = CacheEntry(
+                value=value, expires_at=expires_at, api_version=api_version
+            )
 
     def delete(self, key: str) -> None:
         """Delete a cache entry."""
@@ -1023,18 +1045,135 @@ class ClientConfig:
     on_error: ErrorHook | None = None
     on_event: AnyEventHook | None = None
     hook_error_policy: Literal["swallow", "raise"] = "swallow"
-    # TR-015: Expected v2 API version for diagnostics and safety checks
+    # TR-015: Expected v2 API version for diagnostics only (deprecated; use
+    # `affinity_api_version` to pin, and `affinity_api_versions_seen` to inspect).
     expected_v2_version: str | None = None
     policies: Policies = field(default_factory=Policies)
+    # Affinity V2 API version sent as `X-Affinity-Api-Version` on every V2 request
+    # (e.g. "2026-09-17" or "current"). None/"auto"/"key-default" -> no header, so the
+    # API key's default version applies. Never sent to V1 or to non-Affinity hosts.
+    affinity_api_version: str | None = None
 
     def __post_init__(self) -> None:
         if isinstance(self.timeout, (int, float)):
             self.timeout = httpx.Timeout(float(self.timeout))
+        version, warning = normalize_affinity_api_version(self.affinity_api_version)
+        self.affinity_api_version = version
+        if warning:
+            warnings.warn(warning, UserWarning, stacklevel=3)
+        if self.expected_v2_version is not None:
+            warnings.warn(
+                "expected_v2_version is deprecated: it only labels diagnostics. Use "
+                "affinity_api_version=... to pin the V2 API version, and "
+                "affinity_api_versions_seen to see which version answered.",
+                DeprecationWarning,
+                stacklevel=3,
+            )
 
 
-def _cache_key_suffix(v1_base_url: str, v2_base_url: str, api_key: str) -> str:
+def _cache_key_suffix(
+    v1_base_url: str,
+    v2_base_url: str,
+    api_key: str,
+    affinity_api_version: str | None = None,
+) -> str:
     digest = hashlib.sha256(api_key.encode("utf-8")).hexdigest()
-    return f"|v1={v1_base_url}|v2={v2_base_url}|tenant={digest}"
+    version = affinity_api_version or "default"
+    return f"|v1={v1_base_url}|v2={v2_base_url}|tenant={digest}|apiver={version}"
+
+
+def _header_value(headers: Sequence[tuple[str, str]], name: str) -> str | None:
+    lowered = name.lower()
+    for key, value in headers:
+        if key.lower() == lowered:
+            return value
+    return None
+
+
+_UNSET: Any = object()
+
+
+class _ApiVersionTracker:
+    """Per-client V2 API version handling: header injection and echo tracking (thread-safe)."""
+
+    def __init__(self, config: ClientConfig):
+        self._config = config
+        self._lock = threading.Lock()
+        self._seen: set[str] = set()
+        self._last: str | None = None
+        self._mismatch_logged = False
+
+    def requested(self, req: SDKRequest) -> str | None:
+        """The header value to send for this request (None -> no header)."""
+        override = req.context.get("affinity_api_version", _UNSET)
+        if override is not _UNSET:
+            return cast(str | None, override)
+        return self._config.affinity_api_version
+
+    def inject(self, req: SDKRequest, headers: list[tuple[str, str]]) -> str | None:
+        """Add the version header to a V2 request's headers; returns the value sent."""
+        if req.api_version != "v2" or req.context.get("external", False):
+            return None
+        version = self.requested(req)
+        if version is None:
+            return None
+        headers[:] = [(k, v) for (k, v) in headers if k.lower() != "x-affinity-api-version"]
+        headers.append((AFFINITY_API_VERSION_HEADER, version))
+        return version
+
+    def observe(self, req: SDKRequest, resp: SDKBaseResponse) -> None:
+        """Record the version echoed by a V2 response (cache hits replay the stored echo)."""
+        if req.api_version != "v2" or resp.context.get("external", False):
+            return
+        echoed = _header_value(resp.headers, AFFINITY_API_VERSION_HEADER)
+        if not echoed:
+            return
+        resp.context["affinity_api_version"] = echoed
+        if "affinity_api_version" in req.context:
+            return  # per-request override (e.g. key-default probe): not the client's version
+        expected = self._config.expected_v2_version
+        with self._lock:
+            self._seen.add(echoed)
+            self._last = echoed
+            log_mismatch = bool(expected) and echoed != expected and not self._mismatch_logged
+            if log_mismatch:
+                self._mismatch_logged = True
+        if log_mismatch:
+            logger.warning(
+                "Affinity answered with V2 API version %s but expected_v2_version=%s",
+                echoed,
+                expected,
+            )
+
+    def map_error(self, exc: ValidationError, version: str | None) -> AffinityError:
+        """Turn a 400 on the version header into an UnsupportedApiVersionError."""
+        param = (exc.param or "").strip().lower()
+        if param != "x-affinity-api-version":
+            return exc
+        shown = version if version is not None else "(none)"
+        return UnsupportedApiVersionError(
+            f"Affinity rejected API version {shown!r} (X-Affinity-Api-Version): "
+            f"{exc.message} Use 2024-01-01, 2026-07-15, 2026-09-17 or 'current', or unset "
+            "affinity_api_version (CLI: --api-version / AFFINITY_API_VERSION / profile "
+            "api_version) to use the API key's default version.",
+            requested_version=version,
+            status_code=exc.status_code,
+            response_body=exc.response_body,
+            diagnostics=exc.diagnostics,
+        )
+
+    def seen(self) -> frozenset[str]:
+        with self._lock:
+            return frozenset(self._seen)
+
+    def last(self) -> str | None:
+        with self._lock:
+            return self._last
+
+    def reset(self) -> None:
+        with self._lock:
+            self._seen.clear()
+            self._last = None
 
 
 # =============================================================================
@@ -1058,7 +1197,9 @@ class HTTPClient:
             self._config.v1_base_url,
             self._config.v2_base_url,
             self._config.api_key,
+            self._config.affinity_api_version,
         )
+        self._api_versions = _ApiVersionTracker(config)
 
         # Configure httpx client (auth is applied per-request)
         self._client = httpx.Client(
@@ -1316,7 +1457,16 @@ class HTTPClient:
                 headers.append(("Authorization", f"Basic {token}"))
             else:
                 headers.append(("Authorization", f"Bearer {config.api_key}"))
-            return next(replace(req, headers=headers))
+            version = self._api_versions.inject(req, headers)
+            try:
+                resp = next(replace(req, headers=headers))
+            except ValidationError as exc:
+                mapped = self._api_versions.map_error(exc, version)
+                if mapped is exc:
+                    raise
+                raise mapped from exc
+            self._api_versions.observe(req, resp)
+            return resp
 
         return middleware
 
@@ -1447,13 +1597,17 @@ class HTTPClient:
         ) -> SDKResponse:
             cache_key = req.context.get("cache_key")
             if cache_key and self._cache:
-                cached = self._cache.get(f"{cache_key}{self._cache_suffix}")
-                if cached is not None:
+                cached_entry = self._cache.get_entry(f"{cache_key}{self._cache_suffix}")
+                if cached_entry is not None:
                     return SDKResponse(
                         status_code=200,
-                        headers=[],
+                        headers=(
+                            [(AFFINITY_API_VERSION_HEADER, cached_entry.api_version)]
+                            if cached_entry.api_version
+                            else []
+                        ),
                         content=b"",
-                        json=cached,
+                        json=cached_entry.value,
                         context={
                             "cache_hit": True,
                             "external": bool(req.context.get("external", False)),
@@ -1466,6 +1620,7 @@ class HTTPClient:
                     f"{cache_key}{self._cache_suffix}",
                     cast(dict[str, Any], resp.json),
                     req.context.get("cache_ttl"),
+                    api_version=_header_value(resp.headers, AFFINITY_API_VERSION_HEADER),
                 )
             return resp
 
@@ -1935,6 +2090,43 @@ class HTTPClient:
         """Whether beta endpoints are enabled for this client."""
         return self._config.enable_beta_endpoints
 
+    @property
+    def affinity_api_version(self) -> str | None:
+        """Configured V2 API version sent as ``X-Affinity-Api-Version`` (None = key default)."""
+        return self._config.affinity_api_version
+
+    @property
+    def affinity_api_versions_seen(self) -> frozenset[str]:
+        """V2 API versions Affinity echoed on responses so far (incl. cache hits)."""
+        return self._api_versions.seen()
+
+    @property
+    def last_affinity_api_version(self) -> str | None:
+        """V2 API version echoed by the most recent V2 response (incl. cache hits)."""
+        return self._api_versions.last()
+
+    def _reset_affinity_api_versions_seen(self) -> None:
+        self._api_versions.reset()
+
+    def _key_default_probe_request(self) -> SDKRequest:
+        # Unversioned V2 call: the echo is the API key's default version.
+        return SDKRequest(
+            method="GET",
+            url=self._build_url("/auth/whoami"),
+            api_version="v2",
+            context={"affinity_api_version": None},
+        )
+
+    def probe_key_default_api_version(self) -> str | None:
+        """
+        Return the API key's default V2 API version.
+
+        Makes one V2 ``GET /auth/whoami`` without ``X-Affinity-Api-Version`` and reads the
+        echoed version. The probe does not count towards ``affinity_api_versions_seen``.
+        """
+        resp = self._pipeline(self._key_default_probe_request())
+        return resp.context.get("affinity_api_version")
+
     def _build_url(self, path: str, *, v1: bool = False) -> str:
         """Build full URL from path."""
         base = self._config.v1_base_url if v1 else self._config.v2_base_url
@@ -2139,7 +2331,12 @@ class HTTPClient:
             pages += 1
         merged: dict[str, Any] = {"data": items, "pagination": {"nextUrl": None, "prevUrl": None}}
         if cache_key and self._cache:
-            self._cache.set(f"{cache_key}{self._cache_suffix}", merged, cache_ttl)
+            self._cache.set(
+                f"{cache_key}{self._cache_suffix}",
+                merged,
+                cache_ttl,
+                api_version=self._api_versions.last(),
+            )
         return merged
 
     def get_url(self, url: str) -> dict[str, Any]:
@@ -2424,7 +2621,11 @@ class HTTPClient:
         TR-015: If expected_v2_version is configured, validation failures
         are wrapped with actionable guidance about checking API version.
         """
-        expected = self._config.expected_v2_version
+        expected = (
+            self._config.expected_v2_version
+            or self._config.affinity_api_version
+            or self._api_versions.last()
+        )
         message = (
             f"Response parsing failed: {error}. "
             "This may indicate a v2 API version mismatch. "
@@ -2465,7 +2666,9 @@ class AsyncHTTPClient:
             self._config.v1_base_url,
             self._config.v2_base_url,
             self._config.api_key,
+            self._config.affinity_api_version,
         )
+        self._api_versions = _ApiVersionTracker(config)
         self._client: httpx.AsyncClient | None = None
         self._client_lock: asyncio.Lock | None = None  # Lazy init to avoid event loop issues
         self._pipeline = self._build_pipeline()
@@ -2728,7 +2931,16 @@ class AsyncHTTPClient:
                 headers.append(("Authorization", f"Basic {token}"))
             else:
                 headers.append(("Authorization", f"Bearer {config.api_key}"))
-            return await next(replace(req, headers=headers))
+            version = self._api_versions.inject(req, headers)
+            try:
+                resp = await next(replace(req, headers=headers))
+            except ValidationError as exc:
+                mapped = self._api_versions.map_error(exc, version)
+                if mapped is exc:
+                    raise
+                raise mapped from exc
+            self._api_versions.observe(req, resp)
+            return resp
 
         return middleware
 
@@ -2860,13 +3072,17 @@ class AsyncHTTPClient:
         ) -> SDKResponse:
             cache_key = req.context.get("cache_key")
             if cache_key and self._cache:
-                cached = self._cache.get(f"{cache_key}{self._cache_suffix}")
-                if cached is not None:
+                cached_entry = self._cache.get_entry(f"{cache_key}{self._cache_suffix}")
+                if cached_entry is not None:
                     return SDKResponse(
                         status_code=200,
-                        headers=[],
+                        headers=(
+                            [(AFFINITY_API_VERSION_HEADER, cached_entry.api_version)]
+                            if cached_entry.api_version
+                            else []
+                        ),
                         content=b"",
-                        json=cached,
+                        json=cached_entry.value,
                         context={
                             "cache_hit": True,
                             "external": bool(req.context.get("external", False)),
@@ -2879,6 +3095,7 @@ class AsyncHTTPClient:
                     f"{cache_key}{self._cache_suffix}",
                     cast(dict[str, Any], resp.json),
                     req.context.get("cache_ttl"),
+                    api_version=_header_value(resp.headers, AFFINITY_API_VERSION_HEADER),
                 )
             return resp
 
@@ -3373,6 +3590,43 @@ class AsyncHTTPClient:
     def enable_beta_endpoints(self) -> bool:
         return self._config.enable_beta_endpoints
 
+    @property
+    def affinity_api_version(self) -> str | None:
+        """Configured V2 API version sent as ``X-Affinity-Api-Version`` (None = key default)."""
+        return self._config.affinity_api_version
+
+    @property
+    def affinity_api_versions_seen(self) -> frozenset[str]:
+        """V2 API versions Affinity echoed on responses so far (incl. cache hits)."""
+        return self._api_versions.seen()
+
+    @property
+    def last_affinity_api_version(self) -> str | None:
+        """V2 API version echoed by the most recent V2 response (incl. cache hits)."""
+        return self._api_versions.last()
+
+    def _reset_affinity_api_versions_seen(self) -> None:
+        self._api_versions.reset()
+
+    def _key_default_probe_request(self) -> SDKRequest:
+        # Unversioned V2 call: the echo is the API key's default version.
+        return SDKRequest(
+            method="GET",
+            url=self._build_url("/auth/whoami"),
+            api_version="v2",
+            context={"affinity_api_version": None},
+        )
+
+    async def probe_key_default_api_version(self) -> str | None:
+        """
+        Return the API key's default V2 API version.
+
+        Makes one V2 ``GET /auth/whoami`` without ``X-Affinity-Api-Version`` and reads the
+        echoed version. The probe does not count towards ``affinity_api_versions_seen``.
+        """
+        resp = await self._pipeline(self._key_default_probe_request())
+        return resp.context.get("affinity_api_version")
+
     def _build_url(self, path: str, *, v1: bool = False) -> str:
         base = self._config.v1_base_url if v1 else self._config.v2_base_url
         if v1:
@@ -3551,7 +3805,12 @@ class AsyncHTTPClient:
             pages += 1
         merged: dict[str, Any] = {"data": items, "pagination": {"nextUrl": None, "prevUrl": None}}
         if cache_key and self._cache:
-            self._cache.set(f"{cache_key}{self._cache_suffix}", merged, cache_ttl)
+            self._cache.set(
+                f"{cache_key}{self._cache_suffix}",
+                merged,
+                cache_ttl,
+                api_version=self._api_versions.last(),
+            )
         return merged
 
     async def get_url(self, url: str) -> dict[str, Any]:
@@ -3833,7 +4092,11 @@ class AsyncHTTPClient:
         TR-015: If expected_v2_version is configured, validation failures
         are wrapped with actionable guidance about checking API version.
         """
-        expected = self._config.expected_v2_version
+        expected = (
+            self._config.expected_v2_version
+            or self._config.affinity_api_version
+            or self._api_versions.last()
+        )
         message = (
             f"Response parsing failed: {error}. "
             "This may indicate a v2 API version mismatch. "

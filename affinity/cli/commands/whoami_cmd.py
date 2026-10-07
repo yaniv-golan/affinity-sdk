@@ -19,6 +19,12 @@ def whoami_cmd(ctx: CLIContext) -> None:
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
         client = ctx.get_client(warnings=warnings)
         who = client.whoami()
+        # The key's default Affinity V2 API version: whoami itself is an unversioned V2
+        # call unless a version is pinned, in which case one extra unversioned call asks.
+        if client.affinity_api_version is None:
+            key_default = client._http.last_affinity_api_version
+        else:
+            key_default = client.get_key_default_api_version()
 
         cmd_context = CommandContext(
             name="whoami",
@@ -26,8 +32,12 @@ def whoami_cmd(ctx: CLIContext) -> None:
             modifiers={},
         )
 
+        data = serialize_model_for_cli(who)
+        if isinstance(data, dict):
+            data["keyDefaultApiVersion"] = key_default
+
         return CommandOutput(
-            data=serialize_model_for_cli(who),
+            data=data,
             context=cmd_context,
             warnings=warnings,
             api_called=True,

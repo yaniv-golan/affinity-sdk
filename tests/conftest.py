@@ -16,6 +16,15 @@ from affinity import Affinity
 from affinity.cli.context import CLIContext
 
 
+@pytest.fixture(autouse=True)
+def _no_check_key_api_version_probe(monkeypatch: pytest.MonkeyPatch) -> None:
+    """`config check-key` probes the key's default API version over the network
+    (best-effort). Keep unit tests offline; tests of the probe restore it explicitly."""
+    from affinity.cli.commands import config_cmds
+
+    monkeypatch.setattr(config_cmds, "_probe_key_default_api_version", lambda _ctx, _src: None)
+
+
 @pytest.fixture
 def api_key() -> str:
     """Test API key."""
