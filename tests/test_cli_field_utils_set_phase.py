@@ -224,6 +224,35 @@ class TestValueEqualsExistingDatetime:
         assert value_equals_existing(meta, "2024-06-02T12:00:00Z", existing) is False
 
 
+class TestResolveDatetimeFieldValue:
+    """The V2 API rejects a bare date with 400 "does not match format: date-time" (found by the
+    live write test). Date-only input becomes noon UTC: the same calendar date in Pacific time,
+    which is the date Affinity stores."""
+
+    def test_date_only_becomes_noon_utc(self, resolver: FieldResolver) -> None:
+        assert resolver.resolve_field_value("field-106", "2024-04-01") == (
+            "2024-04-01T12:00:00Z",
+            "datetime",
+        )
+
+    def test_datetime_with_zone_is_normalized_to_utc(self, resolver: FieldResolver) -> None:
+        assert resolver.resolve_field_value("field-106", "2024-04-01T18:30:00+03:00") == (
+            "2024-04-01T15:30:00Z",
+            "datetime",
+        )
+
+    def test_unparseable_date_fails_before_any_write(self, resolver: FieldResolver) -> None:
+        with pytest.raises(CLIError):
+            resolver.resolve_field_value("field-106", "next tuesday")
+
+    def test_resolved_date_is_noop_against_stored_midnight_pacific(
+        self, resolver: FieldResolver
+    ) -> None:
+        resolved, _ = resolver.resolve_field_value("field-106", "2024-04-01")
+        meta = _meta(resolver, "field-106")
+        assert value_equals_existing(meta, resolved, [{"value": "2024-04-01T07:00:00Z"}]) is True
+
+
 class TestValueEqualsExistingDateGranular:
     """Since 2026-01-01 Affinity stores date fields at midnight Pacific Time.
 

@@ -491,6 +491,11 @@ class FieldResolver:
             wrapped: dict[str, int] = {"id": entity_id}
             return ([wrapped], type_str) if is_multi else (wrapped, type_str)
 
+        # Date fields: the V2 API requires a full date-time ("2024-04-01" is rejected with
+        # 400 "does not match format: date-time") and stores its Pacific calendar date.
+        if type_str == "datetime" and isinstance(value, str):
+            return _normalize_datetime_input(value, field.name), type_str
+
         # For non-dropdown fields, return value and inferred type
         return value, type_str
 
@@ -719,6 +724,28 @@ def _is_empty_new_value(value: Any) -> bool:
     if isinstance(value, str) and value.strip() == "":
         return True
     return bool(isinstance(value, (list, dict)) and len(value) == 0)
+
+
+def _normalize_datetime_input(value: str, field_name: str) -> str:
+    """Turn CLI date input into the ISO date-time the V2 API accepts (UTC, ``Z``).
+
+    A date-only value (``YYYY-MM-DD``) becomes noon UTC: that instant is the same calendar date
+    in Pacific time, which is the date Affinity stores (midnight UTC would be the previous day).
+    A date-time keeps its instant; a naive one is local time (see ``parse_iso_datetime``).
+    Unparseable input raises ``CLIError`` before any write.
+    """
+    from datetime import date, timezone
+
+    from .commands._v1_parsing import parse_iso_datetime
+
+    text = value.strip()
+    if len(text) == 10:
+        try:
+            return f"{date.fromisoformat(text).isoformat()}T12:00:00Z"
+        except ValueError:
+            pass
+    dt = parse_iso_datetime(text, label=f"value for '{field_name}'")
+    return dt.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 def _same_affinity_date(new_raw: str, new_dt: Any, old_dt: Any) -> bool:

@@ -40,6 +40,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   monthly org bucket, which happens on plans with no monthly cap (documented for v2; v1 and v2
   share one request pool). The org bucket now comes back empty (all fields `None`), matching
   the header-derived snapshot, and `RateLimits.org_monthly` is optional.
+- CLI `--set` on a date field with a plain date (e.g. `2024-04-01`) failed with HTTP 400
+  "value at `/value/data` does not match format: date-time": the value was sent as typed, and
+  the V2 API requires a full date-time. Date-only input is now sent as noon UTC (the same
+  calendar date in Pacific time, where Affinity stores it); a date-time is converted to UTC;
+  unparseable input is rejected before any write. Found by a live write test.
 - CLI `field --set` rewrote date fields on every run. Since 2026-01-01 Affinity stores date
   fields at midnight Pacific Time, so the exact-timestamp "already set" check never matched and
   the no-op short-circuit (1.15.0) never applied to dates. Setting the same calendar date is now
