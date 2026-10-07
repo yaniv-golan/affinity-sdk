@@ -2,11 +2,11 @@
   "_generated": {
     "warning": "DO NOT EDIT - This file is auto-generated",
     "generator": "tools/generate_mcp_command_registry.py",
-    "cliVersion": "1.18.1",
+    "cliVersion": "1.19.0",
     "sourceConfig": "mcp/.registry/mcp-commands.json"
   },
   "version": 1,
-  "cliVersion": "1.18.1",
+  "cliVersion": "1.19.0",
   "commands": [
     {
       "name": "company create",
@@ -483,7 +483,7 @@
         "--query": {
           "type": "string",
           "required": false,
-          "help": "Fuzzy text search (simple matching). Use --filter for structured queries.",
+          "help": "Fuzzy text search (simple matching). Use --filter for structured queries, `company search` for natural-language (semantic) search.",
           "aliases": [
             "-q"
           ]
@@ -553,6 +553,56 @@
         "company ls",
         "task wait"
       ]
+    },
+    {
+      "name": "company search",
+      "description": "Find companies from a natural-language description (V2 semantic search).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--list": {
+          "type": "string",
+          "required": false,
+          "help": "Only companies on this company list (name or id; repeatable, max 100).",
+          "multiple": true
+        },
+        "--max-results": {
+          "type": "string",
+          "required": false,
+          "help": "Maximum results (1-100; API default 100). Values above 100 are clamped.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        }
+      },
+      "positionals": [
+        {
+          "name": "PROMPT",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "examples": [
+        "company search \"AI infrastructure startups\"",
+        "company search \"seed-stage fintech in Europe\" --list \"Dealflow\" --max-results 20"
+      ],
+      "whenToUse": "Find companies from a natural-language description (semantic search), e.g. 'AI infrastructure startups' or 'seed-stage fintech in Europe'. Returns up to 100 companies ranked by relevance score; meta.explanation says how the prompt was read. Use --list to restrict to company lists. NOT for finding a company by its name or domain - use `company ls --query` or `company get \"domain:acme.com\"` for that.",
+      "relatedCommands": [
+        "company ls",
+        "company get"
+      ],
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000
+      }
     },
     {
       "name": "company update",
@@ -865,16 +915,13 @@
         "--value-type": {
           "type": "string",
           "required": true,
-          "help": "Field value type (e.g. text, dropdown, person, number).",
+          "help": "Field value type (e.g. text, dropdown, person, number). A -multi type implies --allows-multiple.",
           "choices": [
             "company",
             "company-multi",
             "datetime",
             "dropdown",
             "dropdown-multi",
-            "filterable-text",
-            "filterable-text-multi",
-            "interaction",
             "location",
             "location-multi",
             "number",
@@ -1141,6 +1188,61 @@
         "list ls",
         "entry field"
       ]
+    },
+    {
+      "name": "file search",
+      "description": "Search inside file contents by keyword, across all files (V2 file search).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--company-id": {
+          "type": "string",
+          "required": false,
+          "help": "Only files on this company (id, URL, name:NAME or domain:DOMAIN)."
+        },
+        "--file-id": {
+          "type": "int",
+          "required": false,
+          "help": "Only search these files (repeatable, max 100). Exclusive with --company-id.",
+          "multiple": true
+        },
+        "--max-results": {
+          "type": "string",
+          "required": false,
+          "help": "Maximum results (1-100; API default 20). Values above 100 are clamped.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        }
+      },
+      "positionals": [
+        {
+          "name": "PROMPT",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "examples": [
+        "file search \"pitch deck\"",
+        "file search \"revenue projections\" --company-id 12345 --max-results 5"
+      ],
+      "whenToUse": "Search inside file contents (PDFs, decks, docs) by keyword across ALL files (or one company's files with --company-id). Returns up to 100 matches, one per file, with fileId, name, pageNumber and the matching passage. Then use `company files read` or get-file-url with the fileId to fetch the file. To list the files on one record, use `company files ls`.",
+      "relatedCommands": [
+        "company files ls",
+        "company files read"
+      ],
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000
+      }
     },
     {
       "name": "interaction create",
@@ -2037,6 +2139,61 @@
           "--all",
           "-A"
         ]
+      }
+    },
+    {
+      "name": "note search",
+      "description": "Search note text by keyword, across all notes (V2 note search).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--company-id": {
+          "type": "string",
+          "required": false,
+          "help": "Only notes on this company (id, URL, name:NAME or domain:DOMAIN)."
+        },
+        "--max-results": {
+          "type": "string",
+          "required": false,
+          "help": "Maximum results (1-100; API default 20). Values above 100 are clamped.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        },
+        "--note-id": {
+          "type": "int",
+          "required": false,
+          "help": "Only search these notes (repeatable, max 100). Exclusive with --company-id.",
+          "multiple": true
+        }
+      },
+      "positionals": [
+        {
+          "name": "PROMPT",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "examples": [
+        "note search \"Series B terms\"",
+        "note search \"pricing\" --company-id \"domain:acme.com\" --max-results 10"
+      ],
+      "whenToUse": "Search note text by keyword across ALL notes (or one company's notes with --company-id). Returns up to 100 matches ranked by relevance, each with noteId, kind and the matching passage (preview). Use `note get` for the full note. To list the notes attached to a specific person/company/opportunity, use `note ls` instead.",
+      "relatedCommands": [
+        "note get",
+        "note ls"
+      ],
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000
       }
     },
     {
@@ -3830,5 +3987,5 @@
       ]
     }
   ],
-  "total": 66
+  "total": 69
 }

@@ -7,6 +7,106 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.19.0] - 2026-10-08
+
+### Highlights
+
+**Field writes are all-or-nothing.** `list entry field` and `opportunity field` send every
+`--set`, `--set-json` and `--unset` of a command in one request that Affinity applies completely
+or not at all: if it rejects one value, no field changes. Clearing a field no longer deletes
+values one by one.
+
+**Search.** `note search`, `file search` and `company search` (natural-language, ranked) search
+the text of notes, the contents of files, and companies by description. They work under
+`--readonly`.
+
+**All three Affinity API versions.** Affinity's V2 API has versions 2024-01-01, 2026-07-15 and
+2026-09-17; each API key has a default. Pin one with `--api-version` /
+`AFFINITY_API_VERSION` / `Affinity(affinity_api_version=...)`, see which one answered in
+`meta.affinityApiVersion`, and see a key's default with `whoami`. Values Affinity hides on
+restricted opportunities (2026-07-15+) are flagged instead of looking empty.
+
+Also: uploads return the new file's id, new field value types, `get_fields(filter=, includes=)`.
+
+### Added
+
+- Pin the Affinity V2 API version: `Affinity(affinity_api_version="2026-09-17")` /
+  `AsyncAffinity` / `ClientConfig`, CLI `--api-version`, env `AFFINITY_API_VERSION`, profile
+  `api_version` (flag > env > profile). Accepts `2024-01-01`, `2026-07-15`, `2026-09-17`,
+  `current`, or `auto`/`key-default` for the API key's default (still the default behaviour).
+  The header is sent on every V2 request including `nextUrl` pages, never on V1, and is removed on
+  cross-host redirects. Invalid values are rejected before any request; unknown dates warn.
+- `UnsupportedApiVersionError` when Affinity rejects the pinned version (no silent fallback; CLI
+  error type `api_version_error`, exit 2). `client.affinity_api_versions_seen` and
+  `client.get_key_default_api_version()`; `affinity.api_versions` module.
+- CLI JSON `meta.affinityApiVersion` (the version that answered, or a list plus a warning if more
+  than one did); `whoami` and `config check-key` report `keyDefaultApiVersion`. New guide
+  "Affinity API versions".
+- Values Affinity hides (`type: "hidden"`, restricted opportunities, API 2026-07-15+):
+  `FieldValues.is_hidden()` / `hidden_fields()`; the CLI warns that they are masked, not empty,
+  wherever it warns about truncated values, and keeps them in "list-only" field output.
+- `xaffinity note search PROMPT`, `xaffinity file search PROMPT` (new `file` group) and
+  `xaffinity company search PROMPT`. `--company-id` takes the usual company selector;
+  `--note-id` / `--file-id` limit the search to given ids; `company search --list` filters by
+  company lists; `--max-results/--limit/-n` is 1–100 (larger values are clamped). JSON `data` has
+  one row per hit; `company search` puts Affinity's reading of the prompt in `meta.explanation`.
+- SDK: `client.notes.search()`, `client.files.search()`, `client.companies.semantic_search()`
+  (sync and async) with models `NoteSearchResult`, `FileSearchResult`, `SemanticSearchResult`,
+  `SemanticCompany` and the `NoteKind` enum; `HTTPClient.post(..., read_only=True)` for read-only
+  POSTs (allowed under `WritePolicy.DENY`, retried like GET).
+- SDK: `files.upload_returning_files()`, `upload_path_returning_files()` and
+  `upload_bytes_returning_files()` (sync and async) return the created files; they never raise
+  after a successful upload. CLI `company/person/opportunity files upload` rows include `fileId`
+  and `createdAt`.
+- SDK: `ListEntryService.batch_update_fields(..., value_types=)` (sync and async) sends typed
+  values, multi-value lists and `None` (clears the field); `BatchOperationResponse.operation`.
+- `FieldValueType.FORMULA_NUMBER`, `LIST_MULTI`, `NOTE`, `REMINDER` and `FieldType.HIDDEN`; table
+  output renders note, reminder and formula-number values.
+- `get_fields(filter=, includes=)` on companies, persons and lists (sync and async): `filter`
+  `name="X"` (exact) or `name=~X` (substring), case-sensitive, `|` for OR; `includes`
+  `filterability` / `sortability`.
+- `ListSummary.creator_id`, `ListEntryWithEntity.creator_id`.
+
+### Changed
+
+- **`list entry field` / `opportunity field` output:** `created` lists `{fieldId, name, value}`
+  per field set (the batch request returns no rows); `cleared` lists the fields `--unset`
+  cleared; `deleted` only counts values removed by `--unset-value`.
+- `list entry field` / `opportunity field`: field value types come from V2 metadata (V1's type 2
+  means "text or dropdown"); dropdown options are read fresh for every dropdown field written;
+  the same field named twice (name, other casing or id) is refused; writes to types Affinity
+  doesn't accept (interaction, formula-number, list-multi, note, reminder) are refused before any
+  request; a timeout says the outcome is unknown and that re-running is safe; a 403 names
+  restricted field access. `opportunity field --set/--json/--unset` no longer writes through V1.
+- SDK response-cache keys and CLI session-cache keys include the configured API version.
+  Existing session-cache entries are not reused after upgrading.
+- `config check-key` makes one best-effort request (5 s, no retries) to report the key's default
+  API version; its exit code is unchanged.
+- `field create --value-type` offers only types Affinity can create (`interaction`,
+  `filterable-text`, `filterable-text-multi` are no longer accepted); a `-multi` type implies
+  `--allows-multiple`.
+- `is_public` on lists reads `public` or `isPublic`; the company and person services reject
+  `FieldType.HIDDEN` in `field_types=`. The `*/fields` endpoints ignore `field_types` (documented).
+- CLI JSON `meta` may carry `explanation` (from `company search`).
+- `person get` / `company get` table output uses each list entry's `listName` instead of fetching
+  every list.
+
+### Deprecated
+
+- `expected_v2_version`: it never selected a version. Use `affinity_api_version` and
+  `affinity_api_versions_seen`.
+
+### Fixed
+
+- `EntityFile.company_id` was always `None` for files read through V1 (`files.list()`,
+  `files.get()`).
+- `company ls` / `person ls --field-type list` was accepted; it now exits 2.
+- `field create --value-type <type>-multi` without `--allows-multiple` created a single-value
+  field.
+- `list entry field --append` on a field the CLI has no information about said it "holds one
+  value"; it now says it can't tell and to use `--set`.
+- Upload docstrings described the wrong return value.
+
 ## [1.18.1] - 2026-10-07
 
 ### Highlights

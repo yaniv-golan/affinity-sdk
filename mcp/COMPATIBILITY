@@ -1,8 +1,24 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="1.18.1"
-CLI_MAX_VERSION="1.18.1"
+CLI_MIN_VERSION="1.19.0"
+CLI_MAX_VERSION="1.19.0"
+
+# MCP 1.23.0 requires CLI 1.19.0 for:
+# - `note search`, `file search`, `company search` (new read commands in the
+#   registry; `company search` puts Affinity's reading in `meta.explanation`).
+# - `list entry field` / `opportunity field`: all --set/--set-json/--unset of
+#   a command in one all-or-nothing request. JSON `created` items are now
+#   {fieldId, name, value}; new `cleared`; `deleted` only counts
+#   --unset-value rows.
+# - `AFFINITY_API_VERSION` (passed through by the server) and the optional
+#   bundle setting "Affinity API Version"; JSON `meta.affinityApiVersion`;
+#   `whoami` / `config check-key` report `keyDefaultApiVersion`; error type
+#   `api_version_error`. `config check-key` (startup health check) makes one
+#   best-effort request; its exit code is unchanged.
+# - Values Affinity hides on restricted opportunities are flagged in warnings
+#   ("hidden by Affinity") instead of reading as empty.
+# - `files upload` rows carry `fileId` / `createdAt` (additive).
 
 # MCP 1.22.7 requires CLI 1.18.1 for:
 # - `company/person/opportunity field --set` on dropdown, ranked-dropdown and

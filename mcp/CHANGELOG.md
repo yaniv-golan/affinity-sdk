@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.23.0] - 2026-10-08
+
+### Highlights
+
+Search notes, files and companies (`note search`, `file search`, `company search`), field
+updates that apply all-or-nothing, and control over Affinity's API version. Requires CLI 1.19.0.
+
+### Added
+
+- `note search`, `file search` and `company search` in the command registry; the workflows
+  skill and the `prepare-briefing` prompt use them.
+- The server passes `AFFINITY_API_VERSION` and `AFFINITY_PROFILE` through to tools; the bundle
+  has an optional "Affinity API Version" setting. Results report `meta.affinityApiVersion`.
+- Workflows skill: values hidden by Affinity are masked, not empty.
+
+### Changed
+
+- Requires CLI 1.19.0 (`mcp/COMPATIBILITY`).
+- `list entry field` / `opportunity field` results: `created` items are `{fieldId, name, value}`,
+  new `cleared`, `deleted` only counts `--unset-value` rows.
+- `field create --value-type` choices no longer include `interaction`, `filterable-text`,
+  `filterable-text-multi` (Affinity can't create them).
+- `config check-key`, run by the startup health check, makes one best-effort request (exit code
+  unchanged).
+
 ## [1.22.7] - 2026-10-07
 
 ### Highlights
