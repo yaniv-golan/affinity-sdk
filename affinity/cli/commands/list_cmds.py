@@ -904,6 +904,9 @@ def list_export(
         field_meta = list_fields_for_list(client=client, list_id=list_id, cache=cache)
         field_by_id: dict[str, FieldMetadata] = {str(f.id): f for f in field_meta}
 
+        def refresh_export_fields() -> list[FieldMetadata]:
+            return refresh_list_fields(client=client, list_id=list_id, cache=cache)
+
         selected_field_ids: list[str] = []
         if saved_view:
             _, view_resolved = resolve_saved_view(
@@ -912,14 +915,18 @@ def list_export(
             resolved.update(view_resolved)
             # Note: API's view.field_ids is typically empty; use --field to specify fields
             if fields:
-                selected_field_ids = _resolve_field_selectors(
-                    fields=fields, field_by_id=field_by_id
+                selected_field_ids, field_meta = _select_fields_refreshing(
+                    fields=fields, field_meta=field_meta, refresh=refresh_export_fields
                 )
+                field_by_id = {str(f.id): f for f in field_meta}
             else:
                 # No explicit fields requested with saved view - return all fields
                 selected_field_ids = [str(f.id) for f in field_meta]
         elif fields:
-            selected_field_ids = _resolve_field_selectors(fields=fields, field_by_id=field_by_id)
+            selected_field_ids, field_meta = _select_fields_refreshing(
+                fields=fields, field_meta=field_meta, refresh=refresh_export_fields
+            )
+            field_by_id = {str(f.id): f for f in field_meta}
         else:
             selected_field_ids = [str(f.id) for f in field_meta]
 
@@ -1878,6 +1885,29 @@ def list_export(
         raise AssertionError("unreachable")
 
     run_command(ctx, command="list export", fn=fn)
+
+
+def _select_fields_refreshing(
+    *,
+    fields: tuple[str, ...],
+    field_meta: list[FieldMetadata],
+    refresh: Callable[[], list[FieldMetadata]],
+) -> tuple[list[str], list[FieldMetadata]]:
+    """Resolve ``--field`` selectors, refetching field metadata once on an unknown field.
+
+    Affinity's V1 field listing can lag field creation (V2 is current; see
+    ``refresh_list_fields``), so a just-created field is retried once against fresh metadata.
+    Returns the selected field IDs and the metadata they were resolved against.
+    """
+    try:
+        by_id = {str(f.id): f for f in field_meta}
+        return _resolve_field_selectors(fields=fields, field_by_id=by_id), field_meta
+    except CLIError as exc:
+        if not exc.message.startswith("Unknown field"):
+            raise
+    field_meta = refresh()
+    by_id = {str(f.id): f for f in field_meta}
+    return _resolve_field_selectors(fields=fields, field_by_id=by_id), field_meta
 
 
 def _resolve_field_selectors(
