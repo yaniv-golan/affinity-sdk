@@ -5,6 +5,25 @@ All notable changes to the xaffinity MCP server will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.22.3] - 2026-10-07
+
+### Highlights
+
+Requires CLI >= 1.16.0, which fixes list field values coming back as `null` on
+targeted lookups (`list export --company-id` / `--person-id`, `list entry get`,
+`query` listEntries direct lookups). Agents using the gateway for dedup checks
+were reading those nulls as real empty data. MCP server behavior is otherwise
+unchanged.
+
+### Changed
+
+- `mcp/COMPATIBILITY`: `CLI_MIN_VERSION` and `CLI_MAX_VERSION` bumped to
+  `1.16.0`. See `mcp/COMPATIBILITY` comments for the rationale.
+- `resources/data-model/data-model.md`: agent pitfall added — a plain
+  `company get` / `person get` / `opportunity get` fetches no field values or
+  list entries; read `meta.notRequested` and `data.listEntries` instead of
+  treating `fields.requested: false` as empty.
+
 ## [1.22.2] - 2026-05-28
 
 ### Highlights

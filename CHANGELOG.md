@@ -7,9 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.16.0] - 2026-10-07
+
 ### Highlights
 
-Packaging groundwork for set-once API-key entry in Claude Cowork. The CLI plugin
+**List field values are no longer reported as `null` on targeted lookups.**
+`list export --company-id` / `--person-id`, `list entry get`, and `query`
+direct lookups (`listId` + `id`) now return the real Status, Owner, and other
+list fields. Previously they returned every list field as `null` without a
+warning, and agents doing a dedup check read those nulls as real empty data. If
+you rely on these paths, upgrade.
+
+You can now see what a plain `company get` / `person get` / `opportunity get`
+did **not** fetch: `meta.notRequested` lists each skipped section with the flag
+that fetches it (e.g. `--expand list-entries`). The CLI plugin (1.10.1) also
+stops its pre-tool hook from blocking unrelated shell commands that merely
+mention `xaffinity`, and its skill was reworked to read the right JSON keys.
+
+Also in this release: packaging groundwork for set-once API-key entry in Claude Cowork. The CLI plugin
 manifest now declares a `clis.xaffinity` block with an `env.api_key` credential
 (`AFFINITY_API_KEY`, `secret: true`) and an `api.affinity.co` egress entry. This
 targets Claude Desktop's host-side CLI-credential broker — the user enters the
@@ -37,6 +52,38 @@ the key via `AFFINITY_API_KEY`, project `.env` + `--dotenv`, or
   manifest rather than a stub. Hook test paths updated to match
   (`tests/test_cli_{pre_xaffinity,session_setup}_hook.py`).
 
+### Added
+
+- JSON envelope: `meta.notRequested` on `company get`, `person get` and
+  `opportunity get` lists data the cheap default lookup skipped, each with the
+  flag that fetches it (e.g.
+  `{"key": "data.listEntries", "flag": "--expand list-entries"}`). Absent when
+  nothing was skipped, and an explicit `--no-fields` is not reported. Agents
+  were reading `fields: {"requested": false}` and a missing `listEntries` key as
+  "no lists / empty fields".
+
+### Fixed
+
+- `company get` / `person get` help claimed `--json` returns "Full data"; it
+  returns no field values or list entries unless requested. Help now says so and
+  points at `data.listEntries`.
+- `list export --company-id` / `--person-id` returned every list field as `null`.
+  The targeted path fetched each entry with a bare
+  `GET /v2/lists/{id}/list-entries/{entryId}`, which omits field values unless
+  `fieldIds`/`fieldTypes` is passed; it now requests the selected columns, the
+  same as the streaming export path. Agents using this path for dedup checks
+  were reading confident nulls over real data.
+- `list entry get` likewise showed no field values (`fields.requested: false`).
+  It now requests the list's own fields (`fieldTypes=list`) and surfaces them in
+  `listEntry.fields` with `meta.resolved.fieldMetadata`.
+- `query` on `listEntries` with `listId` + `id` equality (the direct-lookup
+  fast path) returned `fields.*` and `entityName` as `null`. It now requests the
+  fields the query references and normalizes the record, matching the streaming
+  path.
+- SDK: `ListEntryService.get()` / `AsyncListEntryService.get()` accept
+  keyword-only `field_ids` and `field_types`, matching `list()` /
+  `from_saved_view()`. Default behavior is unchanged.
+
 ### Plugins
 
 - **CLI plugin** (`affinity-crm-cli-xaffinity-unofficial`): 1.9.0 → 1.10.0 —
@@ -44,6 +91,24 @@ the key via `AFFINITY_API_KEY`, project `.env` + `--dotenv`, or
   `AFFINITY_API_KEY`, `network: ["api.affinity.co"]`) for forward-compatible
   set-once key entry in Cowork (gated off server-side, see Highlights); plugin
   restructured to standard layout + marketplace `source` fix.
+- **CLI plugin**: 1.10.0 → 1.10.1 — `pre-xaffinity.sh` now gates only actual
+  `xaffinity` invocations (command position, incl. `cd x &&`, `$(...)`, `VAR=v`,
+  `uv run`, a path to the binary). Previously any Bash command merely containing
+  the text — `grep`/`cat`/`git add` of `plugins/xaffinity-cli/...` — was blocked
+  when no key was configured. Skill reworked:
+  - New "Read JSON from the right key" table and "null / missing does not mean
+    empty" rule, plus a section on reading one company's / person's lists and
+    list fields (`--expand list-entries`, `data.listEntries`, `meta.notRequested`).
+  - Fixed wrong examples: `person ls` is `.data.persons` (was `.data.rows`, which
+    silently yields a `null` owner ID); `interaction ls` / `note ls` / `files ls`
+    return a bare `.data` array (was `.data.interactions`); `primaryEmailAddress`
+    (was `primaryEmail`); `list entry field` takes the list selector; pre-write
+    validation shipped in CLI 1.15.0 (was "v0.7").
+  - SKILL.md cut from 24.1k to 14.1k characters (under the 19.9k compaction cap)
+    by moving setup, interactions, filtering, and files/write gotchas into
+    `references/`. Trigger text merged into `description` (Claude-only
+    `when_to_use` removed). Regression prompts added under
+    `tests/skill-evals/xaffinity-cli-usage-evals/`.
 
 ## [1.15.0] - 2026-05-28
 

@@ -1,9 +1,18 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="1.15.0"
-CLI_MAX_VERSION="1.15.0"
+CLI_MIN_VERSION="1.16.0"
+CLI_MAX_VERSION="1.16.0"
 
+# MCP 1.22.3 requires CLI 1.16.0 for:
+# - List field values on targeted lookups: `list export --company-id` /
+#   `--person-id`, `list entry get`, and `query` listEntries direct lookups
+#   (listId + id) returned every list field as null on CLI <= 1.15.0. Agents
+#   used these for dedup checks and read the nulls as real empty data.
+# - `meta.notRequested` on `company get` / `person get` / `opportunity get`:
+#   names data the cheap default lookup skipped and the flag that fetches it.
+#   Additive; absent when nothing was skipped.
+#
 # MCP 1.22.2 requires CLI 1.15.0 for:
 # - `entry/company/person/opportunity field --set` pre-flight validation: bad
 #   person/company IDs, unknown dropdown options, etc. now abort BEFORE any API
