@@ -721,6 +721,36 @@ def _is_empty_new_value(value: Any) -> bool:
     return bool(isinstance(value, (list, dict)) and len(value) == 0)
 
 
+def _same_affinity_date(new_raw: str, new_dt: Any, old_dt: Any) -> bool:
+    """True if a date field stored at midnight Pacific already holds the date being set.
+
+    Since 2026-01-01 Affinity drops the time of day from date fields and stores the Pacific
+    calendar date at midnight Pacific (2024-04-01 comes back as 2024-04-01T07:00:00Z). A
+    date-only input is a calendar date as typed (not local midnight); an input with a time
+    maps to the Pacific date of that instant, which is what Affinity would store. Only an
+    existing value at exactly midnight Pacific is treated this way; anything else, or a
+    missing tz database, keeps the exact comparison (safe default: write).
+    """
+    from datetime import date, time
+    from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+
+    try:
+        pacific = ZoneInfo("America/Los_Angeles")
+    except ZoneInfoNotFoundError:
+        return False
+    old_pacific = old_dt.astimezone(pacific)
+    if old_pacific.time() != time(0, 0):
+        return False
+    text = new_raw.strip()
+    try:
+        new_date = date.fromisoformat(text) if len(text) == 10 else None
+    except ValueError:
+        new_date = None
+    if new_date is None:
+        new_date = new_dt.astimezone(pacific).date()
+    return bool(new_date == old_pacific.date())
+
+
 def value_equals_existing(
     field_meta: FieldMetadata | None,
     resolved_new: Any,
@@ -831,7 +861,7 @@ def value_equals_existing(
             old_dt = parse_iso_datetime(str(old_raw), label="existing value")
         except CLIError:
             return False
-        return new_dt == old_dt
+        return new_dt == old_dt or _same_affinity_date(str(resolved_new), new_dt, old_dt)
 
     # text / filterable-text / fallback
     if len(existing_for_field) != 1:

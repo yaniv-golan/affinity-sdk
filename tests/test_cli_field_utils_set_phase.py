@@ -224,6 +224,52 @@ class TestValueEqualsExistingDatetime:
         assert value_equals_existing(meta, "2024-06-02T12:00:00Z", existing) is False
 
 
+class TestValueEqualsExistingDateGranular:
+    """Since 2026-01-01 Affinity stores date fields at midnight Pacific Time.
+
+    2024-04-01 is returned as 2024-04-01T07:00:00Z (PDT) and 2024-01-15 as
+    2024-01-15T08:00:00Z (PST). Re-setting the same calendar date must be a no-op, whatever
+    the user's local timezone (a date-only input is a calendar date, not local midnight).
+    """
+
+    @pytest.fixture(autouse=True)
+    def _east_of_utc(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        import time
+
+        monkeypatch.setenv("TZ", "Asia/Jerusalem")
+        time.tzset()
+        yield
+        monkeypatch.undo()
+        time.tzset()
+
+    def test_same_date_summer_is_noop(self, resolver: FieldResolver) -> None:
+        meta = _meta(resolver, "field-106")
+        existing = [{"value": "2024-04-01T07:00:00.000Z"}]
+        assert value_equals_existing(meta, "2024-04-01", existing) is True
+
+    def test_same_date_winter_is_noop(self, resolver: FieldResolver) -> None:
+        meta = _meta(resolver, "field-106")
+        existing = [{"value": {"type": "datetime", "data": "2024-01-15T08:00:00Z"}}]
+        assert value_equals_existing(meta, "2024-01-15", existing) is True
+
+    def test_input_with_time_compares_its_pacific_date(self, resolver: FieldResolver) -> None:
+        """15:30Z is 08:30 PDT on Apr 1 -> Affinity would store Apr 1."""
+        meta = _meta(resolver, "field-106")
+        existing = [{"value": "2024-04-01T07:00:00Z"}]
+        assert value_equals_existing(meta, "2024-04-01T15:30:00Z", existing) is True
+
+    def test_different_date_writes(self, resolver: FieldResolver) -> None:
+        meta = _meta(resolver, "field-106")
+        existing = [{"value": "2024-04-01T07:00:00Z"}]
+        assert value_equals_existing(meta, "2024-04-02", existing) is False
+
+    def test_existing_with_time_of_day_keeps_exact_compare(self, resolver: FieldResolver) -> None:
+        """Not midnight PT (pre-2026 value): writing would change it, so not a no-op."""
+        meta = _meta(resolver, "field-106")
+        existing = [{"value": "2024-04-01T15:30:00Z"}]
+        assert value_equals_existing(meta, "2024-04-01", existing) is False
+
+
 class TestValueEqualsExistingText:
     def test_exact_match_noop(self, resolver: FieldResolver) -> None:
         meta = _meta(resolver, "field-107")

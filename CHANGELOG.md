@@ -40,6 +40,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   monthly org bucket, which happens on plans with no monthly cap (documented for v2; v1 and v2
   share one request pool). The org bucket now comes back empty (all fields `None`), matching
   the header-derived snapshot, and `RateLimits.org_monthly` is optional.
+- CLI `field --set` rewrote date fields on every run. Since 2026-01-01 Affinity stores date
+  fields at midnight Pacific Time, so the exact-timestamp "already set" check never matched and
+  the no-op short-circuit (1.15.0) never applied to dates. Setting the same calendar date is now
+  a no-op: a date-only input is compared as the date typed, independent of the local timezone.
 
 ## [1.16.0] - 2026-10-07
 
