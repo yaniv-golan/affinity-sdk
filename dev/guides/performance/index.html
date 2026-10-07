@@ -1152,6 +1152,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api-versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Affinity API versions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../pagination/" class="md-nav__link">
         
   
@@ -2852,6 +2880,19 @@ The SDK provides several approaches with different trade-offs.</p>
 </tbody>
 </table>
 <p>All methods cache results for 5 minutes when caching is enabled.</p>
+<p>The three <code>get_fields()</code> methods also take <code>filter=</code> and <code>includes=</code> (each combination is
+cached separately):</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Name filter: name="X" matches exactly, name=~X matches a substring (both case-sensitive);</span>
+<span class="c1"># combine clauses with |. Only `name` is filterable.</span>
+<span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">get_fields</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="s1">'name="Location" | name="Industry"'</span><span class="p">)</span>
+<span class="n">client</span><span class="o">.</span><span class="n">lists</span><span class="o">.</span><span class="n">get_fields</span><span class="p">(</span><span class="n">list_id</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s2">"name=~Stat"</span><span class="p">)</span>
+
+<span class="c1"># Ask for filterability / sortability; read them with is_filterable / is_sortable</span>
+<span class="n">fields</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">get_fields</span><span class="p">(</span><span class="n">includes</span><span class="o">=</span><span class="p">[</span><span class="s2">"filterability"</span><span class="p">,</span> <span class="s2">"sortability"</span><span class="p">])</span>
+<span class="n">sortable</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">is_sortable</span><span class="p">]</span>
+</code></pre></div>
+<p>The <code>field_types=</code> argument of <code>get_fields()</code> is sent as <code>fieldTypes</code>, but the fields
+endpoints ignore it and return every field; filter on <code>FieldMetadata.type</code> instead.</p>
 <h3 id="caching-considerations">Caching Considerations<a class="headerlink" href="#caching-considerations" title="Permanent link">&para;</a></h3>
 <p>Field metadata changes infrequently (only when admins add/modify fields), so caching
 is safe for most applications:</p>

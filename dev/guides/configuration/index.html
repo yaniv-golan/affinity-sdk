@@ -987,10 +987,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#beta-endpoints-and-version-diagnostics" class="md-nav__link">
+  <a href="#beta-endpoints-and-the-affinity-api-version" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Beta endpoints and version diagnostics
+        Beta endpoints and the Affinity API version
       
     </span>
   </a>
@@ -1060,6 +1060,34 @@
     
   
     API versions & routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Affinity API versions
   
 
     
@@ -2433,10 +2461,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#beta-endpoints-and-version-diagnostics" class="md-nav__link">
+  <a href="#beta-endpoints-and-the-affinity-api-version" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Beta endpoints and version diagnostics
+        Beta endpoints and the Affinity API version
       
     </span>
   </a>
@@ -2658,18 +2686,20 @@ disable writes via policy:</p>
     <span class="n">v1_auth_mode</span><span class="o">=</span><span class="s2">"bearer"</span><span class="p">,</span>  <span class="c1"># or "basic"</span>
 <span class="p">)</span>
 </code></pre></div>
-<h2 id="beta-endpoints-and-version-diagnostics">Beta endpoints and version diagnostics<a class="headerlink" href="#beta-endpoints-and-version-diagnostics" title="Permanent link">&para;</a></h2>
-<p>If you opt into beta endpoints or want stricter diagnostics around v2 response shapes:</p>
+<h2 id="beta-endpoints-and-the-affinity-api-version">Beta endpoints and the Affinity API version<a class="headerlink" href="#beta-endpoints-and-the-affinity-api-version" title="Permanent link">&para;</a></h2>
+<p>Opt into beta endpoints, and pin the Affinity V2 API version (sent as <code>X-Affinity-Api-Version</code>
+on every V2 request; default: your API key's default version):</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span>
     <span class="n">api_key</span><span class="o">=</span><span class="s2">"your-api-key"</span><span class="p">,</span>
     <span class="n">enable_beta_endpoints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">expected_v2_version</span><span class="o">=</span><span class="s2">"2024-01-01"</span><span class="p">,</span>
+    <span class="n">affinity_api_version</span><span class="o">=</span><span class="s2">"2026-09-17"</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div>
 <p>See also:</p>
 <ul>
+<li><a href="../api-versions/">Affinity API versions</a></li>
 <li><a href="../api-versions-and-routing/">API versions &amp; routing</a></li>
 <li><a href="../errors-and-retries/">Errors &amp; retries</a></li>
 </ul>

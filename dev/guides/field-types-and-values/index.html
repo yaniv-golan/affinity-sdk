@@ -856,6 +856,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api-versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Affinity API versions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../pagination/" class="md-nav__link">
         
   
@@ -2551,8 +2579,31 @@ Unknown future values are treated as open enums and preserved as strings.</p>
 <td><code>Any</code></td>
 <td>Relationship-intelligence fields; shape varies by API</td>
 </tr>
+<tr>
+<td><code>formula-number</code></td>
+<td><code>dict[str, Any]</code></td>
+<td>Computed by Affinity: <code>{"calculatedValue": number \| None}</code>. Read-only</td>
+</tr>
+<tr>
+<td><code>list-multi</code></td>
+<td><code>list[dict[str, Any]]</code></td>
+<td>The lists the entity is on (<code>id</code>, <code>name</code>, <code>type</code>, <code>entityCount</code>). API version 2026-09-17+. Read-only</td>
+</tr>
+<tr>
+<td><code>note</code></td>
+<td><code>dict[str, Any] \| None</code></td>
+<td>The entity's latest note (<code>id</code>, <code>content.html</code>, <code>creator</code>, …). API version 2026-09-17+. Read-only</td>
+</tr>
+<tr>
+<td><code>reminder</code></td>
+<td><code>dict[str, Any] \| None</code></td>
+<td>The entity's next uncompleted reminder (<code>id</code>, <code>content</code>, <code>dueDate</code>, …). API version 2026-09-17+. Read-only</td>
+</tr>
 </tbody>
 </table>
+<p><code>FieldMetadata.type</code> can also be <code>hidden</code> (API version 2026-07-15+): restricted opportunity
+fields come back with <code>type: "hidden"</code> and a null value. <code>FieldType.HIDDEN</code> is response-only;
+the company and person services reject it in <code>field_types=</code> with <code>ValueError</code>.</p>
 <h2 id="multi-value-limits">Multi-value limits<a class="headerlink" href="#multi-value-limits" title="Permanent link">&para;</a></h2>
 <p>Affinity's V2 API returns and accepts at most <strong>100 values per multi-value field</strong>:</p>
 <ul>

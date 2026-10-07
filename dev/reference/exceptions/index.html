@@ -854,6 +854,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guides/api-versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Affinity API versions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guides/pagination/" class="md-nav__link">
         
   
@@ -1791,6 +1819,17 @@
     <span class="md-ellipsis">
       
         UnsafeUrlError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#affinity.exceptions.UnsupportedApiVersionError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UnsupportedApiVersionError
       
     </span>
   </a>
@@ -2917,6 +2956,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#affinity.exceptions.UnsupportedApiVersionError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UnsupportedApiVersionError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#affinity.exceptions.UnsupportedOperationError" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3723,12 +3773,12 @@ For example:
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/exceptions.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">567</span>
-<span class="normal">568</span>
-<span class="normal">569</span>
-<span class="normal">570</span>
-<span class="normal">571</span>
-<span class="normal">572</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DeprecationWarning</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">603</span>
+<span class="normal">604</span>
+<span class="normal">605</span>
+<span class="normal">606</span>
+<span class="normal">607</span>
+<span class="normal">608</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DeprecationWarning</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Feature is deprecated and may be removed.</span>
 <span class="sd">    """</span>
@@ -4216,21 +4266,21 @@ reads but have no writable V1 counterpart.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/exceptions.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">780</span>
-<span class="normal">781</span>
-<span class="normal">782</span>
-<span class="normal">783</span>
-<span class="normal">784</span>
-<span class="normal">785</span>
-<span class="normal">786</span>
-<span class="normal">787</span>
-<span class="normal">788</span>
-<span class="normal">789</span>
-<span class="normal">790</span>
-<span class="normal">791</span>
-<span class="normal">792</span>
-<span class="normal">793</span>
-<span class="normal">794</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FilterParseError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">816</span>
+<span class="normal">817</span>
+<span class="normal">818</span>
+<span class="normal">819</span>
+<span class="normal">820</span>
+<span class="normal">821</span>
+<span class="normal">822</span>
+<span class="normal">823</span>
+<span class="normal">824</span>
+<span class="normal">825</span>
+<span class="normal">826</span>
+<span class="normal">827</span>
+<span class="normal">828</span>
+<span class="normal">829</span>
+<span class="normal">830</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FilterParseError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Raised when a filter expression cannot be parsed.</span>
 
@@ -5400,6 +5450,128 @@ This protects against OOM errors when paginating large datasets.</p>
 
 
 
+<h2 id="affinity.exceptions.UnsupportedApiVersionError" class="doc doc-heading">
+            <code>UnsupportedApiVersionError</code>
+
+
+<a href="#affinity.exceptions.UnsupportedApiVersionError" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="VersionCompatibilityError (affinity.exceptions.VersionCompatibilityError)" href="#affinity.exceptions.VersionCompatibilityError">VersionCompatibilityError</a></code>, <code><a class="autorefs autorefs-internal" title="ValidationError (affinity.exceptions.ValidationError)" href="#affinity.exceptions.ValidationError">ValidationError</a></code></p>
+
+
+
+        <p>Affinity rejected the requested V2 API version (<code>X-Affinity-Api-Version</code>).</p>
+<p>Raised for a 400 response whose error <code>param</code> is <code>X-Affinity-Api-Version</code> - the
+pinned version (<code>affinity_api_version=...</code> / CLI <code>--api-version</code>) is not one this
+API key can use. The SDK never falls back silently to another version.</p>
+<p>Also a :class:<code>ValidationError</code>, so existing <code>except ValidationError</code> handlers still
+catch it.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>affinity/exceptions.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">568</span>
+<span class="normal">569</span>
+<span class="normal">570</span>
+<span class="normal">571</span>
+<span class="normal">572</span>
+<span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span>
+<span class="normal">577</span>
+<span class="normal">578</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span>
+<span class="normal">582</span>
+<span class="normal">583</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span>
+<span class="normal">590</span>
+<span class="normal">591</span>
+<span class="normal">592</span>
+<span class="normal">593</span>
+<span class="normal">594</span>
+<span class="normal">595</span>
+<span class="normal">596</span>
+<span class="normal">597</span>
+<span class="normal">598</span>
+<span class="normal">599</span>
+<span class="normal">600</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">UnsupportedApiVersionError</span><span class="p">(</span><span class="n">VersionCompatibilityError</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Affinity rejected the requested V2 API version (``X-Affinity-Api-Version``).</span>
+
+<span class="sd">    Raised for a 400 response whose error ``param`` is ``X-Affinity-Api-Version`` - the</span>
+<span class="sd">    pinned version (``affinity_api_version=...`` / CLI ``--api-version``) is not one this</span>
+<span class="sd">    API key can use. The SDK never falls back silently to another version.</span>
+
+<span class="sd">    Also a :class:`ValidationError`, so existing ``except ValidationError`` handlers still</span>
+<span class="sd">    catch it.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">requested_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">status_code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">response_body</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">diagnostics</span><span class="p">:</span> <span class="n">ErrorDiagnostics</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">message</span><span class="p">,</span>
+            <span class="n">expected_version</span><span class="o">=</span><span class="n">requested_version</span><span class="p">,</span>
+            <span class="n">status_code</span><span class="o">=</span><span class="n">status_code</span><span class="p">,</span>
+            <span class="n">response_body</span><span class="o">=</span><span class="n">response_body</span><span class="p">,</span>
+            <span class="n">diagnostics</span><span class="o">=</span><span class="n">diagnostics</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="s2">"X-Affinity-Api-Version"</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">requested_version</span> <span class="o">=</span> <span class="n">requested_version</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">AffinityError</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
 <h2 id="affinity.exceptions.UnsupportedOperationError" class="doc doc-heading">
             <code>UnsupportedOperationError</code>
 
@@ -5599,8 +5771,9 @@ Check the error message for details about what's wrong.</p>
 appear version-related. This typically means the API key's configured
 v2 Default API Version differs from what the SDK expects.</p>
 <p>Guidance:
-1. Check your API key's v2 Default API Version in the Affinity dashboard
-2. Ensure it matches the expected_v2_version configured in the SDK
+1. Check which version answered (<code>client.affinity_api_versions_seen</code>) and your API
+   key's v2 Default API Version in the Affinity dashboard
+2. Pin a version with <code>affinity_api_version=...</code> if needed
 3. See: https://developer.affinity.co/#section/Getting-Started/Versioning</p>
 
 
@@ -5654,7 +5827,8 @@ v2 Default API Version differs from what the SDK expects.</p>
 <span class="normal">561</span>
 <span class="normal">562</span>
 <span class="normal">563</span>
-<span class="normal">564</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">VersionCompatibilityError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
+<span class="normal">564</span>
+<span class="normal">565</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">VersionCompatibilityError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Response shape mismatch suggests API version incompatibility.</span>
 
@@ -5663,8 +5837,9 @@ v2 Default API Version differs from what the SDK expects.</p>
 <span class="sd">    v2 Default API Version differs from what the SDK expects.</span>
 
 <span class="sd">    Guidance:</span>
-<span class="sd">    1. Check your API key's v2 Default API Version in the Affinity dashboard</span>
-<span class="sd">    2. Ensure it matches the expected_v2_version configured in the SDK</span>
+<span class="sd">    1. Check which version answered (``client.affinity_api_versions_seen``) and your API</span>
+<span class="sd">       key's v2 Default API Version in the Affinity dashboard</span>
+<span class="sd">    2. Pin a version with ``affinity_api_version=...`` if needed</span>
 <span class="sd">    3. See: https://developer.affinity.co/#section/Getting-Started/Versioning</span>
 <span class="sd">    """</span>
 
@@ -5749,10 +5924,10 @@ v2 Default API Version differs from what the SDK expects.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/exceptions.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">749</span>
-<span class="normal">750</span>
-<span class="normal">751</span>
-<span class="normal">752</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidJsonError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">785</span>
+<span class="normal">786</span>
+<span class="normal">787</span>
+<span class="normal">788</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidJsonError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Raised when a webhook payload cannot be decoded as JSON."""</span>
 
     <span class="k">pass</span>
@@ -5808,10 +5983,10 @@ v2 Default API Version differs from what the SDK expects.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/exceptions.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">755</span>
-<span class="normal">756</span>
-<span class="normal">757</span>
-<span class="normal">758</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidPayloadError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">791</span>
+<span class="normal">792</span>
+<span class="normal">793</span>
+<span class="normal">794</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidPayloadError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Raised when a decoded webhook payload is not in the expected envelope shape."""</span>
 
     <span class="k">pass</span>
@@ -5867,10 +6042,10 @@ v2 Default API Version differs from what the SDK expects.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/exceptions.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">769</span>
-<span class="normal">770</span>
-<span class="normal">771</span>
-<span class="normal">772</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidSentAtError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">805</span>
+<span class="normal">806</span>
+<span class="normal">807</span>
+<span class="normal">808</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookInvalidSentAtError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Raised when a webhook `sent_at` field is missing or invalid."""</span>
 
     <span class="k">pass</span>
@@ -5926,12 +6101,12 @@ v2 Default API Version differs from what the SDK expects.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/exceptions.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">761</span>
-<span class="normal">762</span>
-<span class="normal">763</span>
-<span class="normal">764</span>
-<span class="normal">765</span>
-<span class="normal">766</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookMissingKeyError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">797</span>
+<span class="normal">798</span>
+<span class="normal">799</span>
+<span class="normal">800</span>
+<span class="normal">801</span>
+<span class="normal">802</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookMissingKeyError</span><span class="p">(</span><span class="n">WebhookParseError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Raised when a webhook payload is missing a required key."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
@@ -5989,10 +6164,10 @@ v2 Default API Version differs from what the SDK expects.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/exceptions.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">743</span>
-<span class="normal">744</span>
-<span class="normal">745</span>
-<span class="normal">746</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookParseError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">779</span>
+<span class="normal">780</span>
+<span class="normal">781</span>
+<span class="normal">782</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookParseError</span><span class="p">(</span><span class="n">AffinityError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Base error for inbound webhook parsing/validation failures."""</span>
 
     <span class="k">pass</span>
@@ -6188,43 +6363,7 @@ v2 Default API Version differs from what the SDK expects.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/exceptions.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">580</span>
-<span class="normal">581</span>
-<span class="normal">582</span>
-<span class="normal">583</span>
-<span class="normal">584</span>
-<span class="normal">585</span>
-<span class="normal">586</span>
-<span class="normal">587</span>
-<span class="normal">588</span>
-<span class="normal">589</span>
-<span class="normal">590</span>
-<span class="normal">591</span>
-<span class="normal">592</span>
-<span class="normal">593</span>
-<span class="normal">594</span>
-<span class="normal">595</span>
-<span class="normal">596</span>
-<span class="normal">597</span>
-<span class="normal">598</span>
-<span class="normal">599</span>
-<span class="normal">600</span>
-<span class="normal">601</span>
-<span class="normal">602</span>
-<span class="normal">603</span>
-<span class="normal">604</span>
-<span class="normal">605</span>
-<span class="normal">606</span>
-<span class="normal">607</span>
-<span class="normal">608</span>
-<span class="normal">609</span>
-<span class="normal">610</span>
-<span class="normal">611</span>
-<span class="normal">612</span>
-<span class="normal">613</span>
-<span class="normal">614</span>
-<span class="normal">615</span>
-<span class="normal">616</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">616</span>
 <span class="normal">617</span>
 <span class="normal">618</span>
 <span class="normal">619</span>
@@ -6343,7 +6482,43 @@ v2 Default API Version differs from what the SDK expects.</p>
 <span class="normal">732</span>
 <span class="normal">733</span>
 <span class="normal">734</span>
-<span class="normal">735</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">error_from_response</span><span class="p">(</span>
+<span class="normal">735</span>
+<span class="normal">736</span>
+<span class="normal">737</span>
+<span class="normal">738</span>
+<span class="normal">739</span>
+<span class="normal">740</span>
+<span class="normal">741</span>
+<span class="normal">742</span>
+<span class="normal">743</span>
+<span class="normal">744</span>
+<span class="normal">745</span>
+<span class="normal">746</span>
+<span class="normal">747</span>
+<span class="normal">748</span>
+<span class="normal">749</span>
+<span class="normal">750</span>
+<span class="normal">751</span>
+<span class="normal">752</span>
+<span class="normal">753</span>
+<span class="normal">754</span>
+<span class="normal">755</span>
+<span class="normal">756</span>
+<span class="normal">757</span>
+<span class="normal">758</span>
+<span class="normal">759</span>
+<span class="normal">760</span>
+<span class="normal">761</span>
+<span class="normal">762</span>
+<span class="normal">763</span>
+<span class="normal">764</span>
+<span class="normal">765</span>
+<span class="normal">766</span>
+<span class="normal">767</span>
+<span class="normal">768</span>
+<span class="normal">769</span>
+<span class="normal">770</span>
+<span class="normal">771</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">error_from_response</span><span class="p">(</span>
     <span class="n">status_code</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">response_body</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>

@@ -1016,6 +1016,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#affinity-api-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Affinity API version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#debug-mode" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1332,6 +1343,34 @@
     
   
     API versions & routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/api-versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Affinity API versions
   
 
     
@@ -2900,6 +2939,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#affinity-api-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Affinity API version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#debug-mode" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3434,6 +3484,16 @@ log-interaction-and-update-workflow(personName: "Alice", interactionType: "call"
 <p>Adjust cache duration (default 10 minutes):</p>
 <div class="highlight"><pre><span></span><code><span class="nv">AFFINITY_SESSION_CACHE_TTL</span><span class="o">=</span><span class="m">300</span><span class="w"> </span>./xaffinity-mcp.sh
 </code></pre></div>
+<h3 id="affinity-api-version">Affinity API version<a class="headerlink" href="#affinity-api-version" title="Permanent link">&para;</a></h3>
+<p>By default every request uses your API key's default Affinity V2 API version. To pin one
+(e.g. to get the newest response shapes), set <code>AFFINITY_API_VERSION</code> (or the <strong>Affinity API
+Version</strong> field in Claude Desktop's extension settings):</p>
+<div class="highlight"><pre><span></span><code><span class="nv">AFFINITY_API_VERSION</span><span class="o">=</span><span class="m">2026</span>-09-17<span class="w"> </span>./xaffinity-mcp.sh
+</code></pre></div>
+<p>Accepted values: <code>2024-01-01</code>, <code>2026-07-15</code>, <code>2026-09-17</code>, or <code>current</code> (always the newest).
+<code>AFFINITY_PROFILE</code> is also passed through, so a profile from the xaffinity config file
+(including its <code>api_version</code>) can be selected. Tool results report the version that answered
+in <code>meta.affinityApiVersion</code>. See the <a href="../guides/api-versions/">API versions guide</a>.</p>
 <h3 id="debug-mode">Debug Mode<a class="headerlink" href="#debug-mode" title="Permanent link">&para;</a></h3>
 <p>Enable comprehensive logging for troubleshooting:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Full debug mode - enables all debug features</span>

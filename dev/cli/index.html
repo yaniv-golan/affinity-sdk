@@ -1180,6 +1180,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../guides/api-versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Affinity API versions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../guides/pagination/" class="md-nav__link">
         
   
@@ -2849,6 +2877,11 @@ It exits immediately with no output on success, exit code 1 on failure.</p>
 <li><code>--readonly</code>: disallow write operations (guard rail for scripts).</li>
 <li><code>--max-retries N</code>: tune rate-limit retry behavior.</li>
 <li><code>--trace</code>: trace request/response/error events to stderr (safe redaction).</li>
+<li><code>--api-version VERSION</code>: Affinity V2 API version to use, e.g. <code>2026-09-17</code>, or <code>current</code> (newest).
+  Default: your API key's default version. Also <code>AFFINITY_API_VERSION</code> or a profile's <code>api_version</code>
+  (precedence: flag &gt; env &gt; profile). JSON output reports the version that answered in
+  <code>meta.affinityApiVersion</code>; <code>xaffinity whoami</code> shows the key's default. See
+  <a href="../guides/api-versions/">Affinity API versions</a>.</li>
 </ul>
 <h2 id="advanced-configuration-testing">Advanced configuration (testing)<a class="headerlink" href="#advanced-configuration-testing" title="Permanent link">&para;</a></h2>
 <p>For testing against mock servers, these environment variables override API base URLs:</p>

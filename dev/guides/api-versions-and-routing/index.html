@@ -14,7 +14,7 @@
         <link rel="prev" href="../performance/">
       
       
-        <link rel="next" href="../pagination/">
+        <link rel="next" href="../api-versions/">
       
       
         
@@ -952,6 +952,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Affinity API versions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2272,9 +2300,10 @@
 <p>If Affinity changes V2 response shapes (or your API key is pinned to an unexpected V2 version), parsing can fail with <code>VersionCompatibilityError</code>.</p>
 <p>Suggested steps:</p>
 <ol>
-<li>Check your API key’s “Default API Version” in the Affinity dashboard.</li>
-<li>Set <code>expected_v2_version=...</code> if you want that mismatch called out in errors.</li>
+<li>Check which version answered: <code>client.affinity_api_versions_seen</code> (CLI: <code>meta.affinityApiVersion</code>), and your API key’s “Default API Version” (<code>xaffinity whoami</code>).</li>
+<li>Pin a version with <code>affinity_api_version=...</code> (CLI: <code>--api-version</code>). See <a href="../api-versions/">Affinity API versions</a>.</li>
 </ol>
+<p><code>expected_v2_version=...</code> is deprecated: it only labels diagnostics (and logs once if the echoed version differs).</p>
 <p>References:</p>
 <ul>
 <li>V1 docs: https://api-docs.affinity.co/</li>

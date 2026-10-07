@@ -856,6 +856,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api-versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Affinity API versions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../pagination/" class="md-nav__link">
         
   
@@ -1157,6 +1185,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#searching-notes-files-and-companies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Searching notes, files and companies
+      
+    </span>
+  </a>
   
 </li>
       
@@ -2434,6 +2473,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#searching-notes-files-and-companies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Searching notes, files and companies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2852,6 +2902,64 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 <p>Since <code>--expand-filter</code> is client-side, all associations are still fetched from the API.
 For large lists with many associations, the export may take time even if the filter
 reduces the final output significantly. Use <code>--dry-run</code> to estimate API calls.</p>
+<h2 id="searching-notes-files-and-companies">Searching notes, files and companies<a class="headerlink" href="#searching-notes-files-and-companies" title="Permanent link">&para;</a></h2>
+<p>Filters match field values. To find records by <strong>content or description</strong>, use the V2
+search endpoints instead:</p>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>CLI</th>
+<th>SDK</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Notes whose text mentions something</td>
+<td><code>note search "pricing"</code></td>
+<td><code>client.notes.search("pricing")</code></td>
+</tr>
+<tr>
+<td>Files whose contents mention something</td>
+<td><code>file search "pitch deck"</code></td>
+<td><code>client.files.search("pitch deck")</code></td>
+</tr>
+<tr>
+<td>Companies matching a description</td>
+<td><code>company search "AI infrastructure startups"</code></td>
+<td><code>client.companies.semantic_search("AI infrastructure startups")</code></td>
+</tr>
+<tr>
+<td>A company by name or domain</td>
+<td><code>company ls --query acme</code></td>
+<td><code>client.companies.search("acme")</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Each call returns at most 100 results, ranked by relevance, with no pagination
+  (<code>--max-results</code>/<code>limit</code> 1–100; defaults 20 for notes and files, 100 for companies).</li>
+<li>Note and file search take a 3–500 character prompt and can be narrowed to one company
+  (<code>--company-id</code> / <code>company_id</code>) or to given ids (<code>--note-id</code>, <code>--file-id</code> /
+  <code>note_ids</code>, <code>file_ids</code>), not both.</li>
+<li>Company search can be narrowed to company lists (<code>--list</code> / <code>list_ids</code>) and returns an
+  <code>explanation</code> of how the prompt was read (<code>meta.explanation</code> in CLI JSON).</li>
+<li>Results carry ids: follow up with <code>note get</code>, <code>file-url</code> / <code>company files read</code>, or
+  <code>company get</code>.</li>
+<li>The searches are <code>POST</code> requests that only read: they work under <code>--readonly</code> /
+  <code>WritePolicy.DENY</code> and are retried on rate limits like other reads.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">"your-api-key"</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">hit</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">"Series B terms"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">hit</span><span class="o">.</span><span class="n">note</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">hit</span><span class="o">.</span><span class="n">note</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">hit</span><span class="o">.</span><span class="n">preview</span><span class="p">[:</span><span class="mi">80</span><span class="p">])</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">semantic_search</span><span class="p">(</span><span class="s2">"seed-stage fintech in Europe"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">explanation</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">company</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">company</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">company</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">company</span><span class="o">.</span><span class="n">score_float</span><span class="p">)</span>
+</code></pre></div>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../pagination/">Pagination</a></li>

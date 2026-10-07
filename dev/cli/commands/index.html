@@ -889,6 +889,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#xaffinity-company-search-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company search &lt;prompt&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#xaffinity-company-get-companyselector" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1193,6 +1204,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#xaffinity-note-search-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity note search &lt;prompt&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#xaffinity-note-create" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1219,6 +1241,34 @@
     <span class="md-ellipsis">
       
         xaffinity note delete &lt;noteId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-file-search-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity file search &lt;prompt&gt;
       
     </span>
   </a>
@@ -1886,6 +1936,34 @@
     
   
     API versions & routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/api-versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Affinity API versions
   
 
     
@@ -3493,6 +3571,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#xaffinity-company-search-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company search &lt;prompt&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#xaffinity-company-get-companyselector" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3797,6 +3886,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#xaffinity-note-search-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity note search &lt;prompt&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#xaffinity-note-create" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3823,6 +3923,34 @@
     <span class="md-ellipsis">
       
         xaffinity note delete &lt;noteId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-file-search-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity file search &lt;prompt&gt;
       
     </span>
   </a>
@@ -4231,7 +4359,7 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 </code></pre></div>
 <h3 id="cache-behavior">Cache behavior<a class="headerlink" href="#cache-behavior" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Cache is scoped to your API key (multi-tenant safe)</li>
+<li>Cache is scoped to your API key and Affinity API version (multi-tenant safe)</li>
 <li>Default TTL is 10 minutes (configurable via <code>AFFINITY_SESSION_CACHE_TTL</code>)</li>
 <li>Cache is file-based in the specified directory</li>
 <li><code>session end</code> is idempotent - safe to call multiple times</li>
@@ -4419,6 +4547,9 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>update<span class
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--file<span class="w"> </span>doc.pdf
 xaffinity<span class="w"> </span>person<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--file<span class="w"> </span>a.pdf<span class="w"> </span>--file<span class="w"> </span>b.pdf
 </code></pre></div>
+<p>With <code>--json</code>, each entry in <code>data.uploads</code> includes <code>fileId</code> (and <code>createdAt</code>) of the new file,
+so you can pass it straight to <code>files read --file-id</code> / <code>files download</code>. <code>fileId</code> is <code>null</code> if the
+API did not return the created file.</p>
 <h2 id="companies">Companies<a class="headerlink" href="#companies" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-company-ls"><code>xaffinity company ls</code><a class="headerlink" href="#xaffinity-company-ls" title="Permanent link">&para;</a></h3>
 <p>List companies. Supports field selection, filter expressions, and free-text search.</p>
@@ -4444,6 +4575,22 @@ xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w
 xaffinity<span class="w"> </span>company<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>--csv-bom<span class="w"> </span>&gt;<span class="w"> </span>companies.csv
 </code></pre></div>
 <p>See the <a href="../../guides/csv-export/">CSV Export Guide</a> for more details.</p>
+<h3 id="xaffinity-company-search-prompt"><code>xaffinity company search &lt;prompt&gt;</code><a class="headerlink" href="#xaffinity-company-search-prompt" title="Permanent link">&para;</a></h3>
+<p>Find companies from a natural-language description (V2 semantic search). The prompt
+(1–500 characters) describes what you want rather than a name; results come ranked by a
+relevance <code>score</code>. To find a company by name or domain, use <code>company ls --query</code> or
+<code>company get "domain:..."</code> instead.</p>
+<p>Options:</p>
+<ul>
+<li><code>--list &lt;name-or-id&gt;</code> (repeatable, max 100): only companies on these lists (company lists only)</li>
+<li><code>--max-results N</code> / <code>--limit N</code> / <code>-n N</code>: 1–100 (API default 100; larger values are clamped to 100)</li>
+</ul>
+<p>No pagination: one request returns at most 100 companies. JSON output has one row per
+company (<code>id</code>, <code>name</code>, <code>domain</code>, <code>domains</code>, <code>isGlobal</code>, <code>score</code>) and the API's reading of
+the prompt in <code>meta.explanation</code>; table output shows the explanation above the rows.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>search<span class="w"> </span><span class="s2">"AI infrastructure startups"</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>search<span class="w"> </span><span class="s2">"seed-stage fintech in Europe"</span><span class="w"> </span>--list<span class="w"> </span><span class="s2">"Dealflow"</span><span class="w"> </span>-n<span class="w"> </span><span class="m">20</span><span class="w"> </span>--json
+</code></pre></div>
 <h3 id="xaffinity-company-get-companyselector"><code>xaffinity company get &lt;companySelector&gt;</code><a class="headerlink" href="#xaffinity-company-get-companyselector" title="Permanent link">&para;</a></h3>
 <p>Fetch a company by id, UI URL (including tenant hosts), or a resolver selector.</p>
 <p>Examples:</p>
@@ -4518,6 +4665,9 @@ xaffinity<span class="w"> </span>company<span class="w"> </span>update<span clas
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">9876</span><span class="w"> </span>--file<span class="w"> </span>doc.pdf
 xaffinity<span class="w"> </span>company<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">9876</span><span class="w"> </span>--file<span class="w"> </span>a.pdf<span class="w"> </span>--file<span class="w"> </span>b.pdf
 </code></pre></div>
+<p>With <code>--json</code>, each entry in <code>data.uploads</code> includes <code>fileId</code> (and <code>createdAt</code>) of the new file,
+so you can pass it straight to <code>files read --file-id</code> / <code>files download</code>. <code>fileId</code> is <code>null</code> if the
+API did not return the created file.</p>
 <h2 id="opportunities">Opportunities<a class="headerlink" href="#opportunities" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-opportunity-ls"><code>xaffinity opportunity ls</code><a class="headerlink" href="#xaffinity-opportunity-ls" title="Permanent link">&para;</a></h3>
 <p>List opportunities.</p>
@@ -4559,6 +4709,9 @@ xaffinity<span class="w"> </span>opportunity<span class="w"> </span>update<span 
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>opportunity<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">123</span><span class="w"> </span>--file<span class="w"> </span>doc.pdf
 xaffinity<span class="w"> </span>opportunity<span class="w"> </span>files<span class="w"> </span>upload<span class="w"> </span><span class="m">123</span><span class="w"> </span>--file<span class="w"> </span>a.pdf<span class="w"> </span>--file<span class="w"> </span>b.pdf
 </code></pre></div>
+<p>With <code>--json</code>, each entry in <code>data.uploads</code> includes <code>fileId</code> (and <code>createdAt</code>) of the new file,
+so you can pass it straight to <code>files read --file-id</code> / <code>files download</code>. <code>fileId</code> is <code>null</code> if the
+API did not return the created file.</p>
 <h2 id="lists">Lists<a class="headerlink" href="#lists" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-list-ls"><code>xaffinity list ls</code><a class="headerlink" href="#xaffinity-list-ls" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>ls
@@ -4663,9 +4816,14 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w
 <p><strong>Notes:</strong>
 - Field names are resolved case-insensitively
 - Field IDs (<code>field-123</code>) can be used directly
-- <code>--set</code> replaces all existing values in one write: if Affinity rejects it, the field keeps
-  its old values. Use <code>--append</code> to add to multi-value fields; <code>--append</code> on a single-value
-  field is refused (use <code>--set</code>)
+- All <code>--set</code>, <code>--set-json</code> and <code>--unset</code> of one command go to Affinity in <strong>one request</strong>,
+  applied all-or-nothing: if Affinity rejects any value, no field changes. <code>--set</code> replaces the
+  field's value; <code>--unset</code> clears it. Use <code>--append</code> to add to multi-value fields; <code>--append</code> on
+  a single-value field is refused (use <code>--set</code>)
+- The same field named twice (by name, other casing or <code>field-&lt;id&gt;</code>) is refused
+- JSON output: <code>created</code> lists each field set (<code>fieldId</code>, <code>name</code>, <code>value</code>), <code>cleared</code> each field
+  <code>--unset</code>; <code>deleted</code> counts values removed by <code>--unset-value</code>
+- <code>opportunity field</code> works the same way (an opportunity's fields are its list entry's fields)
 - Numbers are sent as numbers (<code>--set Amount 5</code>); anything else is refused before any write
 - Locations are JSON objects with any of <code>streetAddress</code> (or <code>street_address</code>), <code>city</code>, <code>state</code>,
   <code>country</code>, <code>continent</code>: <code>--set HQ '{"city": "Paris", "country": "France"}'</code>
@@ -4673,7 +4831,7 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>entry<span class="w
   that would exceed it is refused before anything changes
 - <code>--get</code> is exclusive with write operations
 - <code>--get</code> returns resolved objects for person/company reference fields (with <code>firstName</code>, <code>lastName</code>, <code>primaryEmailAddress</code>, etc.) and full dropdown option data (with <code>text</code>, <code>color</code>). Output format matches <code>list export</code>.
-- Operation order: <code>--set</code>/<code>--set-json</code> → <code>--append</code> → <code>--unset</code>/<code>--unset-value</code></p>
+- Operation order: one request for <code>--set</code>/<code>--set-json</code>/<code>--unset</code> → <code>--append</code> → <code>--unset-value</code></p>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-note-ls"><code>xaffinity note ls</code><a class="headerlink" href="#xaffinity-note-ls" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>ls
@@ -4681,6 +4839,24 @@ xaffinity<span class="w"> </span>note<span class="w"> </span>ls<span class="w"> 
 </code></pre></div>
 <h3 id="xaffinity-note-get-noteid"><code>xaffinity note get &lt;noteId&gt;</code><a class="headerlink" href="#xaffinity-note-get-noteid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>get<span class="w"> </span><span class="m">9876</span>
+</code></pre></div>
+<h3 id="xaffinity-note-search-prompt"><code>xaffinity note search &lt;prompt&gt;</code><a class="headerlink" href="#xaffinity-note-search-prompt" title="Permanent link">&para;</a></h3>
+<p>Keyword search over the text of all notes (V2 note search). The prompt is 3–500
+characters. Use <code>note ls</code> to list the notes attached to a record instead.</p>
+<p>Options:</p>
+<ul>
+<li><code>--company-id &lt;companySelector&gt;</code>: only notes on this company (id, URL, <code>name:...</code>, <code>domain:...</code>)</li>
+<li><code>--note-id &lt;id&gt;</code> (repeatable, max 100): only search these notes; exclusive with <code>--company-id</code></li>
+<li><code>--max-results N</code> / <code>--limit N</code> / <code>-n N</code>: 1–100 (API default 20; larger values are clamped to 100)</li>
+</ul>
+<p>Each row has <code>noteId</code>, <code>kind</code> (<code>note</code>, <code>meeting-note</code>, <code>email-note</code>, <code>ai-summary</code>,
+<code>meeting-ai-summary</code>, <code>chat-message-note</code>) and <code>preview</code>, the matching passage. Table
+output trims the preview to about 200 characters; JSON and the other formats keep it in
+full. Results are ordered by relevance with no pagination; a prompt with no strong match
+can still return low-relevance hits.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>search<span class="w"> </span><span class="s2">"Series B terms"</span>
+xaffinity<span class="w"> </span>note<span class="w"> </span>search<span class="w"> </span><span class="s2">"pricing"</span><span class="w"> </span>--company-id<span class="w"> </span><span class="s2">"domain:acme.com"</span><span class="w"> </span>-n<span class="w"> </span><span class="m">5</span><span class="w"> </span>--json
+xaffinity<span class="w"> </span>note<span class="w"> </span>get<span class="w"> </span><span class="m">9876</span><span class="w">   </span><span class="c1"># full text of a hit</span>
 </code></pre></div>
 <h3 id="xaffinity-note-create"><code>xaffinity note create</code><a class="headerlink" href="#xaffinity-note-create" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>create<span class="w"> </span>--content<span class="w"> </span><span class="s2">"Met with the team"</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span>
@@ -4691,6 +4867,24 @@ xaffinity<span class="w"> </span>note<span class="w"> </span>create<span class="
 </code></pre></div>
 <h3 id="xaffinity-note-delete-noteid"><code>xaffinity note delete &lt;noteId&gt;</code><a class="headerlink" href="#xaffinity-note-delete-noteid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>delete<span class="w"> </span><span class="m">9876</span>
+</code></pre></div>
+<h2 id="files">Files<a class="headerlink" href="#files" title="Permanent link">&para;</a></h2>
+<p>Files on one record are under <code>company|person|opportunity files ...</code>; <code>file-url &lt;fileId&gt;</code>
+returns a presigned download link.</p>
+<h3 id="xaffinity-file-search-prompt"><code>xaffinity file search &lt;prompt&gt;</code><a class="headerlink" href="#xaffinity-file-search-prompt" title="Permanent link">&para;</a></h3>
+<p>Keyword search inside the contents of all files (V2 file search). The prompt is 3–500
+characters.</p>
+<p>Options:</p>
+<ul>
+<li><code>--company-id &lt;companySelector&gt;</code>: only files on this company</li>
+<li><code>--file-id &lt;id&gt;</code> (repeatable, max 100): only search these files; exclusive with <code>--company-id</code></li>
+<li><code>--max-results N</code> / <code>--limit N</code> / <code>-n N</code>: 1–100 (API default 20; larger values are clamped to 100)</li>
+</ul>
+<p>One row per file: <code>fileId</code>, <code>name</code>, <code>pageNumber</code> (null for files without pages) and
+<code>preview</code>, the matching passage (trimmed in table output, full in JSON).</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>file<span class="w"> </span>search<span class="w"> </span><span class="s2">"pitch deck"</span>
+xaffinity<span class="w"> </span>file<span class="w"> </span>search<span class="w"> </span><span class="s2">"revenue projections"</span><span class="w"> </span>--company-id<span class="w"> </span><span class="m">12345</span><span class="w"> </span>--json
+xaffinity<span class="w"> </span>file-url<span class="w"> </span><span class="m">9192757</span><span class="w">   </span><span class="c1"># download link for a hit</span>
 </code></pre></div>
 <h2 id="reminders">Reminders<a class="headerlink" href="#reminders" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-reminder-ls"><code>xaffinity reminder ls</code><a class="headerlink" href="#xaffinity-reminder-ls" title="Permanent link">&para;</a></h3>
@@ -4749,7 +4943,13 @@ xaffinity<span class="w"> </span>field<span class="w"> </span>ls<span class="w">
 </code></pre></div>
 <h3 id="xaffinity-field-create"><code>xaffinity field create</code><a class="headerlink" href="#xaffinity-field-create" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">"Stage"</span><span class="w"> </span>--entity-type<span class="w"> </span>opportunity<span class="w"> </span>--value-type<span class="w"> </span>dropdown<span class="w"> </span>--list-specific
+xaffinity<span class="w"> </span>field<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">"Co-investors"</span><span class="w"> </span>--entity-type<span class="w"> </span>company<span class="w"> </span>--value-type<span class="w"> </span>company-multi
 </code></pre></div>
+<p><code>--value-type</code> accepts what the API can create: <code>text</code>, <code>number</code>, <code>datetime</code>, <code>location</code>,
+<code>dropdown</code>, <code>ranked-dropdown</code>, <code>person</code>, <code>company</code>, and the <code>-multi</code> variants <code>number-multi</code>,
+<code>location-multi</code>, <code>dropdown-multi</code>, <code>person-multi</code>, <code>company-multi</code> (a <code>-multi</code> type implies
+<code>--allows-multiple</code>). Read-only types such as <code>interaction</code>, <code>formula-number</code> or
+<code>filterable-text</code> cannot be created.</p>
 <h3 id="xaffinity-field-delete-fieldid"><code>xaffinity field delete &lt;fieldId&gt;</code><a class="headerlink" href="#xaffinity-field-delete-fieldid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span>delete<span class="w"> </span>field-123
 </code></pre></div>
