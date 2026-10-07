@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import json
 import re
 import shutil
@@ -618,6 +619,45 @@ def _table_from_rows(
                 name = data.get("name")
                 if isinstance(name, str) and name.strip():
                     return truncate(name)
+            if t == "formula-number" and isinstance(data, dict):
+                calculated = data.get("calculatedValue")
+                if calculated is None:
+                    return ""
+                if isinstance(calculated, float) and calculated.is_integer():
+                    calculated = int(calculated)
+                if isinstance(calculated, (int, float)) and not isinstance(calculated, bool):
+                    return format_number(calculated, allow_commas=True)
+                return truncate(str(calculated))
+            if t == "note" and isinstance(data, dict):
+                content = data.get("content")
+                html_text = content.get("html") if isinstance(content, dict) else None
+                note_parts: list[str] = []
+                if isinstance(html_text, str):
+                    plain = html.unescape(re.sub(r"<[^>]+>", "", html_text))
+                    plain = " ".join(plain.split())
+                    if plain:
+                        note_parts.append(plain)
+                note_when = format_iso_datetime(data.get("createdAt"))
+                if note_when:
+                    note_parts.append(f"[{note_when}]")
+                if data.get("id") is not None:
+                    note_parts.append(f"(id={data.get('id')})")
+                if note_parts:
+                    return truncate(" ".join(note_parts), max_len=140)
+                return None
+            if t == "reminder" and isinstance(data, dict):
+                reminder_parts: list[str] = []
+                reminder_content = data.get("content")
+                if isinstance(reminder_content, str) and reminder_content.strip():
+                    reminder_parts.append(reminder_content.strip())
+                due = format_iso_datetime(data.get("dueDate"))
+                if due:
+                    reminder_parts.append(f"(due {due})")
+                if data.get("id") is not None:
+                    reminder_parts.append(f"(id={data.get('id')})")
+                if reminder_parts:
+                    return truncate(" ".join(reminder_parts), max_len=140)
+                return None
             if isinstance(t, str) and t == "person" and isinstance(data, dict):
                 first = data.get("firstName")
                 last = data.get("lastName")

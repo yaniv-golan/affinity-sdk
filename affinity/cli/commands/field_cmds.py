@@ -43,7 +43,27 @@ _ENTITY_TYPE_MAP = {
     "opportunity": EntityType.OPPORTUNITY,
 }
 
-_VALUE_TYPE_MAP = {ft.value: ft for ft in FieldValueType}
+# What V1 `POST /fields` can create - an explicit set, not every FieldValueType member (the enum
+# also models read-only/computed types: interaction, formula-number, note, reminder, list-multi,
+# and filterable-text, which only Affinity creates).
+_CREATABLE_VALUE_TYPES: tuple[FieldValueType, ...] = (
+    FieldValueType.PERSON,
+    FieldValueType.PERSON_MULTI,
+    FieldValueType.COMPANY,
+    FieldValueType.COMPANY_MULTI,
+    FieldValueType.DROPDOWN,
+    FieldValueType.DROPDOWN_MULTI,
+    FieldValueType.NUMBER,
+    FieldValueType.NUMBER_MULTI,
+    FieldValueType.DATETIME,
+    FieldValueType.LOCATION,
+    FieldValueType.LOCATION_MULTI,
+    FieldValueType.TEXT,
+    FieldValueType.RANKED_DROPDOWN,
+)
+# `-multi` variants are created as the base V1 type with allows_multiple=True.
+_MULTI_VALUE_TYPES = frozenset(vt for vt in _CREATABLE_VALUE_TYPES if vt.value.endswith("-multi"))
+_VALUE_TYPE_MAP = {ft.value: ft for ft in _CREATABLE_VALUE_TYPES}
 
 _ACTION_TYPE_MAP = {
     "create": FieldValueChangeAction.CREATE,
@@ -217,7 +237,10 @@ def field_ls(
     "--value-type",
     type=click.Choice(sorted(_VALUE_TYPE_MAP.keys())),
     required=True,
-    help="Field value type (e.g. text, dropdown, person, number).",
+    help=(
+        "Field value type (e.g. text, dropdown, person, number). "
+        "A -multi type implies --allows-multiple."
+    ),
 )
 @click.option("--list-id", type=int, default=None, help="List id for list-specific field.")
 @click.option("--allows-multiple", is_flag=True, help="Allow multiple values.")
@@ -243,6 +266,7 @@ def field_create(
         parsed_value_type = parse_choice(value_type, _VALUE_TYPE_MAP, label="value type")
         if parsed_entity_type is None or parsed_value_type is None:
             raise CLIError("Missing required field options.", error_type="usage_error", exit_code=2)
+        multiple = allows_multiple or parsed_value_type in _MULTI_VALUE_TYPES
         client = ctx.get_client(warnings=warnings)
         created = client.fields.create(
             FieldCreate(
@@ -250,7 +274,7 @@ def field_create(
                 entity_type=parsed_entity_type,
                 value_type=parsed_value_type,
                 list_id=ListId(list_id) if list_id is not None else None,
-                allows_multiple=allows_multiple,
+                allows_multiple=multiple,
                 is_list_specific=list_specific,
                 is_required=required,
             )
@@ -272,7 +296,7 @@ def field_create(
         }
         if list_id is not None:
             ctx_modifiers["listId"] = list_id
-        if allows_multiple:
+        if multiple:
             ctx_modifiers["allowsMultiple"] = True
         if list_specific:
             ctx_modifiers["listSpecific"] = True

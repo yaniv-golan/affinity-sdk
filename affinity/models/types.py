@@ -329,6 +329,13 @@ class FieldValueType(OpenStrEnum):
 
     INTERACTION = "interaction"  # V2-only (relationship-intelligence)
 
+    # V2-only, computed by Affinity (no V1 code; not creatable through the API)
+    FORMULA_NUMBER = "formula-number"  # value data: {"calculatedValue": number | null}
+    # API version 2026-09-17+
+    LIST_MULTI = "list-multi"  # the lists an entity is on (ListData[], with totalCount)
+    NOTE = "note"  # the entity's latest note (notes.BaseNote | null)
+    REMINDER = "reminder"  # the entity's next uncompleted reminder (ReminderData | null)
+
     @classmethod
     def _missing_(cls, value: object) -> OpenStrEnum:
         # Normalize known V1 numeric codes to canonical V2 strings.
@@ -432,13 +439,16 @@ class FieldType(OpenStrEnum):
 
     Note: LIST is only valid in requests to list entry endpoints.
     Company/person endpoints accept ENRICHED, GLOBAL, and
-    RELATIONSHIP_INTELLIGENCE only.
+    RELATIONSHIP_INTELLIGENCE only. HIDDEN is response-only: from API version 2026-07-15,
+    fields the user may not see (restricted opportunity fields) come back as
+    ``type: "hidden"`` with a null value; it is never a valid request value.
     """
 
     ENRICHED = "enriched"
     LIST = "list"
     GLOBAL = "global"
     RELATIONSHIP_INTELLIGENCE = "relationship-intelligence"
+    HIDDEN = "hidden"
 
 
 # Field types valid for entity (company/person) endpoints — LIST is not valid there
@@ -448,10 +458,16 @@ _ENTITY_FIELD_TYPES = frozenset(
 
 
 def validate_entity_field_types(field_types: Any, *, endpoint: str) -> None:
-    """Raise ValueError if field_types contains LIST (only valid for list entry endpoints)."""
+    """Raise ValueError if field_types contains LIST (only valid for list entry endpoints)
+    or HIDDEN (response-only)."""
     if field_types is None:
         return
     for ft in field_types:
+        if ft == FieldType.HIDDEN:
+            raise ValueError(
+                f"FieldType.HIDDEN is response-only and not valid for {endpoint} endpoints. "
+                f"Valid types: enriched, global, relationship-intelligence."
+            )
         if ft == FieldType.LIST:
             raise ValueError(
                 f"FieldType.LIST is not valid for {endpoint} endpoints. "

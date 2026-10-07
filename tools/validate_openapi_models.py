@@ -111,8 +111,8 @@ KNOWN_EXTENSIONS: dict[str, set[str]] = {
     "Opportunity": {"person_ids", "company_ids", "fields", "fields_raw", "list_entries"},
     "ListEntry": {"entity_id", "entity_type", "entity", "fields_raw"},
     "ListEntryWithEntity": {"creator", "fields", "fields_raw"},
-    "AffinityList": {"is_public", "fields", "additional_permissions", "list_size_temp"},
-    "ListSummary": {"type", "is_public", "list_size"},  # V1 / relationship-endpoint keys
+    "AffinityList": {"fields", "additional_permissions", "list_size_temp"},
+    "ListSummary": {"type", "list_size"},  # V1 / relationship-endpoint keys
     "SavedView": {"list_id", "is_default", "field_ids"},  # V1 fields
     "FieldMetadata": {
         "allows_multiple",
@@ -126,18 +126,6 @@ KNOWN_EXTENSIONS: dict[str, set[str]] = {
 # Strict list of deliberate gaps: {(model or enum name, spec property or member): reason}.
 KNOWN_GAPS: dict[tuple[str, str], str] = {
     # --- models ---
-    ("AffinityList", "isPublic"): (
-        "read by a mode='before' validator that copies isPublic -> public; invisible to "
-        "the alias check"
-    ),
-    ("ListSummary", "isPublic"): (
-        "read by a mode='before' validator that copies isPublic -> public; invisible to "
-        "the alias check"
-    ),
-    ("ListSummary", "creatorId"): "not modelled yet (small addition, P1.14 follow-up)",
-    ("ListEntryWithEntity", "creatorId"): (
-        "SDK model has `creator` (older shape); V2 returns creatorId - not modelled yet"
-    ),
     ("NoteV2", "companiesPreview"): "opt-in `includes` preview; notes on V2 is P2.6",
     ("NoteV2", "opportunitiesPreview"): "opt-in `includes` preview; notes on V2 is P2.6",
     ("NoteV2", "personsPreview"): "opt-in `includes` preview; notes on V2 is P2.6",
@@ -145,17 +133,6 @@ KNOWN_GAPS: dict[tuple[str, str], str] = {
     ("NoteV2", "interaction"): "interaction / AI-notetaker note variants; P2.6",
     ("NoteV2", "transcriptId"): "AI-notetaker note variants; P2.6",
     # --- enums ---
-    ("FieldValueType", "formula-number"): (
-        "adding it would offer it in `xaffinity field create --value-type` (choices are "
-        "built from the enum) although V1 cannot create it; needs a CLI filter first"
-    ),
-    ("FieldValueType", "list-multi"): "same as formula-number (CLI field create choices)",
-    ("FieldValueType", "note"): "same as formula-number (CLI field create choices)",
-    ("FieldValueType", "reminder"): "same as formula-number (CLI field create choices)",
-    ("FieldType", "hidden"): (
-        "response-only (Field.type); the CLI builds --field-type choices from FieldType and "
-        "the API rejects `hidden` as a request value; needs a CLI filter first"
-    ),
     ("DropdownOptionColor", "white"): (
         "SDK enum is the V1 integer palette (DEFAULT, YELLOW, ...); no verified V1 code "
         "for V2 `white`"

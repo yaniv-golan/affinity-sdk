@@ -158,7 +158,9 @@ def _parse_field_types(values: tuple[str, ...]) -> list[FieldType] | None:
     if not values:
         return None
     result: list[FieldType] = []
-    valid_types = {ft.value.lower(): ft for ft in FieldType}
+    # Only the entity field types: `list` (and response-only types such as `hidden`) are not
+    # valid on company/person endpoints.
+    valid_types = {t: FieldType(t) for t in _PERSON_FIELDS_ALL_TYPES}
     for v in values:
         lower = v.lower()
         if lower not in valid_types:
@@ -166,7 +168,7 @@ def _parse_field_types(values: tuple[str, ...]) -> list[FieldType] | None:
                 f"Unknown field type: {v}",
                 exit_code=2,
                 error_type="usage_error",
-                hint=f"Valid types: {', '.join(sorted(valid_types.keys()))}",
+                hint=f"Valid types: {', '.join(valid_types)}",
             )
         result.append(valid_types[lower])
     return result

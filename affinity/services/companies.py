@@ -42,6 +42,7 @@ from ..models.types import (
     PersonId,
     validate_entity_field_types,
 )
+from ._field_listing import build_fields_query
 
 if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
@@ -684,24 +685,39 @@ class CompanyService:
         self,
         *,
         field_types: Sequence[FieldType] | None = None,
+        filter: str | None = None,
+        includes: Sequence[str] | None = None,
     ) -> builtins.list[FieldMetadata]:
         """
         Get metadata about company fields.
 
         Cached for performance.
-        """
-        params: dict[str, Any] = {}
-        if field_types:
-            params["fieldTypes"] = [field_type.value for field_type in field_types]
 
-        data = self._client.get_all_pages(
-            "/companies/fields",
-            params=params or None,
-            cache_key=(
+        Args:
+            field_types: Sent as ``fieldTypes``. The fields endpoints currently ignore it
+                (verified live on API versions 2024-01-01 and 2026-09-17: every field is
+                returned); filter on ``FieldMetadata.type`` instead.
+            filter: Filter on the field name: ``name="Location"`` (exact) or ``name=~Loc``
+                (substring); both case-sensitive. Combine clauses with ``|``. Only ``name``
+                is filterable; anything else is rejected with 400.
+            includes: Extra properties per field: ``"filterability"``, ``"sortability"``
+                (read them via ``is_filterable`` / ``is_sortable``).
+        """
+        params, cache_key = build_fields_query(
+            (
                 "company_fields:_all_"
                 if field_types is None
                 else f"company_fields:{','.join(field_types)}"
             ),
+            field_types=field_types,
+            filter=filter,
+            includes=includes,
+        )
+
+        data = self._client.get_all_pages(
+            "/companies/fields",
+            params=params or None,
+            cache_key=cache_key,
             cache_ttl=300,
         )
 
@@ -1617,24 +1633,39 @@ class AsyncCompanyService:
         self,
         *,
         field_types: Sequence[FieldType] | None = None,
+        filter: str | None = None,
+        includes: Sequence[str] | None = None,
     ) -> builtins.list[FieldMetadata]:
         """
         Get metadata about company fields.
 
         Cached for performance.
-        """
-        params: dict[str, Any] = {}
-        if field_types:
-            params["fieldTypes"] = [field_type.value for field_type in field_types]
 
-        data = await self._client.get_all_pages(
-            "/companies/fields",
-            params=params or None,
-            cache_key=(
+        Args:
+            field_types: Sent as ``fieldTypes``. The fields endpoints currently ignore it
+                (verified live on API versions 2024-01-01 and 2026-09-17: every field is
+                returned); filter on ``FieldMetadata.type`` instead.
+            filter: Filter on the field name: ``name="Location"`` (exact) or ``name=~Loc``
+                (substring); both case-sensitive. Combine clauses with ``|``. Only ``name``
+                is filterable; anything else is rejected with 400.
+            includes: Extra properties per field: ``"filterability"``, ``"sortability"``
+                (read them via ``is_filterable`` / ``is_sortable``).
+        """
+        params, cache_key = build_fields_query(
+            (
                 "company_fields:_all_"
                 if field_types is None
                 else f"company_fields:{','.join(field_types)}"
             ),
+            field_types=field_types,
+            filter=filter,
+            includes=includes,
+        )
+
+        data = await self._client.get_all_pages(
+            "/companies/fields",
+            params=params or None,
+            cache_key=cache_key,
             cache_ttl=300,
         )
 

@@ -614,7 +614,8 @@ class AffinityList(AffinityModel):
     id: ListId
     name: str
     type: ListType
-    is_public: bool = Field(alias="public")
+    # V1 sends `public`, V2 `isPublic`; serialized as `public`.
+    is_public: bool = Field(alias="public", validation_alias=AliasChoices("public", "isPublic"))
     owner_id: UserId = Field(alias="ownerId")
     creator_id: UserId | None = Field(None, alias="creatorId")
     created_at: ISODatetime | None = Field(None, alias="createdAt")
@@ -637,11 +638,8 @@ class AffinityList(AffinityModel):
     @model_validator(mode="before")
     @classmethod
     def _extract_list_size(cls, data: dict[str, Any]) -> dict[str, Any]:
-        # V2 list endpoints use `isPublic`; v1 uses `public`.
         if isinstance(data, Mapping):
             data = dict(data)
-            if "public" not in data and "isPublic" in data:
-                data["public"] = data.get("isPublic")
             # Extract listSize and pass via temp field (V2 uses listSize, V1 uses list_size)
             if "listSize" in data:
                 data["list_size_temp"] = data.pop("listSize")
@@ -663,19 +661,14 @@ class ListSummary(AffinityModel):
     id: ListId
     name: str | None = None
     type: ListType | None = None
-    is_public: bool | None = Field(None, alias="public")
+    # V1 sends `public`, V2 `isPublic`; serialized as `public`.
+    is_public: bool | None = Field(
+        None, alias="public", validation_alias=AliasChoices("public", "isPublic")
+    )
     owner_id: UserId | None = Field(None, alias="ownerId")
+    creator_id: UserId | None = Field(None, alias="creatorId")
     list_size: int | None = Field(None, alias="listSize")
     created_at: ISODatetime | None = Field(None, alias="createdAt")
-
-    @model_validator(mode="before")
-    @classmethod
-    def _coerce_v2_is_public(cls, value: Any) -> Any:
-        if isinstance(value, Mapping) and "public" not in value and "isPublic" in value:
-            data = dict(value)
-            data["public"] = data.get("isPublic")
-            return data
-        return value
 
 
 class ListCreate(AffinityModel):
@@ -781,7 +774,8 @@ class ListEntryWithEntity(AffinityModel):
 
     id: ListEntryId
     list_id: ListId = Field(alias="listId")
-    creator: PersonSummary | None = None
+    creator: PersonSummary | None = None  # older payload shape
+    creator_id: UserId | None = Field(None, alias="creatorId")  # V2 (null for some entries)
     created_at: ISODatetime = Field(alias="createdAt")
 
     # Entity type and data
