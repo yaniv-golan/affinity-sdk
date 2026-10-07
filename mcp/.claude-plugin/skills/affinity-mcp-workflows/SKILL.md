@@ -129,6 +129,9 @@ You: execute-write-command(command: "person delete", argv: ["123"], confirm: tru
 **Use individual CLI commands for:**
 - **Simple lookups**: `person get 123`, `company get 456`
 - **Quick searches**: `person ls --query "John"`, `company ls --query "Acme"`
+- **Content search**: `note search "pricing"`, `file search "pitch deck"` (text inside notes
+  and files), `company search "AI infrastructure startups in Berlin"` (natural-language
+  company search, up to 100 ranked results)
 - **Metadata**: `list ls`, `field ls --list-id <id>`
 - **Write operations**: All creates, updates, deletes
 
@@ -169,7 +172,10 @@ Use `discover-commands` to find commands, then `execute-read-command` or `execut
 | Command | Use Case |
 |---------|----------|
 | `person ls --query "..."` | Quick search persons by name/email |
-| `company ls --query "..."` | Quick search companies |
+| `company ls --query "..."` | Quick search companies by name/domain |
+| `company search "..."` | Find companies matching a description (semantic, ranked, ≤100) |
+| `note search "..." [--company-id X]` | Find notes by their text |
+| `file search "..." [--company-id X]` | Find files by their contents (then `file-url <fileId>`) |
 | `list ls` | List all Affinity lists |
 | `field ls --list-id <id>` | Get field definitions and dropdown options |
 
@@ -241,6 +247,8 @@ Combine the tools above to handle multi-step tasks:
 - **After a call**: `execute-write-command` to log interaction, `query` to find list entry, `entry field` to update status — or `log-interaction-and-update-workflow` prompt
 - **Finding warm intros**: `person ls` → `relationship-strength ls`, or `warm-intro` prompt
 - **Pipeline review**: `query` with aggregation + expand, or `pipeline-review` prompt
+- **"What did we discuss about X?"**: `note search "X"` (add `--company-id` to scope it), then
+  `note get <noteId>` for the full note
 
 ⚠️ Complete the pre-flight checklist before using any pattern.
 
@@ -290,3 +298,9 @@ Debug logs show component prefixes like `[xaffinity:tool:1.2.3]` to identify whi
 | Tools show old behavior after update | Cached MCP server process | Fully quit and restart Claude Desktop |
 | API key errors | Key not configured | Run `xaffinity config setup-key`, or set `AFFINITY_API_KEY` / `AFFINITY_API_KEY_FILE` / `AFFINITY_API_KEY_COMMAND` env var |
 | CLI version errors | Outdated CLI | Run `pip install --upgrade "affinity-sdk[cli]"`
+
+### Field values: hidden is not empty
+
+Since Affinity API version 2026-07-15, fields on restricted opportunities your API key can't
+manage come back masked (`type: "hidden"`, empty value). The CLI warns ("hidden by Affinity").
+Treat them as unknown, never as empty, and don't overwrite them.

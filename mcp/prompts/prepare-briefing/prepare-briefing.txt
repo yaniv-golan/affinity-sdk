@@ -6,6 +6,9 @@ Use the get-entity-dossier tool to gather comprehensive information about this p
 - Recent interactions and notes
 - Current list memberships and workflow status
 
+For a company, also run `note search` (via execute-read-command, scoped with --company-id) for
+topics you expect to come up, to surface relevant notes the dossier's recent-notes list may miss.
+
 Then synthesize this into a concise briefing that includes:
 1. **Key Context** - Who they are and their relevance
 2. **Relationship Status** - How well we know them and who knows them best
