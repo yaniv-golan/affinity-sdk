@@ -2121,8 +2121,9 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   status can match. <code>MergeStatus("in_progress")</code> still resolves for backward compatibility.
   Docs and <code>task status</code> help updated.</li>
 <li>List-entry field writes: <code>update_field_value()</code> / <code>batch_update_fields()</code> now send a
-  <code>datetime</code>/<code>date</code> value as type <code>datetime</code> with an ISO-8601 string, as their docstrings
-  promised; they raised <code>TypeError: Object of type datetime is not JSON serializable</code> instead.
+  <code>datetime</code>/<code>date</code> value as type <code>datetime</code> with an ISO-8601 date-time (a <code>date</code> is sent as
+  noon UTC, which is the same calendar date in Pacific time, where Affinity stores it), as their
+  docstrings promised; they raised <code>TypeError: Object of type datetime is not JSON serializable</code> instead.
   <code>AsyncListEntryService.update_field_value()</code> sent the bare value without the V2
   <code>{"type", "data"}</code> wrapper; it now matches the sync method, including the <code>value_type</code>
   parameter. Multi-value fields still need an explicit <code>value_type</code>.</li>
