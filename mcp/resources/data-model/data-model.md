@@ -374,7 +374,7 @@ task wait "https://api.affinity.co/v2/tasks/abc123" --timeout 60 # Wait up to 60
 task get "https://api.affinity.co/v2/tasks/abc123"               # Check status without waiting
 ```
 
-Task statuses: `pending`, `in_progress`, `success`, `failed`
+Task statuses: `pending`, `in-progress`, `success`, `failed`
 
 ### Accessing a Merged Entity
 If you `company get` or `person get` an entity that was previously merged, the API returns exit code 4 with `error.type: "entity_merged"`. The JSON error includes `error.details.targetId` — the surviving entity's ID. Use that ID to fetch the correct record:

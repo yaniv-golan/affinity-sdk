@@ -610,12 +610,19 @@ class DropdownOptionColor(IntEnum):
 
 
 class MergeStatus(str, Enum):
-    """Status of async merge operations."""
+    """Status of async merge operations (V2 spec spelling: ``in-progress``)."""
 
     PENDING = "pending"
-    IN_PROGRESS = "in_progress"
+    IN_PROGRESS = "in-progress"
     SUCCESS = "success"
     FAILED = "failed"
+
+    @classmethod
+    def _missing_(cls, value: object) -> MergeStatus | None:
+        # Accept the SDK's earlier underscore spelling ("in_progress").
+        if isinstance(value, str) and "_" in value:
+            return cls._value2member_map_.get(value.replace("_", "-"))  # type: ignore[return-value]
+        return None
 
 
 # =============================================================================

@@ -23,7 +23,7 @@ class TaskStatus:
     """Known task status values."""
 
     PENDING = "pending"
-    IN_PROGRESS = "in_progress"
+    IN_PROGRESS = "in-progress"  # V2 spec spelling
     SUCCESS = "success"
     FAILED = "failed"
 

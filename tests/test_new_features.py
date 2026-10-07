@@ -455,9 +455,19 @@ class TestTaskService:
     def test_task_status_constants(self) -> None:
         """Test task status constants."""
         assert TaskStatus.PENDING == "pending"
-        assert TaskStatus.IN_PROGRESS == "in_progress"
+        # The V2 spec (merge tasks) uses "in-progress"; "in_progress" never appears.
+        assert TaskStatus.IN_PROGRESS == "in-progress"
         assert TaskStatus.SUCCESS == "success"
         assert TaskStatus.FAILED == "failed"
+
+    @pytest.mark.req("FR-011")
+    def test_merge_status_matches_spec_and_accepts_old_spelling(self) -> None:
+        from affinity.models.types import MergeStatus
+
+        assert MergeStatus("in-progress") is MergeStatus.IN_PROGRESS
+        assert MergeStatus.IN_PROGRESS.value == "in-progress"
+        # Backward compatibility for callers using the SDK's earlier spelling
+        assert MergeStatus("in_progress") is MergeStatus.IN_PROGRESS
 
 
 # =============================================================================

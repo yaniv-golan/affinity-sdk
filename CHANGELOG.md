@@ -44,6 +44,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   fields at midnight Pacific Time, so the exact-timestamp "already set" check never matched and
   the no-op short-circuit (1.15.0) never applied to dates. Setting the same calendar date is now
   a no-op: a date-only input is compared as the date typed, independent of the local timezone.
+- `TaskStatus.IN_PROGRESS` and `MergeStatus.IN_PROGRESS` are now `"in-progress"`, the spelling
+  in the V2 spec (`"in_progress"` never appears there), so comparisons against a running task's
+  status can match. `MergeStatus("in_progress")` still resolves for backward compatibility.
+  Docs and `task status` help updated.
 
 ## [1.16.0] - 2026-10-07
 

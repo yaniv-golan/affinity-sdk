@@ -412,7 +412,7 @@ class MergeTask(AffinityModel):
     """Async merge task status."""
 
     id: str
-    status: str  # pending, in_progress, success, failed
+    status: str  # pending, in-progress, success, failed
     results_summary: MergeResultsSummary | None = Field(None, alias="resultsSummary")
 
 

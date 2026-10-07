@@ -40,7 +40,7 @@ def _task_payload(task: MergeTask) -> dict[str, object]:
 def task_get(ctx: CLIContext, task_url: str) -> None:
     """Get current status of an async task.
 
-    Returns task status (pending, in_progress, success, failed) without waiting.
+    Returns task status (pending, in-progress, success, failed) without waiting.
     """
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
