@@ -26,7 +26,8 @@ export XAFFINITY_MCP_VERSION=$(cat "${SCRIPT_DIR}/VERSION" 2>/dev/null || echo "
 source "${SCRIPT_DIR}/mcp-bash.lock"
 FRAMEWORK_VERSION="${MCPBASH_VERSION:-unknown}"
 
-# Framework location precedence:
+# Framework location precedence for running the server (validate/doctor use
+# find_dev_framework below, which skips the runtime-only vendored copy):
 # 1. Vendored: ${SCRIPT_DIR}/.mcp-bash/bin/mcp-bash (committed to repo)
 # 2. MCPBASH_HOME env override
 # 3. XDG default: ${XDG_DATA_HOME:-$HOME/.local/share}/mcp-bash
@@ -42,6 +43,31 @@ find_framework() {
     elif [[ -x "${HOME}/.local/bin/mcp-bash" ]]; then
         echo "${HOME}/.local/bin/mcp-bash"
     fi
+}
+
+# Developer subcommands (validate, doctor) need the FULL framework: the vendored
+# copy is runtime-only (`mcp-bash vendor` omits lib/cli/{validate,doctor}.sh), so
+# skip it here. Precedence: MCPBASH_HOME, mcp-bash on PATH, XDG, ~/.local/bin.
+find_dev_framework() {
+    local cmd="$1" candidate vendored
+    vendored="$(cd -P "${SCRIPT_DIR}/.mcp-bash/bin" 2>/dev/null && pwd)/mcp-bash"
+    for candidate in \
+        "${MCPBASH_HOME:+${MCPBASH_HOME}/bin/mcp-bash}" \
+        "$(command -v mcp-bash 2>/dev/null || true)" \
+        "${XDG_DATA_HOME:-$HOME/.local/share}/mcp-bash/bin/mcp-bash" \
+        "${HOME}/.local/bin/mcp-bash"; do
+        [[ -n "$candidate" && -x "$candidate" ]] || continue
+        [[ "$(cd -P "$(dirname "$candidate")" && pwd)/mcp-bash" == "$vendored" ]] && continue
+        echo "$candidate"
+        return 0
+    done
+    {
+        echo "'$cmd' needs the full mcp-bash framework (the vendored .mcp-bash/ is runtime-only)."
+        echo "Install mcp-bash v${FRAMEWORK_VERSION} (pinned in mcp-bash.lock):"
+        echo "  curl -fsSL https://raw.githubusercontent.com/yaniv-golan/mcp-bash-framework/main/install.sh | bash -s -- --version v${FRAMEWORK_VERSION} --yes"
+        echo "or point MCPBASH_HOME at an mcp-bash checkout."
+    } >&2
+    return 1
 }
 
 # Minimal JSON processor for pre-framework startup checks
@@ -64,18 +90,13 @@ case "${1:-}" in
     doctor)
         # Run diagnostics (pass --fix to auto-repair)
         shift
-        FRAMEWORK=$(find_framework)
-        if [[ -n "$FRAMEWORK" ]]; then
-            exec "$FRAMEWORK" doctor "$@"
-        else
-            echo "Framework not installed. Run: $0 install" >&2
-            exit 1
-        fi
+        FRAMEWORK=$(find_dev_framework doctor) || exit 1
+        exec "$FRAMEWORK" doctor "$@"
         ;;
     validate)
         # Validate server configuration
         shift
-        FRAMEWORK=$(find_framework)
+        FRAMEWORK=$(find_dev_framework validate) || exit 1
         exec "$FRAMEWORK" validate --project-root "${SCRIPT_DIR}" "$@"
         ;;
 esac

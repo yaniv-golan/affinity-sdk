@@ -181,6 +181,10 @@ cd mcp
 ./xaffinity-mcp.sh validate
 ```
 
+`validate` (and `doctor`) need the full mcp-bash framework at the version pinned in
+`mcp/mcp-bash.lock` — the vendored `mcp/.mcp-bash/` is runtime-only. If it is missing, the
+command prints the install line. CI runs the same check in `.github/workflows/plugin-build.yml`.
+
 ### Build MCP Claude plugin structure
 
 ```bash

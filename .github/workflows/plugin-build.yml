@@ -36,6 +36,10 @@ jobs:
           mcp-bash vendor --verify
           echo "Vendored runtime integrity verified (SHA-256)"
 
+      - name: Validate MCP server project
+        # Uses the full mcp-bash installed above; the vendored runtime has no validate.
+        run: ./mcp/xaffinity-mcp.sh validate
+
       - name: Build MCP plugin ZIP
         run: make -C mcp plugin
 

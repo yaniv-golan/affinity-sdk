@@ -102,8 +102,10 @@ For other MCP clients or development. Requires [additional prerequisites](#for-m
 
 1. Download `xaffinity-mcp-plugin.zip` from the [latest release](https://github.com/yaniv-golan/affinity-sdk/releases/latest)
 2. Extract and configure your MCP client (see [Usage](#usage) below)
-3. The MCP Bash Framework is vendored in `.mcp-bash/` — no separate install needed.
-4. Validate your configuration:
+3. The MCP Bash Framework runtime is vendored in `.mcp-bash/` — no separate install needed to run the server.
+4. Optional — validate your configuration. `validate` and `doctor` are developer tools that need the
+   full [mcp-bash](https://github.com/yaniv-golan/mcp-bash-framework) install (the vendored copy is
+   runtime-only); the command prints the install line for the pinned version if it is missing:
    ```bash
    ./xaffinity-mcp.sh validate
    ```
@@ -165,7 +167,8 @@ AFFINITY_API_KEY="your-key-here" \
 
 **Expected**: JSON response with your user information.
 
-If Step 1 works but Step 2 fails, the issue is MCP-specific. Run diagnostics:
+If Step 1 works but Step 2 fails, the issue is MCP-specific. Run diagnostics (these need the full
+mcp-bash install, not just the vendored runtime — see step 4 of manual installation):
 
 ```bash
 ./xaffinity-mcp.sh doctor

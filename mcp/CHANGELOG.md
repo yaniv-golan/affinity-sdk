@@ -5,6 +5,30 @@ All notable changes to the xaffinity MCP server will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.22.4] - 2026-10-07
+
+### Highlights
+
+`./xaffinity-mcp.sh validate` and `doctor` work again. Since the mcp-bash runtime
+was vendored (1.19.1), both always ran the runtime-only vendored copy, which has
+no `validate`/`doctor` implementation, so they failed with "No such file or
+directory". Server behavior is unchanged.
+
+### Fixed
+
+- `validate` / `doctor` now use the full mcp-bash framework — `MCPBASH_HOME`,
+  then `mcp-bash` on PATH, then the XDG / `~/.local/bin` installs — and skip the
+  vendored runtime. If none is found they exit 1 with the install command for the
+  version pinned in `mcp-bash.lock` (replacing a stale "Run: $0 install" hint for
+  a subcommand removed in 1.19.1).
+
+### Changed
+
+- CI: the MCP plugin build now runs `./xaffinity-mcp.sh validate` against the
+  pinned mcp-bash, so a broken server project fails the build.
+- Docs: README and AGENTS.md note that `validate` / `doctor` need the full
+  mcp-bash install.
+
 ## [1.22.3] - 2026-10-07
 
 ### Highlights
