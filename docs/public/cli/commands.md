@@ -357,6 +357,10 @@ xaffinity person files upload 12345 --file doc.pdf
 xaffinity person files upload 12345 --file a.pdf --file b.pdf
 ```
 
+With `--json`, each entry in `data.uploads` includes `fileId` (and `createdAt`) of the new file,
+so you can pass it straight to `files read --file-id` / `files download`. `fileId` is `null` if the
+API did not return the created file.
+
 ## Companies
 
 ### `xaffinity company ls`
@@ -492,6 +496,10 @@ xaffinity company files upload 9876 --file doc.pdf
 xaffinity company files upload 9876 --file a.pdf --file b.pdf
 ```
 
+With `--json`, each entry in `data.uploads` includes `fileId` (and `createdAt`) of the new file,
+so you can pass it straight to `files read --file-id` / `files download`. `fileId` is `null` if the
+API did not return the created file.
+
 ## Opportunities
 
 ### `xaffinity opportunity ls`
@@ -558,6 +566,10 @@ Uploads one or more files to an opportunity.
 xaffinity opportunity files upload 123 --file doc.pdf
 xaffinity opportunity files upload 123 --file a.pdf --file b.pdf
 ```
+
+With `--json`, each entry in `data.uploads` includes `fileId` (and `createdAt`) of the new file,
+so you can pass it straight to `files read --file-id` / `files download`. `fileId` is `null` if the
+API did not return the created file.
 
 ## Lists
 

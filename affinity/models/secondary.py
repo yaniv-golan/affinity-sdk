@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import Field, model_validator
+from pydantic import AliasChoices, Field, model_validator
 
 from .entities import AffinityModel, PersonSummary
 from .types import (
@@ -288,7 +288,13 @@ class EntityFile(AffinityModel):
 
     # Associated entity
     person_id: PersonId | None = Field(None, alias="personId")
-    company_id: CompanyId | None = Field(None, alias="organizationId")
+    # V1 sends `organization_id`; accept the camelCase form too. Serialization keeps
+    # `organizationId` so `model_dump(by_alias=True)` output is unchanged.
+    company_id: CompanyId | None = Field(
+        None,
+        validation_alias=AliasChoices("organization_id", "organizationId"),
+        serialization_alias="organizationId",
+    )
     opportunity_id: OpportunityId | None = Field(None, alias="opportunityId")
 
     # Uploader
