@@ -262,7 +262,7 @@ def refresh_list_fields(
         v2_fields = client.lists.get_fields(list_id)
     except Exception:
         return fields
-    missing = [f for f in v2_fields if str(f.id) not in known and f.type == "list"]
+    missing = [f for f in v2_fields if str(f.id) not in known and f.type in ("list", "hidden")]
     return [*fields, *missing]
 
 

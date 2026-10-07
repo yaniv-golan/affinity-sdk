@@ -143,6 +143,17 @@ class FieldValues(AffinityModel):
         data = value.get("data") if isinstance(value, dict) else None
         return isinstance(data, list) and total > len(data)
 
+    def is_hidden(self, field_id: str | AnyFieldId) -> bool:
+        """Whether Affinity masked this field (``type: "hidden"``, API version 2026-07-15+):
+        a field on a restricted opportunity the API key can't manage. Its value reads as
+        ``None`` but is not empty."""
+        item = self.get(field_id)
+        return isinstance(item, dict) and str(item.get("type") or "").lower() == "hidden"
+
+    def hidden_fields(self) -> list[str]:
+        """IDs of every field Affinity masked (see :meth:`is_hidden`)."""
+        return [fid for fid in self.data if self.is_hidden(fid)]
+
     def truncated_fields(self) -> dict[str, tuple[int, int]]:
         """Map of field ID to ``(returned, total)`` for every truncated multi-value field."""
         result: dict[str, tuple[int, int]] = {}

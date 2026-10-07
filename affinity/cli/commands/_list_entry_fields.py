@@ -8,7 +8,8 @@ ListEntryFieldsScope = Literal["list-only", "all"]
 def _is_list_type(value: Any) -> bool:
     if not isinstance(value, str):
         return False
-    return value.strip().lower() == "list"
+    # "hidden" (API 2026-07-15+) is a masked list field on a restricted opportunity.
+    return value.strip().lower() in ("list", "hidden")
 
 
 def filter_list_entry_fields(

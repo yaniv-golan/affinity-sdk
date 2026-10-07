@@ -1994,9 +1994,9 @@ def _note_truncated_fields(state: dict[str, Any] | None, entry: Any) -> None:
         fields_raw = getattr(entity, "fields_raw", None)
     if not isinstance(fields_raw, list):
         return
-    from ..field_utils import _truncated_in
+    from ..field_utils import _hidden_in, _truncated_in
 
-    if _truncated_in(fields_raw):
+    if _truncated_in(fields_raw) or _hidden_in(fields_raw):
         name = getattr(entity, "name", None) or " ".join(
             p
             for p in (getattr(entity, "first_name", None), getattr(entity, "last_name", None))

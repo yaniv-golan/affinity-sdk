@@ -184,9 +184,9 @@ def _normalize_list_entry_fields(
         if fields_container and isinstance(fields_container, dict):
             fields_data = fields_container.get("data")
             if truncated is not None and isinstance(fields_data, dict):
-                from ..field_utils import _truncated_in
+                from ..field_utils import _hidden_in, _truncated_in
 
-                if _truncated_in(fields_data):
+                if _truncated_in(fields_data) or _hidden_in(fields_data):
                     name = entity.get("name") or " ".join(
                         p for p in (entity.get("firstName"), entity.get("lastName")) if p
                     )

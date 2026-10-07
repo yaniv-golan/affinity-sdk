@@ -138,7 +138,7 @@ def with_v2_value_types(
             )
         )
     known = {str(f.id) for f in v1_fields}
-    out.extend(f for f in v2_fields if str(f.id) not in known and f.type == "list")
+    out.extend(f for f in v2_fields if str(f.id) not in known and f.type in ("list", "hidden"))
     return out
 
 
@@ -1519,15 +1519,60 @@ def _truncated_in(fields: Any) -> list[tuple[str, int, int]]:
     return out
 
 
+def _field_items(fields: Any) -> list[Any]:
+    data = getattr(fields, "data", fields)
+    if isinstance(data, dict):
+        return list(data.values())
+    if isinstance(data, list):
+        return data
+    return []
+
+
+def _hidden_in(fields: Any) -> list[str]:
+    """Names (or ids) of fields Affinity returned as ``type: "hidden"``.
+
+    Since API version 2026-07-15, a field on a restricted opportunity that the API key can't
+    manage comes back with ``type: "hidden"`` and an empty value: it is masked, not empty.
+    """
+    return [
+        str(item.get("name") or item.get("id"))
+        for item in _field_items(fields)
+        if isinstance(item, dict) and str(item.get("type") or "").lower() == "hidden"
+    ]
+
+
 def truncation_warnings(
     records: Iterable[tuple[str, Any]], *, filtered: bool = False, examples: int = 3
 ) -> list[str]:
-    """Warnings for multi-value fields Affinity cut off at 100 values.
+    """Warnings for field values Affinity didn't return in full.
 
-    ``records`` yields ``(record label, raw fields)``. Returns at most one warning: a precise
-    one for a single field, otherwise a summary with a few examples. ``filtered`` adds that a
-    client-side filter was evaluated on the truncated values.
+    - multi-value fields cut off at 100 values (``totalCount``);
+    - fields hidden by Affinity (``type: "hidden"``: masked, not empty).
+
+    ``records`` yields ``(record label, raw fields)``. Returns at most one warning per kind: a
+    precise one for a single field, otherwise a summary with a few examples. ``filtered`` adds
+    that a client-side filter was evaluated on the returned values only.
     """
+    records = list(records)
+    out = _truncation_warning(records, filtered=filtered, examples=examples)
+    hidden = [(label, name) for label, fields in records for name in _hidden_in(fields)]
+    if hidden:
+        shown = "; ".join(f"'{n}' on {lbl}" for lbl, n in hidden[:examples])
+        more = f"; and {len(hidden) - examples} more" if len(hidden) > examples else ""
+        msg = (
+            f"{len(hidden)} field value(s) hidden by Affinity: {shown}{more}. They belong to "
+            "restricted opportunities your API key can't manage and are masked, not empty; "
+            "don't treat them as empty or overwrite them."
+        )
+        if filtered:
+            msg += " Filters treated them as empty."
+        out.append(msg)
+    return out
+
+
+def _truncation_warning(
+    records: list[tuple[str, Any]], *, filtered: bool, examples: int
+) -> list[str]:
     hits = [
         (label, name, got, total)
         for label, fields in records
