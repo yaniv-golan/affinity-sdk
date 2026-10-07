@@ -1244,3 +1244,20 @@ async def test_async_field_writes_infer_datetime_type_and_serialize_iso() -> Non
     assert bodies[1]["updates"] == [
         {"id": "field-1", "value": {"type": "datetime", "data": "2024-04-01T15:30:00+00:00"}}
     ]
+
+
+def test_field_write_date_object_lands_on_same_pacific_date() -> None:
+    """A `date` must be sent as a date-time (spec: DateValue.data is format date-time).
+
+    Midnight UTC would be the previous day in Pacific time, and Affinity stores the Pacific
+    calendar date, so the SDK sends noon UTC, which is the same Pacific date year-round.
+    """
+    from datetime import date
+
+    from affinity.services.lists import _field_value_payload
+
+    assert _field_value_payload(date(2024, 4, 1)) == {
+        "type": "datetime",
+        "data": "2024-04-01T12:00:00Z",
+    }
+    assert _field_value_payload(date(2024, 1, 15))["data"] == "2024-01-15T12:00:00Z"

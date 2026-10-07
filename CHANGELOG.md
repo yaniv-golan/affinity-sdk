@@ -49,8 +49,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   status can match. `MergeStatus("in_progress")` still resolves for backward compatibility.
   Docs and `task status` help updated.
 - List-entry field writes: `update_field_value()` / `batch_update_fields()` now send a
-  `datetime`/`date` value as type `datetime` with an ISO-8601 string, as their docstrings
-  promised; they raised `TypeError: Object of type datetime is not JSON serializable` instead.
+  `datetime`/`date` value as type `datetime` with an ISO-8601 date-time (a `date` is sent as
+  noon UTC, which is the same calendar date in Pacific time, where Affinity stores it), as their
+  docstrings promised; they raised `TypeError: Object of type datetime is not JSON serializable` instead.
   `AsyncListEntryService.update_field_value()` sent the bare value without the V2
   `{"type", "data"}` wrapper; it now matches the sync method, including the `value_type`
   parameter. Multi-value fields still need an explicit `value_type`.

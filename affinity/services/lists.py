@@ -126,7 +126,15 @@ def _field_value_payload(
         type_str = "datetime"
     else:
         type_str = "text"
-    data = value.isoformat() if isinstance(value, (datetime, date)) else value
+    data: Any
+    if isinstance(value, datetime):
+        data = value.isoformat()
+    elif isinstance(value, date):
+        # The API takes a date-time and stores its Pacific calendar date. Midnight UTC is the
+        # previous day in Pacific time; noon UTC falls on the same Pacific date all year.
+        data = f"{value.isoformat()}T12:00:00Z"
+    else:
+        data = value
     return {"type": type_str, "data": data}
 
 
