@@ -453,7 +453,8 @@ def test_field_id_accepts_int() -> None:
 @pytest.mark.req("SDK-ENRICHED-FIELD-WRITES")
 def test_opportunity_field_set_reaches_the_write() -> None:
     """`opportunity field --set` loads the fields of the opportunity's list (it used to call
-    fetch_field_metadata without a list id and always exit 2) and updates the value in place."""
+    fetch_field_metadata without a list id and always exit 2) and writes through its list
+    entry's update-fields PATCH."""
     import json
 
     from click.testing import CliRunner
@@ -483,9 +484,31 @@ def test_opportunity_field_set_reaches_the_write() -> None:
             return httpx.Response(
                 200, json=[{"id": 500, "field_id": 7, "entity_id": 42, "value": 3}]
             )
-        if path == "/field-values/500" and request.method == "PUT":
-            assert json.loads(request.content) == {"value": 5}
-            return httpx.Response(200, json={"id": 500, "field_id": 7, "entity_id": 42, "value": 5})
+        lst = {"id": 9, "name": "Deals", "type": 8, "public": False, "owner_id": 1}
+        if path == "/v2/lists/9":
+            return httpx.Response(200, json={**lst, "isPublic": False, "ownerId": 1})
+        if path == "/lists/9":
+            return httpx.Response(200, json=lst)
+        if path == "/fields":
+            return httpx.Response(
+                200,
+                json={
+                    "data": [
+                        {
+                            "id": 7,
+                            "name": "Amount",
+                            "value_type": 3,
+                            "list_id": 9,
+                            "allows_multiple": False,
+                        }
+                    ]
+                },
+            )
+        if path == "/v2/lists/9/list-entries/555/fields" and request.method == "PATCH":
+            assert json.loads(request.content)["updates"] == [
+                {"id": "field-7", "value": {"type": "number", "data": 5}}
+            ]
+            return httpx.Response(200, json={"operation": "update-fields"})
         return httpx.Response(404, json={"errors": [{"message": f"unmocked {path}"}]})
 
     import respx
@@ -498,5 +521,5 @@ def test_opportunity_field_set_reaches_the_write() -> None:
             env={"AFFINITY_API_KEY": "test"},
         )
     assert result.exit_code == 0, result.output
-    assert ("PUT", "/field-values/500") in seen
-    assert not any(method == "DELETE" for method, _ in seen)
+    assert ("PATCH", "/v2/lists/9/list-entries/555/fields") in seen
+    assert not any(method in ("PUT", "DELETE") for method, _ in seen)

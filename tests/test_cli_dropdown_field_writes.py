@@ -196,31 +196,72 @@ def test_person_dropdown_uses_person_endpoints() -> None:
 
 @pytest.mark.parametrize("option_type", ["ranked-dropdown", "status-dropdown"])
 def test_opportunity_status_written_by_option_id(option_type: str) -> None:
-    routes = {
+    """`opportunity field` writes through its list entry: one update-fields PATCH with the
+    option id read fresh from the list's dropdown options."""
+    result, seen = _run(
+        ["opportunity", "field", "42", "--set", "Status", "won", "--set", "Amount", "5"],
+        _opportunity_routes(option_type),
+    )
+    assert result.exit_code == 0, result.output
+    patches = [b for m, p, b in seen if m == "PATCH"]
+    assert patches == [
+        {
+            "operation": "update-fields",
+            "updates": [
+                {
+                    "id": "field-30",
+                    "value": {"type": option_type, "data": {"dropdownOptionId": 401}},
+                },
+                {"id": "field-31", "value": {"type": "number", "data": 5}},
+            ],
+        }
+    ]
+    assert not any(
+        m in ("PUT", "DELETE") or (p == "/field-values" and m == "POST") for m, p, _ in seen
+    )
+
+
+def _opportunity_routes(option_type: str = "ranked-dropdown") -> dict[tuple[str, str], Any]:
+    lst = {"id": 9, "name": "Deals", "type": 8, "public": False, "owner_id": 1}
+    return {
         ("GET", "/v2/opportunities/42"): {"id": 42, "name": "Deal", "listId": 9},
         ("GET", "/opportunities/42"): {"id": 42, "list_entries": [{"id": 555, "list_id": 9}]},
+        ("GET", "/v2/lists/9"): {**lst, "isPublic": False, "ownerId": 1},
+        ("GET", "/lists/9"): lst,
         ("GET", "/v2/lists/9/fields"): _page(
-            [{"id": "field-30", "name": "Status", "type": "list", "valueType": option_type}]
+            [
+                {"id": "field-30", "name": "Status", "type": "list", "valueType": option_type},
+                {"id": "field-31", "name": "Amount", "type": "list", "valueType": "number"},
+            ]
         ),
+        ("GET", "/fields"): {
+            "data": [
+                {
+                    "id": 30,
+                    "name": "Status",
+                    "value_type": 7,
+                    "allows_multiple": False,
+                    "list_id": 9,
+                    "dropdown_options": [{"id": 400, "text": "New"}],
+                },
+                {
+                    "id": 31,
+                    "name": "Amount",
+                    "value_type": 3,
+                    "allows_multiple": False,
+                    "list_id": 9,
+                },
+            ]
+        },
         ("GET", "/v2/lists/9/fields/field-30/dropdown-options"): _page(
             [
                 {"type": option_type, "id": 400, "text": "New", "rank": 1, "color": "blue"},
                 {"type": option_type, "id": 401, "text": "Won", "rank": 2, "color": "green"},
             ]
         ),
-        ("GET", "/field-values"): [
-            {
-                "id": 9000,
-                "field_id": 30,
-                "entity_id": 42,
-                "value": {"id": 400, "text": "New", "rank": 1, "color": 2},
-            }
-        ],
+        ("GET", "/field-values"): [],
+        ("PATCH", "/v2/lists/9/list-entries/555/fields"): {"operation": "update-fields"},
     }
-    result, seen = _run(["opportunity", "field", "42", "--set", "Status", "won"], routes)
-    assert result.exit_code == 0, result.output
-    assert ("PUT", "/field-values/9000", {"value": 401}) in seen
-    assert not any(m == "DELETE" for m, _, _ in seen)
 
 
 def test_unset_typo_aborts_before_any_write() -> None:
@@ -279,18 +320,12 @@ def test_list_entry_option_missing_from_cached_metadata_is_read_fresh() -> None:
     ) in seen
 
 
-def test_opportunity_value_created_with_its_list_entry_id() -> None:
-    """V1 rejects an opportunity field value without list_entry_id ("is required")."""
-    routes = {
-        ("GET", "/v2/opportunities/42"): {"id": 42, "name": "Deal", "listId": 9},
-        ("GET", "/opportunities/42"): {"id": 42, "list_entries": [{"id": 555, "list_id": 9}]},
-        ("GET", "/v2/lists/9/fields"): _page(
-            [{"id": "field-31", "name": "Amount", "type": "list", "valueType": "number"}]
-        ),
-        ("GET", "/field-values"): [],
-    }
-    result, seen = _run(["opportunity", "field", "42", "--set", "Amount", "1000"], routes)
+def test_opportunity_unset_goes_through_its_list_entry() -> None:
+    result, seen = _run(["opportunity", "field", "42", "--unset", "Amount"], _opportunity_routes())
     assert result.exit_code == 0, result.output
-    (body,) = [b for m, p, b in seen if m == "POST" and p == "/field-values"]
-    assert body["list_entry_id"] == 555
-    assert body["value"] == 1000
+    assert [b for m, p, b in seen if m == "PATCH"] == [
+        {
+            "operation": "update-fields",
+            "updates": [{"id": "field-31", "value": {"type": "number", "data": None}}],
+        }
+    ]

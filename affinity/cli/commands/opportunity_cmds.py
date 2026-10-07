@@ -1300,15 +1300,12 @@ def opportunity_field(
     - `xaffinity opportunity field 123 --set-json '{"Status": "Active", "Stage": "Negotiation"}'`
     - `xaffinity opportunity field 123 --get Status --get Stage`
     """
-    import json as json_module
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
         from ..field_utils import (
             FieldResolver,
-            execute_v1_set_phase,
             fetch_field_metadata,
             find_field_values_for_field,
-            pre_validate_set_operations,
         )
 
         # Validate: at least one operation must be specified
@@ -1386,107 +1383,27 @@ def opportunity_field(
                 api_called=True,
             )
 
-        # Handle --set and --json: set field values
-        # Phase 1: collect raw --set + --set-json operations.
-        raw_set_operations: list[tuple[str, Any]] = []
+        # Writes: an opportunity's fields are the fields of its (single) list entry, so they go
+        # through the same all-or-nothing update as `list entry field`.
+        from .list_cmds import run_entry_field
 
-        for field_name, value in set_values:
-            raw_set_operations.append((field_name, value))
-
-        if json_input:
-            try:
-                json_data = json_module.loads(json_input)
-                if not isinstance(json_data, dict):
-                    raise CLIError(
-                        "--json must be a JSON object.",
-                        exit_code=2,
-                        error_type="usage_error",
-                    )
-                for field_name, value in json_data.items():
-                    raw_set_operations.append((field_name, value))
-            except json_module.JSONDecodeError as e:
-                raise CLIError(
-                    f"Invalid JSON: {e}",
-                    exit_code=2,
-                    error_type="usage_error",
-                ) from e
-
-        # Phase 2: hoist field-name resolution upfront.
-        resolved_set_ops: list[tuple[str, Any]] = []
-        for field_name, value in raw_set_operations:
-            target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
-            resolved_set_ops.append((target_field_id, value))
-
-        # Phase 3: pre-validate ALL values up front (same strict default).
-        # Dropdown options, read fresh: V2 field metadata has none, and V1 writes plain
-        # dropdowns by text (unknown text creates a new option).
-        resolver.load_dropdown_options(
-            client, [fid for fid, _ in resolved_set_ops], entity_type="opportunity", list_id=list_id
-        )
-        pre_resolved_set = pre_validate_set_operations(resolver, resolved_set_ops)
-        # Resolve --unset names before any write, so a typo aborts cleanly.
-        unset_numeric_ids: list[int] = []
-        for field_name in unset_fields:
-            target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
-            numeric_field_id = resolver.to_v1_numeric(
-                client, target_field_id, entity_type="opportunity"
+        entry_id = _get_opportunity_list_entry_id(client=client, opportunity_id=opportunity_id)
+        if entry_id is None:
+            raise CLIError(
+                f"Opportunity {opportunity_id} has no list entry to write to.",
+                exit_code=2,
+                error_type="not_found",
             )
-            unset_numeric_ids.append(numeric_field_id)
-
-        # Phase 4: fetch existing values + execute set phase via shared helper.
-        # The shared helper handles V1-numeric mapping for enriched fields via
-        # ``resolver.to_v1_numeric()`` — this fixes a latent bug where the
-        # in-line implementation passed the V2 enriched literal directly to
-        # ``FieldValueCreate``, breaking enriched-field writes on opportunities.
-        existing_values = client.field_values.list(opportunity_id=OpportunityId(opportunity_id))
-        existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values]
-
-        created_values, set_deleted_count = execute_v1_set_phase(
-            client=client,
-            entity_kind="opportunity",
-            entity_id=opportunity_id,
-            pre_resolved_ops=pre_resolved_set,
-            existing_values_serialized=existing_values_serialized,
-            resolver=resolver,
-            list_entry_id=(
-                _get_opportunity_list_entry_id(client=client, opportunity_id=opportunity_id)
-                if pre_resolved_set
-                else None
-            ),
-        )
-
-        # Handle --unset (names resolved before any write).
-        deleted_count = set_deleted_count
-        if unset_numeric_ids:
-            existing_values = client.field_values.list(opportunity_id=OpportunityId(opportunity_id))
-            existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values]
-        for numeric_field_id in unset_numeric_ids:
-            existing_for_field = find_field_values_for_field(
-                field_values=existing_values_serialized,
-                field_id=numeric_field_id,
-            )
-            for fv in existing_for_field:
-                fv_id = fv.get("id")
-                if fv_id:
-                    client.field_values.delete(fv_id)
-                    deleted_count += 1
-
-        # Build result
-        if created_values:
-            results["created"] = created_values
-        if deleted_count > 0:
-            results["deleted"] = deleted_count
-
-        cmd_context = CommandContext(
-            name="opportunity field",
-            inputs={"opportunityId": opportunity_id},
-            modifiers=ctx_modifiers,
-        )
-
-        return CommandOutput(
-            data=results,
-            context=cmd_context,
-            api_called=True,
+        return run_entry_field(
+            ctx,
+            warnings,
+            list_selector=str(list_id),
+            entry_id=entry_id,
+            set_values=set_values,
+            unset_fields=unset_fields,
+            json_input=json_input,
+            command_name="opportunity field",
+            command_inputs={"opportunityId": opportunity_id},
         )
 
     run_command(ctx, command="opportunity field", fn=fn)

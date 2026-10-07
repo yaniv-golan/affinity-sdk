@@ -3226,6 +3226,573 @@ def list_entry_delete(ctx: CLIContext, list_selector: str, entry_id: int, yes: b
     run_command(ctx, command="list entry delete", fn=fn)
 
 
+def run_entry_field(
+    ctx: CLIContext,
+    warnings: list[str],
+    *,
+    list_selector: str,
+    entry_id: int,
+    set_values: tuple[tuple[str, str], ...] = (),
+    append_values: tuple[tuple[str, str], ...] = (),
+    unset_fields: tuple[str, ...] = (),
+    unset_values: tuple[tuple[str, str], ...] = (),
+    json_input: str | None = None,
+    get_fields: tuple[str, ...] = (),
+    command_name: str = "entry field",
+    command_inputs: dict[str, Any] | None = None,
+) -> CommandOutput:
+    """Body of ``list entry field``; also used by ``opportunity field`` (an opportunity's
+    fields are the fields of its list entry)."""
+    from ..field_utils import (
+        FieldResolver,
+        find_field_values_for_field,
+        format_value_for_comparison,
+    )
+
+    # Validate: at least one operation must be specified
+    has_set = bool(set_values) or bool(json_input)
+    has_append = bool(append_values)
+    has_unset = bool(unset_fields)
+    has_unset_value = bool(unset_values)
+    has_get = bool(get_fields)
+
+    if not any([has_set, has_append, has_unset, has_unset_value, has_get]):
+        raise CLIError(
+            "No operation specified. Use --set, --append, --unset, --unset-value, "
+            "--set-json, or --get.",
+            exit_code=2,
+            error_type="usage_error",
+        )
+
+    # Validate: --get is exclusive (can't mix read with write)
+    if has_get and (has_set or has_append or has_unset or has_unset_value):
+        raise CLIError(
+            "--get cannot be combined with write operations "
+            "(--set, --append, --unset, --unset-value, --set-json).",
+            exit_code=2,
+            error_type="usage_error",
+        )
+
+    # Collect all fields from operations for conflict detection
+    set_option_fields: set[str] = {fv[0] for fv in set_values}
+    set_json_fields: set[str] = set()
+    if json_input:
+        try:
+            json_data = json.loads(json_input)
+            if isinstance(json_data, dict):
+                set_json_fields = set(json_data.keys())
+        except json.JSONDecodeError:
+            pass  # Handled later
+
+    # Check for duplicate fields between --set and --set-json
+    duplicate_fields = set_option_fields & set_json_fields
+    if duplicate_fields:
+        raise CLIError(
+            f"Field(s) in both --set and --set-json: {duplicate_fields}",
+            exit_code=2,
+            error_type="usage_error",
+        )
+
+    all_set_fields = set_option_fields | set_json_fields
+    all_append_fields: set[str] = {av[0] for av in append_values}
+    all_unset_fields: set[str] = set(unset_fields)
+    all_unset_value_fields: set[str] = {uv[0] for uv in unset_values}
+
+    # Check for conflicting operations on same field
+    if all_set_fields & all_append_fields:
+        raise CLIError(
+            f"Field(s) in both --set and --append: {all_set_fields & all_append_fields}",
+            exit_code=2,
+            error_type="usage_error",
+        )
+    if all_set_fields & all_unset_fields:
+        raise CLIError(
+            f"Field(s) in both --set and --unset: {all_set_fields & all_unset_fields}",
+            exit_code=2,
+            error_type="usage_error",
+        )
+    if all_set_fields & all_unset_value_fields:
+        raise CLIError(
+            f"Field(s) in both --set and --unset-value: {all_set_fields & all_unset_value_fields}",
+            exit_code=2,
+            error_type="usage_error",
+        )
+    if all_append_fields & all_unset_fields:
+        raise CLIError(
+            f"Field(s) in both --append and --unset: {all_append_fields & all_unset_fields}",
+            exit_code=2,
+            error_type="usage_error",
+        )
+    if all_unset_fields & all_unset_value_fields:
+        raise CLIError(
+            f"Field(s) in both --unset and --unset-value: "
+            f"{all_unset_fields & all_unset_value_fields}",
+            exit_code=2,
+            error_type="usage_error",
+        )
+    # Note: --append + --unset-value on same field is ALLOWED (tag swap pattern)
+
+    client = ctx.get_client(warnings=warnings)
+    cache = ctx.session_cache
+    resolved_list = resolve_list_selector(client=client, selector=list_selector, cache=cache)
+    resolved = dict(resolved_list.resolved)
+
+    # Field metadata: V1 for names and dropdown options, V2 for the value types.
+    from ..field_utils import with_v2_value_types
+
+    v2_list_fields = list(client.lists.get_fields(resolved_list.list.id))
+    field_metadata = with_v2_value_types(
+        list_fields_for_list(client=client, list_id=resolved_list.list.id, cache=cache),
+        v2_list_fields,
+    )
+    resolver = FieldResolver(field_metadata)
+    fields_refreshed = False
+
+    def refresh_fields_once() -> bool:
+        """On a lookup miss, refetch once: Affinity's V1 field listing can lag field
+        creation (V2 is current), and the SDK/session caches can pin a stale copy."""
+        nonlocal resolver, field_metadata, fields_refreshed
+        if fields_refreshed:
+            return False
+        fields_refreshed = True
+        field_metadata = with_v2_value_types(
+            refresh_list_fields(client=client, list_id=resolved_list.list.id, cache=cache),
+            v2_list_fields,
+        )
+        resolver = FieldResolver(field_metadata)
+        return True
+
+    # Pattern for field IDs: must be "field-" followed by digits
+    # Note: pure numeric strings like "2024" are treated as field NAMES, not IDs
+    import re
+
+    _field_id_pattern = re.compile(r"^field-\d+$")
+
+    # Helper to resolve field name or ID and validate it exists on the list
+    def resolve_field(field_spec: str) -> str:
+        """Resolve field name/ID, auto-detecting format.
+
+        Args:
+            field_spec: Field name or ID to resolve.
+
+        Returns:
+            The resolved field ID.
+
+        Raises:
+            CLIError: If field is not found on the list.
+        """
+        # Check for FieldId format (pattern: field-\d+)
+        # Note: pure numeric strings like "2024" are treated as field names
+        if _field_id_pattern.match(field_spec):
+            # Validate field ID exists on this list
+            if not resolver.get_field_name(field_spec) and not (
+                refresh_fields_once() and resolver.get_field_name(field_spec)
+            ):
+                raise CLIError(
+                    f"Field '{field_spec}' not found on list '{list_selector}'.",
+                    exit_code=2,
+                    error_type="not_found",
+                )
+            return field_spec  # It's a valid field ID
+        # Check for EnrichedFieldId prefix (affinity-data-* or other known prefixes)
+        # Note: enriched fields may not appear in list field metadata, so skip validation
+        if field_spec.startswith("affinity-data-") or field_spec.startswith(
+            "source-of-introduction"
+        ):
+            return field_spec  # It's a valid enriched field ID
+        # Resolve as field name (this already throws if not found)
+        try:
+            return resolver.resolve_field_name_or_id(field_spec, context="field")
+        except CLIError as exc:
+            if exc.error_type != "not_found" or not refresh_fields_once():
+                raise
+            return resolver.resolve_field_name_or_id(field_spec, context="field")
+
+    # Build modifiers for CommandContext
+    ctx_modifiers: dict[str, object] = {}
+    if set_values:
+        ctx_modifiers["set"] = [list(sv) for sv in set_values]
+    if append_values:
+        ctx_modifiers["append"] = [list(av) for av in append_values]
+    if unset_fields:
+        ctx_modifiers["unset"] = list(unset_fields)
+    if unset_values:
+        ctx_modifiers["unsetValue"] = [list(uv) for uv in unset_values]
+    if json_input:
+        ctx_modifiers["json"] = json_input
+    if get_fields:
+        ctx_modifiers["get"] = list(get_fields)
+
+    results: dict[str, Any] = {}
+
+    # Upfront field resolution: resolve ALL fields before any API calls (fail-fast)
+    # This catches typos and invalid field names before any side effects
+    resolved_fields: dict[str, str] = {}  # field_spec -> resolved_field_id
+
+    all_field_specs: list[str] = []
+    all_field_specs.extend(fv[0] for fv in set_values)
+    all_field_specs.extend(av[0] for av in append_values)
+    all_field_specs.extend(unset_fields)
+    all_field_specs.extend(uv[0] for uv in unset_values)
+    all_field_specs.extend(get_fields)
+    if json_input:
+        try:
+            json_data_for_fields = json.loads(json_input)
+            if isinstance(json_data_for_fields, dict):
+                all_field_specs.extend(json_data_for_fields.keys())
+        except json.JSONDecodeError:
+            pass  # Will be caught later with better error message
+
+    for field_spec in all_field_specs:
+        if field_spec not in resolved_fields:
+            resolved_fields[field_spec] = resolve_field(field_spec)
+
+    # Conflicts by resolved field (a name, its other casing and its field-<n> id are the
+    # same field): checks on the raw specs above miss those, and Affinity silently applies
+    # the last of two updates to one field.
+    def _names(ids: set[str]) -> str:
+        return ", ".join(sorted(resolver.get_field_name(i) or i for i in ids))
+
+    set_ids_list = [resolved_fields[s] for s, _ in set_values] + [
+        resolved_fields[s] for s in set_json_fields
+    ]
+    dup_set = {i for i in set_ids_list if set_ids_list.count(i) > 1}
+    if dup_set:
+        raise CLIError(
+            f"Field(s) set more than once: {_names(dup_set)}",
+            exit_code=2,
+            error_type="usage_error",
+        )
+    r_set = set(set_ids_list)
+    r_append = {resolved_fields[a[0]] for a in append_values}
+    r_unset = {resolved_fields[u] for u in unset_fields}
+    r_unset_value = {resolved_fields[u[0]] for u in unset_values}
+    for left, right, label in (
+        (r_set, r_append, "--set and --append"),
+        (r_set, r_unset, "--set and --unset"),
+        (r_set, r_unset_value, "--set and --unset-value"),
+        (r_append, r_unset, "--append and --unset"),
+        (r_unset, r_unset_value, "--unset and --unset-value"),
+    ):
+        if left & right:
+            raise CLIError(
+                f"Field(s) in both {label}: {_names(left & right)}",
+                exit_code=2,
+                error_type="usage_error",
+            )
+
+    # Handle --get: read field values via V2 API (returns resolved person/company objects)
+    if has_get:
+        entries = client.lists.entries(resolved_list.list.id)
+        target_field_ids = [resolved_fields[fs] for fs in get_fields]
+        v2_fields = entries.get_field_values(
+            ListEntryId(entry_id),
+            ids=target_field_ids,
+        )
+
+        field_results: dict[str, Any] = {}
+        for field_spec in get_fields:
+            target_field_id = resolved_fields[field_spec]
+            resolved_name = resolver.get_field_name(target_field_id) or field_spec
+            # Extract raw .value.data — same approach as _extract_field_values()
+            # and list export. Do NOT use get_value() which returns typed objects.
+            field_obj = v2_fields.data.get(target_field_id)
+            if field_obj is not None:
+                value_wrapper = field_obj.get("value")
+                if isinstance(value_wrapper, dict) and "data" in value_wrapper:
+                    field_results[resolved_name] = value_wrapper["data"]
+                else:
+                    field_results[resolved_name] = value_wrapper
+            else:
+                field_results[resolved_name] = None
+
+        results["fields"] = field_results
+        from ..field_utils import truncation_warnings
+
+        warnings.extend(truncation_warnings([(f"list entry {entry_id}", v2_fields)]))
+
+        cmd_context = CommandContext(
+            name=command_name,
+            inputs=command_inputs or {"listSelector": list_selector, "entryId": entry_id},
+            modifiers=ctx_modifiers,
+            resolved={k: str(v) for k, v in resolved.items() if v is not None}
+            if resolved
+            else None,
+        )
+
+        return CommandOutput(
+            data=results,
+            context=cmd_context,
+            resolved=resolved,
+            api_called=True,
+        )
+
+    # Phase 1a: Collect --set + --set-json into a unified ops list.
+    set_operations_raw: list[tuple[str, Any]] = []
+
+    for field_spec, value in set_values:
+        target_field_id = resolved_fields[field_spec]
+        set_operations_raw.append((target_field_id, value))
+
+    if json_input:
+        try:
+            json_data = json.loads(json_input)
+            if not isinstance(json_data, dict):
+                raise CLIError(
+                    "--set-json must be a JSON object.",
+                    exit_code=2,
+                    error_type="usage_error",
+                )
+            for field_spec, value in json_data.items():
+                target_field_id = resolved_fields[field_spec]
+                set_operations_raw.append((target_field_id, value))
+        except json.JSONDecodeError as e:
+            raise CLIError(
+                f"Invalid JSON in --set-json: {e}",
+                exit_code=2,
+                error_type="usage_error",
+            ) from e
+
+    # Phase 1b: Pre-validate ALL --set values up front. Errors aggregate;
+    # if any value is invalid, abort before issuing any API write.
+    from ..field_utils import (
+        check_append_targets,
+        check_multi_value_limits,
+        execute_append_phase,
+        pre_validate_set_operations,
+        value_equals_existing,
+    )
+
+    # Validate set + append in ONE call so a bad append value also aborts
+    # the set phase before any write happens.
+    append_ops_for_validation: list[tuple[str, Any]] = [
+        (resolved_fields[field_spec], value) for field_spec, value in append_values
+    ]
+    # Dropdown options read fresh for every dropdown field being written: cached V1 options
+    # can miss an option added moments ago or still hold a renamed one.
+    resolver.load_dropdown_options(
+        client,
+        [fid for fid, _ in set_operations_raw + append_ops_for_validation],
+        entity_type="list-entry",
+        list_id=int(resolved_list.list.id),
+    )
+    pre_validate_set_operations(resolver, set_operations_raw + append_ops_for_validation)
+    # We still want a dict keyed by set-op field-id for the set helper; build
+    # it from set_operations_raw only.
+    pre_resolved_set = pre_validate_set_operations(resolver, set_operations_raw)
+    check_append_targets(resolver=resolver, append_ops=append_ops_for_validation)
+
+    # Phase 1c: Fetch existing values, emit multi-value warnings, write.
+    existing_values_list = list(client.field_values.list(list_entry_id=ListEntryId(entry_id)))
+    existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values_list]
+
+    # Preserve the legacy "Replaced N existing values" warning for fields that
+    # will actually be written (not for no-ops).
+    for target_field_id, (_raw, new_value, _t) in pre_resolved_set.items():
+        existing_for_field = find_field_values_for_field(
+            field_values=existing_values_serialized,
+            field_id=target_field_id,
+        )
+        if len(existing_for_field) > 1 and not value_equals_existing(
+            resolver.get_field_metadata(target_field_id), new_value, existing_for_field
+        ):
+            resolved_name = resolver.get_field_name(target_field_id) or target_field_id
+            old_vals = [fv.get("value") for fv in existing_for_field]
+            if len(old_vals) > 5:
+                display_vals = [*old_vals[:3], f"...{len(old_vals) - 3} more..."]
+            else:
+                display_vals = old_vals
+            click.echo(
+                f"Warning: Replaced {len(existing_for_field)} existing values "
+                f"for field '{resolved_name}': {display_vals}",
+                err=True,
+            )
+
+    # Size check BEFORE any write, so an over-cap request changes nothing.
+    check_multi_value_limits(
+        resolver=resolver,
+        pre_resolved_set=pre_resolved_set,
+        append_ops=append_ops_for_validation if append_values else [],
+        existing_values_serialized=existing_values_serialized,
+    )
+
+    entries = client.lists.entries(resolved_list.list.id)
+    created_values: list[dict[str, Any]] = []
+    cleared: list[dict[str, Any]] = []
+    deleted_count = 0
+
+    # Phase 2: every --set / --set-json / --unset in ONE request. Affinity applies the
+    # whole batch or none of it, and each update replaces the field's value (a typed null
+    # clears it), so nothing is deleted first.
+    from ..field_utils import UNWRITABLE_TYPES
+
+    updates: dict[str, Any] = {}
+    value_types: dict[str, str] = {}
+    for target_field_id, (_raw, new_value, type_str) in pre_resolved_set.items():
+        existing_for_field = find_field_values_for_field(
+            field_values=existing_values_serialized, field_id=target_field_id
+        )
+        if value_equals_existing(
+            resolver.get_field_metadata(target_field_id), new_value, existing_for_field
+        ):
+            continue
+        updates[target_field_id] = new_value
+        value_types[target_field_id] = type_str
+    for field_spec in unset_fields:
+        target_field_id = resolved_fields[field_spec]
+        write_type = resolver.write_type(target_field_id)
+        if write_type is None:
+            raise CLIError(
+                f"Cannot clear '{field_spec}': its value type is unknown on this list. "
+                "Nothing was changed.",
+                exit_code=2,
+                error_type="usage_error",
+            )
+        # Always sent: V1 reads can lag a write, and clearing is idempotent.
+        updates[target_field_id] = None
+        value_types[target_field_id] = write_type
+    unwritable = {fid: t for fid, t in value_types.items() if t in UNWRITABLE_TYPES}
+    if unwritable:
+        names = ", ".join(
+            f"'{resolver.get_field_name(f) or f}' ({t})" for f, t in unwritable.items()
+        )
+        raise CLIError(
+            f"Affinity doesn't accept writes to: {names}. Nothing was changed.",
+            exit_code=2,
+            error_type="usage_error",
+        )
+
+    written: list[str] = []
+    if updates:
+        from affinity.exceptions import (
+            AffinityError,
+            AuthorizationError,
+            NetworkError,
+            TimeoutError,
+            WriteNotAllowedError,
+        )
+
+        names = ", ".join(resolver.get_field_name(f) or f for f in updates)
+        try:
+            entries.batch_update_fields(ListEntryId(entry_id), updates, value_types=value_types)
+        except (TimeoutError, NetworkError) as exc:
+            raise CLIError(
+                f"The update of {names} may or may not have been applied (no response "
+                f"from Affinity: {exc}). Re-running the command is safe.",
+                exit_code=1,
+                error_type="network_error",
+            ) from exc
+        except WriteNotAllowedError:
+            raise
+        except AuthorizationError as exc:
+            raise CLIError(
+                f"Affinity refused the update of {names}; nothing was changed. Your API "
+                "key may not have access to one of these fields (e.g. restricted "
+                f"opportunity fields). {exc}",
+                exit_code=1,
+                error_type="permission_denied",
+            ) from exc
+        except AffinityError as exc:
+            if getattr(exc, "status_code", None) and int(exc.status_code or 0) < 500:
+                raise CLIError(
+                    f"Affinity rejected the update of {names}; nothing was changed. {exc}",
+                    exit_code=1,
+                    error_type="api_error",
+                ) from exc
+            raise
+        written = list(updates)
+        for fid, value in updates.items():
+            item = {"fieldId": fid, "name": resolver.get_field_name(fid) or fid}
+            if value is None:
+                cleared.append(item)
+            else:
+                created_values.append({**item, "value": value})
+
+    def _partial(exc: Exception) -> CLIError:
+        names_written = [resolver.get_field_name(f) or f for f in written]
+        return CLIError(
+            f"Stopped part-way: {', '.join(names_written)} were already updated, then {exc}",
+            exit_code=1,
+            error_type="partial_write",
+            details={"written": names_written},
+        )
+
+    # Phase 3: --append (V2 multi-value merge logic lives in execute_append_phase).
+    # Pre-validation already ran above for both set + append values together.
+    try:
+        if append_values:
+            append_created, _refreshed = execute_append_phase(
+                client=client,
+                entries=entries,
+                list_entry_id=int(entry_id),
+                append_ops=append_ops_for_validation,
+                existing_values_serialized=existing_values_serialized,
+                resolver=resolver,
+            )
+            created_values.extend(append_created)
+
+        # The append rewrote its fields' rows; re-read before removing single values.
+        if has_unset_value:
+            existing_values_list = list(
+                client.field_values.list(list_entry_id=ListEntryId(entry_id))
+            )
+            existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values_list]
+    except CLIError:
+        raise
+    except Exception as exc:
+        if written:
+            raise _partial(exc) from exc
+        raise
+
+    # Phase 3b: Handle --unset-value (delete specific value)
+    for field_spec, value_to_remove in unset_values:
+        target_field_id = resolved_fields[field_spec]  # Already resolved upfront
+        existing_for_field = find_field_values_for_field(
+            field_values=existing_values_serialized,
+            field_id=target_field_id,
+        )
+        value_str = value_to_remove.strip()
+        found = False
+        for fv in existing_for_field:
+            fv_value = fv.get("value")
+            if format_value_for_comparison(fv_value) == value_str:
+                fv_id = fv.get("id")
+                if fv_id:
+                    client.field_values.delete(fv_id)
+                    deleted_count += 1
+                    found = True
+                    break
+        # Idempotent: silent success if value not found
+        if not found:
+            resolved_name = resolver.get_field_name(target_field_id) or field_spec
+            warnings.append(
+                f"Value '{value_to_remove}' not found for field '{resolved_name}' "
+                "(already removed or never existed)."
+            )
+
+    # Build result
+    if created_values:
+        results["created"] = created_values
+    if cleared:
+        results["cleared"] = cleared
+    if deleted_count > 0:
+        results["deleted"] = deleted_count
+
+    cmd_context = CommandContext(
+        name=command_name,
+        inputs=command_inputs or {"listSelector": list_selector, "entryId": entry_id},
+        modifiers=ctx_modifiers,
+        resolved={k: str(v) for k, v in resolved.items() if v is not None} if resolved else None,
+    )
+
+    return CommandOutput(
+        data=results,
+        context=cmd_context,
+        resolved=resolved,
+        api_called=True,
+    )
+
+
 @category("write")
 @list_entry_group.command(name="field", cls=RichCommand)
 @click.argument("list_selector", type=str)
@@ -3308,558 +3875,17 @@ def list_entry_field(
     """
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
-        from ..field_utils import (
-            FieldResolver,
-            find_field_values_for_field,
-            format_value_for_comparison,
-        )
-
-        # Validate: at least one operation must be specified
-        has_set = bool(set_values) or bool(json_input)
-        has_append = bool(append_values)
-        has_unset = bool(unset_fields)
-        has_unset_value = bool(unset_values)
-        has_get = bool(get_fields)
-
-        if not any([has_set, has_append, has_unset, has_unset_value, has_get]):
-            raise CLIError(
-                "No operation specified. Use --set, --append, --unset, --unset-value, "
-                "--set-json, or --get.",
-                exit_code=2,
-                error_type="usage_error",
-            )
-
-        # Validate: --get is exclusive (can't mix read with write)
-        if has_get and (has_set or has_append or has_unset or has_unset_value):
-            raise CLIError(
-                "--get cannot be combined with write operations "
-                "(--set, --append, --unset, --unset-value, --set-json).",
-                exit_code=2,
-                error_type="usage_error",
-            )
-
-        # Collect all fields from operations for conflict detection
-        set_option_fields: set[str] = {fv[0] for fv in set_values}
-        set_json_fields: set[str] = set()
-        if json_input:
-            try:
-                json_data = json.loads(json_input)
-                if isinstance(json_data, dict):
-                    set_json_fields = set(json_data.keys())
-            except json.JSONDecodeError:
-                pass  # Handled later
-
-        # Check for duplicate fields between --set and --set-json
-        duplicate_fields = set_option_fields & set_json_fields
-        if duplicate_fields:
-            raise CLIError(
-                f"Field(s) in both --set and --set-json: {duplicate_fields}",
-                exit_code=2,
-                error_type="usage_error",
-            )
-
-        all_set_fields = set_option_fields | set_json_fields
-        all_append_fields: set[str] = {av[0] for av in append_values}
-        all_unset_fields: set[str] = set(unset_fields)
-        all_unset_value_fields: set[str] = {uv[0] for uv in unset_values}
-
-        # Check for conflicting operations on same field
-        if all_set_fields & all_append_fields:
-            raise CLIError(
-                f"Field(s) in both --set and --append: {all_set_fields & all_append_fields}",
-                exit_code=2,
-                error_type="usage_error",
-            )
-        if all_set_fields & all_unset_fields:
-            raise CLIError(
-                f"Field(s) in both --set and --unset: {all_set_fields & all_unset_fields}",
-                exit_code=2,
-                error_type="usage_error",
-            )
-        if all_set_fields & all_unset_value_fields:
-            raise CLIError(
-                f"Field(s) in both --set and --unset-value: "
-                f"{all_set_fields & all_unset_value_fields}",
-                exit_code=2,
-                error_type="usage_error",
-            )
-        if all_append_fields & all_unset_fields:
-            raise CLIError(
-                f"Field(s) in both --append and --unset: {all_append_fields & all_unset_fields}",
-                exit_code=2,
-                error_type="usage_error",
-            )
-        if all_unset_fields & all_unset_value_fields:
-            raise CLIError(
-                f"Field(s) in both --unset and --unset-value: "
-                f"{all_unset_fields & all_unset_value_fields}",
-                exit_code=2,
-                error_type="usage_error",
-            )
-        # Note: --append + --unset-value on same field is ALLOWED (tag swap pattern)
-
-        client = ctx.get_client(warnings=warnings)
-        cache = ctx.session_cache
-        resolved_list = resolve_list_selector(client=client, selector=list_selector, cache=cache)
-        resolved = dict(resolved_list.resolved)
-
-        # Field metadata: V1 for names and dropdown options, V2 for the value types.
-        from ..field_utils import with_v2_value_types
-
-        v2_list_fields = list(client.lists.get_fields(resolved_list.list.id))
-        field_metadata = with_v2_value_types(
-            list_fields_for_list(client=client, list_id=resolved_list.list.id, cache=cache),
-            v2_list_fields,
-        )
-        resolver = FieldResolver(field_metadata)
-        fields_refreshed = False
-
-        def refresh_fields_once() -> bool:
-            """On a lookup miss, refetch once: Affinity's V1 field listing can lag field
-            creation (V2 is current), and the SDK/session caches can pin a stale copy."""
-            nonlocal resolver, field_metadata, fields_refreshed
-            if fields_refreshed:
-                return False
-            fields_refreshed = True
-            field_metadata = with_v2_value_types(
-                refresh_list_fields(client=client, list_id=resolved_list.list.id, cache=cache),
-                v2_list_fields,
-            )
-            resolver = FieldResolver(field_metadata)
-            return True
-
-        # Pattern for field IDs: must be "field-" followed by digits
-        # Note: pure numeric strings like "2024" are treated as field NAMES, not IDs
-        import re
-
-        _field_id_pattern = re.compile(r"^field-\d+$")
-
-        # Helper to resolve field name or ID and validate it exists on the list
-        def resolve_field(field_spec: str) -> str:
-            """Resolve field name/ID, auto-detecting format.
-
-            Args:
-                field_spec: Field name or ID to resolve.
-
-            Returns:
-                The resolved field ID.
-
-            Raises:
-                CLIError: If field is not found on the list.
-            """
-            # Check for FieldId format (pattern: field-\d+)
-            # Note: pure numeric strings like "2024" are treated as field names
-            if _field_id_pattern.match(field_spec):
-                # Validate field ID exists on this list
-                if not resolver.get_field_name(field_spec) and not (
-                    refresh_fields_once() and resolver.get_field_name(field_spec)
-                ):
-                    raise CLIError(
-                        f"Field '{field_spec}' not found on list '{list_selector}'.",
-                        exit_code=2,
-                        error_type="not_found",
-                    )
-                return field_spec  # It's a valid field ID
-            # Check for EnrichedFieldId prefix (affinity-data-* or other known prefixes)
-            # Note: enriched fields may not appear in list field metadata, so skip validation
-            if field_spec.startswith("affinity-data-") or field_spec.startswith(
-                "source-of-introduction"
-            ):
-                return field_spec  # It's a valid enriched field ID
-            # Resolve as field name (this already throws if not found)
-            try:
-                return resolver.resolve_field_name_or_id(field_spec, context="field")
-            except CLIError as exc:
-                if exc.error_type != "not_found" or not refresh_fields_once():
-                    raise
-                return resolver.resolve_field_name_or_id(field_spec, context="field")
-
-        # Build modifiers for CommandContext
-        ctx_modifiers: dict[str, object] = {}
-        if set_values:
-            ctx_modifiers["set"] = [list(sv) for sv in set_values]
-        if append_values:
-            ctx_modifiers["append"] = [list(av) for av in append_values]
-        if unset_fields:
-            ctx_modifiers["unset"] = list(unset_fields)
-        if unset_values:
-            ctx_modifiers["unsetValue"] = [list(uv) for uv in unset_values]
-        if json_input:
-            ctx_modifiers["json"] = json_input
-        if get_fields:
-            ctx_modifiers["get"] = list(get_fields)
-
-        results: dict[str, Any] = {}
-
-        # Upfront field resolution: resolve ALL fields before any API calls (fail-fast)
-        # This catches typos and invalid field names before any side effects
-        resolved_fields: dict[str, str] = {}  # field_spec -> resolved_field_id
-
-        all_field_specs: list[str] = []
-        all_field_specs.extend(fv[0] for fv in set_values)
-        all_field_specs.extend(av[0] for av in append_values)
-        all_field_specs.extend(unset_fields)
-        all_field_specs.extend(uv[0] for uv in unset_values)
-        all_field_specs.extend(get_fields)
-        if json_input:
-            try:
-                json_data_for_fields = json.loads(json_input)
-                if isinstance(json_data_for_fields, dict):
-                    all_field_specs.extend(json_data_for_fields.keys())
-            except json.JSONDecodeError:
-                pass  # Will be caught later with better error message
-
-        for field_spec in all_field_specs:
-            if field_spec not in resolved_fields:
-                resolved_fields[field_spec] = resolve_field(field_spec)
-
-        # Conflicts by resolved field (a name, its other casing and its field-<n> id are the
-        # same field): checks on the raw specs above miss those, and Affinity silently applies
-        # the last of two updates to one field.
-        def _names(ids: set[str]) -> str:
-            return ", ".join(sorted(resolver.get_field_name(i) or i for i in ids))
-
-        set_ids_list = [resolved_fields[s] for s, _ in set_values] + [
-            resolved_fields[s] for s in set_json_fields
-        ]
-        dup_set = {i for i in set_ids_list if set_ids_list.count(i) > 1}
-        if dup_set:
-            raise CLIError(
-                f"Field(s) set more than once: {_names(dup_set)}",
-                exit_code=2,
-                error_type="usage_error",
-            )
-        r_set = set(set_ids_list)
-        r_append = {resolved_fields[a[0]] for a in append_values}
-        r_unset = {resolved_fields[u] for u in unset_fields}
-        r_unset_value = {resolved_fields[u[0]] for u in unset_values}
-        for left, right, label in (
-            (r_set, r_append, "--set and --append"),
-            (r_set, r_unset, "--set and --unset"),
-            (r_set, r_unset_value, "--set and --unset-value"),
-            (r_append, r_unset, "--append and --unset"),
-            (r_unset, r_unset_value, "--unset and --unset-value"),
-        ):
-            if left & right:
-                raise CLIError(
-                    f"Field(s) in both {label}: {_names(left & right)}",
-                    exit_code=2,
-                    error_type="usage_error",
-                )
-
-        # Handle --get: read field values via V2 API (returns resolved person/company objects)
-        if has_get:
-            entries = client.lists.entries(resolved_list.list.id)
-            target_field_ids = [resolved_fields[fs] for fs in get_fields]
-            v2_fields = entries.get_field_values(
-                ListEntryId(entry_id),
-                ids=target_field_ids,
-            )
-
-            field_results: dict[str, Any] = {}
-            for field_spec in get_fields:
-                target_field_id = resolved_fields[field_spec]
-                resolved_name = resolver.get_field_name(target_field_id) or field_spec
-                # Extract raw .value.data — same approach as _extract_field_values()
-                # and list export. Do NOT use get_value() which returns typed objects.
-                field_obj = v2_fields.data.get(target_field_id)
-                if field_obj is not None:
-                    value_wrapper = field_obj.get("value")
-                    if isinstance(value_wrapper, dict) and "data" in value_wrapper:
-                        field_results[resolved_name] = value_wrapper["data"]
-                    else:
-                        field_results[resolved_name] = value_wrapper
-                else:
-                    field_results[resolved_name] = None
-
-            results["fields"] = field_results
-            from ..field_utils import truncation_warnings
-
-            warnings.extend(truncation_warnings([(f"list entry {entry_id}", v2_fields)]))
-
-            cmd_context = CommandContext(
-                name="entry field",
-                inputs={"listSelector": list_selector, "entryId": entry_id},
-                modifiers=ctx_modifiers,
-                resolved={k: str(v) for k, v in resolved.items() if v is not None}
-                if resolved
-                else None,
-            )
-
-            return CommandOutput(
-                data=results,
-                context=cmd_context,
-                resolved=resolved,
-                api_called=True,
-            )
-
-        # Phase 1a: Collect --set + --set-json into a unified ops list.
-        set_operations_raw: list[tuple[str, Any]] = []
-
-        for field_spec, value in set_values:
-            target_field_id = resolved_fields[field_spec]
-            set_operations_raw.append((target_field_id, value))
-
-        if json_input:
-            try:
-                json_data = json.loads(json_input)
-                if not isinstance(json_data, dict):
-                    raise CLIError(
-                        "--set-json must be a JSON object.",
-                        exit_code=2,
-                        error_type="usage_error",
-                    )
-                for field_spec, value in json_data.items():
-                    target_field_id = resolved_fields[field_spec]
-                    set_operations_raw.append((target_field_id, value))
-            except json.JSONDecodeError as e:
-                raise CLIError(
-                    f"Invalid JSON in --set-json: {e}",
-                    exit_code=2,
-                    error_type="usage_error",
-                ) from e
-
-        # Phase 1b: Pre-validate ALL --set values up front. Errors aggregate;
-        # if any value is invalid, abort before issuing any API write.
-        from ..field_utils import (
-            check_append_targets,
-            check_multi_value_limits,
-            execute_append_phase,
-            pre_validate_set_operations,
-            value_equals_existing,
-        )
-
-        # Validate set + append in ONE call so a bad append value also aborts
-        # the set phase before any write happens.
-        append_ops_for_validation: list[tuple[str, Any]] = [
-            (resolved_fields[field_spec], value) for field_spec, value in append_values
-        ]
-        # Dropdown options read fresh for every dropdown field being written: cached V1 options
-        # can miss an option added moments ago or still hold a renamed one.
-        resolver.load_dropdown_options(
-            client,
-            [fid for fid, _ in set_operations_raw + append_ops_for_validation],
-            entity_type="list-entry",
-            list_id=int(resolved_list.list.id),
-        )
-        pre_validate_set_operations(resolver, set_operations_raw + append_ops_for_validation)
-        # We still want a dict keyed by set-op field-id for the set helper; build
-        # it from set_operations_raw only.
-        pre_resolved_set = pre_validate_set_operations(resolver, set_operations_raw)
-        check_append_targets(resolver=resolver, append_ops=append_ops_for_validation)
-
-        # Phase 1c: Fetch existing values, emit multi-value warnings, write.
-        existing_values_list = list(client.field_values.list(list_entry_id=ListEntryId(entry_id)))
-        existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values_list]
-
-        # Preserve the legacy "Replaced N existing values" warning for fields that
-        # will actually be written (not for no-ops).
-        for target_field_id, (_raw, new_value, _t) in pre_resolved_set.items():
-            existing_for_field = find_field_values_for_field(
-                field_values=existing_values_serialized,
-                field_id=target_field_id,
-            )
-            if len(existing_for_field) > 1 and not value_equals_existing(
-                resolver.get_field_metadata(target_field_id), new_value, existing_for_field
-            ):
-                resolved_name = resolver.get_field_name(target_field_id) or target_field_id
-                old_vals = [fv.get("value") for fv in existing_for_field]
-                if len(old_vals) > 5:
-                    display_vals = [*old_vals[:3], f"...{len(old_vals) - 3} more..."]
-                else:
-                    display_vals = old_vals
-                click.echo(
-                    f"Warning: Replaced {len(existing_for_field)} existing values "
-                    f"for field '{resolved_name}': {display_vals}",
-                    err=True,
-                )
-
-        # Size check BEFORE any write, so an over-cap request changes nothing.
-        check_multi_value_limits(
-            resolver=resolver,
-            pre_resolved_set=pre_resolved_set,
-            append_ops=append_ops_for_validation if append_values else [],
-            existing_values_serialized=existing_values_serialized,
-        )
-
-        entries = client.lists.entries(resolved_list.list.id)
-        created_values: list[dict[str, Any]] = []
-        cleared: list[dict[str, Any]] = []
-        deleted_count = 0
-
-        # Phase 2: every --set / --set-json / --unset in ONE request. Affinity applies the
-        # whole batch or none of it, and each update replaces the field's value (a typed null
-        # clears it), so nothing is deleted first.
-        from ..field_utils import UNWRITABLE_TYPES
-
-        updates: dict[str, Any] = {}
-        value_types: dict[str, str] = {}
-        for target_field_id, (_raw, new_value, type_str) in pre_resolved_set.items():
-            existing_for_field = find_field_values_for_field(
-                field_values=existing_values_serialized, field_id=target_field_id
-            )
-            if value_equals_existing(
-                resolver.get_field_metadata(target_field_id), new_value, existing_for_field
-            ):
-                continue
-            updates[target_field_id] = new_value
-            value_types[target_field_id] = type_str
-        for field_spec in unset_fields:
-            target_field_id = resolved_fields[field_spec]
-            write_type = resolver.write_type(target_field_id)
-            if write_type is None:
-                raise CLIError(
-                    f"Cannot clear '{field_spec}': its value type is unknown on this list. "
-                    "Nothing was changed.",
-                    exit_code=2,
-                    error_type="usage_error",
-                )
-            # Always sent: V1 reads can lag a write, and clearing is idempotent.
-            updates[target_field_id] = None
-            value_types[target_field_id] = write_type
-        unwritable = {fid: t for fid, t in value_types.items() if t in UNWRITABLE_TYPES}
-        if unwritable:
-            names = ", ".join(
-                f"'{resolver.get_field_name(f) or f}' ({t})" for f, t in unwritable.items()
-            )
-            raise CLIError(
-                f"Affinity doesn't accept writes to: {names}. Nothing was changed.",
-                exit_code=2,
-                error_type="usage_error",
-            )
-
-        written: list[str] = []
-        if updates:
-            from affinity.exceptions import (
-                AffinityError,
-                AuthorizationError,
-                NetworkError,
-                TimeoutError,
-                WriteNotAllowedError,
-            )
-
-            names = ", ".join(resolver.get_field_name(f) or f for f in updates)
-            try:
-                entries.batch_update_fields(ListEntryId(entry_id), updates, value_types=value_types)
-            except (TimeoutError, NetworkError) as exc:
-                raise CLIError(
-                    f"The update of {names} may or may not have been applied (no response "
-                    f"from Affinity: {exc}). Re-running the command is safe.",
-                    exit_code=1,
-                    error_type="network_error",
-                ) from exc
-            except WriteNotAllowedError:
-                raise
-            except AuthorizationError as exc:
-                raise CLIError(
-                    f"Affinity refused the update of {names}; nothing was changed. Your API "
-                    "key may not have access to one of these fields (e.g. restricted "
-                    f"opportunity fields). {exc}",
-                    exit_code=1,
-                    error_type="permission_denied",
-                ) from exc
-            except AffinityError as exc:
-                if getattr(exc, "status_code", None) and int(exc.status_code or 0) < 500:
-                    raise CLIError(
-                        f"Affinity rejected the update of {names}; nothing was changed. {exc}",
-                        exit_code=1,
-                        error_type="api_error",
-                    ) from exc
-                raise
-            written = list(updates)
-            for fid, value in updates.items():
-                item = {"fieldId": fid, "name": resolver.get_field_name(fid) or fid}
-                if value is None:
-                    cleared.append(item)
-                else:
-                    created_values.append({**item, "value": value})
-
-        def _partial(exc: Exception) -> CLIError:
-            names_written = [resolver.get_field_name(f) or f for f in written]
-            return CLIError(
-                f"Stopped part-way: {', '.join(names_written)} were already updated, then {exc}",
-                exit_code=1,
-                error_type="partial_write",
-                details={"written": names_written},
-            )
-
-        # Phase 3: --append (V2 multi-value merge logic lives in execute_append_phase).
-        # Pre-validation already ran above for both set + append values together.
-        try:
-            if append_values:
-                append_created, _refreshed = execute_append_phase(
-                    client=client,
-                    entries=entries,
-                    list_entry_id=int(entry_id),
-                    append_ops=append_ops_for_validation,
-                    existing_values_serialized=existing_values_serialized,
-                    resolver=resolver,
-                )
-                created_values.extend(append_created)
-
-            # The append rewrote its fields' rows; re-read before removing single values.
-            if has_unset_value:
-                existing_values_list = list(
-                    client.field_values.list(list_entry_id=ListEntryId(entry_id))
-                )
-                existing_values_serialized = [
-                    serialize_model_for_cli(v) for v in existing_values_list
-                ]
-        except CLIError:
-            raise
-        except Exception as exc:
-            if written:
-                raise _partial(exc) from exc
-            raise
-
-        # Phase 3b: Handle --unset-value (delete specific value)
-        for field_spec, value_to_remove in unset_values:
-            target_field_id = resolved_fields[field_spec]  # Already resolved upfront
-            existing_for_field = find_field_values_for_field(
-                field_values=existing_values_serialized,
-                field_id=target_field_id,
-            )
-            value_str = value_to_remove.strip()
-            found = False
-            for fv in existing_for_field:
-                fv_value = fv.get("value")
-                if format_value_for_comparison(fv_value) == value_str:
-                    fv_id = fv.get("id")
-                    if fv_id:
-                        client.field_values.delete(fv_id)
-                        deleted_count += 1
-                        found = True
-                        break
-            # Idempotent: silent success if value not found
-            if not found:
-                resolved_name = resolver.get_field_name(target_field_id) or field_spec
-                warnings.append(
-                    f"Value '{value_to_remove}' not found for field '{resolved_name}' "
-                    "(already removed or never existed)."
-                )
-
-        # Build result
-        if created_values:
-            results["created"] = created_values
-        if cleared:
-            results["cleared"] = cleared
-        if deleted_count > 0:
-            results["deleted"] = deleted_count
-
-        cmd_context = CommandContext(
-            name="entry field",
-            inputs={"listSelector": list_selector, "entryId": entry_id},
-            modifiers=ctx_modifiers,
-            resolved={k: str(v) for k, v in resolved.items() if v is not None}
-            if resolved
-            else None,
-        )
-
-        return CommandOutput(
-            data=results,
-            context=cmd_context,
-            resolved=resolved,
-            api_called=True,
+        return run_entry_field(
+            ctx,
+            warnings,
+            list_selector=list_selector,
+            entry_id=entry_id,
+            set_values=set_values,
+            append_values=append_values,
+            unset_fields=unset_fields,
+            unset_values=unset_values,
+            json_input=json_input,
+            get_fields=get_fields,
         )
 
     run_command(ctx, command="entry field", fn=fn)
