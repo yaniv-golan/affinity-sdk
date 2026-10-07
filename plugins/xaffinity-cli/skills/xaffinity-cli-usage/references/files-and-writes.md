@@ -59,3 +59,8 @@ Since CLI 1.12.0, create refuses if an exact name/domain (companies) or email/fu
   exits 2 — use `--set`. Numbers are plain (`--set Amount 5`); locations are JSON objects
   (`--set HQ '{"city": "Paris", "country": "France"}'`). Requires CLI 1.18.0+: earlier versions
   could leave a field empty when a write failed.
+- **One command = one all-or-nothing update** (CLI 1.19.0+, `list entry field` and
+  `opportunity field`): all `--set`/`--set-json`/`--unset` succeed together or none applies. To
+  update several fields consistently, put them in one command.
+- **Hidden is not empty.** A field reported "hidden by Affinity" (restricted opportunity, API
+  version 2026-07-15+) is masked: treat it as unknown and don't overwrite it.

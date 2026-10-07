@@ -728,9 +728,14 @@ xaffinity list entry field "Portfolio" 123 --append Tags "NewTag" --unset-value 
 **Notes:**
 - Field names are resolved case-insensitively
 - Field IDs (`field-123`) can be used directly
-- `--set` replaces all existing values in one write: if Affinity rejects it, the field keeps
-  its old values. Use `--append` to add to multi-value fields; `--append` on a single-value
-  field is refused (use `--set`)
+- All `--set`, `--set-json` and `--unset` of one command go to Affinity in **one request**,
+  applied all-or-nothing: if Affinity rejects any value, no field changes. `--set` replaces the
+  field's value; `--unset` clears it. Use `--append` to add to multi-value fields; `--append` on
+  a single-value field is refused (use `--set`)
+- The same field named twice (by name, other casing or `field-<id>`) is refused
+- JSON output: `created` lists each field set (`fieldId`, `name`, `value`), `cleared` each field
+  `--unset`; `deleted` counts values removed by `--unset-value`
+- `opportunity field` works the same way (an opportunity's fields are its list entry's fields)
 - Numbers are sent as numbers (`--set Amount 5`); anything else is refused before any write
 - Locations are JSON objects with any of `streetAddress` (or `street_address`), `city`, `state`,
   `country`, `continent`: `--set HQ '{"city": "Paris", "country": "France"}'`
@@ -738,7 +743,7 @@ xaffinity list entry field "Portfolio" 123 --append Tags "NewTag" --unset-value 
   that would exceed it is refused before anything changes
 - `--get` is exclusive with write operations
 - `--get` returns resolved objects for person/company reference fields (with `firstName`, `lastName`, `primaryEmailAddress`, etc.) and full dropdown option data (with `text`, `color`). Output format matches `list export`.
-- Operation order: `--set`/`--set-json` → `--append` → `--unset`/`--unset-value`
+- Operation order: one request for `--set`/`--set-json`/`--unset` → `--append` → `--unset-value`
 
 ## Notes
 
