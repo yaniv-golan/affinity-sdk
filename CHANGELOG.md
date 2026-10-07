@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Truncation signal for multi-value fields. Affinity's V2 API returns at most 100 values per
+  multi-value field and reports the real number in `totalCount`; nothing surfaced it, so a field
+  with 250 values silently looked like it had 100. New `FieldValues.total_count()`,
+  `is_truncated()` and `truncated_fields()`. The CLI warns ("Field 'X' on … shows 100 of 250
+  values") in `company get`, `person get`, `opportunity get`, `list entry get`,
+  `list entry field --get`, `list export` (JSON `warnings`, stderr for CSV) and `query`.
+- `query --output json` now includes a `warnings` array when the run produced warnings.
+  Execution warnings were previously dropped in every output format; other formats now print
+  them to stderr.
+
+### Changed
+
+- `ListEntryService.update_field_value()` (sync and async) raises `ValueError` before sending more
+  than 100 values for a company, person, number, text or location multi-value field, which
+  Affinity rejects. `batch_update_fields()` raises `ValueError` for more than 100 updates (the
+  API's limit per request) and for list values, which it used to send as an invalid `text` value.
+
+### Fixed
+
+- CLI `list entry field --set` / `--set-json` / `--append` could empty a multi-value field: the
+  existing values are deleted before the new ones are written, so a write Affinity rejected
+  (e.g. more than 100 values) left the field blank. The final value count is now checked before
+  anything changes, and if a write still fails after the delete, the error lists the removed
+  values.
+- `ListEntryService.get_field_values()` (sync and async) read only the first page of
+  `…/list-entries/{id}/fields` (20 fields by default), silently missing the rest. It now reads
+  every page.
+- CLI: warnings a command returned replaced the warnings collected while it ran instead of
+  being merged with them.
+
 ## [1.17.0] - 2026-10-07
 
 ### Highlights

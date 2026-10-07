@@ -129,6 +129,22 @@ Unknown future values are treated as open enums and preserved as strings.
 | `location` / `location-multi` | `dict[str, Any]` / `list[dict[str, Any]]` | Structured location object(s); shape varies by API |
 | `interaction` | `Any` | Relationship-intelligence fields; shape varies by API |
 
+## Multi-value limits
+
+Affinity's V2 API returns and accepts at most **100 values per multi-value field**:
+
+- **Reads:** when a field holds more, the response includes the first 100 values plus a
+  `totalCount`. Check with `entity.fields.is_truncated(field_id)`,
+  `entity.fields.total_count(field_id)` or `entity.fields.truncated_fields()`. The CLI adds a
+  warning (`Field 'Tags' on … shows 100 of 250 values`) to `company get`, `person get`,
+  `opportunity get`, `list entry get`, `list entry field --get`, `list export` and `query`.
+  Filters evaluated on a truncated field only see the returned values.
+- **Writes:** `update_field_value()` raises `ValueError` before sending more than 100 values for a
+  company, person, number, text or location multi-value field (Affinity rejects them; the
+  dropdown-multi write schema declares no cap). `batch_update_fields()` accepts at most 100
+  updates per call and no list values (use `update_field_value(..., value_type=...)` for those).
+  The CLI's `list entry field` checks the final count before changing anything.
+
 ## Writing dates
 
 Since 2026-01-01 Affinity stores date fields at midnight Pacific Time, so a stored value reads

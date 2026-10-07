@@ -2067,6 +2067,14 @@ def company_get(
                 # Field metadata is optional - continue without names if fetch fails
                 pass
 
+        from ..field_utils import truncation_warnings
+
+        warnings.extend(
+            truncation_warnings(
+                [(f"company '{company_payload.get('name') or company_id}'", company_fields)]
+            )
+        )
+
         not_requested: list[dict[str, str]] = []
         if not no_fields and not (fields or requested_types):
             not_requested.append({"key": "data.company.fields", "flag": "--all-fields"})

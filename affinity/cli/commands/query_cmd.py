@@ -711,6 +711,12 @@ def _query_cmd_impl(
             if output_format == "toon":
                 output = insert_cursor_in_toon_truncation(output, cursor_encoded)
 
+    # Execution warnings (e.g. multi-value fields cut off at 100 values). JSON carries them in
+    # its "warnings" key; other formats get them on stderr.
+    if result.warnings and not quiet and ctx.output != "json":
+        for warning in result.warnings:
+            click.echo(f"[warning] {warning}", err=True)
+
     # Output the formatted result
     click.echo(output)
 

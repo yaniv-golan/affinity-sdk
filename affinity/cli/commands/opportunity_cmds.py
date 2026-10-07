@@ -501,6 +501,19 @@ def opportunity_get(
         opp_payload = data.get("opportunity", {})
         opp_fields = opp_payload.get("fields") if isinstance(opp_payload, dict) else None
         opp_list_id = opp_payload.get("listId") if isinstance(opp_payload, dict) else None
+        from ..field_utils import truncation_warnings
+
+        if isinstance(opp_payload, dict):
+            warnings.extend(
+                truncation_warnings(
+                    [
+                        (
+                            f"opportunity '{opp_payload.get('name') or opp_payload.get('id')}'",
+                            opp_fields,
+                        )
+                    ]
+                )
+            )
         if isinstance(opp_fields, list) and opp_fields and opp_list_id is not None:
             try:
                 from ..field_utils import build_field_id_to_name_map

@@ -113,6 +113,37 @@ class FieldValues(AffinityModel):
             return None
         return self._extract_value(field_data.get("value"))
 
+    def total_count(self, field_id: str | AnyFieldId) -> int | None:
+        """
+        Total number of values a multi-value field holds, when the API reports it.
+
+        V2 returns at most 100 values per multi-value field; when a field holds more, the
+        response carries ``totalCount`` alongside the truncated ``data``. Returns None when
+        the field is absent or the API did not report a total.
+        """
+        field_data = self.get(field_id)
+        value = field_data.get("value") if isinstance(field_data, dict) else None
+        total = value.get("totalCount") if isinstance(value, dict) else None
+        return total if isinstance(total, int) and not isinstance(total, bool) else None
+
+    def is_truncated(self, field_id: str | AnyFieldId) -> bool:
+        """True when the API returned fewer values for this field than it holds."""
+        total = self.total_count(field_id)
+        if total is None:
+            return False
+        value = (self.get(field_id) or {}).get("value")
+        data = value.get("data") if isinstance(value, dict) else None
+        return isinstance(data, list) and total > len(data)
+
+    def truncated_fields(self) -> dict[str, tuple[int, int]]:
+        """Map of field ID to ``(returned, total)`` for every truncated multi-value field."""
+        result: dict[str, tuple[int, int]] = {}
+        for fid in self.data:
+            if self.is_truncated(fid):
+                value = self.data[fid]["value"]
+                result[fid] = (len(value["data"]), value["totalCount"])
+        return result
+
     @staticmethod
     def _extract_value(value: Any) -> Any:
         """Extract the actual value from nested field value structure.

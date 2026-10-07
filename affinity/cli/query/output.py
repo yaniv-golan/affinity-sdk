@@ -200,6 +200,9 @@ def format_json(
     if result.pagination:
         output["pagination"] = result.pagination
 
+    if result.warnings:
+        output["warnings"] = list(result.warnings)
+
     indent = 2 if pretty else None
     return json.dumps(output, indent=indent, default=str)
 

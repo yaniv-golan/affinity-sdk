@@ -1027,6 +1027,7 @@ def list_export(
         if entity_ids_provided:
             entity_rows: list[dict[str, Any]] = []
             missing_ids: list[int] = []
+            scoped_state: dict[str, Any] = {}
             entries_service = client.lists.entries(list_id)
 
             if company_ids:
@@ -1051,12 +1052,16 @@ def list_export(
                         ListEntryId(int(stub.id)),
                         field_ids=cast(list[AnyFieldId], selected_field_ids),
                     )
+                    _note_truncated_fields(scoped_state, full)
                     entity_rows.append(
                         _entry_to_row(full, selected_field_ids, field_by_id, key_mode="names")
                     )
 
             if missing_ids:
                 warnings.append(f"Not on this list: {missing_label}={missing_ids}")
+            from ..field_utils import truncation_warnings
+
+            warnings.extend(truncation_warnings(scoped_state.get("truncatedFields", [])))
 
             return CommandOutput(
                 data={"rows": entity_rows},
@@ -1573,6 +1578,13 @@ def list_export(
                 # Emit an equivalent stderr warning instead. (With --filter the SDK
                 # virtualizes pages and next_cursor is always None, so we key off
                 # the explicit opt-in flag.)
+                from ..field_utils import truncation_warnings
+
+                for msg in truncation_warnings(
+                    csv_iter_state.get("truncatedFields", []), filtered=bool(filter_expr)
+                ):
+                    Console(file=sys.stderr).print(f"Warning: {msg}", markup=False)
+
                 if first_page_only:
                     Console(file=sys.stderr).print(
                         "Warning: Results limited to first page by --first-page-only "
@@ -1817,6 +1829,13 @@ def list_export(
 
             if table_iter_state.get("truncatedMidPage") is True:
                 warnings.append("Results limited by --max-results. Use --all to fetch all results.")
+            from ..field_utils import truncation_warnings
+
+            warnings.extend(
+                truncation_warnings(
+                    table_iter_state.get("truncatedFields", []), filtered=bool(filter_expr)
+                )
+            )
 
             # Add truncation warning for JSON output
             if json_entries_with_truncated_assoc:
@@ -1965,6 +1984,28 @@ def _columns_meta(
     return cols
 
 
+def _note_truncated_fields(state: dict[str, Any] | None, entry: Any) -> None:
+    """Remember entries whose multi-value fields Affinity cut off at 100 values."""
+    if state is None:
+        return
+    fields_raw = getattr(entry, "fields_raw", None)
+    entity = getattr(entry, "entity", None)
+    if not isinstance(fields_raw, list) and entity is not None:
+        fields_raw = getattr(entity, "fields_raw", None)
+    if not isinstance(fields_raw, list):
+        return
+    from ..field_utils import _truncated_in
+
+    if _truncated_in(fields_raw):
+        name = getattr(entity, "name", None) or " ".join(
+            p
+            for p in (getattr(entity, "first_name", None), getattr(entity, "last_name", None))
+            if p
+        )
+        label = f"'{name}'" if name else f"entry {getattr(entry, 'id', '?')}"
+        state.setdefault("truncatedFields", []).append((label, fields_raw))
+
+
 def _iterate_list_entries(
     *,
     client: Any,
@@ -2014,6 +2055,7 @@ def _iterate_list_entries(
         next_page_cursor = page.pagination.next_cursor
         for idx, entry in enumerate(page.data):
             fetched += 1
+            _note_truncated_fields(state, entry)
             yield (
                 _entry_to_row(entry, selected_field_ids, field_by_id, key_mode=key_mode),
                 None
@@ -2033,6 +2075,7 @@ def _iterate_list_entries(
             next_page_cursor = page.pagination.next_cursor
             for idx, entry in enumerate(page.data):
                 fetched += 1
+                _note_truncated_fields(state, entry)
                 yield (
                     _entry_to_row(entry, selected_field_ids, field_by_id, key_mode=key_mode),
                     None
@@ -2069,6 +2112,7 @@ def _iterate_list_entries(
             }
         for idx, entry in enumerate(page.data):
             fetched += 1
+            _note_truncated_fields(state, entry)
             yield (
                 _entry_to_row(entry, selected_field_ids, field_by_id, key_mode=key_mode),
                 None
@@ -3010,6 +3054,9 @@ def list_entry_get(
             fields_raw = getattr(entry.entity, "fields_raw", None)
         if isinstance(fields_raw, list):
             payload["fields"] = fields_raw
+            from ..field_utils import truncation_warnings
+
+            warnings.extend(truncation_warnings([(f"list entry {entry_id}", fields_raw)]))
 
         resolved = dict(resolved_list.resolved)
 
@@ -3487,6 +3534,9 @@ def list_entry_field(
                     field_results[resolved_name] = None
 
             results["fields"] = field_results
+            from ..field_utils import truncation_warnings
+
+            warnings.extend(truncation_warnings([(f"list entry {entry_id}", v2_fields)]))
 
             cmd_context = CommandContext(
                 name="entry field",
@@ -3533,6 +3583,7 @@ def list_entry_field(
         # Phase 1b: Pre-validate ALL --set values up front. Errors aggregate;
         # if any value is invalid, abort before issuing any API write.
         from ..field_utils import (
+            check_multi_value_limits,
             execute_append_phase,
             execute_v2_set_phase,
             pre_validate_set_operations,
@@ -3572,6 +3623,14 @@ def list_entry_field(
                     f"for field '{resolved_name}': {display_vals}",
                     err=True,
                 )
+
+        # Size check BEFORE any write: the set phase deletes existing rows first.
+        check_multi_value_limits(
+            resolver=resolver,
+            pre_resolved_set=pre_resolved_set,
+            append_ops=append_ops_for_validation if append_values else [],
+            existing_values_serialized=existing_values_serialized,
+        )
 
         entries = client.lists.entries(resolved_list.list.id)
 

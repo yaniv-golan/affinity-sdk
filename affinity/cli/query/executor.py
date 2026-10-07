@@ -156,7 +156,9 @@ def _extract_person_display_name(data: dict[str, Any]) -> str | None:
     return resolve_person(data)
 
 
-def _normalize_list_entry_fields(record: dict[str, Any]) -> dict[str, Any]:
+def _normalize_list_entry_fields(
+    record: dict[str, Any], truncated: list[tuple[str, Any]] | None = None
+) -> dict[str, Any]:
     """Normalize list entry field values from API format to query-friendly format.
 
     The Affinity API returns field values on the entity inside the list entry::
@@ -181,6 +183,16 @@ def _normalize_list_entry_fields(record: dict[str, Any]) -> dict[str, Any]:
         fields_container = entity.get("fields")
         if fields_container and isinstance(fields_container, dict):
             fields_data = fields_container.get("data")
+            if truncated is not None and isinstance(fields_data, dict):
+                from ..field_utils import _truncated_in
+
+                if _truncated_in(fields_data):
+                    name = entity.get("name") or " ".join(
+                        p for p in (entity.get("firstName"), entity.get("lastName")) if p
+                    )
+                    truncated.append(
+                        (f"'{name}'" if name else f"entry {record.get('id')}", fields_data)
+                    )
             if fields_data and isinstance(fields_data, dict):
                 # Extract field values into a dict keyed by field name
                 for _field_id, field_obj in fields_data.items():
@@ -371,6 +383,8 @@ class ExecutionContext:
     needs_full_fetch: bool = False  # True if filter/aggregate/sort exists (need all records first)
     early_terminated: bool = False  # True if stopped early due to limit (streaming mode)
     last_api_cursor: str | None = None  # API cursor at pagination stop (for streaming resumption)
+    # (record label, raw fields) for list entries whose multi-value fields Affinity cut off
+    truncated_fields: list[tuple[str, Any]] = field(default_factory=list)
 
     def check_timeout(self, timeout: float) -> None:
         """Check if execution has exceeded timeout."""
@@ -419,6 +433,15 @@ class ExecutionContext:
             included_counts = {k: len(v) for k, v in self.included.items() if v}
             if not included_counts:
                 included_counts = None
+
+        if self.truncated_fields:
+            from ..field_utils import truncation_warnings
+
+            for msg in truncation_warnings(
+                self.truncated_fields, filtered=self.query.where is not None
+            ):
+                if msg not in self.warnings:
+                    self.warnings.append(msg)
 
         meta: dict[str, Any] = {
             "executionTime": time.time() - self.start_time,
@@ -1019,7 +1042,7 @@ class QueryExecutor:
 
             # Convert to dict, normalized for query-friendly access (fields.X, entityName)
             record_dict = record.model_dump(mode="json", by_alias=True)
-            ctx.records = [_normalize_list_entry_fields(record_dict)]
+            ctx.records = [_normalize_list_entry_fields(record_dict, ctx.truncated_fields)]
             self.progress.on_step_complete(fetch_step, 1)
 
             # Handle includes and expands if present
@@ -1242,12 +1265,14 @@ class QueryExecutor:
                 async for page in nested_service.all().pages(**pages_kwargs):
                     for record in page.data:
                         record_dict = record.model_dump(mode="json", by_alias=True)
-                        record_dict = _normalize_list_entry_fields(record_dict)
+                        record_dict = _normalize_list_entry_fields(
+                            record_dict, ctx.truncated_fields
+                        )
                         results.append(record_dict)
             else:
                 async for record in nested_service.all():
                     record_dict = record.model_dump(mode="json", by_alias=True)
-                    record_dict = _normalize_list_entry_fields(record_dict)
+                    record_dict = _normalize_list_entry_fields(record_dict, ctx.truncated_fields)
                     results.append(record_dict)
 
             return results
@@ -1314,7 +1339,7 @@ class QueryExecutor:
                 for record in page.data:
                     record_dict = record.model_dump(mode="json", by_alias=True)
                     # Normalize list entry fields for query-friendly access
-                    record_dict = _normalize_list_entry_fields(record_dict)
+                    record_dict = _normalize_list_entry_fields(record_dict, ctx.truncated_fields)
                     ctx.records.append(record_dict)
                     items_fetched += 1
 
@@ -1342,7 +1367,7 @@ class QueryExecutor:
                 for record in page.data:
                     record_dict = record.model_dump(mode="json", by_alias=True)
                     # Normalize list entry fields for query-friendly access
-                    record_dict = _normalize_list_entry_fields(record_dict)
+                    record_dict = _normalize_list_entry_fields(record_dict, ctx.truncated_fields)
                     ctx.records.append(record_dict)
                     items_fetched += 1
                     if self._should_stop(ctx):
@@ -1362,7 +1387,7 @@ class QueryExecutor:
                 for record in page.data:
                     record_dict = record.model_dump(mode="json", by_alias=True)
                     # Normalize list entry fields for query-friendly access
-                    record_dict = _normalize_list_entry_fields(record_dict)
+                    record_dict = _normalize_list_entry_fields(record_dict, ctx.truncated_fields)
                     ctx.records.append(record_dict)
                     if self._should_stop(ctx):
                         # Capture API cursor for potential streaming resumption
@@ -1377,7 +1402,7 @@ class QueryExecutor:
             async for record in nested_service.all(**all_kwargs):
                 record_dict = record.model_dump(mode="json", by_alias=True)
                 # Normalize list entry fields for query-friendly access
-                record_dict = _normalize_list_entry_fields(record_dict)
+                record_dict = _normalize_list_entry_fields(record_dict, ctx.truncated_fields)
                 ctx.records.append(record_dict)
                 items_fetched += 1
 

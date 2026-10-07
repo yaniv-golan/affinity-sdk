@@ -10,7 +10,7 @@ import builtins
 import re
 import time
 import warnings
-from collections.abc import AsyncIterator, Callable, Iterator, Sequence
+from collections.abc import AsyncIterator, Callable, Iterator, Mapping, Sequence
 from datetime import date, datetime
 from typing import TYPE_CHECKING, Any, TypeVar
 from urllib.parse import urlsplit
@@ -136,6 +136,45 @@ def _field_value_payload(
     else:
         data = value
     return {"type": type_str, "data": data}
+
+
+# Affinity's V2 API returns and accepts at most this many values per multi-value field, and at
+# most this many updates per batch request.
+MAX_MULTI_VALUES = 100
+MAX_BATCH_UPDATES = 100
+
+# Multi-value types whose V2 write schema declares ``maxItems: 100``. dropdown-multi declares none.
+CAPPED_MULTI_VALUE_TYPES = frozenset(
+    {"company-multi", "person-multi", "number-multi", "filterable-text-multi", "location-multi"}
+)
+
+
+def _check_multi_value_size(field_id: Any, payload: dict[str, Any]) -> None:
+    data = payload.get("data")
+    capped = payload.get("type") in CAPPED_MULTI_VALUE_TYPES
+    if capped and isinstance(data, list) and len(data) > MAX_MULTI_VALUES:
+        raise ValueError(
+            f"Field {field_id}: {len(data)} values given; Affinity accepts at most "
+            f"{MAX_MULTI_VALUES} values per multi-value field"
+        )
+
+
+def _batch_update_items(updates: Mapping[Any, Any]) -> list[dict[str, Any]]:
+    if len(updates) > MAX_BATCH_UPDATES:
+        raise ValueError(
+            f"{len(updates)} updates given; Affinity accepts at most {MAX_BATCH_UPDATES} "
+            "updates per batch request, so split them into several calls"
+        )
+    for field_id, value in updates.items():
+        if isinstance(value, (list, tuple)):
+            raise ValueError(
+                f"Field {field_id}: batch_update_fields() cannot infer the type of a "
+                "multi-value field; use update_field_value(..., value_type=...) instead"
+            )
+    return [
+        {"id": str(field_id), "value": _field_value_payload(value)}
+        for field_id, value in updates.items()
+    ]
 
 
 class ListService:
@@ -1161,7 +1200,8 @@ class ListEntryService:
             params["ids"] = [str(fid) for fid in ids]
         if types:
             params["types"] = [ft.value for ft in types]
-        data = self._client.get(
+        # Paged (default page size 20): read every page, or callers silently miss fields.
+        data = self._client.get_all_pages(
             f"/lists/{self._list_id}/list-entries/{entry_id}/fields",
             params=params or None,
         )
@@ -1211,9 +1251,11 @@ class ListEntryService:
         Returns:
             Updated field value data
         """
+        payload = _field_value_payload(value, value_type)
+        _check_multi_value_size(field_id, payload)
         result = self._client.post(
             f"/lists/{self._list_id}/list-entries/{entry_id}/fields/{field_id}",
-            json={"value": _field_value_payload(value, value_type)},
+            json={"value": payload},
         )
         return _safe_model_validate(FieldValues, result)
 
@@ -1237,13 +1279,7 @@ class ListEntryService:
             Batch operation response with success/failure per field
         """
 
-        update_items = [
-            {
-                "id": str(field_id),
-                "value": _field_value_payload(value),
-            }
-            for field_id, value in updates.items()
-        ]
+        update_items = _batch_update_items(updates)
 
         result = self._client.patch(
             f"/lists/{self._list_id}/list-entries/{entry_id}/fields",
@@ -2138,7 +2174,8 @@ class AsyncListEntryService:
             params["ids"] = [str(fid) for fid in ids]
         if types:
             params["types"] = [ft.value for ft in types]
-        data = await self._client.get(
+        # Paged (default page size 20): read every page, or callers silently miss fields.
+        data = await self._client.get_all_pages(
             f"/lists/{self._list_id}/list-entries/{entry_id}/fields",
             params=params or None,
         )
@@ -2190,9 +2227,11 @@ class AsyncListEntryService:
         Returns:
             Updated field value data
         """
+        payload = _field_value_payload(value, value_type)
+        _check_multi_value_size(field_id, payload)
         result = await self._client.post(
             f"/lists/{self._list_id}/list-entries/{entry_id}/fields/{field_id}",
-            json={"value": _field_value_payload(value, value_type)},
+            json={"value": payload},
         )
         return _safe_model_validate(FieldValues, result)
 
@@ -2216,13 +2255,7 @@ class AsyncListEntryService:
             Batch operation response with success/failure per field
         """
 
-        update_items = [
-            {
-                "id": str(field_id),
-                "value": _field_value_payload(value),
-            }
-            for field_id, value in updates.items()
-        ]
+        update_items = _batch_update_items(updates)
 
         result = await self._client.patch(
             f"/lists/{self._list_id}/list-entries/{entry_id}/fields",

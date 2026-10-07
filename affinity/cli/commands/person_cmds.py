@@ -1437,6 +1437,23 @@ def person_get(
             resolved=ctx_resolved if ctx_resolved else None,
         )
 
+        from ..field_utils import truncation_warnings
+
+        if isinstance(person_payload, dict):
+            person_label = (
+                f"{person_payload.get('firstName', '')} {person_payload.get('lastName', '')}"
+            )
+            warnings.extend(
+                truncation_warnings(
+                    [
+                        (
+                            f"person '{person_label.strip() or person_payload.get('id')}'",
+                            person_payload.get("fields"),
+                        )
+                    ]
+                )
+            )
+
         not_requested: list[dict[str, str]] = []
         if not no_fields and not (fields or requested_types):
             not_requested.append({"key": "data.person.fields", "flag": "--all-fields"})

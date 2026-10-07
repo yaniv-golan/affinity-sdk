@@ -187,7 +187,10 @@ def run_command(ctx: CLIContext, *, command: str, fn: CommandFn) -> None:
             started_at=started,
             data=out.data,
             artifacts=out.artifacts,
-            warnings=(out.warnings or warnings),
+            warnings=[
+                *(out.warnings or []),
+                *(w for w in warnings if w not in (out.warnings or [])),
+            ],
             profile=ctx.profile,
             rate_limit=rate_limit,
             pagination=out.pagination,

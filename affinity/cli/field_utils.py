@@ -6,6 +6,7 @@ to field IDs across person/company/opportunity/list-entry commands.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Literal, cast
 
 from .errors import CLIError
@@ -1061,12 +1062,27 @@ def execute_v2_set_phase(
         except (ValueError, TypeError):
             parsed_field_id = EnrichedFieldId(field_id)
 
-        result = entries.update_field_value(
-            ListEntryId(list_entry_id),
-            parsed_field_id,
-            resolved_value,
-            value_type=value_type_str,
-        )
+        try:
+            result = entries.update_field_value(
+                ListEntryId(list_entry_id),
+                parsed_field_id,
+                resolved_value,
+                value_type=value_type_str,
+            )
+        except Exception as exc:
+            if not deleted_ids:
+                raise
+            # The old values are already gone; say so instead of failing silently.
+            removed = [fv.get("value") for fv in existing_for_field]
+            name = resolver.get_field_name(field_id) or field_id
+            raise CLIError(
+                f"Writing field '{name}' failed after its {len(deleted_ids)} existing value(s) "
+                f"were deleted, so the field is now empty. Removed values: {removed!r}. "
+                f"Cause: {exc}",
+                exit_code=1,
+                error_type="partial_write",
+                details={"fieldId": field_id, "removedValues": removed},
+            ) from exc
         new_serialized = _serialize(result)
         created.append(new_serialized)
         refreshed = _refresh_existing_after_change(refreshed, field_id, deleted_ids, new_serialized)
@@ -1127,6 +1143,132 @@ def execute_v1_set_phase(
         created.append(_serialize(result))
 
     return created, deleted_count
+
+
+def _truncated_in(fields: Any) -> list[tuple[str, int, int]]:
+    """``(field name or id, returned, total)`` for each truncated multi-value field.
+
+    Accepts raw V2 field objects (``[{"id", "name", "value": {"data", "totalCount"}}]``), a
+    dict keyed by field ID, or a :class:`FieldValues` container.
+    """
+    data = getattr(fields, "data", fields)
+    if isinstance(data, dict):
+        items: list[Any] = list(data.values())
+    elif isinstance(data, list):
+        items = data
+    else:
+        return []
+    out: list[tuple[str, int, int]] = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        value = item.get("value")
+        if not isinstance(value, dict):
+            continue
+        total, values = value.get("totalCount"), value.get("data")
+        if isinstance(total, int) and isinstance(values, list) and total > len(values):
+            out.append((str(item.get("name") or item.get("id")), len(values), total))
+    return out
+
+
+def truncation_warnings(
+    records: Iterable[tuple[str, Any]], *, filtered: bool = False, examples: int = 3
+) -> list[str]:
+    """Warnings for multi-value fields Affinity cut off at 100 values.
+
+    ``records`` yields ``(record label, raw fields)``. Returns at most one warning: a precise
+    one for a single field, otherwise a summary with a few examples. ``filtered`` adds that a
+    client-side filter was evaluated on the truncated values.
+    """
+    hits = [
+        (label, name, got, total)
+        for label, fields in records
+        for name, got, total in _truncated_in(fields)
+    ]
+    if not hits:
+        return []
+    if len(hits) == 1:
+        label, name, got, total = hits[0]
+        msg = (
+            f"Field '{name}' on {label} shows {got} of {total} values "
+            "(Affinity returns at most 100 values per field)."
+        )
+    else:
+        shown = "; ".join(f"'{n}' on {lbl} ({g} of {t})" for lbl, n, g, t in hits[:examples])
+        more = f"; and {len(hits) - examples} more" if len(hits) > examples else ""
+        records_n = len({h[0] for h in hits})
+        msg = (
+            f"{len(hits)} multi-value field(s) on {records_n} record(s) were cut off by Affinity "
+            f"at 100 values: {shown}{more}."
+        )
+    if filtered:
+        msg += " Filters on those fields were evaluated on the returned values only."
+    return [msg]
+
+
+def check_multi_value_limits(
+    *,
+    resolver: FieldResolver,
+    pre_resolved_set: dict[str, tuple[Any, Any, str]],
+    append_ops: list[tuple[str, Any]],
+    existing_values_serialized: list[dict[str, Any]],
+) -> None:
+    """Fail before any write if a multi-value field would exceed Affinity's 100-value cap.
+
+    Must run before :func:`execute_v2_set_phase`, which deletes the existing V1 rows before
+    the V2 write: a write rejected after the deletes would leave the field empty.
+    ``--append`` counts the existing values plus the new ones not already present, the same
+    way :func:`execute_append_phase` merges them.
+    """
+    from affinity.services.lists import CAPPED_MULTI_VALUE_TYPES, MAX_MULTI_VALUES
+
+    final_counts: dict[str, tuple[str, int]] = {}
+    for field_id, (_raw, resolved_value, type_str) in pre_resolved_set.items():
+        if type_str in CAPPED_MULTI_VALUE_TYPES and isinstance(resolved_value, list):
+            final_counts[field_id] = (type_str, len(resolved_value))
+
+    new_by_field: dict[str, list[Any]] = {}
+    type_by_field: dict[str, str] = {}
+    for field_id, value in append_ops:
+        res_val, type_str = resolver.resolve_field_value(field_id, value)
+        type_by_field[field_id] = type_str
+        new_by_field.setdefault(field_id, []).extend(
+            res_val if isinstance(res_val, list) else [res_val]
+        )
+    for field_id, new_items in new_by_field.items():
+        type_str = type_by_field[field_id]
+        if type_str not in CAPPED_MULTI_VALUE_TYPES:
+            continue
+        if field_id in final_counts:
+            # --set and --append on the same field: the set replaces, then append adds.
+            base_count = final_counts[field_id][1]
+            existing_ids: set[Any] = set()
+        else:
+            existing = find_field_values_for_field(
+                field_values=existing_values_serialized, field_id=field_id
+            )
+            existing_ids = {
+                eid for fv in existing if (eid := _extract_entity_id(fv.get("value"))) is not None
+            }
+            base_count = len(existing_ids) or len(existing)
+        added = {
+            item.get("id") if isinstance(item, dict) else item for item in new_items
+        } - existing_ids
+        final_counts[field_id] = (type_str, base_count + len(added))
+
+    over = {fid: n for fid, (_t, n) in final_counts.items() if n > MAX_MULTI_VALUES}
+    if over:
+        parts = [
+            f"'{resolver.get_field_name(fid) or fid}' would hold {n}" for fid, n in over.items()
+        ]
+        raise CLIError(
+            f"Affinity accepts at most {MAX_MULTI_VALUES} values per multi-value field: "
+            + "; ".join(parts)
+            + ". Nothing was changed.",
+            exit_code=2,
+            error_type="usage_error",
+            details={"maxValues": MAX_MULTI_VALUES, "fields": over},
+        )
 
 
 def execute_append_phase(

@@ -67,7 +67,9 @@ CLI errors on the unscoped case (v1.13+). Filtering is client-side; for large li
 company, with its list field values. Zero rows + the emitted warning is the "not on list" signal.
 
 **4. Check `meta.truncated` on every JSON response.** If `true`, the answer is incomplete;
-`meta.truncationReason` names the cause (currently `firstPageOnly`).
+`meta.truncationReason` names the cause (currently `firstPageOnly`). Separately, Affinity returns at
+most 100 values per multi-value field: a `warnings` entry like "Field 'X' … shows 100 of 250 values"
+means that field's list is partial, so don't count or dedupe from it.
 
 **5. Side-effecting commands: capture, then parse.** A pipeline like
 `xaffinity note create --content "..." --company-id 123 | python3 -c "json.loads(...)"` runs the
