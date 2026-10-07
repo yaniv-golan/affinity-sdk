@@ -694,7 +694,7 @@ class CompanyService:
         if field_types:
             params["fieldTypes"] = [field_type.value for field_type in field_types]
 
-        data = self._client.get(
+        data = self._client.get_all_pages(
             "/companies/fields",
             params=params or None,
             cache_key=(
@@ -1627,7 +1627,7 @@ class AsyncCompanyService:
         if field_types:
             params["fieldTypes"] = [field_type.value for field_type in field_types]
 
-        data = await self._client.get(
+        data = await self._client.get_all_pages(
             "/companies/fields",
             params=params or None,
             cache_key=(

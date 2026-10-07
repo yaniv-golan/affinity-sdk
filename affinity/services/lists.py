@@ -374,7 +374,7 @@ class ListService:
         if field_types:
             params["fieldTypes"] = [field_type.value for field_type in field_types]
 
-        data = self._client.get(
+        data = self._client.get_all_pages(
             f"/lists/{list_id}/fields",
             params=params or None,
             cache_key=f"list_{list_id}_fields:{','.join(field_types or [])}",
@@ -1569,7 +1569,7 @@ class AsyncListService:
         if field_types:
             params["fieldTypes"] = [field_type.value for field_type in field_types]
 
-        data = await self._client.get(
+        data = await self._client.get_all_pages(
             f"/lists/{list_id}/fields",
             params=params or None,
             cache_key=f"list_{list_id}_fields:{','.join(field_types or [])}",

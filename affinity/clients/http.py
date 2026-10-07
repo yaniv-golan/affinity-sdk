@@ -2109,6 +2109,39 @@ class HTTPClient:
         url = self._build_url(path, v1=True)
         return self._request_with_retry("GET", url, v1=True, params=params)
 
+    def get_all_pages(
+        self,
+        path: str,
+        *,
+        params: Mapping[str, Any] | Sequence[tuple[str, Any]] | None = None,
+        cache_key: str | None = None,
+        cache_ttl: float | None = None,
+        max_pages: int = 100,
+    ) -> dict[str, Any]:
+        """
+        GET a V2 paged collection and follow ``pagination.nextUrl`` to the end.
+
+        Returns ``{"data": [...all items...], "pagination": {"nextUrl": None, ...}}``.
+        Page 1 goes through the normal (cache-aware) ``get``; when more pages follow, the
+        merged result replaces the cached first page so later calls do not refetch.
+        Stops after ``max_pages`` pages as a guard against a server that never ends paging.
+        """
+        data = self.get(path, params=params, cache_key=cache_key, cache_ttl=cache_ttl)
+        next_url = (data.get("pagination") or {}).get("nextUrl")
+        if not next_url:
+            return data
+        items = list(data.get("data", []))
+        pages = 1
+        while next_url and pages < max_pages:
+            page = self.get_url(next_url)
+            items.extend(page.get("data", []))
+            next_url = (page.get("pagination") or {}).get("nextUrl")
+            pages += 1
+        merged: dict[str, Any] = {"data": items, "pagination": {"nextUrl": None, "prevUrl": None}}
+        if cache_key and self._cache:
+            self._cache.set(f"{cache_key}{self._cache_suffix}", merged, cache_ttl)
+        return merged
+
     def get_url(self, url: str) -> dict[str, Any]:
         """
         Make a GET request to a full URL.
@@ -3487,6 +3520,39 @@ class AsyncHTTPClient:
             params.append(("page_token", page_token))
         url = self._build_url(path, v1=True)
         return await self._request_with_retry("GET", url, v1=True, params=params)
+
+    async def get_all_pages(
+        self,
+        path: str,
+        *,
+        params: Mapping[str, Any] | Sequence[tuple[str, Any]] | None = None,
+        cache_key: str | None = None,
+        cache_ttl: float | None = None,
+        max_pages: int = 100,
+    ) -> dict[str, Any]:
+        """
+        GET a V2 paged collection and follow ``pagination.nextUrl`` to the end.
+
+        Returns ``{"data": [...all items...], "pagination": {"nextUrl": None, ...}}``.
+        Page 1 goes through the normal (cache-aware) ``get``; when more pages follow, the
+        merged result replaces the cached first page so later calls do not refetch.
+        Stops after ``max_pages`` pages as a guard against a server that never ends paging.
+        """
+        data = await self.get(path, params=params, cache_key=cache_key, cache_ttl=cache_ttl)
+        next_url = (data.get("pagination") or {}).get("nextUrl")
+        if not next_url:
+            return data
+        items = list(data.get("data", []))
+        pages = 1
+        while next_url and pages < max_pages:
+            page = await self.get_url(next_url)
+            items.extend(page.get("data", []))
+            next_url = (page.get("pagination") or {}).get("nextUrl")
+            pages += 1
+        merged: dict[str, Any] = {"data": items, "pagination": {"nextUrl": None, "prevUrl": None}}
+        if cache_key and self._cache:
+            self._cache.set(f"{cache_key}{self._cache_suffix}", merged, cache_ttl)
+        return merged
 
     async def get_url(self, url: str) -> dict[str, Any]:
         absolute, is_v1 = _safe_follow_url(

@@ -54,6 +54,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `AsyncListEntryService.update_field_value()` sent the bare value without the V2
   `{"type", "data"}` wrapper; it now matches the sync method, including the `value_type`
   parameter. Multi-value fields still need an explicit `value_type`.
+- `client.companies.get_fields()`, `client.persons.get_fields()` and
+  `client.lists.get_fields()` (sync and async) read only the first page of the paged V2
+  `*/fields` endpoints, so orgs with more fields than one page got silently truncated metadata
+  (and field-name resolution in the CLI could fail). They now follow `pagination.nextUrl`, and
+  the merged result is what gets cached. New `HTTPClient.get_all_pages()` /
+  `AsyncHTTPClient.get_all_pages()`.
 
 ## [1.16.0] - 2026-10-07
 
