@@ -204,6 +204,21 @@ class TestOpportunityGet:
         payload = json.loads(result.output)
         assert payload["ok"] is True
 
+    def test_get_default_reports_not_requested(self, respx_mock: respx.MockRouter) -> None:
+        """Without --details, field values are dropped; meta.notRequested must say so."""
+        respx_mock.get("https://api.affinity.co/v2/opportunities/123").mock(
+            return_value=Response(200, json={"id": 123, "name": "Series A", "listId": 42})
+        )
+
+        result = CliRunner().invoke(
+            cli, ["--json", "opportunity", "get", "123"], env={"AFFINITY_API_KEY": "test-key"}
+        )
+        assert result.exit_code == 0, result.output
+        payload = json.loads(result.output)
+        assert payload["meta"]["notRequested"] == [
+            {"key": "data.opportunity.fields", "flag": "--details"},
+        ]
+
 
 class TestOpportunityCreate:
     """Tests for opportunity create command."""

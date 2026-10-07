@@ -850,6 +850,7 @@ def build_result(
     error: ErrorInfo | None = None,
     truncated: bool | None = None,
     truncation_reason: str | None = None,
+    not_requested: list[dict[str, str]] | None = None,
 ) -> CommandResult:
     duration_ms = int(max(0.0, (time.time() - started_at) * 1000))
     meta = CommandMeta(
@@ -862,6 +863,7 @@ def build_result(
         summary=summary,
         truncated=truncated,
         truncation_reason=truncation_reason,
+        not_requested=not_requested,
     )
     return CommandResult(
         ok=ok,

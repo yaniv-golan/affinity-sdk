@@ -291,8 +291,8 @@ Expansions:
 
 - `--expand lists`: include lists the person is on (auto-paginates up to a safe cap; use `--max-results` / `--all` to adjust).
 - `--expand list-entries`: include list entries for the person (first page by default; use `--max-results` / `--all` to fetch more).
-- `--list <id-or-exact-name>`: filter list entries to a specific list (requires `--expand list-entries`).
-- `--list-entry-field <id-or-exact-name>` (repeatable): project list-entry fields into columns (requires `--expand list-entries`). Field names are only allowed with `--list`.
+- `--list <id-or-exact-name>`: filter list entries to a specific list (implies `--expand list-entries`).
+- `--list-entry-field <id-or-exact-name>` (repeatable): project list-entry fields into columns (implies `--expand list-entries`). Field names are only allowed with `--list`.
 - `--show-list-entry-fields`: render per-list-entry Fields tables in human output (requires `--expand list-entries` and `--max-results <= 3`). Mutually exclusive with `--list-entry-field`.
 - `--list-entry-fields-scope list-only|all`: control which fields appear in list-entry tables (human output only).
 
@@ -403,6 +403,15 @@ xaffinity company get domain:wellybox.com
 xaffinity company get 'name:"WellyBox"'
 ```
 
+**Default output is a cheap lookup.** Without flags, no field values and no list
+entries are fetched: `data.company.fields` is `{"requested": false, "data": {}}`
+and `data.listEntries` is absent. That means *not fetched*, not *empty*. In JSON,
+`meta.notRequested` lists what was skipped and the flag that fetches it, e.g.
+`[{"key": "data.company.fields", "flag": "--all-fields"}, {"key": "data.listEntries", "flag": "--expand list-entries"}]`.
+Expansions are returned next to the entity (`data.listEntries`, `data.lists`,
+`data.persons`), not inside `data.company`. `person get` behaves the same way;
+`opportunity get` reports `data.opportunity.fields` (fetch with `--details`).
+
 Field selection:
 
 - `--all-fields`: include all supported (non-list-specific) fields.
@@ -415,8 +424,8 @@ Expansions:
 - `--expand lists`: include lists the company is on (auto-paginates up to a safe cap; use `--max-results` / `--all` to adjust).
 - `--expand list-entries`: include list entries for the company (first page by default; use `--max-results` / `--all` to fetch more).
 - `--expand persons`: include people associated with the company (use `--max-results` / `--all` to control volume).
-- `--list <id-or-exact-name>`: filter list entries to a specific list (requires `--expand list-entries`).
-- `--list-entry-field <id-or-exact-name>` (repeatable): project list-entry fields into columns (requires `--expand list-entries`). Field names are only allowed with `--list`.
+- `--list <id-or-exact-name>`: filter list entries to a specific list (implies `--expand list-entries`).
+- `--list-entry-field <id-or-exact-name>` (repeatable): project list-entry fields into columns (implies `--expand list-entries`). Field names are only allowed with `--list`.
 - `--show-list-entry-fields`: render per-list-entry Fields tables in human output (requires `--expand list-entries` and `--max-results <= 3`). Mutually exclusive with `--list-entry-field`.
 - `--list-entry-fields-scope list-only|all`: control which fields appear in list-entry tables (human output only).
 

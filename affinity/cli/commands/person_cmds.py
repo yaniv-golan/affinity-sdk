@@ -928,6 +928,11 @@ def person_get(
     When using --json, all list-entry fields are included regardless of
     --list-entry-field flags. Use table output for selective field display.
 
+    A plain get is a cheap lookup: it fetches no field values and no list
+    entries. `meta.notRequested` lists what was skipped and the flag that
+    fetches it. List memberships and their field values (Status, Owner, ...)
+    come back under `data.listEntries`, next to `data.person`.
+
     Examples:
 
     - `xaffinity person get 223384905`
@@ -935,7 +940,7 @@ def person_get(
     - `xaffinity person get email:alice@example.com`
     - `xaffinity person get name:"Alice Smith"`
     - `xaffinity person get 223384905 --expand list-entries --list "Sales Pipeline"`
-    - `xaffinity person get 223384905 --json  # Full data, ignores field filters`
+    - `xaffinity person get 223384905 --all-fields --expand list-entries --json`
     """
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
@@ -1432,11 +1437,18 @@ def person_get(
             resolved=ctx_resolved if ctx_resolved else None,
         )
 
+        not_requested: list[dict[str, str]] = []
+        if not no_fields and not (fields or requested_types):
+            not_requested.append({"key": "data.person.fields", "flag": "--all-fields"})
+        if "list-entries" not in expand_set:
+            not_requested.append({"key": "data.listEntries", "flag": "--expand list-entries"})
+
         return CommandOutput(
             data=data,
             context=context,
             pagination=pagination or None,
             resolved=resolved,
+            not_requested=not_requested or None,
             api_called=True,
         )
 

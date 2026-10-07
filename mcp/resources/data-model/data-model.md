@@ -312,6 +312,7 @@ unambiguous from one call.
 - `list export --filter` requires a scope flag (`--all`, `--max-results`, or `--first-page-only`) since v1.13. Unscoped invocations exit 2.
 - For duplicate checks, use `list export --company-id <id>` / `--person-id <id>` instead of `--filter`. Entity-scoped, cheap, unambiguous.
 - Check `meta.truncated` on every JSON response; `meta.truncationReason` names the cause (currently `firstPageOnly`).
+- A plain `company get` / `person get` / `opportunity get` fetches no field values or list entries. `fields: {"requested": false}` or a missing `listEntries` means *not fetched*, not *empty*; `meta.notRequested` lists what was skipped and the flag that fetches it (e.g. `--expand list-entries`, read from `data.listEntries`).
 
 ### Output Format Recommendations
 

@@ -369,8 +369,11 @@ def opportunity_get(
             opp = client.opportunities.get(opportunity_id)
 
         data: dict[str, Any] = {"opportunity": serialize_model_for_cli(opp)}
+        not_requested: list[dict[str, str]] = []
         if not details and not opp.fields:
             data["opportunity"].pop("fields", None)
+        if not details and not opp.fields.requested:
+            not_requested.append({"key": "data.opportunity.fields", "flag": "--details"})
 
         # Fetch associations once if both persons and companies are requested (saves 1 V1 call)
         want_persons = "persons" in expand_set
@@ -512,6 +515,7 @@ def opportunity_get(
             data=data,
             context=cmd_context,
             resolved=resolved,
+            not_requested=not_requested or None,
             api_called=True,
         )
 

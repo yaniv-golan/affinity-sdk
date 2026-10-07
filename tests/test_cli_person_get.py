@@ -112,3 +112,38 @@ def test_person_get_expand_list_entries_filtered_by_list_id(
     entries = payload["data"]["listEntries"]
     assert [e["id"] for e in entries] == [1]
     assert payload["meta"]["resolved"]["list"]["listId"] == 10
+
+
+def test_person_get_default_reports_not_requested(respx_mock: respx.MockRouter) -> None:
+    """Plain get fetches no fields/list entries; meta.notRequested must say so."""
+    respx_mock.get("https://api.affinity.co/v2/persons/123").mock(
+        return_value=Response(200, json={"id": 123, "firstName": "Alice", "lastName": "Smith"})
+    )
+
+    result = CliRunner().invoke(
+        cli, ["--json", "person", "get", "123"], env={"AFFINITY_API_KEY": "test-key"}
+    )
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output.strip())
+    assert payload["meta"]["notRequested"] == [
+        {"key": "data.person.fields", "flag": "--all-fields"},
+        {"key": "data.listEntries", "flag": "--expand list-entries"},
+    ]
+
+
+def test_person_get_no_fields_flag_is_not_reported(respx_mock: respx.MockRouter) -> None:
+    """An explicit --no-fields is a deliberate choice, not something to flag."""
+    respx_mock.get("https://api.affinity.co/v2/persons/123").mock(
+        return_value=Response(200, json={"id": 123, "firstName": "Alice", "lastName": "Smith"})
+    )
+
+    result = CliRunner().invoke(
+        cli,
+        ["--json", "person", "get", "123", "--no-fields"],
+        env={"AFFINITY_API_KEY": "test-key"},
+    )
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output.strip())
+    assert payload["meta"]["notRequested"] == [
+        {"key": "data.listEntries", "flag": "--expand list-entries"},
+    ]

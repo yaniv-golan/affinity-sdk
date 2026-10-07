@@ -298,6 +298,9 @@ class CommandMeta(AffinityModel):
     summary: ResultSummary | None = None
     truncated: bool | None = None
     truncation_reason: str | None = Field(None, alias="truncationReason")
+    # Data the command deliberately skipped (cheap default) and the flag that
+    # fetches it, so absent keys aren't mistaken for empty data.
+    not_requested: list[dict[str, str]] | None = Field(None, alias="notRequested")
 
 
 class CommandResult(AffinityModel):

@@ -639,3 +639,50 @@ def test_company_get_human_output_list_entry_field_requires_list_for_names(
         env={"AFFINITY_API_KEY": "test-key"},
     )
     assert result.exit_code == 2
+
+
+def test_company_get_default_reports_not_requested(respx_mock: respx.MockRouter) -> None:
+    """Plain get fetches no fields/list entries; meta.notRequested must say so."""
+    respx_mock.get("https://api.affinity.co/v2/companies/123").mock(
+        return_value=Response(
+            200,
+            json={"id": 123, "name": "Acme Corp", "domain": "acme.com", "domains": ["acme.com"]},
+        )
+    )
+
+    result = CliRunner().invoke(
+        cli, ["--json", "company", "get", "123"], env={"AFFINITY_API_KEY": "test-key"}
+    )
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output.strip())
+    assert payload["meta"]["notRequested"] == [
+        {"key": "data.company.fields", "flag": "--all-fields"},
+        {"key": "data.listEntries", "flag": "--expand list-entries"},
+    ]
+    assert payload["warnings"] == []
+
+
+def test_company_get_omits_not_requested_when_all_requested(
+    respx_mock: respx.MockRouter,
+) -> None:
+    respx_mock.get(url__regex=r"https://api\.affinity\.co/v2/companies/123(\?.*)?$").mock(
+        return_value=Response(
+            200,
+            json={"id": 123, "name": "Acme Corp", "domain": "acme.com", "domains": ["acme.com"]},
+        )
+    )
+    respx_mock.get(url__regex=r"https://api\.affinity\.co/v2/companies/fields.*").mock(
+        return_value=Response(200, json={"data": [], "pagination": {"nextUrl": None}})
+    )
+    respx_mock.get("https://api.affinity.co/v2/companies/123/list-entries?limit=100").mock(
+        return_value=Response(200, json={"data": []})
+    )
+
+    result = CliRunner().invoke(
+        cli,
+        ["--json", "company", "get", "123", "--all-fields", "--expand", "list-entries"],
+        env={"AFFINITY_API_KEY": "test-key"},
+    )
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output.strip())
+    assert "notRequested" not in payload["meta"]
