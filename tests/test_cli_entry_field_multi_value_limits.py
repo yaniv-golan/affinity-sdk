@@ -19,6 +19,7 @@ from click.testing import CliRunner
 from httpx import Response
 
 from affinity.cli.main import cli
+from tests.field_write_mocks import mock_list_field_writes, patched
 
 if respx is None:  # pragma: no cover
     pytest.skip("respx is not installed", allow_module_level=True)
@@ -57,6 +58,23 @@ def _setup(respx_mock: respx.MockRouter, existing_company_ids: list[int]) -> dic
             },
         )
     )
+    respx_mock.get(f"{BASE}/v2/lists/{LIST_ID}/fields").mock(
+        return_value=Response(
+            200,
+            json={
+                "data": [
+                    {
+                        "id": "field-200",
+                        "name": "Investors",
+                        "type": "list",
+                        "valueType": "company-multi",
+                    }
+                ],
+                "pagination": {"nextUrl": None},
+            },
+        )
+    )
+    patch = mock_list_field_writes(respx_mock, LIST_ID, [])
     respx_mock.get(f"{BASE}/field-values").mock(
         return_value=Response(
             200,
@@ -79,6 +97,7 @@ def _setup(respx_mock: respx.MockRouter, existing_company_ids: list[int]) -> dic
         "post": respx_mock.post(
             f"{BASE}/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-200"
         ).mock(return_value=Response(200, json={"data": []})),
+        "patch": patch,
     }
 
 
@@ -97,6 +116,7 @@ def test_set_json_over_cap_makes_no_delete_or_write(respx_mock: respx.MockRouter
     assert "at most 100" in result.output
     assert routes["delete"].call_count == 0
     assert routes["post"].call_count == 0
+    assert routes["patch"].call_count == 0
 
 
 def test_append_over_cap_makes_no_write(respx_mock: respx.MockRouter) -> None:
@@ -119,8 +139,7 @@ def test_set_json_at_cap_is_written(respx_mock: respx.MockRouter) -> None:
     routes = _setup(respx_mock, existing_company_ids=[])
     result = _run("--set-json", json.dumps({"field-200": list(range(1000, 1100))}))
     assert result.exit_code == 0, result.output
-    assert routes["post"].call_count == 1
-    sent = json.loads(routes["post"].calls[0].request.content)
+    (sent,) = patched(routes["patch"])
     assert sent["value"]["type"] == "company-multi"
     assert len(sent["value"]["data"]) == 100
 
@@ -128,7 +147,7 @@ def test_set_json_at_cap_is_written(respx_mock: respx.MockRouter) -> None:
 def test_rejected_write_leaves_existing_values(respx_mock: respx.MockRouter) -> None:
     """A rejected V2 write changes nothing server-side, and nothing was deleted before it."""
     routes = _setup(respx_mock, existing_company_ids=[1, 2])
-    routes["post"].mock(return_value=Response(400, json={"errors": [{"message": "bad value"}]}))
+    routes["patch"].mock(return_value=Response(400, json={"errors": [{"message": "bad value"}]}))
     result = _run("--set-json", json.dumps({"field-200": [3]}))
     assert result.exit_code != 0
     assert routes["delete"].call_count == 0

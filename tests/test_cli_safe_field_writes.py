@@ -21,6 +21,7 @@ from httpx import Response
 
 from affinity.cli.main import cli
 from affinity.services.lists import _field_value_payload
+from tests.field_write_mocks import mock_list_field_writes, patched
 
 if respx is None:  # pragma: no cover
     pytest.skip("respx is not installed", allow_module_level=True)
@@ -28,6 +29,11 @@ if respx is None:  # pragma: no cover
 LIST_ID = 67890
 ENTRY_ID = 123
 BASE = "https://api.affinity.co"
+V2_FIELDS = [
+    {"id": "field-301", "name": "Amount", "type": "list", "valueType": "number"},
+    {"id": "field-302", "name": "HQ", "type": "list", "valueType": "location"},
+    {"id": "field-303", "name": "Offices", "type": "list", "valueType": "location-multi"},
+]
 V1_FIELDS = [
     {"id": "field-301", "name": "Amount", "value_type": 3, "allows_multiple": False},
     {"id": "field-302", "name": "HQ", "value_type": 5, "allows_multiple": False},
@@ -42,6 +48,10 @@ def _setup(respx_mock: respx.MockRouter, existing: list[dict[str, Any]]) -> dict
     )
     respx_mock.get(f"{BASE}/lists/{LIST_ID}").mock(return_value=Response(200, json=lst))
     respx_mock.get(f"{BASE}/fields").mock(return_value=Response(200, json={"data": V1_FIELDS}))
+    respx_mock.get(f"{BASE}/v2/lists/{LIST_ID}/fields").mock(
+        return_value=Response(200, json={"data": V2_FIELDS, "pagination": {"nextUrl": None}})
+    )
+    patch = mock_list_field_writes(respx_mock, LIST_ID, V1_FIELDS)
     respx_mock.get(f"{BASE}/field-values").mock(return_value=Response(200, json=existing))
     return {
         "delete": respx_mock.delete(url__regex=rf"{BASE}/field-values/\d+").mock(
@@ -50,6 +60,7 @@ def _setup(respx_mock: respx.MockRouter, existing: list[dict[str, Any]]) -> dict
         "post": respx_mock.post(
             url__regex=rf"{BASE}/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-\d+"
         ).mock(return_value=Response(204)),
+        "patch": patch,
     }
 
 
@@ -79,7 +90,7 @@ def test_number_set_sends_a_number_and_deletes_nothing(respx_mock: respx.MockRou
     routes = _setup(respx_mock, [_row(1, 301, 3.0)])
     result = _run("--set", "Amount", "5")
     assert result.exit_code == 0, result.output
-    assert _sent(routes["post"]) == [{"type": "number", "data": 5}]
+    assert [u["value"] for u in patched(routes["patch"])] == [{"type": "number", "data": 5}]
     assert routes["delete"].call_count == 0
 
 
@@ -88,7 +99,7 @@ def test_invalid_number_changes_nothing(respx_mock: respx.MockRouter) -> None:
     result = _run("--set", "Amount", "five")
     assert result.exit_code == 2, result.output
     assert "Invalid number" in result.output
-    assert routes["post"].call_count == 0
+    assert routes["patch"].call_count == 0
     assert routes["delete"].call_count == 0
 
 
@@ -96,7 +107,7 @@ def test_location_set_sends_all_five_keys(respx_mock: respx.MockRouter) -> None:
     routes = _setup(respx_mock, [])
     result = _run("--set", "HQ", '{"city": "Paris", "street_address": "1 Rue X"}')
     assert result.exit_code == 0, result.output
-    assert _sent(routes["post"]) == [
+    assert [u["value"] for u in patched(routes["patch"])] == [
         {
             "type": "location",
             "data": {
@@ -115,7 +126,7 @@ def test_invalid_location_changes_nothing(respx_mock: respx.MockRouter, bad: str
     routes = _setup(respx_mock, [])
     result = _run("--set", "HQ", bad)
     assert result.exit_code == 2, result.output
-    assert routes["post"].call_count == 0
+    assert routes["patch"].call_count == 0
 
 
 def test_location_multi_append_keeps_existing(respx_mock: respx.MockRouter) -> None:

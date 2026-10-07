@@ -530,8 +530,13 @@ class BatchOperationResult(AffinityModel):
 
 
 class BatchOperationResponse(AffinityModel):
-    """Response from batch field operations."""
+    """Response from batch field operations.
 
+    Affinity's ``update-fields`` PATCH returns ``{"operation": "update-fields"}`` on success and
+    an error for the whole batch otherwise (all-or-nothing), so ``results`` is usually empty.
+    """
+
+    operation: str | None = None
     results: list[BatchOperationResult] = Field(default_factory=list)
 
     @property

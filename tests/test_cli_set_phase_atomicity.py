@@ -30,6 +30,7 @@ from click.testing import CliRunner
 from httpx import Response
 
 from affinity.cli.main import cli
+from tests.field_write_mocks import mock_list_field_writes, patched
 
 if respx is None:  # pragma: no cover
     pytest.skip("respx is not installed", allow_module_level=True)
@@ -140,7 +141,7 @@ FIELDS_RESPONSE_V1 = [
 ]
 
 
-def _setup_list_mocks(respx_mock: respx.MockRouter) -> None:
+def _setup_list_mocks(respx_mock: respx.MockRouter) -> Any:
     respx_mock.get("https://api.affinity.co/v2/lists").mock(
         return_value=Response(200, json={"data": [LIST_RESPONSE], "pagination": {}})
     )
@@ -164,6 +165,7 @@ def _setup_list_mocks(respx_mock: respx.MockRouter) -> None:
     respx_mock.get("https://api.affinity.co/fields").mock(
         return_value=Response(200, json={"data": FIELDS_RESPONSE_V1})
     )
+    return mock_list_field_writes(respx_mock, LIST_ID, FIELDS_RESPONSE_V1)
 
 
 def _existing_status_active(respx_mock: respx.MockRouter) -> None:
@@ -379,7 +381,7 @@ def test_entry_field_noop_set_skips_writes(respx_mock: respx.MockRouter) -> None
 @pytest.mark.req("CLI-SET-PHASE-ATOMICITY")
 def test_entry_field_partial_noop(respx_mock: respx.MockRouter) -> None:
     """One field is a no-op, the other writes — only the writing field hits the API."""
-    _setup_list_mocks(respx_mock)
+    patch = _setup_list_mocks(respx_mock)
     _existing_status_active(respx_mock)
 
     delete_route = respx_mock.delete(url__regex=r".*/field-values/\d+").mock(
@@ -433,13 +435,15 @@ def test_entry_field_partial_noop(respx_mock: respx.MockRouter) -> None:
     assert result.exit_code == 0, result.output
     assert not delete_route.called  # nothing to delete for Priority (no existing)
     assert not status_post.called
-    assert priority_post.called
+    assert not priority_post.called
+    # Only Priority is in the update-fields PATCH; the no-op Status is left out.
+    assert [u["id"] for u in patched(patch)] == ["field-101"]
 
 
 @pytest.mark.req("CLI-SET-PHASE-ATOMICITY")
 def test_entry_field_set_multi_subset_writes(respx_mock: respx.MockRouter) -> None:
     """--set Tags A when existing is [A,B,C] IS a write (REPLACE drops B/C)."""
-    _setup_list_mocks(respx_mock)
+    patch = _setup_list_mocks(respx_mock)
 
     respx_mock.get("https://api.affinity.co/field-values").mock(
         return_value=Response(
@@ -503,7 +507,13 @@ def test_entry_field_set_multi_subset_writes(respx_mock: respx.MockRouter) -> No
     # The V2 write replaces all three values itself; nothing is deleted first (a write
     # rejected after the deletes would leave the field empty).
     assert delete_route.call_count == 0
-    assert post_route.called
+    assert not post_route.called
+    assert patched(patch) == [
+        {
+            "id": "field-102",
+            "value": {"type": "dropdown-multi", "data": [{"dropdownOptionId": 400}]},
+        }
+    ]
 
 
 # ============================================================================

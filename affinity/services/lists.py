@@ -42,6 +42,7 @@ from ..models.pagination import (
 from ..models.types import (
     AnyFieldId,
     CompanyId,
+    FieldId,
     FieldType,
     FieldValueType,
     ListEntryId,
@@ -178,22 +179,56 @@ def _check_multi_value_size(field_id: Any, payload: dict[str, Any]) -> None:
         )
 
 
-def _batch_update_items(updates: Mapping[Any, Any]) -> list[dict[str, Any]]:
+def _normalized_field_key(field_id: Any) -> str:
+    try:
+        return str(FieldId(field_id))
+    except (ValueError, TypeError):
+        return str(field_id)
+
+
+def _batch_update_items(
+    updates: Mapping[Any, Any],
+    value_types: Mapping[Any, FieldValueType | str] | None = None,
+) -> list[dict[str, Any]]:
+    """Build PATCH ``update-fields`` items.
+
+    A field with an entry in ``value_types`` is sent with that type, which also allows a list
+    (multi-value field) or ``None`` (clears the field). Without a type, the type is inferred from
+    the value, and lists and ``None`` are refused (they can't be typed by inference).
+    """
     if len(updates) > MAX_BATCH_UPDATES:
         raise ValueError(
             f"{len(updates)} updates given; Affinity accepts at most {MAX_BATCH_UPDATES} "
             "updates per batch request, so split them into several calls"
         )
+    types = {_normalized_field_key(k): v for k, v in (value_types or {}).items()}
+    items: list[dict[str, Any]] = []
+    seen: set[str] = set()
     for field_id, value in updates.items():
-        if isinstance(value, (list, tuple)):
-            raise ValueError(
-                f"Field {field_id}: batch_update_fields() cannot infer the type of a "
-                "multi-value field; use update_field_value(..., value_type=...) instead"
-            )
-    return [
-        {"id": str(field_id), "value": _field_value_payload(value)}
-        for field_id, value in updates.items()
-    ]
+        key = _normalized_field_key(field_id)
+        if key in seen:
+            # Affinity applies the last of duplicate ids silently; refuse instead.
+            raise ValueError(f"Field {key} appears more than once in the updates")
+        seen.add(key)
+        value_type = types.get(key)
+        if value_type is None:
+            if isinstance(value, (list, tuple)):
+                raise ValueError(
+                    f"Field {field_id}: batch_update_fields() cannot infer the type of a "
+                    "multi-value field; pass value_types={field_id: ...} or use "
+                    "update_field_value(..., value_type=...)"
+                )
+            if value is None:
+                raise ValueError(
+                    f"Field {field_id}: clearing a field needs its type; pass "
+                    "value_types={field_id: ...}"
+                )
+        payload = _field_value_payload(
+            list(value) if isinstance(value, tuple) else value, value_type
+        )
+        _check_multi_value_size(field_id, payload)
+        items.append({"id": key, "value": payload})
+    return items
 
 
 class ListService:
@@ -1281,24 +1316,29 @@ class ListEntryService:
     def batch_update_fields(
         self,
         entry_id: ListEntryId,
-        updates: dict[AnyFieldId, Any],
+        updates: Mapping[AnyFieldId | str, Any],
+        *,
+        value_types: Mapping[AnyFieldId | str, FieldValueType | str] | None = None,
     ) -> BatchOperationResponse:
         """
-        Update multiple field values at once.
+        Update multiple field values in one request.
 
-        More efficient than individual updates for multiple fields.
+        Affinity applies the whole batch or none of it: if any update is rejected, no field
+        changes. At most 100 updates per call.
 
         Args:
             entry_id: The list entry
-            updates: Dict mapping field IDs to new values. Values are auto-typed
-                (str→text, int/float→number, datetime/date→datetime, otherwise→text);
-                for multi-value fields use update_field_value with value_type.
+            updates: Mapping of field IDs to new values. Values are auto-typed
+                (str→text, int/float→number, datetime/date→datetime, otherwise→text)
+                unless the field has an entry in ``value_types``.
+            value_types: Optional field ID → value type (e.g. ``"dropdown-multi"``). A typed
+                field may take a list (multi-value fields) or ``None`` (clears the field).
 
         Returns:
-            Batch operation response with success/failure per field
+            The batch response (``operation``); Affinity returns no per-field results.
         """
 
-        update_items = _batch_update_items(updates)
+        update_items = _batch_update_items(updates, value_types)
 
         result = self._client.patch(
             f"/lists/{self._list_id}/list-entries/{entry_id}/fields",
@@ -2257,24 +2297,29 @@ class AsyncListEntryService:
     async def batch_update_fields(
         self,
         entry_id: ListEntryId,
-        updates: dict[AnyFieldId, Any],
+        updates: Mapping[AnyFieldId | str, Any],
+        *,
+        value_types: Mapping[AnyFieldId | str, FieldValueType | str] | None = None,
     ) -> BatchOperationResponse:
         """
-        Update multiple field values at once.
+        Update multiple field values in one request.
 
-        More efficient than individual updates for multiple fields.
+        Affinity applies the whole batch or none of it: if any update is rejected, no field
+        changes. At most 100 updates per call.
 
         Args:
             entry_id: The list entry
-            updates: Dict mapping field IDs to new values. Values are auto-typed
-                (str→text, int/float→number, datetime/date→datetime, otherwise→text);
-                for multi-value fields use update_field_value with value_type.
+            updates: Mapping of field IDs to new values. Values are auto-typed
+                (str→text, int/float→number, datetime/date→datetime, otherwise→text)
+                unless the field has an entry in ``value_types``.
+            value_types: Optional field ID → value type (e.g. ``"dropdown-multi"``). A typed
+                field may take a list (multi-value fields) or ``None`` (clears the field).
 
         Returns:
-            Batch operation response with success/failure per field
+            The batch response (``operation``); Affinity returns no per-field results.
         """
 
-        update_items = _batch_update_items(updates)
+        update_items = _batch_update_items(updates, value_types)
 
         result = await self._client.patch(
             f"/lists/{self._list_id}/list-entries/{entry_id}/fields",

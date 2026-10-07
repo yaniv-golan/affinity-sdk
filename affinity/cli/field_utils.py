@@ -112,6 +112,42 @@ def fetch_dropdown_options(
         payload = client._http.get_url(next_url)
 
 
+def with_v2_value_types(
+    v1_fields: list[FieldMetadata], v2_fields: list[FieldMetadata]
+) -> list[FieldMetadata]:
+    """List field metadata with each field's type taken from V2.
+
+    V1 list metadata carries dropdown options (V2 doesn't) but its value types are ambiguous
+    (V1 type 2 means "text or dropdown"); V2's ``valueType`` is authoritative. List fields that
+    only V2 knows yet (V1's field listing lags creation) are added without options.
+    """
+    by_id = {str(f.id): f for f in v2_fields}
+    out: list[FieldMetadata] = []
+    for field in v1_fields:
+        v2 = by_id.get(str(field.id))
+        if v2 is None:
+            out.append(field)
+            continue
+        out.append(
+            field.model_copy(
+                update={
+                    "value_type": v2.value_type,
+                    "type": v2.type or field.type,
+                    "allows_multiple": _type_str(v2).endswith("-multi") or v2.allows_multiple,
+                }
+            )
+        )
+    known = {str(f.id) for f in v1_fields}
+    out.extend(f for f in v2_fields if str(f.id) not in known and f.type == "list")
+    return out
+
+
+# V2 value types that can't be written through the field-value endpoints.
+UNWRITABLE_TYPES = frozenset(
+    {"interaction", "formula-number", "list-multi", "note", "reminder", "hidden"}
+)
+
+
 def build_field_id_to_name_map(fields: list[FieldMetadata]) -> dict[str, str]:
     """Build a mapping from field ID to field name.
 
@@ -354,6 +390,17 @@ class FieldResolver:
             )
             fresh = field.model_copy(update={"dropdown_options": options})
             self._fields = [fresh if f is field else f for f in self._fields]
+
+    def write_type(self, field_id: str) -> str | None:
+        """The V2 value type to write this field with (``<type>-multi`` for multi-value
+        fields), or ``None`` when the field's metadata is unknown."""
+        field = self.get_field_metadata(field_id)
+        if field is None:
+            return None
+        type_str = _type_str(field)
+        if field.allows_multiple and type_str in _PROMOTABLE_TO_MULTI:
+            type_str = f"{type_str}-multi"
+        return type_str
 
     def get_field_metadata(self, field_id: str) -> FieldMetadata | None:
         """Get field metadata by field ID.
@@ -1259,74 +1306,6 @@ def _serialize(obj: Any) -> dict[str, Any]:
         if isinstance(result, dict):
             return result
     return {"value": obj}
-
-
-def execute_v2_set_phase(
-    *,
-    client: Any,  # noqa: ARG001 - kept for symmetry with the V1 set helper
-    entries: Any,
-    list_entry_id: int,
-    pre_resolved_ops: dict[str, tuple[Any, Any, str]],
-    existing_values_serialized: list[dict[str, Any]],
-    resolver: FieldResolver,
-) -> tuple[list[dict[str, Any]], int, list[dict[str, Any]]]:
-    """Apply pre-validated --set operations via V2 ``entries.update_field_value``.
-
-    Skips the write when :func:`value_equals_existing` reports a no-op (the audit
-    log stays clean on retries). Existing values are replaced by the V2 write
-    itself; nothing is deleted beforehand, so ``deleted_count`` is always 0.
-    Returns refreshed existing-values so a subsequent :func:`execute_append_phase`
-    does not re-fetch and does not see stale data.
-
-    Args:
-        client: Sync ``Affinity`` client.
-        entries: ``client.lists.entries(list_id)`` accessor.
-        list_entry_id: The list entry being updated.
-        pre_resolved_ops: Output of :func:`pre_validate_set_operations`.
-            Maps ``field_id -> (raw, resolved, value_type_str)``.
-        existing_values_serialized: Current field values (each a dict from
-            ``serialize_model_for_cli``).
-        resolver: For looking up :class:`FieldMetadata` per field-id.
-
-    Returns:
-        ``(created_values, deleted_count, refreshed_existing_values)``.
-    """
-    from affinity.models.types import FieldId
-    from affinity.types import EnrichedFieldId, ListEntryId
-
-    created: list[dict[str, Any]] = []
-    deleted_count = 0
-    refreshed = list(existing_values_serialized)
-
-    for field_id, (_raw, resolved_value, value_type_str) in pre_resolved_ops.items():
-        existing_for_field = find_field_values_for_field(field_values=refreshed, field_id=field_id)
-        field_meta = resolver.get_field_metadata(field_id)
-
-        if value_equals_existing(field_meta, resolved_value, existing_for_field):
-            continue
-
-        try:
-            parsed_field_id: Any = FieldId(field_id)
-        except (ValueError, TypeError):
-            parsed_field_id = EnrichedFieldId(field_id)
-
-        # One V2 write replaces the whole value (single and multi-value fields); a rejected
-        # write leaves the field as it was. Never delete the old rows first: a write that
-        # then fails would leave the field empty.
-        result = entries.update_field_value(
-            ListEntryId(list_entry_id),
-            parsed_field_id,
-            resolved_value,
-            value_type=value_type_str,
-        )
-        new_serialized = _serialize(result)
-        created.append(new_serialized)
-        replaced_ids = [int(fv["id"]) for fv in existing_for_field if fv.get("id") is not None]
-        refreshed = _refresh_existing_after_change(
-            refreshed, field_id, replaced_ids, new_serialized
-        )
-
-    return created, deleted_count, refreshed
 
 
 def _v1_wire_value(field_meta: FieldMetadata | None, type_str: str, raw: Any, resolved: Any) -> Any:

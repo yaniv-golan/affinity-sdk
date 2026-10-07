@@ -256,15 +256,26 @@ def test_list_entry_option_missing_from_cached_metadata_is_read_fresh() -> None:
                 {"type": "ranked-dropdown", "id": 401, "text": "Won"},
             ]
         ),
+        ("GET", "/v2/lists/9/fields"): _page(
+            [{"id": "field-30", "name": "Status", "type": "list", "valueType": "ranked-dropdown"}]
+        ),
         ("GET", "/field-values"): [],
-        ("POST", "/v2/lists/9/list-entries/77/fields/field-30"): httpx.Response(204),
+        ("PATCH", "/v2/lists/9/list-entries/77/fields"): {"operation": "update-fields"},
     }
     result, seen = _run(["list", "entry", "field", "9", "77", "--set", "Status", "Won"], routes)
     assert result.exit_code == 0, result.output
     assert (
-        "POST",
-        "/v2/lists/9/list-entries/77/fields/field-30",
-        {"value": {"type": "ranked-dropdown", "data": {"dropdownOptionId": 401}}},
+        "PATCH",
+        "/v2/lists/9/list-entries/77/fields",
+        {
+            "operation": "update-fields",
+            "updates": [
+                {
+                    "id": "field-30",
+                    "value": {"type": "ranked-dropdown", "data": {"dropdownOptionId": 401}},
+                }
+            ],
+        },
     ) in seen
 
 

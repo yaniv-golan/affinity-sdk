@@ -28,6 +28,7 @@ from click.testing import CliRunner
 from httpx import Response
 
 from affinity.cli.main import cli
+from tests.field_write_mocks import mock_list_field_writes, patched
 
 if respx is None:  # pragma: no cover
     pytest.skip("respx is not installed", allow_module_level=True)
@@ -71,7 +72,7 @@ FIELD_VALUE_RESPONSE = {
 }
 
 
-def setup_list_mocks(respx_mock: respx.MockRouter) -> None:
+def setup_list_mocks(respx_mock: respx.MockRouter) -> Any:
     """Set up common list resolution and field metadata mocks."""
     # List resolution by name (V2 API)
     respx_mock.get("https://api.affinity.co/v2/lists").mock(
@@ -100,6 +101,7 @@ def setup_list_mocks(respx_mock: respx.MockRouter) -> None:
     respx_mock.get("https://api.affinity.co/fields").mock(
         return_value=Response(200, json={"data": FIELDS_RESPONSE_V1})
     )
+    return mock_list_field_writes(respx_mock, LIST_ID, FIELDS_RESPONSE_V1)
 
 
 def mock_v2_entry_fields(
@@ -253,8 +255,8 @@ def test_entry_field_append_to_single_value_field_refused(respx_mock: respx.Mock
 
 
 def test_entry_field_unset(respx_mock: respx.MockRouter) -> None:
-    """--unset removes all values for field."""
-    setup_list_mocks(respx_mock)
+    """--unset clears the field with a typed null in the update-fields PATCH (no V1 delete)."""
+    patch = setup_list_mocks(respx_mock)
 
     respx_mock.get("https://api.affinity.co/field-values").mock(
         return_value=Response(
@@ -275,7 +277,9 @@ def test_entry_field_unset(respx_mock: respx.MockRouter) -> None:
 
     assert result.exit_code == 0, result.output
     payload = json.loads(result.output.strip())
-    assert payload["data"]["deleted"] == 1
+    assert payload["data"]["cleared"] == [{"fieldId": "field-100", "name": "Status"}]
+    assert "deleted" not in payload["data"]
+    assert patched(patch) == [{"id": "field-100", "value": {"type": "text", "data": None}}]
 
 
 def test_entry_field_unset_value(respx_mock: respx.MockRouter) -> None:
@@ -1191,7 +1195,7 @@ def test_entry_field_json_output_format(respx_mock: respx.MockRouter) -> None:
 
 def test_entry_field_mixed_operations(respx_mock: respx.MockRouter) -> None:
     """--set and --unset can be combined on different fields."""
-    setup_list_mocks(respx_mock)
+    patch = setup_list_mocks(respx_mock)
 
     respx_mock.get("https://api.affinity.co/field-values").mock(
         return_value=Response(
@@ -1227,7 +1231,9 @@ def test_entry_field_mixed_operations(respx_mock: respx.MockRouter) -> None:
     assert result.exit_code == 0, result.output
     payload = json.loads(result.output.strip())
     assert len(payload["data"]["created"]) == 1
-    assert payload["data"]["deleted"] == 1
+    assert len(payload["data"]["cleared"]) == 1
+    assert patch.call_count == 1  # one all-or-nothing request
+    assert [u["id"] for u in patched(patch)] == ["field-100", "field-101"]
 
 
 def test_entry_field_multivalue_set_replaces(respx_mock: respx.MockRouter) -> None:
@@ -1349,13 +1355,7 @@ def test_entry_field_numeric_field_name(respx_mock: respx.MockRouter) -> None:
         return_value=Response(200, json={"data": fields_with_numeric_v1})
     )
     respx_mock.get("https://api.affinity.co/field-values").mock(return_value=Response(200, json=[]))
-    respx_mock.post(
-        f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-200"
-    ).mock(
-        return_value=Response(
-            200, json={"id": 999, "fieldId": "field-200", "entityId": 224925, "value": "Completed"}
-        )
-    )
+    patch = mock_list_field_writes(respx_mock, LIST_ID, [])
 
     runner = CliRunner()
     result = runner.invoke(
@@ -1366,11 +1366,9 @@ def test_entry_field_numeric_field_name(respx_mock: respx.MockRouter) -> None:
 
     assert result.exit_code == 0, result.output
     payload = json.loads(result.output.strip())
-    # Verify the field was created - the command resolved "2024" as a name, not an ID
-    created = payload["data"]["created"][0]
-    # The created object wraps the API response in a "data" key
-    field_data = created.get("data", created)
-    assert field_data.get("fieldId") == "field-200"
+    # The command resolved "2024" as a field name, not an ID
+    assert payload["data"]["created"][0]["fieldId"] == "field-200"
+    assert patched(patch)[0]["id"] == "field-200"
 
 
 def test_entry_field_field_not_found(respx_mock: respx.MockRouter) -> None:
@@ -1436,23 +1434,12 @@ def test_entry_field_resolution_upfront(respx_mock: respx.MockRouter) -> None:
 
 
 def test_entry_field_operation_order(respx_mock: respx.MockRouter) -> None:
-    """Operations execute in order: set/set-json → append → unset/unset-value.
-
-    This test verifies that when combining operations on DIFFERENT fields,
-    the order is correct:
-    1. Set operations run first (Status field)
-    2. Append operations run second (Investors field)
-    3. Unset operations run last (Priority field)
-
-    We verify this by checking the API calls are made in the correct sequence.
-    """
-    setup_list_mocks(respx_mock)
-
-    # Track call order
+    """Order: --set/--set-json/--unset in one update-fields PATCH, then --append, then
+    --unset-value (operations on different fields)."""
+    patch = setup_list_mocks(respx_mock)
     call_order: list[str] = []
-
-    def track_field_values(_request):
-        return Response(
+    respx_mock.get("https://api.affinity.co/field-values").mock(
+        return_value=Response(
             200,
             json=[
                 {"id": 500, "fieldId": "field-100", "entityId": 224925, "value": "Old"},
@@ -1460,36 +1447,21 @@ def test_entry_field_operation_order(respx_mock: respx.MockRouter) -> None:
                 {"id": 502, "fieldId": "field-103", "entityId": 224925, "value": 7},
             ],
         )
+    )
 
-    def track_set(_request):
-        call_order.append("set")
-        return Response(
-            200, json={"id": 600, "fieldId": "field-100", "entityId": 224925, "value": "New"}
-        )
+    def track(name: str, response: Response):
+        def handler(_request):
+            call_order.append(name)
+            return response
 
-    def track_append(_request):
-        call_order.append("append")
-        return Response(
-            200, json={"id": 601, "fieldId": "field-103", "entityId": 224925, "value": 8}
-        )
+        return handler
 
-    def track_delete(_request):
-        call_order.append("unset")
-        return Response(200, json={"success": True})
-
-    respx_mock.get("https://api.affinity.co/field-values").mock(side_effect=track_field_values)
-    respx_mock.post(
-        f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-100"
-    ).mock(side_effect=track_set)
+    patch.mock(side_effect=track("patch", Response(200, json={"operation": "update-fields"})))
     respx_mock.post(
         f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-103"
-    ).mock(side_effect=track_append)
-    # Delete for unset (Priority value); --set replaces without deleting
-    respx_mock.delete("https://api.affinity.co/field-values/500").mock(side_effect=track_delete)
-    respx_mock.delete("https://api.affinity.co/field-values/501").mock(side_effect=track_delete)
+    ).mock(side_effect=track("append", Response(204)))
 
-    runner = CliRunner()
-    result = runner.invoke(
+    result = CliRunner().invoke(
         cli,
         [
             "--json",
@@ -1497,28 +1469,22 @@ def test_entry_field_operation_order(respx_mock: respx.MockRouter) -> None:
             "field",
             "Portfolio",
             str(ENTRY_ID),
-            # Specify operations in "wrong" order to verify implementation reorders them
+            # Given in "wrong" order on purpose
             "--unset",
-            "Priority",  # Should run LAST (different field)
+            "Priority",
             "--append",
             "Investors",
-            "8",  # Should run SECOND
+            "8",
             "--set",
             "Status",
-            "New",  # Should run FIRST
+            "New",
         ],
         env={"AFFINITY_API_KEY": "test-key"},
     )
 
     assert result.exit_code == 0, result.output
-    # Verify order: set runs before append, append runs before unset
-    assert call_order.index("set") < call_order.index("append")
-    # The unset delete for Priority happens after append
-    # Find the last unset (should be the Priority unset after refresh)
-    append_index = call_order.index("append")
-    # There should be at least one unset after append
-    unset_after_append = [i for i, x in enumerate(call_order) if x == "unset" and i > append_index]
-    assert len(unset_after_append) > 0, f"Expected unset after append, got: {call_order}"
+    assert call_order == ["patch", "append"]
+    assert [u["id"] for u in patched(patch)] == ["field-100", "field-101"]
 
 
 def test_entry_field_field_name_like_id(respx_mock: respx.MockRouter) -> None:
@@ -1600,53 +1566,21 @@ def test_entry_field_field_name_like_id(respx_mock: respx.MockRouter) -> None:
     assert "field-123" in payload["data"]["fields"]
 
 
-def test_entry_field_partial_failure(respx_mock: respx.MockRouter) -> None:
-    """SERVER-SIDE failure may still leave partial state — Affinity has no transactions.
-
-    Client-side-validatable failures (bad person ID, unknown dropdown option,
-    invalid datetime, etc.) now abort BEFORE any API write under the strict
-    default introduced in v0.7 — see
-    ``test_entry_field_invalid_person_aborts_before_any_write`` for that path.
-
-    This test covers the orthogonal scenario: every value passed
-    pre-validation client-side, but the server returns HTTP 400 mid-sequence
-    (e.g. a constraint we can't check locally). In that case the prior
-    --set has already committed and Affinity has no rollback. The CLI exits
-    non-zero and surfaces the server error; the user should check the entry
-    state after such errors.
-    """
-    setup_list_mocks(respx_mock)
-
-    # Track what operations were attempted
-    operations_attempted: list[str] = []
-
-    def mock_field_values(_request):
-        return Response(200, json=[])
-
-    def mock_first_field_success(_request):
-        operations_attempted.append("field-100")
-        return Response(
-            200, json={"id": 600, "fieldId": "field-100", "entityId": 224925, "value": "Active"}
+def test_entry_field_rejected_batch_changes_nothing(respx_mock: respx.MockRouter) -> None:
+    """All --set values go out in one request, which Affinity applies all-or-nothing: a value
+    the server rejects (one we can't check locally) leaves every field unchanged."""
+    patch = setup_list_mocks(respx_mock)
+    patch.mock(
+        return_value=Response(
+            400, json={"errors": [{"code": "validation", "message": "Invalid value for field"}]}
         )
+    )
+    respx_mock.get("https://api.affinity.co/field-values").mock(return_value=Response(200, json=[]))
+    post = respx_mock.post(url__regex=r".*/list-entries/\d+/fields/.*").mock(
+        return_value=Response(204)
+    )
 
-    def mock_second_field_failure(_request):
-        operations_attempted.append("field-101")
-        # Simulate API error (e.g., invalid value for field type)
-        return Response(
-            400,
-            json={"error": {"message": "Invalid value for dropdown field"}},
-        )
-
-    respx_mock.get("https://api.affinity.co/field-values").mock(side_effect=mock_field_values)
-    respx_mock.post(
-        f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-100"
-    ).mock(side_effect=mock_first_field_success)
-    respx_mock.post(
-        f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-101"
-    ).mock(side_effect=mock_second_field_failure)
-
-    runner = CliRunner()
-    result = runner.invoke(
+    result = CliRunner().invoke(
         cli,
         [
             "entry",
@@ -1655,23 +1589,18 @@ def test_entry_field_partial_failure(respx_mock: respx.MockRouter) -> None:
             str(ENTRY_ID),
             "--set",
             "Status",
-            "Active",  # This will succeed
+            "Active",
             "--set",
             "Priority",
-            "InvalidValue",  # This will fail
+            "Whatever",
         ],
         env={"AFFINITY_API_KEY": "test-key"},
     )
 
-    # Command should fail
     assert result.exit_code != 0
-
-    # Both operations were attempted (first succeeded before second failed)
-    assert "field-100" in operations_attempted
-    assert "field-101" in operations_attempted
-
-    # Error message should be present
-    assert "Invalid value" in result.output or "error" in result.output.lower()
+    assert "nothing was changed" in " ".join(result.output.split())
+    assert patch.call_count == 1
+    assert post.call_count == 0
 
 
 # ============================================================================
@@ -1708,7 +1637,7 @@ ENTITY_FIELDS_V2 = [
 ]
 
 
-def setup_entity_field_mocks(respx_mock: respx.MockRouter) -> None:
+def setup_entity_field_mocks(respx_mock: respx.MockRouter) -> Any:
     """Set up mocks with entity-reference field types."""
     respx_mock.get("https://api.affinity.co/v2/lists").mock(
         return_value=Response(200, json={"data": [LIST_RESPONSE], "pagination": {}})
@@ -1733,6 +1662,7 @@ def setup_entity_field_mocks(respx_mock: respx.MockRouter) -> None:
     respx_mock.get("https://api.affinity.co/fields").mock(
         return_value=Response(200, json={"data": ENTITY_FIELDS_V1})
     )
+    return mock_list_field_writes(respx_mock, LIST_ID, ENTITY_FIELDS_V1)
 
 
 @pytest.mark.req("CLI-ENTITY-REF-FIELD-FIX")
@@ -1741,25 +1671,13 @@ class TestEntryFieldEntityRefSet:
 
     def test_set_person_field_wraps_id(self, respx_mock: respx.MockRouter) -> None:
         """--set Owner 26229794 sends {"id": 26229794} in V2 payload."""
-        setup_entity_field_mocks(respx_mock)
+        patch_route = setup_entity_field_mocks(respx_mock)
         respx_mock.get("https://api.affinity.co/field-values").mock(
             return_value=Response(200, json=[])
         )
 
         # Capture the POST request to verify payload
-        post_route = respx_mock.post(
-            f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-200"
-        ).mock(
-            return_value=Response(
-                200,
-                json={
-                    "id": 700,
-                    "fieldId": "field-200",
-                    "entityId": 224925,
-                    "value": {"id": 26229794},
-                },
-            )
-        )
+        post_route = patch_route
 
         runner = CliRunner()
         result = runner.invoke(
@@ -1780,30 +1698,18 @@ class TestEntryFieldEntityRefSet:
         assert result.exit_code == 0, result.output
         # Verify the V2 API payload wraps the ID
         assert post_route.called
-        request_body = json.loads(post_route.calls[0].request.content)
+        request_body = patched(post_route)[0]
         assert request_body["value"]["type"] == "person"
         assert request_body["value"]["data"] == {"id": 26229794}
 
     def test_set_company_field_wraps_id(self, respx_mock: respx.MockRouter) -> None:
         """--set 'Parent Company' 789 sends {"id": 789} in V2 payload."""
-        setup_entity_field_mocks(respx_mock)
+        patch_route = setup_entity_field_mocks(respx_mock)
         respx_mock.get("https://api.affinity.co/field-values").mock(
             return_value=Response(200, json=[])
         )
 
-        post_route = respx_mock.post(
-            f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-202"
-        ).mock(
-            return_value=Response(
-                200,
-                json={
-                    "id": 701,
-                    "fieldId": "field-202",
-                    "entityId": 224925,
-                    "value": {"id": 789},
-                },
-            )
-        )
+        post_route = patch_route
 
         runner = CliRunner()
         result = runner.invoke(
@@ -1823,7 +1729,7 @@ class TestEntryFieldEntityRefSet:
 
         assert result.exit_code == 0, result.output
         assert post_route.called
-        request_body = json.loads(post_route.calls[0].request.content)
+        request_body = patched(post_route)[0]
         assert request_body["value"]["type"] == "company"
         assert request_body["value"]["data"] == {"id": 789}
 
@@ -1859,24 +1765,12 @@ class TestEntryFieldEntityRefSetJson:
 
     def test_set_json_person_multi_list(self, respx_mock: respx.MockRouter) -> None:
         """--set-json with person-multi list wraps each ID."""
-        setup_entity_field_mocks(respx_mock)
+        patch_route = setup_entity_field_mocks(respx_mock)
         respx_mock.get("https://api.affinity.co/field-values").mock(
             return_value=Response(200, json=[])
         )
 
-        post_route = respx_mock.post(
-            f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-201"
-        ).mock(
-            return_value=Response(
-                200,
-                json={
-                    "id": 702,
-                    "fieldId": "field-201",
-                    "entityId": 224925,
-                    "value": [{"id": 111}, {"id": 222}],
-                },
-            )
-        )
+        post_route = patch_route
 
         runner = CliRunner()
         result = runner.invoke(
@@ -1895,7 +1789,7 @@ class TestEntryFieldEntityRefSetJson:
 
         assert result.exit_code == 0, result.output
         assert post_route.called
-        request_body = json.loads(post_route.calls[0].request.content)
+        request_body = patched(post_route)[0]
         assert request_body["value"]["type"] == "person-multi"
         assert request_body["value"]["data"] == [{"id": 111}, {"id": 222}]
 
@@ -2137,9 +2031,7 @@ def _setup_stale_v1_mocks(respx_mock: respx.MockRouter) -> respx.Route:
         )
     )
     respx_mock.get("https://api.affinity.co/field-values").mock(return_value=Response(200, json=[]))
-    return respx_mock.post(
-        f"https://api.affinity.co/v2/lists/{LIST_ID}/list-entries/{ENTRY_ID}/fields/field-200"
-    ).mock(return_value=Response(200, json={"id": 1, "fieldId": "field-200"}))
+    return mock_list_field_writes(respx_mock, LIST_ID, FIELDS_RESPONSE_V1)
 
 
 @pytest.mark.parametrize("field_spec", ["field-200", "Close Date"])
@@ -2158,9 +2050,9 @@ def test_entry_field_set_field_missing_from_stale_v1_uses_v2(
 
     assert result.exit_code == 0, result.output
     assert write.called
-    assert json.loads(write.calls.last.request.content) == {
-        "value": {"type": "datetime", "data": "2024-04-01T12:00:00Z"}
-    }
+    assert patched(write) == [
+        {"id": "field-200", "value": {"type": "datetime", "data": "2024-04-01T12:00:00Z"}}
+    ]
 
 
 def test_entry_field_set_unknown_field_still_not_found(respx_mock: respx.MockRouter) -> None:

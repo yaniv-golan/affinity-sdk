@@ -4,7 +4,6 @@ Covers:
 
 - :func:`value_equals_existing` per-type no-op comparator rules
 - :func:`pre_validate_set_operations` error aggregation
-- :func:`execute_v2_set_phase` short-circuit / write decisions
 - :func:`execute_v1_set_phase` short-circuit / write decisions
 - :func:`execute_append_phase` multi-value merge + no-op
 """
@@ -21,7 +20,6 @@ from affinity.cli.field_utils import (
     FieldResolver,
     execute_append_phase,
     execute_v1_set_phase,
-    execute_v2_set_phase,
     pre_validate_set_operations,
     value_equals_existing,
 )
@@ -374,123 +372,8 @@ class TestPreValidateSetOperations:
         assert field_names == {"Status", "Owner"}
 
 
-# ---------------------------------------------------------------------------
-# execute_v2_set_phase
-# ---------------------------------------------------------------------------
-
-
 def _make_field_value(fv_id: int, field_id: str, value: Any) -> dict[str, Any]:
     return {"id": fv_id, "fieldId": field_id, "entityId": 1, "value": value}
-
-
-class TestExecuteV2SetPhase:
-    def test_noop_skips_delete_and_create(self, resolver: FieldResolver) -> None:
-        client = MagicMock()
-        entries = MagicMock()
-        existing = [_make_field_value(1, "field-100", {"id": 202, "text": "Intro Meeting"})]
-
-        pre_resolved = {
-            "field-100": ("Intro Meeting", {"dropdownOptionId": 202}, "dropdown"),
-        }
-        created, deleted, refreshed = execute_v2_set_phase(
-            client=client,
-            entries=entries,
-            list_entry_id=123,
-            pre_resolved_ops=pre_resolved,
-            existing_values_serialized=existing,
-            resolver=resolver,
-        )
-        client.field_values.delete.assert_not_called()
-        entries.update_field_value.assert_not_called()
-        assert created == []
-        assert deleted == 0
-        assert refreshed == existing
-
-    def test_change_replaces_without_deleting_first(self, resolver: FieldResolver) -> None:
-        """The V2 write replaces the value; deleting first would empty the field if the write
-        were then rejected."""
-        client = MagicMock()
-        entries = MagicMock()
-        new_fv = _make_field_value(2, "field-100", {"id": 202, "text": "Intro Meeting"})
-        # update_field_value should return a model-like; mock anything serializable.
-        update_result = MagicMock()
-        update_result.model_dump.return_value = new_fv
-        entries.update_field_value.return_value = update_result
-
-        existing = [_make_field_value(1, "field-100", {"id": 200, "text": "Active"})]
-
-        pre_resolved = {
-            "field-100": ("Intro Meeting", {"dropdownOptionId": 202}, "dropdown"),
-        }
-        created, deleted, refreshed = execute_v2_set_phase(
-            client=client,
-            entries=entries,
-            list_entry_id=123,
-            pre_resolved_ops=pre_resolved,
-            existing_values_serialized=existing,
-            resolver=resolver,
-        )
-        client.field_values.delete.assert_not_called()
-        entries.update_field_value.assert_called_once()
-        assert deleted == 0
-        assert len(created) == 1
-        # Refreshed list reflects: old replaced, new added.
-        assert all(fv["id"] != 1 for fv in refreshed)
-
-    def test_rejected_write_deletes_nothing(self, resolver: FieldResolver) -> None:
-        client = MagicMock()
-        entries = MagicMock()
-        entries.update_field_value.side_effect = RuntimeError("400 invalid value")
-        existing = [_make_field_value(1, "field-100", {"id": 200, "text": "Active"})]
-        with pytest.raises(RuntimeError):
-            execute_v2_set_phase(
-                client=client,
-                entries=entries,
-                list_entry_id=123,
-                pre_resolved_ops={
-                    "field-100": ("Intro Meeting", {"dropdownOptionId": 202}, "dropdown")
-                },
-                existing_values_serialized=existing,
-                resolver=resolver,
-            )
-        client.field_values.delete.assert_not_called()
-
-    def test_partial_noop(self, resolver: FieldResolver) -> None:
-        client = MagicMock()
-        entries = MagicMock()
-        new_fv = _make_field_value(3, "field-101", {"id": 302, "text": "New"})
-        update_result = MagicMock()
-        update_result.model_dump.return_value = new_fv
-        entries.update_field_value.return_value = update_result
-
-        existing = [
-            _make_field_value(1, "field-100", {"id": 200, "text": "Active"}),
-        ]
-
-        pre_resolved = {
-            "field-100": (
-                "Active",
-                {"dropdownOptionId": 200},
-                "dropdown",
-            ),  # already Active → no-op
-            "field-101": (
-                "New",
-                {"dropdownOptionId": 302},
-                "dropdown",
-            ),  # Priority not set → write
-        }
-        created, deleted, _ = execute_v2_set_phase(
-            client=client,
-            entries=entries,
-            list_entry_id=123,
-            pre_resolved_ops=pre_resolved,
-            existing_values_serialized=existing,
-            resolver=resolver,
-        )
-        client.field_values.delete.assert_not_called()
-        entries.update_field_value.assert_called_once()
-        assert deleted == 0
-        assert len(created) == 1
 
 
 # ---------------------------------------------------------------------------
