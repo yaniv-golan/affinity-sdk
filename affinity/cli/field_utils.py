@@ -1677,6 +1677,17 @@ def _v2_item_from_v1(type_str: str, value: Any) -> Any:
 
 def check_append_targets(*, resolver: FieldResolver, append_ops: list[tuple[str, Any]]) -> None:
     """Fail before any write if ``--append`` targets a field that holds a single value."""
+    unknown = sorted(
+        {field_id for field_id, _ in append_ops if resolver.get_field_metadata(field_id) is None}
+    )
+    if unknown:
+        raise CLIError(
+            f"--append: can't tell whether {', '.join(repr(f) for f in unknown)} hold(s) "
+            "several values (no field information on this list, e.g. an enriched field). "
+            "Use --set with the full value. Nothing was changed.",
+            exit_code=2,
+            error_type="usage_error",
+        )
     single = sorted(
         {
             resolver.get_field_name(field_id) or field_id

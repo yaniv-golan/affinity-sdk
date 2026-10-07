@@ -1181,6 +1181,13 @@ def person_get(
                     name = item.get("name")
                     if isinstance(lid, int) and isinstance(name, str) and name.strip():
                         list_name_by_id[lid] = name.strip()
+            # V2 list entries carry their list's name; use it before fetching lists one by one.
+            for entry in entries_items:
+                if not isinstance(entry, dict):
+                    continue
+                lid, lname = entry.get("listId"), entry.get("listName")
+                if isinstance(lid, int) and isinstance(lname, str) and lname.strip():
+                    list_name_by_id.setdefault(lid, lname.strip())
             if effective_show_list_entry_fields:
                 needed_list_ids: set[int] = set()
                 for entry in entries_items:

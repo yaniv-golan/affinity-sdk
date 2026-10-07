@@ -686,3 +686,57 @@ def test_company_get_omits_not_requested_when_all_requested(
     assert result.exit_code == 0, result.output
     payload = json.loads(result.output.strip())
     assert "notRequested" not in payload["meta"]
+
+
+def test_company_get_list_entry_fields_use_list_name_without_lookup(
+    respx_mock: respx.MockRouter,
+) -> None:
+    """V2 list entries carry `listName`; the table uses it instead of one `lists.get` per list."""
+    respx_mock.get("https://api.affinity.co/v2/companies/123").mock(
+        return_value=Response(200, json={"id": 123, "name": "Acme Corp"})
+    )
+    list_lookup = respx_mock.get("https://api.affinity.co/v2/lists/41780").mock(
+        return_value=Response(500)
+    )
+    respx_mock.get("https://api.affinity.co/v2/companies/123/list-entries?limit=1").mock(
+        return_value=Response(
+            200,
+            json={
+                "data": [
+                    {
+                        "id": 135563331,
+                        "listId": 41780,
+                        "listName": "Dealflow",
+                        "creatorId": 1,
+                        "createdAt": "2023-08-06T11:39:40Z",
+                        "fields": [
+                            {
+                                "id": "field-1",
+                                "type": "list",
+                                "name": "Status",
+                                "value": {"type": "text", "data": "Intro Meeting"},
+                            }
+                        ],
+                    }
+                ],
+                "pagination": {"prevUrl": None, "nextUrl": None},
+            },
+        )
+    )
+    result = CliRunner().invoke(
+        cli,
+        [
+            "company",
+            "get",
+            "123",
+            "--expand",
+            "list-entries",
+            "--max-results",
+            "1",
+            "--show-list-entry-fields",
+        ],
+        env={"AFFINITY_API_KEY": "test-key"},
+    )
+    assert result.exit_code == 0, result.output
+    assert "Dealflow" in result.output
+    assert list_lookup.call_count == 0
