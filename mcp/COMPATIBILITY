@@ -1,8 +1,19 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="1.17.0"
-CLI_MAX_VERSION="1.17.0"
+CLI_MIN_VERSION="1.18.0"
+CLI_MAX_VERSION="1.18.0"
+
+# MCP 1.22.6 requires CLI 1.18.0 for:
+# - Field writes that can't lose data: CLI <= 1.17.0 deleted a field's values
+#   before writing, so a rejected write emptied the field, and `--set` on a
+#   number field always did (the number was sent as text). Locations work, and
+#   `--append` on a multi-value location field adds instead of replacing.
+# - `list entry field --set` JSON no longer includes `deleted` (values are
+#   replaced by the write); `--append` on a single-value field exits 2.
+# - `opportunity field` works again (exit 2 on every call before).
+# - `query` JSON carries a `warnings` array when the run produced warnings
+#   (e.g. multi-value fields cut off at 100 values).
 
 # MCP 1.22.5 requires CLI 1.17.0 for:
 # - `company merge` / `person merge` without `--beta`: the gateway never passes

@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.18.0] - 2026-10-07
+
+### Highlights
+
+**CLI field writes no longer lose data.** CLI versions through 1.17.0 deleted a field's
+values before writing the new ones, so any write Affinity rejected left the field empty.
+Together with a second bug this hit everyday commands: `list entry field --set <number field> 5`
+sent the number as text, Affinity rejected it, and the field ended up blank. Now:
+`list entry field --set` replaces the value in one write (Affinity leaves the field untouched if
+it rejects the write); `company field`, `person field` and `opportunity field` update a value in
+place and add new values before removing old ones; numbers and locations are checked and sent
+in the shape Affinity accepts; and `--append` on a multi-value location field adds instead of
+replacing the list. Upgrade if anything writes fields through the CLI or the MCP server.
+
+**Breaking:** `--append` on a field that holds a single value now exits with a usage error
+instead of silently replacing the value; use `--set`.
+
+**Multi-value fields show when Affinity cut them off at 100 values** (warnings in the CLI,
+`FieldValues.is_truncated()` in the SDK), and `opportunity field` works again.
+
 ### Added
 
 - Truncation signal for multi-value fields. Affinity's V2 API returns at most 100 values per
@@ -24,18 +44,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking (CLI):** `list entry field --append` on a field that holds a single value exits 2
+  ("use --set") before anything is written. It used to replace the value silently.
+- CLI `list entry field --set` on a list entry no longer reports `deleted` in its JSON output:
+  the old values are replaced by the write itself, not deleted first.
+- SDK: a `location` / `location-multi` value passed to
+  `update_field_value(..., value_type="location")` (or `"location-multi"`) is completed to the
+  five keys Affinity requires (`streetAddress`,
+  `city`, `state`, `country`, `continent`; missing ones sent as `null`; `street_address` is
+  accepted). Affinity rejected a location missing any of them.
 - `ListEntryService.update_field_value()` (sync and async) raises `ValueError` before sending more
   than 100 values for a company, person, number, text or location multi-value field, which
-  Affinity rejects. `batch_update_fields()` raises `ValueError` for more than 100 updates (the
+  Affinity rejects (dropdown-multi has no such limit). `batch_update_fields()` raises `ValueError` for more than 100 updates (the
   API's limit per request) and for list values, which it used to send as an invalid `text` value.
 
 ### Fixed
 
-- CLI `list entry field --set` / `--set-json` / `--append` could empty a multi-value field: the
-  existing values are deleted before the new ones are written, so a write Affinity rejected
-  (e.g. more than 100 values) left the field blank. The final value count is now checked before
-  anything changes, and if a write still fails after the delete, the error lists the removed
-  values.
+- **Data loss in CLI field writes.** `list entry field --set` / `--set-json` deleted every
+  existing value of the field and then wrote the new one, so a write Affinity rejected (an
+  invalid value, more than 100 values, a network error) left the field empty. It now sends a
+  single write, which replaces the value or, if rejected, leaves it untouched. `company field`,
+  `person field` and `opportunity field` (V1 writes) also deleted first; they now update a
+  single value in place and, for multi-value fields, add the new values before removing the ones
+  no longer wanted, so an interruption leaves extra values rather than none.
+- CLI `--set` on a number field sent the number as text (`"5"`), which Affinity rejects; combined
+  with the delete-first bug, it emptied the field. Numbers are now sent as numbers, and anything
+  that isn't a number is refused before any write.
+- CLI location values (`--set HQ '{"city": "Paris"}'`) were sent as a raw string and always
+  rejected. They are parsed as JSON objects, checked (unknown keys refused) and sent with all
+  five keys Affinity requires.
+- CLI `list entry field --append` on a multi-value location (or legacy multi-value number) field
+  would have replaced the whole list with the appended value; it now adds to it, and refuses
+  before writing if the field would exceed 100 values.
+- CLI dropdown values written through V1 (`company/person/opportunity field --set`) are sent as
+  the exact text of the matched option. V1 silently creates a new option when given text that
+  doesn't match one exactly.
+- CLI `opportunity field` failed with "list_id is required for opportunity field metadata"
+  (exit 2) for every `--set`, `--unset` and `--get`, since 0.5.0. It now loads the
+  fields of the opportunity's list.
 - `ListEntryService.get_field_values()` (sync and async) read only the first page of
   `…/list-entries/{id}/fields` (20 fields by default), silently missing the rest. It now reads
   every page.

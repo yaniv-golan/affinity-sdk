@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.22.6] - 2026-10-07
+
+### Highlights
+
+Requires CLI 1.18.0, which stops field writes from losing data. Earlier CLIs deleted a
+field's values before writing the new ones, so any write Affinity rejected left the field
+empty, and `--set` on a number field always did. Upgrade the CLI if agents write fields
+through this server.
+
+### Changed
+
+- Requires CLI 1.18.0 (`mcp/COMPATIBILITY`).
+- `query` JSON output includes a `warnings` array when the run produced warnings, such as a
+  multi-value field Affinity cut off at 100 values.
+- `list entry field --append` on a single-value field now fails with a usage error (use
+  `--set`), and `list entry field --set` output no longer includes `deleted`.
+
+### Fixed
+
+- `opportunity field` (via `execute-write-command`) works again; it exited 2 on every call.
+
 ## [1.22.5] - 2026-10-07
 
 ### Highlights
