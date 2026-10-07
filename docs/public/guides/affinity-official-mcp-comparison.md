@@ -1,79 +1,72 @@
 # Affinity SDK vs. Affinity's Official MCP Server
 
-> Last updated: March 2026
+> Last updated: October 2026. Affinity's MCP server changes quickly; check the
+> [official MCP docs](https://developer.affinity.co/pages/mcp/introduction) for its current tool list.
 
-In March 2026, Affinity launched an official MCP (Model Context Protocol) Server in beta. This document compares it with the `affinity-sdk` project to help you choose the right tool — or use both.
+Affinity runs an official MCP (Model Context Protocol) server that lets AI assistants read and
+update your Affinity data. This page compares it with the `affinity-sdk` project to help you pick
+the right tool — or use both.
 
 ## TL;DR
 
-This project is a **full-stack Affinity developer platform**: a strongly-typed Python SDK, a feature-rich CLI, a stdio MCP server with guided workflows, and Claude Code plugins with skills. Affinity's official MCP is an **officially-supported stdio server** (self-hosted in beta; hosted version coming soon) with 22 tools focused on relationship intelligence, pipeline queries, meetings, and notes. They are complementary — this project covers the full API surface with comprehensive read/write operations, structured queries, and developer tooling; Affinity's MCP provides an officially-supported, easy-to-install experience for common CRM lookups and note capture.
+- **Affinity's official MCP** is a hosted server (`https://mcp.affinity.co/mcp`) that you connect
+  to from Claude, ChatGPT, Copilot, Notion, Gemini CLI or any MCP client, signing in with OAuth.
+  It reads and writes most CRM records and is the easiest way to work with Affinity **in a chat**.
+- **This project** is a developer toolkit: a typed Python SDK, the `xaffinity` CLI, a local MCP
+  server that runs the CLI, and Claude Code plugins. Use it when you work with Affinity **in
+  code, scripts or a terminal**: bulk updates, exports, data pipelines, webhooks, structured
+  queries and aggregations, or a local MCP server that uses your own API key.
 
 ## What this project includes
 
-This repository ships four integrated components:
-
 | Component | Description |
 |---|---|
-| **Python SDK** | Full-coverage, strongly-typed client (Pydantic V2, typed IDs, sync + async, autopagination, rate limit handling, caching) |
+| **Python SDK** | Strongly-typed client (Pydantic V2, typed IDs, sync + async, auto-pagination, rate-limit handling, caching) |
 | **CLI (`xaffinity`)** | Command-line tool with structured queries, filtering, aggregations, multiple output formats (table, JSON, JSONL, CSV, markdown, TOON), and scripting support |
-| **MCP Server (`xaffinity-mcp`)** | Stdio-based MCP server with 7 native tools, 8 guided workflow prompts, CLI gateway pattern, and configurable read-only/write modes |
-| **Claude Code Plugins** | Three plugins — SDK skills, CLI skills with hooks, and MCP workflow/query skills — that teach Claude best practices for Affinity development |
+| **MCP Server (`xaffinity-mcp`)** | Local stdio MCP server with 7 tools that expose the whole CLI (50+ commands), 8 guided workflow prompts, and read-only/write modes |
+| **Claude Code Plugins** | Three plugins — SDK skills, CLI skills with hooks, and MCP workflow/query skills — that teach Claude to use Affinity correctly |
 
 ## Comparison
 
-| | This Project | Affinity Official MCP (Beta) |
+| | This Project | Affinity Official MCP |
 |---|---|---|
-| **Components** | SDK + CLI + MCP server + Claude Code plugins | MCP server |
-| **MCP transport** | stdio (local) | stdio (self-hosted, beta); hosted version coming soon |
-| **MCP tools** | 7 lean tools that expose the **entire CLI command surface** (50+ commands) via a gateway pattern — intentionally minimal to reduce context window overhead and improve model accuracy per [Anthropic best practices](https://www.anthropic.com/engineering/writing-tools-for-agents) | 22 dedicated tools (20 read, 2 write) covering a subset of the API |
-| **Guided workflows** | 8 MCP prompts (prepare-briefing, pipeline-review, warm-intro, change-status, interaction-brief, log-call, log-message, log-interaction-and-update-workflow) | Conversational queries |
-| **API coverage** | Full V1 + V2 surface (all entities, fields, CRUD, files, webhooks, reminders, interactions, relationship strengths) | Subset: persons, companies, opportunities, lists, notes, meetings |
-| **Read operations** | Companies, persons, lists, list entries, field values, notes, reminders, interactions, files, relationship strengths, webhooks, rate limits, opportunities, tasks | Persons, companies, opportunities, lists, list entries, fields, notes, meetings, semantic search, current user |
-| **Write operations** | Full CRUD: create/update/delete entities, field values, notes, reminders, webhooks, file uploads, interaction logging | Note creation, feedback submission |
-| **Type safety** | Typed IDs (`PersonId`, `CompanyId`, etc.), Pydantic V2 models, comprehensive enums | N/A (natural language) |
-| **Query language** | Structured JSON queries with filtering, includes, aggregations | Natural language |
-| **CLI** | Full-featured (`xaffinity`) with scripting and 6 output formats (table, JSON, JSONL, CSV, markdown, TOON) | N/A |
-| **Pagination** | Automatic iterator support | Handled internally |
-| **Rate limiting** | Auto-retry with exponential backoff, observability | Handled internally |
-| **Async support** | Full sync + async clients | N/A |
-| **Caching** | Optional field metadata caching | N/A |
-| **Error handling** | Typed exception hierarchy | N/A |
-| **Safety controls** | Configurable read-only mode, destructive command confirmation | N/A |
-| **Extensibility** | Build anything — custom MCP servers, scripts, pipelines, plugins | Use as-is |
-| **MCP runtime** | Bash 3.2+ (macOS default) — no Python or package manager needed for the MCP server itself | Python + uv (`uvx`) |
-| **Setup** | `pip install affinity-sdk` / MCPB bundle / manual config | `uvx affinity-mcp` or `claude mcp add affinity-mcp` |
-| **Code required** | SDK/CLI: yes (Python). MCP server: no (natural language) | No |
-| **Client compatibility** | Claude Desktop, ChatGPT Desktop, Cursor, Windsurf, VS Code + Copilot, Zed, JetBrains, any stdio MCP client | Claude Desktop, Claude CLI, GitHub Copilot (VS Code), Gemini CLI, any MCP-compatible client |
+| **What it is** | SDK + CLI + local MCP server + Claude Code plugins | MCP server |
+| **Where it runs** | On your machine (stdio) | Hosted by Affinity; a local `uvx affinity-mcp` option also exists |
+| **Sign-in** | Affinity API key | OAuth (hosted), or an API key |
+| **Plan requirement** | A plan with Affinity API access | Affinity Scale, Advanced or Enterprise |
+| **MCP tools** | 7 lean tools that run any CLI command, kept small to save context | About 75 dedicated tools, plus built-in skills (meeting prep, warm intro, market map, data migration, event setup) |
+| **Reads** | Companies, persons, opportunities, lists, list entries, saved views, field values and history, notes, reminders, interactions, files, relationship strengths, webhooks, rate limits, merge tasks | Companies, persons, opportunities, lists, list entries, saved views, fields and field-value history, notes, files, meetings, transcripts, relationship strengths, coworker and investor connections, reminders, users, semantic company search |
+| **Writes** | Create/update/delete entities, field values, list entries, notes, reminders, webhooks, interactions; file upload; merges | Create/update/delete persons, companies, opportunities, notes, reminders; merges; lists, list entries, fields and dropdown options; field-value upserts; interactions; file upload |
+| **Bulk work and export** | CLI and SDK: CSV/JSONL export, scripted bulk updates, structured queries with aggregations | One conversation at a time |
+| **Webhooks** | Yes | No |
+| **Guided workflows** | 8 MCP prompts (prepare-briefing, pipeline-review, warm-intro, change-status, interaction-brief, log-call, log-message, log-interaction-and-update-workflow) | Built-in skills (see above) |
+| **Safety controls** | CLI `--readonly` mode, MCP read-only mode (`AFFINITY_MCP_READ_ONLY=1`), confirmation for destructive commands | Read-only OAuth scope, admin control per client, confirmation before deletes and merges |
+| **For developers** | Typed IDs and models, async client, typed exceptions, field-metadata caching | — |
+| **Clients** | Any stdio MCP client (Claude Desktop, Claude Code, Cursor, Windsurf, VS Code, Zed, JetBrains, …) | Claude (Desktop, Web, Code), ChatGPT, Copilot (Studio, CLI, VS Code), Notion agents, Gemini CLI, any MCP client |
+| **Setup** | `pip install affinity-sdk` / MCPB bundle / Claude Code plugin | Add the hosted server in your client and sign in |
 | **Maintained by** | Community ([@yaniv-golan](https://github.com/yaniv-golan)) | Affinity (official) |
 
 ## When to use this project
 
-- You need **full API coverage**, including write operations beyond note creation
-- You need the **MCP server** with guided workflow prompts (prepare-briefing, pipeline-review, warm-intro, deal updates)
-- You want the **CLI gateway** pattern that exposes the entire CLI surface through MCP
-- You're building **custom integrations**, data pipelines, or automation scripts with the SDK
-- You want **type safety** and compile-time checks against ID mixing
-- You need **structured queries** with filtering, includes, and aggregations
-- You need **file operations** (upload, download, streaming)
-- You need **webhook, reminder, or interaction management**
+- You are writing **code or scripts** against Affinity (Python SDK, async, typed models)
+- You need **bulk operations**, exports (CSV/JSONL) or data pipelines
+- You need **structured queries** with filtering, includes and aggregations
+- You manage **webhooks**
+- You want a **local MCP server** that uses your own API key and needs no hosted service
 - You use **Claude Code** and want skills that teach Claude correct SDK/CLI patterns
-- You need **safety controls** like read-only mode and destructive command confirmation
 
 ## When to use Affinity's Official MCP
 
-- You want an **officially-supported** MCP server with easy `uvx` installation
-- Your use case is primarily **read-oriented queries** — "who haven't we contacted recently?", "summarize this pipeline", "what meetings do we have with X?"
-- You want to quickly **create or retrieve notes** from a chat interface
-- You want **semantic search** for finding companies by natural-language description
-- You prefer a **managed hosted endpoint** (coming soon) with no local setup
+- You want to work with Affinity **conversationally** in Claude, ChatGPT, Copilot, Notion or Gemini
+- You want an **officially supported**, hosted server with OAuth sign-in and no local install
+- You want **semantic search**, transcripts, or relationship and connection lookups in chat
+- You want Affinity's built-in skills (meeting prep, warm intros, market maps)
 
 ## Using them together
 
-The two serve different layers. A common pattern:
-
-- Use the **official MCP** for quick conversational lookups and note capture
-- Use this project's **MCP server** when you need guided workflows, write operations, or the full CLI surface
-- Use the **SDK** for batch operations, data migrations, custom reporting, and bespoke tooling
+- Use the **official MCP** for everyday chat work: lookups, meeting prep, notes and record updates
+- Use the **CLI or SDK** for bulk updates, exports, migrations, reporting and automation
+- Use this project's **MCP server** when you want an agent to have the full CLI with your own API key
 - Use the **Claude Code plugins** when developing against the Affinity API
 
 ## Links

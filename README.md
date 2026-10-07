@@ -23,9 +23,9 @@ Documentation: https://yaniv-golan.github.io/affinity-sdk/latest/
 
 ## Affinity's Official MCP Server
 
-As of March 2026, Affinity has released an [official MCP Server (beta)](https://developer.affinity.co/pages/mcp/introduction) for conversational, natural-language access to your CRM data via AI chat clients. It covers relationship intelligence queries, pipeline summaries, meeting activity, and note capture.
+Affinity runs an [official MCP Server](https://developer.affinity.co/pages/mcp/introduction): a hosted server you connect to from Claude, ChatGPT, Copilot, Notion and other AI clients with OAuth sign-in. It reads and updates most CRM records and is the easiest way to work with Affinity in a chat.
 
-This SDK serves a different purpose — it's a full-coverage, strongly-typed Python client for the Affinity API, supporting the complete read/write surface (companies, persons, lists, field values, notes, reminders, webhooks, files, and more). Use it when you need programmatic control, write operations, type safety, or want to build custom integrations and tooling.
+This SDK serves a different purpose — it's a strongly-typed Python client and CLI for the Affinity API (companies, persons, opportunities, lists, field values, notes, reminders, interactions, webhooks, files, and more). Use it when you work with Affinity in code, scripts or a terminal: bulk updates, exports, data pipelines, webhooks, or custom integrations and tooling.
 
 For a detailed comparison, see [Affinity SDK vs. Official MCP](https://yaniv-golan.github.io/affinity-sdk/latest/guides/affinity-official-mcp-comparison/).
 
@@ -460,24 +460,34 @@ from affinity.types import (
 
 ## API Coverage
 
-| Feature | V2 | V1 | SDK |
+Which Affinity API version offers each feature, and which one the SDK uses. Affinity has been
+adding V2 endpoints through 2026; the SDK still uses V1 where V1 was the only option, and moving
+those to V2 is planned.
+
+| Feature | V2 | V1 | SDK uses |
 |---------|:--:|:--:|:---:|
 | Companies (read) | ✅ | ✅ | V2 |
-| Companies (write) | ❌ | ✅ | V1 |
+| Companies (write) | Fields only (no create/delete) | ✅ | V1 |
 | Persons (read) | ✅ | ✅ | V2 |
-| Persons (write) | ❌ | ✅ | V1 |
+| Persons (write) | Create, delete, fields | ✅ | V1 |
+| Company/person merges | ✅ | ❌ | V2 |
+| Opportunities (read) | ✅ | ✅ | V2 |
+| Opportunities (write) | Update/delete | ✅ | V1 |
 | Lists (read) | ✅ | ✅ | V2 |
-| Lists (write) | ❌ | ✅ | V1 |
+| Lists (write) | Create | ✅ | V1 |
 | List Entries (read) | ✅ | ✅ | V2 |
-| List Entries (write) | ❌ | ✅ | V1 |
+| List Entries (write) | Create | ✅ | V1 |
 | Field Values (read) | ✅ | ✅ | V2 |
-| Field Values (write) | ✅ | ✅ | V2 |
-| Notes | Read-only | ✅ | V1 |
-| Reminders | ❌ | ✅ | V1 |
-| Webhooks | ❌ | ✅ | V1 |
+| Field Values (write) | ✅ | ✅ | V2 (list entries), V1 (companies/persons) |
+| Notes | ✅ | ✅ | V1 |
+| Reminders | ✅ | ✅ | V1 |
+| Webhooks | ✅ | ✅ | V1 |
 | Interactions | Read-only | ✅ | V1 |
-| Entity Files | ❌ | ✅ | V1 |
-| Relationship Strengths | ❌ | ✅ | V1 |
+| Entity Files | Read-only | ✅ | V1 |
+| Relationship Strengths | ✅ | ✅ | V1 |
+
+V2-only features the SDK does not wrap yet include semantic search, transcripts, duplicate
+suggestions, coworker/investor connections and teams.
 
 ## Authentication
 

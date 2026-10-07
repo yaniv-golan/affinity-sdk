@@ -121,13 +121,26 @@ Unknown future values are treated as open enums and preserved as strings.
 | `text` | `str` | Plain text |
 | `filterable-text` / `filterable-text-multi` | `str` / `list[str]` | Reserved for Affinity-populated fields |
 | `number` / `number-multi` | `int \| float` / `list[int \| float]` | JSON numbers |
-| `datetime` | `str` / `datetime.datetime` | Typically ISO-8601 datetime strings on read |
+| `datetime` | `str` / `datetime.datetime` | Typically ISO-8601 datetime strings on read. Affinity stores date fields at midnight Pacific Time; see [Writing dates](#writing-dates) |
 | `person` / `person-multi` | `PersonId` / `list[PersonId]` | Under the hood: `int` or `list[int]` |
 | `company` / `company-multi` | `CompanyId` / `list[CompanyId]` | Under the hood: `int` or `list[int]` |
 | `dropdown` / `dropdown-multi` | `DropdownOption` / `list[DropdownOption]` | Has `.id`, `.text`, `.rank`, `.color` |
 | `ranked-dropdown` | `DropdownOption` | Has `.id`, `.text`, `.rank`, `.color` |
 | `location` / `location-multi` | `dict[str, Any]` / `list[dict[str, Any]]` | Structured location object(s); shape varies by API |
 | `interaction` | `Any` | Relationship-intelligence fields; shape varies by API |
+
+## Writing dates
+
+Since 2026-01-01 Affinity stores date fields at midnight Pacific Time, so a stored value reads
+back as e.g. `2024-04-01T07:00:00Z` (PDT) or `2024-01-15T08:00:00Z` (PST).
+
+- **SDK:** pass a `datetime.date` or `datetime.datetime` to `update_field_value()` /
+  `batch_update_fields()`. A `date` is sent as noon UTC, which falls on the same calendar day in
+  Pacific Time, so it is stored on the date you passed.
+- **CLI:** `--set <field> 2024-04-01` works the same way; a full date-time is converted to UTC,
+  and anything unparseable is rejected before any write.
+- Setting the date a field already holds is a no-op: the CLI compares calendar dates, not exact
+  timestamps.
 
 ## Next steps
 

@@ -457,7 +457,7 @@
       "relatedCommands": ["person get", "company get", "opportunity get", "list get", "entry get"]
     },
     "task get": {
-      "whenToUse": "Get current status of an async task (pending/in_progress/success/failed). Operations like 'company merge' and 'person merge' return taskUrls that complete in the background.",
+      "whenToUse": "Get current status of an async task (pending/in-progress/success/failed). Operations like 'company merge' and 'person merge' return taskUrls that complete in the background.",
       "examples": [
         "task get 'https://api.affinity.co/v2/tasks/abc123'"
       ],
