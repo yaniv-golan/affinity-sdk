@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.22.7] - 2026-10-07
+
+### Highlights
+
+Requires CLI 1.18.1, which makes dropdown and status writes work in `company field`,
+`person field` and `opportunity field` (e.g. moving an opportunity to another stage).
+
+### Changed
+
+- Requires CLI 1.18.1 (`mcp/COMPATIBILITY`).
+
 ## [1.22.6] - 2026-10-07
 
 ### Highlights

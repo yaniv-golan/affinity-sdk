@@ -1,8 +1,14 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="1.18.0"
-CLI_MAX_VERSION="1.18.0"
+CLI_MIN_VERSION="1.18.1"
+CLI_MAX_VERSION="1.18.1"
+
+# MCP 1.22.7 requires CLI 1.18.1 for:
+# - `company/person/opportunity field --set` on dropdown, ranked-dropdown and
+#   status fields (e.g. `opportunity field --set Status <stage>`): every such
+#   write failed with "Dropdown option not found" on CLI <= 1.18.0.
+# - `opportunity field --set` on an empty field ("list_entry_id is required").
 
 # MCP 1.22.6 requires CLI 1.18.0 for:
 # - Field writes that can't lose data: CLI <= 1.17.0 deleted a field's values

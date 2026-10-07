@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.18.1] - 2026-10-07
+
+### Highlights
+
+**Dropdown and status fields can be set from `company field`, `person field` and
+`opportunity field`.** Every `--set` of a dropdown on these commands failed with "Dropdown
+option '…' not found", including `opportunity field --set Status <stage>`.
+
+### Fixed
+
+- CLI `company field`, `person field` and `opportunity field --set` on a dropdown, ranked
+  dropdown or status field always exited 2 with "Dropdown option … not found": the field
+  information they load (V2) carries no options. The options are now read fresh from Affinity
+  for the dropdown fields being set (never from a cache).
+- Plain dropdowns on companies and persons are written by option id (V2), so a value can never
+  create a new option on an account-wide field. Through V1, which these commands used, text that
+  no longer matches an option (e.g. renamed moments earlier) silently creates one.
+- Ranked dropdowns and status fields are written by option id; V1 rejects their text.
+- `opportunity field --set` on a field with no value failed with "list_entry_id is required".
+- `list entry field --set` on a dropdown option added moments ago: the option is read fresh
+  from Affinity before the value is refused.
+- Re-setting a dropdown to the option it already holds no longer rewrites it.
+- `company/person/opportunity field --unset` with a misspelled field name now fails before any
+  `--set` in the same command is written.
+
 ## [1.18.0] - 2026-10-07
 
 ### Highlights
