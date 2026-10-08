@@ -112,8 +112,7 @@ sends a minimum version for that one request:
 
 Versions that answered such calls are listed in `client.affinity_api_versions_per_operation`
 (a subset of `affinity_api_versions_seen`) and in the CLI's `meta.affinityApiVersionPerOperation`.
-They don't trigger the "more than one version" warning. For your own calls,
-`client._http.patch(path, json=..., min_api_version="2026-07-15")` does the same.
+They don't trigger the "more than one version" warning.
 
 ## Caching
 
