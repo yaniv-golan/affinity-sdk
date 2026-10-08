@@ -231,8 +231,14 @@ fields = client.persons.get_fields(includes=["filterability", "sortability"])
 sortable = [f.name for f in fields if f.is_sortable]
 ```
 
-The `field_types=` argument of `get_fields()` is sent as `fieldTypes`, but the fields
-endpoints ignore it and return every field; filter on `FieldMetadata.type` instead.
+`get_fields()` always returns every field type; to keep only some, filter on
+`FieldMetadata.type`:
+
+```python
+from affinity.types import FieldType
+
+global_fields = [f for f in client.companies.get_fields() if f.type == FieldType.GLOBAL]
+```
 
 ### Caching Considerations
 

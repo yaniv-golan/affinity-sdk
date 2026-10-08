@@ -277,8 +277,8 @@ def test_list_service_list_all_get_fields_and_create_entry_helpers() -> None:
         assert [lst.id for lst in list(svc.all())] == [ListId(10)]
         assert svc.get(ListId(10)).id == ListId(10)
 
-        _ = svc.get_fields(ListId(10), field_types=[FieldType.GLOBAL])
-        _ = svc.get_fields(ListId(10), field_types=[FieldType.GLOBAL])
+        _ = svc.get_fields(ListId(10))
+        _ = svc.get_fields(ListId(10))
         assert calls["fields"] == 1
 
         entries = svc.entries(ListId(10))
@@ -878,7 +878,7 @@ async def test_async_list_service_create_fields_and_entry_write_ops() -> None:
         if request.method == "GET" and url.copy_with(query=None) == httpx.URL(
             "https://v2.example/v2/lists/11/fields"
         ):
-            assert url.params.get_list("fieldTypes") == ["global"]
+            assert "fieldTypes" not in url.params
             calls["fields"] += 1
             return httpx.Response(
                 200,
@@ -1035,8 +1035,8 @@ async def test_async_list_service_create_fields_and_entry_write_ops() -> None:
         assert created.id == ListId(11)
         assert invalidated_prefixes == ["list"]
 
-        _ = await svc.get_fields(ListId(11), field_types=[FieldType.GLOBAL])
-        _ = await svc.get_fields(ListId(11), field_types=[FieldType.GLOBAL])
+        _ = await svc.get_fields(ListId(11))
+        _ = await svc.get_fields(ListId(11))
         assert calls["fields"] == 1
 
         entries = svc.entries(ListId(11))

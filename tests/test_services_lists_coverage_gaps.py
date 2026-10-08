@@ -231,14 +231,13 @@ class TestListServiceFieldOperations:
         assert len(fields) == 1
         assert fields[0].name == "Field1"
 
-    def test_get_fields_with_field_types_filter(self) -> None:
-        from affinity.models.types import FieldType
-
+    def test_get_fields_sends_no_field_types(self) -> None:
         def handler(request: httpx.Request) -> httpx.Response:
             url = request.url
 
             if "/fields" in str(url):
-                # Verify field_types param was passed
+                # The fields endpoints take no fieldTypes; the SDK must not send it
+                assert "fieldTypes" not in url.params
                 return httpx.Response(
                     200,
                     json={
@@ -262,7 +261,7 @@ class TestListServiceFieldOperations:
         )
         service = ListService(http)
 
-        fields = service.get_fields(ListId(100), field_types=[FieldType.LIST])
+        fields = service.get_fields(ListId(100), filter='name="Field1"')
         assert isinstance(fields, list)
 
 

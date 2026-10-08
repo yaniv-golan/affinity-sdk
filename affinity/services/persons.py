@@ -597,7 +597,6 @@ class PersonService:
     def get_fields(
         self,
         *,
-        field_types: Sequence[FieldType] | None = None,
         filter: str | None = None,
         includes: Sequence[str] | None = None,
     ) -> builtins.list[FieldMetadata]:
@@ -607,9 +606,6 @@ class PersonService:
         Cached for performance.
 
         Args:
-            field_types: Sent as ``fieldTypes``. The fields endpoints currently ignore it
-                (verified live on API versions 2024-01-01 and 2026-09-17: every field is
-                returned); filter on ``FieldMetadata.type`` instead.
             filter: Filter on the field name: ``name="Location"`` (exact) or ``name=~Loc``
                 (substring); both case-sensitive. Combine clauses with ``|``. Only ``name``
                 is filterable; anything else is rejected with 400.
@@ -617,8 +613,7 @@ class PersonService:
                 (read them via ``is_filterable`` / ``is_sortable``).
         """
         params, cache_key = build_fields_query(
-            f"person_fields:{','.join(field_types or [])}",
-            field_types=field_types,
+            "person_fields:",
             filter=filter,
             includes=includes,
         )
@@ -1730,7 +1725,6 @@ class AsyncPersonService:
     async def get_fields(
         self,
         *,
-        field_types: Sequence[FieldType] | None = None,
         filter: str | None = None,
         includes: Sequence[str] | None = None,
     ) -> builtins.list[FieldMetadata]:
@@ -1740,9 +1734,6 @@ class AsyncPersonService:
         Cached for performance.
 
         Args:
-            field_types: Sent as ``fieldTypes``. The fields endpoints currently ignore it
-                (verified live on API versions 2024-01-01 and 2026-09-17: every field is
-                returned); filter on ``FieldMetadata.type`` instead.
             filter: Filter on the field name: ``name="Location"`` (exact) or ``name=~Loc``
                 (substring); both case-sensitive. Combine clauses with ``|``. Only ``name``
                 is filterable; anything else is rejected with 400.
@@ -1750,8 +1741,7 @@ class AsyncPersonService:
                 (read them via ``is_filterable`` / ``is_sortable``).
         """
         params, cache_key = build_fields_query(
-            f"person_fields:{','.join(field_types or [])}",
-            field_types=field_types,
+            "person_fields:",
             filter=filter,
             includes=includes,
         )

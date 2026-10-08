@@ -464,7 +464,6 @@ class ListService:
         self,
         list_id: ListId,
         *,
-        field_types: Sequence[FieldType] | None = None,
         filter: str | None = None,
         includes: Sequence[str] | None = None,
     ) -> builtins.list[FieldMetadata]:
@@ -475,9 +474,6 @@ class ListService:
         Cached for performance.
 
         Args:
-            field_types: Sent as ``fieldTypes``. The fields endpoints currently ignore it
-                (verified live on API versions 2024-01-01 and 2026-09-17: every field is
-                returned); filter on ``FieldMetadata.type`` instead.
             filter: Filter on the field name: ``name="Location"`` (exact) or ``name=~Loc``
                 (substring); both case-sensitive. Combine clauses with ``|``. Only ``name``
                 is filterable; anything else is rejected with 400.
@@ -485,8 +481,7 @@ class ListService:
                 (read them via ``is_filterable`` / ``is_sortable``).
         """
         params, cache_key = build_fields_query(
-            f"list_{list_id}_fields:{','.join(field_types or [])}",
-            field_types=field_types,
+            f"list_{list_id}_fields:",
             filter=filter,
             includes=includes,
         )
@@ -1676,7 +1671,6 @@ class AsyncListService:
         self,
         list_id: ListId,
         *,
-        field_types: Sequence[FieldType] | None = None,
         filter: str | None = None,
         includes: Sequence[str] | None = None,
     ) -> builtins.list[FieldMetadata]:
@@ -1687,9 +1681,6 @@ class AsyncListService:
         Cached for performance.
 
         Args:
-            field_types: Sent as ``fieldTypes``. The fields endpoints currently ignore it
-                (verified live on API versions 2024-01-01 and 2026-09-17: every field is
-                returned); filter on ``FieldMetadata.type`` instead.
             filter: Filter on the field name: ``name="Location"`` (exact) or ``name=~Loc``
                 (substring); both case-sensitive. Combine clauses with ``|``. Only ``name``
                 is filterable; anything else is rejected with 400.
@@ -1697,8 +1688,7 @@ class AsyncListService:
                 (read them via ``is_filterable`` / ``is_sortable``).
         """
         params, cache_key = build_fields_query(
-            f"list_{list_id}_fields:{','.join(field_types or [])}",
-            field_types=field_types,
+            f"list_{list_id}_fields:",
             filter=filter,
             includes=includes,
         )

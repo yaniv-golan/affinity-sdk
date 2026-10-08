@@ -7,7 +7,9 @@ parameter set must get its own cache entry, and the default call keeps its old c
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 
 import httpx
@@ -174,3 +176,52 @@ async def test_async_get_fields_sends_filter_and_includes(path: str, fetch: Any)
     assert url.params.get_list("includes") == ["filterability"]
     assert fields[0].is_filterable is True
     assert "filter" not in requests[1].url.params
+
+
+# The committed spec digest lists every operation's declared parameters; the API silently
+# drops unknown query parameters, so sending one (as ``fieldTypes`` once was) is a no-op bug.
+_SPEC_OPERATIONS: dict[str, Any] = json.loads(
+    (Path(__file__).resolve().parents[1] / "tools" / "openapi_snapshot.json").read_text()
+)["digest"]["operations"]
+
+_SPEC_OPERATION_IDS = {
+    "/companies/fields": "GET /v2/companies/fields",
+    "/persons/fields": "GET /v2/persons/fields",
+    "/lists/10/fields": "GET /v2/lists/{listId}/fields",
+}
+
+
+def _assert_declared_query_params(path: str, request: httpx.Request) -> None:
+    declared = {
+        name.removeprefix("query:")
+        for name in _SPEC_OPERATIONS[_SPEC_OPERATION_IDS[path]]["parameters"]
+        if name.startswith("query:")
+    }
+    sent = set(request.url.params.keys())
+    assert sent, "expected the call to send query parameters"
+    assert sent <= declared, f"{path} sends undeclared query params {sorted(sent - declared)}"
+
+
+@pytest.mark.parametrize(("path", "fetch"), SYNC_FETCHERS)
+def test_get_fields_sends_only_spec_declared_params(path: str, fetch: Any) -> None:
+    requests: list[httpx.Request] = []
+    http = HTTPClient(_config(transport=httpx.MockTransport(_handler(requests))))
+    try:
+        fetch(http, filter='name="Location"', includes=["filterability", "sortability"])
+    finally:
+        http.close()
+
+    _assert_declared_query_params(path, requests[0])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(("path", "fetch"), ASYNC_FETCHERS)
+async def test_async_get_fields_sends_only_spec_declared_params(path: str, fetch: Any) -> None:
+    requests: list[httpx.Request] = []
+    http = AsyncHTTPClient(_config(async_transport=httpx.MockTransport(_handler(requests))))
+    try:
+        await fetch(http, filter='name="Location"', includes=["filterability", "sortability"])
+    finally:
+        await http.close()
+
+    _assert_declared_query_params(path, requests[0])

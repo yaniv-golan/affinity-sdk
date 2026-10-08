@@ -124,9 +124,7 @@ def test_person_service_v2_read_v1_write_resolve_merge_and_cache_invalidation() 
             "https://v2.example/v2/persons/fields"
         ):
             calls["person_fields"] += 1
-            field_types = url.params.get_list("fieldTypes")
-            if field_types:
-                assert field_types == ["global"]
+            assert "fieldTypes" not in url.params
             return httpx.Response(
                 200,
                 json={
@@ -276,10 +274,9 @@ def test_person_service_v2_read_v1_write_resolve_merge_and_cache_invalidation() 
         lists = service.get_lists(PersonId(1))
         assert lists.data[0].type == ListType.PERSON
 
-        _ = service.get_fields(field_types=[FieldType.GLOBAL])
-        _ = service.get_fields(field_types=[FieldType.GLOBAL])
+        _ = service.get_fields()
+        _ = service.get_fields()
         assert calls["person_fields"] == 1
-        _ = service.get_fields(field_types=None)
 
         created = service.create(
             PersonCreate(
@@ -291,8 +288,8 @@ def test_person_service_v2_read_v1_write_resolve_merge_and_cache_invalidation() 
             if_not_exists=False,
         )
         assert created.id == PersonId(1)
-        _ = service.get_fields(field_types=[FieldType.GLOBAL])
-        assert calls["person_fields"] == 3
+        _ = service.get_fields()
+        assert calls["person_fields"] == 2
 
         updated = service.update(
             PersonId(1),
@@ -935,9 +932,9 @@ def test_company_service_v2_read_v1_write_resolve_merge_and_cache_invalidation()
         assert next(service.all()).id == CompanyId(2)
         assert service.get(CompanyId(2)).name == "Acme"
 
-        _ = service.get_fields(field_types=None)
+        _ = service.get_fields()
         assert calls["company_fields"] == 1
-        _ = service.get_fields(field_types=None)
+        _ = service.get_fields()
         assert calls["company_fields"] == 1
 
         created = service.create(
@@ -945,7 +942,7 @@ def test_company_service_v2_read_v1_write_resolve_merge_and_cache_invalidation()
             if_not_exists=False,
         )
         assert created.id == CompanyId(2)
-        _ = service.get_fields(field_types=None)
+        _ = service.get_fields()
         assert calls["company_fields"] == 2
 
         updated = service.update(CompanyId(2), CompanyUpdate(name="Acme2"))
@@ -1143,7 +1140,7 @@ def test_company_service_v2_params_pagination_and_related_endpoints() -> None:
         if request.method == "GET" and url.copy_with(query=None) == httpx.URL(
             "https://v2.example/v2/companies/fields"
         ):
-            assert url.params.get_list("fieldTypes") == ["global"]
+            assert "fieldTypes" not in url.params
             return httpx.Response(
                 200,
                 json={
@@ -1180,7 +1177,7 @@ def test_company_service_v2_params_pagination_and_related_endpoints() -> None:
         )
         assert svc.get_list_entries(CompanyId(2)).data[0].list_id == ListId(10)
         assert svc.get_lists(CompanyId(2)).data[0].id == ListId(10)
-        assert svc.get_fields(field_types=[FieldType.GLOBAL])[0].id == "field-1"
+        assert svc.get_fields()[0].id == "field-1"
     finally:
         http.close()
 
@@ -1388,7 +1385,7 @@ async def test_async_person_service_v1_write_search_resolve_merge_and_helpers() 
         if request.method == "GET" and url.copy_with(query=None) == httpx.URL(
             "https://v2.example/v2/persons/fields"
         ):
-            assert url.params.get_list("fieldTypes") == ["global"]
+            assert "fieldTypes" not in url.params
             calls["fields"] += 1
             return httpx.Response(
                 200,
@@ -1490,7 +1487,7 @@ async def test_async_person_service_v1_write_search_resolve_merge_and_helpers() 
     )
     try:
         service = AsyncPersonService(client)
-        _ = await service.get_fields(field_types=[FieldType.GLOBAL])
+        _ = await service.get_fields()
         entries = await service.get_list_entries(PersonId(1))
         assert entries.data[0].id == ListEntryId(10)
         lists = await service.get_lists(PersonId(1))

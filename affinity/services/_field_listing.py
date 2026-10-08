@@ -9,6 +9,8 @@ same parameters:
   other expression is rejected with 400.
 - ``includes``: repeatable (``includes=filterability&includes=sortability``); adds the
   ``filterability`` / ``sortability`` objects to each field.
+
+They take no ``fieldTypes`` (the API drops it silently); filter on ``FieldMetadata.type``.
 """
 
 from __future__ import annotations
@@ -16,13 +18,10 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any
 
-from ..models.types import FieldType
-
 
 def build_fields_query(
     base_cache_key: str,
     *,
-    field_types: Sequence[FieldType] | None,
     filter: str | None,
     includes: Sequence[str] | str | None,
 ) -> tuple[dict[str, Any], str]:
@@ -33,9 +32,6 @@ def build_fields_query(
     other parameter set gets its own suffix, with ``includes`` order-insensitive.
     """
     params: dict[str, Any] = {}
-    if field_types:
-        params["fieldTypes"] = [FieldType(ft).value for ft in field_types]
-
     cache_key = base_cache_key
     if filter is not None:
         params["filter"] = filter

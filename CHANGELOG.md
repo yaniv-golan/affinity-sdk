@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Highlights
+
+**Breaking:** `get_fields()` no longer takes `field_types=`. Affinity's fields endpoints never
+supported it, so it never filtered anything. To keep some field types, filter the result:
+`[f for f in client.companies.get_fields() if f.type == FieldType.GLOBAL]`.
+
+### Removed
+
+- `field_types=` from `get_fields()` on companies, persons and lists (sync and async). The
+  `*/fields` endpoints don't declare `fieldTypes` in any API version and Affinity dropped it
+  silently, so every field was always returned (noted in 1.19.0). Passing it now raises
+  `TypeError`. `field_types=` on the data calls (`companies.get` / `list` / `iter` / `all`, the
+  person equivalents, list entries) is unchanged.
+
 ## [1.19.0] - 2026-10-08
 
 ### Highlights
