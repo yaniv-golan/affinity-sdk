@@ -551,4 +551,3 @@ get_or_fetch_workflow_config() {
 
     echo "$result"
 }
-
