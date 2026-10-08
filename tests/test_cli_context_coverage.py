@@ -10,6 +10,8 @@ import errno
 import time
 from unittest.mock import MagicMock
 
+import pytest
+
 from affinity.cli.context import (
     _hint_for_validation_message,
     build_result,
@@ -102,12 +104,17 @@ class TestNormalizeAffinityErrors:
         result = normalize_exception(exc)
         assert result.error_type == "auth_error"
         assert result.exit_code == 3
+        assert result.hint is not None
+        assert "revoked" in result.hint and "IP allowlist" in result.hint
+        assert "check-key" in result.hint and "setup-key" in result.hint
 
     def test_authorization_error(self) -> None:
         exc = AuthorizationError("Forbidden", status_code=403)
         result = normalize_exception(exc)
         assert result.error_type == "forbidden"
         assert result.exit_code == 3
+        assert result.hint is not None
+        assert "sharing and role permissions" in result.hint and "IP allowlist" in result.hint
 
     def test_not_found_error(self) -> None:
         exc = NotFoundError("Person not found", status_code=404)
@@ -422,3 +429,16 @@ class TestBuildResult:
             rate_limit=None,
         )
         assert result.meta.duration_ms == 0
+
+
+def test_setup_key_validation_explains_a_403(monkeypatch: pytest.MonkeyPatch) -> None:
+    import httpx
+
+    from affinity.cli.commands import config_cmds
+
+    monkeypatch.setattr(
+        httpx, "get", lambda *_a, **_k: httpx.Response(403, json={"errors": [{"message": "x"}]})
+    )
+    warnings: list[str] = []
+    assert config_cmds._validate_key("k", warnings) is False
+    assert warnings and "IP allowlist" in warnings[0]

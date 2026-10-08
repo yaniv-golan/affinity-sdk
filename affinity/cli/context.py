@@ -502,6 +502,21 @@ def _hint_for_validation_message(message: str) -> str | None:
     return None
 
 
+# 401 / 403 hints. Affinity's error bodies don't say why (no distinct code for an IP allowlist
+# block), so the hints list the documented causes.
+AUTH_ERROR_HINT = (
+    "The API key was rejected (mistyped, revoked, or not allowed from this machine's IP if the "
+    "key has an IP allowlist). Run 'xaffinity config check-key' to see which key is in use, and"
+    " 'xaffinity config setup-key' to replace it."
+)
+FORBIDDEN_HINT = (
+    "Your API key can't access this resource. Affinity applies your in-app sharing and role per"
+    "missions to API calls: check that your user can see it in Affinity, or ask an admin for th"
+    "e permission this endpoint needs. If the key has an IP allowlist, check that this machine'"
+    "s IP is on it."
+)
+
+
 def normalize_exception(exc: Exception, *, verbosity: int = 0) -> CLIError:
     if isinstance(exc, CLIError):
         return exc
@@ -709,7 +724,7 @@ def normalize_exception(exc: Exception, *, verbosity: int = 0) -> CLIError:
             str(exc),
             error_type="auth_error",
             exit_code=3,
-            hint="Run 'xaffinity config check-key' or 'xaffinity config setup-key' to configure.",
+            hint=AUTH_ERROR_HINT,
             details=_details_for_affinity_error(exc, verbosity=verbosity),
             cause=exc,
         )
@@ -719,7 +734,7 @@ def normalize_exception(exc: Exception, *, verbosity: int = 0) -> CLIError:
             str(exc),
             error_type="forbidden",
             exit_code=3,
-            hint="Check that your API key has access to this resource.",
+            hint=FORBIDDEN_HINT,
             details=_details_for_affinity_error(exc, verbosity=verbosity),
             cause=exc,
         )

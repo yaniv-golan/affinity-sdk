@@ -12,7 +12,6 @@ from httpx import Response
 from pydantic import BaseModel
 
 from affinity.cli.commands._v1_parsing import parse_iso_datetime
-from affinity.cli.csv_utils import localize_iso_string, localize_row_datetimes
 from affinity.cli.errors import CLIError
 from affinity.models.types import ISODatetime
 
@@ -357,77 +356,3 @@ class TestCliDatetimeIntegration:
         # When TZ=UTC, 12:00 local = 12:00 UTC
         assert dt.hour == 12
         assert dt.tzinfo is not None
-
-
-@pytest.mark.req("TR-012c")
-class TestCsvLocalization:
-    """Tests for CSV datetime localization helpers."""
-
-    def test_localize_utc_string(self) -> None:
-        """UTC string is converted to local time."""
-        result = localize_iso_string("2024-01-01T12:00:00+00:00")
-        # Result should be a valid ISO string with local timezone
-        dt = datetime.fromisoformat(result)
-        assert dt.tzinfo is not None
-        # Original UTC time should be preserved
-        assert dt.astimezone(timezone.utc).hour == 12
-
-    def test_localize_z_suffix(self) -> None:
-        """Z suffix string is converted to local time."""
-        result = localize_iso_string("2024-01-01T12:00:00Z")
-        dt = datetime.fromisoformat(result)
-        assert dt.tzinfo is not None
-        assert dt.astimezone(timezone.utc).hour == 12
-
-    def test_localize_invalid_returns_unchanged(self) -> None:
-        """Invalid datetime string returns unchanged."""
-        assert localize_iso_string("not-a-date") == "not-a-date"
-        assert localize_iso_string("") == ""
-        assert localize_iso_string("12345") == "12345"
-
-    def test_localize_row_datetimes_basic(self) -> None:
-        """localize_row_datetimes converts specified fields."""
-        row = {
-            "id": 123,
-            "createdAt": "2024-01-01T12:00:00+00:00",
-            "name": "Test",
-        }
-        result = localize_row_datetimes(row, {"createdAt"})
-
-        # Original row unchanged
-        assert row["createdAt"] == "2024-01-01T12:00:00+00:00"
-
-        # Result has localized datetime
-        assert result["id"] == 123
-        assert result["name"] == "Test"
-        # Verify it's valid ISO with timezone info
-        dt = datetime.fromisoformat(result["createdAt"])
-        assert dt.tzinfo is not None
-        # Verify the instant in time is preserved (12:00 UTC)
-        assert dt.astimezone(timezone.utc).hour == 12
-
-    def test_localize_row_datetimes_missing_field(self) -> None:
-        """Missing datetime fields are ignored."""
-        row = {"id": 123, "name": "Test"}
-        result = localize_row_datetimes(row, {"createdAt", "updatedAt"})
-        assert result == row
-
-    def test_localize_row_datetimes_non_string_field(self) -> None:
-        """Non-string datetime fields are ignored."""
-        row = {"id": 123, "createdAt": None}
-        result = localize_row_datetimes(row, {"createdAt"})
-        assert result["createdAt"] is None
-
-    def test_localize_row_datetimes_multiple_fields(self) -> None:
-        """Multiple datetime fields can be localized."""
-        row = {
-            "id": 123,
-            "createdAt": "2024-01-01T12:00:00Z",
-            "updatedAt": "2024-06-15T18:30:00Z",
-        }
-        result = localize_row_datetimes(row, {"createdAt", "updatedAt"})
-
-        # Both fields should be localized
-        for field in ["createdAt", "updatedAt"]:
-            dt = datetime.fromisoformat(result[field])
-            assert dt.tzinfo is not None

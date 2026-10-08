@@ -2,8 +2,12 @@
 
 ## 401 / 403 errors
 
-- Verify your API key is correct.
-- Ensure the key has access to the entities you’re querying.
+- **401:** the key was rejected — mistyped, revoked, or (if the key has an IP allowlist) used
+  from an IP that isn't on it. `xaffinity config check-key` shows which key is in use (for
+  example a `.env` overriding your shell); `xaffinity config setup-key` replaces it.
+- **403:** the key can't access that resource. Affinity applies your in-app sharing and role
+  permissions to API calls, so check that your user can see the record in Affinity, or ask an
+  admin for the permission the endpoint needs. Also check the key's IP allowlist, if it has one.
 
 ## 404 immediately after create
 

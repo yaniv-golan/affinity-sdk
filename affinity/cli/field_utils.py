@@ -779,34 +779,6 @@ def _extract_entity_id(fv_value: Any) -> int | None:
         return None
 
 
-def validate_field_option_mutual_exclusion(
-    *,
-    field: str | None,
-    field_id: str | None,
-) -> None:
-    """Validate that exactly one of --field or --field-id is provided.
-
-    Args:
-        field: The --field option value.
-        field_id: The --field-id option value.
-
-    Raises:
-        CLIError: If neither or both options are provided.
-    """
-    if field is None and field_id is None:
-        raise CLIError(
-            "Must specify either --field or --field-id.",
-            exit_code=2,
-            error_type="usage_error",
-        )
-    if field is not None and field_id is not None:
-        raise CLIError(
-            "Use only one of --field or --field-id.",
-            exit_code=2,
-            error_type="usage_error",
-        )
-
-
 def _norm_field_id(fid: Any) -> str:
     """Normalize a field id for equality comparison.
 
@@ -1460,7 +1432,6 @@ def check_append_targets(*, resolver: FieldResolver, append_ops: list[tuple[str,
 
 def execute_append_phase(
     *,
-    client: Any,  # noqa: ARG001 - kept for symmetry with set helpers + future use
     entries: Any,
     list_entry_id: int,
     append_ops: list[tuple[str, Any]],

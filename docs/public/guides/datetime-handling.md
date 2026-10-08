@@ -51,7 +51,7 @@ The CLI uses **local time** for user convenience:
 - **Input (naive strings)**: Interpreted as local time
 - **Input (with timezone)**: Respected exactly as specified
 - **Output (tables)**: Displayed in local time
-- **Output (CSV)**: Displayed in local time (for Excel/sharing)
+- **Output (CSV)**: The API value as returned (UTC)
 - **Output (JSON)**: Always UTC for machine consumption
 
 ```bash
@@ -74,7 +74,7 @@ If you're in EST (UTC-5) and run `--after 2024-01-01`:
 | CLI interprets as | midnight EST on Jan 1 |
 | API receives | `2024-01-01T05:00:00Z` (converted to UTC) |
 | Table output | times in EST |
-| CSV output | times in EST |
+| CSV output | times in UTC (as returned by the API) |
 | JSON output | times in UTC (for scripting) |
 
 ### Why local time for CLI?

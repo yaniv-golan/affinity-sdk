@@ -2,20 +2,16 @@ from __future__ import annotations
 
 import csv
 import io
-import logging
 import re
 import sys
 from collections.abc import Iterable
 from dataclasses import dataclass
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 # Import to_cell from formatters (single source of truth)
 # Re-exported here for backwards compatibility
 from .formatters import to_cell
-
-logger = logging.getLogger(__name__)
 
 # Re-export to_cell for any external consumers
 __all__ = ["to_cell", "CsvWriteResult", "write_csv", "write_csv_from_rows", "write_csv_to_stdout"]
@@ -157,47 +153,3 @@ def write_csv_to_stdout(
     stream.flush()
     stream.detach()  # Don't close stdout.buffer
     return rows_written
-
-
-def localize_iso_string(value: str) -> str:
-    """
-    Convert ISO datetime string from UTC to local time.
-
-    Used for CSV output where human-readable local time is preferred.
-
-    Args:
-        value: ISO datetime string (e.g., "2024-01-01T05:00:00+00:00")
-
-    Returns:
-        Local time ISO string (e.g., "2024-01-01T00:00:00-05:00" for EST)
-        Returns input unchanged if not a valid datetime string.
-    """
-    try:
-        dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
-        local = dt.astimezone()
-        return local.isoformat()
-    except (ValueError, AttributeError):
-        # Log at debug level - this is expected for non-datetime fields
-        logger.debug("Could not localize value as datetime: %r", value)
-        return value  # Return unchanged if not a valid datetime
-
-
-def localize_row_datetimes(
-    row: dict[str, Any],
-    datetime_fields: set[str],
-) -> dict[str, Any]:
-    """
-    Localize datetime fields in a row dictionary for CSV output.
-
-    Args:
-        row: Dictionary with field values
-        datetime_fields: Set of field names that contain datetime values
-
-    Returns:
-        New dictionary with datetime fields localized
-    """
-    result = dict(row)
-    for field in datetime_fields:
-        if field in result and isinstance(result[field], str):
-            result[field] = localize_iso_string(result[field])
-    return result

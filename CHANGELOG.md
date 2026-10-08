@@ -48,6 +48,8 @@ Also: `list ls --query`, faster list lookup by name, and calls that need a minim
   so enriched fields return their value (they returned `null` before). Writes need API version
   2026-07-15+ (see Highlights). More than 100 fields in one command, or the same field twice
   (by name, other casing or id, or in both `--set` and `--unset`), exits 2 with nothing changed.
+- Hints for 401 / 403 errors (and `config setup-key` on a 403) name the documented causes:
+  a mistyped or revoked key, the key's IP allowlist, in-app sharing and role permissions.
 - A single value for a multi-value text field (e.g. `--set Industry Fintech`) is sent as a
   one-item list; numbers given for text fields (`--set-json '{"Description": 42}'`) are sent as
   text (Affinity rejects both otherwise).

@@ -1,7 +1,7 @@
 """Coverage tests for affinity.cli.field_utils.
 
 Targets fetch_field_metadata, build_field_*_map, FieldResolver methods,
-_coerce_entity_id, validate_field_option_mutual_exclusion,
+_coerce_entity_id,
 find_field_values_for_field, and format_value_for_comparison.
 """
 
@@ -21,7 +21,6 @@ from affinity.cli.field_utils import (
     fetch_field_metadata,
     find_field_values_for_field,
     format_value_for_comparison,
-    validate_field_option_mutual_exclusion,
 )
 
 # ---------------------------------------------------------------------------
@@ -238,27 +237,6 @@ class TestCoerceEntityId:
     def test_non_numeric_string_rejected(self) -> None:
         with pytest.raises(CLIError, match="Invalid entity ID"):
             _coerce_entity_id("abc", "Name", "person")
-
-
-# ---------------------------------------------------------------------------
-# validate_field_option_mutual_exclusion
-# ---------------------------------------------------------------------------
-
-
-class TestValidateFieldOptionMutualExclusion:
-    def test_both_none_raises(self) -> None:
-        with pytest.raises(CLIError, match="Must specify"):
-            validate_field_option_mutual_exclusion(field=None, field_id=None)
-
-    def test_both_set_raises(self) -> None:
-        with pytest.raises(CLIError, match="Use only one"):
-            validate_field_option_mutual_exclusion(field="Name", field_id="field-1")
-
-    def test_field_only_ok(self) -> None:
-        validate_field_option_mutual_exclusion(field="Name", field_id=None)
-
-    def test_field_id_only_ok(self) -> None:
-        validate_field_option_mutual_exclusion(field=None, field_id="field-1")
 
 
 # ---------------------------------------------------------------------------

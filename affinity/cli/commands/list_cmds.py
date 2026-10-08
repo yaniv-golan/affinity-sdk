@@ -3640,7 +3640,6 @@ def run_entry_field(
     try:
         if append_values:
             append_created, _refreshed = execute_append_phase(
-                client=client,
                 entries=entries,
                 list_entry_id=int(entry_id),
                 append_ops=append_ops_for_validation,

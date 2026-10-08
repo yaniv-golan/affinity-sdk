@@ -390,7 +390,6 @@ def _make_field_value(fv_id: int, field_id: str, value: Any) -> dict[str, Any]:
 
 class TestExecuteAppendPhase:
     def test_dropdown_multi_append_merges_with_existing(self, resolver: FieldResolver) -> None:
-        client = MagicMock()
         entries = MagicMock()
         update_result = MagicMock()
         update_result.model_dump.return_value = {"id": 99, "value": []}
@@ -401,7 +400,6 @@ class TestExecuteAppendPhase:
         append_ops = [("field-102", "B")]
 
         created, _ = execute_append_phase(
-            client=client,
             entries=entries,
             list_entry_id=123,
             append_ops=append_ops,
@@ -417,7 +415,6 @@ class TestExecuteAppendPhase:
         assert len(created) == 1
 
     def test_dropdown_multi_append_existing_value_is_noop(self, resolver: FieldResolver) -> None:
-        client = MagicMock()
         entries = MagicMock()
 
         existing = [
@@ -428,7 +425,6 @@ class TestExecuteAppendPhase:
         append_ops = [("field-102", "A")]
 
         created, _ = execute_append_phase(
-            client=client,
             entries=entries,
             list_entry_id=123,
             append_ops=append_ops,

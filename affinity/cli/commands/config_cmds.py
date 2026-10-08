@@ -282,6 +282,12 @@ def _validate_key(api_key: str, warnings: list[str]) -> bool:
         if response.status_code == 401:
             warnings.append("API key was rejected (401 Unauthorized)")
             return False
+        if response.status_code == 403:
+            warnings.append(
+                "API key was refused (403 Forbidden): if the key has an IP allowlist, check that "
+                "this machine's IP is on it."
+            )
+            return False
         return response.status_code == 200
     except httpx.RequestError as e:
         warnings.append(f"Network error during validation: {e}")
