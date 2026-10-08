@@ -10,6 +10,44 @@
 
 set -euo pipefail
 
+# Decode %HH escapes only (everything else, including a lone "%" or backslashes, is kept as is).
+# Bash 3.2 compatible. Fails (returns 1) on %00 or a control character, which no list name has.
+percent_decode() {
+    # No `local LC_ALL=C` here: under bash 5.3 it makes this function fail at random when run
+    # in a command substitution. "%" and hex digits are ASCII in any locale.
+    local s="$1" out="" i=0 n c hex byte
+    n=${#s}
+    while [ "${i}" -lt "${n}" ]; do
+        c="${s:i:1}"
+        hex="${s:i+1:2}"
+        if [ "${c}" = "%" ] && [[ "${hex}" =~ ^[0-9A-Fa-f]{2}$ ]]; then
+            [ "${hex}" = "00" ] && return 1
+            printf -v byte '%b' "\\x${hex}"
+            out="${out}${byte}"
+            i=$((i + 3))
+        else
+            out="${out}${c}"
+            i=$((i + 1))
+        fi
+    done
+    case "${out}" in
+    *[[:cntrl:]]*) return 1 ;;
+    esac
+    printf '%s' "${out}"
+}
+
+# A templated resource's argument (a list id or name): decoded, and never empty or option-like
+# (it is passed to the CLI as a positional argument).
+template_argument() {
+    local decoded trimmed
+    decoded="$(percent_decode "$1")" || return 1
+    trimmed="${decoded#"${decoded%%[![:space:]]*}"}"
+    case "${trimmed}" in
+    "" | -*) return 1 ;;
+    esac
+    printf '%s' "${decoded}"
+}
+
 uri="${1:-}"
 if [ -z "${uri}" ]; then
     printf '%s\n' "xaffinity provider requires xaffinity://<path>" >&2
@@ -46,24 +84,33 @@ script_args=()
 case "${resource_path}" in
     saved-views/*)
         # Extract listId from saved-views/{listId}
-        param="${resource_path#saved-views/}"
-        if [[ -n "${param}" && -f "${resources_dir}/saved-views/saved-views.sh" ]]; then
+        if ! param="$(template_argument "${resource_path#saved-views/}")"; then
+            printf '%s\n' "Invalid argument in ${uri}" >&2
+            exit 4
+        fi
+        if [[ -f "${resources_dir}/saved-views/saved-views.sh" ]]; then
             script_path="${resources_dir}/saved-views/saved-views.sh"
             script_args=("${param}")
         fi
         ;;
     workflow-config/*)
         # Extract listId from workflow-config/{listId}
-        param="${resource_path#workflow-config/}"
-        if [[ -n "${param}" && -f "${resources_dir}/workflow-config/workflow-config.sh" ]]; then
+        if ! param="$(template_argument "${resource_path#workflow-config/}")"; then
+            printf '%s\n' "Invalid argument in ${uri}" >&2
+            exit 4
+        fi
+        if [[ -f "${resources_dir}/workflow-config/workflow-config.sh" ]]; then
             script_path="${resources_dir}/workflow-config/workflow-config.sh"
             script_args=("${param}")
         fi
         ;;
     field-catalogs/*)
         # Extract entityType from field-catalogs/{entityType}
-        param="${resource_path#field-catalogs/}"
-        if [[ -n "${param}" && -f "${resources_dir}/field-catalogs/field-catalogs.sh" ]]; then
+        if ! param="$(template_argument "${resource_path#field-catalogs/}")"; then
+            printf '%s\n' "Invalid argument in ${uri}" >&2
+            exit 4
+        fi
+        if [[ -f "${resources_dir}/field-catalogs/field-catalogs.sh" ]]; then
             script_path="${resources_dir}/field-catalogs/field-catalogs.sh"
             script_args=("${param}")
         fi
@@ -72,6 +119,12 @@ esac
 
 # If not a parameterized path, use standard resolution
 if [ -z "${script_path}" ]; then
+    # Static resources: plain path segments only (no dots, so no "..", no "%" escapes), checked
+    # on the raw path before it touches the filesystem.
+    if ! LC_ALL=C bash -c '[[ "$1" =~ ^[A-Za-z0-9_-]+(/[A-Za-z0-9_-]+)*$ ]]' _ "${resource_path}"; then
+        printf '%s\n' "Resource not found: ${resource_path}" >&2
+        exit 3
+    fi
     # Normalize path: replace / with - for directory lookup
     normalized_path="${resource_path//\//-}"
 

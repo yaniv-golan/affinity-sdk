@@ -30,8 +30,15 @@
 # detection happens at runtime in lib/common.sh (not here) because env.sh
 # variables don't reliably pass through to tool subprocesses in all contexts.
 
+# Variables the CLI and our scripts need. Tools, resource providers and completion scripts each
+# run with a stripped environment (mcp-bash env policies), so all three get the same allowlist.
+# Note: only this launcher (xaffinity-mcp.sh) sources env.sh; the MCPB bundle starts mcp-bash
+# directly (tracked separately).
+_XAFFINITY_ENV_ALLOWLIST="AFFINITY_API_KEY,AFFINITY_API_KEY_FILE,AFFINITY_API_KEY_COMMAND,XAFFINITY_CLI,XAFFINITY_CLI_PATTERN,XAFFINITY_CLI_VERSION,AFFINITY_MCP_READ_ONLY,AFFINITY_MCP_DISABLE_DESTRUCTIVE,XAFFINITY_DEBUG,AFFINITY_TRACE,AFFINITY_SESSION_CACHE,AFFINITY_SESSION_CACHE_TTL,AFFINITY_API_VERSION,AFFINITY_PROFILE,AFFINITY_V1_BASE_URL,AFFINITY_V2_BASE_URL,XDG_CONFIG_HOME,HTTP_PROXY,HTTPS_PROXY,NO_PROXY,http_proxy,https_proxy,no_proxy,SSL_CERT_FILE,SSL_CERT_DIR,MCPBASH_JSON_TOOL,MCPBASH_JSON_TOOL_BIN"
 export MCPBASH_TOOL_ENV_MODE="allowlist"
-export MCPBASH_TOOL_ENV_ALLOWLIST="AFFINITY_API_KEY,XAFFINITY_CLI,XAFFINITY_CLI_PATTERN,XAFFINITY_CLI_VERSION,AFFINITY_MCP_READ_ONLY,AFFINITY_MCP_DISABLE_DESTRUCTIVE,XAFFINITY_DEBUG,AFFINITY_TRACE,AFFINITY_SESSION_CACHE,AFFINITY_SESSION_CACHE_TTL,AFFINITY_API_VERSION,AFFINITY_PROFILE"
+export MCPBASH_TOOL_ENV_ALLOWLIST="${_XAFFINITY_ENV_ALLOWLIST}"
+export MCPBASH_PROVIDER_ENV_MODE="allowlist"
+export MCPBASH_PROVIDER_ENV_ALLOWLIST="${_XAFFINITY_ENV_ALLOWLIST}"
 
 # ==============================================================================
 # Debug Mode Configuration

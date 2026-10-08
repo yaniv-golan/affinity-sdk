@@ -1,30 +1,23 @@
 #!/usr/bin/env bash
 # resources/saved-views/saved-views.sh - Return saved views for a list
-# Called by xaffinity.sh provider with listId as argument
+# Called by the xaffinity.sh provider with a list ID or name as argument (already URL-decoded).
 set -euo pipefail
 
 source "${MCPBASH_PROJECT_ROOT}/lib/common.sh"
 
-listId="${1:-}"
-if [[ -z "${listId}" ]]; then
-    echo "Usage: saved-views.sh <listId>" >&2
+listRef="${1:-}"
+if [[ -z "${listRef}" ]]; then
+    echo "Usage: saved-views.sh <listId|listName>" >&2
     exit 4
 fi
 
-# Get list details including saved views
-output=$("${XAFFINITY_CLI:-xaffinity}" list get "${listId}" --json 2>&1) || {
-    echo "Failed to get list ${listId}: ${output}" >&2
-    exit 3
-}
+# The argument is data: it goes to the CLI as one argument and never into the jq program.
+output="$(xaffinity_resource_cli "${listRef}" list get "${listRef}")" || exit $?
 
-# Extract saved views array from the response
-# Output format: array of {id, name, type}
-echo "${output}" | "${MCPBASH_JSON_TOOL_BIN:-jq}" -c '
-    .data.savedViews // [] |
-    map({id, name, type}) |
+jq_tool -c '
     {
-        listId: '"${listId}"',
-        savedViews: .,
+        listId: .data.list.id,
+        savedViews: (.data.savedViews // [] | map({id, name, type})),
         note: "Saved view names only. Filter criteria are not available via API. Use --saved-view with exact name, or --filter for field-based filtering."
     }
-'
+' <<<"${output}"

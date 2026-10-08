@@ -5,28 +5,19 @@ set -euo pipefail
 
 source "${MCPBASH_PROJECT_ROOT}/lib/common.sh"
 
-listId="${1:-}"
-if [[ -z "${listId}" ]]; then
-    echo "Usage: workflow-config.sh <listId>" >&2
+listRef="${1:-}"
+if [[ -z "${listRef}" ]]; then
+    echo "Usage: workflow-config.sh <listId|listName>" >&2
     exit 4
 fi
 
-jq_tool="${MCPBASH_JSON_TOOL_BIN:-jq}"
-
-# Get list details including saved views
-list_output=$("${XAFFINITY_CLI:-xaffinity}" list get "${listId}" --json 2>&1) || {
-    echo "Failed to get list ${listId}: ${list_output}" >&2
-    exit 3
-}
-
-# Get fields for the list to find status/dropdown fields
-fields_output=$("${XAFFINITY_CLI:-xaffinity}" field ls --list-id "${listId}" --json 2>&1) || {
-    echo "Failed to get fields for list ${listId}: ${fields_output}" >&2
-    exit 3
-}
+# List details (resolves a name) and saved views, then the fields of the resolved list.
+list_output="$(xaffinity_resource_cli "${listRef}" list get "${listRef}")" || exit $?
+listId="$(jq_tool -r '.data.list.id' <<<"${list_output}")"
+fields_output="$(xaffinity_resource_cli "${listRef}" field ls --list-id "${listId}")" || exit $?
 
 # Extract list info, saved views, and status-like fields (dropdowns)
-echo "${list_output}" | "$jq_tool" -c --argjson fields "$(echo "${fields_output}" | "$jq_tool" -c '.data.fields // []')" '
+jq_tool -c --argjson fields "$(jq_tool -c '.data.fields // []' <<<"${fields_output}")" '
     .data.list as $list |
     .data.savedViews as $savedViews |
     {
@@ -36,7 +27,8 @@ echo "${list_output}" | "$jq_tool" -c --argjson fields "$(echo "${fields_output}
         savedViews: ($savedViews // [] | map({id, name, type})),
         statusFields: (
             $fields
-            | map(select(.valueType == "dropdown" or .valueType == "status"))
+            | map(select(.valueType == "dropdown" or .valueType == "ranked-dropdown"
+                or .valueType == "status-dropdown" or .valueType == "status"))
             | map({
                 id: .id,
                 name: .name,
@@ -46,4 +38,4 @@ echo "${list_output}" | "$jq_tool" -c --argjson fields "$(echo "${fields_output}
         ),
         note: "Use saved view names with --saved-view, or filter by status field values with --filter '\''FieldName=\"Value\"'\''"
     }
-'
+' <<<"${list_output}"

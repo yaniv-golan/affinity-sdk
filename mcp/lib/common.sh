@@ -551,3 +551,40 @@ get_or_fetch_workflow_config() {
 
     echo "$result"
 }
+
+# ==============================================================================
+# Resource CLI calls
+# ==============================================================================
+# Run a read-only CLI command for a resource script and print its JSON result.
+# Usage: out="$(xaffinity_resource_cli <what> <command args...>)" || exit $?
+# On failure prints a message to stderr and returns 4 for an unknown or ambiguous list (the
+# request names something that isn't there) or 5 for anything else (keeps the message through
+# resources/read). The CLI's own JSON error is read from stdout, never pasted into jq programs.
+xaffinity_resource_cli() {
+    local what="$1"
+    shift
+    local out error_type message candidates
+    out="$(run_xaffinity_readonly "$@" --output json --quiet \
+        ${AFFINITY_SESSION_CACHE:+--session-cache "$AFFINITY_SESSION_CACHE"} 2>/dev/null)" || true
+    if jq_tool -e '.ok == true' <<<"${out}" >/dev/null 2>&1; then
+        printf '%s\n' "${out}"
+        return 0
+    fi
+    error_type="$(jq_tool -r '.error.type // empty' <<<"${out}" 2>/dev/null || true)"
+    case "${error_type}" in
+        not_found)
+            printf '%s\n' "Unknown list: ${what}. Use a list ID (numeric) or the exact list name." >&2
+            return 4
+            ;;
+        ambiguous_resolution)
+            candidates="$(jq_tool -r '[.error.details.matches[]? | "\(.name) (\(.listId))"] | join(", ")' <<<"${out}" 2>/dev/null || true)"
+            printf '%s\n' "List name '${what}' matches several lists: ${candidates}. Use the list ID." >&2
+            return 4
+            ;;
+        *)
+            message="$(jq_tool -r '.error.message // empty' <<<"${out}" 2>/dev/null || true)"
+            printf '%s\n' "Failed to read ${what}: ${message:-the CLI returned no result}" >&2
+            return 5
+            ;;
+    esac
+}

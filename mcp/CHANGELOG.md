@@ -16,6 +16,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shell helpers no longer crash (bash segfault from endless recursion) when
   `MCPBASH_JSON_TOOL_BIN` is unset or set to plain `jq`, which is the case for resource reads.
 
+- **Security:** `saved-views/<list>` pasted the list argument into a jq program, so a crafted URI
+  or list name could run jq code with the server's environment (including the API key). The
+  argument is now passed as data. Names with spaces also work now (they were a jq syntax error).
+- **Security:** the `xaffinity://` provider built a script path from an unvalidated URI, so
+  `xaffinity://../../x` could run `x.sh` outside `resources/`. Static resource paths must now be
+  plain segments (letters, digits, `_`, `-`); templated arguments (list id or name) are decoded
+  once in the provider and passed only as data (empty, option-like or control-character
+  arguments are refused).
+- `saved-views/` and `workflow-config/` accept list names (case-insensitive, URL-encoded) and
+  report unknown or ambiguous lists clearly; `workflow-config` lists ranked-dropdown Status
+  fields (it only matched plain dropdowns).
+- `server.d/env.sh` gives resource providers and completion scripts the same environment
+  allowlist as tools (they ran without `AFFINITY_API_KEY`), and the allowlist adds the key
+  file/command, base URLs, proxy/CA, `XDG_CONFIG_HOME` and JSON-tool variables. Applies when the
+  server starts through `xaffinity-mcp.sh`; the MCPB bundle doesn't read env.sh yet (tracked
+  with mcp-bash).
+
 ### Removed
 
 - Unused `resolve_list` shell helper.

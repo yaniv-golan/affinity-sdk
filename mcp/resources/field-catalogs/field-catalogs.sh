@@ -11,34 +11,11 @@ if [[ -z "${entityType}" ]]; then
     exit 4
 fi
 
-# Clients that expand {entityType} percent-encode it ("Deal%20Pipeline").
-entityType="$(printf '%b' "${entityType//%/\\x}")"
-
 if [[ ! "${entityType}" =~ ^(company|companies|person|persons|people|opportunity|opportunities)$ ]]; then
-    # A list id or name. `field ls --list-id` resolves a name across all lists (case-insensitive,
-    # ambiguity reported) and returns the list's fields in the same call.
-    fields_output="$(run_xaffinity_readonly field ls --list-id "${entityType}" --output json --quiet \
-        ${AFFINITY_SESSION_CACHE:+--session-cache "$AFFINITY_SESSION_CACHE"} 2>/dev/null)" || true
-    error_type="$(jq_tool -r '.error.type // empty' <<<"${fields_output}" 2>/dev/null || true)"
-    listId="$(jq_tool -r '.command.modifiers.listId // empty' <<<"${fields_output}" 2>/dev/null || true)"
-    if [[ -n "${error_type}" || -z "${listId}" ]]; then
-        case "${error_type}" in
-            not_found)
-                echo "Unknown entity type or list name: ${entityType}. Use a list ID (numeric), list name, 'company', 'person', or 'opportunity'." >&2
-                exit 4
-                ;;
-            ambiguous_resolution)
-                candidates="$(jq_tool -r '[.error.details.matches[]? | "\(.name) (\(.listId))"] | join(", ")' <<<"${fields_output}" 2>/dev/null || true)"
-                echo "List name '${entityType}' matches several lists: ${candidates}. Use the list ID." >&2
-                exit 4
-                ;;
-            *)
-                message="$(jq_tool -r '.error.message // empty' <<<"${fields_output}" 2>/dev/null || true)"
-                echo "Failed to get fields for list ${entityType}: ${message:-${fields_output:0:200}}" >&2
-                exit 5
-                ;;
-        esac
-    fi
+    # A list id or name (URL-decoded by the provider). `field ls --list-id` resolves a name across
+    # all lists (case-insensitive, ambiguity reported) and returns the fields in the same call.
+    fields_output="$(xaffinity_resource_cli "${entityType}" field ls --list-id "${entityType}")" || exit $?
+    listId="$(jq_tool -r '.command.modifiers.listId' <<<"${fields_output}")"
 
     jq_tool -c --arg listId "${listId}" '
         {
