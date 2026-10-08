@@ -3268,12 +3268,7 @@
 <span class="normal">578</span>
 <span class="normal">579</span>
 <span class="normal">580</span>
-<span class="normal">581</span>
-<span class="normal">582</span>
-<span class="normal">583</span>
-<span class="normal">584</span>
-<span class="normal">585</span>
-<span class="normal">586</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListService</span><span class="p">:</span>
+<span class="normal">581</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListService</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Service for managing lists.</span>
 
@@ -3505,7 +3500,6 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">field_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">FieldType</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="nb">filter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">includes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">builtins</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">FieldMetadata</span><span class="p">]:</span>
@@ -3516,9 +3510,6 @@
 <span class="sd">        Cached for performance.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            field_types: Sent as ``fieldTypes``. The fields endpoints currently ignore it</span>
-<span class="sd">                (verified live on API versions 2024-01-01 and 2026-09-17: every field is</span>
-<span class="sd">                returned); filter on ``FieldMetadata.type`` instead.</span>
 <span class="sd">            filter: Filter on the field name: ``name="Location"`` (exact) or ``name=~Loc``</span>
 <span class="sd">                (substring); both case-sensitive. Combine clauses with ``|``. Only ``name``</span>
 <span class="sd">                is filterable; anything else is rejected with 400.</span>
@@ -3526,8 +3517,7 @@
 <span class="sd">                (read them via ``is_filterable`` / ``is_sortable``).</span>
 <span class="sd">        """</span>
         <span class="n">params</span><span class="p">,</span> <span class="n">cache_key</span> <span class="o">=</span> <span class="n">build_fields_query</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"list_</span><span class="si">{</span><span class="n">list_id</span><span class="si">}</span><span class="s2">_fields:</span><span class="si">{</span><span class="s1">','</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">field_types</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="p">[])</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-            <span class="n">field_types</span><span class="o">=</span><span class="n">field_types</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"list_</span><span class="si">{</span><span class="n">list_id</span><span class="si">}</span><span class="s2">_fields:"</span><span class="p">,</span>
             <span class="nb">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">,</span>
             <span class="n">includes</span><span class="o">=</span><span class="n">includes</span><span class="p">,</span>
         <span class="p">)</span>
@@ -3838,7 +3828,7 @@ returns incorrect values (often 0 for non-empty lists).</p>
 
 
 <h2 id="affinity.services.lists.ListService.get_fields" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_fields</span><span class="p">(</span><span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">field_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">FieldType</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">includes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">builtins</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">FieldMetadata</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">get_fields</span><span class="p">(</span><span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">includes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">builtins</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">FieldMetadata</span><span class="p">]</span></code>
 
 <a href="#affinity.services.lists.ListService.get_fields" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -3861,24 +3851,6 @@ Cached for performance.</p>
         </tr>
       </thead>
       <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>field_types</code>
-            </td>
-            <td>
-                  <code><span title="collections.abc.Sequence">Sequence</span>[<a class="autorefs autorefs-internal" title="FieldType (affinity.models.types.FieldType)" href="../../types/#affinity.types.FieldType">FieldType</a>] | None</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Sent as <code>fieldTypes</code>. The fields endpoints currently ignore it
-(verified live on API versions 2024-01-01 and 2026-09-17: every field is
-returned); filter on <code>FieldMetadata.type</code> instead.</p>
-              </div>
-            </td>
-            <td>
-                  <code>None</code>
-            </td>
-          </tr>
           <tr class="doc-section-item">
             <td>
                 <code>filter</code>
@@ -3953,16 +3925,10 @@ is filterable; anything else is rejected with 400.</p>
 <span class="normal">493</span>
 <span class="normal">494</span>
 <span class="normal">495</span>
-<span class="normal">496</span>
-<span class="normal">497</span>
-<span class="normal">498</span>
-<span class="normal">499</span>
-<span class="normal">500</span>
-<span class="normal">501</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_fields</span><span class="p">(</span>
+<span class="normal">496</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_fields</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">field_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">FieldType</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="nb">filter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">includes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">builtins</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">FieldMetadata</span><span class="p">]:</span>
@@ -3973,9 +3939,6 @@ is filterable; anything else is rejected with 400.</p>
 <span class="sd">    Cached for performance.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        field_types: Sent as ``fieldTypes``. The fields endpoints currently ignore it</span>
-<span class="sd">            (verified live on API versions 2024-01-01 and 2026-09-17: every field is</span>
-<span class="sd">            returned); filter on ``FieldMetadata.type`` instead.</span>
 <span class="sd">        filter: Filter on the field name: ``name="Location"`` (exact) or ``name=~Loc``</span>
 <span class="sd">            (substring); both case-sensitive. Combine clauses with ``|``. Only ``name``</span>
 <span class="sd">            is filterable; anything else is rejected with 400.</span>
@@ -3983,8 +3946,7 @@ is filterable; anything else is rejected with 400.</p>
 <span class="sd">            (read them via ``is_filterable`` / ``is_sortable``).</span>
 <span class="sd">    """</span>
     <span class="n">params</span><span class="p">,</span> <span class="n">cache_key</span> <span class="o">=</span> <span class="n">build_fields_query</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"list_</span><span class="si">{</span><span class="n">list_id</span><span class="si">}</span><span class="s2">_fields:</span><span class="si">{</span><span class="s1">','</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">field_types</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="p">[])</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-        <span class="n">field_types</span><span class="o">=</span><span class="n">field_types</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"list_</span><span class="si">{</span><span class="n">list_id</span><span class="si">}</span><span class="s2">_fields:"</span><span class="p">,</span>
         <span class="nb">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">,</span>
         <span class="n">includes</span><span class="o">=</span><span class="n">includes</span><span class="p">,</span>
     <span class="p">)</span>
@@ -4048,10 +4010,10 @@ is filterable; anything else is rejected with 400.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">583</span>
-<span class="normal">584</span>
-<span class="normal">585</span>
-<span class="normal">586</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_saved_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span> <span class="n">view_id</span><span class="p">:</span> <span class="n">SavedViewId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SavedView</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">578</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_saved_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span> <span class="n">view_id</span><span class="p">:</span> <span class="n">SavedViewId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SavedView</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Get a single saved view."""</span>
     <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/lists/</span><span class="si">{</span><span class="n">list_id</span><span class="si">}</span><span class="s2">/saved-views/</span><span class="si">{</span><span class="n">view_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_safe_model_validate</span><span class="p">(</span><span class="n">SavedView</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
@@ -4140,7 +4102,12 @@ is filterable; anything else is rejected with 400.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">507</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">502</span>
+<span class="normal">503</span>
+<span class="normal">504</span>
+<span class="normal">505</span>
+<span class="normal">506</span>
+<span class="normal">507</span>
 <span class="normal">508</span>
 <span class="normal">509</span>
 <span class="normal">510</span>
@@ -4175,12 +4142,7 @@ is filterable; anything else is rejected with 400.</p>
 <span class="normal">539</span>
 <span class="normal">540</span>
 <span class="normal">541</span>
-<span class="normal">542</span>
-<span class="normal">543</span>
-<span class="normal">544</span>
-<span class="normal">545</span>
-<span class="normal">546</span>
-<span class="normal">547</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_saved_views</span><span class="p">(</span>
+<span class="normal">542</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_saved_views</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -4780,10 +4742,10 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">578</span>
-<span class="normal">579</span>
-<span class="normal">580</span>
-<span class="normal">581</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">saved_views_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">SavedView</span><span class="p">]:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">saved_views_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">SavedView</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Iterate all saved views for a list."""</span>
     <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_views_pages</span><span class="p">(</span><span class="n">list_id</span><span class="p">):</span>
         <span class="k">yield from</span> <span class="n">page</span><span class="o">.</span><span class="n">data</span>
@@ -4809,7 +4771,12 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">549</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">544</span>
+<span class="normal">545</span>
+<span class="normal">546</span>
+<span class="normal">547</span>
+<span class="normal">548</span>
+<span class="normal">549</span>
 <span class="normal">550</span>
 <span class="normal">551</span>
 <span class="normal">552</span>
@@ -4831,12 +4798,7 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 <span class="normal">568</span>
 <span class="normal">569</span>
 <span class="normal">570</span>
-<span class="normal">571</span>
-<span class="normal">572</span>
-<span class="normal">573</span>
-<span class="normal">574</span>
-<span class="normal">575</span>
-<span class="normal">576</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">saved_views_pages</span><span class="p">(</span>
+<span class="normal">571</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">saved_views_pages</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -4898,7 +4860,12 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/services/lists.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1367</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1362</span>
+<span class="normal">1363</span>
+<span class="normal">1364</span>
+<span class="normal">1365</span>
+<span class="normal">1366</span>
+<span class="normal">1367</span>
 <span class="normal">1368</span>
 <span class="normal">1369</span>
 <span class="normal">1370</span>
@@ -5234,17 +5201,7 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 <span class="normal">1700</span>
 <span class="normal">1701</span>
 <span class="normal">1702</span>
-<span class="normal">1703</span>
-<span class="normal">1704</span>
-<span class="normal">1705</span>
-<span class="normal">1706</span>
-<span class="normal">1707</span>
-<span class="normal">1708</span>
-<span class="normal">1709</span>
-<span class="normal">1710</span>
-<span class="normal">1711</span>
-<span class="normal">1712</span>
-<span class="normal">1713</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AsyncListService</span><span class="p">:</span>
+<span class="normal">1703</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AsyncListService</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Async list operations (TR-009)."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">AsyncHTTPClient</span><span class="p">):</span>
@@ -5556,7 +5513,6 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">field_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">FieldType</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="nb">filter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">includes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">builtins</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">FieldMetadata</span><span class="p">]:</span>
@@ -5567,9 +5523,6 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 <span class="sd">        Cached for performance.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            field_types: Sent as ``fieldTypes``. The fields endpoints currently ignore it</span>
-<span class="sd">                (verified live on API versions 2024-01-01 and 2026-09-17: every field is</span>
-<span class="sd">                returned); filter on ``FieldMetadata.type`` instead.</span>
 <span class="sd">            filter: Filter on the field name: ``name="Location"`` (exact) or ``name=~Loc``</span>
 <span class="sd">                (substring); both case-sensitive. Combine clauses with ``|``. Only ``name``</span>
 <span class="sd">                is filterable; anything else is rejected with 400.</span>
@@ -5577,8 +5530,7 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 <span class="sd">                (read them via ``is_filterable`` / ``is_sortable``).</span>
 <span class="sd">        """</span>
         <span class="n">params</span><span class="p">,</span> <span class="n">cache_key</span> <span class="o">=</span> <span class="n">build_fields_query</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"list_</span><span class="si">{</span><span class="n">list_id</span><span class="si">}</span><span class="s2">_fields:</span><span class="si">{</span><span class="s1">','</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">field_types</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="p">[])</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-            <span class="n">field_types</span><span class="o">=</span><span class="n">field_types</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"list_</span><span class="si">{</span><span class="n">list_id</span><span class="si">}</span><span class="s2">_fields:"</span><span class="p">,</span>
             <span class="nb">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">,</span>
             <span class="n">includes</span><span class="o">=</span><span class="n">includes</span><span class="p">,</span>
         <span class="p">)</span>
@@ -5623,7 +5575,12 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1454</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1449</span>
+<span class="normal">1450</span>
+<span class="normal">1451</span>
+<span class="normal">1452</span>
+<span class="normal">1453</span>
+<span class="normal">1454</span>
 <span class="normal">1455</span>
 <span class="normal">1456</span>
 <span class="normal">1457</span>
@@ -5633,12 +5590,7 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 <span class="normal">1461</span>
 <span class="normal">1462</span>
 <span class="normal">1463</span>
-<span class="normal">1464</span>
-<span class="normal">1465</span>
-<span class="normal">1466</span>
-<span class="normal">1467</span>
-<span class="normal">1468</span>
-<span class="normal">1469</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">all</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">AffinityList</span><span class="p">]:</span>
+<span class="normal">1464</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">all</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">AffinityList</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Iterate through all accessible lists."""</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch_page</span><span class="p">(</span><span class="n">next_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">AffinityList</span><span class="p">]:</span>
@@ -5681,7 +5633,12 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1653</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1648</span>
+<span class="normal">1649</span>
+<span class="normal">1650</span>
+<span class="normal">1651</span>
+<span class="normal">1652</span>
+<span class="normal">1653</span>
 <span class="normal">1654</span>
 <span class="normal">1655</span>
 <span class="normal">1656</span>
@@ -5692,12 +5649,7 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 <span class="normal">1661</span>
 <span class="normal">1662</span>
 <span class="normal">1663</span>
-<span class="normal">1664</span>
-<span class="normal">1665</span>
-<span class="normal">1666</span>
-<span class="normal">1667</span>
-<span class="normal">1668</span>
-<span class="normal">1669</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ListCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AffinityList</span><span class="p">:</span>
+<span class="normal">1664</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ListCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AffinityList</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create a new list.</span>
 
@@ -5737,13 +5689,13 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1375</span>
-<span class="normal">1376</span>
-<span class="normal">1377</span>
-<span class="normal">1378</span>
-<span class="normal">1379</span>
-<span class="normal">1380</span>
-<span class="normal">1381</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncListEntryService</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1370</span>
+<span class="normal">1371</span>
+<span class="normal">1372</span>
+<span class="normal">1373</span>
+<span class="normal">1374</span>
+<span class="normal">1375</span>
+<span class="normal">1376</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncListEntryService</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get an AsyncListEntryService for a specific list.</span>
 
@@ -5779,17 +5731,17 @@ returns incorrect values (often 0 for non-empty lists).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1565</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1560</span>
+<span class="normal">1561</span>
+<span class="normal">1562</span>
+<span class="normal">1563</span>
+<span class="normal">1564</span>
+<span class="normal">1565</span>
 <span class="normal">1566</span>
 <span class="normal">1567</span>
 <span class="normal">1568</span>
 <span class="normal">1569</span>
-<span class="normal">1570</span>
-<span class="normal">1571</span>
-<span class="normal">1572</span>
-<span class="normal">1573</span>
-<span class="normal">1574</span>
-<span class="normal">1575</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AffinityList</span><span class="p">:</span>
+<span class="normal">1570</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AffinityList</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get a single list by ID.</span>
 
@@ -5810,7 +5762,7 @@ returns incorrect values (often 0 for non-empty lists).</p>
 
 
 <h2 id="affinity.services.lists.AsyncListService.get_fields" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_fields</span><span class="p">(</span><span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">field_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">FieldType</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">includes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">builtins</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">FieldMetadata</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">get_fields</span><span class="p">(</span><span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">includes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">builtins</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">FieldMetadata</span><span class="p">]</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
@@ -5837,24 +5789,6 @@ Cached for performance.</p>
         </tr>
       </thead>
       <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>field_types</code>
-            </td>
-            <td>
-                  <code><span title="collections.abc.Sequence">Sequence</span>[<a class="autorefs autorefs-internal" title="FieldType (affinity.models.types.FieldType)" href="../../types/#affinity.types.FieldType">FieldType</a>] | None</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Sent as <code>fieldTypes</code>. The fields endpoints currently ignore it
-(verified live on API versions 2024-01-01 and 2026-09-17: every field is
-returned); filter on <code>FieldMetadata.type</code> instead.</p>
-              </div>
-            </td>
-            <td>
-                  <code>None</code>
-            </td>
-          </tr>
           <tr class="doc-section-item">
             <td>
                 <code>filter</code>
@@ -5896,7 +5830,12 @@ is filterable; anything else is rejected with 400.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1675</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1670</span>
+<span class="normal">1671</span>
+<span class="normal">1672</span>
+<span class="normal">1673</span>
+<span class="normal">1674</span>
+<span class="normal">1675</span>
 <span class="normal">1676</span>
 <span class="normal">1677</span>
 <span class="normal">1678</span>
@@ -5924,21 +5863,10 @@ is filterable; anything else is rejected with 400.</p>
 <span class="normal">1700</span>
 <span class="normal">1701</span>
 <span class="normal">1702</span>
-<span class="normal">1703</span>
-<span class="normal">1704</span>
-<span class="normal">1705</span>
-<span class="normal">1706</span>
-<span class="normal">1707</span>
-<span class="normal">1708</span>
-<span class="normal">1709</span>
-<span class="normal">1710</span>
-<span class="normal">1711</span>
-<span class="normal">1712</span>
-<span class="normal">1713</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_fields</span><span class="p">(</span>
+<span class="normal">1703</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_fields</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">field_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">FieldType</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="nb">filter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">includes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">builtins</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">FieldMetadata</span><span class="p">]:</span>
@@ -5949,9 +5877,6 @@ is filterable; anything else is rejected with 400.</p>
 <span class="sd">    Cached for performance.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        field_types: Sent as ``fieldTypes``. The fields endpoints currently ignore it</span>
-<span class="sd">            (verified live on API versions 2024-01-01 and 2026-09-17: every field is</span>
-<span class="sd">            returned); filter on ``FieldMetadata.type`` instead.</span>
 <span class="sd">        filter: Filter on the field name: ``name="Location"`` (exact) or ``name=~Loc``</span>
 <span class="sd">            (substring); both case-sensitive. Combine clauses with ``|``. Only ``name``</span>
 <span class="sd">            is filterable; anything else is rejected with 400.</span>
@@ -5959,8 +5884,7 @@ is filterable; anything else is rejected with 400.</p>
 <span class="sd">            (read them via ``is_filterable`` / ``is_sortable``).</span>
 <span class="sd">    """</span>
     <span class="n">params</span><span class="p">,</span> <span class="n">cache_key</span> <span class="o">=</span> <span class="n">build_fields_query</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"list_</span><span class="si">{</span><span class="n">list_id</span><span class="si">}</span><span class="s2">_fields:</span><span class="si">{</span><span class="s1">','</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">field_types</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="p">[])</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-        <span class="n">field_types</span><span class="o">=</span><span class="n">field_types</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"list_</span><span class="si">{</span><span class="n">list_id</span><span class="si">}</span><span class="s2">_fields:"</span><span class="p">,</span>
         <span class="nb">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">,</span>
         <span class="n">includes</span><span class="o">=</span><span class="n">includes</span><span class="p">,</span>
     <span class="p">)</span>
@@ -5999,10 +5923,10 @@ is filterable; anything else is rejected with 400.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1421</span>
-<span class="normal">1422</span>
-<span class="normal">1423</span>
-<span class="normal">1424</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_first</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AffinityList</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1416</span>
+<span class="normal">1417</span>
+<span class="normal">1418</span>
+<span class="normal">1419</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_first</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AffinityList</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Get the first list, or None if no lists exist."""</span>
     <span class="n">page</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">page</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">page</span><span class="o">.</span><span class="n">data</span> <span class="k">else</span> <span class="kc">None</span>
@@ -6032,10 +5956,10 @@ is filterable; anything else is rejected with 400.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1560</span>
-<span class="normal">1561</span>
-<span class="normal">1562</span>
-<span class="normal">1563</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_saved_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span> <span class="n">view_id</span><span class="p">:</span> <span class="n">SavedViewId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SavedView</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1555</span>
+<span class="normal">1556</span>
+<span class="normal">1557</span>
+<span class="normal">1558</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_saved_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span> <span class="n">view_id</span><span class="p">:</span> <span class="n">SavedViewId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SavedView</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Get a single saved view."""</span>
     <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/lists/</span><span class="si">{</span><span class="n">list_id</span><span class="si">}</span><span class="s2">/saved-views/</span><span class="si">{</span><span class="n">view_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_safe_model_validate</span><span class="p">(</span><span class="n">SavedView</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
@@ -6128,7 +6052,12 @@ is filterable; anything else is rejected with 400.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1483</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1478</span>
+<span class="normal">1479</span>
+<span class="normal">1480</span>
+<span class="normal">1481</span>
+<span class="normal">1482</span>
+<span class="normal">1483</span>
 <span class="normal">1484</span>
 <span class="normal">1485</span>
 <span class="normal">1486</span>
@@ -6163,12 +6092,7 @@ is filterable; anything else is rejected with 400.</p>
 <span class="normal">1515</span>
 <span class="normal">1516</span>
 <span class="normal">1517</span>
-<span class="normal">1518</span>
-<span class="normal">1519</span>
-<span class="normal">1520</span>
-<span class="normal">1521</span>
-<span class="normal">1522</span>
-<span class="normal">1523</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_saved_views</span><span class="p">(</span>
+<span class="normal">1518</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_saved_views</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -6284,7 +6208,12 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1577</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1572</span>
+<span class="normal">1573</span>
+<span class="normal">1574</span>
+<span class="normal">1575</span>
+<span class="normal">1576</span>
+<span class="normal">1577</span>
 <span class="normal">1578</span>
 <span class="normal">1579</span>
 <span class="normal">1580</span>
@@ -6298,12 +6227,7 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 <span class="normal">1588</span>
 <span class="normal">1589</span>
 <span class="normal">1590</span>
-<span class="normal">1591</span>
-<span class="normal">1592</span>
-<span class="normal">1593</span>
-<span class="normal">1594</span>
-<span class="normal">1595</span>
-<span class="normal">1596</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="normal">1591</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get accurate list size. Uses V1 API, cached for 5 minutes.</span>
 
@@ -6346,13 +6270,13 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1471</span>
-<span class="normal">1472</span>
-<span class="normal">1473</span>
-<span class="normal">1474</span>
-<span class="normal">1475</span>
-<span class="normal">1476</span>
-<span class="normal">1477</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">AffinityList</span><span class="p">]:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1466</span>
+<span class="normal">1467</span>
+<span class="normal">1468</span>
+<span class="normal">1469</span>
+<span class="normal">1470</span>
+<span class="normal">1471</span>
+<span class="normal">1472</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">AffinityList</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Auto-paginate all lists.</span>
 
@@ -6455,7 +6379,12 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1383</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1378</span>
+<span class="normal">1379</span>
+<span class="normal">1380</span>
+<span class="normal">1381</span>
+<span class="normal">1382</span>
+<span class="normal">1383</span>
 <span class="normal">1384</span>
 <span class="normal">1385</span>
 <span class="normal">1386</span>
@@ -6486,12 +6415,7 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 <span class="normal">1411</span>
 <span class="normal">1412</span>
 <span class="normal">1413</span>
-<span class="normal">1414</span>
-<span class="normal">1415</span>
-<span class="normal">1416</span>
-<span class="normal">1417</span>
-<span class="normal">1418</span>
-<span class="normal">1419</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
+<span class="normal">1414</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -6555,7 +6479,12 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1426</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1421</span>
+<span class="normal">1422</span>
+<span class="normal">1423</span>
+<span class="normal">1424</span>
+<span class="normal">1425</span>
+<span class="normal">1426</span>
 <span class="normal">1427</span>
 <span class="normal">1428</span>
 <span class="normal">1429</span>
@@ -6576,12 +6505,7 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 <span class="normal">1444</span>
 <span class="normal">1445</span>
 <span class="normal">1446</span>
-<span class="normal">1447</span>
-<span class="normal">1448</span>
-<span class="normal">1449</span>
-<span class="normal">1450</span>
-<span class="normal">1451</span>
-<span class="normal">1452</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">pages</span><span class="p">(</span>
+<span class="normal">1447</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">pages</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -6639,7 +6563,12 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1598</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1593</span>
+<span class="normal">1594</span>
+<span class="normal">1595</span>
+<span class="normal">1596</span>
+<span class="normal">1597</span>
+<span class="normal">1598</span>
 <span class="normal">1599</span>
 <span class="normal">1600</span>
 <span class="normal">1601</span>
@@ -6660,12 +6589,7 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 <span class="normal">1616</span>
 <span class="normal">1617</span>
 <span class="normal">1618</span>
-<span class="normal">1619</span>
-<span class="normal">1620</span>
-<span class="normal">1621</span>
-<span class="normal">1622</span>
-<span class="normal">1623</span>
-<span class="normal">1624</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span>
+<span class="normal">1619</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -6721,7 +6645,12 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1626</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1621</span>
+<span class="normal">1622</span>
+<span class="normal">1623</span>
+<span class="normal">1624</span>
+<span class="normal">1625</span>
+<span class="normal">1626</span>
 <span class="normal">1627</span>
 <span class="normal">1628</span>
 <span class="normal">1629</span>
@@ -6737,12 +6666,7 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 <span class="normal">1639</span>
 <span class="normal">1640</span>
 <span class="normal">1641</span>
-<span class="normal">1642</span>
-<span class="normal">1643</span>
-<span class="normal">1644</span>
-<span class="normal">1645</span>
-<span class="normal">1646</span>
-<span class="normal">1647</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">resolve_all</span><span class="p">(</span>
+<span class="normal">1642</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">resolve_all</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -6790,11 +6714,11 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1554</span>
-<span class="normal">1555</span>
-<span class="normal">1556</span>
-<span class="normal">1557</span>
-<span class="normal">1558</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">saved_views_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">SavedView</span><span class="p">]:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1549</span>
+<span class="normal">1550</span>
+<span class="normal">1551</span>
+<span class="normal">1552</span>
+<span class="normal">1553</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">saved_views_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">SavedView</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Iterate all saved views for a list."""</span>
     <span class="k">async</span> <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_views_pages</span><span class="p">(</span><span class="n">list_id</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">page</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
@@ -6825,7 +6749,12 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/lists.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1525</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1520</span>
+<span class="normal">1521</span>
+<span class="normal">1522</span>
+<span class="normal">1523</span>
+<span class="normal">1524</span>
+<span class="normal">1525</span>
 <span class="normal">1526</span>
 <span class="normal">1527</span>
 <span class="normal">1528</span>
@@ -6847,12 +6776,7 @@ non-empty lists). This method uses the V1 API which returns accurate values.</p>
 <span class="normal">1544</span>
 <span class="normal">1545</span>
 <span class="normal">1546</span>
-<span class="normal">1547</span>
-<span class="normal">1548</span>
-<span class="normal">1549</span>
-<span class="normal">1550</span>
-<span class="normal">1551</span>
-<span class="normal">1552</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">saved_views_pages</span><span class="p">(</span>
+<span class="normal">1547</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">saved_views_pages</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">list_id</span><span class="p">:</span> <span class="n">ListId</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
