@@ -80,6 +80,7 @@ def test_handle_response_covers_non_json_error_body_empty_and_scalar_payload() -
         http.close()
 
 
+@pytest.mark.synthetic_http
 def test_download_file_rate_limit_retries_with_retry_after(monkeypatch: Any) -> None:
     sleeps: list[float] = []
     monkeypatch.setattr("affinity.clients.http.time.sleep", sleeps.append)
@@ -113,6 +114,7 @@ def test_download_file_rate_limit_retries_with_retry_after(monkeypatch: Any) -> 
         http.close()
 
 
+@pytest.mark.synthetic_http
 def test_download_file_timeout_network_and_no_attempts_paths(monkeypatch: Any) -> None:
     monkeypatch.setattr("affinity.clients.http.time.sleep", lambda _seconds: None)
 
@@ -164,6 +166,7 @@ def test_download_file_timeout_network_and_no_attempts_paths(monkeypatch: Any) -
         http_none.close()
 
 
+@pytest.mark.synthetic_http
 def test_request_with_retry_safe_follow_redirect_block_and_get_v1_page_variants() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         if request.url == httpx.URL("https://v2.example/v2/redirect"):
@@ -393,6 +396,7 @@ def test_stream_download_redirect_progress_and_error_paths(monkeypatch: Any) -> 
         http.close()
 
 
+@pytest.mark.synthetic_http
 def test_request_with_retry_retries_rate_limit_and_sleeps(monkeypatch: Any) -> None:
     sleeps: list[float] = []
     monkeypatch.setattr("affinity.clients.http.time.sleep", sleeps.append)
@@ -428,6 +432,7 @@ def test_request_with_retry_retries_rate_limit_and_sleeps(monkeypatch: Any) -> N
         http.close()
 
 
+@pytest.mark.synthetic_http
 def test_request_with_retry_non_retryable_method_raises_rate_limit(monkeypatch: Any) -> None:
     monkeypatch.setattr("affinity.clients.http.time.sleep", lambda _seconds: None)
 
@@ -444,6 +449,7 @@ def test_request_with_retry_non_retryable_method_raises_rate_limit(monkeypatch: 
         http.close()
 
 
+@pytest.mark.synthetic_http
 def test_request_with_retry_server_error_breaks_when_exhausted(monkeypatch: Any) -> None:
     monkeypatch.setattr("affinity.clients.http.time.sleep", lambda _seconds: None)
 
@@ -479,6 +485,7 @@ def test_request_with_retry_server_error_breaks_when_exhausted(monkeypatch: Any)
         ),
     ],
 )
+@pytest.mark.synthetic_http
 def test_request_with_retry_timeout_and_network_retry_sleep_and_succeed(
     monkeypatch: Any, exc: Exception, _expected: type[Exception]
 ) -> None:
@@ -510,6 +517,7 @@ def test_request_with_retry_timeout_and_network_retry_sleep_and_succeed(
         http.close()
 
 
+@pytest.mark.synthetic_http
 def test_request_with_retry_timeout_and_network_non_retryable_method_wrap(monkeypatch: Any) -> None:
     monkeypatch.setattr("affinity.clients.http.time.sleep", lambda _seconds: None)
 
@@ -553,6 +561,7 @@ def test_request_with_retry_timeout_and_network_non_retryable_method_wrap(monkey
         ),
     ],
 )
+@pytest.mark.synthetic_http
 def test_request_with_retry_timeout_and_network_break_when_exhausted(
     monkeypatch: Any, exc: Exception, expected: type[Exception]
 ) -> None:
@@ -986,6 +995,7 @@ def test_async_handle_response_parses_retry_after_header() -> None:
     assert excinfo.value.retry_after == 60
 
 
+@pytest.mark.synthetic_http
 @pytest.mark.asyncio
 async def test_async_request_with_retry_rate_limit_retry_and_non_retryable_method(
     monkeypatch: Any,
@@ -1033,6 +1043,7 @@ async def test_async_request_with_retry_rate_limit_retry_and_non_retryable_metho
             await client.post("/post", json={"x": 1})
 
 
+@pytest.mark.synthetic_http
 @pytest.mark.asyncio
 async def test_async_request_with_retry_server_error_timeout_network_paths(
     monkeypatch: Any,
@@ -1083,6 +1094,7 @@ async def test_async_request_with_retry_server_error_timeout_network_paths(
         assert sleeps == [0.5, 0.5, 0.5]
 
 
+@pytest.mark.synthetic_http
 @pytest.mark.asyncio
 async def test_async_get_v1_page_patch_and_request_failed_after_no_attempts() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
@@ -1116,6 +1128,7 @@ async def test_async_get_v1_page_patch_and_request_failed_after_no_attempts() ->
             await client_no_attempts.get("/x")
 
 
+@pytest.mark.synthetic_http
 @pytest.mark.asyncio
 async def test_async_request_with_retry_exhausted_and_non_retryable_timeout_network() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
@@ -1160,6 +1173,7 @@ async def test_async_request_with_retry_exhausted_and_non_retryable_timeout_netw
         assert isinstance(excinfo.value.__cause__, httpx.NetworkError)
 
 
+@pytest.mark.synthetic_http
 @pytest.mark.asyncio
 async def test_async_http_client_basic_auth_context_manager_and_error_handling(
     monkeypatch: Any,

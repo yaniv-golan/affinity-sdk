@@ -14,6 +14,75 @@ except ModuleNotFoundError:  # pragma: no cover - optional test dependency
 
 from affinity import Affinity
 from affinity.cli.context import CLIContext
+from tests import spec_guard
+
+_SPEC_PROBLEMS = pytest.StashKey[list[str]]()
+
+
+@pytest.fixture(autouse=True)
+def _spec_guard(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """Check every V2 request the test sends against the OpenAPI specs (tests/spec_guard.py).
+
+    Problems fail the test (see ``pytest_runtest_makereport``). Tests marked
+    ``synthetic_http`` may send requests to made-up operations; their parameters on real
+    operations are still checked, and a marker that excuses nothing is itself a problem.
+    """
+    problems: list[str] = []
+    request.node.stash[_SPEC_PROBLEMS] = problems
+    allow_unknown = request.node.get_closest_marker("synthetic_http") is not None
+    sent_unknown = False
+
+    def record(args: tuple[object, ...], kwargs: dict[str, object]) -> None:
+        nonlocal sent_unknown
+        req = args[0] if args else kwargs.get("request")
+        if not isinstance(req, httpx.Request):
+            return
+        try:
+            result = spec_guard.check_request(req)
+        except Exception as e:  # never break the request itself
+            problems.append(f"spec guard error on {req.method} {req.url}: {e}")
+            return
+        if result is None:
+            return
+        unknown, found = result
+        sent_unknown = sent_unknown or unknown
+        if unknown and allow_unknown:
+            return
+        problems.extend(p for p in found if p not in problems)
+
+    send, asend = httpx.Client.send, httpx.AsyncClient.send
+
+    def guarded_send(self: httpx.Client, *args: object, **kwargs: object) -> httpx.Response:
+        record(args, kwargs)
+        return send(self, *args, **kwargs)  # type: ignore[arg-type]
+
+    async def guarded_asend(
+        self: httpx.AsyncClient, *args: object, **kwargs: object
+    ) -> httpx.Response:
+        record(args, kwargs)
+        return await asend(self, *args, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(httpx.Client, "send", guarded_send)
+    monkeypatch.setattr(httpx.AsyncClient, "send", guarded_asend)
+    yield
+    if allow_unknown and not sent_unknown:
+        problems.append(
+            "marked synthetic_http but sent no request to a made-up operation: remove the marker"
+        )
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item: pytest.Item) -> Iterator[None]:
+    outcome = yield
+    report = outcome.get_result()  # type: ignore[attr-defined]
+    problems = item.stash.get(_SPEC_PROBLEMS, None)
+    if not problems or report.when not in ("call", "teardown") or report.failed:
+        return
+    report.outcome = "failed"
+    report.longrepr = "Requests that don't match the Affinity OpenAPI spec:\n" + "\n".join(
+        f"  - {p}" for p in problems
+    )
+    problems.clear()
 
 
 @pytest.fixture(autouse=True)

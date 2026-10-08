@@ -296,16 +296,16 @@ class TestHTTPClient:
         config = ClientConfig(api_key="test-key", enable_cache=True)
         client = HTTPClient(config)
 
-        route = respx_mock.get("https://api.affinity.co/v2/fields").mock(
+        route = respx_mock.get("https://api.affinity.co/v2/companies/fields").mock(
             return_value=Response(200, json={"fields": []})
         )
 
         # First call - should hit API
-        result1 = client.get("/fields", cache_key="fields")
+        result1 = client.get("/companies/fields", cache_key="fields")
         assert route.call_count == 1
 
         # Second call - should use cache
-        result2 = client.get("/fields", cache_key="fields")
+        result2 = client.get("/companies/fields", cache_key="fields")
         assert route.call_count == 1  # No additional call
 
         assert result1 == result2
@@ -314,15 +314,15 @@ class TestHTTPClient:
     @pytest.mark.req("NFR-002a")
     def test_cache_isolation_by_tenant_hash(self, respx_mock: respx.MockRouter) -> None:
         """Cache keys must not collide across different API keys."""
-        route = respx_mock.get("https://api.affinity.co/v2/fields").mock(
+        route = respx_mock.get("https://api.affinity.co/v2/companies/fields").mock(
             return_value=Response(200, json={"fields": []})
         )
 
         client_a = HTTPClient(ClientConfig(api_key="key-a", enable_cache=True, max_retries=0))
         client_b = HTTPClient(ClientConfig(api_key="key-b", enable_cache=True, max_retries=0))
         try:
-            _ = client_a.get("/fields", cache_key="fields")
-            _ = client_b.get("/fields", cache_key="fields")
+            _ = client_a.get("/companies/fields", cache_key="fields")
+            _ = client_b.get("/companies/fields", cache_key="fields")
         finally:
             client_a.close()
             client_b.close()
@@ -410,6 +410,7 @@ class TestRetryPolicy:
         assert sleeps == [pytest.approx(1.0, abs=1e-3)]
         assert data["data"] == []
 
+    @pytest.mark.synthetic_http
     @pytest.mark.req("NFR-003a")
     def test_post_does_not_retry_on_500(
         self, respx_mock: respx.MockRouter, monkeypatch: Any
@@ -750,7 +751,7 @@ class TestListService:
         def handler(request: httpx.Request) -> httpx.Response:
             call_count["value"] += 1
             url = str(request.url)
-            if "page=2" in url:
+            if "cursor=page2" in url:
                 return httpx.Response(
                     200,
                     json={
@@ -768,7 +769,7 @@ class TestListService:
                         "data": [
                             {"id": 1, "name": "A", "type": 0, "public": True, "ownerId": 1},
                         ],
-                        "pagination": {"nextUrl": "https://api.affinity.co/v2/lists?page=2"},
+                        "pagination": {"nextUrl": "https://api.affinity.co/v2/lists?cursor=page2"},
                     },
                     request=request,
                 )
@@ -990,7 +991,7 @@ class TestErrorHandling:
         respx_mock.get("https://api.affinity.co/v2/companies").mock(
             return_value=Response(
                 302,
-                headers={"Location": "https://api.affinity.co/v2/companies?page=2"},
+                headers={"Location": "https://api.affinity.co/v2/companies?cursor=page2"},
             )
         )
         config = ClientConfig(api_key="test-key", max_retries=0)
@@ -1169,7 +1170,7 @@ async def test_async_affinity_companies_iter_auto_paginates() -> None:
 
     def handler(request: httpx.Request) -> httpx.Response:
         url = str(request.url)
-        if "page=2" in url:
+        if "cursor=page2" in url:
             return httpx.Response(
                 200,
                 json={"data": [{"id": 2, "name": "B"}], "pagination": {"nextUrl": None}},
@@ -1180,7 +1181,7 @@ async def test_async_affinity_companies_iter_auto_paginates() -> None:
                 200,
                 json={
                     "data": [{"id": 1, "name": "A"}],
-                    "pagination": {"nextUrl": "https://api.affinity.co/v2/companies?page=2"},
+                    "pagination": {"nextUrl": "https://api.affinity.co/v2/companies?cursor=page2"},
                 },
                 request=request,
             )

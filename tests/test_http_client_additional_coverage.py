@@ -339,6 +339,7 @@ def test_download_file_calls_hooks_and_redacts_auth(monkeypatch: Any) -> None:
         http.close()
 
 
+@pytest.mark.synthetic_http
 @pytest.mark.asyncio
 async def test_async_http_client_hooks_cache_and_safe_follow_redirect_block(
     monkeypatch: Any,

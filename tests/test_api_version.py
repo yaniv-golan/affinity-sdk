@@ -55,7 +55,7 @@ def _recording_handler(
             return httpx.Response(
                 200, json={"data": [{"id": 2}], "pagination": {"nextUrl": None}}, headers=headers
             )
-        if url == f"{V2}/fields":
+        if url == f"{V2}/companies/fields":
             return httpx.Response(200, json={"data": []}, headers=headers)
         if url == f"{V2}/auth/whoami":
             return httpx.Response(200, json={"user": {}}, headers=headers)
@@ -197,6 +197,7 @@ class TestHeaderSync:
         assert seen[0].headers.get(AFFINITY_API_VERSION_HEADER) == "current"
         assert http.affinity_api_versions_seen == frozenset({"2026-09-17"})
 
+    @pytest.mark.synthetic_http
     def test_stripped_on_cross_host_redirect(self) -> None:
         seen: list[httpx.Request] = []
 
@@ -256,6 +257,7 @@ class TestHeaderAsync:
         assert AFFINITY_API_VERSION_HEADER not in seen[0].headers
         assert AFFINITY_API_VERSION_HEADER not in seen[1].headers
 
+    @pytest.mark.synthetic_http
     def test_stripped_on_cross_host_redirect(self) -> None:
         seen: list[httpx.Request] = []
 
@@ -375,9 +377,9 @@ class TestEcho:
         seen: list[httpx.Request] = []
         http = _http(_recording_handler(seen), enable_cache=True, affinity_api_version="2026-09-17")
         try:
-            http.get("/fields", cache_key="fields")
+            http.get("/companies/fields", cache_key="fields")
             http._reset_affinity_api_versions_seen()
-            http.get("/fields", cache_key="fields")
+            http.get("/companies/fields", cache_key="fields")
         finally:
             http.close()
         assert len(seen) == 1  # second call served from cache
@@ -389,9 +391,9 @@ class TestEcho:
         async def run() -> AsyncHTTPClient:
             http = _async_http(_recording_handler(seen), enable_cache=True)
             try:
-                await http.get("/fields", cache_key="fields")
+                await http.get("/companies/fields", cache_key="fields")
                 http._reset_affinity_api_versions_seen()
-                await http.get("/fields", cache_key="fields")
+                await http.get("/companies/fields", cache_key="fields")
             finally:
                 await http.close()
             return http
@@ -408,9 +410,9 @@ class TestEcho:
         # Share one cache between the two clients to prove the keys differ.
         b._cache = a._cache
         try:
-            a.get("/fields", cache_key="fields")
-            b.get("/fields", cache_key="fields")
-            a.get("/fields", cache_key="fields")
+            a.get("/companies/fields", cache_key="fields")
+            b.get("/companies/fields", cache_key="fields")
+            a.get("/companies/fields", cache_key="fields")
         finally:
             a.close()
             b.close()

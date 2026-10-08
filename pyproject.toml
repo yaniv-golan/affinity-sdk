@@ -198,6 +198,7 @@ markers = [
     "req: requirement coverage marker (e.g., @pytest.mark.req('TR-016'))",
     "slow: slow tests",
     "respx: configure the respx_mock router (provided by respx)",
+    "synthetic_http: test sends V2 requests to made-up operations on purpose (spec guard allows them)",
 ]
 
 [tool.coverage.run]

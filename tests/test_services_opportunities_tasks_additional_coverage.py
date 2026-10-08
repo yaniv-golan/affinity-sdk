@@ -257,7 +257,9 @@ def test_task_service_wait_success_failure_and_timeout(monkeypatch: Any) -> None
 
     def handler(request: httpx.Request) -> httpx.Response:
         url = request.url
-        if request.method == "GET" and url == httpx.URL("https://v2.example/v2/tasks/x"):
+        if request.method == "GET" and url == httpx.URL(
+            "https://v2.example/v2/tasks/company-merges/x"
+        ):
             return httpx.Response(200, json={"id": "x", "status": next(statuses)}, request=request)
         return httpx.Response(404, json={"message": "not found"}, request=request)
 
@@ -273,14 +275,17 @@ def test_task_service_wait_success_failure_and_timeout(monkeypatch: Any) -> None
     try:
         tasks = TaskService(http)
         done = tasks.wait(
-            "https://v2.example/v2/tasks/x", timeout=10.0, poll_interval=1.0, max_poll_interval=2.0
+            "https://v2.example/v2/tasks/company-merges/x",
+            timeout=10.0,
+            poll_interval=1.0,
+            max_poll_interval=2.0,
         )
         assert isinstance(done, MergeTask)
         assert done.status == "success"
 
         def failed_handler(request: httpx.Request) -> httpx.Response:
             if request.method == "GET" and request.url == httpx.URL(
-                "https://v2.example/v2/tasks/y"
+                "https://v2.example/v2/tasks/company-merges/y"
             ):
                 return httpx.Response(200, json={"id": "y", "status": "failed"}, request=request)
             return httpx.Response(404, json={"message": "not found"}, request=request)
@@ -297,7 +302,7 @@ def test_task_service_wait_success_failure_and_timeout(monkeypatch: Any) -> None
         try:
             with pytest.raises(AffinityError):
                 TaskService(failed_http).wait(
-                    "https://v2.example/v2/tasks/y", timeout=1.0, poll_interval=1.0
+                    "https://v2.example/v2/tasks/company-merges/y", timeout=1.0, poll_interval=1.0
                 )
         finally:
             failed_http.close()
@@ -306,7 +311,7 @@ def test_task_service_wait_success_failure_and_timeout(monkeypatch: Any) -> None
 
         def pending_handler(request: httpx.Request) -> httpx.Response:
             if request.method == "GET" and request.url == httpx.URL(
-                "https://v2.example/v2/tasks/z"
+                "https://v2.example/v2/tasks/company-merges/z"
             ):
                 return httpx.Response(200, json={"id": "z", "status": "pending"}, request=request)
             return httpx.Response(404, json={"message": "not found"}, request=request)
@@ -323,7 +328,7 @@ def test_task_service_wait_success_failure_and_timeout(monkeypatch: Any) -> None
         try:
             with pytest.raises(AffinityTimeoutError):
                 TaskService(timeout_http).wait(
-                    "https://v2.example/v2/tasks/z",
+                    "https://v2.example/v2/tasks/company-merges/z",
                     timeout=0.5,
                     poll_interval=1.0,
                     max_poll_interval=1.0,
@@ -352,12 +357,16 @@ async def test_async_task_service_wait_success_and_timeout(monkeypatch: Any) -> 
     monkeypatch.setattr("affinity.services.tasks.asyncio.sleep", fake_sleep)
 
     def handler(request: httpx.Request) -> httpx.Response:
-        if request.method == "GET" and request.url == httpx.URL("https://v2.example/v2/tasks/a"):
+        if request.method == "GET" and request.url == httpx.URL(
+            "https://v2.example/v2/tasks/company-merges/a"
+        ):
             return httpx.Response(200, json={"id": "a", "status": next(statuses)}, request=request)
-        if request.method == "GET" and request.url == httpx.URL("https://v2.example/v2/tasks/fail"):
+        if request.method == "GET" and request.url == httpx.URL(
+            "https://v2.example/v2/tasks/company-merges/fail"
+        ):
             return httpx.Response(200, json={"id": "fail", "status": "failed"}, request=request)
         if request.method == "GET" and request.url == httpx.URL(
-            "https://v2.example/v2/tasks/timeout"
+            "https://v2.example/v2/tasks/company-merges/timeout"
         ):
             return httpx.Response(200, json={"id": "timeout", "status": "pending"}, request=request)
         return httpx.Response(404, json={"message": "not found"}, request=request)
@@ -373,14 +382,20 @@ async def test_async_task_service_wait_success_and_timeout(monkeypatch: Any) -> 
     )
     try:
         tasks = AsyncTaskService(client)
-        done = await tasks.wait("https://v2.example/v2/tasks/a", timeout=10.0, poll_interval=1.0)
+        done = await tasks.wait(
+            "https://v2.example/v2/tasks/company-merges/a", timeout=10.0, poll_interval=1.0
+        )
         assert done.status == "success"
 
         with pytest.raises(AffinityError):
-            await tasks.wait("https://v2.example/v2/tasks/fail", timeout=10.0, poll_interval=1.0)
+            await tasks.wait(
+                "https://v2.example/v2/tasks/company-merges/fail", timeout=10.0, poll_interval=1.0
+            )
 
         monotonic["t"] = 0.0
         with pytest.raises(AffinityTimeoutError):
-            await tasks.wait("https://v2.example/v2/tasks/timeout", timeout=0.5, poll_interval=1.0)
+            await tasks.wait(
+                "https://v2.example/v2/tasks/company-merges/timeout", timeout=0.5, poll_interval=1.0
+            )
     finally:
         await client.close()
