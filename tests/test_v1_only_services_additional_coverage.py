@@ -364,8 +364,8 @@ def test_v1_only_services_end_to_end_smoke_and_branch_coverage(tmp_path: Path) -
     try:
         http.cache.set("field_meta", {"x": 1})
         http.cache.set("list_10_fields", {"x": 1})
-        http.cache.set("person_fields:global", {"x": 1})
-        http.cache.set("company_fields:global", {"x": 1})
+        http.cache.set("person_fields:", {"x": 1})
+        http.cache.set("company_fields:_all_", {"x": 1})
 
         notes = NoteService(http)
         assert notes.list(person_id=PersonId(1)).data[0].id == NoteId(1)
@@ -476,6 +476,8 @@ def test_v1_only_services_end_to_end_smoke_and_branch_coverage(tmp_path: Path) -
         assert created_f.id == FieldId("field-1")
         assert http.cache.get("field_meta") is None
         assert http.cache.get("list_10_fields") is None
+        assert http.cache.get("person_fields:") is None
+        assert http.cache.get("company_fields:_all_") is None
         assert fields.delete(FieldId("field-1")) is True
         assert seen["field_create"]["is_list_specific"] is True
 
