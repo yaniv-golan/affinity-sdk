@@ -81,14 +81,15 @@ have valid JSON but does not enforce version sync.
 - Plugin cache invalidation is based on git commit hash, not version number,
   so version bumps are for human traceability, not distribution mechanics
 
-## Pre-1.0 Versioning (Current State)
+## Since 1.0 (Current State)
 
-**SDK is currently at 0.x.y** — per [SemVer spec item 4](https://semver.org/#spec-item-4):
-> *"Major version zero (0.y.z) is for initial development. Anything MAY change at any time."*
+**The SDK has been at 1.x since 1.0.0**, so the rules above apply: a breaking change to the
+public SDK or CLI means a MAJOR bump, and PATCH releases stay backwards-compatible.
 
-This means:
-- MINOR bumps (0.6 → 0.7) MAY include breaking changes
-- PATCH bumps (0.6.5 → 0.6.6) should be backwards-compatible
+- An exception (a breaking change shipped in a MINOR) is a deliberate decision, never a default.
+  The CHANGELOG entry must say it is an exception and why, and the release's Highlights must
+  carry a **Breaking:** line with a migration hint. Example: 1.20 removes
+  `get_fields(field_types=)`, which the API never supported.
 - MCP must track CLI minor version for compatibility
 
 ## CLI Changes That Affect MCP
