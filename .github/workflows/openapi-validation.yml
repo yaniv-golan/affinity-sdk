@@ -1,9 +1,10 @@
 name: OpenAPI Validation
 
-# Weekly: check the SDK against the upstream spec on affinity-api-docs `main`; a failure
+# Every Affinity V2 API version (each API key defaults to one) is checked, one spec at a time.
+# Weekly: check the SDK against the upstream specs on affinity-api-docs `main`; a failure
 # opens (or updates) one tracking issue labelled `openapi-drift`.
-# PR / push: check model changes against the spec pinned at the sha recorded in
-# tools/openapi_snapshot.json, so upstream drift never turns an unrelated PR red.
+# PR / push: check model changes against the specs pinned at the URLs recorded in
+# tools/openapi_snapshots/<version>.json, so upstream drift never turns an unrelated PR red.
 
 on:
   workflow_dispatch:
@@ -14,7 +15,8 @@ on:
       - "affinity/models/**"
       - "affinity/types.py"
       - "tools/validate_openapi_models.py"
-      - "tools/openapi_snapshot.json"
+      - "tools/openapi_snapshots/**"
+      - "affinity/api_versions.py"
       - ".github/workflows/openapi-validation.yml"
   push:
     branches: [main]
@@ -22,7 +24,8 @@ on:
       - "affinity/models/**"
       - "affinity/types.py"
       - "tools/validate_openapi_models.py"
-      - "tools/openapi_snapshot.json"
+      - "tools/openapi_snapshots/**"
+      - "affinity/api_versions.py"
       - ".github/workflows/openapi-validation.yml"
 
 permissions:
@@ -81,13 +84,16 @@ jobs:
           gh label create openapi-drift --color D93F0B \
             --description "Affinity V2 OpenAPI spec drifted from the SDK" --force
           {
-            echo "The weekly OpenAPI check failed: the upstream Affinity V2 spec no longer"
-            echo "matches the SDK models, enums, or \`tools/openapi_snapshot.json\`."
+            echo "The weekly OpenAPI check failed: an upstream Affinity V2 spec no longer"
+            echo "matches the SDK models, enums, or \`tools/openapi_snapshots/<version>.json\`,"
+            echo "or a spec could not be fetched or declares another version than expected"
+            echo "(affinity-api-docs moved its files because a new API version became current:"
+            echo "update \`SPEC_PATHS\` in the tool and \`KNOWN_AFFINITY_API_VERSIONS\`)."
             echo
             echo "Run: $RUN_URL"
             echo
-            echo "Fix the SDK if needed, then refresh the snapshot with"
-            echo "\`python tools/validate_openapi_models.py --update-snapshot --url <pinned raw URL>\`."
+            echo "Fix the SDK if needed, then refresh the snapshots with"
+            echo "\`python tools/validate_openapi_models.py --update-snapshot --ref <affinity-api-docs commit sha>\`."
             echo
             echo "<details><summary>Report</summary>"
             echo

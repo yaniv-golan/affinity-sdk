@@ -24,7 +24,8 @@
     },
     "responses": {
      "204": {}
-    }
+    },
+    "x-stability-level": "beta"
    },
    "DELETE /v2/notes/{noteId}": {
     "parameters": {
@@ -38,76 +39,6 @@
     "responses": {
      "204": {}
     }
-   },
-   "DELETE /v2/opportunities/{opportunityId}": {
-    "parameters": {
-     "path:opportunityId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     }
-    },
-    "responses": {
-     "204": {}
-    },
-    "x-stability-level": "beta"
-   },
-   "DELETE /v2/persons/{personId}": {
-    "parameters": {
-     "path:personId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     }
-    },
-    "responses": {
-     "204": {}
-    },
-    "x-stability-level": "beta"
-   },
-   "DELETE /v2/reminders/{reminderId}": {
-    "parameters": {
-     "path:reminderId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     }
-    },
-    "responses": {
-     "204": {}
-    },
-    "x-stability-level": "beta"
-   },
-   "DELETE /v2/transcripts/{transcriptId}": {
-    "parameters": {
-     "path:transcriptId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     }
-    },
-    "responses": {
-     "204": {}
-    },
-    "x-stability-level": "beta"
-   },
-   "DELETE /v2/webhooks/{webhookId}": {
-    "parameters": {
-     "path:webhookId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     }
-    },
-    "responses": {
-     "204": {}
-    },
-    "x-stability-level": "beta"
    },
    "GET /v2/auth/whoami": {
     "parameters": {},
@@ -301,7 +232,8 @@
        "$ref": "#/components/schemas/DropdownOptionPaged"
       }
      }
-    }
+    },
+    "x-stability-level": "beta"
    },
    "GET /v2/companies/{companyId}": {
     "parameters": {
@@ -420,42 +352,6 @@
     },
     "x-stability-level": "beta"
    },
-   "GET /v2/companies/{companyId}/fields/{fieldId}/values": {
-    "parameters": {
-     "path:companyId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     },
-     "path:fieldId": {
-      "required": true,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "query:cursor": {
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "query:limit": {
-      "required": false,
-      "schema": {
-       "type": "integer"
-      }
-     }
-    },
-    "responses": {
-     "200": {
-      "application/json": {
-       "$ref": "#/components/schemas/FieldValuesPaged"
-      }
-     }
-    },
-    "x-stability-level": "beta"
-   },
    "GET /v2/companies/{companyId}/list-entries": {
     "parameters": {
      "path:companyId": {
@@ -553,7 +449,8 @@
        "$ref": "#/components/schemas/notes.NotesPaged"
       }
      }
-    }
+    },
+    "x-stability-level": "beta"
    },
    "GET /v2/companies/{companyId}/relationships": {
     "parameters": {
@@ -607,7 +504,8 @@
        "$ref": "#/components/schemas/RelationshipsPaged"
       }
      }
-    }
+    },
+    "x-stability-level": "beta"
    },
    "GET /v2/company-merges": {
     "parameters": {
@@ -654,120 +552,6 @@
       }
      }
     }
-   },
-   "GET /v2/duplicates/company-suggestions": {
-    "parameters": {
-     "query:cursor": {
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "query:filter": {
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "query:limit": {
-      "required": false,
-      "schema": {
-       "type": "integer"
-      }
-     },
-     "query:orderBy": {
-      "required": false,
-      "schema": {
-       "items": {
-        "enum": [
-         "-createdAt",
-         "-name",
-         "createdAt",
-         "name"
-        ],
-        "type": "string"
-       },
-       "type": "array"
-      }
-     },
-     "query:term": {
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "query:totalCount": {
-      "required": false,
-      "schema": {
-       "type": "boolean"
-      }
-     }
-    },
-    "responses": {
-     "200": {
-      "application/json": {
-       "$ref": "#/components/schemas/CompanyDuplicateSuggestionPaged"
-      }
-     }
-    },
-    "x-stability-level": "beta"
-   },
-   "GET /v2/duplicates/person-suggestions": {
-    "parameters": {
-     "query:cursor": {
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "query:filter": {
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "query:limit": {
-      "required": false,
-      "schema": {
-       "type": "integer"
-      }
-     },
-     "query:orderBy": {
-      "required": false,
-      "schema": {
-       "items": {
-        "enum": [
-         "-createdAt",
-         "-name",
-         "createdAt",
-         "name"
-        ],
-        "type": "string"
-       },
-       "type": "array"
-      }
-     },
-     "query:term": {
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "query:totalCount": {
-      "required": false,
-      "schema": {
-       "type": "boolean"
-      }
-     }
-    },
-    "responses": {
-     "200": {
-      "application/json": {
-       "$ref": "#/components/schemas/PersonDuplicateSuggestionPaged"
-      }
-     }
-    },
-    "x-stability-level": "beta"
    },
    "GET /v2/emails": {
     "parameters": {
@@ -839,60 +623,6 @@
       }
      }
     }
-   },
-   "GET /v2/files": {
-    "parameters": {
-     "query:cursor": {
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "query:filter": {
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "query:limit": {
-      "required": false,
-      "schema": {
-       "type": "integer"
-      }
-     },
-     "query:totalCount": {
-      "required": false,
-      "schema": {
-       "type": "boolean"
-      }
-     }
-    },
-    "responses": {
-     "200": {
-      "application/json": {
-       "$ref": "#/components/schemas/files.FileSummaryPaged"
-      }
-     }
-    },
-    "x-stability-level": "beta"
-   },
-   "GET /v2/files/{fileId}": {
-    "parameters": {
-     "path:fileId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     }
-    },
-    "responses": {
-     "200": {
-      "application/json": {
-       "$ref": "#/components/schemas/files.File"
-      }
-     }
-    },
-    "x-stability-level": "beta"
    },
    "GET /v2/inferred-connections/coworkers": {
     "parameters": {
@@ -1093,7 +823,8 @@
        "$ref": "#/components/schemas/DropdownOptionPaged"
       }
      }
-    }
+    },
+    "x-stability-level": "beta"
    },
    "GET /v2/lists/{listId}/fields/{fieldId}/dropdown-options/{dropdownOptionId}": {
     "parameters": {
@@ -1122,7 +853,8 @@
        "$ref": "#/components/schemas/DropdownOption"
       }
      }
-    }
+    },
+    "x-stability-level": "beta"
    },
    "GET /v2/lists/{listId}/list-entries": {
     "parameters": {
@@ -1263,7 +995,8 @@
        "$ref": "#/components/schemas/fieldValueChanges.FieldValueChangePaged"
       }
      }
-    }
+    },
+    "x-stability-level": "beta"
    },
    "GET /v2/lists/{listId}/list-entries/{listEntryId}/fields": {
     "parameters": {
@@ -1352,48 +1085,6 @@
       }
      }
     }
-   },
-   "GET /v2/lists/{listId}/list-entries/{listEntryId}/fields/{fieldId}/values": {
-    "parameters": {
-     "path:fieldId": {
-      "required": true,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "path:listEntryId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     },
-     "path:listId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     },
-     "query:cursor": {
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "query:limit": {
-      "required": false,
-      "schema": {
-       "type": "integer"
-      }
-     }
-    },
-    "responses": {
-     "200": {
-      "application/json": {
-       "$ref": "#/components/schemas/FieldValuesPaged"
-      }
-     }
-    },
-    "x-stability-level": "beta"
    },
    "GET /v2/lists/{listId}/saved-views": {
     "parameters": {
@@ -1510,24 +1201,6 @@
       }
      }
     }
-   },
-   "GET /v2/meetings/{meetingId}": {
-    "parameters": {
-     "path:meetingId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     }
-    },
-    "responses": {
-     "200": {
-      "application/json": {
-       "$ref": "#/components/schemas/interactions.Meeting"
-      }
-     }
-    },
-    "x-stability-level": "beta"
    },
    "GET /v2/notes": {
     "parameters": {
@@ -2017,7 +1690,8 @@
        "$ref": "#/components/schemas/DropdownOptionPaged"
       }
      }
-    }
+    },
+    "x-stability-level": "beta"
    },
    "GET /v2/persons/{personId}": {
     "parameters": {
@@ -2131,42 +1805,6 @@
      "200": {
       "application/json": {
        "$ref": "#/components/schemas/Field"
-      }
-     }
-    },
-    "x-stability-level": "beta"
-   },
-   "GET /v2/persons/{personId}/fields/{fieldId}/values": {
-    "parameters": {
-     "path:fieldId": {
-      "required": true,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "path:personId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     },
-     "query:cursor": {
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "query:limit": {
-      "required": false,
-      "schema": {
-       "type": "integer"
-      }
-     }
-    },
-    "responses": {
-     "200": {
-      "application/json": {
-       "$ref": "#/components/schemas/FieldValuesPaged"
       }
      }
     },
@@ -2323,16 +1961,6 @@
        "$ref": "#/components/schemas/RelationshipsPaged"
       }
      }
-    }
-   },
-   "GET /v2/rate-limit": {
-    "parameters": {},
-    "responses": {
-     "200": {
-      "application/json": {
-       "$ref": "#/components/schemas/RateLimit"
-      }
-     }
     },
     "x-stability-level": "beta"
    },
@@ -2370,24 +1998,6 @@
       }
      }
     }
-   },
-   "GET /v2/reminders/{reminderId}": {
-    "parameters": {
-     "path:reminderId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     }
-    },
-    "responses": {
-     "200": {
-      "application/json": {
-       "$ref": "#/components/schemas/reminders.Reminder"
-      }
-     }
-    },
-    "x-stability-level": "beta"
    },
    "GET /v2/tasks/company-merges": {
     "parameters": {
@@ -2480,101 +2090,6 @@
       }
      }
     }
-   },
-   "GET /v2/teams": {
-    "parameters": {
-     "query:cursor": {
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "query:filter": {
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "query:includes": {
-      "required": false,
-      "schema": {
-       "items": {
-        "enum": [
-         "accessibleListsPreview",
-         "membersPreview"
-        ],
-        "type": "string"
-       },
-       "type": "array"
-      }
-     },
-     "query:limit": {
-      "required": false,
-      "schema": {
-       "type": "integer"
-      }
-     },
-     "query:orderBy": {
-      "required": false,
-      "schema": {
-       "items": {
-        "enum": [
-         "-createdAt",
-         "-name",
-         "createdAt",
-         "name"
-        ],
-        "type": "string"
-       },
-       "type": "array"
-      }
-     },
-     "query:totalCount": {
-      "required": false,
-      "schema": {
-       "type": "boolean"
-      }
-     }
-    },
-    "responses": {
-     "200": {
-      "application/json": {
-       "$ref": "#/components/schemas/TeamPaged"
-      }
-     }
-    },
-    "x-stability-level": "beta"
-   },
-   "GET /v2/teams/{teamId}": {
-    "parameters": {
-     "path:teamId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     },
-     "query:includes": {
-      "required": false,
-      "schema": {
-       "items": {
-        "enum": [
-         "accessibleListsPreview",
-         "membersPreview"
-        ],
-        "type": "string"
-       },
-       "type": "array"
-      }
-     }
-    },
-    "responses": {
-     "200": {
-      "application/json": {
-       "$ref": "#/components/schemas/Team"
-      }
-     }
-    },
-    "x-stability-level": "beta"
    },
    "GET /v2/transcripts": {
     "parameters": {
@@ -2717,60 +2232,6 @@
     },
     "x-stability-level": "beta"
    },
-   "GET /v2/webhooks": {
-    "parameters": {
-     "query:cursor": {
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "query:filter": {
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     "query:limit": {
-      "required": false,
-      "schema": {
-       "type": "integer"
-      }
-     },
-     "query:totalCount": {
-      "required": false,
-      "schema": {
-       "type": "boolean"
-      }
-     }
-    },
-    "responses": {
-     "200": {
-      "application/json": {
-       "$ref": "#/components/schemas/webhooks.WebhookPaged"
-      }
-     }
-    },
-    "x-stability-level": "beta"
-   },
-   "GET /v2/webhooks/{webhookId}": {
-    "parameters": {
-     "path:webhookId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     }
-    },
-    "responses": {
-     "200": {
-      "application/json": {
-       "$ref": "#/components/schemas/webhooks.Webhook"
-      }
-     }
-    },
-    "x-stability-level": "beta"
-   },
    "PATCH /v2/companies/{companyId}/fields": {
     "parameters": {
      "path:companyId": {
@@ -2794,7 +2255,8 @@
        "$ref": "#/components/schemas/CompanyBatchOperationResponse"
       }
      }
-    }
+    },
+    "x-stability-level": "beta"
    },
    "PATCH /v2/lists/{listId}/list-entries/{listEntryId}/fields": {
     "parameters": {
@@ -2850,7 +2312,8 @@
        "$ref": "#/components/schemas/PersonBatchOperationResponse"
       }
      }
-    }
+    },
+    "x-stability-level": "beta"
    },
    "POST /v2/companies/search": {
     "parameters": {
@@ -2938,7 +2401,8 @@
     },
     "responses": {
      "204": {}
-    }
+    },
+    "x-stability-level": "beta"
    },
    "POST /v2/company-merges": {
     "parameters": {},
@@ -2970,7 +2434,8 @@
     },
     "responses": {
      "204": {}
-    }
+    },
+    "x-stability-level": "beta"
    },
    "POST /v2/files/search": {
     "parameters": {},
@@ -3006,7 +2471,8 @@
        "$ref": "#/components/schemas/ListWithType"
       }
      }
-    }
+    },
+    "x-stability-level": "beta"
    },
    "POST /v2/lists/{listId}/fields/{fieldId}/dropdown-options": {
     "parameters": {
@@ -3037,7 +2503,8 @@
        "$ref": "#/components/schemas/DropdownOption"
       }
      }
-    }
+    },
+    "x-stability-level": "beta"
    },
    "POST /v2/lists/{listId}/fields/{fieldId}/dropdown-options/{dropdownOptionId}": {
     "parameters": {
@@ -3070,31 +2537,6 @@
     },
     "responses": {
      "204": {}
-    }
-   },
-   "POST /v2/lists/{listId}/list-entries": {
-    "parameters": {
-     "path:listId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     }
-    },
-    "requestBody": {
-     "content": {
-      "application/json": {
-       "$ref": "#/components/schemas/ListEntryToBeCreated"
-      }
-     },
-     "required": true
-    },
-    "responses": {
-     "201": {
-      "application/json": {
-       "$ref": "#/components/schemas/ListEntryWithEntity"
-      }
-     }
     },
     "x-stability-level": "beta"
    },
@@ -3256,28 +2698,6 @@
      "204": {}
     }
    },
-   "POST /v2/opportunities/{opportunityId}": {
-    "parameters": {
-     "path:opportunityId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     }
-    },
-    "requestBody": {
-     "content": {
-      "application/json": {
-       "$ref": "#/components/schemas/OpportunityToBeUpdated"
-      }
-     },
-     "required": true
-    },
-    "responses": {
-     "204": {}
-    },
-    "x-stability-level": "beta"
-   },
    "POST /v2/person-merges": {
     "parameters": {},
     "requestBody": {
@@ -3295,25 +2715,6 @@
       }
      }
     }
-   },
-   "POST /v2/persons": {
-    "parameters": {},
-    "requestBody": {
-     "content": {
-      "application/json": {
-       "$ref": "#/components/schemas/persons.PersonToCreate"
-      }
-     },
-     "required": true
-    },
-    "responses": {
-     "201": {
-      "application/json": {
-       "$ref": "#/components/schemas/Person"
-      }
-     }
-    },
-    "x-stability-level": "beta"
    },
    "POST /v2/persons/search": {
     "parameters": {
@@ -3401,7 +2802,8 @@
     },
     "responses": {
      "204": {}
-    }
+    },
+    "x-stability-level": "beta"
    },
    "POST /v2/reminders": {
     "parameters": {},
@@ -3421,28 +2823,6 @@
      }
     }
    },
-   "POST /v2/reminders/{reminderId}": {
-    "parameters": {
-     "path:reminderId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     }
-    },
-    "requestBody": {
-     "content": {
-      "application/json": {
-       "$ref": "#/components/schemas/reminders.ReminderToBeUpdated"
-      }
-     },
-     "required": true
-    },
-    "responses": {
-     "204": {}
-    },
-    "x-stability-level": "beta"
-   },
    "POST /v2/semantic-search": {
     "parameters": {},
     "requestBody": {
@@ -3459,46 +2839,6 @@
        "$ref": "#/components/schemas/SemanticSearchResult"
       }
      }
-    }
-   },
-   "POST /v2/webhooks": {
-    "parameters": {},
-    "requestBody": {
-     "content": {
-      "application/json": {
-       "$ref": "#/components/schemas/webhooks.WebhookToBeCreated"
-      }
-     },
-     "required": true
-    },
-    "responses": {
-     "201": {
-      "application/json": {
-       "$ref": "#/components/schemas/webhooks.Webhook"
-      }
-     }
-    },
-    "x-stability-level": "beta"
-   },
-   "POST /v2/webhooks/{webhookId}": {
-    "parameters": {
-     "path:webhookId": {
-      "required": true,
-      "schema": {
-       "type": "integer"
-      }
-     }
-    },
-    "requestBody": {
-     "content": {
-      "application/json": {
-       "$ref": "#/components/schemas/webhooks.WebhookToBeUpdated"
-      }
-     },
-     "required": true
-    },
-    "responses": {
-     "204": {}
     },
     "x-stability-level": "beta"
    }
@@ -3758,33 +3098,6 @@
     ],
     "type": "object"
    },
-   "CompaniesValuePaged": {
-    "properties": {
-     "data": {
-      "items": {
-       "$ref": "#/components/schemas/CompanyData"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "pagination": {
-      "$ref": "#/components/schemas/Pagination"
-     },
-     "type": {
-      "enum": [
-       "company",
-       "company-multi"
-      ],
-      "type": "string"
-     }
-    },
-    "required": [
-     "data",
-     "pagination",
-     "type"
-    ],
-    "type": "object"
-   },
    "CompaniesValueUpdate": {
     "properties": {
      "data": {
@@ -3932,95 +3245,6 @@
     "required": [
      "data",
      "pagination"
-    ],
-    "type": "object"
-   },
-   "CompanyDuplicateSuggestion": {
-    "properties": {
-     "duplicateProfiles": {
-      "items": {
-       "$ref": "#/components/schemas/CompanyDuplicateSuggestionProfile"
-      },
-      "maxItems": 1,
-      "type": "array"
-     },
-     "id": {
-      "type": "string"
-     },
-     "matchCriteria": {
-      "enum": [
-       "domain-match",
-       "domain-redirect",
-       "name"
-      ],
-      "type": "string"
-     },
-     "primaryProfile": {
-      "$ref": "#/components/schemas/CompanyDuplicateSuggestionProfile"
-     }
-    },
-    "required": [
-     "duplicateProfiles",
-     "id",
-     "matchCriteria",
-     "primaryProfile"
-    ],
-    "type": "object"
-   },
-   "CompanyDuplicateSuggestionPaged": {
-    "properties": {
-     "data": {
-      "items": {
-       "$ref": "#/components/schemas/CompanyDuplicateSuggestion"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "pagination": {
-      "$ref": "#/components/schemas/PaginationWithTotalCount"
-     }
-    },
-    "required": [
-     "data",
-     "pagination"
-    ],
-    "type": "object"
-   },
-   "CompanyDuplicateSuggestionProfile": {
-    "properties": {
-     "domain": {
-      "type": [
-       "null",
-       "string"
-      ]
-     },
-     "domains": {
-      "items": {
-       "type": "string"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "id": {
-      "type": "integer"
-     },
-     "isEnriched": {
-      "type": "boolean"
-     },
-     "isGlobal": {
-      "type": "boolean"
-     },
-     "name": {
-      "type": "string"
-     }
-    },
-    "required": [
-     "domain",
-     "domains",
-     "id",
-     "isEnriched",
-     "isGlobal",
-     "name"
     ],
     "type": "object"
    },
@@ -4392,6 +3616,9 @@
    },
    "CoworkerConnection": {
     "properties": {
+     "confidence": {
+      "type": "number"
+     },
      "inference": {
       "$ref": "#/components/schemas/CoworkerInference"
      },
@@ -4400,6 +3627,7 @@
      }
     },
     "required": [
+     "confidence",
      "inference",
      "source"
     ],
@@ -4468,7 +3696,7 @@
       "is-after": "#/components/schemas/DateFilterOneValue",
       "is-before": "#/components/schemas/DateFilterOneValue",
       "is-between": "#/components/schemas/DateFilterRange",
-      "is-between-relative": "#/components/schemas/DateFilterRelativeRange",
+      "is-between-relative": "#/components/schemas/DateFilterRelative",
       "is-empty": "#/components/schemas/DateFilterNoValue",
       "is-exactly-relative": "#/components/schemas/DateFilterRelativeDate",
       "is-less-than-or-equal-to-relative": "#/components/schemas/DateFilterRelativeDate",
@@ -4503,9 +3731,6 @@
      },
      {
       "$ref": "#/components/schemas/DateFilterRelativeDate"
-     },
-     {
-      "$ref": "#/components/schemas/DateFilterRelativeRange"
      }
     ]
    },
@@ -4613,6 +3838,7 @@
      },
      "operator": {
       "enum": [
+       "is-between-relative",
        "is-not-within-the-last",
        "is-not-within-the-next",
        "is-within-the-last",
@@ -4657,34 +3883,6 @@
      },
      "value": {
       "$ref": "#/components/schemas/RelativeDate"
-     },
-     "valueType": {
-      "const": "date",
-      "type": "string"
-     }
-    },
-    "required": [
-     "fieldId",
-     "operator",
-     "value",
-     "valueType"
-    ],
-    "type": "object"
-   },
-   "DateFilterRelativeRange": {
-    "properties": {
-     "attributeId": {
-      "type": "string"
-     },
-     "fieldId": {
-      "type": "string"
-     },
-     "operator": {
-      "const": "is-between-relative",
-      "type": "string"
-     },
-     "value": {
-      "$ref": "#/components/schemas/RelativeDateRange"
      },
      "valueType": {
       "const": "date",
@@ -4892,8 +4090,7 @@
     "discriminator": {
      "mapping": {
       "dropdown": "#/components/schemas/dropdownOptions.DropdownOption",
-      "ranked-dropdown": "#/components/schemas/dropdownOptions.RankedDropdownOption",
-      "status-dropdown": "#/components/schemas/dropdownOptions.StatusDropdownOption"
+      "ranked-dropdown": "#/components/schemas/dropdownOptions.RankedDropdownOption"
      },
      "propertyName": "type"
     },
@@ -4903,9 +4100,6 @@
      },
      {
       "$ref": "#/components/schemas/dropdownOptions.RankedDropdownOption"
-     },
-     {
-      "$ref": "#/components/schemas/dropdownOptions.StatusDropdownOption"
      }
     ]
    },
@@ -5099,33 +4293,6 @@
     },
     "required": [
      "data",
-     "type"
-    ],
-    "type": "object"
-   },
-   "DropdownsValuePaged": {
-    "properties": {
-     "data": {
-      "items": {
-       "$ref": "#/components/schemas/Dropdown"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "pagination": {
-      "$ref": "#/components/schemas/Pagination"
-     },
-     "type": {
-      "enum": [
-       "dropdown",
-       "dropdown-multi"
-      ],
-      "type": "string"
-     }
-    },
-    "required": [
-     "data",
-     "pagination",
      "type"
     ],
     "type": "object"
@@ -5325,7 +4492,6 @@
       "enum": [
        "enriched",
        "global",
-       "hidden",
        "list",
        "relationship-intelligence"
       ],
@@ -5409,12 +4575,6 @@
        "string"
       ]
      },
-     "description": {
-      "type": [
-       "null",
-       "string"
-      ]
-     },
      "enrichmentSource": {
       "enum": [
        "affinity-data",
@@ -5440,9 +4600,6 @@
      },
      "id": {
       "type": "string"
-     },
-     "isRequired": {
-      "type": "boolean"
      },
      "name": {
       "type": "string"
@@ -5477,16 +4634,13 @@
        "filterable-text-multi",
        "formula-number",
        "interaction",
-       "list-multi",
        "location",
        "location-multi",
-       "note",
        "number",
        "number-multi",
        "person",
        "person-multi",
        "ranked-dropdown",
-       "reminder",
        "text"
       ],
       "type": "string"
@@ -5494,10 +4648,8 @@
     },
     "required": [
      "createdAt",
-     "description",
      "enrichmentSource",
      "id",
-     "isRequired",
      "name",
      "type",
      "valueType"
@@ -5639,16 +4791,13 @@
       "filterable-text-multi": "#/components/schemas/TextsValue",
       "formula-number": "#/components/schemas/FormulaValue",
       "interaction": "#/components/schemas/InteractionValue",
-      "list-multi": "#/components/schemas/ListsValue",
       "location": "#/components/schemas/LocationValue",
       "location-multi": "#/components/schemas/LocationsValue",
-      "note": "#/components/schemas/NoteValue",
       "number": "#/components/schemas/FloatValue",
       "number-multi": "#/components/schemas/FloatsValue",
       "person": "#/components/schemas/PersonValue",
       "person-multi": "#/components/schemas/PersonsValue",
       "ranked-dropdown": "#/components/schemas/RankedDropdownValue",
-      "reminder": "#/components/schemas/ReminderValue",
       "text": "#/components/schemas/TextValue"
      },
      "propertyName": "type"
@@ -5682,16 +4831,10 @@
       "$ref": "#/components/schemas/InteractionValue"
      },
      {
-      "$ref": "#/components/schemas/ListsValue"
-     },
-     {
       "$ref": "#/components/schemas/LocationValue"
      },
      {
       "$ref": "#/components/schemas/LocationsValue"
-     },
-     {
-      "$ref": "#/components/schemas/NoteValue"
      },
      {
       "$ref": "#/components/schemas/PersonValue"
@@ -5701,9 +4844,6 @@
      },
      {
       "$ref": "#/components/schemas/RankedDropdownValue"
-     },
-     {
-      "$ref": "#/components/schemas/ReminderValue"
      },
      {
       "$ref": "#/components/schemas/TextValue"
@@ -5776,48 +4916,6 @@
      },
      {
       "$ref": "#/components/schemas/TextsValue"
-     }
-    ]
-   },
-   "FieldValuesPaged": {
-    "discriminator": {
-     "mapping": {
-      "company": "#/components/schemas/CompaniesValuePaged",
-      "company-multi": "#/components/schemas/CompaniesValuePaged",
-      "dropdown": "#/components/schemas/DropdownsValuePaged",
-      "dropdown-multi": "#/components/schemas/DropdownsValuePaged",
-      "filterable-text": "#/components/schemas/TextsValuePaged",
-      "filterable-text-multi": "#/components/schemas/TextsValuePaged",
-      "list-multi": "#/components/schemas/ListsValuePaged",
-      "location": "#/components/schemas/LocationsValuePaged",
-      "location-multi": "#/components/schemas/LocationsValuePaged",
-      "person": "#/components/schemas/PersonsValuePaged",
-      "person-multi": "#/components/schemas/PersonsValuePaged",
-      "ranked-dropdown": "#/components/schemas/RankedDropdownValuePaged"
-     },
-     "propertyName": "type"
-    },
-    "oneOf": [
-     {
-      "$ref": "#/components/schemas/CompaniesValuePaged"
-     },
-     {
-      "$ref": "#/components/schemas/DropdownsValuePaged"
-     },
-     {
-      "$ref": "#/components/schemas/ListsValuePaged"
-     },
-     {
-      "$ref": "#/components/schemas/LocationsValuePaged"
-     },
-     {
-      "$ref": "#/components/schemas/PersonsValuePaged"
-     },
-     {
-      "$ref": "#/components/schemas/RankedDropdownValuePaged"
-     },
-     {
-      "$ref": "#/components/schemas/TextsValuePaged"
      }
     ]
    },
@@ -5949,7 +5047,6 @@
         "hour",
         "minute",
         "month",
-        "quarter",
         "week",
         "year"
        ],
@@ -6252,7 +5349,13 @@
      "currentCompany": {
       "$ref": "#/components/schemas/InferredConnectionCompanyRef"
      },
-     "fullName": {
+     "firstName": {
+      "type": [
+       "null",
+       "string"
+      ]
+     },
+     "lastName": {
       "type": [
        "null",
        "string"
@@ -6273,7 +5376,8 @@
     },
     "required": [
      "currentCompany",
-     "fullName",
+     "firstName",
+     "lastName",
      "linkedinUrl",
      "title"
     ],
@@ -6316,16 +5420,6 @@
        }
       ]
      },
-     "internalPerson": {
-      "oneOf": [
-       {
-        "$ref": "#/components/schemas/PersonData"
-       },
-       {
-        "type": "null"
-       }
-      ]
-     },
      "type": {
       "const": "interaction",
       "type": "string"
@@ -6333,13 +5427,15 @@
     },
     "required": [
      "data",
-     "internalPerson",
      "type"
     ],
     "type": "object"
    },
    "InvestorExecutiveConnection": {
     "properties": {
+     "confidence": {
+      "type": "number"
+     },
      "dealContext": {
       "$ref": "#/components/schemas/DealContext"
      },
@@ -6352,6 +5448,7 @@
      }
     },
     "required": [
+     "confidence",
      "dealContext",
      "inference",
      "source"
@@ -6446,34 +5543,6 @@
      "isPublic",
      "name",
      "ownerId"
-    ],
-    "type": "object"
-   },
-   "ListData": {
-    "properties": {
-     "entityCount": {
-      "type": "integer"
-     },
-     "id": {
-      "type": "integer"
-     },
-     "name": {
-      "type": "string"
-     },
-     "type": {
-      "enum": [
-       "company",
-       "opportunity",
-       "person"
-      ],
-      "type": "string"
-     }
-    },
-    "required": [
-     "entityCount",
-     "id",
-     "name",
-     "type"
     ],
     "type": "object"
    },
@@ -6591,28 +5660,6 @@
     ],
     "type": "object"
    },
-   "ListEntryToBeCreated": {
-    "properties": {
-     "creatorId": {
-      "type": "integer"
-     },
-     "entity": {
-      "properties": {
-       "id": {
-        "type": "integer"
-       }
-      },
-      "required": [
-       "id"
-      ],
-      "type": "object"
-     }
-    },
-    "required": [
-     "entity"
-    ],
-    "type": "object"
-   },
    "ListEntryWithEntity": {
     "discriminator": {
      "mapping": {
@@ -6672,17 +5719,6 @@
     "required": [
      "data",
      "pagination"
-    ],
-    "type": "object"
-   },
-   "ListReference": {
-    "properties": {
-     "id": {
-      "type": "integer"
-     }
-    },
-    "required": [
-     "id"
     ],
     "type": "object"
    },
@@ -6765,133 +5801,6 @@
     "required": [
      "data",
      "pagination"
-    ],
-    "type": "object"
-   },
-   "ListsFilter": {
-    "discriminator": {
-     "mapping": {
-      "has-all-of": "#/components/schemas/ListsFilterMultiValues",
-      "has-any-of": "#/components/schemas/ListsFilterMultiValues",
-      "has-none-of": "#/components/schemas/ListsFilterMultiValues",
-      "is-empty": "#/components/schemas/ListsFilterNoValue",
-      "is-not-empty": "#/components/schemas/ListsFilterNoValue"
-     },
-     "propertyName": "operator"
-    },
-    "oneOf": [
-     {
-      "$ref": "#/components/schemas/ListsFilterMultiValues"
-     },
-     {
-      "$ref": "#/components/schemas/ListsFilterNoValue"
-     }
-    ]
-   },
-   "ListsFilterMultiValues": {
-    "properties": {
-     "fieldId": {
-      "type": "string"
-     },
-     "operator": {
-      "enum": [
-       "has-all-of",
-       "has-any-of",
-       "has-none-of"
-      ],
-      "type": "string"
-     },
-     "value": {
-      "items": {
-       "$ref": "#/components/schemas/ListReference"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "valueType": {
-      "const": "list-multi",
-      "type": "string"
-     }
-    },
-    "required": [
-     "fieldId",
-     "operator",
-     "value",
-     "valueType"
-    ],
-    "type": "object"
-   },
-   "ListsFilterNoValue": {
-    "properties": {
-     "fieldId": {
-      "type": "string"
-     },
-     "operator": {
-      "enum": [
-       "is-empty",
-       "is-not-empty"
-      ],
-      "type": "string"
-     },
-     "valueType": {
-      "const": "list-multi",
-      "type": "string"
-     }
-    },
-    "required": [
-     "fieldId",
-     "operator",
-     "valueType"
-    ],
-    "type": "object"
-   },
-   "ListsValue": {
-    "properties": {
-     "data": {
-      "items": {
-       "$ref": "#/components/schemas/ListData"
-      },
-      "maxItems": 100,
-      "type": [
-       "array",
-       "null"
-      ]
-     },
-     "totalCount": {
-      "type": "integer"
-     },
-     "type": {
-      "const": "list-multi",
-      "type": "string"
-     }
-    },
-    "required": [
-     "data",
-     "type"
-    ],
-    "type": "object"
-   },
-   "ListsValuePaged": {
-    "properties": {
-     "data": {
-      "items": {
-       "$ref": "#/components/schemas/ListData"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "pagination": {
-      "$ref": "#/components/schemas/Pagination"
-     },
-     "type": {
-      "const": "list-multi",
-      "type": "string"
-     }
-    },
-    "required": [
-     "data",
-     "pagination",
-     "type"
     ],
     "type": "object"
    },
@@ -7158,33 +6067,6 @@
     ],
     "type": "object"
    },
-   "LocationsValuePaged": {
-    "properties": {
-     "data": {
-      "items": {
-       "$ref": "#/components/schemas/Location"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "pagination": {
-      "$ref": "#/components/schemas/Pagination"
-     },
-     "type": {
-      "enum": [
-       "location",
-       "location-multi"
-      ],
-      "type": "string"
-     }
-    },
-    "required": [
-     "data",
-     "pagination",
-     "type"
-    ],
-    "type": "object"
-   },
    "Meeting": {
     "properties": {
      "allDay": {
@@ -7305,29 +6187,6 @@
     "required": [
      "code",
      "message"
-    ],
-    "type": "object"
-   },
-   "NoteValue": {
-    "properties": {
-     "data": {
-      "oneOf": [
-       {
-        "$ref": "#/components/schemas/notes.BaseNote"
-       },
-       {
-        "type": "null"
-       }
-      ]
-     },
-     "type": {
-      "const": "note",
-      "type": "string"
-     }
-    },
-    "required": [
-     "data",
-     "type"
     ],
     "type": "object"
    },
@@ -7546,14 +6405,6 @@
     "required": [
      "id"
     ],
-    "type": "object"
-   },
-   "OpportunityToBeUpdated": {
-    "properties": {
-     "name": {
-      "type": "string"
-     }
-    },
     "type": "object"
    },
    "OpportunityWithFields": {
@@ -7792,56 +6643,6 @@
     "required": [
      "data",
      "totalCount"
-    ],
-    "type": "object"
-   },
-   "PersonDuplicateSuggestion": {
-    "properties": {
-     "duplicateProfiles": {
-      "items": {
-       "$ref": "#/components/schemas/Person"
-      },
-      "maxItems": 1,
-      "type": "array"
-     },
-     "id": {
-      "type": "string"
-     },
-     "matchCriteria": {
-      "enum": [
-       "intelligent",
-       "name"
-      ],
-      "type": "string"
-     },
-     "primaryProfile": {
-      "$ref": "#/components/schemas/Person"
-     }
-    },
-    "required": [
-     "duplicateProfiles",
-     "id",
-     "matchCriteria",
-     "primaryProfile"
-    ],
-    "type": "object"
-   },
-   "PersonDuplicateSuggestionPaged": {
-    "properties": {
-     "data": {
-      "items": {
-       "$ref": "#/components/schemas/PersonDuplicateSuggestion"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "pagination": {
-      "$ref": "#/components/schemas/PaginationWithTotalCount"
-     }
-    },
-    "required": [
-     "data",
-     "pagination"
     ],
     "type": "object"
    },
@@ -8304,33 +7105,6 @@
     ],
     "type": "object"
    },
-   "PersonsValuePaged": {
-    "properties": {
-     "data": {
-      "items": {
-       "$ref": "#/components/schemas/PersonData"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "pagination": {
-      "$ref": "#/components/schemas/Pagination"
-     },
-     "type": {
-      "enum": [
-       "person",
-       "person-multi"
-      ],
-      "type": "string"
-     }
-    },
-    "required": [
-     "data",
-     "pagination",
-     "type"
-    ],
-    "type": "object"
-   },
    "PersonsValueUpdate": {
     "properties": {
      "data": {
@@ -8516,30 +7290,6 @@
     ],
     "type": "object"
    },
-   "RankedDropdownValuePaged": {
-    "properties": {
-     "data": {
-      "items": {
-       "$ref": "#/components/schemas/RankedDropdown"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "pagination": {
-      "$ref": "#/components/schemas/Pagination"
-     },
-     "type": {
-      "const": "ranked-dropdown",
-      "type": "string"
-     }
-    },
-    "required": [
-     "data",
-     "pagination",
-     "type"
-    ],
-    "type": "object"
-   },
    "RankedDropdownValueUpdate": {
     "properties": {
      "data": {
@@ -8563,20 +7313,6 @@
     ],
     "type": "object"
    },
-   "RateLimit": {
-    "properties": {
-     "callerPerMinute": {
-      "$ref": "#/components/schemas/RateLimitWindow"
-     },
-     "orgPerMonth": {
-      "$ref": "#/components/schemas/RateLimitWindow"
-     }
-    },
-    "required": [
-     "callerPerMinute"
-    ],
-    "type": "object"
-   },
    "RateLimitError": {
     "properties": {
      "code": {
@@ -8590,29 +7326,6 @@
     "required": [
      "code",
      "message"
-    ],
-    "type": "object"
-   },
-   "RateLimitWindow": {
-    "properties": {
-     "limit": {
-      "type": "integer"
-     },
-     "remaining": {
-      "type": "integer"
-     },
-     "reset": {
-      "type": "integer"
-     },
-     "used": {
-      "type": "integer"
-     }
-    },
-    "required": [
-     "limit",
-     "remaining",
-     "reset",
-     "used"
     ],
     "type": "object"
    },
@@ -8719,35 +7432,6 @@
        "hour",
        "minute",
        "month",
-       "quarter",
-       "week",
-       "year"
-      ],
-      "type": "string"
-     }
-    },
-    "required": [
-     "amount",
-     "unit"
-    ],
-    "type": "object"
-   },
-   "RelativeDateRange": {
-    "properties": {
-     "amount": {
-      "items": {
-       "type": "integer"
-      },
-      "maxItems": 2,
-      "type": "array"
-     },
-     "unit": {
-      "enum": [
-       "day",
-       "hour",
-       "minute",
-       "month",
-       "quarter",
        "week",
        "year"
       ],
@@ -8775,7 +7459,6 @@
        "hour",
        "minute",
        "month",
-       "quarter",
        "week",
        "year"
       ],
@@ -8785,63 +7468,6 @@
     "required": [
      "amount",
      "unit"
-    ],
-    "type": "object"
-   },
-   "ReminderData": {
-    "properties": {
-     "content": {
-      "type": [
-       "null",
-       "string"
-      ]
-     },
-     "createdAt": {
-      "type": "string"
-     },
-     "dueDate": {
-      "type": "string"
-     },
-     "id": {
-      "type": "integer"
-     },
-     "type": {
-      "enum": [
-       "one-time",
-       "recurring"
-      ],
-      "type": "string"
-     }
-    },
-    "required": [
-     "content",
-     "createdAt",
-     "dueDate",
-     "id",
-     "type"
-    ],
-    "type": "object"
-   },
-   "ReminderValue": {
-    "properties": {
-     "data": {
-      "oneOf": [
-       {
-        "$ref": "#/components/schemas/ReminderData"
-       },
-       {
-        "type": "null"
-       }
-      ]
-     },
-     "type": {
-      "const": "reminder",
-      "type": "string"
-     }
-    },
-    "required": [
-     "data",
-     "type"
     ],
     "type": "object"
    },
@@ -9015,141 +7641,6 @@
     ],
     "type": "object"
    },
-   "Team": {
-    "allOf": [
-     {
-      "$ref": "#/components/schemas/TeamBase"
-     }
-    ],
-    "properties": {
-     "accessibleListsPreview": {
-      "$ref": "#/components/schemas/TeamAccessibleListsPreview"
-     },
-     "membersPreview": {
-      "$ref": "#/components/schemas/TeamMembersPreview"
-     }
-    },
-    "type": "object"
-   },
-   "TeamAccessibleListsPreview": {
-    "properties": {
-     "data": {
-      "items": {
-       "$ref": "#/components/schemas/ListWithType"
-      },
-      "maxItems": 10,
-      "type": "array"
-     },
-     "totalCount": {
-      "type": "integer"
-     }
-    },
-    "required": [
-     "data",
-     "totalCount"
-    ],
-    "type": "object"
-   },
-   "TeamBase": {
-    "properties": {
-     "createdAt": {
-      "type": "string"
-     },
-     "id": {
-      "type": "integer"
-     },
-     "name": {
-      "type": "string"
-     },
-     "privacyType": {
-      "enum": [
-       "hide-subjects-bodies",
-       "no-access",
-       "share-subjects",
-       "share-subjects-bodies"
-      ],
-      "type": "string"
-     },
-     "updatedAt": {
-      "type": [
-       "null",
-       "string"
-      ]
-     }
-    },
-    "required": [
-     "createdAt",
-     "id",
-     "name",
-     "updatedAt"
-    ],
-    "type": "object"
-   },
-   "TeamMember": {
-    "properties": {
-     "addedAt": {
-      "type": "string"
-     },
-     "id": {
-      "type": "integer"
-     },
-     "privacyType": {
-      "enum": [
-       "hide-subjects-bodies",
-       "share-subjects",
-       "share-subjects-bodies"
-      ],
-      "type": "string"
-     },
-     "user": {
-      "$ref": "#/components/schemas/User"
-     }
-    },
-    "required": [
-     "addedAt",
-     "id",
-     "user"
-    ],
-    "type": "object"
-   },
-   "TeamMembersPreview": {
-    "properties": {
-     "data": {
-      "items": {
-       "$ref": "#/components/schemas/TeamMember"
-      },
-      "maxItems": 10,
-      "type": "array"
-     },
-     "totalCount": {
-      "type": "integer"
-     }
-    },
-    "required": [
-     "data",
-     "totalCount"
-    ],
-    "type": "object"
-   },
-   "TeamPaged": {
-    "properties": {
-     "data": {
-      "items": {
-       "$ref": "#/components/schemas/Team"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "pagination": {
-      "$ref": "#/components/schemas/PaginationWithTotalCount"
-     }
-    },
-    "required": [
-     "data",
-     "pagination"
-    ],
-    "type": "object"
-   },
    "Tenant": {
     "properties": {
      "id": {
@@ -9294,33 +7785,6 @@
     },
     "required": [
      "data",
-     "type"
-    ],
-    "type": "object"
-   },
-   "TextsValuePaged": {
-    "properties": {
-     "data": {
-      "items": {
-       "type": "string"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "pagination": {
-      "$ref": "#/components/schemas/Pagination"
-     },
-     "type": {
-      "enum": [
-       "filterable-text",
-       "filterable-text-multi"
-      ],
-      "type": "string"
-     }
-    },
-    "required": [
-     "data",
-     "pagination",
      "type"
     ],
     "type": "object"
@@ -9517,9 +7981,6 @@
       "$ref": "#/components/schemas/FilterableTextsFilter"
      },
      {
-      "$ref": "#/components/schemas/ListsFilter"
-     },
-     {
       "$ref": "#/components/schemas/LocationFilter"
      },
      {
@@ -9550,7 +8011,6 @@
       "dropdown-multi": "#/components/schemas/DropdownsFilter",
       "filterable-text": "#/components/schemas/FilterableTextFilter",
       "filterable-text-multi": "#/components/schemas/FilterableTextsFilter",
-      "list-multi": "#/components/schemas/ListsFilter",
       "location": "#/components/schemas/LocationFilter",
       "location-multi": "#/components/schemas/LocationsFilter",
       "number": "#/components/schemas/NumberFilter",
@@ -9640,8 +8100,7 @@
     "discriminator": {
      "mapping": {
       "dropdown": "#/components/schemas/dropdownOptions.StandardDropdownOptionToBeCreated",
-      "ranked-dropdown": "#/components/schemas/dropdownOptions.RankedDropdownOptionToBeCreated",
-      "status-dropdown": "#/components/schemas/dropdownOptions.StatusDropdownOptionToBeCreated"
+      "ranked-dropdown": "#/components/schemas/dropdownOptions.RankedDropdownOptionToBeCreated"
      },
      "propertyName": "type"
     },
@@ -9651,9 +8110,6 @@
      },
      {
       "$ref": "#/components/schemas/dropdownOptions.StandardDropdownOptionToBeCreated"
-     },
-     {
-      "$ref": "#/components/schemas/dropdownOptions.StatusDropdownOptionToBeCreated"
      }
     ]
    },
@@ -9664,9 +8120,6 @@
      },
      {
       "$ref": "#/components/schemas/dropdownOptions.StandardDropdownOptionToBeUpdated"
-     },
-     {
-      "$ref": "#/components/schemas/dropdownOptions.StatusDropdownOptionToBeUpdated"
      }
     ]
    },
@@ -9784,142 +8237,6 @@
     "properties": {
      "text": {
       "type": "string"
-     }
-    },
-    "type": "object"
-   },
-   "dropdownOptions.StatusDropdownOption": {
-    "allOf": [
-     {
-      "$ref": "#/components/schemas/DropdownOptionBase"
-     }
-    ],
-    "properties": {
-     "color": {
-      "enum": [
-       "blue",
-       "gray",
-       "green",
-       "orange",
-       "purple",
-       "red",
-       "white",
-       null
-      ],
-      "type": [
-       "null",
-       "string"
-      ]
-     },
-     "rank": {
-      "type": "integer"
-     },
-     "statusCategory": {
-      "enum": [
-       "lost",
-       "on-hold",
-       "open",
-       "won"
-      ],
-      "type": "string"
-     },
-     "type": {
-      "const": "status-dropdown",
-      "type": "string"
-     },
-     "winRate": {
-      "type": [
-       "integer",
-       "null"
-      ]
-     }
-    },
-    "required": [
-     "color",
-     "rank",
-     "statusCategory",
-     "type",
-     "winRate"
-    ],
-    "type": "object"
-   },
-   "dropdownOptions.StatusDropdownOptionToBeCreated": {
-    "properties": {
-     "color": {
-      "enum": [
-       "blue",
-       "gray",
-       "green",
-       "orange",
-       "purple",
-       "red",
-       "white"
-      ],
-      "type": "string"
-     },
-     "rank": {
-      "type": "integer"
-     },
-     "statusCategory": {
-      "enum": [
-       "lost",
-       "on-hold",
-       "open",
-       "won"
-      ],
-      "type": "string"
-     },
-     "text": {
-      "type": "string"
-     },
-     "type": {
-      "const": "status-dropdown",
-      "type": "string"
-     },
-     "winRate": {
-      "type": "integer"
-     }
-    },
-    "required": [
-     "color",
-     "rank",
-     "statusCategory",
-     "text",
-     "type"
-    ],
-    "type": "object"
-   },
-   "dropdownOptions.StatusDropdownOptionToBeUpdated": {
-    "properties": {
-     "color": {
-      "enum": [
-       "blue",
-       "gray",
-       "green",
-       "orange",
-       "purple",
-       "red",
-       "white"
-      ],
-      "type": "string"
-     },
-     "rank": {
-      "type": "integer"
-     },
-     "statusCategory": {
-      "enum": [
-       "lost",
-       "on-hold",
-       "open",
-       "won"
-      ],
-      "type": "string"
-     },
-     "text": {
-      "type": "string"
-     },
-     "winRate": {
-      "type": "integer"
      }
     },
     "type": "object"
@@ -10692,97 +9009,6 @@
     ],
     "type": "object"
    },
-   "files.File": {
-    "allOf": [
-     {
-      "$ref": "#/components/schemas/files.FileBase"
-     }
-    ],
-    "properties": {
-     "downloadUrl": {
-      "type": "string"
-     }
-    },
-    "required": [
-     "downloadUrl"
-    ],
-    "type": "object"
-   },
-   "files.FileBase": {
-    "properties": {
-     "createdAt": {
-      "type": "string"
-     },
-     "creator": {
-      "oneOf": [
-       {
-        "$ref": "#/components/schemas/PersonReference"
-       },
-       {
-        "type": "null"
-       }
-      ]
-     },
-     "id": {
-      "type": "integer"
-     },
-     "name": {
-      "type": "string"
-     },
-     "size": {
-      "type": "integer"
-     },
-     "type": {
-      "type": [
-       "null",
-       "string"
-      ]
-     },
-     "updatedAt": {
-      "type": [
-       "null",
-       "string"
-      ]
-     }
-    },
-    "required": [
-     "createdAt",
-     "creator",
-     "id",
-     "name",
-     "size",
-     "type",
-     "updatedAt"
-    ],
-    "type": "object"
-   },
-   "files.FileSummary": {
-    "allOf": [
-     {
-      "$ref": "#/components/schemas/files.FileBase"
-     }
-    ],
-    "type": "object"
-   },
-   "files.FileSummaryPaged": {
-    "properties": {
-     "data": {
-      "items": {
-       "$ref": "#/components/schemas/files.FileSummary"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "pagination": {
-      "$ref": "#/components/schemas/PaginationWithTotalCount"
-     }
-    },
-    "required": [
-     "data",
-     "pagination"
-    ],
-    "type": "object"
-   },
    "files.KeywordSearchCriteria": {
     "anyOf": [
      {
@@ -11208,10 +9434,7 @@
       "$ref": "#/components/schemas/notes.MeetingInteraction"
      },
      "transcriptId": {
-      "type": [
-       "integer",
-       "null"
-      ]
+      "type": "integer"
      },
      "type": {
       "const": "ai-notetaker-reply",
@@ -11235,10 +9458,7 @@
       "$ref": "#/components/schemas/notes.MeetingInteraction"
      },
      "transcriptId": {
-      "type": [
-       "integer",
-       "null"
-      ]
+      "type": "integer"
      },
      "type": {
       "const": "ai-notetaker",
@@ -12000,45 +10220,6 @@
     ],
     "type": "object"
    },
-   "persons.PersonToCreate": {
-    "properties": {
-     "emailAddresses": {
-      "items": {
-       "type": "string"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "fields": {
-      "items": {
-       "$ref": "#/components/schemas/fields.FieldUpdate"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "firstName": {
-      "type": "string"
-     },
-     "lastName": {
-      "type": [
-       "null",
-       "string"
-      ]
-     },
-     "primaryEmailAddress": {
-      "type": [
-       "null",
-       "string"
-      ]
-     }
-    },
-    "required": [
-     "firstName",
-     "lastName",
-     "primaryEmailAddress"
-    ],
-    "type": "object"
-   },
    "reminders.BaseReminder": {
     "properties": {
      "company": {
@@ -12365,53 +10546,6 @@
      }
     ]
    },
-   "reminders.ReminderToBeUpdated": {
-    "properties": {
-     "completedAt": {
-      "type": [
-       "null",
-       "string"
-      ]
-     },
-     "content": {
-      "type": [
-       "null",
-       "string"
-      ]
-     },
-     "dueDate": {
-      "type": "string"
-     },
-     "owner": {
-      "properties": {
-       "id": {
-        "type": "integer"
-       }
-      },
-      "required": [
-       "id"
-      ],
-      "type": "object"
-     },
-     "recurrence": {
-      "properties": {
-       "periodDays": {
-        "type": "integer"
-       },
-       "resetTrigger": {
-        "enum": [
-         "email",
-         "event",
-         "interaction"
-        ],
-        "type": "string"
-       }
-      },
-      "type": "object"
-     }
-    },
-    "type": "object"
-   },
    "reminders.TaggedCompany": {
     "properties": {
      "id": {
@@ -12603,160 +10737,12 @@
      "pagination"
     ],
     "type": "object"
-   },
-   "webhooks.SubscriptionType": {
-    "enum": [
-     "field.created",
-     "field.deleted",
-     "field.updated",
-     "field_value.created",
-     "field_value.deleted",
-     "field_value.updated",
-     "file.created",
-     "file.deleted",
-     "list.created",
-     "list.deleted",
-     "list.updated",
-     "list_entry.created",
-     "list_entry.deleted",
-     "note.created",
-     "note.deleted",
-     "note.updated",
-     "opportunity.created",
-     "opportunity.deleted",
-     "opportunity.updated",
-     "organization.created",
-     "organization.deleted",
-     "organization.merged",
-     "organization.updated",
-     "person.created",
-     "person.deleted",
-     "person.updated",
-     "reminder.created",
-     "reminder.deleted",
-     "reminder.updated",
-     "smart_interaction_value.updated"
-    ],
-    "type": "string"
-   },
-   "webhooks.Webhook": {
-    "properties": {
-     "createdAt": {
-      "type": "string"
-     },
-     "creator": {
-      "oneOf": [
-       {
-        "$ref": "#/components/schemas/PersonReference"
-       },
-       {
-        "type": "null"
-       }
-      ]
-     },
-     "id": {
-      "type": "integer"
-     },
-     "status": {
-      "enum": [
-       "active",
-       "disabled"
-      ],
-      "type": "string"
-     },
-     "subscriptions": {
-      "items": {
-       "$ref": "#/components/schemas/webhooks.SubscriptionType"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "updatedAt": {
-      "type": [
-       "null",
-       "string"
-      ]
-     },
-     "url": {
-      "type": "string"
-     }
-    },
-    "required": [
-     "createdAt",
-     "creator",
-     "id",
-     "status",
-     "subscriptions",
-     "updatedAt",
-     "url"
-    ],
-    "type": "object"
-   },
-   "webhooks.WebhookPaged": {
-    "properties": {
-     "data": {
-      "items": {
-       "$ref": "#/components/schemas/webhooks.Webhook"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "pagination": {
-      "$ref": "#/components/schemas/PaginationWithTotalCount"
-     }
-    },
-    "required": [
-     "data",
-     "pagination"
-    ],
-    "type": "object"
-   },
-   "webhooks.WebhookToBeCreated": {
-    "properties": {
-     "subscriptions": {
-      "items": {
-       "$ref": "#/components/schemas/webhooks.SubscriptionType"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "url": {
-      "type": "string"
-     }
-    },
-    "required": [
-     "subscriptions",
-     "url"
-    ],
-    "type": "object"
-   },
-   "webhooks.WebhookToBeUpdated": {
-    "properties": {
-     "status": {
-      "enum": [
-       "active",
-       "disabled"
-      ],
-      "type": "string"
-     },
-     "subscriptions": {
-      "items": {
-       "$ref": "#/components/schemas/webhooks.SubscriptionType"
-      },
-      "maxItems": 100,
-      "type": "array"
-     },
-     "url": {
-      "type": "string"
-     }
-    },
-    "type": "object"
    }
   }
  },
  "source": {
-  "sha": "fd23f569a6f5cb4b57c9cee03fc4d58bf086da01",
-  "url": "https://raw.githubusercontent.com/yaniv-golan/affinity-api-docs/fd23f569a6f5cb4b57c9cee03fc4d58bf086da01/docs/v2/openapi.json",
-  "x-affinity-api-version": "2026-09-17"
+  "sha": "6ec5a3104d34ac94888aef78b2afe3c5cda59a46",
+  "url": "https://raw.githubusercontent.com/yaniv-golan/affinity-api-docs/6ec5a3104d34ac94888aef78b2afe3c5cda59a46/docs/v2/versions/openapi-2024-01-01.json",
+  "x-affinity-api-version": "2024-01-01"
  }
 }

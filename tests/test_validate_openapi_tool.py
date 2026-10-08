@@ -25,13 +25,9 @@ from affinity.models.types import OpenIntEnum, OpenStrEnum
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TOOL_PATH = REPO_ROOT / "tools" / "validate_openapi_models.py"
 FIXTURE_SPEC = REPO_ROOT / "tests" / "fixtures" / "openapi" / "mini_openapi.json"
-COMMITTED_SNAPSHOT = REPO_ROOT / "tools" / "openapi_snapshot.json"
-LOCAL_UPSTREAM_SPEC = REPO_ROOT.parent / "affinity-api-docs" / "docs" / "v2" / "openapi.json"
+SNAPSHOT_DIR = REPO_ROOT / "tools" / "openapi_snapshots"
 # Worktrees live under <repo>/.claude/worktrees/<name>; also look next to the main checkout.
-_ALT_UPSTREAM = [
-    LOCAL_UPSTREAM_SPEC,
-    *(p.parent / "affinity-api-docs" / "docs" / "v2" / "openapi.json" for p in REPO_ROOT.parents),
-]
+_UPSTREAM_ROOTS = [p / "affinity-api-docs" for p in (REPO_ROOT.parent, *REPO_ROOT.parents[1:])]
 
 
 def _load_tool() -> ModuleType:
@@ -591,22 +587,288 @@ class TestRealConfiguration:
             assert isinstance(key, tuple) and len(key) == 2
             assert reason.strip(), key
 
-    def test_committed_snapshot_records_source(self) -> None:
-        data = json.loads(COMMITTED_SNAPSHOT.read_text())
+    def test_spec_paths_match_the_sdk_known_versions(self) -> None:
+        from affinity.api_versions import KNOWN_AFFINITY_API_VERSIONS
+
+        assert sorted(tool.SPEC_PATHS) == sorted(KNOWN_AFFINITY_API_VERSIONS)
+
+    def test_one_committed_snapshot_per_version(self) -> None:
+        assert sorted(p.stem for p in SNAPSHOT_DIR.glob("*.json")) == sorted(tool.SPEC_PATHS)
+
+    @pytest.mark.parametrize("version", sorted(tool.SPEC_PATHS))
+    def test_committed_snapshot_records_source(self, version: str) -> None:
+        data = json.loads((SNAPSHOT_DIR / f"{version}.json").read_text())
         sha = data["source"]["sha"]
         assert len(sha) == 40 and all(c in "0123456789abcdef" for c in sha)
-        assert data["source"]["url"] == tool.pinned_url(sha)
+        assert data["source"]["url"] == tool.pinned_url(sha, tool.SPEC_PATHS[version])
+        assert data["source"]["x-affinity-api-version"] == version
         assert data["digest"]["operations"]
         assert data["digest"]["schemas"]
 
-    def test_green_on_day_one_against_local_upstream_spec(self) -> None:
-        upstream = next((p for p in _ALT_UPSTREAM if p.is_file()), None)
+    @pytest.mark.parametrize("version", sorted(tool.SPEC_PATHS))
+    def test_green_on_day_one_against_local_upstream_spec(self, version: str) -> None:
+        candidates = [root / tool.SPEC_PATHS[version] for root in _UPSTREAM_ROOTS]
+        upstream = next((p for p in candidates if p.is_file()), None)
         if upstream is None:
-            pytest.skip("affinity-api-docs checkout not found next to this repo")
-        snapshot = json.loads(COMMITTED_SNAPSHOT.read_text())
+            pytest.skip(
+                "affinity-api-docs checkout (with this version) not found next to this repo"
+            )
+        snapshot = json.loads((SNAPSHOT_DIR / f"{version}.json").read_text())
         spec = json.loads(upstream.read_text())
         if tool.build_digest(spec) != snapshot["digest"]:
             pytest.skip("local affinity-api-docs is at a different revision than the snapshot")
         report = tool.run_checks(spec, config=tool.default_config(), snapshot=snapshot)
         assert report.errors == []
         assert report.exit_code == 0
+
+
+# ---------------------------------------------------------------------------
+# §E every API version: required / nullable, `since`, the per-version loop
+# ---------------------------------------------------------------------------
+
+
+class TestRequiredAndNullable:
+    def test_required_properties_through_compositions(self, spec: dict[str, Any]) -> None:
+        schema = {
+            "allOf": [{"required": ["a"]}],
+            "oneOf": [{"required": ["b", "c"]}, {"required": ["b"]}],
+            "required": ["d"],
+        }
+        assert tool.required_properties(spec, schema) == {"a", "b", "d"}
+        widget = tool.required_properties(spec, {"$ref": "#/components/schemas/Widget"})
+        assert {"name", "kind"} <= widget
+
+    def test_nullable_forms(self, spec: dict[str, Any]) -> None:
+        assert tool.is_nullable(spec, {"type": ["string", "null"]})
+        assert tool.is_nullable(spec, {"nullable": True, "type": "string"})
+        assert tool.is_nullable(spec, {"anyOf": [{"type": "string"}, {"type": "null"}]})
+        assert tool.is_nullable(spec, {"enum": ["a", None]})
+        assert not tool.is_nullable(spec, {"type": "string"})
+        spec["components"]["schemas"]["NullableStr"] = {"type": ["string", "null"]}
+        ref = {"$ref": "#/components/schemas/NullableStr"}
+        assert tool.is_nullable(spec, ref)
+        assert tool.is_nullable(spec, {"allOf": [ref], "description": "wrapped"})
+        assert not tool.is_nullable(spec, {"allOf": [ref, {"type": "string"}]})
+
+    def test_accepts_none(self) -> None:
+        from typing import Annotated, Literal, Optional
+
+        assert tool.accepts_none(str | None)
+        assert tool.accepts_none(Optional[int])  # noqa: UP045
+        assert tool.accepts_none(Annotated[str | None, "x"])
+        assert tool.accepts_none(Literal["a", None])
+        assert tool.accepts_none(Any)
+        assert not tool.accepts_none(str)
+        assert not tool.accepts_none(list[str])
+
+    def test_field_without_default_on_optional_property_is_an_error(
+        self, spec: dict[str, Any], kind_gap: dict[tuple[str, str], str]
+    ) -> None:
+        class RequiresIsPublic(WidgetModel):
+            is_public: bool = Field(alias="isPublic")  # spec: optional
+
+        config = _config(models={"Widget": RequiresIsPublic, "Note": NoteModel})
+        config.known_gaps.update(kind_gap)
+        errors = _errors(spec, config)
+        assert any("is_public" in e and "isPublic" in e and "optional" in e for e in errors)
+
+        config.known_gaps[("Widget", "required:isPublic")] = "test"
+        assert _errors(spec, config) == []
+
+    def test_multi_schema_mapping_needs_the_property_required_by_every_schema(
+        self, spec: dict[str, Any]
+    ) -> None:
+        schemas = spec["components"]["schemas"]
+        schemas["A"] = {"properties": {"x": {"type": "string"}}, "required": ["x"]}
+        schemas["B"] = {"properties": {"x": {"type": "string"}}}
+
+        class M(_Model):
+            x: str
+
+        result = tool.validate_model(spec, "M", M, ("A", "B"), known_gaps={}, known_extensions={})
+        assert any("'x'" in e and "optional" in e for e in result.errors), result.errors
+        schemas["B"]["required"] = ["x"]
+        result = tool.validate_model(spec, "M", M, ("A", "B"), known_gaps={}, known_extensions={})
+        assert result.errors == []
+
+    def test_nullable_in_a_later_variant_is_an_error(self, spec: dict[str, Any]) -> None:
+        spec["components"]["schemas"]["C"] = {
+            "oneOf": [
+                {"properties": {"y": {"type": "string"}}, "required": ["y"]},
+                {"properties": {"y": {"type": ["string", "null"]}}, "required": ["y"]},
+            ]
+        }
+
+        class M(_Model):
+            y: str
+
+        result = tool.validate_model(spec, "M", M, ("C",), known_gaps={}, known_extensions={})
+        assert any("'y'" in e and "nullable" in e for e in result.errors), result.errors
+
+    def test_field_rejecting_none_on_nullable_property_is_an_error(
+        self, spec: dict[str, Any], kind_gap: dict[tuple[str, str], str]
+    ) -> None:
+        class NameNotNullable(WidgetModel):
+            name: str = ""  # spec: ["string", "null"]
+
+        config = _config(models={"Widget": NameNotNullable, "Note": NoteModel})
+        config.known_gaps.update(kind_gap)
+        errors = _errors(spec, config)
+        assert any("'name'" in e and "nullable" in e for e in errors), errors
+
+        config.known_gaps[("Widget", "nullable:name")] = "test"
+        assert _errors(spec, config) == []
+
+
+class TestEnumSince:
+    def _check(self, where: str, since: str) -> Any:
+        return tool.EnumCheck(Kind, (tool.EnumLocation(where, since=since),))
+
+    def test_absent_before_since_is_fine(self, spec: dict[str, Any]) -> None:
+        # The fixture spec is version 2026-01-01.
+        check = self._check("#/components/schemas/Gadget/properties/kind", "2026-07-15")
+        assert tool.check_enum(spec, check, {}).errors == []
+
+    def test_resolving_before_since_is_stale(self, spec: dict[str, Any]) -> None:
+        check = self._check("#/components/schemas/Widget/properties/kind", "2026-07-15")
+        errors = tool.check_enum(spec, check, {}).errors
+        assert any("before its since=2026-07-15" in e for e in errors), errors
+
+    def test_missing_from_since_on_is_an_error(self, spec: dict[str, Any]) -> None:
+        check = self._check("#/components/schemas/Gadget/properties/kind", "2024-01-01")
+        assert any("no longer resolves" in e for e in tool.check_enum(spec, check, {}).errors)
+
+
+class TestMainAllVersions:
+    SHA = "a" * 40
+
+    @pytest.fixture
+    def mirror(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, spec: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Two versions served by a fake affinity-api-docs; snapshots in tmp_path."""
+        paths = {
+            "2026-01-01": "docs/v2/versions/openapi-2026-01-01.json",
+            "2026-02-01": "docs/v2/openapi.json",
+        }
+        served: dict[str, Any] = {}
+        for version, path in paths.items():
+            versioned = copy.deepcopy(spec)
+            versioned["info"]["x-affinity-api-version"] = version
+            for ref in ("main", self.SHA):
+                served[tool.spec_url(ref, path)] = versioned
+        fetched: list[str] = []
+
+        def fake_fetch(url: str) -> dict[str, Any]:
+            fetched.append(url)
+            if url not in served:
+                raise RuntimeError(f"404 {url}")
+            return copy.deepcopy(served[url])
+
+        monkeypatch.setattr(tool, "SPEC_PATHS", paths)
+        monkeypatch.setattr(tool, "SNAPSHOT_DIR", tmp_path)
+        monkeypatch.setattr(tool, "fetch_openapi_schema", fake_fetch)
+        return {"paths": paths, "served": served, "fetched": fetched, "dir": tmp_path}
+
+    def test_update_then_check_every_version(
+        self, mirror: dict[str, Any], kind_gap: dict[tuple[str, str], str]
+    ) -> None:
+        config = _config(known_gaps=kind_gap)
+        assert tool.main([], config=config) == 2  # no snapshots yet
+        assert tool.main(["--ref", "main", "--update-snapshot"], config=config) == 2  # no sha
+        assert tool.main(["--ref", self.SHA, "--update-snapshot"], config=config) == 0
+        for version, path in mirror["paths"].items():
+            data = json.loads((mirror["dir"] / f"{version}.json").read_text())
+            assert data["source"]["url"] == tool.pinned_url(self.SHA, path)
+            assert data["source"]["x-affinity-api-version"] == version
+        assert tool.main([], config=config) == 0
+        assert tool.main(["--pinned"], config=config) == 0
+
+    def test_pinned_fetches_the_recorded_url(
+        self, mirror: dict[str, Any], kind_gap: dict[tuple[str, str], str]
+    ) -> None:
+        config = _config(known_gaps=kind_gap)
+        assert tool.main(["--ref", self.SHA, "--update-snapshot"], config=config) == 0
+        # The mirror moves 2026-02-01 to versions/ (a newer version became current); the
+        # pinned run still reads the files recorded in the snapshots.
+        mirror["paths"]["2026-02-01"] = "docs/v2/versions/openapi-2026-02-01.json"
+        mirror["fetched"].clear()
+        assert tool.main(["--pinned"], config=config) == 0
+        assert mirror["fetched"] == [
+            tool.pinned_url(self.SHA, "docs/v2/versions/openapi-2026-01-01.json"),
+            tool.pinned_url(self.SHA, "docs/v2/openapi.json"),
+        ]
+
+    def test_spec_of_another_version_exits_2(
+        self, mirror: dict[str, Any], kind_gap: dict[tuple[str, str], str]
+    ) -> None:
+        config = _config(known_gaps=kind_gap)
+        assert tool.main(["--ref", self.SHA, "--update-snapshot"], config=config) == 0
+        moved = mirror["served"][tool.spec_url("main", "docs/v2/openapi.json")]
+        moved["info"]["x-affinity-api-version"] = "2026-03-01"
+        assert tool.main([], config=config) == 2
+
+    def test_exit_code_is_the_worst_version(
+        self, mirror: dict[str, Any], kind_gap: dict[tuple[str, str], str]
+    ) -> None:
+        config = _config(known_gaps=kind_gap)
+        assert tool.main(["--ref", self.SHA, "--update-snapshot"], config=config) == 0
+        drifted = mirror["served"][
+            tool.spec_url("main", "docs/v2/versions/openapi-2026-01-01.json")
+        ]
+        drifted["paths"]["/v2/widgets"]["get"]["x-stability-level"] = "ga"
+        assert tool.main([], config=config) == 1
+        assert tool.main(["--api-version", "2026-02-01"], config=config) == 0
+
+    @pytest.mark.usefixtures("mirror")
+    def test_snapshot_flag_needs_one_version(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str], kind_gap: Any
+    ) -> None:
+        snap = tmp_path / "x.json"
+        args = ["--offline", str(FIXTURE_SPEC), "--snapshot", str(snap)]
+        tool.main([*args, "--update-snapshot", "--source-sha", self.SHA], config=_config())
+        capsys.readouterr()
+        assert tool.main(["--snapshot", str(snap)], config=_config(known_gaps=kind_gap)) == 2
+        assert "--snapshot needs --api-version" in capsys.readouterr().err
+
+    @pytest.mark.usefixtures("mirror")
+    def test_source_sha_only_with_offline(self, capsys: pytest.CaptureFixture[str]) -> None:
+        args = ["--ref", "main", "--update-snapshot", "--source-sha", self.SHA]
+        assert tool.main(args, config=_config()) == 2
+        assert "--source-sha is only for --offline" in capsys.readouterr().err
+
+    @pytest.mark.usefixtures("mirror")
+    def test_ref_conflicts_with_pinned_and_offline(self) -> None:
+        for args in (["--pinned", "--ref", "main"], ["--offline", "x", "--ref", "main"]):
+            with pytest.raises(SystemExit) as exc:
+                tool.main(args, config=_config())
+            assert exc.value.code == 2
+
+    def test_offline_version_without_a_snapshot_name_exits_2(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        monkeypatch.setattr(tool, "SNAPSHOT_DIR", tmp_path)  # 2026-01-01 is not in SPEC_PATHS
+        args = ["--offline", str(FIXTURE_SPEC), "--update-snapshot", "--source-sha", self.SHA]
+        assert tool.main(args, config=_config()) == 2
+        assert not list(tmp_path.iterdir())
+
+    def test_pinned_snapshot_without_url_exits_2(
+        self, mirror: dict[str, Any], kind_gap: dict[tuple[str, str], str]
+    ) -> None:
+        config = _config(known_gaps=kind_gap)
+        assert tool.main(["--ref", self.SHA, "--update-snapshot"], config=config) == 0
+        path = mirror["dir"] / "2026-01-01.json"
+        data = json.loads(path.read_text())
+        del data["source"]["url"]
+        path.write_text(json.dumps(data))
+        assert tool.main(["--pinned"], config=config) == 2
+
+    def test_offline_uses_the_versions_snapshot(
+        self, mirror: dict[str, Any], kind_gap: dict[tuple[str, str], str]
+    ) -> None:
+        config = _config(known_gaps=kind_gap)
+        args = ["--offline", str(FIXTURE_SPEC)]
+        assert tool.main([*args, "--update-snapshot", "--source-sha", self.SHA], config=config) == 0
+        assert (mirror["dir"] / "2026-01-01.json").is_file()
+        assert tool.main(args, config=config) == 0
+        assert tool.main([*args, "--api-version", "2026-02-01"], config=config) == 2

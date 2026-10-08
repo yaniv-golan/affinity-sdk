@@ -178,11 +178,16 @@ async def test_async_get_fields_sends_filter_and_includes(path: str, fetch: Any)
     assert "filter" not in requests[1].url.params
 
 
-# The committed spec digest lists every operation's declared parameters; the API silently
-# drops unknown query parameters, so sending one (as ``fieldTypes`` once was) is a no-op bug.
-_SPEC_OPERATIONS: dict[str, Any] = json.loads(
-    (Path(__file__).resolve().parents[1] / "tools" / "openapi_snapshot.json").read_text()
-)["digest"]["operations"]
+# The committed spec digests (one per Affinity API version) list every operation's declared
+# parameters; the API silently drops unknown query parameters, so sending one (as
+# ``fieldTypes`` once was) is a no-op bug. A key may default to any version, so a parameter
+# must be declared in all of them.
+_SPEC_OPERATIONS_BY_VERSION: dict[str, dict[str, Any]] = {
+    path.stem: json.loads(path.read_text())["digest"]["operations"]
+    for path in sorted(
+        (Path(__file__).resolve().parents[1] / "tools" / "openapi_snapshots").glob("*.json")
+    )
+}
 
 _SPEC_OPERATION_IDS = {
     "/companies/fields": "GET /v2/companies/fields",
@@ -192,11 +197,17 @@ _SPEC_OPERATION_IDS = {
 
 
 def _assert_declared_query_params(path: str, request: httpx.Request) -> None:
-    declared = {
-        name.removeprefix("query:")
-        for name in _SPEC_OPERATIONS[_SPEC_OPERATION_IDS[path]]["parameters"]
-        if name.startswith("query:")
-    }
+    assert len(_SPEC_OPERATIONS_BY_VERSION) >= 3
+    declared = set.intersection(
+        *(
+            {
+                name.removeprefix("query:")
+                for name in operations[_SPEC_OPERATION_IDS[path]]["parameters"]
+                if name.startswith("query:")
+            }
+            for operations in _SPEC_OPERATIONS_BY_VERSION.values()
+        )
+    )
     sent = set(request.url.params.keys())
     assert sent, "expected the call to send query parameters"
     assert sent <= declared, f"{path} sends undeclared query params {sorted(sent - declared)}"

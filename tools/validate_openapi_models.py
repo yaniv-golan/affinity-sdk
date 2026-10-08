@@ -4,28 +4,34 @@ Validate SDK models against Affinity's official V2 OpenAPI specification.
 
 TR-013: OpenAPI Schema Alignment (V2)
 
-Three checks, each of which fails the run (exit 1):
+Affinity's V2 API has several versions (``SPEC_PATHS``) and each API key defaults to one, so
+the SDK must parse every version's payloads. By default the tool checks every version, one
+spec at a time; each check fails the run (exit 1):
 
 1. **Models** - every property of a mapped spec schema must be read by the SDK model
    (matched on the field's alias / accepted input keys, not its Python name). Composed
    schemas are resolved fully: ``allOf`` members plus the schema's own ``properties``, and
-   the union of ``oneOf`` / ``anyOf`` variants.
+   the union of ``oneOf`` / ``anyOf`` variants. An SDK field with no default must be
+   required by the spec, and an SDK field that rejects ``None`` must not be nullable there.
 2. **Enums** - every spec member at every mapped location must exist in the SDK enum.
 3. **Spec drift** - a normalized digest of the spec (operations, parameters, response
    refs, properties, types, enums, ``const``, ``maxItems``, ``required``, compositions,
-   discriminators) must equal the committed ``tools/openapi_snapshot.json``.
+   discriminators) must equal the committed ``tools/openapi_snapshots/<version>.json``.
 
 Deliberate gaps are listed in ``KNOWN_GAPS`` with a reason. The list is strict: an entry
 that no longer matches anything is itself an error, so it cannot rot.
 
 Usage:
-    python tools/validate_openapi_models.py [--offline PATH | --url URL | --pinned]
+    python tools/validate_openapi_models.py [--api-version V] [--pinned | --ref REF]
+        [--update-snapshot] [--verbose]
+    python tools/validate_openapi_models.py (--offline PATH | --url URL)
         [--snapshot PATH] [--update-snapshot [--source-sha SHA]] [--verbose]
 
-Exit codes:
+Exit codes (the highest over all versions checked):
     0 - No errors and no drift
     1 - Validation errors or spec drift found
-    2 - Schema fetch/parse error, missing snapshot, or bad arguments
+    2 - Schema fetch/parse error, a spec of the wrong version, missing snapshot, or bad
+        arguments
 """
 
 from __future__ import annotations
@@ -34,6 +40,8 @@ import argparse
 import json
 import re
 import sys
+import types
+import typing
 import urllib.request
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
@@ -44,16 +52,21 @@ from typing import Any
 from pydantic import AliasChoices, AliasPath, BaseModel
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_SNAPSHOT_PATH = Path(__file__).resolve().parent / "openapi_snapshot.json"
+SNAPSHOT_DIR = Path(__file__).resolve().parent / "openapi_snapshots"
 
-# Default OpenAPI schema URL (upstream main)
-OPENAPI_SCHEMA_URL = (
-    "https://raw.githubusercontent.com/yaniv-golan/affinity-api-docs/main/docs/v2/openapi.json"
-)
-_PINNED_URL_TEMPLATE = (
-    "https://raw.githubusercontent.com/yaniv-golan/affinity-api-docs/{sha}/docs/v2/openapi.json"
-)
+# Where affinity-api-docs keeps each version's spec: the current version is openapi.json,
+# older ones are under versions/. When Affinity ships a new version the mirror moves the
+# files; a spec that declares another version than expected is then reported (exit 2).
+# Keys must equal affinity.api_versions.KNOWN_AFFINITY_API_VERSIONS.
+CURRENT_SPEC_PATH = "docs/v2/openapi.json"
+SPEC_PATHS: dict[str, str] = {
+    "2024-01-01": "docs/v2/versions/openapi-2024-01-01.json",
+    "2026-07-15": "docs/v2/versions/openapi-2026-07-15.json",
+    "2026-09-17": CURRENT_SPEC_PATH,
+}
+_URL_TEMPLATE = "https://raw.githubusercontent.com/yaniv-golan/affinity-api-docs/{ref}/{path}"
 _SHA_IN_URL = re.compile(r"/affinity-api-docs/([0-9a-f]{40})/")
+_SHA = re.compile(r"^[0-9a-f]{40}$")
 
 _HTTP_METHODS = ("get", "put", "post", "delete", "patch", "options", "head", "trace")
 _MAX_DIFF_LINES = 200
@@ -156,6 +169,8 @@ class EnumLocation:
 
     where: str
     kind: str = "enum"  # "enum" | "const" | "discriminator" | "param"
+    # First API version that has this location; in older versions it must not resolve.
+    since: str | None = None
 
 
 @dataclass(frozen=True)
@@ -221,7 +236,7 @@ def default_enum_checks() -> tuple[EnumCheck, ...]:
         ),
         EnumCheck(
             WebhookEvent,
-            (EnumLocation(_schema_ptr("webhooks.SubscriptionType")),),
+            (EnumLocation(_schema_ptr("webhooks.SubscriptionType"), since="2026-07-15"),),
         ),
         EnumCheck(
             ListType,
@@ -298,8 +313,20 @@ def load_openapi_schema(path: str) -> dict[str, Any]:
         return result
 
 
-def pinned_url(sha: str) -> str:
-    return _PINNED_URL_TEMPLATE.format(sha=sha)
+def spec_url(ref: str, path: str = CURRENT_SPEC_PATH) -> str:
+    return _URL_TEMPLATE.format(ref=ref, path=path)
+
+
+# Upstream main, current version.
+OPENAPI_SCHEMA_URL = spec_url("main")
+
+
+def pinned_url(sha: str, path: str = CURRENT_SPEC_PATH) -> str:
+    return spec_url(sha, path)
+
+
+def snapshot_path_for(version: str) -> Path:
+    return SNAPSHOT_DIR / f"{version}.json"
 
 
 def sha_from_url(url: str) -> str | None:
@@ -310,6 +337,12 @@ def sha_from_url(url: str) -> str | None:
 def spec_version(spec: Mapping[str, Any]) -> str:
     info = spec.get("info", {})
     return str(info.get("x-affinity-api-version") or info.get("version") or "unknown")
+
+
+def declared_api_version(spec: Mapping[str, Any]) -> str | None:
+    """The spec's ``info.x-affinity-api-version`` (no fallback), or None."""
+    value = spec.get("info", {}).get("x-affinity-api-version")
+    return str(value) if value else None
 
 
 # =============================================================================
@@ -371,6 +404,97 @@ def resolve_properties(
                 props.setdefault(name, prop)
     props.update(schema.get("properties", {}))
     return props
+
+
+def required_properties(
+    spec: Mapping[str, Any],
+    schema: Mapping[str, Any],
+    _seen: frozenset[str] = frozenset(),
+) -> set[str]:
+    """Properties every payload matching ``schema`` carries.
+
+    The schema's own ``required``, ``$ref`` targets and ``allOf`` members add up; of
+    ``oneOf`` / ``anyOf`` only what every variant requires counts.
+    """
+    if not isinstance(schema, Mapping):
+        return set()
+    required = {str(p) for p in schema.get("required", [])}
+    ref = schema.get("$ref")
+    if ref is not None and ref not in _seen:
+        required |= required_properties(spec, resolve_pointer(spec, ref), _seen | {ref})
+    for sub in schema.get("allOf", []):
+        required |= required_properties(spec, sub, _seen)
+    for key in ("oneOf", "anyOf"):
+        variants = schema.get(key)
+        if variants:
+            required |= set.intersection(
+                *(required_properties(spec, sub, _seen) for sub in variants)
+            )
+    return required
+
+
+def property_schemas(
+    spec: Mapping[str, Any],
+    schema: Mapping[str, Any],
+    _seen: frozenset[str] = frozenset(),
+) -> dict[str, list[Any]]:
+    """Every schema each property has, across ``allOf`` members and ``oneOf`` / ``anyOf``
+    variants (``resolve_properties`` keeps only one)."""
+    out: dict[str, list[Any]] = {}
+    if not isinstance(schema, Mapping):
+        return out
+
+    def add(found: Mapping[str, list[Any]]) -> None:
+        for name, schemas in found.items():
+            out.setdefault(name, []).extend(schemas)
+
+    ref = schema.get("$ref")
+    if ref is not None and ref not in _seen:
+        add(property_schemas(spec, resolve_pointer(spec, ref), _seen | {ref}))
+    for key in ("allOf", "oneOf", "anyOf"):
+        for sub in schema.get(key, []):
+            add(property_schemas(spec, sub, _seen))
+    add({name: [prop] for name, prop in schema.get("properties", {}).items()})
+    return out
+
+
+def is_nullable(spec: Mapping[str, Any], schema: Any, _seen: frozenset[str] = frozenset()) -> bool:
+    """Whether a property schema allows ``null``."""
+    if not isinstance(schema, Mapping):
+        return False
+    t = schema.get("type")
+    if schema.get("nullable") is True or t == "null" or (isinstance(t, list) and "null" in t):
+        return True
+    if None in schema.get("enum", []) or ("const" in schema and schema["const"] is None):
+        return True
+    ref = schema.get("$ref")
+    if ref is not None and ref not in _seen:
+        try:
+            target = resolve_pointer(spec, ref)
+        except (KeyError, IndexError, ValueError):
+            return False
+        if is_nullable(spec, target, _seen | {ref}):
+            return True
+    all_of = schema.get("allOf", [])
+    if all_of and all(is_nullable(spec, sub, _seen) for sub in all_of):
+        return True  # e.g. {"allOf": [{"$ref": ".../NullableX"}], "description": ...}
+    return any(
+        is_nullable(spec, sub, _seen) for k in ("oneOf", "anyOf") for sub in schema.get(k, [])
+    )
+
+
+def accepts_none(annotation: Any) -> bool:
+    """Whether a pydantic field annotation admits ``None``."""
+    if annotation is Any or annotation is None or annotation is type(None):
+        return True
+    origin = typing.get_origin(annotation)
+    if origin is typing.Annotated:
+        return accepts_none(typing.get_args(annotation)[0])
+    if origin is typing.Union or origin is types.UnionType:
+        return any(accepts_none(a) for a in typing.get_args(annotation))
+    if origin is typing.Literal:
+        return None in typing.get_args(annotation)
+    return False
 
 
 def get_schema_properties(
@@ -499,7 +623,12 @@ def get_pydantic_fields(model: type) -> dict[str, dict[str, Any]]:
             }
             if populate_by_name:
                 keys.add(name)
-        fields[name] = {"alias": alias, "keys": keys, "required": info.is_required()}
+        fields[name] = {
+            "alias": alias,
+            "keys": keys,
+            "required": info.is_required(),
+            "accepts_none": accepts_none(info.annotation),
+        }
     return fields
 
 
@@ -595,6 +724,42 @@ def validate_model(
         else:
             result.missing_in_sdk.append(prop)
 
+    # A key may default to any API version: an SDK field with no default must be required
+    # (by every mapped schema), and one that rejects None must not be nullable anywhere.
+    components = schema.get("components", {}).get("schemas", {})
+    required = set.intersection(*(required_properties(schema, components[n]) for n in schema_names))
+    prop_schemas: dict[str, list[Any]] = {}
+    for n in schema_names:
+        for prop, found in property_schemas(schema, components[n]).items():
+            prop_schemas.setdefault(prop, []).extend(found)
+
+    def gap_or_error(item: str, message: str) -> None:
+        key = (sdk_model_name, item)
+        if key in gaps:
+            result.gapped[item] = gaps[key]
+            result.used_gaps.add(key)
+        else:
+            result.errors.append(message)
+
+    for name, info in sdk_fields.items():
+        hit = sorted(info["keys"] & set(schema_props))
+        if not hit:
+            continue
+        if info["required"] and not set(hit) & required:
+            gap_or_error(
+                f"required:{','.join(hit)}",
+                f"SDK field '{name}' has no default but spec property {hit} is optional "
+                "(give the field a default)",
+            )
+        if not info["accepts_none"]:
+            for prop in hit:
+                if any(is_nullable(schema, s) for s in prop_schemas.get(prop, [])):
+                    gap_or_error(
+                        f"nullable:{prop}",
+                        f"spec property '{prop}' is nullable but SDK field '{name}' does not "
+                        "accept None",
+                    )
+
     known_ext = extensions.get(sdk_model_name, set())
     for ext in sorted(known_ext):
         if ext not in sdk_fields:
@@ -679,8 +844,19 @@ def check_enum(
     # _missing_ inserts unknown values there, which would make every check pass.
     sdk_values = {m.value for m in check.enum.__members__.values()}
 
+    version = declared_api_version(spec)
     missing: dict[str, list[str]] = {}
     for location in check.locations:
+        if location.since and version and version < location.since:
+            try:
+                spec_enum_members(spec, location)
+            except (KeyError, IndexError, ValueError):
+                continue  # absent before `since`, as declared
+            result.errors.append(
+                f"{enum_name}: spec location {location.where} ({location.kind}) resolves in "
+                f"{version}, before its since={location.since} - lower `since`"
+            )
+            continue
         try:
             members = spec_enum_members(spec, location)
         except (KeyError, IndexError, ValueError) as e:
@@ -985,105 +1161,220 @@ def _print_report(report: Report, spec: Mapping[str, Any], source: str, verbose:
     print("\nRESULT: " + ("FAIL" if report.exit_code else "PASS"))
 
 
-def main(argv: Sequence[str] | None = None, *, config: CheckConfig | None = None) -> int:
-    """Main entry point."""
-    parser = argparse.ArgumentParser(description="Validate SDK models against OpenAPI schema")
-    parser.add_argument("--verbose", "-v", action="store_true", help="Print detailed output")
-    source = parser.add_mutually_exclusive_group()
-    source.add_argument(
-        "--offline",
-        metavar="PATH",
-        help="Use local OpenAPI schema file instead of fetching",
-    )
-    source.add_argument(
-        "--url",
-        default=OPENAPI_SCHEMA_URL,
-        help=f"OpenAPI schema URL (default: {OPENAPI_SCHEMA_URL})",
-    )
-    source.add_argument(
-        "--pinned",
-        action="store_true",
-        help="Fetch the spec at the affinity-api-docs commit recorded in the snapshot",
-    )
-    parser.add_argument(
-        "--snapshot",
-        default=str(DEFAULT_SNAPSHOT_PATH),
-        help="Spec-drift snapshot file (default: tools/openapi_snapshot.json)",
-    )
-    parser.add_argument(
-        "--update-snapshot",
-        action="store_true",
-        help="Rewrite the snapshot from the selected spec source instead of checking",
-    )
-    parser.add_argument(
-        "--source-sha",
-        help="affinity-api-docs commit sha of the spec (required with --update-snapshot "
-        "unless the --url is pinned to a sha)",
-    )
-    args = parser.parse_args(argv)
+def _load_snapshot(path: Path) -> dict[str, Any] | None:
+    return json.loads(path.read_text()) if path.is_file() else None
 
-    snapshot_path = Path(args.snapshot)
-    snapshot: dict[str, Any] | None = None
-    if snapshot_path.is_file():
-        snapshot = json.loads(snapshot_path.read_text())
-    elif not args.update_snapshot:
-        print(
-            f"Error: snapshot {snapshot_path} not found (create it with --update-snapshot)",
-            file=sys.stderr,
-        )
-        return 2
 
-    url = args.url
-    if args.pinned:
-        assert snapshot is not None
-        url = pinned_url(snapshot["source"]["sha"])
-
-    sha = args.source_sha or (None if args.offline else sha_from_url(url))
-    if args.update_snapshot and not sha:
-        print(
-            "Error: --update-snapshot needs the spec's affinity-api-docs commit: pass "
-            "--source-sha, or a --url pinned to a sha",
-            file=sys.stderr,
-        )
-        return 2
-
-    try:
-        if args.offline:
-            print(f"Loading OpenAPI schema from {args.offline}...")
-            spec = load_openapi_schema(args.offline)
-            source_desc = f"{args.offline} (sha {sha or 'unknown'})"
-        else:
-            print(f"Fetching OpenAPI schema from {url}...")
-            spec = fetch_openapi_schema(url)
-            source_desc = url
-        print("Schema loaded successfully.\n")
-    except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
-        return 2
-
-    if args.update_snapshot:
-        assert sha is not None
-        new_snapshot = make_snapshot(spec, url=pinned_url(sha), sha=sha)
+def _check_one(
+    spec: Mapping[str, Any],
+    *,
+    source_desc: str,
+    snapshot_path: Path,
+    update: bool,
+    sha: str | None,
+    snapshot_url: str | None,
+    config: CheckConfig | None,
+    verbose: bool,
+) -> int:
+    """Check (or snapshot) one loaded spec. Returns its exit code."""
+    snapshot = _load_snapshot(snapshot_path)
+    if update:
+        if not sha:
+            print(
+                "Error: --update-snapshot needs the spec's affinity-api-docs commit: pass "
+                "--source-sha, a --ref that is a commit sha, or a --url pinned to a sha",
+                file=sys.stderr,
+            )
+            return 2
+        new_snapshot = make_snapshot(spec, url=snapshot_url or pinned_url(sha), sha=sha)
         if snapshot is not None:
             changes = diff_digest(snapshot.get("digest", {}), new_snapshot["digest"])
             print(f"Snapshot changes: {len(changes)}")
             for line in changes[:_MAX_DIFF_LINES]:
                 print(f"  {line}")
+        snapshot_path.parent.mkdir(parents=True, exist_ok=True)
         write_snapshot(snapshot_path, new_snapshot)
         print(f"Wrote {snapshot_path} (sha {sha}, spec version {spec_version(spec)})")
         return 0
 
-    if snapshot is not None:
+    if snapshot is None:
         print(
-            f"Snapshot: sha {snapshot['source'].get('sha')} "
-            f"(spec version {snapshot['source'].get('x-affinity-api-version')})"
+            f"Error: snapshot {snapshot_path} not found (create it with --update-snapshot)",
+            file=sys.stderr,
+        )
+        return 2
+    print(
+        f"Snapshot: {snapshot_path.name}, sha {snapshot['source'].get('sha')} "
+        f"(spec version {snapshot['source'].get('x-affinity-api-version')})"
+    )
+    report = run_checks(spec, config=config or default_config(), snapshot=snapshot, verbose=verbose)
+    _print_report(report, spec, source_desc, verbose)
+    return report.exit_code
+
+
+def main(argv: Sequence[str] | None = None, *, config: CheckConfig | None = None) -> int:
+    """Main entry point."""
+    parser = argparse.ArgumentParser(description="Validate SDK models against OpenAPI schema")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Print detailed output")
+    parser.add_argument(
+        "--api-version",
+        choices=sorted(SPEC_PATHS),
+        help="Check only this Affinity API version (default: every version in SPEC_PATHS)",
+    )
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument(
+        "--offline",
+        metavar="PATH",
+        help="Check one local spec file; its version comes from info.x-affinity-api-version",
+    )
+    source.add_argument(
+        "--url",
+        help="Check one spec fetched from this URL; its version comes from the spec",
+    )
+    source.add_argument(
+        "--pinned",
+        action="store_true",
+        help="Fetch each version's spec from the URL recorded in its snapshot",
+    )
+    source.add_argument(
+        "--ref",
+        help="affinity-api-docs branch, tag or commit to fetch the specs from (default: main)",
+    )
+    parser.add_argument(
+        "--snapshot",
+        help="Spec-drift snapshot file for a single spec "
+        "(default: tools/openapi_snapshots/<version>.json)",
+    )
+    parser.add_argument(
+        "--update-snapshot",
+        action="store_true",
+        help="Rewrite the snapshot(s) from the selected spec source instead of checking",
+    )
+    parser.add_argument(
+        "--source-sha",
+        help="affinity-api-docs commit sha of an --offline spec (with --update-snapshot); "
+        "fetched specs take the sha from their URL (--ref or --url pinned to a sha)",
+    )
+    args = parser.parse_args(argv)
+
+    common = {"update": args.update_snapshot, "config": config, "verbose": args.verbose}
+    if args.source_sha and not args.offline:
+        print(
+            "Error: --source-sha is only for --offline; for fetched specs the sha comes from "
+            "the URL (use --ref <sha> or a --url pinned to a sha)",
+            file=sys.stderr,
+        )
+        return 2
+
+    # One spec: a local file or an explicit URL.
+    if args.offline or args.url:
+        try:
+            if args.offline:
+                print(f"Loading OpenAPI schema from {args.offline}...")
+                spec = load_openapi_schema(args.offline)
+            else:
+                print(f"Fetching OpenAPI schema from {args.url}...")
+                spec = fetch_openapi_schema(args.url)
+            print("Schema loaded successfully.\n")
+        except Exception as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 2
+        version = declared_api_version(spec)
+        if args.api_version and version != args.api_version:
+            print(
+                f"Error: the spec declares API version {version}, not {args.api_version}",
+                file=sys.stderr,
+            )
+            return 2
+        if not args.snapshot and not version:
+            print(
+                "Error: the spec has no info.x-affinity-api-version; pass --snapshot",
+                file=sys.stderr,
+            )
+            return 2
+        if not args.snapshot and version not in SPEC_PATHS:
+            print(
+                f"Error: API version {version} is not in SPEC_PATHS; add it there (and to "
+                "KNOWN_AFFINITY_API_VERSIONS) or pass --snapshot",
+                file=sys.stderr,
+            )
+            return 2
+        snapshot_path = Path(args.snapshot) if args.snapshot else snapshot_path_for(str(version))
+        if args.url:
+            sha = sha_from_url(args.url)
+            snapshot_url = args.url if sha else None
+        else:
+            sha = args.source_sha
+            path = SPEC_PATHS.get(str(version), CURRENT_SPEC_PATH)
+            snapshot_url = pinned_url(sha, path) if sha else None
+        source_desc = args.url or f"{args.offline} (sha {sha or 'unknown'})"
+        return _check_one(
+            spec,
+            source_desc=source_desc,
+            snapshot_path=snapshot_path,
+            sha=sha,
+            snapshot_url=snapshot_url,
+            **common,
         )
 
-    report = run_checks(
-        spec, config=config or default_config(), snapshot=snapshot, verbose=args.verbose
-    )
-    _print_report(report, spec, source_desc, args.verbose)
-    return report.exit_code
+    # Every version (or the one --api-version names), each from the mirror.
+    versions = [args.api_version] if args.api_version else sorted(SPEC_PATHS)
+    if args.snapshot and len(versions) > 1:
+        print("Error: --snapshot needs --api-version (it names one file)", file=sys.stderr)
+        return 2
+    exit_code = 0
+    for version in versions:
+        print(f"\n{'#' * 60}\n# Affinity API version {version}\n{'#' * 60}")
+        snapshot_path = Path(args.snapshot) if args.snapshot else snapshot_path_for(version)
+        if args.pinned:
+            snapshot = _load_snapshot(snapshot_path)
+            if snapshot is None:
+                print(f"Error: snapshot {snapshot_path} not found", file=sys.stderr)
+                exit_code = 2
+                continue
+            # The recorded URL, verbatim: it stays valid after the mirror moves files.
+            url = str(snapshot.get("source", {}).get("url") or "")
+            if not url:
+                print(f"Error: snapshot {snapshot_path} records no source.url", file=sys.stderr)
+                exit_code = 2
+                continue
+        else:
+            url = spec_url(args.ref or "main", SPEC_PATHS[version])
+        try:
+            print(f"Fetching OpenAPI schema from {url}...")
+            spec = fetch_openapi_schema(url)
+        except Exception as e:
+            print(
+                f"Error: {e}\n  If affinity-api-docs moved this version's spec (a new version "
+                "became current), update SPEC_PATHS.",
+                file=sys.stderr,
+            )
+            exit_code = 2
+            continue
+        declared = declared_api_version(spec)
+        if declared != version:
+            print(
+                f"Error: {url} declares API version {declared}, expected {version}. "
+                "affinity-api-docs moved its spec files (a new version became current?): "
+                "update SPEC_PATHS and affinity.api_versions.KNOWN_AFFINITY_API_VERSIONS.",
+                file=sys.stderr,
+            )
+            exit_code = 2
+            continue
+        print("Schema loaded successfully.\n")
+        sha = sha_from_url(url)
+        code = _check_one(
+            spec,
+            source_desc=url,
+            snapshot_path=snapshot_path,
+            sha=sha,
+            snapshot_url=url if sha else None,
+            **common,
+        )
+        exit_code = max(exit_code, code)
+    if len(versions) > 1 and not args.update_snapshot:
+        print(f"\nOVERALL ({', '.join(versions)}): " + ("FAIL" if exit_code else "PASS"))
+    return exit_code
 
 
 if __name__ == "__main__":
