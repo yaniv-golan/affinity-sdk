@@ -2505,9 +2505,9 @@ and constructing write calls by hand.</p>
   <code>client.fields.list(entity_type=...)</code>. Name alone is not sufficient — company
   <code>Industry</code>, <code>Location</code>, and <code>Description</code> have distinct <code>affinity-data</code> and
   <code>dealroom</code> twins.</li>
-<li>A small number of enriched fields are purely derived (notably
-  <code>affinity-data-current-organization</code>) and have no V1 twin. The SDK raises
-  <code>EnrichedFieldNotWritableError</code> in that case.</li>
+<li>Company and person field values (global, enriched and Source of Introduction) are
+  written through V2 instead: <code>client.companies.batch_update_fields(...)</code> /
+  <code>client.persons.batch_update_fields(...)</code> send one all-or-nothing request with V2 field ids.</li>
 </ul>
 <h2 id="requested-vs-not-requested">Requested vs not requested<a class="headerlink" href="#requested-vs-not-requested" title="Permanent link">&para;</a></h2>
 <p>Entities expose a <code>fields</code> container that preserves whether the API returned field data:</p>

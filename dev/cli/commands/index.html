@@ -817,6 +817,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#xaffinity-person-field-personid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person field &lt;personId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#xaffinity-person-delete-personid" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -926,6 +937,17 @@
     <span class="md-ellipsis">
       
         xaffinity company update &lt;companyId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-field-companyid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company field &lt;companyId&gt;
       
     </span>
   </a>
@@ -3499,6 +3521,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#xaffinity-person-field-personid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity person field &lt;personId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#xaffinity-person-delete-personid" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3608,6 +3641,17 @@
     <span class="md-ellipsis">
       
         xaffinity company update &lt;companyId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-company-field-companyid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity company field &lt;companyId&gt;
       
     </span>
   </a>
@@ -4532,6 +4576,20 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>create<span class
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>update<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--email<span class="w"> </span>ada@example.com<span class="w"> </span>--email<span class="w"> </span>ada@work.com
 xaffinity<span class="w"> </span>person<span class="w"> </span>update<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--first-name<span class="w"> </span>Ada<span class="w"> </span>--last-name<span class="w"> </span>Byron
 </code></pre></div>
+<h3 id="xaffinity-person-field-personid"><code>xaffinity person field &lt;personId&gt;</code><a class="headerlink" href="#xaffinity-person-field-personid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>field<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--set<span class="w"> </span><span class="s2">"Current Job Title"</span><span class="w"> </span><span class="s2">"CEO"</span><span class="w"> </span>--set<span class="w"> </span><span class="s2">"Phone Number"</span><span class="w"> </span><span class="s2">"+1-555-0123"</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>field<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--set<span class="w"> </span><span class="s2">"Source of Introduction"</span><span class="w"> </span><span class="m">26229795</span><span class="w"> </span>--unset<span class="w"> </span><span class="s2">"lool Tag"</span>
+xaffinity<span class="w"> </span>person<span class="w"> </span>field<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--get<span class="w"> </span><span class="s2">"Current Organization"</span>
+</code></pre></div>
+<p>All <code>--set</code> / <code>--set-json</code> / <code>--unset</code> of one command are written in <strong>one request</strong> that
+Affinity applies completely or not at all: if one value is rejected, no field changes. Global,
+enriched and Source of Introduction fields can be written by name or field id; interaction
+fields (First Email, ...) and enriched dropdowns can't. Multi-value fields take at most 100
+values. A value equal to the current one is not rewritten. JSON output: <code>created</code>
+(<code>{fieldId, name, value}</code>) and <code>cleared</code> (<code>{fieldId, name}</code>).</p>
+<p>These writes use Affinity API version 2026-07-15 or newer: without <code>--api-version</code> the CLI sends
+that version for the write; with <code>--api-version 2024-01-01</code> the command exits 2
+(<code>api_version_error</code>) before sending anything.</p>
 <h3 id="xaffinity-person-delete-personid"><code>xaffinity person delete &lt;personId&gt;</code><a class="headerlink" href="#xaffinity-person-delete-personid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>delete<span class="w"> </span><span class="m">26229794</span>
 </code></pre></div>
@@ -4649,6 +4707,20 @@ xaffinity<span class="w"> </span>company<span class="w"> </span>create<span clas
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>update<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--domain<span class="w"> </span>acme.com
 xaffinity<span class="w"> </span>company<span class="w"> </span>update<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">26229794</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">26229795</span>
 </code></pre></div>
+<h3 id="xaffinity-company-field-companyid"><code>xaffinity company field &lt;companyId&gt;</code><a class="headerlink" href="#xaffinity-company-field-companyid" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>field<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--set<span class="w"> </span>Stage<span class="w"> </span><span class="s2">"Series A"</span><span class="w"> </span>--set-json<span class="w"> </span><span class="s1">'{"Technologies": ["Python", "Go"]}'</span>
+xaffinity<span class="w"> </span>company<span class="w"> </span>field<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--unset<span class="w"> </span>Stage
+xaffinity<span class="w"> </span>company<span class="w"> </span>field<span class="w"> </span><span class="m">224925494</span><span class="w"> </span>--get<span class="w"> </span>Description
+</code></pre></div>
+<p>All <code>--set</code> / <code>--set-json</code> / <code>--unset</code> of one command are written in <strong>one request</strong> that
+Affinity applies completely or not at all: if one value is rejected, no field changes. Global,
+enriched and Source of Introduction fields can be written by name or field id; interaction
+fields (First Email, ...) and enriched dropdowns can't. Multi-value fields take at most 100
+values. A value equal to the current one is not rewritten. JSON output: <code>created</code>
+(<code>{fieldId, name, value}</code>) and <code>cleared</code> (<code>{fieldId, name}</code>).</p>
+<p>These writes use Affinity API version 2026-07-15 or newer: without <code>--api-version</code> the CLI sends
+that version for the write; with <code>--api-version 2024-01-01</code> the command exits 2
+(<code>api_version_error</code>) before sending anything.</p>
 <h3 id="xaffinity-company-delete-companyid"><code>xaffinity company delete &lt;companyId&gt;</code><a class="headerlink" href="#xaffinity-company-delete-companyid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>delete<span class="w"> </span><span class="m">224925494</span>
 </code></pre></div>
