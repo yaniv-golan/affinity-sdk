@@ -10,7 +10,7 @@ from __future__ import annotations
 import asyncio
 import builtins
 import time
-from collections.abc import AsyncIterator, Iterator, Sequence
+from collections.abc import AsyncIterator, Iterator, Mapping, Sequence
 from typing import TYPE_CHECKING, Any, Literal
 
 from ..exceptions import (
@@ -21,6 +21,7 @@ from ..exceptions import (
 from ..models.entities import (
     FieldMetadata,
     FieldValue,
+    FieldValues,
     ListEntry,
     ListSummary,
     Person,
@@ -29,6 +30,7 @@ from ..models.entities import (
 )
 from ..models.pagination import (
     AsyncPageIterator,
+    BatchOperationResponse,
     PageIterator,
     PaginatedResponse,
     PaginationInfo,
@@ -38,11 +40,13 @@ from ..models.types import (
     AnyFieldId,
     CompanyId,
     FieldType,
+    FieldValueType,
     OpportunityId,
     PersonId,
     validate_entity_field_types,
 )
 from ._field_listing import build_fields_query
+from ._field_updates import FIELD_WRITES_MIN_API_VERSION, _batch_update_items
 
 if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
@@ -626,6 +630,56 @@ class PersonService:
         )
 
         return [FieldMetadata.model_validate(f) for f in data.get("data", [])]
+
+    def get_field_values(
+        self,
+        person_id: PersonId,
+        *,
+        ids: Sequence[AnyFieldId | str] | None = None,
+    ) -> FieldValues:
+        """
+        Field values of one person, keyed by field id (``GET /v2/persons/{id}/fields``).
+
+        Args:
+            person_id: The person.
+            ids: Only these fields (server-side filter); all fields when omitted.
+        """
+        params = {"ids": [str(fid) for fid in ids]} if ids else None
+        data = self._client.get_all_pages(f"/persons/{person_id}/fields", params=params)
+        return FieldValues.model_validate(data.get("data", []))
+
+    def batch_update_fields(
+        self,
+        person_id: PersonId,
+        updates: Mapping[AnyFieldId | str, Any],
+        *,
+        value_types: Mapping[AnyFieldId | str, FieldValueType | str] | None = None,
+    ) -> BatchOperationResponse:
+        """
+        Update several field values of one person in one request.
+
+        Affinity applies the whole batch or none of it; each update replaces the field's value
+        and ``None`` (with a type) clears it. Global, enriched and Source of Introduction
+        fields are all writable. At most 100 updates, and 100 values per multi-value field.
+
+        Needs Affinity API version {FIELD_WRITES_MIN_API_VERSION} (out of beta there): an
+        unpinned client sends that version for this call; a client pinned to an older version
+        raises ``ApiVersionTooOldError`` without sending anything.
+
+        Args:
+            person_id: The person.
+            updates: Field id -> new value. Values are auto-typed (str→text, int/float→number,
+                datetime/date→datetime) unless the field has an entry in ``value_types``.
+            value_types: Field id -> value type (e.g. ``"dropdown-multi"``); needed for lists
+                (multi-value fields) and ``None`` (clear).
+        """
+        items = _batch_update_items(updates, value_types)
+        result = self._client.patch(
+            f"/persons/{person_id}/fields",
+            json={"operation": "update-fields", "updates": items},
+            min_api_version=FIELD_WRITES_MIN_API_VERSION,
+        )
+        return BatchOperationResponse.model_validate(result)
 
     # =========================================================================
     # Associations (V1 API)
@@ -1754,6 +1808,56 @@ class AsyncPersonService:
         )
 
         return [FieldMetadata.model_validate(f) for f in data.get("data", [])]
+
+    async def get_field_values(
+        self,
+        person_id: PersonId,
+        *,
+        ids: Sequence[AnyFieldId | str] | None = None,
+    ) -> FieldValues:
+        """
+        Field values of one person, keyed by field id (``GET /v2/persons/{id}/fields``).
+
+        Args:
+            person_id: The person.
+            ids: Only these fields (server-side filter); all fields when omitted.
+        """
+        params = {"ids": [str(fid) for fid in ids]} if ids else None
+        data = await self._client.get_all_pages(f"/persons/{person_id}/fields", params=params)
+        return FieldValues.model_validate(data.get("data", []))
+
+    async def batch_update_fields(
+        self,
+        person_id: PersonId,
+        updates: Mapping[AnyFieldId | str, Any],
+        *,
+        value_types: Mapping[AnyFieldId | str, FieldValueType | str] | None = None,
+    ) -> BatchOperationResponse:
+        """
+        Update several field values of one person in one request.
+
+        Affinity applies the whole batch or none of it; each update replaces the field's value
+        and ``None`` (with a type) clears it. Global, enriched and Source of Introduction
+        fields are all writable. At most 100 updates, and 100 values per multi-value field.
+
+        Needs Affinity API version {FIELD_WRITES_MIN_API_VERSION} (out of beta there): an
+        unpinned client sends that version for this call; a client pinned to an older version
+        raises ``ApiVersionTooOldError`` without sending anything.
+
+        Args:
+            person_id: The person.
+            updates: Field id -> new value. Values are auto-typed (str→text, int/float→number,
+                datetime/date→datetime) unless the field has an entry in ``value_types``.
+            value_types: Field id -> value type (e.g. ``"dropdown-multi"``); needed for lists
+                (multi-value fields) and ``None`` (clear).
+        """
+        items = _batch_update_items(updates, value_types)
+        result = await self._client.patch(
+            f"/persons/{person_id}/fields",
+            json={"operation": "update-fields", "updates": items},
+            min_api_version=FIELD_WRITES_MIN_API_VERSION,
+        )
+        return BatchOperationResponse.model_validate(result)
 
     # =========================================================================
     # Associations (V1 API)

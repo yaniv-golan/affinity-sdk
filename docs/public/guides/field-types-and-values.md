@@ -97,9 +97,9 @@ and constructing write calls by hand.
   `client.fields.list(entity_type=...)`. Name alone is not sufficient — company
   `Industry`, `Location`, and `Description` have distinct `affinity-data` and
   `dealroom` twins.
-- A small number of enriched fields are purely derived (notably
-  `affinity-data-current-organization`) and have no V1 twin. The SDK raises
-  `EnrichedFieldNotWritableError` in that case.
+- Company and person field values (global, enriched and Source of Introduction) are
+  written through V2 instead: `client.companies.batch_update_fields(...)` /
+  `client.persons.batch_update_fields(...)` send one all-or-nothing request with V2 field ids.
 
 ## Requested vs not requested
 

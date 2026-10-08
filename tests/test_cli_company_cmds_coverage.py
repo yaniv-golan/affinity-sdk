@@ -483,10 +483,13 @@ class TestCompanyField:
                 },
             )
         )
-        respx_mock.get("https://api.affinity.co/field-values").mock(
+        respx_mock.get("https://api.affinity.co/v2/companies/123/fields").mock(
             return_value=Response(
                 200,
-                json=[{"id": 1, "field_id": 200, "value": "Technology"}],
+                json={
+                    "data": [{"id": "field-200", "value": {"type": "text", "data": "Technology"}}],
+                    "pagination": {"nextUrl": None},
+                },
             )
         )
 
@@ -503,4 +506,5 @@ class TestCompanyField:
             ],
             env={"AFFINITY_API_KEY": "test-key"},
         )
-        assert result.exit_code in (0, 1)
+        assert result.exit_code == 0, result.output
+        assert json.loads(result.output)["data"] == {"fields": {"Industry": "Technology"}}

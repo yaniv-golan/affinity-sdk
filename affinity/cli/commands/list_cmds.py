@@ -3578,10 +3578,8 @@ def run_entry_field(
     # if any value is invalid, abort before issuing any API write.
     from ..field_utils import (
         check_append_targets,
-        check_multi_value_limits,
         execute_append_phase,
         pre_validate_set_operations,
-        value_equals_existing,
     )
 
     # Validate set + append in ONE call so a bad append value also aborts
@@ -3607,127 +3605,26 @@ def run_entry_field(
     existing_values_list = list(client.field_values.list(list_entry_id=ListEntryId(entry_id)))
     existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values_list]
 
-    # Preserve the legacy "Replaced N existing values" warning for fields that
-    # will actually be written (not for no-ops).
-    for target_field_id, (_raw, new_value, _t) in pre_resolved_set.items():
-        existing_for_field = find_field_values_for_field(
-            field_values=existing_values_serialized,
-            field_id=target_field_id,
-        )
-        if len(existing_for_field) > 1 and not value_equals_existing(
-            resolver.get_field_metadata(target_field_id), new_value, existing_for_field
-        ):
-            resolved_name = resolver.get_field_name(target_field_id) or target_field_id
-            old_vals = [fv.get("value") for fv in existing_for_field]
-            if len(old_vals) > 5:
-                display_vals = [*old_vals[:3], f"...{len(old_vals) - 3} more..."]
-            else:
-                display_vals = old_vals
-            click.echo(
-                f"Warning: Replaced {len(existing_for_field)} existing values "
-                f"for field '{resolved_name}': {display_vals}",
-                err=True,
-            )
-
-    # Size check BEFORE any write, so an over-cap request changes nothing.
-    check_multi_value_limits(
-        resolver=resolver,
-        pre_resolved_set=pre_resolved_set,
-        append_ops=append_ops_for_validation if append_values else [],
-        existing_values_serialized=existing_values_serialized,
-    )
-
     entries = client.lists.entries(resolved_list.list.id)
-    created_values: list[dict[str, Any]] = []
-    cleared: list[dict[str, Any]] = []
     deleted_count = 0
 
-    # Phase 2: every --set / --set-json / --unset in ONE request. Affinity applies the
-    # whole batch or none of it, and each update replaces the field's value (a typed null
-    # clears it), so nothing is deleted first.
-    from ..field_utils import UNWRITABLE_TYPES
+    # Phase 2: every --set / --set-json / --unset in ONE request (all or nothing).
+    from ..field_utils import apply_field_updates
 
-    updates: dict[str, Any] = {}
-    value_types: dict[str, str] = {}
-    for target_field_id, (_raw, new_value, type_str) in pre_resolved_set.items():
-        existing_for_field = find_field_values_for_field(
-            field_values=existing_values_serialized, field_id=target_field_id
-        )
-        if value_equals_existing(
-            resolver.get_field_metadata(target_field_id), new_value, existing_for_field
-        ):
-            continue
-        updates[target_field_id] = new_value
-        value_types[target_field_id] = type_str
-    for field_spec in unset_fields:
-        target_field_id = resolved_fields[field_spec]
-        write_type = resolver.write_type(target_field_id)
-        if write_type is None:
-            raise CLIError(
-                f"Cannot clear '{field_spec}': its value type is unknown on this list. "
-                "Nothing was changed.",
-                exit_code=2,
-                error_type="usage_error",
-            )
-        # Always sent: V1 reads can lag a write, and clearing is idempotent.
-        updates[target_field_id] = None
-        value_types[target_field_id] = write_type
-    unwritable = {fid: t for fid, t in value_types.items() if t in UNWRITABLE_TYPES}
-    if unwritable:
-        names = ", ".join(
-            f"'{resolver.get_field_name(f) or f}' ({t})" for f, t in unwritable.items()
-        )
-        raise CLIError(
-            f"Affinity doesn't accept writes to: {names}. Nothing was changed.",
-            exit_code=2,
-            error_type="usage_error",
-        )
-
-    written: list[str] = []
-    if updates:
-        from affinity.exceptions import (
-            AffinityError,
-            AuthorizationError,
-            NetworkError,
-            TimeoutError,
-            WriteNotAllowedError,
-        )
-
-        names = ", ".join(resolver.get_field_name(f) or f for f in updates)
-        try:
-            entries.batch_update_fields(ListEntryId(entry_id), updates, value_types=value_types)
-        except (TimeoutError, NetworkError) as exc:
-            raise CLIError(
-                f"The update of {names} may or may not have been applied (no response "
-                f"from Affinity: {exc}). Re-running the command is safe.",
-                exit_code=1,
-                error_type="network_error",
-            ) from exc
-        except WriteNotAllowedError:
-            raise
-        except AuthorizationError as exc:
-            raise CLIError(
-                f"Affinity refused the update of {names}; nothing was changed. Your API "
-                "key may not have access to one of these fields (e.g. restricted "
-                f"opportunity fields). {exc}",
-                exit_code=1,
-                error_type="permission_denied",
-            ) from exc
-        except AffinityError as exc:
-            if getattr(exc, "status_code", None) and int(exc.status_code or 0) < 500:
-                raise CLIError(
-                    f"Affinity rejected the update of {names}; nothing was changed. {exc}",
-                    exit_code=1,
-                    error_type="api_error",
-                ) from exc
-            raise
-        written = list(updates)
-        for fid, value in updates.items():
-            item = {"fieldId": fid, "name": resolver.get_field_name(fid) or fid}
-            if value is None:
-                cleared.append(item)
-            else:
-                created_values.append({**item, "value": value})
+    created_values, cleared, written = apply_field_updates(
+        resolver=resolver,
+        pre_resolved_set=pre_resolved_set,
+        unsets=[(spec, resolved_fields[spec]) for spec in unset_fields],
+        existing_values_serialized=existing_values_serialized,
+        write=lambda updates, value_types: entries.batch_update_fields(
+            ListEntryId(entry_id), updates, value_types=value_types
+        ),
+        append_ops=append_ops_for_validation if append_values else [],
+        permission_hint=(
+            "Your API key may not have access to one of these fields (e.g. restricted "
+            "opportunity fields). "
+        ),
+    )
 
     def _partial(exc: Exception) -> CLIError:
         names_written = [resolver.get_field_name(f) or f for f in written]

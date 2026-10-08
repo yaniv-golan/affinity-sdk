@@ -285,15 +285,15 @@ company ls --filter "Status=New"
 list export Dealflow --filter "Status=New"
 ```
 
-### Mistake 3: Trying to set "Current Organization" via API
-"Current Organization" is a derived/system-managed field — it cannot be set or updated directly. It is driven by enrichment data and email domain. "Current Job Title" can be updated after person creation using `field update`, but neither field can be set during `person create`.
+### Mistake 3: Trying to set enriched fields during `person create`
+"Current Organization" and "Current Job Title" can't be set by `person create`. Set them afterwards with `person field <id> --set "Current Organization" <companyId>` / `--set "Current Job Title" "CEO"` (CLI 1.21.0+).
 
 ### Enriched Field Writes
-Most enriched fields — "Phone Number", "Source of Introduction", "Industry", "Location", "Description", etc. — **are** writable via `person field --set` / `company field --set` / `field update`. Pass the field name ("Phone Number") or its field ID and the CLI handles the rest.
+Enriched fields — "Phone Number", "Source of Introduction", "Current Organization", "Industry", "Location", "Description", etc. — **are** writable via `person field --set` / `company field --set`. Pass the field name ("Phone Number") or its field ID and the CLI handles the rest. Every `--set`/`--unset` of one command is written in one request that Affinity applies completely or not at all. Not writable: interaction fields (First Email, Last Meeting, ...) and enriched dropdown fields.
 
 Some names are ambiguous because the same concept exists under multiple enrichment providers (e.g. company "Industry" exists for both the built-in enricher and the Dealroom enricher). The CLI surfaces this as an `AmbiguousFieldError` with a table of candidate IDs — pass the specific field ID to disambiguate.
 
-A small number of enriched fields are **derived and cannot be written** — the most important is "Current Organization" on persons, which is computed from email domain. Attempting to set a derived-only field raises `EnrichedFieldNotWritableError` (exit code 2) with a clear message; no silent no-op.
+Writes to a field Affinity doesn't accept exit 2 before anything is changed.
 
 ### Duplicate checks (dedup on create)
 

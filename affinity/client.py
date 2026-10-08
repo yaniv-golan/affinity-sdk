@@ -561,6 +561,14 @@ class Affinity:
         """V2 API versions Affinity reported answering with so far (incl. cache hits)."""
         return self._http.affinity_api_versions_seen
 
+    def require_api_version(self, minimum: str, *, operation: str) -> None:
+        """
+        Raise ``ApiVersionTooOldError`` if this client is pinned to a version older than
+        ``minimum`` (nothing is sent). Unpinned clients always pass: version-gated calls send
+        their minimum version themselves.
+        """
+        self._http.require_api_version(minimum, operation=operation)
+
     @property
     def affinity_api_versions_per_operation(self) -> frozenset[str]:
         """Versions that answered calls needing a newer API version than the key's default.
@@ -948,6 +956,14 @@ class AsyncAffinity:
     def affinity_api_versions_seen(self) -> frozenset[str]:
         """V2 API versions Affinity reported answering with so far (incl. cache hits)."""
         return self._http.affinity_api_versions_seen
+
+    def require_api_version(self, minimum: str, *, operation: str) -> None:
+        """
+        Raise ``ApiVersionTooOldError`` if this client is pinned to a version older than
+        ``minimum`` (nothing is sent). Unpinned clients always pass: version-gated calls send
+        their minimum version themselves.
+        """
+        self._http.require_api_version(minimum, operation=operation)
 
     @property
     def affinity_api_versions_per_operation(self) -> frozenset[str]:

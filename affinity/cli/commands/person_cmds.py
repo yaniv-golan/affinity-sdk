@@ -2238,7 +2238,11 @@ def person_field(
     """
     Manage person field values.
 
-    Unified command for getting, setting, and unsetting field values.
+    Unified command for getting, setting, and unsetting field values. All --set,
+    --set-json and --unset of one command are written in one request that Affinity applies
+    completely or not at all. Global, enriched and Source of Introduction fields can be
+    written; multi-value fields take at most 100 values. Writes use Affinity API version
+    2026-07-15 or newer (sent automatically unless --api-version pins an older one).
     For field names with spaces, use quotes.
 
     Examples:
@@ -2249,182 +2253,19 @@ def person_field(
     - `xaffinity person field 123 --set-json '{"Phone": "+1...", "Title": "CEO"}'`
     - `xaffinity person field 123 --get Phone --get Email`
     """
-    import json as json_module
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
-        from ..field_utils import (
-            FieldResolver,
-            execute_v1_set_phase,
-            fetch_field_metadata,
-            find_field_values_for_field,
-            pre_validate_set_operations,
-        )
+        from ._entity_field import run_entity_field
 
-        # Validate: at least one operation must be specified
-        has_set = bool(set_values) or bool(json_input)
-        has_unset = bool(unset_fields)
-        has_get = bool(get_fields)
-
-        if not has_set and not has_unset and not has_get:
-            raise CLIError(
-                "Provide at least one of --set, --unset, --set-json, or --get.",
-                exit_code=2,
-                error_type="usage_error",
-            )
-
-        # Validate: --get is exclusive (can't mix read with write)
-        if has_get and (has_set or has_unset):
-            raise CLIError(
-                "--get cannot be combined with --set, --unset, or --set-json.",
-                exit_code=2,
-                error_type="usage_error",
-            )
-
-        client = ctx.get_client(warnings=warnings)
-        field_metadata = fetch_field_metadata(client=client, entity_type="person")
-        resolver = FieldResolver(field_metadata)
-
-        results: dict[str, Any] = {}
-
-        # Build modifiers for CommandContext
-        ctx_modifiers: dict[str, object] = {}
-        if set_values:
-            ctx_modifiers["set"] = [list(sv) for sv in set_values]
-        if unset_fields:
-            ctx_modifiers["unset"] = list(unset_fields)
-        if json_input:
-            ctx_modifiers["json"] = json_input
-        if get_fields:
-            ctx_modifiers["get"] = list(get_fields)
-
-        # Handle --get: read field values
-        if has_get:
-            existing_values = client.field_values.list(person_id=PersonId(person_id))
-            field_results: dict[str, Any] = {}
-
-            for field_name in get_fields:
-                target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
-                field_values = find_field_values_for_field(
-                    field_values=[serialize_model_for_cli(v) for v in existing_values],
-                    field_id=target_field_id,
-                )
-                resolved_name = resolver.get_field_name(target_field_id) or field_name
-                if field_values:
-                    if len(field_values) == 1:
-                        field_results[resolved_name] = field_values[0].get("value")
-                    else:
-                        field_results[resolved_name] = [fv.get("value") for fv in field_values]
-                else:
-                    field_results[resolved_name] = None
-
-            results["fields"] = field_results
-
-            cmd_context = CommandContext(
-                name="person field",
-                inputs={"personId": person_id},
-                modifiers=ctx_modifiers,
-            )
-
-            return CommandOutput(
-                data=results,
-                context=cmd_context,
-                api_called=True,
-            )
-
-        # Handle --set and --json: set field values
-        # Phase 1: collect raw --set + --set-json operations.
-        raw_set_operations: list[tuple[str, Any]] = []
-
-        for field_name, value in set_values:
-            raw_set_operations.append((field_name, value))
-
-        if json_input:
-            try:
-                json_data = json_module.loads(json_input)
-                if not isinstance(json_data, dict):
-                    raise CLIError(
-                        "--json must be a JSON object.",
-                        exit_code=2,
-                        error_type="usage_error",
-                    )
-                for field_name, value in json_data.items():
-                    raw_set_operations.append((field_name, value))
-            except json_module.JSONDecodeError as e:
-                raise CLIError(
-                    f"Invalid JSON: {e}",
-                    exit_code=2,
-                    error_type="usage_error",
-                ) from e
-
-        # Phase 2: hoist field-name resolution upfront. Failures here abort
-        # cleanly before any API side effect.
-        resolved_set_ops: list[tuple[str, Any]] = []
-        for field_name, value in raw_set_operations:
-            target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
-            resolved_set_ops.append((target_field_id, value))
-
-        # Phase 3: pre-validate. V1 commands gain client-side entity-reference
-        # validation; e.g. ``--set Owner "<full name>"`` now aborts before any
-        # write instead of partial-committing prior --sets and failing server-side.
-        # Dropdown options, read fresh: V2 field metadata has none, and V1 writes plain
-        # dropdowns by text (unknown text creates a new option).
-        resolver.load_dropdown_options(
-            client, [fid for fid, _ in resolved_set_ops], entity_type="person"
-        )
-        pre_resolved_set = pre_validate_set_operations(resolver, resolved_set_ops)
-        # Resolve --unset names before any write, so a typo aborts cleanly.
-        unset_numeric_ids: list[int] = []
-        for field_name in unset_fields:
-            target_field_id = resolver.resolve_field_name_or_id(field_name, context="field")
-            numeric_field_id = resolver.to_v1_numeric(client, target_field_id, entity_type="person")
-            unset_numeric_ids.append(numeric_field_id)
-
-        # Phase 4: fetch existing values and execute the set phase with no-op
-        # short-circuit (clean audit log on retries).
-        existing_values = client.field_values.list(person_id=PersonId(person_id))
-        existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values]
-
-        created_values, set_deleted_count = execute_v1_set_phase(
-            client=client,
-            entity_kind="person",
+        return run_entity_field(
+            ctx,
+            warnings,
+            entity="person",
             entity_id=person_id,
-            pre_resolved_ops=pre_resolved_set,
-            existing_values_serialized=existing_values_serialized,
-            resolver=resolver,
-        )
-
-        # Handle --unset (names resolved before any write).
-        deleted_count = set_deleted_count
-        if unset_numeric_ids:
-            existing_values = client.field_values.list(person_id=PersonId(person_id))
-            existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values]
-        for numeric_field_id in unset_numeric_ids:
-            existing_for_field = find_field_values_for_field(
-                field_values=existing_values_serialized,
-                field_id=numeric_field_id,
-            )
-            for fv in existing_for_field:
-                fv_id = fv.get("id")
-                if fv_id:
-                    client.field_values.delete(fv_id)
-                    deleted_count += 1
-
-        # Build result
-        if created_values:
-            results["created"] = created_values
-        if deleted_count > 0:
-            results["deleted"] = deleted_count
-
-        cmd_context = CommandContext(
-            name="person field",
-            inputs={"personId": person_id},
-            modifiers=ctx_modifiers,
-        )
-
-        return CommandOutput(
-            data=results,
-            context=cmd_context,
-            api_called=True,
+            set_values=set_values,
+            unset_fields=unset_fields,
+            json_input=json_input,
+            get_fields=get_fields,
         )
 
     run_command(ctx, command="person field", fn=fn)

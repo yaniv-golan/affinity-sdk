@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Highlights
+
+**Company and person field writes are all-or-nothing.** `company field` and `person field` send
+every `--set`, `--set-json` and `--unset` of a command in one request that Affinity applies
+completely or not at all, like `list entry field` since 1.19.0. Enriched fields (including
+"Current Organization") and Source of Introduction are written the same way.
+
+**Breaking:** the JSON output of `company field` / `person field` changes: `created` items are
+`{fieldId, name, value}`, cleared fields are listed in a new `cleared`, and `deleted` is gone.
+`--get` returns V2 values (e.g. a dropdown as `{dropdownOptionId, text}`). These writes need
+Affinity API version 2026-07-15 or newer: unpinned, the CLI sends it for the write; pinned to
+2024-01-01, the command exits 2 (`api_version_error`) before sending anything.
+`EnrichedFieldNotWritableError` is removed. This is a stated exception to the MAJOR-bump rule
+(VERSIONING.md), decided for a clean single write path.
+
+Also: `list ls --query`, faster list lookup by name, and calls that need a minimum API version.
+
 ### Added
 
 - Calls that need a minimum Affinity API version: an unpinned client sends that version for the
@@ -17,9 +34,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   min_api_version=...)`.
 - `list ls --query TEXT`: lists whose name contains the text (case-insensitive, matched by
   Affinity). SDK: `term=` on `ListService.list()` / `pages()` (sync and async).
+- SDK: `CompanyService` / `PersonService` `.get_field_values(id, ids=...)` (V2, keyed by field
+  id) and `.batch_update_fields(id, updates, value_types=...)` (one all-or-nothing PATCH, at
+  most 100 updates; sends API version 2026-07-15), sync and async. `Affinity.require_api_version(
+  minimum, operation=...)`.
 
 ### Changed
 
+- **Breaking (CLI output):** `company field` / `person field` write every field of a command in
+  one V2 request (all or nothing) instead of one V1 request per value; output `created`
+  (`{fieldId, name, value}`) and `cleared`, no `deleted`. A value equal to the current one is
+  not rewritten (read through V2, so enriched fields are compared too). `--get` reads V2 values,
+  so enriched fields return their value (they returned `null` before). Writes need API version
+  2026-07-15+ (see Highlights). More than 100 fields in one command, or the same field twice
+  (by name, other casing or id, or in both `--set` and `--unset`), exits 2 with nothing changed.
+- A single value for a multi-value text field (e.g. `--set Industry Fintech`) is sent as a
+  one-item list; numbers given for text fields (`--set-json '{"Description": 42}'`) are sent as
+  text (Affinity rejects both otherwise).
 - `ListService.resolve()` / `resolve_all()` (and every CLI command that takes a list name) let
   Affinity narrow the lists by name first instead of reading every list; the exact,
   case-insensitive comparison is unchanged, and a miss still checks every list. Non-ASCII names
@@ -27,6 +58,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MCP registry: `note search` / `file search` / `company search` report their real limits
   (default 20 / 20 / 100, max 100); `files read` commands no longer carry a limit config (their
   `--limit` is a byte size).
+
+### Removed
+
+- **Breaking (SDK):** `EnrichedFieldNotWritableError` — "Current Organization" and the other
+  enriched fields are writable through V2, so nothing raises it any more.
+
+### Fixed
+
+- `list entry field` / `opportunity field` (and now company/person): setting a date with a time
+  of day just after midnight UTC (e.g. `2024-04-02T03:00:00Z` when April 1 is stored) was skipped
+  as "unchanged". Affinity keeps the **UTC** date of the value written (verified live), not the
+  Pacific date of that instant.
 
 ## [1.20.0] - 2026-10-08
 

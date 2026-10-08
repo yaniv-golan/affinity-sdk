@@ -1,9 +1,8 @@
 """Dropdown writes on `company field`, `person field`, `opportunity field` and `list entry field`.
 
 V2 field metadata has no dropdown options, so the options are read fresh (uncached) from the V2
-dropdown-options endpoints for the fields being written. Plain dropdowns on companies/persons go
-through the V2 write (option ids; V1 creates a new option for unknown text); ranked/status
-dropdowns are written through V1 by option id.
+dropdown-options endpoints for the fields being written, and every write sends option ids in
+one V2 update-fields PATCH (V2 never creates options).
 """
 
 from __future__ import annotations
@@ -52,6 +51,13 @@ def _run(
     return result, seen
 
 
+_WRITE_METHODS = ("POST", "PUT", "PATCH", "DELETE")
+
+
+def _writes(seen: list[tuple[str, str, Any]]) -> list[tuple[str, str, Any]]:
+    return [(m, p, b) for m, p, b in seen if m in _WRITE_METHODS]
+
+
 def _page(items: list[dict[str, Any]], next_url: str | None = None) -> dict[str, Any]:
     return {"data": items, "pagination": {"nextUrl": next_url, "prevUrl": None}}
 
@@ -77,9 +83,21 @@ def _company_routes(**extra: Any) -> dict[tuple[str, str], Any]:
         ("GET", "/v2/companies/fields"): COMPANY_FIELDS,
         ("GET", "/v2/companies/fields/field-10/dropdown-options"): STAGE_OPTIONS,
         ("GET", "/v2/companies/fields/field-11/dropdown-options"): STAGE_OPTIONS,
-        ("GET", "/field-values"): [{"id": 7, "field_id": 10, "entity_id": 5, "value": "Seed"}],
-        ("POST", "/v2/companies/5/fields/field-10"): httpx.Response(204),
-        ("POST", "/v2/companies/5/fields/field-11"): httpx.Response(204),
+        # Existing values (V2): Stage = Seed.
+        ("GET", "/v2/companies/5/fields"): _page(
+            [
+                {
+                    "id": "field-10",
+                    "name": "Stage",
+                    "type": "global",
+                    "value": {
+                        "type": "dropdown",
+                        "data": {"dropdownOptionId": 100, "text": "Seed"},
+                    },
+                }
+            ]
+        ),
+        ("PATCH", "/v2/companies/5/fields"): {"operation": "update-fields"},
     }
     routes.update(extra)
     return routes
@@ -89,21 +107,27 @@ def test_company_dropdown_set_by_text_writes_option_id_via_v2() -> None:
     result, seen = _run(["company", "field", "5", "--set", "Stage", "series a"], _company_routes())
     assert result.exit_code == 0, result.output
     assert ("GET", "/v2/companies/fields/field-10/dropdown-options", None) in seen
-    assert (
-        "POST",
-        "/v2/companies/5/fields/field-10",
-        {"value": {"type": "dropdown", "data": {"dropdownOptionId": 101}}},
-    ) in seen
-    assert not any(
-        m in ("PUT", "DELETE") or (p.startswith("/field-values") and m == "POST")
-        for m, p, _ in seen
-    )
+    assert _writes(seen) == [
+        (
+            "PATCH",
+            "/v2/companies/5/fields",
+            {
+                "operation": "update-fields",
+                "updates": [
+                    {
+                        "id": "field-10",
+                        "value": {"type": "dropdown", "data": {"dropdownOptionId": 101}},
+                    }
+                ],
+            },
+        )
+    ]
 
 
 def test_company_dropdown_same_option_is_noop() -> None:
     result, seen = _run(["company", "field", "5", "--set", "Stage", "seed"], _company_routes())
     assert result.exit_code == 0, result.output
-    assert not any(m in ("POST", "PUT", "DELETE") for m, _, _ in seen)
+    assert _writes(seen) == []
 
 
 def test_company_dropdown_multi_set_json() -> None:
@@ -112,14 +136,16 @@ def test_company_dropdown_multi_set_json() -> None:
         _company_routes(),
     )
     assert result.exit_code == 0, result.output
-    posts = [b for m, p, b in seen if m == "POST" and p == "/v2/companies/5/fields/field-11"]
-    assert posts == [
-        {
-            "value": {
-                "type": "dropdown-multi",
-                "data": [{"dropdownOptionId": 100}, {"dropdownOptionId": 101}],
+    assert [b["updates"] for _, _, b in _writes(seen)] == [
+        [
+            {
+                "id": "field-11",
+                "value": {
+                    "type": "dropdown-multi",
+                    "data": [{"dropdownOptionId": 100}, {"dropdownOptionId": 101}],
+                },
             }
-        }
+        ]
     ]
 
 
@@ -127,7 +153,7 @@ def test_unknown_or_renamed_option_writes_nothing() -> None:
     result, seen = _run(["company", "field", "5", "--set", "Stage", "Series B"], _company_routes())
     assert result.exit_code == 2, result.output
     assert "Series B" in result.output
-    assert not any(m in ("POST", "PUT", "DELETE") for m, _, _ in seen)
+    assert _writes(seen) == []
 
 
 def test_options_read_for_dropdown_fields_only() -> None:
@@ -140,7 +166,7 @@ def test_enriched_dropdown_not_fetched_and_refused() -> None:
     result, seen = _run(["company", "field", "5", "--set", "dealroom-x", "A"], _company_routes())
     assert result.exit_code == 2, result.output
     assert not any("dropdown-options" in p for _, p, _ in seen)
-    assert not any(m in ("POST", "PUT", "DELETE") for m, _, _ in seen)
+    assert _writes(seen) == []
 
 
 def test_options_fetch_failure_writes_nothing() -> None:
@@ -152,7 +178,7 @@ def test_options_fetch_failure_writes_nothing() -> None:
         ["company", "field", "5", "--set", "Notes", "hi", "--set", "Stage", "Seed"], routes
     )
     assert result.exit_code != 0, result.output
-    assert not any(m in ("POST", "PUT", "DELETE") for m, _, _ in seen)
+    assert _writes(seen) == []
 
 
 def test_paged_options_are_all_read() -> None:
@@ -167,11 +193,9 @@ def test_paged_options_are_all_read() -> None:
     routes[("GET", "/v2/companies/fields/field-10/dropdown-options")] = options
     result, seen = _run(["company", "field", "5", "--set", "Stage", "Growth"], routes)
     assert result.exit_code == 0, result.output
-    assert any(
-        b == {"value": {"type": "dropdown", "data": {"dropdownOptionId": 150}}}
-        for m, _, b in seen
-        if m == "POST"
-    )
+    assert [b["updates"] for _, _, b in _writes(seen)] == [
+        [{"id": "field-10", "value": {"type": "dropdown", "data": {"dropdownOptionId": 150}}}]
+    ]
 
 
 def test_person_dropdown_uses_person_endpoints() -> None:
@@ -182,16 +206,26 @@ def test_person_dropdown_uses_person_endpoints() -> None:
         ("GET", "/v2/persons/fields/field-20/dropdown-options"): _page(
             [{"type": "dropdown", "id": 300, "text": "Founder"}]
         ),
-        ("GET", "/field-values"): [],
-        ("POST", "/v2/persons/8/fields/field-20"): httpx.Response(204),
+        ("GET", "/v2/persons/8/fields"): _page([]),
+        ("PATCH", "/v2/persons/8/fields"): {"operation": "update-fields"},
     }
     result, seen = _run(["person", "field", "8", "--set", "Role", "founder"], routes)
     assert result.exit_code == 0, result.output
-    assert (
-        "POST",
-        "/v2/persons/8/fields/field-20",
-        {"value": {"type": "dropdown", "data": {"dropdownOptionId": 300}}},
-    ) in seen
+    assert _writes(seen) == [
+        (
+            "PATCH",
+            "/v2/persons/8/fields",
+            {
+                "operation": "update-fields",
+                "updates": [
+                    {
+                        "id": "field-20",
+                        "value": {"type": "dropdown", "data": {"dropdownOptionId": 300}},
+                    }
+                ],
+            },
+        )
+    ]
 
 
 @pytest.mark.parametrize("option_type", ["ranked-dropdown", "status-dropdown"])
@@ -270,7 +304,7 @@ def test_unset_typo_aborts_before_any_write() -> None:
         _company_routes(),
     )
     assert result.exit_code == 2, result.output
-    assert not any(m in ("POST", "PUT", "DELETE") for m, _, _ in seen)
+    assert _writes(seen) == []
 
 
 def test_list_entry_option_missing_from_cached_metadata_is_read_fresh() -> None:

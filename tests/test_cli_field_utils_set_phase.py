@@ -19,7 +19,6 @@ from affinity.cli.errors import CLIError
 from affinity.cli.field_utils import (
     FieldResolver,
     execute_append_phase,
-    execute_v1_set_phase,
     pre_validate_set_operations,
     value_equals_existing,
 )
@@ -252,7 +251,8 @@ class TestResolveDatetimeFieldValue:
 
 
 class TestValueEqualsExistingDateGranular:
-    """Since 2026-01-01 Affinity stores date fields at midnight Pacific Time.
+    """Since 2026-01-01 Affinity stores date fields at midnight Pacific Time (of the UTC date
+    it was given).
 
     2024-04-01 is returned as 2024-04-01T07:00:00Z (PDT) and 2024-01-15 as
     2024-01-15T08:00:00Z (PST). Re-setting the same calendar date must be a no-op, whatever
@@ -279,11 +279,18 @@ class TestValueEqualsExistingDateGranular:
         existing = [{"value": {"type": "datetime", "data": "2024-01-15T08:00:00Z"}}]
         assert value_equals_existing(meta, "2024-01-15", existing) is True
 
-    def test_input_with_time_compares_its_pacific_date(self, resolver: FieldResolver) -> None:
-        """15:30Z is 08:30 PDT on Apr 1 -> Affinity would store Apr 1."""
+    def test_input_with_time_compares_its_utc_date(self, resolver: FieldResolver) -> None:
+        """Affinity keeps the UTC date of what it is given (verified live 2026-10-08)."""
         meta = _meta(resolver, "field-106")
         existing = [{"value": "2024-04-01T07:00:00Z"}]
         assert value_equals_existing(meta, "2024-04-01T15:30:00Z", existing) is True
+
+    def test_time_after_midnight_utc_is_the_next_date(self, resolver: FieldResolver) -> None:
+        """03:00Z on Apr 2 is still Apr 1 in Pacific time, but Affinity stores Apr 2: a real
+        change, so it must not be skipped as a no-op."""
+        meta = _meta(resolver, "field-106")
+        existing = [{"value": "2024-04-01T07:00:00Z"}]
+        assert value_equals_existing(meta, "2024-04-02T03:00:00Z", existing) is False
 
     def test_different_date_writes(self, resolver: FieldResolver) -> None:
         meta = _meta(resolver, "field-106")
@@ -378,197 +385,6 @@ def _make_field_value(fv_id: int, field_id: str, value: Any) -> dict[str, Any]:
 
 # ---------------------------------------------------------------------------
 # execute_v1_set_phase
-# ---------------------------------------------------------------------------
-
-
-class TestExecuteV1SetPhase:
-    def test_noop_skips_delete_and_create(self, resolver: FieldResolver) -> None:
-        client = MagicMock()
-        existing = [_make_field_value(1, "field-107", "Hello")]
-
-        # 3-tuple: (raw, resolved, value_type). For text, raw == resolved.
-        pre_resolved = {"field-107": ("Hello", "Hello", "text")}
-        created, deleted = execute_v1_set_phase(
-            client=client,
-            entity_kind="company",
-            entity_id=555,
-            pre_resolved_ops=pre_resolved,
-            existing_values_serialized=existing,
-            resolver=resolver,
-        )
-        client.field_values.delete.assert_not_called()
-        client.field_values.create.assert_not_called()
-        assert created == []
-        assert deleted == 0
-
-    def test_single_value_updated_in_place(self, resolver: FieldResolver) -> None:
-        """An existing single value is updated in place (PUT); nothing is deleted."""
-        client = MagicMock()
-        client.field_values.update.return_value.model_dump.return_value = _make_field_value(
-            1, "field-107", "Goodbye"
-        )
-        existing = [_make_field_value(1, "field-107", "Hello")]
-        created, deleted = execute_v1_set_phase(
-            client=client,
-            entity_kind="company",
-            entity_id=555,
-            pre_resolved_ops={"field-107": ("Goodbye", "Goodbye", "text")},
-            existing_values_serialized=existing,
-            resolver=resolver,
-        )
-        client.field_values.update.assert_called_once_with(1, "Goodbye")
-        client.field_values.delete.assert_not_called()
-        client.field_values.create.assert_not_called()
-        assert deleted == 0
-        assert len(created) == 1
-
-    def test_single_value_created_when_empty(self, resolver: FieldResolver) -> None:
-        client = MagicMock()
-        client.field_values.create.return_value.model_dump.return_value = _make_field_value(
-            2, "field-105", 5
-        )
-        created, deleted = execute_v1_set_phase(
-            client=client,
-            entity_kind="company",
-            entity_id=555,
-            pre_resolved_ops={"field-105": ("5", 5, "number")},
-            existing_values_serialized=[],
-            resolver=resolver,
-        )
-        fvc = client.field_values.create.call_args.args[0]
-        assert fvc.value == 5  # sent as a number, not the string typed
-        assert fvc.entity_id == 555
-        assert deleted == 0
-        assert len(created) == 1
-
-    def test_dropdown_sent_as_exact_option_text(self, resolver: FieldResolver) -> None:
-        """V1 creates a new option for unknown text, so send the matched option's text."""
-        client = MagicMock()
-        existing = [_make_field_value(1, "field-100", "Active")]
-        execute_v1_set_phase(
-            client=client,
-            entity_kind="opportunity",
-            entity_id=555,
-            pre_resolved_ops={
-                "field-100": ("intro meeting", {"dropdownOptionId": 202}, "dropdown")
-            },
-            existing_values_serialized=existing,
-            resolver=resolver,
-        )
-        client.field_values.update.assert_called_once_with(1, "Intro Meeting")
-
-    def test_ranked_dropdown_sent_as_option_id(self, resolver: FieldResolver) -> None:
-        """V1 rejects text for ranked dropdowns; it takes the option id."""
-        client = MagicMock()
-        meta = resolver.get_field_metadata("field-100")
-        assert meta is not None
-        object.__setattr__(meta, "value_type", "ranked-dropdown")
-        existing = [_make_field_value(1, "field-100", {"id": 200, "text": "Active"})]
-        execute_v1_set_phase(
-            client=client,
-            entity_kind="opportunity",
-            entity_id=555,
-            pre_resolved_ops={
-                "field-100": ("Intro Meeting", {"dropdownOptionId": 202}, "ranked-dropdown")
-            },
-            existing_values_serialized=existing,
-            resolver=resolver,
-        )
-        client.field_values.update.assert_called_once_with(1, 202)
-
-    @pytest.mark.parametrize("entity_kind", ["company", "person"])
-    def test_company_person_plain_dropdown_written_by_id_via_v2(
-        self, resolver: FieldResolver, entity_kind: str
-    ) -> None:
-        """Plain dropdowns on companies/persons go through the V2 write (option ids), which
-        can't create options; nothing is written through V1."""
-        client = MagicMock()
-        existing = [_make_field_value(1, "field-100", "Active")]
-        created, deleted = execute_v1_set_phase(
-            client=client,
-            entity_kind=entity_kind,  # type: ignore[arg-type]
-            entity_id=555,
-            pre_resolved_ops={"field-100": ("closed", {"dropdownOptionId": 201}, "dropdown")},
-            existing_values_serialized=existing,
-            resolver=resolver,
-        )
-        collection = "companies" if entity_kind == "company" else "persons"
-        client._http.post.assert_called_once_with(
-            f"/{collection}/555/fields/field-100",
-            json={"value": {"type": "dropdown", "data": {"dropdownOptionId": 201}}},
-        )
-        client.field_values.update.assert_not_called()
-        client.field_values.create.assert_not_called()
-        client.field_values.delete.assert_not_called()
-        assert deleted == 0
-        assert len(created) == 1
-
-    def test_text_dropdown_row_is_noop_when_same_option(self, resolver: FieldResolver) -> None:
-        """V1 stores plain dropdown values as text; re-setting the same option writes nothing."""
-        client = MagicMock()
-        created, _ = execute_v1_set_phase(
-            client=client,
-            entity_kind="company",
-            entity_id=555,
-            pre_resolved_ops={"field-100": ("active", {"dropdownOptionId": 200}, "dropdown")},
-            existing_values_serialized=[_make_field_value(1, "field-100", "Active")],
-            resolver=resolver,
-        )
-        assert created == []
-        client._http.post.assert_not_called()
-
-    def test_multi_value_adds_before_removing(self, resolver: FieldResolver) -> None:
-        client = MagicMock()
-        calls: list[str] = []
-        client.field_values.create.side_effect = lambda data: calls.append(f"create {data.value}")
-        client.field_values.delete.side_effect = lambda fv_id: calls.append(f"delete {fv_id}")
-        existing = [_make_field_value(1, "field-104", 7), _make_field_value(2, "field-104", 8)]
-        _, deleted = execute_v1_set_phase(
-            client=client,
-            entity_kind="company",
-            entity_id=555,
-            pre_resolved_ops={"field-104": (["8", "9"], [{"id": 8}, {"id": 9}], "person-multi")},
-            existing_values_serialized=existing,
-            resolver=resolver,
-        )
-        # 8 is kept, 9 is added, then 7 is removed.
-        assert calls == ["create 9", "delete 1"]
-        assert deleted == 1
-
-    def test_multi_value_failed_add_removes_nothing(self, resolver: FieldResolver) -> None:
-        client = MagicMock()
-        client.field_values.create.side_effect = RuntimeError("422")
-        existing = [_make_field_value(1, "field-104", 7)]
-        with pytest.raises(RuntimeError):
-            execute_v1_set_phase(
-                client=client,
-                entity_kind="company",
-                entity_id=555,
-                pre_resolved_ops={"field-104": (["9"], [{"id": 9}], "person-multi")},
-                existing_values_serialized=existing,
-                resolver=resolver,
-            )
-        client.field_values.delete.assert_not_called()
-
-    def test_multi_value_partial_failure_is_reported(self, resolver: FieldResolver) -> None:
-        client = MagicMock()
-        client.field_values.delete.side_effect = RuntimeError("timeout")
-        existing = [_make_field_value(1, "field-104", 7)]
-        with pytest.raises(CLIError) as exc_info:
-            execute_v1_set_phase(
-                client=client,
-                entity_kind="company",
-                entity_id=555,
-                pre_resolved_ops={"field-104": (["9"], [{"id": 9}], "person-multi")},
-                existing_values_serialized=existing,
-                resolver=resolver,
-            )
-        assert exc_info.value.error_type == "partial_write"
-        assert "no value was lost" in exc_info.value.message
-
-
-# ---------------------------------------------------------------------------
-# execute_append_phase
 # ---------------------------------------------------------------------------
 
 

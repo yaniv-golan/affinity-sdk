@@ -1,11 +1,9 @@
 """Tests for enriched field write support (plan v3.7).
 
 Covers:
-- FieldResolver.to_v1_numeric method (new): enriched ID → V1 numeric via name + enrichment_source
 - FieldResolver.resolve_field_name_or_id ID-branch accepts any _by_id member (not just "field-*")
 - find_field_values_for_field normalizes both sides (V1 raw int ↔ V2 "field-<n>")
 - FieldService.list(skip_cache=True) bypasses the 5-min cache
-- EnrichedFieldNotWritableError exists, subclass of UnsupportedOperationError, exported
 
 TDD — these tests encode the intended behavior before implementation lands.
 """
@@ -181,176 +179,6 @@ class TestFindFieldValuesForFieldNormalization:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.req("SDK-ENRICHED-FIELD-WRITES")
-class TestToV1Numeric:
-    """New FieldResolver.to_v1_numeric method."""
-
-    def test_field_prefix_converts_directly(self, person_resolver: CLIFieldResolver) -> None:
-        """'field-501054' → 501054, no V1 lookup needed."""
-        client = Affinity(
-            api_key="test",
-            max_retries=0,
-            transport=httpx.MockTransport(lambda _r: httpx.Response(500)),
-        )
-        try:
-            result = person_resolver.to_v1_numeric(client, "field-501054", "person")
-            assert result == 501054
-        finally:
-            client.close()
-
-    def test_enriched_id_resolves_via_name_and_source(
-        self, person_resolver: CLIFieldResolver
-    ) -> None:
-        """affinity-data-phone-number → V1 twin 260415 via (name, enrichment_source)."""
-        transport = _mock_v1_fields_transport(
-            {
-                0: [
-                    {
-                        "id": 260415,
-                        "name": "Phone Number",
-                        "list_id": None,
-                        "enrichment_source": "affinity-data",
-                        "value_type": 6,
-                    }
-                ]
-            }
-        )
-        with Affinity(api_key="test", max_retries=0, transport=transport) as client:
-            result = person_resolver.to_v1_numeric(client, "affinity-data-phone-number", "person")
-            assert result == 260415
-
-    def test_collision_resolved_by_enrichment_source(
-        self, company_resolver: CLIFieldResolver
-    ) -> None:
-        """Two V1 global 'Industry' rows — enrichment_source picks the affinity-data one."""
-        transport = _mock_v1_fields_transport(
-            {
-                1: [
-                    {
-                        "id": 808056,
-                        "name": "Industry",
-                        "list_id": None,
-                        "enrichment_source": "affinity-data",
-                        "value_type": 2,
-                    },
-                    {
-                        "id": 2820308,
-                        "name": "Industry",
-                        "list_id": None,
-                        "enrichment_source": "dealroom",
-                        "value_type": 2,
-                    },
-                ]
-            }
-        )
-        with Affinity(api_key="test", max_retries=0, transport=transport) as client:
-            assert (
-                company_resolver.to_v1_numeric(client, "affinity-data-industry", "company")
-                == 808056
-            )
-            assert company_resolver.to_v1_numeric(client, "dealroom-industry", "company") == 2820308
-
-    def test_v1_none_string_matches_v2_null_source(self, person_resolver: CLIFieldResolver) -> None:
-        """V1 enrichment_source='none' must match V2 enrichmentSource=null."""
-        transport = _mock_v1_fields_transport(
-            {
-                0: [
-                    {
-                        "id": 260417,
-                        "name": "Source of Introduction",
-                        "list_id": None,
-                        "enrichment_source": "none",
-                        "value_type": 7,
-                    }
-                ]
-            }
-        )
-        with Affinity(api_key="test", max_retries=0, transport=transport) as client:
-            assert (
-                person_resolver.to_v1_numeric(client, "source-of-introduction", "person") == 260417
-            )
-
-    def test_no_v1_twin_raises_enriched_not_writable(
-        self, person_resolver: CLIFieldResolver
-    ) -> None:
-        """affinity-data-current-organization has no V1 twin → raises."""
-        from affinity.exceptions import EnrichedFieldNotWritableError
-
-        transport = _mock_v1_fields_transport({0: []})  # no V1 fields at all
-        with (
-            Affinity(api_key="test", max_retries=0, transport=transport) as client,
-            pytest.raises(EnrichedFieldNotWritableError),
-        ):
-            person_resolver.to_v1_numeric(client, "affinity-data-current-organization", "person")
-
-    def test_unknown_enriched_id_raises(self, person_resolver: CLIFieldResolver) -> None:
-        """Enriched ID not in resolver metadata → raises."""
-        from affinity.exceptions import EnrichedFieldNotWritableError
-
-        transport = _mock_v1_fields_transport({0: []})
-        with (
-            Affinity(api_key="test", max_retries=0, transport=transport) as client,
-            pytest.raises(EnrichedFieldNotWritableError),
-        ):
-            person_resolver.to_v1_numeric(client, "affinity-data-never-seen-this-before", "person")
-
-    def test_list_scoped_v1_field_ignored(self, person_resolver: CLIFieldResolver) -> None:
-        """V1 row with list_id set must NOT match — only list_id=null is a global twin."""
-        from affinity.exceptions import EnrichedFieldNotWritableError
-
-        transport = _mock_v1_fields_transport(
-            {
-                0: [
-                    {
-                        "id": 9999,
-                        "name": "Phone Number",  # same name but list-scoped
-                        "list_id": 12345,
-                        "enrichment_source": "affinity-data",
-                        "value_type": 6,
-                    }
-                ]
-            }
-        )
-        with (
-            Affinity(api_key="test", max_retries=0, transport=transport) as client,
-            pytest.raises(EnrichedFieldNotWritableError),
-        ):
-            person_resolver.to_v1_numeric(client, "affinity-data-phone-number", "person")
-
-    def test_entity_type_string_mapped_to_enum(self, company_resolver: CLIFieldResolver) -> None:
-        """CLI layer passes 'company' string — helper maps to EntityType.ORGANIZATION (int=1)."""
-        captured_params: list[dict] = []
-
-        def handler(request: httpx.Request) -> httpx.Response:
-            if request.url.path == "/fields":
-                captured_params.append(dict(request.url.params))
-                return httpx.Response(
-                    200,
-                    json={
-                        "data": [
-                            {
-                                "id": 808056,
-                                "name": "Industry",
-                                "list_id": None,
-                                "enrichment_source": "affinity-data",
-                                "value_type": 2,
-                            }
-                        ]
-                    },
-                )
-            return httpx.Response(404)
-
-        with Affinity(
-            api_key="test", max_retries=0, transport=httpx.MockTransport(handler)
-        ) as client:
-            company_resolver.to_v1_numeric(client, "affinity-data-industry", "company")
-
-        assert captured_params, "V1 /fields should have been called"
-        assert captured_params[0].get("entity_type") == "1", (
-            f"Expected entity_type=1 (ORGANIZATION), got {captured_params[0]}"
-        )
-
-
 # ---------------------------------------------------------------------------
 # FieldService.list(skip_cache=True)
 # ---------------------------------------------------------------------------
@@ -399,26 +227,8 @@ class TestFieldServiceSkipCache:
 
 
 @pytest.mark.req("SDK-ENRICHED-FIELD-WRITES")
-class TestEnrichedFieldNotWritableErrorExport:
-    def test_class_importable_from_exceptions(self) -> None:
-        from affinity.exceptions import EnrichedFieldNotWritableError
-
-        assert issubclass(EnrichedFieldNotWritableError, Exception)
-
-    def test_class_importable_from_affinity_root(self) -> None:
-        from affinity import EnrichedFieldNotWritableError  # noqa: F401
-
-    def test_subclass_of_unsupported_operation_error(self) -> None:
-        from affinity.exceptions import (
-            EnrichedFieldNotWritableError,
-            UnsupportedOperationError,
-        )
-
-        assert issubclass(EnrichedFieldNotWritableError, UnsupportedOperationError)
-
-    def test_unsupported_operation_error_also_exported(self) -> None:
-        """Plan v3.6 M1: both new class AND parent get public export."""
-        from affinity import UnsupportedOperationError  # noqa: F401
+def test_unsupported_operation_error_exported() -> None:
+    from affinity import UnsupportedOperationError  # noqa: F401
 
 
 # ---------------------------------------------------------------------------

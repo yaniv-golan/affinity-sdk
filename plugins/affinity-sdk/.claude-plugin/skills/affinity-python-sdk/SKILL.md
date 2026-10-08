@@ -378,11 +378,18 @@ if status_meta:
 
 Enriched fields (Phone Number, Source of Introduction, Industry, Location, Description, etc.) are returned on `entity.fields.data` like any other field when you request them via `field_types=[FieldType.ENRICHED]`.
 
-Most enriched fields are writable via the normal `update_field_value()` path using their `FieldMetadata.id`. A small number are purely derived (notably "Current Organization" on persons, which is computed from email domain) and cannot be written — the SDK raises `EnrichedFieldNotWritableError` (subclass of `UnsupportedOperationError`) for these.
+Company and person fields — global, enriched (incl. "Current Organization") and Source of Introduction — are written in one all-or-nothing request with their `FieldMetadata.id`:
 
 ```python
-from affinity import EnrichedFieldNotWritableError
+client.companies.batch_update_fields(
+    company_id,
+    {"dealroom-description": "AI infra", "field-123": None},   # None clears
+    value_types={"field-123": "dropdown"},                     # needed for None and lists
+)
+client.persons.get_field_values(person_id, ids=["affinity-data-current-organization"])
 ```
+
+These writes need Affinity API version 2026-07-15+: unpinned clients send it for the call; a client pinned to 2024-01-01 raises `ApiVersionTooOldError`.
 
 For fresh post-write reads where you want to skip the in-memory field-metadata cache, pass `skip_cache=True` to `client.fields.list(...)`.
 

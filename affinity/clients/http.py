@@ -2172,6 +2172,13 @@ class HTTPClient:
         """V2 API version echoed by the most recent V2 response (incl. cache hits)."""
         return self._api_versions.last()
 
+    def require_api_version(self, minimum: str, *, operation: str) -> None:
+        """Raise ``ApiVersionTooOldError`` if the client is pinned below ``minimum``.
+
+        Lets a caller fail before sending the reads that precede a version-gated write.
+        """
+        self._api_versions.per_operation_context(minimum, operation)
+
     @property
     def affinity_api_versions_per_operation(self) -> frozenset[str]:
         """Versions that answered calls needing a minimum version (sent as that minimum).
@@ -3715,6 +3722,13 @@ class AsyncHTTPClient:
     def last_affinity_api_version(self) -> str | None:
         """V2 API version echoed by the most recent V2 response (incl. cache hits)."""
         return self._api_versions.last()
+
+    def require_api_version(self, minimum: str, *, operation: str) -> None:
+        """Raise ``ApiVersionTooOldError`` if the client is pinned below ``minimum``.
+
+        Lets a caller fail before sending the reads that precede a version-gated write.
+        """
+        self._api_versions.per_operation_context(minimum, operation)
 
     @property
     def affinity_api_versions_per_operation(self) -> frozenset[str]:

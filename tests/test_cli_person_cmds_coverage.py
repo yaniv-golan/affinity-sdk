@@ -516,10 +516,13 @@ class TestPersonField:
                 },
             )
         )
-        respx_mock.get("https://api.affinity.co/field-values").mock(
+        respx_mock.get("https://api.affinity.co/v2/persons/123/fields").mock(
             return_value=Response(
                 200,
-                json=[{"id": 1, "field_id": 100, "value": "555-1234"}],
+                json={
+                    "data": [{"id": "field-100", "value": {"type": "text", "data": "555-1234"}}],
+                    "pagination": {"nextUrl": None},
+                },
             )
         )
 
@@ -529,4 +532,5 @@ class TestPersonField:
             ["--json", "person", "field", "123", "--get", "Phone"],
             env={"AFFINITY_API_KEY": "test-key"},
         )
-        assert result.exit_code in (0, 1)
+        assert result.exit_code == 0, result.output
+        assert json.loads(result.output)["data"] == {"fields": {"Phone": "555-1234"}}

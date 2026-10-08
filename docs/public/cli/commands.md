@@ -328,6 +328,25 @@ xaffinity person update 26229794 --email ada@example.com --email ada@work.com
 xaffinity person update 26229794 --first-name Ada --last-name Byron
 ```
 
+### `xaffinity person field <personId>`
+
+```bash
+xaffinity person field 26229794 --set "Current Job Title" "CEO" --set "Phone Number" "+1-555-0123"
+xaffinity person field 26229794 --set "Source of Introduction" 26229795 --unset "lool Tag"
+xaffinity person field 26229794 --get "Current Organization"
+```
+
+All `--set` / `--set-json` / `--unset` of one command are written in **one request** that
+Affinity applies completely or not at all: if one value is rejected, no field changes. Global,
+enriched and Source of Introduction fields can be written by name or field id; interaction
+fields (First Email, ...) and enriched dropdowns can't. Multi-value fields take at most 100
+values. A value equal to the current one is not rewritten. JSON output: `created`
+(`{fieldId, name, value}`) and `cleared` (`{fieldId, name}`).
+
+These writes use Affinity API version 2026-07-15 or newer: without `--api-version` the CLI sends
+that version for the write; with `--api-version 2024-01-01` the command exits 2
+(`api_version_error`) before sending anything.
+
 ### `xaffinity person delete <personId>`
 
 ```bash
@@ -486,6 +505,25 @@ xaffinity company create --name "Acme Corp" --person-id 26229794
 xaffinity company update 224925494 --domain acme.com
 xaffinity company update 224925494 --person-id 26229794 --person-id 26229795
 ```
+
+### `xaffinity company field <companyId>`
+
+```bash
+xaffinity company field 224925494 --set Stage "Series A" --set-json '{"Technologies": ["Python", "Go"]}'
+xaffinity company field 224925494 --unset Stage
+xaffinity company field 224925494 --get Description
+```
+
+All `--set` / `--set-json` / `--unset` of one command are written in **one request** that
+Affinity applies completely or not at all: if one value is rejected, no field changes. Global,
+enriched and Source of Introduction fields can be written by name or field id; interaction
+fields (First Email, ...) and enriched dropdowns can't. Multi-value fields take at most 100
+values. A value equal to the current one is not rewritten. JSON output: `created`
+(`{fieldId, name, value}`) and `cleared` (`{fieldId, name}`).
+
+These writes use Affinity API version 2026-07-15 or newer: without `--api-version` the CLI sends
+that version for the write; with `--api-version 2024-01-01` the command exits 2
+(`api_version_error`) before sending anything.
 
 ### `xaffinity company delete <companyId>`
 

@@ -42,17 +42,17 @@ Since CLI 1.12.0, create refuses if an exact name/domain (companies) or email/fu
 
 ## Field writes
 
-- **"Current Organization" is read-only via API.** It is derived from enrichment data and email
-  domain. "Current Job Title" can be updated after person creation using `field update`. Neither can
-  be set during `person create`.
-- **Most enriched fields are writable** ("Phone Number", "Source of Introduction", "Industry",
-  "Location", "Description", etc.). `person field --set` / `company field --set` / `field update`
-  accept the field name or its field ID.
+- **`company field` / `person field` writes are all-or-nothing** (CLI 1.21.0+): every
+  `--set`/`--set-json`/`--unset` of one command goes in one request; if Affinity rejects one value,
+  nothing changes. JSON output: `created` (`{fieldId, name, value}`) and `cleared`. They use
+  Affinity API version 2026-07-15+ (sent automatically; a pin to 2024-01-01 exits 2).
+- **Enriched fields are writable** ("Phone Number", "Source of Introduction", "Current
+  Organization", "Current Job Title", "Industry", "Location", "Description", etc.) with
+  `person field --set` / `company field --set`, by field name or field ID. Not settable during
+  `person create`; set them afterwards. Not writable: interaction fields and enriched dropdowns.
 - **Ambiguous names:** on companies the same concept can exist under several enrichment providers
   (e.g. "Industry" for both the built-in enricher and Dealroom). The CLI raises `AmbiguousFieldError`
   with a table of candidate field IDs — copy one into the command.
-- **Derived-only enriched fields** like "Current Organization" raise `EnrichedFieldNotWritableError`
-  (exit 2) with a clear message instead of silently no-op'ing.
 - **Global organizations are read-only:** companies with `global: true` cannot be modified.
 - **`--set` replaces, `--append` adds.** `--set` replaces a field's whole value (a rejected write
   leaves the old value). `--append` only works on multi-value fields; on a single-value field it

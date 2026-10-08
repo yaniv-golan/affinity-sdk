@@ -6,7 +6,7 @@ to field IDs across person/company/opportunity/list-entry commands.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Literal, cast
 
 from .errors import CLIError
@@ -278,7 +278,7 @@ class FieldResolver:
                 exit_code=2,
                 error_type="ambiguous_resolution",
                 details={"name": value, "matches": details},
-                hint="Use --field-id with the specific field ID instead.",
+                hint="Pass the specific field ID instead of the name.",
             )
 
         # Not found
@@ -416,86 +416,6 @@ class FieldResolver:
                 return field
         return None
 
-    def to_v1_numeric(
-        self,
-        client: Any,
-        field_id: str,
-        entity_type: EntityType,
-    ) -> int:
-        """Resolve any field id (regular or enriched) to its V1 numeric id.
-
-        V1 `/field-values` writes require numeric field ids. V2 enriched fields
-        (``affinity-data-*``, ``source-of-introduction``, etc.) must be mapped
-        to their V1 twin by ``(name, enrichment_source)`` with ``list_id=null``.
-
-        Args:
-            client: The Affinity client (sync or async — only `.fields.list` is used).
-            field_id: 'field-<n>' or any enriched literal returned by V2.
-            entity_type: CLI entity-type string ("person" / "company" / "opportunity").
-
-        Returns:
-            Numeric V1 field id.
-
-        Raises:
-            EnrichedFieldNotWritableError: if the enriched field has no V1 twin.
-        """
-        from affinity.exceptions import EnrichedFieldNotWritableError
-        from affinity.models.types import (
-            EntityType as EntityTypeEnum,
-        )
-        from affinity.models.types import (
-            FieldId as FieldIdType,
-        )
-        from affinity.models.types import (
-            field_id_to_v1_numeric,
-        )
-
-        if field_id.startswith("field-"):
-            return field_id_to_v1_numeric(FieldIdType(field_id))
-
-        meta = self.get_field_metadata(field_id)
-        if meta is None:
-            raise EnrichedFieldNotWritableError(field_id=field_id, reason="unknown enriched id")
-
-        enum_map: dict[str, EntityTypeEnum] = {
-            "person": EntityTypeEnum.PERSON,
-            "company": EntityTypeEnum.ORGANIZATION,
-            "opportunity": EntityTypeEnum.OPPORTUNITY,
-        }
-        if entity_type not in enum_map:
-            raise EnrichedFieldNotWritableError(
-                field_id=field_id,
-                reason=f"no V1 field lookup for entity_type={entity_type!r}",
-            )
-
-        v1_fields = client.fields.list(entity_type=enum_map[entity_type])
-        v2_src = meta.enrichment_source  # None for RI fields
-
-        def _norm_v1_src(s: str | None) -> str | None:
-            return None if s in (None, "none", "") else s
-
-        candidates = [
-            f
-            for f in v1_fields
-            if f.name == meta.name
-            and f.list_id is None
-            and _norm_v1_src(f.enrichment_source) == v2_src
-        ]
-        if not candidates:
-            raise EnrichedFieldNotWritableError(
-                field_id=field_id,
-                reason=(
-                    f"no V1 global twin for (name={meta.name!r}, enrichment_source={v2_src!r})"
-                ),
-            )
-        # Canonical write target — FieldId accepts int and normalizes to 'field-<n>'
-        v1_id = candidates[0].id
-        return (
-            int(str(v1_id).removeprefix("field-"))
-            if str(v1_id).startswith("field-")
-            else int(v1_id)
-        )
-
     def resolve_field_value(self, field_id: str, value: Any) -> tuple[Any, str]:
         """Resolve a field value to the format expected by the V2 API.
 
@@ -628,7 +548,7 @@ class FieldResolver:
             return ([wrapped], type_str) if is_multi else (wrapped, type_str)
 
         # Date fields: the V2 API requires a full date-time ("2024-04-01" is rejected with
-        # 400 "does not match format: date-time") and stores its Pacific calendar date.
+        # 400 "does not match format: date-time") and keeps its UTC calendar date.
         if type_str == "datetime" and isinstance(value, str):
             return _normalize_datetime_input(value, field.name), type_str
 
@@ -658,6 +578,24 @@ class FieldResolver:
         if type_str == "location-multi":
             parsed = _parse_location_input(value, field.name)
             return (parsed if isinstance(parsed, list) else [parsed]), type_str
+
+        # Text: the V2 API rejects non-string data (a number from --set-json -> 400).
+        if type_str in ("text", "filterable-text") and isinstance(value, (int, float, bool)):
+            return (str(value).lower() if isinstance(value, bool) else str(value)), type_str
+        if type_str == "filterable-text-multi":
+            items = value if isinstance(value, list) else [value]
+            return [
+                str(item).lower()
+                if isinstance(item, bool)
+                else str(item)
+                if isinstance(item, (int, float))
+                else item
+                for item in items
+            ], type_str
+
+        # Any other multi-value type takes a list: wrap a single value (V2 rejects a scalar).
+        if type_str.endswith("-multi") and not isinstance(value, list):
+            return [value], type_str
 
         # For non-dropdown fields, return value and inferred type
         return value, type_str
@@ -1024,8 +962,8 @@ def _is_empty_new_value(value: Any) -> bool:
 def _normalize_datetime_input(value: str, field_name: str) -> str:
     """Turn CLI date input into the ISO date-time the V2 API accepts (UTC, ``Z``).
 
-    A date-only value (``YYYY-MM-DD``) becomes noon UTC: that instant is the same calendar date
-    in Pacific time, which is the date Affinity stores (midnight UTC would be the previous day).
+    A date-only value (``YYYY-MM-DD``) becomes noon UTC: Affinity keeps the UTC calendar date of
+    what it is given, and noon UTC is that date in Pacific time too.
     A date-time keeps its instant; a naive one is local time (see ``parse_iso_datetime``).
     Unparseable input raises ``CLIError`` before any write.
     """
@@ -1046,14 +984,15 @@ def _normalize_datetime_input(value: str, field_name: str) -> str:
 def _same_affinity_date(new_raw: str, new_dt: Any, old_dt: Any) -> bool:
     """True if a date field stored at midnight Pacific already holds the date being set.
 
-    Since 2026-01-01 Affinity drops the time of day from date fields and stores the Pacific
-    calendar date at midnight Pacific (2024-04-01 comes back as 2024-04-01T07:00:00Z). A
-    date-only input is a calendar date as typed (not local midnight); an input with a time
-    maps to the Pacific date of that instant, which is what Affinity would store. Only an
-    existing value at exactly midnight Pacific is treated this way; anything else, or a
-    missing tz database, keeps the exact comparison (safe default: write).
+    Affinity drops the time of day from date fields: it keeps the **UTC** calendar date of the
+    value written and stores midnight Pacific of that date (2024-04-01 comes back as
+    2024-04-01T07:00:00Z; 2024-01-02T03:00:00Z is stored as January 2 - verified live for
+    list and enriched fields, 2026-10-08). A date-only input is a calendar date as typed; an
+    input with a time maps to its UTC date. Only an existing value at exactly midnight Pacific
+    is treated this way; anything else, or a missing tz database, keeps the exact comparison
+    (safe default: write).
     """
-    from datetime import date, time
+    from datetime import date, time, timezone
     from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
     try:
@@ -1069,7 +1008,7 @@ def _same_affinity_date(new_raw: str, new_dt: Any, old_dt: Any) -> bool:
     except ValueError:
         new_date = None
     if new_date is None:
-        new_date = new_dt.astimezone(pacific).date()
+        new_date = new_dt.astimezone(timezone.utc).date()
     return bool(new_date == old_pacific.date())
 
 
@@ -1308,191 +1247,6 @@ def _serialize(obj: Any) -> dict[str, Any]:
     return {"value": obj}
 
 
-def _v1_wire_value(field_meta: FieldMetadata | None, type_str: str, raw: Any, resolved: Any) -> Any:
-    """The value to send to a V1 write.
-
-    V1 creates a new dropdown option when given unknown text, so dropdown values are sent as
-    the exact text of the option pre-validation matched, never as typed; ranked and status
-    dropdowns take the option id. Numbers go as
-    numbers, locations in V1's snake_case shape, entity references as ids; anything else as
-    the user typed it (V1 parses dates and text itself).
-    """
-    if is_dropdown_type(type_str):
-        option_id = _extract_dropdown_option_id(resolved)
-        options = field_meta.dropdown_options if field_meta is not None else []
-        for opt in options:
-            if option_id is not None and int(opt.id) == option_id:
-                # Ranked/status dropdowns take the option id (V1 rejects text for them).
-                return int(opt.id) if type_str in _DROPDOWN_BY_ID else opt.text
-        raise CLIError(
-            f"Dropdown value {raw!r} could not be matched to an option; nothing was written.",
-            exit_code=2,
-            error_type="validation_error",
-        )
-    if type_str.startswith("number"):
-        return resolved
-    if type_str.startswith(("person", "company")):
-        return _extract_entity_id(resolved)
-    if type_str.startswith("location") and isinstance(resolved, dict):
-        return {("street_address" if k == "streetAddress" else k): v for k, v in resolved.items()}
-    return raw
-
-
-def _v1_row_key(type_str: str, value: Any) -> Any:
-    """Comparable key for a V1 row value or a V1 wire value (dropdowns compare by text, which
-    is how V1 stores them; everything else as :func:`canonical_item`)."""
-    if is_dropdown_type(type_str):
-        text = value.get("text") if isinstance(value, dict) else value
-        return None if text is None else str(text).strip().lower()
-    return canonical_item(type_str, value)
-
-
-def execute_v1_set_phase(
-    *,
-    client: Any,
-    entity_kind: Literal["company", "person", "opportunity"],
-    entity_id: int,
-    pre_resolved_ops: dict[str, tuple[Any, Any, str]],
-    existing_values_serialized: list[dict[str, Any]],
-    resolver: FieldResolver,
-    list_entry_id: int | None = None,
-) -> tuple[list[dict[str, Any]], int]:
-    """Apply pre-validated --set operations via V1, never deleting before writing.
-
-    ``list_entry_id`` is required for opportunities: V1 creates an opportunity's field value
-    only with the id of its list entry.
-
-    Single-value fields are updated in place (``PUT``) or created; multi-value fields get
-    their missing values created first and unwanted rows deleted after.
-
-    Sends the user value in V1 form (see :func:`_v1_wire_value`), not the V2 payload,
-    because V1's ``FieldValueCreate`` schema expects scalars/strings and
-    server-side resolves dropdown text and entity references. The no-op
-    short-circuit still uses the resolved value for accurate comparison.
-
-    For enriched fields, resolves the V2 enriched-field literal to its V1
-    numeric id via :meth:`FieldResolver.to_v1_numeric` before writing.
-    """
-    from affinity.models.entities import FieldValueCreate
-    from affinity.models.types import FieldId as FieldIdType
-    from affinity.models.types import FieldValueId, ListEntryId
-
-    created: list[dict[str, Any]] = []
-    deleted_count = 0
-
-    for field_id, (raw_value, resolved_value, value_type_str) in pre_resolved_ops.items():
-        numeric_field_id = resolver.to_v1_numeric(client, field_id, entity_type=entity_kind)
-        # V1 field-value rows are keyed by numeric field-id, so the no-op
-        # comparison must match on that canonical form.
-        existing_for_field = find_field_values_for_field(
-            field_values=existing_values_serialized, field_id=numeric_field_id
-        )
-        field_meta = resolver.get_field_metadata(field_id)
-
-        if value_equals_existing(field_meta, resolved_value, existing_for_field):
-            continue
-
-        if entity_kind in ("company", "person") and value_type_str in (
-            "dropdown",
-            "dropdown-multi",
-        ):
-            # V1 writes plain dropdowns by text and creates a new option for text that no
-            # longer matches one (e.g. renamed since validation) - on an account-wide field,
-            # with no API to delete it. The V2 write takes option ids and replaces the value.
-            collection = "companies" if entity_kind == "company" else "persons"
-            client._http.post(
-                f"/{collection}/{entity_id}/fields/{field_id}",
-                json={"value": {"type": value_type_str, "data": resolved_value}},
-            )
-            created.append({"fieldId": field_id, "value": resolved_value})
-            continue
-
-        name = resolver.get_field_name(field_id) or field_id
-        is_multi = value_type_str.endswith("-multi") or bool(
-            field_meta is not None and field_meta.allows_multiple
-        )
-
-        def _create(value: Any, _fid: int = numeric_field_id) -> dict[str, Any]:
-            return _serialize(
-                client.field_values.create(
-                    FieldValueCreate(
-                        field_id=FieldIdType(_fid),
-                        entity_id=entity_id,
-                        value=value,
-                        list_entry_id=ListEntryId(list_entry_id) if list_entry_id else None,
-                    )
-                )
-            )
-
-        if not is_multi:
-            # Update in place: a rejected write leaves the old value. Never delete first.
-            wire = _v1_wire_value(field_meta, value_type_str, raw_value, resolved_value)
-            rows = [fv for fv in existing_for_field if fv.get("id") is not None]
-            if rows:
-                created.append(
-                    _serialize(client.field_values.update(FieldValueId(int(rows[0]["id"])), wire))
-                )
-                # Legacy extra rows on a single-value field: remove only after the update.
-                for fv in rows[1:]:
-                    client.field_values.delete(FieldValueId(int(fv["id"])))
-                    deleted_count += 1
-            else:
-                created.append(_create(wire))
-            continue
-
-        # Multi-value field: add the missing values first, then remove the ones no longer
-        # wanted. A failure part-way leaves extra values, never an empty field.
-        targets_raw = raw_value if isinstance(raw_value, list) else [raw_value]
-        targets_res = resolved_value if isinstance(resolved_value, list) else [resolved_value]
-        if len(targets_raw) != len(targets_res):
-            targets_raw = targets_res
-        keep_ids: set[int] = set()
-        to_add: list[Any] = []
-        existing_keys = {
-            int(fv["id"]): _v1_row_key(value_type_str, fv.get("value"))
-            for fv in existing_for_field
-            if fv.get("id") is not None
-        }
-        seen: set[str] = set()
-        for raw_item, res_item in zip(targets_raw, targets_res, strict=True):
-            wire = _v1_wire_value(field_meta, value_type_str, raw_item, res_item)
-            key = _v1_row_key(value_type_str, wire)
-            if repr(key) in seen:
-                continue
-            seen.add(repr(key))
-            match = next(
-                (fid for fid, k in existing_keys.items() if key is not None and k == key), None
-            )
-            if match is not None:
-                keep_ids.add(match)
-            else:
-                to_add.append(wire)
-        added: list[dict[str, Any]] = []
-        removed: list[Any] = []
-        try:
-            for value in to_add:
-                added.append(_create(value))
-            for fv_id, _key in existing_keys.items():
-                if fv_id not in keep_ids:
-                    client.field_values.delete(FieldValueId(fv_id))
-                    removed.append(fv_id)
-                    deleted_count += 1
-        except Exception as exc:
-            if not added and not removed:
-                raise
-            raise CLIError(
-                f"Writing field '{name}' stopped part-way: {len(added)} value(s) added, "
-                f"{len(removed)} old value(s) removed; no value was lost. Re-running the "
-                f"command finishes it. Cause: {exc}",
-                exit_code=1,
-                error_type="partial_write",
-                details={"fieldId": field_id, "added": added, "removedRowIds": removed},
-            ) from exc
-        created.extend(added)
-
-    return created, deleted_count
-
-
 def _truncated_in(fields: Any) -> list[tuple[str, int, int]]:
     """``(field name or id, returned, total)`` for each truncated multi-value field.
 
@@ -1613,7 +1367,7 @@ def check_multi_value_limits(
     ``--append`` counts the existing values plus the new ones not already present, the same
     way :func:`execute_append_phase` merges them.
     """
-    from affinity.services.lists import CAPPED_MULTI_VALUE_TYPES, MAX_MULTI_VALUES
+    from affinity.services._field_updates import CAPPED_MULTI_VALUE_TYPES, MAX_MULTI_VALUES
 
     final_counts: dict[str, tuple[str, int]] = {}
     for field_id, (_raw, resolved_value, type_str) in pre_resolved_set.items():
@@ -1849,3 +1603,173 @@ def execute_append_phase(
         )
 
     return created, refreshed
+
+
+def rows_from_v2_field_values(fields: Any) -> list[dict[str, Any]]:
+    """Existing values read from V2 (``FieldValues``) as rows for :func:`value_equals_existing`:
+    one ``{"fieldId", "value"}`` row per value, keyed by the V2 field id.
+
+    A multi-value field read at the 100-value page limit may hold more values than were
+    returned; it gets an extra ``None`` row so it never compares equal (safe default: write).
+    """
+    from affinity.services._field_updates import MAX_MULTI_VALUES
+
+    rows: list[dict[str, Any]] = []
+    for field_id, field_obj in (getattr(fields, "data", None) or {}).items():
+        value = field_obj.get("value") if isinstance(field_obj, dict) else None
+        data = value.get("data") if isinstance(value, dict) else None
+        if data is None:
+            continue
+        if isinstance(data, list):
+            rows.extend({"fieldId": field_id, "value": item} for item in data)
+            if len(data) >= MAX_MULTI_VALUES:
+                rows.append({"fieldId": field_id, "value": None})
+        else:
+            rows.append({"fieldId": field_id, "value": data})
+    return rows
+
+
+def apply_field_updates(
+    *,
+    resolver: FieldResolver,
+    pre_resolved_set: dict[str, tuple[Any, Any, str]],
+    unsets: Sequence[tuple[str, str]],
+    existing_values_serialized: list[dict[str, Any]],
+    write: Callable[[dict[str, Any], dict[str, str]], Any],
+    append_ops: Sequence[tuple[str, Any]] = (),
+    permission_hint: str = "",
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[str]]:
+    """Write every ``--set`` / ``--set-json`` / ``--unset`` of a command in ONE request.
+
+    Affinity applies the whole batch or none of it, and each update replaces the field's value
+    (a typed ``None`` clears it), so nothing is deleted first. Fields whose new value equals the
+    existing one are skipped. ``unsets`` are ``(spec as typed, field id)`` pairs; they are always
+    sent (clearing is idempotent, and reads can lag a write). ``append_ops`` only feed the
+    multi-value size check, which runs before anything is written.
+
+    ``write(updates, value_types)`` performs the request. Returns ``(created, cleared,
+    written_field_ids)`` with items ``{fieldId, name, value}`` / ``{fieldId, name}``.
+    """
+    import click
+
+    from affinity.exceptions import (
+        AffinityError,
+        AuthorizationError,
+        NetworkError,
+        TimeoutError,
+        WriteNotAllowedError,
+    )
+    from affinity.services._field_updates import MAX_BATCH_UPDATES
+
+    # Keep the "Replaced N existing values" warning for fields that will actually change.
+    for target_field_id, (_raw, new_value, _t) in pre_resolved_set.items():
+        existing_for_field = find_field_values_for_field(
+            field_values=existing_values_serialized, field_id=target_field_id
+        )
+        if len(existing_for_field) > 1 and not value_equals_existing(
+            resolver.get_field_metadata(target_field_id), new_value, existing_for_field
+        ):
+            resolved_name = resolver.get_field_name(target_field_id) or target_field_id
+            old_vals = [fv.get("value") for fv in existing_for_field]
+            display_vals = (
+                [*old_vals[:3], f"...{len(old_vals) - 3} more..."]
+                if len(old_vals) > 5
+                else old_vals
+            )
+            click.echo(
+                f"Warning: Replaced {len(existing_for_field)} existing values "
+                f"for field '{resolved_name}': {display_vals}",
+                err=True,
+            )
+
+    # Size check BEFORE any write, so an over-cap request changes nothing.
+    check_multi_value_limits(
+        resolver=resolver,
+        pre_resolved_set=pre_resolved_set,
+        append_ops=list(append_ops),
+        existing_values_serialized=existing_values_serialized,
+    )
+
+    updates: dict[str, Any] = {}
+    value_types: dict[str, str] = {}
+    for target_field_id, (_raw, new_value, type_str) in pre_resolved_set.items():
+        existing_for_field = find_field_values_for_field(
+            field_values=existing_values_serialized, field_id=target_field_id
+        )
+        if value_equals_existing(
+            resolver.get_field_metadata(target_field_id), new_value, existing_for_field
+        ):
+            continue
+        updates[target_field_id] = new_value
+        value_types[target_field_id] = type_str
+    for spec, target_field_id in unsets:
+        write_type = resolver.write_type(target_field_id)
+        if write_type is None:
+            raise CLIError(
+                f"Cannot clear '{spec}': its value type is unknown. Nothing was changed.",
+                exit_code=2,
+                error_type="usage_error",
+            )
+        updates[target_field_id] = None
+        value_types[target_field_id] = write_type
+
+    unwritable = {fid: t for fid, t in value_types.items() if t in UNWRITABLE_TYPES}
+    if unwritable:
+        names = ", ".join(
+            f"'{resolver.get_field_name(f) or f}' ({t})" for f, t in unwritable.items()
+        )
+        raise CLIError(
+            f"Affinity doesn't accept writes to: {names}. Nothing was changed.",
+            exit_code=2,
+            error_type="usage_error",
+        )
+    if len(updates) > MAX_BATCH_UPDATES:
+        raise CLIError(
+            f"{len(updates)} fields in one command; Affinity accepts at most "
+            f"{MAX_BATCH_UPDATES} per request. Nothing was changed; split the command.",
+            exit_code=2,
+            error_type="usage_error",
+        )
+    if not updates:
+        return [], [], []
+
+    names = ", ".join(resolver.get_field_name(f) or f for f in updates)
+    try:
+        write(updates, value_types)
+    except (TimeoutError, NetworkError) as exc:
+        raise CLIError(
+            f"The update of {names} may or may not have been applied (no response "
+            f"from Affinity: {exc}). Re-running the command is safe.",
+            exit_code=1,
+            error_type="network_error",
+        ) from exc
+    except WriteNotAllowedError:
+        raise
+    except AuthorizationError as exc:
+        raise CLIError(
+            f"Affinity refused the update of {names}; nothing was changed. {permission_hint}{exc}",
+            exit_code=1,
+            error_type="permission_denied",
+        ) from exc
+    except AffinityError as exc:
+        from affinity.exceptions import UnsupportedApiVersionError
+
+        if isinstance(exc, UnsupportedApiVersionError):
+            raise
+        if getattr(exc, "status_code", None) and int(exc.status_code or 0) < 500:
+            raise CLIError(
+                f"Affinity rejected the update of {names}; nothing was changed. {exc}",
+                exit_code=1,
+                error_type="api_error",
+            ) from exc
+        raise
+
+    created: list[dict[str, Any]] = []
+    cleared: list[dict[str, Any]] = []
+    for fid, value in updates.items():
+        item = {"fieldId": fid, "name": resolver.get_field_name(fid) or fid}
+        if value is None:
+            cleared.append(item)
+        else:
+            created.append({**item, "value": value})
+    return created, cleared, list(updates)
