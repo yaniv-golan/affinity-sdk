@@ -2144,6 +2144,8 @@ Affinity API version 2026-07-15 or newer: unpinned, the CLI sends it for the wri
   so enriched fields return their value (they returned <code>null</code> before). Writes need API version
   2026-07-15+ (see Highlights). More than 100 fields in one command, or the same field twice
   (by name, other casing or id, or in both <code>--set</code> and <code>--unset</code>), exits 2 with nothing changed.</li>
+<li>Hints for 401 / 403 errors (and <code>config setup-key</code> on a 403) name the documented causes:
+  a mistyped or revoked key, the key's IP allowlist, in-app sharing and role permissions.</li>
 <li>A single value for a multi-value text field (e.g. <code>--set Industry Fintech</code>) is sent as a
   one-item list; numbers given for text fields (<code>--set-json '{"Description": 42}'</code>) are sent as
   text (Affinity rejects both otherwise).</li>

@@ -2347,8 +2347,12 @@
 <h1 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h1>
 <h2 id="401-403-errors">401 / 403 errors<a class="headerlink" href="#401-403-errors" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Verify your API key is correct.</li>
-<li>Ensure the key has access to the entities you’re querying.</li>
+<li><strong>401:</strong> the key was rejected — mistyped, revoked, or (if the key has an IP allowlist) used
+  from an IP that isn't on it. <code>xaffinity config check-key</code> shows which key is in use (for
+  example a <code>.env</code> overriding your shell); <code>xaffinity config setup-key</code> replaces it.</li>
+<li><strong>403:</strong> the key can't access that resource. Affinity applies your in-app sharing and role
+  permissions to API calls, so check that your user can see the record in Affinity, or ask an
+  admin for the permission the endpoint needs. Also check the key's IP allowlist, if it has one.</li>
 </ul>
 <h2 id="404-immediately-after-create">404 immediately after create<a class="headerlink" href="#404-immediately-after-create" title="Permanent link">&para;</a></h2>
 <p>If you get a 404 <code>NotFoundError</code> when calling <code>get()</code> right after <code>create()</code>, this is due to V1→V2 eventual consistency. The entity exists but hasn't propagated to V2 yet. This typically resolves within 100-500ms, but can take longer under load.</p>

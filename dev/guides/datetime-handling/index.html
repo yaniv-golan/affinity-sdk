@@ -2368,7 +2368,7 @@
 <li><strong>Input (naive strings)</strong>: Interpreted as local time</li>
 <li><strong>Input (with timezone)</strong>: Respected exactly as specified</li>
 <li><strong>Output (tables)</strong>: Displayed in local time</li>
-<li><strong>Output (CSV)</strong>: Displayed in local time (for Excel/sharing)</li>
+<li><strong>Output (CSV)</strong>: The API value as returned (UTC)</li>
 <li><strong>Output (JSON)</strong>: Always UTC for machine consumption</li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="c1"># Date only = midnight in YOUR timezone</span>
@@ -2404,7 +2404,7 @@ xaffinity<span class="w"> </span>interaction<span class="w"> </span>ls<span clas
 </tr>
 <tr>
 <td>CSV output</td>
-<td>times in EST</td>
+<td>times in UTC (as returned by the API)</td>
 </tr>
 <tr>
 <td>JSON output</td>
