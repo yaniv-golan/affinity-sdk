@@ -19,7 +19,8 @@ supported it, so it never filtered anything. To keep some field types, filter th
   `*/fields` endpoints don't declare `fieldTypes` in any API version and Affinity dropped it
   silently, so every field was always returned (noted in 1.19.0). Passing it now raises
   `TypeError`. `field_types=` on the data calls (`companies.get` / `list` / `iter` / `all`, the
-  person equivalents, list entries) is unchanged.
+  person equivalents, list entries) is unchanged. This removal ships in a minor release as a
+  deliberate exception to the MAJOR-bump rule in VERSIONING.md, since the argument never worked.
 
 ## [1.19.0] - 2026-10-08
 
