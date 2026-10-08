@@ -999,6 +999,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#calls-that-need-a-newer-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Calls that need a newer version
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#caching" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2339,6 +2350,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#calls-that-need-a-newer-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Calls that need a newer version
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#caching" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2489,6 +2511,19 @@ because the key's default was changed mid-run. The <code>query</code> command re
 <p>Error details already use <code>apiVersion</code> for <code>v1</code>/<code>v2</code>; the dated version is always called
 <code>affinityApiVersion</code>.</p>
 </div>
+<h2 id="calls-that-need-a-newer-version">Calls that need a newer version<a class="headerlink" href="#calls-that-need-a-newer-version" title="Permanent link">&para;</a></h2>
+<p>A few calls only work (or are only out of beta) from a given version on. For those the SDK
+sends a minimum version for that one request:</p>
+<ul>
+<li><strong>Not pinned:</strong> the request carries the minimum version, even if your key's default is
+  newer. Every other request still uses your key's default.</li>
+<li><strong>Pinned to that version or newer</strong> (or <code>current</code>): your pin is sent, as for any request.</li>
+<li><strong>Pinned to an older version:</strong> the call fails with <code>ApiVersionTooOldError</code> (CLI:
+  <code>api_version_error</code>, exit 2) before anything is sent. Pin a newer version, or remove the pin.</li>
+</ul>
+<p>Versions that answered such calls are listed in <code>client.affinity_api_versions_per_operation</code>
+(a subset of <code>affinity_api_versions_seen</code>) and in the CLI's <code>meta.affinityApiVersionPerOperation</code>.
+They don't trigger the "more than one version" warning.</p>
 <h2 id="caching">Caching<a class="headerlink" href="#caching" title="Permanent link">&para;</a></h2>
 <p>Response shapes differ between versions, so both caches are keyed by the configured version:
 the SDK's in-memory cache and the CLI session cache (<code>AFFINITY_SESSION_CACHE</code>) never serve an
