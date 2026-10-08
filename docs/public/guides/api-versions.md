@@ -112,7 +112,9 @@ sends a minimum version for that one request:
 
 Versions that answered such calls are listed in `client.affinity_api_versions_per_operation`
 (a subset of `affinity_api_versions_seen`) and in the CLI's `meta.affinityApiVersionPerOperation`.
-They don't trigger the "more than one version" warning.
+They don't trigger the "more than one version" warning. Today the only such calls are company
+and person field writes; `meta.affinityApiVersionPerOperation` covers the CLI's main client, which
+is the one those commands use.
 
 ## Caching
 

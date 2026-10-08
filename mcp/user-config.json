@@ -29,7 +29,7 @@
   "api_version": {
     "type": "string",
     "title": "Affinity API Version",
-    "description": "Affinity V2 API version to use, e.g. 2026-09-17 or current. Leave empty to use your API key's default version",
+    "description": "Affinity V2 API version to use, e.g. 2026-09-17 or current. Leave empty to use your API key's default version. Company and person field writes need 2026-07-15 or newer: with 2024-01-01 they fail",
     "required": false,
     "default": ""
   },
