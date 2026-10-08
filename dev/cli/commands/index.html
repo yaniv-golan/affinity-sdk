@@ -4715,8 +4715,10 @@ API did not return the created file.</p>
 <h2 id="lists">Lists<a class="headerlink" href="#lists" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-list-ls"><code>xaffinity list ls</code><a class="headerlink" href="#xaffinity-list-ls" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>ls
+xaffinity<span class="w"> </span>list<span class="w"> </span>ls<span class="w"> </span>--query<span class="w"> </span>pipeline<span class="w"> </span>--json
 xaffinity<span class="w"> </span>list<span class="w"> </span>ls<span class="w"> </span>--all<span class="w"> </span>--json
 </code></pre></div>
+<p><code>--query</code> keeps lists whose name contains the text (case-insensitive; matched by Affinity).</p>
 <h3 id="xaffinity-list-create"><code>xaffinity list create</code><a class="headerlink" href="#xaffinity-list-create" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>list<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">"Dealflow"</span><span class="w"> </span>--type<span class="w"> </span>opportunity<span class="w"> </span>--private
 xaffinity<span class="w"> </span>list<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">"People"</span><span class="w"> </span>--type<span class="w"> </span>person<span class="w"> </span>--public<span class="w"> </span>--owner-id<span class="w"> </span><span class="m">42</span>
