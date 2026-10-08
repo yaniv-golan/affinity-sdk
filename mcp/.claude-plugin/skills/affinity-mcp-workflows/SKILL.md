@@ -176,7 +176,7 @@ Use `discover-commands` to find commands, then `execute-read-command` or `execut
 | `company search "..."` | Find companies matching a description (semantic, ranked, ≤100) |
 | `note search "..." [--company-id X]` | Find notes by their text |
 | `file search "..." [--company-id X]` | Find files by their contents (then `file-url <fileId>`) |
-| `list ls` | List all Affinity lists |
+| `list ls` | List Affinity lists (`--query NAME` matches part of the name) |
 | `field ls --list-id <id>` | Get field definitions and dropdown options |
 
 **Note:** For list exports needing relationships or computed data, use `query` instead of `list export`.

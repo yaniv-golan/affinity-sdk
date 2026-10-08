@@ -220,7 +220,8 @@ with Affinity.from_env() as client:
 
     # Lists
     client.lists.list() / .get() / .all()
-    client.lists.resolve(name="Pipeline Name")
+    client.lists.resolve(name="Pipeline Name")          # exact name, case-insensitive
+    client.lists.pages(term="pipe")                       # names containing "pipe"
     client.lists.get_fields(ListId(123))
 
     # List entries

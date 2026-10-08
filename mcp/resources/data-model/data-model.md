@@ -32,7 +32,7 @@
 
 - List types: Person lists, Company lists, Opportunity lists
 - Each list has **custom Fields** (columns) defined by your team
-- **Commands**: `list ls` (find lists), `list get` (list details)
+- **Commands**: `list ls` (find lists; `--query NAME` matches part of the name), `list get` (list details)
 - **Use case**: Find which lists exist and what fields they have
 
 ### List Entries (Entity + List Membership)

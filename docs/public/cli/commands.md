@@ -598,8 +598,11 @@ API did not return the created file.
 
 ```bash
 xaffinity list ls
+xaffinity list ls --query pipeline --json
 xaffinity list ls --all --json
 ```
+
+`--query` keeps lists whose name contains the text (case-insensitive; matched by Affinity).
 
 ### `xaffinity list create`
 

@@ -299,7 +299,7 @@ Access dynamic data via `xaffinity://` URIs using `read-xaffinity-resource`:
 
 ### Pipeline Review
 
-1. `list ls` to locate the pipeline list
+1. `list ls --query <name>` to locate the pipeline list
 2. `query` tool with listEntries to fetch items with filters
 3. **Or use**: `pipeline-review` prompt
 

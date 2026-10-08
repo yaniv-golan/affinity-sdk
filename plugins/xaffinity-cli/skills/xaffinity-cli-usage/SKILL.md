@@ -206,8 +206,8 @@ xaffinity --readonly person get 12345 --json      # IDs also work
 xaffinity --readonly person ls --query "John Smith" --max-results 10 --json
 xaffinity --readonly company ls --query "Acme" --max-results 10 --json
 
-# All lists; entries of one list
-xaffinity --readonly list ls --json
+# Lists by name (case-insensitive substring); entries of one list
+xaffinity --readonly list ls --query "pipeline" --json
 xaffinity --readonly list export "Pipeline" --max-results 20 --json
 
 # Export to CSV

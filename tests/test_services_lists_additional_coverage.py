@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from datetime import datetime, timezone
+from typing import Any
 
 import httpx
 import pytest
@@ -318,25 +320,35 @@ def test_list_service_list_all_get_fields_and_create_entry_helpers() -> None:
         http.close()
 
 
-def test_list_service_resolve_and_resolve_all_case_insensitive_and_cache() -> None:
-    calls: dict[str, int] = {"lists": 0}
+def _lists_handler(
+    terms: list[str | None], lists: list[dict[str, Any]]
+) -> Callable[[httpx.Request], httpx.Response]:
+    """GET /v2/lists, filtered like Affinity's `term` (case-insensitive substring)."""
 
     def handler(request: httpx.Request) -> httpx.Response:
-        if request.method == "GET" and request.url == httpx.URL("https://v2.example/v2/lists"):
-            calls["lists"] += 1
+        if request.method == "GET" and request.url.path == "/v2/lists":
+            term = request.url.params.get("term")
+            terms.append(term)
+            data = [x for x in lists if term is None or term.lower() in x["name"].lower()]
             return httpx.Response(
-                200,
-                json={
-                    "data": [
-                        {"id": 1, "name": "Pipeline", "type": 8, "public": True, "ownerId": 1},
-                        {"id": 2, "name": "Pipeline", "type": 0, "public": True, "ownerId": 1},
-                        {"id": 3, "name": "Other", "type": 0, "public": True, "ownerId": 1},
-                    ],
-                    "pagination": {"nextUrl": None},
-                },
-                request=request,
+                200, json={"data": data, "pagination": {"nextUrl": None}}, request=request
             )
         return httpx.Response(404, json={"message": "not found"}, request=request)
+
+    return handler
+
+
+_PIPELINES: list[dict[str, Any]] = [
+    {"id": 1, "name": "Pipeline", "type": 8, "public": True, "ownerId": 1},
+    {"id": 2, "name": "Pipeline", "type": 0, "public": True, "ownerId": 1},
+    {"id": 4, "name": "Pipeline 2024", "type": 8, "public": True, "ownerId": 1},
+    {"id": 3, "name": "Other", "type": 0, "public": True, "ownerId": 1},
+]
+
+
+def test_list_service_resolve_and_resolve_all_case_insensitive_and_cache() -> None:
+    terms: list[str | None] = []
+    handler = _lists_handler(terms, _PIPELINES)
 
     http = HTTPClient(
         ClientConfig(
@@ -350,6 +362,8 @@ def test_list_service_resolve_and_resolve_all_case_insensitive_and_cache() -> No
     try:
         svc = ListService(http)
 
+        # Affinity narrows by name (term); the exact match ("Pipeline", not "Pipeline 2024")
+        # is made client-side.
         resolved = svc.resolve(name="pipeline")
         assert resolved is not None
         assert resolved.id == ListId(1)
@@ -358,11 +372,12 @@ def test_list_service_resolve_and_resolve_all_case_insensitive_and_cache() -> No
         resolved_again = svc.resolve(name="pipeline")
         assert resolved_again is not None
         assert resolved_again.id == ListId(1)
-        assert calls["lists"] == 1
+        assert terms == ["pipeline"]
 
+        matches = svc.resolve_all(name="  PIPELINE ")
+        assert matches == []  # exact match keeps the spaces; the term is stripped
         matches = svc.resolve_all(name="PIPELINE")
         assert [m.id for m in matches] == [ListId(1), ListId(2)]
-        assert calls["lists"] == 2
 
         filtered = svc.resolve(name="pipeline", list_type=ListType.OPPORTUNITY)
         assert filtered is not None
@@ -370,14 +385,22 @@ def test_list_service_resolve_and_resolve_all_case_insensitive_and_cache() -> No
         filtered_again = svc.resolve(name="pipeline", list_type=ListType.OPPORTUNITY)
         assert filtered_again is not None
         assert filtered_again.id == ListId(1)
-        assert calls["lists"] == 3
 
+        terms.clear()
         not_found = svc.resolve(name="missing")
         assert not_found is None
+        # A miss falls back to every list, so Affinity's matching can't hide one.
+        assert terms == ["missing", None]
         not_found_again = svc.resolve(name="missing")
         assert not_found_again is None
         # Cached negative result should also avoid further calls.
-        assert calls["lists"] == 4
+        assert terms == ["missing", None]
+
+        # Blank and non-ASCII names skip the prefilter.
+        terms.clear()
+        assert svc.resolve_all(name="  ") == []
+        assert svc.resolve_all(name="Pipelinë") == []
+        assert terms == [None, None]
     finally:
         http.close()
 
@@ -623,23 +646,8 @@ def test_list_service_create_saved_views_and_list_entry_params() -> None:
 
 @pytest.mark.asyncio
 async def test_async_list_service_resolve_and_resolve_all_case_insensitive_and_cache() -> None:
-    calls: dict[str, int] = {"lists": 0}
-
-    def handler(request: httpx.Request) -> httpx.Response:
-        if request.method == "GET" and request.url == httpx.URL("https://v2.example/v2/lists"):
-            calls["lists"] += 1
-            return httpx.Response(
-                200,
-                json={
-                    "data": [
-                        {"id": 1, "name": "Pipeline", "type": 8, "public": True, "ownerId": 1},
-                        {"id": 2, "name": "Pipeline", "type": 0, "public": True, "ownerId": 1},
-                    ],
-                    "pagination": {"nextUrl": None},
-                },
-                request=request,
-            )
-        return httpx.Response(404, json={"message": "not found"}, request=request)
+    terms: list[str | None] = []
+    handler = _lists_handler(terms, _PIPELINES)
 
     http = AsyncHTTPClient(
         ClientConfig(
@@ -660,7 +668,7 @@ async def test_async_list_service_resolve_and_resolve_all_case_insensitive_and_c
         resolved_again = await svc.resolve(name="pipeline")
         assert resolved_again is not None
         assert resolved_again.id == ListId(1)
-        assert calls["lists"] == 1
+        assert terms == ["pipeline"]
 
         matches = await svc.resolve_all(name="PIPELINE")
         assert [m.id for m in matches] == [ListId(1), ListId(2)]
@@ -668,6 +676,10 @@ async def test_async_list_service_resolve_and_resolve_all_case_insensitive_and_c
         filtered = await svc.resolve(name="pipeline", list_type=ListType.OPPORTUNITY)
         assert filtered is not None
         assert filtered.id == ListId(1)
+
+        terms.clear()
+        assert await svc.resolve(name="missing") is None
+        assert terms == ["missing", None]
     finally:
         await http.close()
 

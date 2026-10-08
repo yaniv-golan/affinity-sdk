@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
+import pytest
+
 from tools.generate_mcp_command_registry import add_limit_config, get_param_with_aliases
 
 
@@ -119,3 +124,66 @@ class TestAddLimitConfig:
         add_limit_config(cmd)
 
         assert "limitConfig" not in cmd
+
+
+class TestConfiguredLimitConfig:
+    """`limitConfig` from mcp-commands.json: values kept, flags from the CLI, `false` = none."""
+
+    def _cmd(self, **extra: object) -> dict[str, object]:
+        return {
+            "name": "note search",
+            "parameters": {"--max-results": {"type": "int", "aliases": ["-n"]}},
+            **extra,
+        }
+
+    def test_configured_values_are_kept_and_flags_come_from_the_cli(self) -> None:
+        cmd = self._cmd(limitConfig={"default": 20, "max": 100, "flag": "--wrong"})
+        add_limit_config(cmd)
+        assert cmd["limitConfig"] == {
+            "flag": "--max-results",
+            "flagAliases": ["--max-results", "-n"],
+            "default": 20,
+            "max": 100,
+        }
+
+    def test_partial_config_gets_the_other_default(self) -> None:
+        cmd = self._cmd(limitConfig={"max": 100})
+        add_limit_config(cmd)
+        assert cmd["limitConfig"]["default"] == 1000  # type: ignore[index]
+        assert cmd["limitConfig"]["max"] == 100  # type: ignore[index]
+
+    def test_false_means_no_limit_config(self) -> None:
+        cmd: dict[str, object] = {
+            "name": "company files read",
+            "parameters": {"--limit": {"type": "string"}},
+            "limitConfig": False,
+        }
+        add_limit_config(cmd)
+        assert "limitConfig" not in cmd
+
+    def test_configured_without_a_limit_flag_is_an_error(self) -> None:
+        cmd: dict[str, object] = {"name": "x", "parameters": {}, "limitConfig": {"max": 5}}
+        with pytest.raises(ValueError, match="no --max-results"):
+            add_limit_config(cmd)
+
+
+def test_search_limits_in_the_registry_match_the_sdk() -> None:
+    from affinity.services.search import (
+        FILE_SEARCH_DEFAULT_LIMIT,
+        LIMIT_MAX,
+        NOTE_SEARCH_DEFAULT_LIMIT,
+        SEMANTIC_SEARCH_DEFAULT_LIMIT,
+    )
+
+    registry = json.loads(
+        (Path(__file__).resolve().parents[1] / "mcp/.registry/commands.generated.json").read_text()
+    )
+    limits = {c["name"]: c.get("limitConfig") for c in registry["commands"]}
+    expected = {
+        "note search": NOTE_SEARCH_DEFAULT_LIMIT,
+        "file search": FILE_SEARCH_DEFAULT_LIMIT,
+        "company search": SEMANTIC_SEARCH_DEFAULT_LIMIT,
+    }
+    for name, default in expected.items():
+        assert limits[name]["default"] == default, name
+        assert limits[name]["max"] == LIMIT_MAX, name

@@ -61,6 +61,7 @@
       }
     },
     "person files read": {
+      "limitConfig": false,
       "whenToUse": "Read file content inline with chunking support. Returns base64-encoded content. Use this when Claude Desktop/Cowork blocks presigned URLs (userfiles.affinity.co). For large files, use --offset and --limit to fetch in chunks.",
       "examples": [
         "person files read 67890 --file-id 123456",
@@ -131,6 +132,7 @@
       }
     },
     "company files read": {
+      "limitConfig": false,
       "whenToUse": "Read file content inline with chunking support. Returns base64-encoded content. Use this when Claude Desktop/Cowork blocks presigned URLs (userfiles.affinity.co). For large files, use --offset and --limit to fetch in chunks.",
       "examples": [
         "company files read 12345 --file-id 123456",
@@ -146,6 +148,7 @@
       "relatedCommands": ["company get", "company files ls"]
     },
     "company search": {
+      "limitConfig": {"default": 100, "max": 100},
       "whenToUse": "Find companies from a natural-language description (semantic search), e.g. 'AI infrastructure startups' or 'seed-stage fintech in Europe'. Returns up to 100 companies ranked by relevance score; meta.explanation says how the prompt was read. Use --list to restrict to company lists. NOT for finding a company by its name or domain - use `company ls --query` or `company get \"domain:acme.com\"` for that.",
       "examples": [
         "company search \"AI infrastructure startups\"",
@@ -154,6 +157,7 @@
       "relatedCommands": ["company ls", "company get"]
     },
     "file search": {
+      "limitConfig": {"default": 20, "max": 100},
       "whenToUse": "Search inside file contents (PDFs, decks, docs) by keyword across ALL files (or one company's files with --company-id). Returns up to 100 matches, one per file, with fileId, name, pageNumber and the matching passage. Then use `company files read` or get-file-url with the fileId to fetch the file. To list the files on one record, use `company files ls`.",
       "examples": [
         "file search \"pitch deck\"",
@@ -204,6 +208,7 @@
       }
     },
     "opportunity files read": {
+      "limitConfig": false,
       "whenToUse": "Read file content inline with chunking support. Returns base64-encoded content. Use this when Claude Desktop/Cowork blocks presigned URLs (userfiles.affinity.co). For large files, use --offset and --limit to fetch in chunks.",
       "examples": [
         "opportunity files read 98765 --file-id 123456",
@@ -219,7 +224,11 @@
       "relatedCommands": ["opportunity get", "opportunity files ls"]
     },
     "list ls": {
-      "whenToUse": "Find list IDs by name. Use before list export or field ls.",
+      "whenToUse": "Find list IDs by name. Use --query NAME to match part of a list name (case-insensitive) instead of paging through every list. Use before list export or field ls.",
+      "examples": [
+        "list ls --query \"pipeline\"",
+        "list ls --type opportunity"
+      ],
       "relatedCommands": ["list get", "field ls"],
       "mcpBehavior": {
         "limitEnforced": true,
@@ -359,6 +368,7 @@
       "relatedCommands": ["note ls", "note update"]
     },
     "note search": {
+      "limitConfig": {"default": 20, "max": 100},
       "whenToUse": "Search note text by keyword across ALL notes (or one company's notes with --company-id). Returns up to 100 matches ranked by relevance, each with noteId, kind and the matching passage (preview). Use `note get` for the full note. To list the notes attached to a specific person/company/opportunity, use `note ls` instead.",
       "examples": [
         "note search \"Series B terms\"",

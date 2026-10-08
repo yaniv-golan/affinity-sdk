@@ -242,15 +242,7 @@
         "company files ls",
         "company get"
       ],
-      "mcpNote": "Response includes hasMore and nextOffset for chunked downloads. LLMs with Python sandbox can reassemble chunks and process with tools like PyPDF2, pandas, PIL.",
-      "limitConfig": {
-        "flag": "--limit",
-        "flagAliases": [
-          "--limit"
-        ],
-        "default": 1000,
-        "max": 10000
-      }
+      "mcpNote": "Response includes hasMore and nextOffset for chunked downloads. LLMs with Python sandbox can reassemble chunks and process with tools like PyPDF2, pandas, PIL."
     },
     {
       "name": "company files upload",
@@ -588,11 +580,6 @@
         "company search \"AI infrastructure startups\"",
         "company search \"seed-stage fintech in Europe\" --list \"Dealflow\" --max-results 20"
       ],
-      "whenToUse": "Find companies from a natural-language description (semantic search), e.g. 'AI infrastructure startups' or 'seed-stage fintech in Europe'. Returns up to 100 companies ranked by relevance score; meta.explanation says how the prompt was read. Use --list to restrict to company lists. NOT for finding a company by its name or domain - use `company ls --query` or `company get \"domain:acme.com\"` for that.",
-      "relatedCommands": [
-        "company ls",
-        "company get"
-      ],
       "limitConfig": {
         "flag": "--max-results",
         "flagAliases": [
@@ -600,9 +587,14 @@
           "--limit",
           "-n"
         ],
-        "default": 1000,
-        "max": 10000
-      }
+        "default": 100,
+        "max": 100
+      },
+      "whenToUse": "Find companies from a natural-language description (semantic search), e.g. 'AI infrastructure startups' or 'seed-stage fintech in Europe'. Returns up to 100 companies ranked by relevance score; meta.explanation says how the prompt was read. Use --list to restrict to company lists. NOT for finding a company by its name or domain - use `company ls --query` or `company get \"domain:acme.com\"` for that.",
+      "relatedCommands": [
+        "company ls",
+        "company get"
+      ]
     },
     {
       "name": "company update",
@@ -1228,11 +1220,6 @@
         "file search \"pitch deck\"",
         "file search \"revenue projections\" --company-id 12345 --max-results 5"
       ],
-      "whenToUse": "Search inside file contents (PDFs, decks, docs) by keyword across ALL files (or one company's files with --company-id). Returns up to 100 matches, one per file, with fileId, name, pageNumber and the matching passage. Then use `company files read` or get-file-url with the fileId to fetch the file. To list the files on one record, use `company files ls`.",
-      "relatedCommands": [
-        "company files ls",
-        "company files read"
-      ],
       "limitConfig": {
         "flag": "--max-results",
         "flagAliases": [
@@ -1240,9 +1227,14 @@
           "--limit",
           "-n"
         ],
-        "default": 1000,
-        "max": 10000
-      }
+        "default": 20,
+        "max": 100
+      },
+      "whenToUse": "Search inside file contents (PDFs, decks, docs) by keyword across ALL files (or one company's files with --company-id). Returns up to 100 matches, one per file, with fileId, name, pageNumber and the matching passage. Then use `company files read` or get-file-url with the fileId to fetch the file. To list the files on one record, use `company files ls`.",
+      "relatedCommands": [
+        "company files ls",
+        "company files read"
+      ]
     },
     {
       "name": "interaction create",
@@ -1884,6 +1876,14 @@
             "-s"
           ]
         },
+        "--query": {
+          "type": "string",
+          "required": false,
+          "help": "Only lists whose name contains this text (case-insensitive, matched by Affinity).",
+          "aliases": [
+            "-q"
+          ]
+        },
         "--type": {
           "type": "string",
           "required": false,
@@ -1892,11 +1892,10 @@
       },
       "positionals": [],
       "examples": [
-        "list ls",
-        "list ls --type person",
-        "list ls --type company --all"
+        "list ls --query \"pipeline\"",
+        "list ls --type opportunity"
       ],
-      "whenToUse": "Find list IDs by name. Use before list export or field ls.",
+      "whenToUse": "Find list IDs by name. Use --query NAME to match part of a list name (case-insensitive) instead of paging through every list. Use before list export or field ls.",
       "relatedCommands": [
         "list get",
         "field ls"
@@ -2180,11 +2179,6 @@
         "note search \"Series B terms\"",
         "note search \"pricing\" --company-id \"domain:acme.com\" --max-results 10"
       ],
-      "whenToUse": "Search note text by keyword across ALL notes (or one company's notes with --company-id). Returns up to 100 matches ranked by relevance, each with noteId, kind and the matching passage (preview). Use `note get` for the full note. To list the notes attached to a specific person/company/opportunity, use `note ls` instead.",
-      "relatedCommands": [
-        "note get",
-        "note ls"
-      ],
       "limitConfig": {
         "flag": "--max-results",
         "flagAliases": [
@@ -2192,9 +2186,14 @@
           "--limit",
           "-n"
         ],
-        "default": 1000,
-        "max": 10000
-      }
+        "default": 20,
+        "max": 100
+      },
+      "whenToUse": "Search note text by keyword across ALL notes (or one company's notes with --company-id). Returns up to 100 matches ranked by relevance, each with noteId, kind and the matching passage (preview). Use `note get` for the full note. To list the notes attached to a specific person/company/opportunity, use `note ls` instead.",
+      "relatedCommands": [
+        "note get",
+        "note ls"
+      ]
     },
     {
       "name": "note update",
@@ -2459,15 +2458,7 @@
         "opportunity files ls",
         "opportunity get"
       ],
-      "mcpNote": "Response includes hasMore and nextOffset for chunked downloads. LLMs with Python sandbox can reassemble chunks and process with tools like PyPDF2, pandas, PIL.",
-      "limitConfig": {
-        "flag": "--limit",
-        "flagAliases": [
-          "--limit"
-        ],
-        "default": 1000,
-        "max": 10000
-      }
+      "mcpNote": "Response includes hasMore and nextOffset for chunked downloads. LLMs with Python sandbox can reassemble chunks and process with tools like PyPDF2, pandas, PIL."
     },
     {
       "name": "opportunity files upload",
@@ -2949,15 +2940,7 @@
         "person files ls",
         "person get"
       ],
-      "mcpNote": "Response includes hasMore and nextOffset for chunked downloads. LLMs with Python sandbox can reassemble chunks and process with tools like PyPDF2, pandas, PIL.",
-      "limitConfig": {
-        "flag": "--limit",
-        "flagAliases": [
-          "--limit"
-        ],
-        "default": 1000,
-        "max": 10000
-      }
+      "mcpNote": "Response includes hasMore and nextOffset for chunked downloads. LLMs with Python sandbox can reassemble chunks and process with tools like PyPDF2, pandas, PIL."
     },
     {
       "name": "person files upload",

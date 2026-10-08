@@ -104,6 +104,13 @@ def _parse_unreplied_types(types_str: str) -> list[InteractionType]:
 @category("read")
 @list_group.command(name="ls", cls=RichCommand)
 @click.option("--type", "list_type", type=str, default=None, help="Filter by list type.")
+@click.option(
+    "--query",
+    "-q",
+    type=str,
+    default=None,
+    help="Only lists whose name contains this text (case-insensitive, matched by Affinity).",
+)
 @click.option("--page-size", "-s", type=int, default=None, help="Page size (limit).")
 @click.option(
     "--cursor", type=str, default=None, help="Resume from cursor (incompatible with --page-size)."
@@ -119,6 +126,7 @@ def list_ls(
     ctx: CLIContext,
     *,
     list_type: str | None,
+    query: str | None,
     page_size: int | None,
     cursor: str | None,
     max_results: int | None,
@@ -131,6 +139,7 @@ def list_ls(
 
     - `xaffinity list ls`
     - `xaffinity list ls --type person`
+    - `xaffinity list ls --query pipeline`
     - `xaffinity list ls --type company --all`
     """
 
@@ -144,11 +153,23 @@ def list_ls(
                 exit_code=2,
                 error_type="usage_error",
             )
+        term = query.strip() if query is not None else None
+        if query is not None and not term:
+            raise CLIError("--query cannot be blank.", exit_code=2, error_type="usage_error")
+        if cursor is not None and term is not None:
+            raise CLIError(
+                "--cursor cannot be combined with --query.",
+                exit_code=2,
+                error_type="usage_error",
+                hint="The cursor already carries the query; drop --query when resuming.",
+            )
 
         # Build CommandContext upfront for all return paths
         ctx_modifiers: dict[str, object] = {}
         if list_type:
             ctx_modifiers["type"] = list_type
+        if term is not None:
+            ctx_modifiers["query"] = term
         if page_size is not None:
             ctx_modifiers["pageSize"] = page_size
         if cursor is not None:
@@ -164,7 +185,7 @@ def list_ls(
             modifiers=ctx_modifiers,
         )
 
-        pages = client.lists.pages(limit=page_size, cursor=cursor)
+        pages = client.lists.pages(limit=page_size, cursor=cursor, term=term)
         rows: list[dict[str, object]] = []
         first_page = True
 

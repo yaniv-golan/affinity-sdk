@@ -132,7 +132,16 @@ def get_param_with_aliases(params: dict, flag_name: str) -> tuple[str, list[str]
 
 
 def add_limit_config(cmd: dict) -> None:
-    """Add limitConfig to command if it supports pagination."""
+    """Add limitConfig to command if it supports pagination.
+
+    ``mcp-commands.json`` may set ``limitConfig`` for a command: ``false`` means none (e.g. a
+    ``--limit`` that is a byte size), an object sets ``default`` / ``max`` (e.g. an API that
+    caps results at 100). The flag names always come from the CLI.
+    """
+    configured = cmd.get("limitConfig")
+    if configured is False:
+        del cmd["limitConfig"]
+        return
     params = cmd.get("parameters", {})
 
     # Check for limit parameter (--max-results preferred, fall back to --limit)
@@ -140,14 +149,20 @@ def add_limit_config(cmd: dict) -> None:
     if limit_info is None:
         limit_info = get_param_with_aliases(params, "--limit")
     if limit_info is None:
+        if configured is not None:
+            raise ValueError(
+                f"{cmd.get('name')}: limitConfig is configured but the command has no "
+                "--max-results / --limit option"
+            )
         return  # No pagination support
 
     limit_flag, limit_aliases = limit_info
+    values = configured if isinstance(configured, dict) else {}
     cmd["limitConfig"] = {
         "flag": limit_flag,
         "flagAliases": limit_aliases,
-        "default": 1000,
-        "max": 10000,
+        "default": values.get("default", 1000),
+        "max": values.get("max", 10000),
     }
 
     # Check for unbounded flag (--all)

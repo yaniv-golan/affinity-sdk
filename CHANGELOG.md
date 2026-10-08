@@ -15,6 +15,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `affinity_api_versions_per_operation`; CLI `meta.affinityApiVersionPerOperation`; such
   versions don't trigger the multi-version warning. Internal `HTTPClient.patch(...,
   min_api_version=...)`.
+- `list ls --query TEXT`: lists whose name contains the text (case-insensitive, matched by
+  Affinity). SDK: `term=` on `ListService.list()` / `pages()` (sync and async).
+
+### Changed
+
+- `ListService.resolve()` / `resolve_all()` (and every CLI command that takes a list name) let
+  Affinity narrow the lists by name first instead of reading every list; the exact,
+  case-insensitive comparison is unchanged, and a miss still checks every list. Non-ASCII names
+  always check every list.
+- MCP registry: `note search` / `file search` / `company search` report their real limits
+  (default 20 / 20 / 100, max 100); `files read` commands no longer carry a limit config (their
+  `--limit` is a byte size).
 
 ## [1.20.0] - 2026-10-08
 

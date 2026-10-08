@@ -10,7 +10,7 @@ import builtins
 import re
 import time
 import warnings
-from collections.abc import AsyncIterator, Callable, Iterator, Mapping, Sequence
+from collections.abc import AsyncIterator, Callable, Iterable, Iterator, Mapping, Sequence
 from datetime import date, datetime
 from typing import TYPE_CHECKING, Any, TypeVar
 from urllib.parse import urlsplit
@@ -232,6 +232,18 @@ def _batch_update_items(
     return items
 
 
+def _exact_name_matches(
+    items: Iterable[AffinityList], name: str, list_type: ListType | None
+) -> builtins.list[AffinityList]:
+    """Lists whose name equals ``name`` case-insensitively (and of ``list_type``, if given)."""
+    name_lower = name.lower()
+    return [
+        item
+        for item in items
+        if item.name.lower() == name_lower and (list_type is None or item.type == list_type)
+    ]
+
+
 class ListService:
     """
     Service for managing lists.
@@ -261,6 +273,7 @@ class ListService:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        term: str | None = None,
     ) -> PaginatedResponse[AffinityList]:
         """
         Get all lists accessible to you.
@@ -268,12 +281,15 @@ class ListService:
         Args:
             limit: Maximum results per page.
             cursor: Cursor to resume pagination (opaque; obtained from prior responses).
+            term: Only lists whose name contains this text (case-insensitive substring,
+                matched by Affinity). Kept across pages by the cursor.
 
         Returns:
             Paginated list of lists (without field metadata)
         """
+        term = term or None
         if cursor is not None:
-            if limit is not None:
+            if limit is not None or term is not None:
                 raise ValueError(
                     "Cannot combine 'cursor' with other parameters; cursor encodes all query "
                     "context. Start a new pagination sequence without a cursor to change "
@@ -286,6 +302,8 @@ class ListService:
             params: dict[str, Any] = {}
             if limit is not None:
                 params["limit"] = limit
+            if term is not None:
+                params["term"] = term
             data = self._client.get("/lists", params=params or None)
 
         return PaginatedResponse[AffinityList](
@@ -305,19 +323,22 @@ class ListService:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        term: str | None = None,
     ) -> Iterator[PaginatedResponse[AffinityList]]:
         """
         Iterate list pages (not items), yielding `PaginatedResponse[AffinityList]`.
 
         This is useful for ETL scripts that want checkpoint/resume via `page.next_cursor`.
+        ``term`` keeps only lists whose name contains it (case-insensitive, matched by Affinity).
         """
-        if cursor is not None and limit is not None:
+        term = term or None
+        if cursor is not None and (limit is not None or term is not None):
             raise ValueError(
                 "Cannot combine 'cursor' with other parameters; cursor encodes all query context. "
                 "Start a new pagination sequence without a cursor to change parameters."
             )
         requested_cursor = cursor
-        page = self.list(limit=limit) if cursor is None else self.list(cursor=cursor)
+        page = self.list(limit=limit, term=term) if cursor is None else self.list(cursor=cursor)
         while True:
             yield page
             if not page.has_next:
@@ -393,10 +414,11 @@ class ListService:
         list_type: ListType | None = None,
     ) -> AffinityList | None:
         """
-        Find a single list by name (optionally filtered by type).
+        Find a single list by name (case-insensitive exact match; optionally filtered by type).
 
         Notes:
-        - This iterates list pages client-side (the API does not expose a list-search endpoint).
+        - Affinity narrows the lists by name first (``term``); the exact comparison is made
+          here. If that finds nothing, every list is checked (see `resolve_all()`).
         - Results are cached in-memory on this service instance. If you call this frequently,
           reuse the client, or persist the resolved `ListId` in your own configuration.
 
@@ -406,13 +428,10 @@ class ListService:
         if key in self._resolve_cache:
             return self._resolve_cache[key]
 
-        for item in self.all():
-            if item.name.lower() == name.lower() and (list_type is None or item.type == list_type):
-                self._resolve_cache[key] = item
-                return item
-
-        self._resolve_cache[key] = None
-        return None
+        matches = self.resolve_all(name=name, list_type=list_type)
+        found = matches[0] if matches else None
+        self._resolve_cache[key] = found
+        return found
 
     def resolve_all(
         self,
@@ -421,21 +440,22 @@ class ListService:
         list_type: ListType | None = None,
     ) -> builtins.list[AffinityList]:
         """
-        Find all lists matching a name (optionally filtered by type).
+        Find all lists matching a name (case-insensitive exact match; optionally by type).
 
         Notes:
-        - This iterates list pages client-side (the API does not expose a list-search endpoint).
+        - For an ASCII name, Affinity first narrows the lists by name (``term``, a
+          case-insensitive substring match) and the exact comparison is made here. If that
+          yields no match, every list is checked, so a difference in how Affinity folds case
+          or whitespace can't hide a list. Non-ASCII names always check every list.
         - Unlike `resolve()`, this does not cache results.
         """
-        matches: builtins.list[AffinityList] = []
-        name_lower = name.lower()
-        for item in self.all():
-            if item.name.lower() != name_lower:
-                continue
-            if list_type is not None and item.type != list_type:
-                continue
-            matches.append(item)
-        return matches
+        term = name.strip()
+        if term and term.isascii():
+            candidates = (item for page in self.pages(term=term) for item in page.data)
+            matches = _exact_name_matches(candidates, name, list_type)
+            if matches:
+                return matches
+        return _exact_name_matches(self.all(), name, list_type)
 
     def create(self, data: ListCreate) -> AffinityList:
         """
@@ -1380,6 +1400,7 @@ class AsyncListService:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        term: str | None = None,
     ) -> PaginatedResponse[AffinityList]:
         """
         Get all lists accessible to you.
@@ -1387,12 +1408,15 @@ class AsyncListService:
         Args:
             limit: Maximum results per page.
             cursor: Cursor to resume pagination (opaque; obtained from prior responses).
+            term: Only lists whose name contains this text (case-insensitive substring,
+                matched by Affinity). Kept across pages by the cursor.
 
         Returns:
             Paginated list of lists (without field metadata)
         """
+        term = term or None
         if cursor is not None:
-            if limit is not None:
+            if limit is not None or term is not None:
                 raise ValueError(
                     "Cannot combine 'cursor' with other parameters; cursor encodes all query "
                     "context. Start a new pagination sequence without a cursor to change "
@@ -1405,6 +1429,8 @@ class AsyncListService:
             params: dict[str, Any] = {}
             if limit is not None:
                 params["limit"] = limit
+            if term is not None:
+                params["term"] = term
             data = await self._client.get("/lists", params=params or None)
         return PaginatedResponse[AffinityList](
             data=[
@@ -1423,19 +1449,26 @@ class AsyncListService:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        term: str | None = None,
     ) -> AsyncIterator[PaginatedResponse[AffinityList]]:
         """
         Iterate list pages (not items), yielding `PaginatedResponse[AffinityList]`.
 
         This is useful for ETL scripts that want checkpoint/resume via `page.next_cursor`.
+        ``term`` keeps only lists whose name contains it (case-insensitive, matched by Affinity).
         """
-        if cursor is not None and limit is not None:
+        term = term or None
+        if cursor is not None and (limit is not None or term is not None):
             raise ValueError(
                 "Cannot combine 'cursor' with other parameters; cursor encodes all query context. "
                 "Start a new pagination sequence without a cursor to change parameters."
             )
         requested_cursor = cursor
-        page = await self.list(limit=limit) if cursor is None else await self.list(cursor=cursor)
+        page = (
+            await self.list(limit=limit, term=term)
+            if cursor is None
+            else await self.list(cursor=cursor)
+        )
         while True:
             yield page
             if not page.has_next:
@@ -1597,10 +1630,11 @@ class AsyncListService:
         list_type: ListType | None = None,
     ) -> AffinityList | None:
         """
-        Find a single list by name (optionally filtered by type).
+        Find a single list by name (case-insensitive exact match; optionally filtered by type).
 
         Notes:
-        - This iterates list pages client-side (the API does not expose a list-search endpoint).
+        - Affinity narrows the lists by name first (``term``); the exact comparison is made
+          here. If that finds nothing, every list is checked (see `resolve_all()`).
         - Results are cached in-memory on this service instance. If you call this frequently,
           reuse the client, or persist the resolved `ListId` in your own configuration.
 
@@ -1610,13 +1644,10 @@ class AsyncListService:
         if key in self._resolve_cache:
             return self._resolve_cache[key]
 
-        async for item in self.all():
-            if item.name.lower() == name.lower() and (list_type is None or item.type == list_type):
-                self._resolve_cache[key] = item
-                return item
-
-        self._resolve_cache[key] = None
-        return None
+        matches = await self.resolve_all(name=name, list_type=list_type)
+        found = matches[0] if matches else None
+        self._resolve_cache[key] = found
+        return found
 
     async def resolve_all(
         self,
@@ -1625,21 +1656,22 @@ class AsyncListService:
         list_type: ListType | None = None,
     ) -> builtins.list[AffinityList]:
         """
-        Find all lists matching a name (optionally filtered by type).
+        Find all lists matching a name (case-insensitive exact match; optionally by type).
 
         Notes:
-        - This iterates list pages client-side (the API does not expose a list-search endpoint).
+        - For an ASCII name, Affinity first narrows the lists by name (``term``, a
+          case-insensitive substring match) and the exact comparison is made here. If that
+          yields no match, every list is checked, so a difference in how Affinity folds case
+          or whitespace can't hide a list. Non-ASCII names always check every list.
         - Unlike `resolve()`, this does not cache results.
         """
-        matches: builtins.list[AffinityList] = []
-        name_lower = name.lower()
-        async for item in self.all():
-            if item.name.lower() != name_lower:
-                continue
-            if list_type is not None and item.type != list_type:
-                continue
-            matches.append(item)
-        return matches
+        term = name.strip()
+        if term and term.isascii():
+            candidates = [item async for page in self.pages(term=term) for item in page.data]
+            matches = _exact_name_matches(candidates, name, list_type)
+            if matches:
+                return matches
+        return _exact_name_matches([item async for item in self.all()], name, list_type)
 
     # =========================================================================
     # Write Operations (V1 API)
