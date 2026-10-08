@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `field-catalogs/<list name>` found only lists on the first page of `list ls` (the first 100),
+  matched names case-sensitively, and failed on percent-encoded names (`Deal%20Pipeline`). It now
+  resolves the name through the CLI (`field ls --list-id`, one call: all lists, case-insensitive,
+  ambiguous names listed with their ids) and decodes the name first.
+- Shell helpers no longer crash (bash segfault from endless recursion) when
+  `MCPBASH_JSON_TOOL_BIN` is unset or set to plain `jq`, which is the case for resource reads.
+
+### Removed
+
+- Unused `resolve_list` shell helper.
+
 ## [1.23.0] - 2026-10-08
 
 ### Highlights

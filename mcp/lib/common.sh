@@ -62,7 +62,9 @@ source "${MCPBASH_PROJECT_ROOT}/lib/cache.sh"
 # jq_tool() is the canonical name (follows mcp-bash proposal pattern).
 # jq() is kept for backwards compatibility with existing tools.
 
-jq_tool() { "${MCPBASH_JSON_TOOL_BIN:-jq}" "$@"; }
+# `command` skips shell functions: without it a bare "jq" (variable unset or set to "jq") would
+# call the jq() function below, which calls jq_tool again, until bash crashes.
+jq_tool() { command "${MCPBASH_JSON_TOOL_BIN:-jq}" "$@"; }
 jq() { jq_tool "$@"; }
 
 # ==============================================================================
@@ -550,39 +552,3 @@ get_or_fetch_workflow_config() {
     echo "$result"
 }
 
-# Resolve a list by name or ID
-# Usage: resolve_list <name_or_id>
-# Returns: list ID
-resolve_list() {
-    local name_or_id="$1"
-
-    # If it looks like an ID, return it
-    if [[ "$name_or_id" =~ ^[0-9]+$ ]]; then
-        echo "$name_or_id"
-        return 0
-    fi
-
-    # Search by name (capture stderr for error logging)
-    local result stderr_file
-    stderr_file=$(mktemp)
-    if ! result=$(run_xaffinity_readonly list ls --output json --quiet \
-        ${AFFINITY_SESSION_CACHE:+--session-cache "$AFFINITY_SESSION_CACHE"} 2>"$stderr_file"); then
-        local cli_error
-        cli_error=$(cat "$stderr_file" 2>/dev/null | head -c 200 || echo "unknown error")
-        xaffinity_log_warn "resolve-list" "list ls failed: $cli_error"
-        rm -f "$stderr_file"
-        return 1
-    fi
-    rm -f "$stderr_file"
-
-    local list_id
-    list_id=$(echo "$result" | jq_tool -r --arg name "$name_or_id" \
-        '.data.lists[] | select(.name == $name) | .id' | head -1)
-
-    if [[ -n "$list_id" ]]; then
-        echo "$list_id"
-        return 0
-    fi
-
-    return 1
-}

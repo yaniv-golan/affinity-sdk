@@ -11,36 +11,36 @@ if [[ -z "${entityType}" ]]; then
     exit 4
 fi
 
-jq_tool="${MCPBASH_JSON_TOOL_BIN:-jq}"
+# Clients that expand {entityType} percent-encode it ("Deal%20Pipeline").
+entityType="$(printf '%b' "${entityType//%/\\x}")"
 
-# Resolve list name to ID if not numeric and not a known entity type
-listId=""
-if [[ "${entityType}" =~ ^[0-9]+$ ]]; then
-    listId="${entityType}"
-elif [[ ! "${entityType}" =~ ^(company|companies|person|persons|people|opportunity|opportunities)$ ]]; then
-    # Try to resolve as list name
-    lists_output=$("${XAFFINITY_CLI:-xaffinity}" list ls --json 2>&1) || {
-        echo "Failed to fetch lists: ${lists_output}" >&2
-        exit 3
-    }
-    listId=$(echo "${lists_output}" | "$jq_tool" -r --arg name "${entityType}" '
-        .data.lists[] | select(.name == $name) | .id // empty
-    ')
-    if [[ -z "${listId}" ]]; then
-        echo "Unknown entity type or list name: ${entityType}. Use a list ID (numeric), list name, 'company', 'person', or 'opportunity'." >&2
-        exit 4
+if [[ ! "${entityType}" =~ ^(company|companies|person|persons|people|opportunity|opportunities)$ ]]; then
+    # A list id or name. `field ls --list-id` resolves a name across all lists (case-insensitive,
+    # ambiguity reported) and returns the list's fields in the same call.
+    fields_output="$(run_xaffinity_readonly field ls --list-id "${entityType}" --output json --quiet \
+        ${AFFINITY_SESSION_CACHE:+--session-cache "$AFFINITY_SESSION_CACHE"} 2>/dev/null)" || true
+    error_type="$(jq_tool -r '.error.type // empty' <<<"${fields_output}" 2>/dev/null || true)"
+    listId="$(jq_tool -r '.command.modifiers.listId // empty' <<<"${fields_output}" 2>/dev/null || true)"
+    if [[ -n "${error_type}" || -z "${listId}" ]]; then
+        case "${error_type}" in
+            not_found)
+                echo "Unknown entity type or list name: ${entityType}. Use a list ID (numeric), list name, 'company', 'person', or 'opportunity'." >&2
+                exit 4
+                ;;
+            ambiguous_resolution)
+                candidates="$(jq_tool -r '[.error.details.matches[]? | "\(.name) (\(.listId))"] | join(", ")' <<<"${fields_output}" 2>/dev/null || true)"
+                echo "List name '${entityType}' matches several lists: ${candidates}. Use the list ID." >&2
+                exit 4
+                ;;
+            *)
+                message="$(jq_tool -r '.error.message // empty' <<<"${fields_output}" 2>/dev/null || true)"
+                echo "Failed to get fields for list ${entityType}: ${message:-${fields_output:0:200}}" >&2
+                exit 5
+                ;;
+        esac
     fi
-fi
 
-# Handle list ID (numeric or resolved from name)
-if [[ -n "${listId}" ]]; then
-    # List ID - get list-specific fields
-    fields_output=$("${XAFFINITY_CLI:-xaffinity}" field ls --list-id "${listId}" --json 2>&1) || {
-        echo "Failed to get fields for list ${listId}: ${fields_output}" >&2
-        exit 3
-    }
-
-    echo "${fields_output}" | "$jq_tool" -c --arg listId "${listId}" '
+    jq_tool -c --arg listId "${listId}" '
         {
             entityType: "list",
             listId: ($listId | tonumber),
@@ -53,12 +53,12 @@ if [[ -n "${listId}" ]]; then
             }) | map(if .dropdownOptions == null then del(.dropdownOptions) else . end)),
             note: "Use field names in --filter expressions: --filter '\''FieldName=\"Value\"'\''"
         }
-    '
+    ' <<<"${fields_output}"
 else
     # Global entity type - return fixed schema info
     case "${entityType}" in
         company|companies)
-            "$jq_tool" -n '{
+            jq_tool -n '{
                 entityType: "company",
                 fields: [
                     {name: "id", type: "integer", description: "Unique company ID"},
@@ -71,7 +71,7 @@ else
             }'
             ;;
         person|persons|people)
-            "$jq_tool" -n '{
+            jq_tool -n '{
                 entityType: "person",
                 fields: [
                     {name: "id", type: "integer", description: "Unique person ID"},
@@ -84,7 +84,7 @@ else
             }'
             ;;
         opportunity|opportunities)
-            "$jq_tool" -n '{
+            jq_tool -n '{
                 entityType: "opportunity",
                 note: "Opportunities are list-specific. Use field-catalogs/{listId} or field-catalogs/{listName} with a pipeline list to see opportunity fields."
             }'
