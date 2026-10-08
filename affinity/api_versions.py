@@ -30,6 +30,16 @@ _KEY_DEFAULT_ALIASES = frozenset({"", "auto", "key-default", "default"})
 _DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
+def validate_min_api_version(value: str) -> str:
+    """Check an operation's minimum API version: a version this SDK knows (``YYYY-MM-DD``)."""
+    if value not in KNOWN_AFFINITY_API_VERSIONS:
+        raise ValueError(
+            f"min_api_version must be one of {', '.join(KNOWN_AFFINITY_API_VERSIONS)}, "
+            f"not {value!r}"
+        )
+    return value
+
+
 def normalize_affinity_api_version(value: str | None) -> tuple[str | None, str | None]:
     """
     Validate and normalize a configured Affinity API version.

@@ -53,6 +53,7 @@ def _emit_json(result: CommandResult) -> None:
             "notRequested",
             "explanation",
             "affinityApiVersion",
+            "affinityApiVersionPerOperation",
         ):
             if meta.get(key) is None:
                 meta.pop(key, None)
@@ -191,6 +192,10 @@ def api_version_meta(ctx: CLIContext, warnings: list[str]) -> str | list[str] | 
         return None
     if len(versions) == 1:
         return str(versions[0])
+    # Calls that need a minimum version are sent with it on purpose: not a reason to warn.
+    per_operation = set(ctx.api_versions_per_operation())
+    if len({v for v in versions if v not in per_operation}) <= 1:
+        return [str(v) for v in versions]
     message = (
         "Responses in this command came from more than one Affinity API version "
         f"({', '.join(versions)}); pin one with --api-version for consistent results."
@@ -235,6 +240,7 @@ def run_command(ctx: CLIContext, *, command: str, fn: CommandFn) -> None:
             not_requested=out.not_requested,
             explanation=out.explanation,
             affinity_api_version=api_version,
+            affinity_api_version_per_operation=ctx.api_versions_per_operation(),
         )
         emit_result(ctx, result)
         raise click.exceptions.Exit(out.exit_code)
@@ -267,6 +273,7 @@ def run_command(ctx: CLIContext, *, command: str, fn: CommandFn) -> None:
             truncated=None,
             truncation_reason=None,
             affinity_api_version=api_version,
+            affinity_api_version_per_operation=ctx.api_versions_per_operation(),
         )
         emit_result(ctx, result)
         raise click.exceptions.Exit(code) from exc

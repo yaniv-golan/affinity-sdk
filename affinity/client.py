@@ -561,6 +561,15 @@ class Affinity:
         """V2 API versions Affinity reported answering with so far (incl. cache hits)."""
         return self._http.affinity_api_versions_seen
 
+    @property
+    def affinity_api_versions_per_operation(self) -> frozenset[str]:
+        """Versions that answered calls needing a newer API version than the key's default.
+
+        Such calls (e.g. company/person field writes) send their minimum version when the
+        client isn't pinned. A subset of ``affinity_api_versions_seen``.
+        """
+        return self._http.affinity_api_versions_per_operation
+
     def get_key_default_api_version(self) -> str | None:
         """The API key's default V2 API version (one unversioned V2 request)."""
         return self._http.probe_key_default_api_version()
@@ -939,6 +948,15 @@ class AsyncAffinity:
     def affinity_api_versions_seen(self) -> frozenset[str]:
         """V2 API versions Affinity reported answering with so far (incl. cache hits)."""
         return self._http.affinity_api_versions_seen
+
+    @property
+    def affinity_api_versions_per_operation(self) -> frozenset[str]:
+        """Versions that answered calls needing a newer API version than the key's default.
+
+        Such calls (e.g. company/person field writes) send their minimum version when the
+        client isn't pinned. A subset of ``affinity_api_versions_seen``.
+        """
+        return self._http.affinity_api_versions_per_operation
 
     async def get_key_default_api_version(self) -> str | None:
         """The API key's default V2 API version (one unversioned V2 request)."""

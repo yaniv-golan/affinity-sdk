@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Calls that need a minimum Affinity API version: an unpinned client sends that version for the
+  call; a client pinned to an older version raises `ApiVersionTooOldError` (new, a subclass of
+  `UnsupportedApiVersionError`) before sending anything. SDK
+  `affinity_api_versions_per_operation`; CLI `meta.affinityApiVersionPerOperation`; such
+  versions don't trigger the multi-version warning. Internal `HTTPClient.patch(...,
+  min_api_version=...)`.
+
 ## [1.20.0] - 2026-10-08
 
 ### Highlights

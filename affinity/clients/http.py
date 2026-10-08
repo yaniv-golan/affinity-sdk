@@ -37,8 +37,10 @@ import httpx
 
 from ..api_versions import (
     AFFINITY_API_VERSION_HEADER,
+    CURRENT_AFFINITY_API_VERSION,
     KNOWN_AFFINITY_API_VERSIONS,
     normalize_affinity_api_version,
+    validate_min_api_version,
 )
 from ..downloads import (
     AsyncDownloadedFile,
@@ -47,6 +49,7 @@ from ..downloads import (
 )
 from ..exceptions import (
     AffinityError,
+    ApiVersionTooOldError,
     ConfigurationError,
     ErrorDiagnostics,
     NetworkError,
@@ -1104,6 +1107,10 @@ def _header_value(headers: Sequence[tuple[str, str]], name: str) -> str | None:
 _UNSET: Any = object()
 
 
+def _url_path(url: str) -> str:
+    return httpx.URL(url).path
+
+
 class _ApiVersionTracker:
     """Per-client V2 API version handling: header injection and echo tracking (thread-safe)."""
 
@@ -1111,8 +1118,30 @@ class _ApiVersionTracker:
         self._config = config
         self._lock = threading.Lock()
         self._seen: set[str] = set()
+        self._per_operation: set[str] = set()
         self._last: str | None = None
         self._mismatch_logged = False
+
+    def per_operation_context(self, minimum: str, operation: str) -> RequestContext:
+        """Context for a call that needs at least API version ``minimum``.
+
+        Pinned to ``current`` or a version >= minimum: the pin, as for any request (empty
+        context). Pinned older: ``ApiVersionTooOldError`` (nothing is sent). Not pinned: send
+        ``minimum`` - even when the key's default is newer, so the version never depends on
+        which responses this client happened to see.
+        """
+        minimum = validate_min_api_version(minimum)
+        pinned = self._config.affinity_api_version
+        if pinned is not None:
+            if pinned == CURRENT_AFFINITY_API_VERSION or pinned >= minimum:
+                return {}
+            raise ApiVersionTooOldError(
+                f"{operation} needs Affinity API version {minimum} or newer, but the client is "
+                f"pinned to {pinned}.",
+                requested_version=pinned,
+                required_version=minimum,
+            )
+        return {"affinity_api_version": minimum, "affinity_api_version_per_operation": True}
 
     def requested(self, req: SDKRequest) -> str | None:
         """The header value to send for this request (None -> no header)."""
@@ -1140,6 +1169,12 @@ class _ApiVersionTracker:
         if not echoed:
             return
         resp.context["affinity_api_version"] = echoed
+        if req.context.get("affinity_api_version_per_operation"):
+            # Chosen for this operation: a version that answered, but not the key default.
+            with self._lock:
+                self._seen.add(echoed)
+                self._per_operation.add(echoed)
+            return
         if "affinity_api_version" in req.context:
             return  # per-request override (e.g. key-default probe): not the client's version
         expected = self._config.expected_v2_version
@@ -1156,11 +1191,22 @@ class _ApiVersionTracker:
                 expected,
             )
 
-    def map_error(self, exc: ValidationError, version: str | None) -> AffinityError:
+    def map_error(
+        self, exc: ValidationError, version: str | None, *, per_operation: bool = False
+    ) -> AffinityError:
         """Turn a 400 on the version header into an UnsupportedApiVersionError."""
         param = (exc.param or "").strip().lower()
         if param != "x-affinity-api-version":
             return exc
+        if per_operation:
+            return UnsupportedApiVersionError(
+                f"Affinity rejected API version {version!r} (X-Affinity-Api-Version), which "
+                f"this operation needs: {exc.message}",
+                requested_version=version,
+                status_code=exc.status_code,
+                response_body=exc.response_body,
+                diagnostics=exc.diagnostics,
+            )
         shown = version if version is not None else "(none)"
         return UnsupportedApiVersionError(
             f"Affinity rejected API version {shown!r} (X-Affinity-Api-Version): "
@@ -1177,6 +1223,10 @@ class _ApiVersionTracker:
         with self._lock:
             return frozenset(self._seen)
 
+    def per_operation(self) -> frozenset[str]:
+        with self._lock:
+            return frozenset(self._per_operation)
+
     def last(self) -> str | None:
         with self._lock:
             return self._last
@@ -1184,6 +1234,7 @@ class _ApiVersionTracker:
     def reset(self) -> None:
         with self._lock:
             self._seen.clear()
+            self._per_operation.clear()
             self._last = None
 
 
@@ -1473,7 +1524,11 @@ class HTTPClient:
             try:
                 resp = next(replace(req, headers=headers))
             except ValidationError as exc:
-                mapped = self._api_versions.map_error(exc, version)
+                mapped = self._api_versions.map_error(
+                    exc,
+                    version,
+                    per_operation=bool(req.context.get("affinity_api_version_per_operation")),
+                )
                 if mapped is exc:
                     raise
                 raise mapped from exc
@@ -2117,6 +2172,15 @@ class HTTPClient:
         """V2 API version echoed by the most recent V2 response (incl. cache hits)."""
         return self._api_versions.last()
 
+    @property
+    def affinity_api_versions_per_operation(self) -> frozenset[str]:
+        """Versions that answered calls needing a minimum version (sent as that minimum).
+
+        A subset of ``affinity_api_versions_seen``; these responses don't update
+        ``last_affinity_api_version`` (which tracks the API key's default).
+        """
+        return self._api_versions.per_operation()
+
     def _reset_affinity_api_versions_seen(self) -> None:
         self._api_versions.reset()
 
@@ -2216,6 +2280,7 @@ class HTTPClient:
         idempotent: bool = False,
         cache_key: str | None = None,
         cache_ttl: float | None = None,
+        min_api_version: str | None = None,
         **kwargs: Any,
     ) -> dict[str, Any]:
         headers = kwargs.pop("headers", None) or {}
@@ -2228,6 +2293,16 @@ class HTTPClient:
             raise TypeError(f"Unsupported request kwargs: {sorted(kwargs.keys())}")
 
         context: RequestContext = {}
+        if min_api_version is not None:
+            if v1:
+                raise ValueError("min_api_version applies to V2 requests only")
+            # Decided once, before the pipeline: retries reuse it, and a pin that is too old
+            # raises before any hook, write guard or transport runs.
+            context.update(
+                self._api_versions.per_operation_context(
+                    min_api_version, f"{method.upper()} {_url_path(url)}"
+                )
+            )
         if safe_follow:
             context["safe_follow"] = True
         if idempotent:
@@ -2402,10 +2477,19 @@ class HTTPClient:
         *,
         json: Any = None,
         v1: bool = False,
+        min_api_version: str | None = None,
     ) -> dict[str, Any]:
-        """Make a PATCH request."""
+        """
+        Make a PATCH request.
+
+        ``min_api_version`` (V2 only): the oldest Affinity API version this call works with. An
+        unpinned client sends that version for this request; a client pinned to an older
+        version raises ``ApiVersionTooOldError`` without sending anything.
+        """
         url = self._build_url(path, v1=v1)
-        return self._request_with_retry("PATCH", url, v1=v1, json=json, write_intent=True)
+        return self._request_with_retry(
+            "PATCH", url, v1=v1, json=json, write_intent=True, min_api_version=min_api_version
+        )
 
     def delete(
         self,
@@ -2958,7 +3042,11 @@ class AsyncHTTPClient:
             try:
                 resp = await next(replace(req, headers=headers))
             except ValidationError as exc:
-                mapped = self._api_versions.map_error(exc, version)
+                mapped = self._api_versions.map_error(
+                    exc,
+                    version,
+                    per_operation=bool(req.context.get("affinity_api_version_per_operation")),
+                )
                 if mapped is exc:
                     raise
                 raise mapped from exc
@@ -3628,6 +3716,15 @@ class AsyncHTTPClient:
         """V2 API version echoed by the most recent V2 response (incl. cache hits)."""
         return self._api_versions.last()
 
+    @property
+    def affinity_api_versions_per_operation(self) -> frozenset[str]:
+        """Versions that answered calls needing a minimum version (sent as that minimum).
+
+        A subset of ``affinity_api_versions_seen``; these responses don't update
+        ``last_affinity_api_version`` (which tracks the API key's default).
+        """
+        return self._api_versions.per_operation()
+
     def _reset_affinity_api_versions_seen(self) -> None:
         self._api_versions.reset()
 
@@ -3719,6 +3816,7 @@ class AsyncHTTPClient:
         idempotent: bool = False,
         cache_key: str | None = None,
         cache_ttl: float | None = None,
+        min_api_version: str | None = None,
         **kwargs: Any,
     ) -> dict[str, Any]:
         headers = kwargs.pop("headers", None) or {}
@@ -3731,6 +3829,16 @@ class AsyncHTTPClient:
             raise TypeError(f"Unsupported request kwargs: {sorted(kwargs.keys())}")
 
         context: RequestContext = {}
+        if min_api_version is not None:
+            if v1:
+                raise ValueError("min_api_version applies to V2 requests only")
+            # Decided once, before the pipeline: retries reuse it, and a pin that is too old
+            # raises before any hook, write guard or transport runs.
+            context.update(
+                self._api_versions.per_operation_context(
+                    min_api_version, f"{method.upper()} {_url_path(url)}"
+                )
+            )
         if safe_follow:
             context["safe_follow"] = True
         if idempotent:
@@ -3881,9 +3989,19 @@ class AsyncHTTPClient:
         *,
         json: Any = None,
         v1: bool = False,
+        min_api_version: str | None = None,
     ) -> dict[str, Any]:
+        """
+        Make a PATCH request.
+
+        ``min_api_version`` (V2 only): the oldest Affinity API version this call works with. An
+        unpinned client sends that version for this request; a client pinned to an older
+        version raises ``ApiVersionTooOldError`` without sending anything.
+        """
         url = self._build_url(path, v1=v1)
-        return await self._request_with_retry("PATCH", url, v1=v1, json=json, write_intent=True)
+        return await self._request_with_retry(
+            "PATCH", url, v1=v1, json=json, write_intent=True, min_api_version=min_api_version
+        )
 
     async def delete(
         self,

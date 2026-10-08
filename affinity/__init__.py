@@ -44,6 +44,7 @@ from .client import Affinity, AsyncAffinity
 # Exceptions
 from .exceptions import (
     AffinityError,
+    ApiVersionTooOldError,
     AuthenticationError,
     AuthorizationError,
     CompanyMergedError,
@@ -130,6 +131,7 @@ __all__ = [
     "TooManyResultsError",
     "VersionCompatibilityError",
     "UnsupportedApiVersionError",
+    "ApiVersionTooOldError",
     "UnsupportedOperationError",
     "DuplicateEntityError",
     "EnrichedFieldNotWritableError",

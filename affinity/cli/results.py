@@ -306,6 +306,11 @@ class CommandMeta(AffinityModel):
     # Affinity V2 API version(s) that answered this command (echoed X-Affinity-Api-Version,
     # incl. cache hits): a string, or a sorted list when more than one answered.
     affinity_api_version: str | list[str] | None = Field(None, alias="affinityApiVersion")
+    # Of those, the versions that answered calls needing a minimum version (sent as that
+    # minimum, e.g. company/person field writes need 2026-07-15). Sorted; absent when none.
+    affinity_api_version_per_operation: list[str] | None = Field(
+        None, alias="affinityApiVersionPerOperation"
+    )
 
 
 class CommandResult(AffinityModel):

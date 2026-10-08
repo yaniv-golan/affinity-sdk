@@ -99,6 +99,22 @@ because the key's default was changed mid-run. The `query` command reports it in
     Error details already use `apiVersion` for `v1`/`v2`; the dated version is always called
     `affinityApiVersion`.
 
+## Calls that need a newer version
+
+A few calls only work (or are only out of beta) from a given version on. For those the SDK
+sends a minimum version for that one request:
+
+- **Not pinned:** the request carries the minimum version, even if your key's default is
+  newer. Every other request still uses your key's default.
+- **Pinned to that version or newer** (or `current`): your pin is sent, as for any request.
+- **Pinned to an older version:** the call fails with `ApiVersionTooOldError` (CLI:
+  `api_version_error`, exit 2) before anything is sent. Pin a newer version, or remove the pin.
+
+Versions that answered such calls are listed in `client.affinity_api_versions_per_operation`
+(a subset of `affinity_api_versions_seen`) and in the CLI's `meta.affinityApiVersionPerOperation`.
+They don't trigger the "more than one version" warning. For your own calls,
+`client._http.patch(path, json=..., min_api_version="2026-07-15")` does the same.
+
 ## Caching
 
 Response shapes differ between versions, so both caches are keyed by the configured version:

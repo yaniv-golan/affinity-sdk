@@ -45,8 +45,12 @@ class RequestContext(TypedDict, total=False):
     stop_at_redirect: bool
     # Per-request X-Affinity-Api-Version override: a version string to send, or None to send
     # no header (the API key's default applies). Absent -> the client's configured version.
-    # Responses to overridden requests are not added to the client's versions-seen set.
+    # Responses to overridden requests are not added to the client's versions-seen set,
+    # except per-operation ones (below).
     affinity_api_version: str | None
+    # The override is the minimum version this operation needs (unpinned client): its echo is
+    # recorded in versions-seen and versions-per-operation, but not as the key default.
+    affinity_api_version_per_operation: bool
 
 
 class ResponseContext(TypedDict, total=False):

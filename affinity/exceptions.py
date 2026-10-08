@@ -567,11 +567,12 @@ class VersionCompatibilityError(AffinityError):
 
 class UnsupportedApiVersionError(VersionCompatibilityError, ValidationError):
     """
-    Affinity rejected the requested V2 API version (``X-Affinity-Api-Version``).
+    A V2 API version (``X-Affinity-Api-Version``) can't be used for this request.
 
     Raised for a 400 response whose error ``param`` is ``X-Affinity-Api-Version`` - the
     pinned version (``affinity_api_version=...`` / CLI ``--api-version``) is not one this
-    API key can use. The SDK never falls back silently to another version.
+    API key can use - and, as :class:`ApiVersionTooOldError`, before sending a call that needs
+    a newer version than the pin. The SDK never falls back silently to another version.
 
     Also a :class:`ValidationError`, so existing ``except ValidationError`` handlers still
     catch it.
@@ -598,6 +599,19 @@ class UnsupportedApiVersionError(VersionCompatibilityError, ValidationError):
 
     def __str__(self) -> str:
         return AffinityError.__str__(self)
+
+
+class ApiVersionTooOldError(UnsupportedApiVersionError):
+    """
+    The client is pinned to an API version older than an operation needs.
+
+    Raised before the request is sent (nothing reaches Affinity). ``requested_version`` is the
+    pin, ``required_version`` the oldest version the operation works with.
+    """
+
+    def __init__(self, message: str, *, requested_version: str, required_version: str):
+        super().__init__(message, requested_version=requested_version)
+        self.required_version = required_version
 
 
 class DeprecationWarning(AffinityError):

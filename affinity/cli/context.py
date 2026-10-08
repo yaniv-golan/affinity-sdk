@@ -17,6 +17,7 @@ from affinity.api_versions import KNOWN_AFFINITY_API_VERSIONS, normalize_affinit
 from affinity.client import maybe_load_dotenv
 from affinity.exceptions import (
     AffinityError,
+    ApiVersionTooOldError,
     AuthenticationError,
     AuthorizationError,
     ConfigurationError,
@@ -141,6 +142,15 @@ class CLIContext:
     def note_api_versions(self, versions: frozenset[str] | set[str]) -> None:
         """Record API versions seen by a client not created via get_client()."""
         self._extra_api_versions.update(versions)
+
+    def api_versions_per_operation(self) -> list[str]:
+        """Sorted versions that answered calls needing a minimum version (main client only)."""
+        if self._client is None:
+            return []
+        try:
+            return sorted(self._client.affinity_api_versions_per_operation)
+        except Exception:
+            return []
 
     def api_versions_seen(self) -> list[str]:
         """Sorted Affinity V2 API versions that answered this command (incl. cache hits)."""
@@ -587,6 +597,23 @@ def normalize_exception(exc: Exception, *, verbosity: int = 0) -> CLIError:
             cause=exc,
         )
 
+    if isinstance(exc, ApiVersionTooOldError):
+        details = _details_for_affinity_error(exc, verbosity=verbosity) or {}
+        details["affinityApiVersion"] = exc.requested_version
+        details["requiredApiVersion"] = exc.required_version
+        return CLIError(
+            exc.message,
+            error_type="api_version_error",
+            exit_code=2,
+            hint=(
+                f"Use --api-version {exc.required_version} or newer (or 'current'), or remove "
+                "--api-version / AFFINITY_API_VERSION / the profile's api_version: unpinned, "
+                "the CLI sends the version this command needs."
+            ),
+            details=details,
+            cause=exc,
+        )
+
     if isinstance(exc, UnsupportedApiVersionError):
         details = _details_for_affinity_error(exc, verbosity=verbosity) or {}
         details["affinityApiVersion"] = exc.requested_version
@@ -929,10 +956,12 @@ def build_result(
     not_requested: list[dict[str, str]] | None = None,
     explanation: str | None = None,
     affinity_api_version: str | list[str] | None = None,
+    affinity_api_version_per_operation: list[str] | None = None,
 ) -> CommandResult:
     duration_ms = int(max(0.0, (time.time() - started_at) * 1000))
     meta = CommandMeta(
         affinity_api_version=affinity_api_version,
+        affinity_api_version_per_operation=affinity_api_version_per_operation or None,
         duration_ms=duration_ms,
         profile=profile,
         pagination=pagination,
