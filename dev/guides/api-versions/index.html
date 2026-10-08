@@ -2523,7 +2523,9 @@ sends a minimum version for that one request:</p>
 </ul>
 <p>Versions that answered such calls are listed in <code>client.affinity_api_versions_per_operation</code>
 (a subset of <code>affinity_api_versions_seen</code>) and in the CLI's <code>meta.affinityApiVersionPerOperation</code>.
-They don't trigger the "more than one version" warning.</p>
+They don't trigger the "more than one version" warning. Today the only such calls are company
+and person field writes; <code>meta.affinityApiVersionPerOperation</code> covers the CLI's main client, which
+is the one those commands use.</p>
 <h2 id="caching">Caching<a class="headerlink" href="#caching" title="Permanent link">&para;</a></h2>
 <p>Response shapes differ between versions, so both caches are keyed by the configured version:
 the SDK's in-memory cache and the CLI session cache (<code>AFFINITY_SESSION_CACHE</code>) never serve an
