@@ -553,6 +553,17 @@ get_or_fetch_workflow_config() {
 }
 
 # ==============================================================================
+# Flags
+# ==============================================================================
+# True for "1" or "true" (any case). The MCPB bundle passes boolean settings as "true"/"false";
+# xaffinity-mcp.sh (env.sh) maps them to 1.
+xaffinity_flag_enabled() {
+    local v
+    v="$(printf '%s' "${1:-}" | tr '[:upper:]' '[:lower:]')"
+    [[ "${v}" == "1" || "${v}" == "true" ]]
+}
+
+# ==============================================================================
 # Resource CLI calls
 # ==============================================================================
 # Run a read-only CLI command for a resource script and print its JSON result.

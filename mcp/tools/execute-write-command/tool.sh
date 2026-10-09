@@ -78,7 +78,7 @@ argv=("${filtered_argv[@]+"${filtered_argv[@]}"}")
 validate_argv "$command" ${argv[@]+"${argv[@]}"} || exit 0
 
 # Block destructive commands entirely if policy disables them
-if [[ "${AFFINITY_MCP_DISABLE_DESTRUCTIVE:-}" == "1" ]] && is_destructive "$command"; then
+if xaffinity_flag_enabled "${AFFINITY_MCP_DISABLE_DESTRUCTIVE:-}" && is_destructive "$command"; then
     mcp_error "destructive_disabled" "Destructive commands are disabled by policy (AFFINITY_MCP_DISABLE_DESTRUCTIVE=1)" \
         --hint "Contact your administrator to enable destructive operations"
     exit 0

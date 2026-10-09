@@ -17,8 +17,11 @@ AFFINITY_MCP_TOOLS_ALL="${AFFINITY_MCP_TOOLS_READONLY} ${AFFINITY_MCP_TOOLS_WRIT
 mcp_tools_policy_check() {
     local tool_name="$1"
 
-    # If read-only mode is enabled, only allow read-only tools
-    if [[ "${AFFINITY_MCP_READ_ONLY:-}" == "1" ]]; then
+    # If read-only mode is enabled, only allow read-only tools. The MCPB bundle passes the
+    # setting as "true"/"false" (env.sh, which maps it to 1, isn't sourced there).
+    local read_only
+    read_only="$(printf '%s' "${AFFINITY_MCP_READ_ONLY:-}" | tr '[:upper:]' '[:lower:]')"
+    if [[ "${read_only}" == "1" || "${read_only}" == "true" ]]; then
         case " ${AFFINITY_MCP_TOOLS_READONLY} " in
             *" ${tool_name} "*) return 0 ;;
             *)

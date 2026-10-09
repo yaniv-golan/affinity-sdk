@@ -23,7 +23,7 @@ limit="$(mcp_args_int '.limit' --default 10 --min 1 --max 50)"
 xaffinity_log_debug "discover-commands" "query='$query' category=$category format=$format limit=$limit"
 
 # Read-only mode: force category to "read" regardless of request
-if [[ "${AFFINITY_MCP_READ_ONLY:-}" == "1" ]]; then
+if xaffinity_flag_enabled "${AFFINITY_MCP_READ_ONLY:-}"; then
     category="read"
 fi
 

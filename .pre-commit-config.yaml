@@ -66,6 +66,12 @@ repos:
         language: python
         files: ^(mcp/VERSION|mcp/server\.d/server\.meta\.json)$
         pass_filenames: false
+      - id: sync-mcp-bundle-env
+        name: Sync MCP bundle env (platform_overrides)
+        entry: python tools/sync_mcp_bundle_env.py
+        language: python
+        files: ^(mcp/mcpb\.conf|mcp/server\.d/env\.sh|mcp/server\.d/server\.meta\.json)$
+        pass_filenames: false
       - id: pytest-pre-push
         name: Run tests before push
         entry: python -m pytest tests/ -x -q --tb=short

@@ -83,6 +83,25 @@ jobs:
           unzip -p "$MCPB_FILE" manifest.json | jq .
           echo "MCPB bundle structure validated"
 
+      - name: Bundle env reaches tools on every platform
+        run: |
+          # Claude Desktop replaces mcp_config.env with platform_overrides.<platform>.env (it does not
+          # merge), so each platform's env must be the base env plus the four env-policy keys.
+          cd mcp
+          MCPB_FILE=$(ls dist/*.mcpb | head -1)
+          unzip -p "$MCPB_FILE" manifest.json | jq -e '
+            .server.mcp_config as $c
+            | ["darwin", "linux", "win32"]
+            | all(. as $p
+                | ($c.platform_overrides[$p].env // {}) as $o
+                | ($o | with_entries(select(.key | test("^MCPBASH_(TOOL|PROVIDER)_ENV_") | not))) == $c.env
+                  and $o.MCPBASH_TOOL_ENV_MODE == "allowlist"
+                  and $o.MCPBASH_PROVIDER_ENV_MODE == "allowlist"
+                  and ($o.MCPBASH_TOOL_ENV_ALLOWLIST | split(",") | index("AFFINITY_API_KEY") != null)
+                  and $o.MCPBASH_TOOL_ENV_ALLOWLIST == $o.MCPBASH_PROVIDER_ENV_ALLOWLIST)
+          ' >/dev/null || { echo "::error::platform_overrides env does not match mcp_config.env + policy keys (run python tools/sync_mcp_bundle_env.py)"; exit 1; }
+          echo "Bundle env overrides OK"
+
       - name: Test MCPB bundle health check
         run: |
           cd mcp
