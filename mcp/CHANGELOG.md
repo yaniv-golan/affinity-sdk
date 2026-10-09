@@ -33,6 +33,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   server starts through `xaffinity-mcp.sh`; the MCPB bundle doesn't read env.sh yet (tracked
   with mcp-bash).
 
+- `xaffinity://field-catalogs/…`, `saved-views/…` and `workflow-config/…` can now be read directly
+  with `resources/read` (they returned "Resource not found" unless read through the
+  `read-xaffinity-resource` tool): mcp-bash 1.4.0 routes templated reads with a custom scheme to
+  the project's provider.
+
+### Changed
+
+- Vendored mcp-bash runtime 1.2.0 → 1.4.0 (`mcp/mcp-bash.lock`): templated custom-scheme reads,
+  `resources/read` / `subscribe` reject a `name` and `uri` that disagree, providers receive the
+  JSON tool variables, a bash 5.3 flake in file URI encoding is fixed.
+
 ### Removed
 
 - Unused `resolve_list` shell helper.
