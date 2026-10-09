@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.24.0] - 2026-10-09
+
+### Highlights
+
+**The MCPB bundle now passes your API key to tools.** Tools, resources and completions in the
+Claude Desktop bundle only worked when the CLI found a key in its own config file; the key from
+the bundle's settings never reached them. Read-only mode and "disable destructive commands"
+from the bundle's settings now take effect too. **Upgrade note:** the key in the bundle's
+settings now takes precedence over the CLI's config file.
+
+Also: list-name suggestions for the pipeline-review and change-status prompts; the field
+catalog, saved views and workflow settings resources open directly and accept list names
+(mcp-bash 1.4.0); security fixes in the `xaffinity://` resources. Requires CLI 1.21.0
+(all-or-nothing company/person field writes).
+
 ### Added
 
 - List-name suggestions for the `listName` argument of the `pipeline-review` and `change-status`

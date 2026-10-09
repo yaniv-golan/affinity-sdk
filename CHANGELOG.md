@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.21.0] - 2026-10-09
+
 ### Highlights
 
 **Company and person field writes are all-or-nothing.** `company field` and `person field` send
@@ -72,6 +74,16 @@ Also: `list ls --query`, faster list lookup by name, and calls that need a minim
   of day just after midnight UTC (e.g. `2024-04-02T03:00:00Z` when April 1 is stored) was skipped
   as "unchanged". Affinity keeps the **UTC** date of the value written (verified live), not the
   Pacific date of that instant.
+
+### Plugins
+
+- **SDK plugin**: 1.6.1 → 1.7.0 — skill: `companies/persons.batch_update_fields()` and
+  `get_field_values()` (one all-or-nothing write, API version 2026-07-15), `lists.pages(term=)`;
+  "Current Organization" is writable (the `EnrichedFieldNotWritableError` note is gone).
+- **CLI plugin**: 1.11.0 → 1.12.0 — skill: `list ls --query`; `company field` / `person field`
+  writes are all-or-nothing with `created` / `cleared` output and need API version 2026-07-15+;
+  enriched fields (incl. Current Organization) are writable; stale `field update` references
+  removed.
 
 ## [1.20.0] - 2026-10-08
 

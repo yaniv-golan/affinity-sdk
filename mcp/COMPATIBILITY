@@ -1,8 +1,17 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="1.19.0"
-CLI_MAX_VERSION="1.20.0"
+CLI_MIN_VERSION="1.21.0"
+CLI_MAX_VERSION="1.21.0"
+
+# MCP 1.24.0 requires CLI 1.21.0 for:
+# - `company field` / `person field`: every --set/--set-json/--unset in one all-or-nothing
+#   request. JSON `created` items are {fieldId, name, value}, new `cleared`, no `deleted`.
+#   The writes need Affinity API version 2026-07-15+: a bundle whose "Affinity API Version"
+#   setting is 2024-01-01 gets `api_version_error` (exit 2) on these commands.
+# - `list ls --query` (list-name suggestions use it; older CLIs fall back to the first
+#   100 lists).
+# - `meta.affinityApiVersionPerOperation` (additive).
 
 # CLI 1.20.0: SDK-only change (get_fields(field_types=) removed); no CLI
 # command or output changes, so MCP 1.23.0 works unchanged.
