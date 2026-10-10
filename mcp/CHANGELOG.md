@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.25.0] - 2026-10-10
+
+### Highlights
+
+**Tool errors now say what went wrong.** A failed CLI call reached the model as "CLI exited with
+code 3": the server retried permanent errors (auth, not found) and the three error documents
+could not be parsed. Each command now runs once, and the tool result carries the CLI's message,
+error type and hint (for example "[401] Invalid or missing API key Hint: Run xaffinity config
+setup-key"). Built on mcp-bash 1.6.0; the bundle's env policy now lives in `server.meta.json`.
+
+### Added
+
+- Suggestions for resource template variables (Claude Desktop asks for these): the field catalog
+  `entityType` suggests "company", "person", "opportunity" and list names; saved views and
+  workflow settings suggest list names for `listId`.
+
+### Changed
+
+- mcp-bash 1.6.0. The bundle reads the tool/provider env allowlists from `server.meta.json`
+  `"env"`; the `platform_overrides` stopgap is gone. Completion scripts are no longer listed as
+  prompts or resources, and templated resources report `application/json`.
+- CLI calls from tools, resources and completions are no longer retried by the server (the SDK
+  already retries rate limits and server errors). Tool errors include `errorType` and `hint`.
+- `execute-write-command`: a declined or cancelled confirmation returns `cancelled: true`; no
+  answer at all is an error saying nothing was changed. Timeout 30 s → 120 s so there is time to
+  confirm.
+- `get-entity-dossier` returns an error when the entity itself cannot be fetched, instead of an
+  empty dossier. `get-file-url` reports the CLI's message.
+- List-name suggestions use one short CLI call (3 s timeout, no retries); the fallback for CLIs
+  older than 1.21.0 is removed (CLI_MIN is 1.21.0).
+
+### Fixed
+
+- The read-only refusal names the setting as it is set (`AFFINITY_MCP_READ_ONLY=true`, not `=1`).
+
 ## [1.24.0] - 2026-10-09
 
 ### Highlights

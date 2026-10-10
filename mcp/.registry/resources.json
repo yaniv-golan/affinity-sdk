@@ -1,7 +1,7 @@
 {
   "format_version": 1,
   "version": 1,
-  "generatedAt": "2026-04-04T17:45:19Z",
+  "generatedAt": "2026-10-10T11:46:41Z",
   "items": [
     {
       "name": "xaffinity-data-model",
@@ -9,7 +9,8 @@
       "path": "data-model/data-model.md",
       "uri": "xaffinity://data-model",
       "mimeType": "text/markdown",
-      "provider": "xaffinity"
+      "provider": "xaffinity",
+      "mimeTypeDeclared": true
     },
     {
       "name": "xaffinity-interaction-enums",
@@ -17,7 +18,8 @@
       "path": "interaction-enums/interaction-enums.json",
       "uri": "xaffinity://interaction-enums",
       "mimeType": "application/json",
-      "provider": "xaffinity"
+      "provider": "xaffinity",
+      "mimeTypeDeclared": true
     },
     {
       "name": "xaffinity-me",
@@ -25,7 +27,8 @@
       "path": "me/me.sh",
       "uri": "xaffinity://me",
       "mimeType": "application/json",
-      "provider": "xaffinity"
+      "provider": "xaffinity",
+      "mimeTypeDeclared": true
     },
     {
       "name": "xaffinity-me-person-id",
@@ -33,7 +36,8 @@
       "path": "me-person-id/me-person-id.sh",
       "uri": "xaffinity://me/person-id",
       "mimeType": "application/json",
-      "provider": "xaffinity"
+      "provider": "xaffinity",
+      "mimeTypeDeclared": true
     },
     {
       "name": "xaffinity-query-guide",
@@ -41,7 +45,8 @@
       "path": "query-guide/query-guide.sh",
       "uri": "xaffinity://query-guide",
       "mimeType": "text/markdown",
-      "provider": "xaffinity"
+      "provider": "xaffinity",
+      "mimeTypeDeclared": true
     },
     {
       "name": "xaffinity-workflows-guide",
@@ -49,9 +54,10 @@
       "path": "workflows-guide/workflows-guide.sh",
       "uri": "xaffinity://workflows-guide",
       "mimeType": "text/markdown",
-      "provider": "xaffinity"
+      "provider": "xaffinity",
+      "mimeTypeDeclared": true
     }
   ],
-  "hash": "20c83363a4e6a7530ae12910b192b3148a09e0f63d2bf2eb6d498d704c2efd7b",
+  "hash": "b8f3b5655ccc16b3c2e9cfe73f18f0704a623616e465ed0e922161e423f07175",
   "total": 6
 }

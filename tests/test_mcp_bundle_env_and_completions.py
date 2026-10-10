@@ -39,6 +39,7 @@ def _complete(
     value: str,
     *,
     prompt: str = "pipeline-review",
+    script: Path | None = None,
     limit: int = 5,
     offset: int = 0,
     mode: str = "ok",
@@ -62,7 +63,7 @@ def _complete(
         "MCP_COMPLETION_LIMIT": str(limit),
         "MCP_COMPLETION_OFFSET": str(offset),
     }
-    script = MCP / "prompts" / prompt / f"{prompt}.completion.sh"
+    script = script or MCP / "prompts" / prompt / f"{prompt}.completion.sh"
     result = subprocess.run(
         ["bash", str(script)], capture_output=True, text=True, env=env, timeout=60, check=False
     )
@@ -78,7 +79,7 @@ def test_list_names_matching_the_prefix_first(tmp_path: Path, prompt: str) -> No
         "hasMore": False,
     }
     assert calls == [
-        "--readonly --quiet --timeout 8 list ls --all --query=deal --output json|key=K"
+        "--readonly --quiet --timeout 3 --max-retries 0 list ls --all --query=deal --output json|key=K"
     ]
 
 
@@ -106,10 +107,30 @@ def test_other_arguments_get_nothing_and_no_cli_call(tmp_path: Path) -> None:
     assert calls == []
 
 
-def test_older_cli_without_query_falls_back_and_filters(tmp_path: Path) -> None:
-    result, calls = _complete(tmp_path, "listName", "deal", mode="old")
-    assert json.loads(result.stdout)["suggestions"] == ["Dealflow"]
-    assert len(calls) == 2 and "--max-results 100" in calls[1]
+TEMPLATES = MCP / "resources"
+
+
+def test_field_catalog_template_suggests_entity_types_and_lists(tmp_path: Path) -> None:
+    script = TEMPLATES / "xaffinity-field-catalogs.completion.sh"
+    result, _ = _complete(tmp_path, "entityType", "", script=script, limit=10)
+    assert json.loads(result.stdout)["suggestions"] == [
+        "company",
+        "person",
+        "opportunity",
+        "Dealflow",
+        "Portfolio",
+    ]
+    result, _ = _complete(tmp_path, "entityType", "pe", script=script, limit=10)
+    assert json.loads(result.stdout)["suggestions"] == ["person"]
+
+
+@pytest.mark.parametrize("name", ["xaffinity-saved-views", "xaffinity-workflow-config"])
+def test_list_templates_suggest_list_names(tmp_path: Path, name: str) -> None:
+    script = TEMPLATES / f"{name}.completion.sh"
+    result, _ = _complete(tmp_path, "listId", "deal", script=script)
+    assert json.loads(result.stdout)["suggestions"] == ["Dealflow", "Deals 2024", "Old deals"]
+    result, _ = _complete(tmp_path, "entityType", "deal", script=script)
+    assert json.loads(result.stdout)["suggestions"] == []
 
 
 @pytest.mark.parametrize("mode", ["fail"])
@@ -127,13 +148,20 @@ def test_prefix_that_looks_like_an_option_stays_a_value(tmp_path: Path) -> None:
 
 def test_completion_wrappers_are_executable_in_git() -> None:
     out = subprocess.run(
-        ["git", "ls-files", "-s", "mcp/prompts/*/*.completion.sh", "mcp/completions/list-name.sh"],
+        [
+            "git",
+            "ls-files",
+            "-s",
+            "mcp/prompts/*/*.completion.sh",
+            "mcp/resources/*.completion.sh",
+            "mcp/completions/list-name.sh",
+        ],
         capture_output=True,
         text=True,
         cwd=REPO,
         check=True,
     ).stdout.splitlines()
-    assert len(out) == 3
+    assert len(out) == 6
     assert all(line.startswith("100755") for line in out), out
 
 
@@ -151,22 +179,55 @@ def _sync_module():  # type: ignore[no-untyped-def]
     return module
 
 
-def test_platform_overrides_are_up_to_date() -> None:
+def test_server_meta_env_matches_env_sh() -> None:
+    """The bundle reads server.meta.json "env"; xaffinity-mcp.sh reads env.sh (whose values win
+    per scope), so both must allow the same variables. mcp-bash refuses MCPBASH_* names in
+    server.meta.json."""
     sync = _sync_module()
     meta = json.loads((MCP / "server.d" / "server.meta.json").read_text())
-    assert meta["platform_overrides"] == sync.expected_overrides()
-
-
-def test_override_env_is_the_full_base_env_plus_policy() -> None:
-    """Claude Desktop replaces mcp_config.env with the override env, so nothing may be missing."""
-    env = _sync_module().expected_env()
-    assert env["MCPBASH_PROJECT_ROOT"] == "${__dirname}/server"
-    assert env["AFFINITY_API_KEY"] == "${user_config.api_key}"
-    assert env["AFFINITY_MCP_READ_ONLY"] == "${user_config.read_only}"
-    assert env["MCPBASH_TOOL_ENV_MODE"] == env["MCPBASH_PROVIDER_ENV_MODE"] == "allowlist"
+    assert meta["env"] == sync.expected_env()
+    assert "platform_overrides" not in meta
+    env = meta["env"]
     names = env["MCPBASH_TOOL_ENV_ALLOWLIST"].split(",")
     assert env["MCPBASH_PROVIDER_ENV_ALLOWLIST"] == env["MCPBASH_TOOL_ENV_ALLOWLIST"]
-    assert {"AFFINITY_API_KEY", "SYSTEMROOT", "MCPBASH_LOG_LEVEL"} <= set(names)
+    assert not [n for n in names if n.startswith("MCPBASH_")]
+    assert {"AFFINITY_API_KEY", "SYSTEMROOT", "LOCALAPPDATA", "COMSPEC"} <= set(names)
+    assert set(names) == {n for n in sync.env_sh_allowlist() if not n.startswith("MCPBASH_")}
+
+
+# --- CLI errors ---------------------------------------------------------------------------------
+
+
+def _cli_error(tmp_path: Path, stdout: str, stderr: str, code: str) -> dict:  # type: ignore[type-arg]
+    script = 'source "$1/lib/common.sh"; xaffinity_cli_error_json "$2" "$3" "$4"'
+    env = {
+        "PATH": os.environ["PATH"],
+        "HOME": str(tmp_path),
+        "MCPBASH_PROJECT_ROOT": str(MCP),
+        "MCPBASH_JSON_TOOL_BIN": str(JQ),
+        "XAFFINITY_CLI": "/bin/true",
+    }
+    out = subprocess.run(
+        ["bash", "-c", script, "_", str(MCP), stdout, stderr, code],
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=30,
+        check=False,
+    ).stdout
+    return json.loads(out)
+
+
+def test_cli_error_json_reads_the_cli_error(tmp_path: Path) -> None:
+    error = {"type": "auth_error", "message": "[401] Invalid key", "hint": "Run setup-key"}
+    stdout = json.dumps({"ok": False, "error": error})
+    assert _cli_error(tmp_path, stdout, "", "3") == {
+        "message": "[401] Invalid key",
+        "errorType": "auth_error",
+        "hint": "Run setup-key",
+    }
+    assert _cli_error(tmp_path, "", "boom", "1") == {"message": "boom"}
+    assert _cli_error(tmp_path, "", "", "4") == {"message": "CLI exited with code 4"}
 
 
 # --- read-only / disable-destructive flags ------------------------------------------------------

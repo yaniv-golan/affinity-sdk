@@ -188,8 +188,9 @@ if [[ "$supports_progress" == "true" ]]; then
     run_xaffinity_with_progress --stderr-file "$stderr_file" "${cmd_args[@]:1}" >"$stdout_file"
     exit_code=$?
 else
-    # Standard execution with retry
-    mcp_with_retry 3 0.5 -- "${cmd_args[@]}" >"$stdout_file" 2>"$stderr_file"
+    # One call: the SDK retries transient HTTP failures itself; rerunning a permanent failure
+    # (exit 3 auth, 4 not found) only concatenated the CLI's JSON errors.
+    "${cmd_args[@]}" >"$stdout_file" 2>"$stderr_file"
     exit_code=$?
 fi
 set -e
@@ -240,12 +241,11 @@ if [[ $exit_code -eq 0 ]]; then
             '{type: "invalid_json_output", message: "CLI returned non-JSON output", output: $stdout, executed: $cmd}')"
     fi
 else
-    # CLI exited with error - use mcp-bash 0.9.12 helper to extract message
+    # CLI exited with error: its message, type and hint (JSON on stdout), else stderr / exit code
     printf '%s' "$stdout_content" > "$stdout_file"
-    error_message=$(mcp_extract_cli_error "$stdout_content" "$stderr_content" "$exit_code")
-    printf '%s' "$error_message" > "$stderr_file"
-    mcp_result_error "$(jq_tool -n --rawfile message "$stderr_file" --rawfile stdout "$stdout_file" \
+    cli_error=$(xaffinity_cli_error_json "$stdout_content" "$stderr_content" "$exit_code")
+    mcp_result_error "$(jq_tool -n --argjson err "$cli_error" --rawfile stdout "$stdout_file" \
           --argjson cmd "$cmd_json" --argjson code "$exit_code" \
-          '{type: "cli_error", message: $message, output: $stdout, exitCode: $code, executed: $cmd}')"
+          '{type: "cli_error"} + $err + {message: ($err.message + (if $err.hint then " Hint: " + $err.hint else "" end)), output: $stdout, exitCode: $code, executed: $cmd}')"
     exit 0
 fi

@@ -83,24 +83,23 @@ jobs:
           unzip -p "$MCPB_FILE" manifest.json | jq .
           echo "MCPB bundle structure validated"
 
-      - name: Bundle env reaches tools on every platform
+      - name: Bundle carries the env policy
         run: |
-          # Claude Desktop replaces mcp_config.env with platform_overrides.<platform>.env (it does not
-          # merge), so each platform's env must be the base env plus the four env-policy keys.
+          # mcp-bash reads the env policy from server.d/server.meta.json "env" at startup (the
+          # bundle never runs env.sh). It must be in the bundle and in sync with env.sh, and the
+          # old per-platform overrides must be gone.
+          python tools/sync_mcp_bundle_env.py --check
           cd mcp
           MCPB_FILE=$(ls dist/*.mcpb | head -1)
-          unzip -p "$MCPB_FILE" manifest.json | jq -e '
-            .server.mcp_config as $c
-            | ["darwin", "linux", "win32"]
-            | all(. as $p
-                | ($c.platform_overrides[$p].env // {}) as $o
-                | ($o | with_entries(select(.key | test("^MCPBASH_(TOOL|PROVIDER)_ENV_") | not))) == $c.env
-                  and $o.MCPBASH_TOOL_ENV_MODE == "allowlist"
-                  and $o.MCPBASH_PROVIDER_ENV_MODE == "allowlist"
-                  and ($o.MCPBASH_TOOL_ENV_ALLOWLIST | split(",") | index("AFFINITY_API_KEY") != null)
-                  and $o.MCPBASH_TOOL_ENV_ALLOWLIST == $o.MCPBASH_PROVIDER_ENV_ALLOWLIST)
-          ' >/dev/null || { echo "::error::platform_overrides env does not match mcp_config.env + policy keys (run python tools/sync_mcp_bundle_env.py)"; exit 1; }
-          echo "Bundle env overrides OK"
+          unzip -p "$MCPB_FILE" server/server.d/server.meta.json | jq -e '
+            .env.MCPBASH_TOOL_ENV_MODE == "allowlist"
+            and .env.MCPBASH_PROVIDER_ENV_MODE == "allowlist"
+            and (.env.MCPBASH_TOOL_ENV_ALLOWLIST | split(",") | index("AFFINITY_API_KEY") != null)
+            and .env.MCPBASH_TOOL_ENV_ALLOWLIST == .env.MCPBASH_PROVIDER_ENV_ALLOWLIST
+          ' >/dev/null || { echo "::error::bundled server.meta.json lacks the env policy"; exit 1; }
+          unzip -p "$MCPB_FILE" manifest.json | jq -e '[.server.mcp_config.platform_overrides // {} | .[] | .env // empty] | length == 0' >/dev/null \
+            || { echo "::error::manifest still has platform_overrides env"; exit 1; }
+          echo "Bundle env policy OK"
 
       - name: Test MCPB bundle health check
         run: |

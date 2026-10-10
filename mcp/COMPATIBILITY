@@ -4,6 +4,8 @@
 CLI_MIN_VERSION="1.21.0"
 CLI_MAX_VERSION="1.21.0"
 
+# MCP 1.25.0: no new CLI requirements (same CLI 1.21.0 range as MCP 1.24.0).
+
 # MCP 1.24.0 requires CLI 1.21.0 for:
 # - `company field` / `person field`: every --set/--set-json/--unset in one all-or-nothing
 #   request. JSON `created` items are {fieldId, name, value}, new `cleared`, no `deleted`.

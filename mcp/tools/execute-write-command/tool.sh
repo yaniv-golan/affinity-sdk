@@ -112,14 +112,25 @@ if is_destructive "$command"; then
         argv+=("--yes")
     elif [[ "${MCP_ELICIT_SUPPORTED:-0}" == "1" ]]; then
         response=$(mcp_elicit_confirm "Confirm: $command - This action cannot be undone.")
-        action=$(printf '%s' "$response" | jq_tool -r '.action // "decline"')
-        if [[ "$action" == "accept" ]]; then
+        action=$(printf '%s' "$response" | jq_tool -r '.action // "error"')
+        case "$action" in
+        accept)
             argv+=("--yes")
-        else
-            # User declined - return cancelled (not an error)
-            mcp_result_success '{"result": null, "cancelled": true}'
+            ;;
+        decline | cancel)
+            # The user said no (or closed the dialog): not an error.
+            mcp_result_success "$(jq_tool -n -c --arg a "$action" \
+                '{result: null, cancelled: true, reason: (if $a == "decline" then "declined by the user" else "cancelled by the user" end)}')"
             exit 0
-        fi
+            ;;
+        *)
+            # No answer arrived (timeout or a client that dropped the request): say so, rather
+            # than reporting it as the user's decision. Nothing was changed.
+            mcp_error "confirmation_unavailable" "No confirmation was received for $command; nothing was changed" \
+                --hint 'Retry, or pass "confirm": true if the user has already confirmed this action'
+            exit 0
+            ;;
+        esac
     else
         # Build example showing how to confirm
         mcp_error "confirmation_required" "Destructive command requires confirm=true" \
@@ -223,14 +234,11 @@ if [[ $exit_code -eq 0 ]]; then
               '{type: "invalid_json_output", message: "CLI returned non-JSON output", output: $stdout, executed: $cmd}')"
     fi
 else
-    # CLI exited with error - use mcp-bash 0.9.12 helper to extract message
+    # CLI exited with error: its message, type and hint (JSON on stdout), else stderr / exit code
     printf '%s' "$stdout_content" > "$stdout_file"
-    error_message=$(mcp_extract_cli_error "$stdout_content" "$stderr_content" "$exit_code")
-    printf '%s' "$error_message" > "$stderr_file"
-    mcp_result_error "$(jq_tool -n --rawfile message "$stderr_file" \
-          --rawfile stdout "$stdout_file" \
-          --argjson cmd "$cmd_json" \
-          --argjson code "$exit_code" \
-          '{type: "cli_error", message: $message, output: $stdout, exitCode: $code, executed: $cmd}')"
+    cli_error=$(xaffinity_cli_error_json "$stdout_content" "$stderr_content" "$exit_code")
+    mcp_result_error "$(jq_tool -n --argjson err "$cli_error" --rawfile stdout "$stdout_file" \
+          --argjson cmd "$cmd_json" --argjson code "$exit_code" \
+          '{type: "cli_error"} + $err + {message: ($err.message + (if $err.hint then " Hint: " + $err.hint else "" end)), output: $stdout, exitCode: $code, executed: $cmd}')"
     exit 0
 fi

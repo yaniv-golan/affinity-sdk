@@ -17,6 +17,11 @@ AFFINITY_MCP_TOOLS_ALL="${AFFINITY_MCP_TOOLS_READONLY} ${AFFINITY_MCP_TOOLS_WRIT
 mcp_tools_policy_check() {
     local tool_name="$1"
 
+    # The framework's own checks first (allowlist, tool path).
+    if declare -F mcp_tools_policy_check_default >/dev/null; then
+        mcp_tools_policy_check_default "$@" || return 1
+    fi
+
     # If read-only mode is enabled, only allow read-only tools. The MCPB bundle passes the
     # setting as "true"/"false" (env.sh, which maps it to 1, isn't sourced there).
     local read_only
@@ -26,7 +31,7 @@ mcp_tools_policy_check() {
             *" ${tool_name} "*) return 0 ;;
             *)
                 _MCP_TOOLS_ERROR_CODE=-32602
-                _MCP_TOOLS_ERROR_MESSAGE="Tool '${tool_name}' is a write tool but server is in read-only mode (AFFINITY_MCP_READ_ONLY=1)"
+                _MCP_TOOLS_ERROR_MESSAGE="Tool '${tool_name}' is a write tool but the server is in read-only mode (AFFINITY_MCP_READ_ONLY=${AFFINITY_MCP_READ_ONLY})"
                 return 1
                 ;;
         esac

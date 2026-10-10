@@ -64,17 +64,20 @@ mcp_progress 0 "Fetching $entity_type details" "$total_steps"
 cli_args=(--output json --quiet)
 [[ -n "${AFFINITY_SESSION_CACHE:-}" ]] && cli_args+=(--session-cache "$AFFINITY_SESSION_CACHE")
 
-case "$entity_type" in
-    person)
-        entity_data=$(_run_cli_graceful '{}' "person get $entity_id" run_xaffinity_readonly person get "$entity_id" "${cli_args[@]}" | jq_tool -c '.data.person // {}')
-        ;;
-    company)
-        entity_data=$(_run_cli_graceful '{}' "company get $entity_id" run_xaffinity_readonly company get "$entity_id" "${cli_args[@]}" | jq_tool -c '.data.company // {}')
-        ;;
-    opportunity)
-        entity_data=$(_run_cli_graceful '{}' "opportunity get $entity_id" run_xaffinity_readonly opportunity get "$entity_id" "${cli_args[@]}" | jq_tool -c '.data.opportunity // {}')
-        ;;
-esac
+# The entity itself must load: on failure, report the CLI's error instead of an empty dossier
+# (an auth failure used to look like a successful dossier with no data).
+entity_err=$(mktemp)
+entity_exit=0
+entity_raw=$(run_xaffinity_readonly "$entity_type" get "$entity_id" "${cli_args[@]}" 2>"$entity_err") || entity_exit=$?
+if [[ $entity_exit -ne 0 ]]; then
+    cli_error=$(xaffinity_cli_error_json "$entity_raw" "$(cat "$entity_err")" "$entity_exit")
+    rm -f "$entity_err"
+    mcp_result_error "$(jq_tool -n --argjson err "$cli_error" --argjson code "$entity_exit" \
+        --arg what "$entity_type get $entity_id" '{type: "cli_error"} + $err + {message: ($err.message + (if $err.hint then " Hint: " + $err.hint else "" end)), exitCode: $code, failed: $what}')"
+    exit 0
+fi
+rm -f "$entity_err"
+entity_data=$(jq_tool -c --arg t "$entity_type" '.data[$t] // {}' <<<"$entity_raw")
 ((++current_step))
 
 # Check for cancellation

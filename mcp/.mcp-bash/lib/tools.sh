@@ -373,8 +373,17 @@ mcp_tools_embed_resource_from_path() {
 		uri="file://${abs}"
 	fi
 
+	# A mimeType the tool supplied is declared: it is the reported label.
+	# Without one, detection labels the content. Detection always decides
+	# text vs blob.
+	local mime_declared="false"
+	if [ -n "${mime_hint}" ]; then
+		mime_declared="true"
+	fi
+
 	local content_obj
-	if ! content_obj="$(mcp_resource_content_object_from_file "${abs}" "${mime_hint}" "${uri}")"; then
+	if ! content_obj="$(mcp_resource_content_object_from_file "${abs}" "${mime_hint}" "${uri}" "${mime_declared}")"; then
+		mcp_logging_warning "${MCP_TOOLS_LOGGER}" "Embedded resource could not be encoded: $(basename "${abs}")"
 		return 1
 	fi
 	printf '%s' "${content_obj}"
@@ -392,7 +401,7 @@ mcp_tools_collect_embedded_resources() {
 		specs_json="$("${MCPBASH_JSON_TOOL_BIN}" -c '
 			def normalize:
 				if type == "string" then {path: ., mimeType: null, uri: null}
-				elif type == "object" then {path: (.path // ""), mimeType: (.mimeType // null), uri: (.uri // null)}
+				elif type == "object" then {path: (.path // ""), mimeType: (if (.mimeType | type) == "string" then .mimeType else null end), uri: (.uri // null)}
 				else empty end;
 			try (
 				if type == "array" then . else [.] end
@@ -421,7 +430,9 @@ mcp_tools_collect_embedded_resources() {
 	local embed_attempts=0
 	local embed_added=0
 
-	while IFS=$'\t' read -r path mime uri || [ -n "${path}" ]; do
+	# Fields are split on US (0x1f), not tab: tab is IFS whitespace, so an
+	# empty mimeType between two tabs would collapse and shift the uri into it.
+	while IFS=$'\037' read -r path mime uri || [ -n "${path}" ]; do
 		[ -n "${path}" ] || continue
 		((embed_attempts++)) || true
 		local content_obj
@@ -442,7 +453,7 @@ mcp_tools_collect_embedded_resources() {
 		fi
 	done < <(printf '%s' "${specs_json}" | "${MCPBASH_JSON_TOOL_BIN}" -r '
 		.[]
-		| "\(.path // "")\t\(.mimeType // "")\t\(.uri // "")"
+		| "\(.path // "")\u001f\(.mimeType // "")\u001f\(.uri // "")"
 	')
 
 	if [ "${#contents[@]}" -eq 0 ]; then
@@ -1120,20 +1131,18 @@ mcp_tools_scan() {
 			fi
 
 			# Construct item object
-			"${MCPBASH_JSON_TOOL_BIN}" -n \
+			# The JSON values go on stdin: icons hold inlined data URIs and can
+			# outgrow what one argument may hold.
+			printf '%s\n%s\n%s\n%s\n%s' "$arguments" "$output_schema" "$icons" "$annotations" "$tool_meta" | "${MCPBASH_JSON_TOOL_BIN}" -s \
 				--arg name "$name" \
 				--arg desc "$description" \
 				--arg path "$rel_path" \
-				--argjson args "$arguments" \
 				--arg timeout "$timeout" \
 				--arg timeout_hint "$timeout_hint" \
 				--arg progress_extends "$progress_extends" \
 				--arg max_timeout_secs "$max_timeout_secs" \
-				--argjson out "$output_schema" \
-				--argjson icons "$icons" \
-				--argjson annotations "$annotations" \
-				--argjson tool_meta "$tool_meta" \
-				'{
+				'.[0] as $args | .[1] as $out | .[2] as $icons | .[3] as $annotations | .[4] as $tool_meta
+				| {
 					name: $name,
 					description: $desc,
 					path: $path,
@@ -1479,6 +1488,31 @@ mcp_tools_append_failure_summary() {
 	} >>"${summary_file}" 2>/dev/null || true
 }
 
+# The remote-access token travels in each request's _meta (lib/auth.sh, primary
+# and fallback keys). Delete both keys before _meta is handed to a tool as
+# MCP_TOOL_META_JSON/_FILE. Unparseable _meta is dropped rather than passed on.
+mcp_tools_strip_remote_token_meta() {
+	local meta_json="${1:-}"
+	case "${meta_json}" in
+	"" | "{}")
+		printf '%s' "{}"
+		return 0
+		;;
+	esac
+	if [ "${MCPBASH_JSON_TOOL:-none}" = "none" ] || [ -z "${MCPBASH_JSON_TOOL_BIN:-}" ]; then
+		printf '%s' "{}"
+		return 0
+	fi
+	local stripped
+	if ! stripped="$(printf '%s' "${meta_json}" | "${MCPBASH_JSON_TOOL_BIN}" -c \
+		--arg k "${MCPBASH_REMOTE_TOKEN_KEY:-mcpbash/remoteToken}" \
+		--arg fb "${MCPBASH_REMOTE_TOKEN_FALLBACK_KEY:-remoteToken}" \
+		'if type == "object" then del(.[$k], .[$fb]) else {} end' 2>/dev/null)" || [ -z "${stripped}" ]; then
+		stripped="{}"
+	fi
+	printf '%s' "${stripped}"
+}
+
 # shellcheck disable=SC2031  # Subshell env exports are deliberate; parent values remain unchanged.
 mcp_tools_call() {
 	local name="$1"
@@ -1498,6 +1532,8 @@ mcp_tools_call() {
 	_MCP_TOOLS_ERROR_DATA=""
 	# shellcheck disable=SC2034
 	_MCP_TOOLS_RESULT=""
+
+	request_meta="$(mcp_tools_strip_remote_token_meta "${request_meta}")"
 
 	local metadata
 	if ! metadata="$(mcp_tools_metadata_for_name "${name}")"; then
@@ -1535,20 +1571,6 @@ mcp_tools_call() {
 		return 1
 	fi
 
-	# Warn once per process when running in inherit mode, since tools then
-	# receive the full host environment including any secrets present.
-	local env_mode_raw="${MCPBASH_TOOL_ENV_MODE:-minimal}"
-	local env_mode_lc
-	env_mode_lc="$(printf '%s' "${env_mode_raw}" | tr '[:upper:]' '[:lower:]')"
-	if [ "${env_mode_lc}" = "inherit" ] && [ "${MCPBASH_TOOL_ENV_INHERIT_WARNED}" != "true" ]; then
-		MCPBASH_TOOL_ENV_INHERIT_WARNED="true"
-		mcp_logging_warning "${MCP_TOOLS_LOGGER}" "MCPBASH_TOOL_ENV_MODE=inherit; tools receive the full host environment"
-	fi
-	if [ "${env_mode_lc}" = "inherit" ] && [ "${MCPBASH_TOOL_ENV_INHERIT_ALLOW:-false}" != "true" ]; then
-		mcp_tools_error -32602 "MCPBASH_TOOL_ENV_MODE=inherit requires MCPBASH_TOOL_ENV_INHERIT_ALLOW=true"
-		return 1
-	fi
-
 	# Initialize and enforce project policy (server.d/policy.sh can override).
 	mcp_tools_policy_init
 	if ! mcp_tools_policy_check "${name}" "${metadata}"; then
@@ -1558,6 +1580,21 @@ mcp_tools_call() {
 		local policy_data="${_MCP_TOOLS_ERROR_DATA:-null}"
 		[ -z "${policy_data}" ] && policy_data="null"
 		_mcp_tools_emit_error "${_MCP_TOOLS_ERROR_CODE}" "${_MCP_TOOLS_ERROR_MESSAGE}" "${policy_data}"
+		return 1
+	fi
+
+	# Checked after policy.sh has run, so a mode it sets is gated too. Warn once
+	# per process in inherit mode, since tools then receive the full host
+	# environment including any secrets present.
+	local env_mode_raw="${MCPBASH_TOOL_ENV_MODE:-minimal}"
+	local env_mode_lc
+	env_mode_lc="$(printf '%s' "${env_mode_raw}" | tr '[:upper:]' '[:lower:]')"
+	if [ "${env_mode_lc}" = "inherit" ] && [ "${MCPBASH_TOOL_ENV_INHERIT_WARNED}" != "true" ]; then
+		MCPBASH_TOOL_ENV_INHERIT_WARNED="true"
+		mcp_logging_warning "${MCP_TOOLS_LOGGER}" "MCPBASH_TOOL_ENV_MODE=inherit; tools receive the full host environment"
+	fi
+	if [ "${env_mode_lc}" = "inherit" ] && [ "${MCPBASH_TOOL_ENV_INHERIT_ALLOW:-false}" != "true" ]; then
+		mcp_tools_error -32602 "MCPBASH_TOOL_ENV_MODE=inherit requires MCPBASH_TOOL_ENV_INHERIT_ALLOW=true"
 		return 1
 	fi
 
@@ -1863,7 +1900,17 @@ mcp_tools_call() {
 			for env_key in $(compgen -e); do
 				case "${env_key}" in
 				PATH | HOME | TMPDIR | LANG) ;;
-				MCP_* | MCPBASH_*) ;;
+				# Windows system variables (the provider env keeps a subset of these).
+				# Without SYSTEMROOT, Python cannot initialise sockets (WinError 10106).
+				SYSTEMROOT | SYSTEMDRIVE | WINDIR | windir | COMSPEC | PATHEXT) ;;
+				USERPROFILE | APPDATA | LOCALAPPDATA | TEMP | TMP | MSYSTEM | MSYS2_ARG_CONV_EXCL) ;;
+				# Framework-owned MCP_* families only; other MCP_* names (for example a
+				# user's MCP_REGISTRY_TOKEN) need the allowlist. Keep in sync with
+				# lib/runtime.sh (provider env) and lib/meta_env.sh (reserved names).
+				MCP_SDK | MCP_TOOL_* | MCP_ELICIT_* | MCP_PROGRESS_* | MCP_LOG_STREAM | MCP_CANCEL_FILE) ;;
+				MCP_ROOTS_* | MCP_RESOURCES_ROOTS | MCP_COMPLETION_* | MCP_PROMPT_* | MCP_RESOURCE_*) ;;
+				MCP_CONFIG_JSON | MCP_TRANSPORT | MCP_PATH_DEBUG) ;;
+				MCPBASH_*) ;;
 				*)
 					if [ "${tool_env_mode}" = "allowlist" ]; then
 						case "${allowlist_names}" in
@@ -1889,18 +1936,31 @@ mcp_tools_call() {
 			# operators who set variables without `export`.
 			if [ "${tool_env_mode}" = "allowlist" ]; then
 				local allowlist_var allowlist_value
-				for allowlist_var in ${allowlist_raw}; do
+				# read -a, not an unquoted for-list: an entry such as `*` must not
+				# glob-expand to file names in the working directory.
+				local -a allowlist_entries=()
+				read -r -a allowlist_entries <<<"${allowlist_raw}"
+				for allowlist_var in ${allowlist_entries[@]+"${allowlist_entries[@]}"}; do
 					[ -n "${allowlist_var}" ] || continue
-					case "${allowlist_var}" in
-					[A-Za-z_][A-Za-z0-9_]*) ;;
-					*) continue ;;
-					esac
+					# Anchored regex, not a case glob: a glob's trailing `*` would accept
+					# names like `xx[$(cmd)]`, whose subscript ${!name} then evaluates.
+					if ! [[ "${allowlist_var}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+						continue
+					fi
 					allowlist_value="${!allowlist_var:-}"
 					[ -n "${allowlist_value}" ] || continue
 					# shellcheck disable=SC2163  # Intentional: export var by name stored in allowlist_var
 					export "${allowlist_var}"
 				done
 			fi
+
+			# The remote-access secret and its lookup keys never reach tools outside
+			# inherit mode, even when an allowlist names them. Runs after the
+			# allowlist export above so nothing can re-add them.
+			local remote_token_var
+			for remote_token_var in $(compgen -v MCPBASH_REMOTE_TOKEN); do
+				unset "${remote_token_var}" 2>/dev/null || true
+			done
 
 			mcp_tools_apply_common_tool_env
 		else
@@ -2351,11 +2411,20 @@ mcp_tools_call() {
 		embedded_resources="$(mcp_tools_collect_embedded_resources "${tool_resources_file}" 2>/dev/null || true)"
 	fi
 	if [ -n "${embedded_resources}" ]; then
-		result_json="$(
-			printf '%s' "${result_json}" | "${MCPBASH_JSON_TOOL_BIN}" -c --argjson embeds "${embedded_resources}" '
-				.content += ($embeds // [])
+		# Embedded resources carry whole file contents, so both documents go on
+		# stdin. A failed merge is an error, never an empty result.
+		local merged_json
+		if ! merged_json="$(
+			printf '%s\n%s' "${result_json}" "${embedded_resources}" | "${MCPBASH_JSON_TOOL_BIN}" -c -s '
+				.[1] as $embeds | .[0] | .content += ($embeds // [])
 			'
-		)" || result_json=""
+		)" || [ -z "${merged_json}" ]; then
+			mcp_logging_error "${MCP_TOOLS_LOGGER}" "Tool ${name}: could not attach embedded resources" || true
+			_mcp_tools_emit_error -32603 "Unable to attach embedded resources to tool result" "null"
+			cleanup_tool_temp_files
+			return 1
+		fi
+		result_json="${merged_json}"
 	fi
 
 	cleanup_tool_temp_files

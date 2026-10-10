@@ -23,10 +23,16 @@ cli_args=(--output json --quiet)
 # Call the CLI command
 mcp_progress 0 "Getting presigned URL" 1
 
-result=$(run_xaffinity_readonly file-url "$file_id" "${cli_args[@]}" 2>&1) || {
-    xaffinity_log_error "get-file-url" "CLI failed: $result"
-    mcp_fail -32603 "Failed to get file URL: $result"
-}
+err_file=$(mktemp)
+trap 'rm -f "$err_file"' EXIT
+exit_code=0
+result=$(run_xaffinity_readonly file-url "$file_id" "${cli_args[@]}" 2>"$err_file") || exit_code=$?
+if [[ $exit_code -ne 0 ]]; then
+    cli_error=$(xaffinity_cli_error_json "$result" "$(cat "$err_file")" "$exit_code")
+    message=$(jq_tool -r '[.message, .hint // empty] | join(" ")' <<<"$cli_error")
+    xaffinity_log_error "get-file-url" "CLI failed: $message"
+    mcp_fail -32603 "Failed to get file URL: $message"
+fi
 
 mcp_progress 1 "Done" 1
 

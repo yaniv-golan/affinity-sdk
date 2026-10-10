@@ -211,7 +211,8 @@ build_cli_base_args() {
 # Usage: run_xaffinity <subcommand> [args...]
 # Example: run_xaffinity person ls --query "John"
 # Note: --quiet is a global option, so we detect and move it to the right position
-# Uses mcp_with_retry for transient failure handling (3 attempts, 0.5s base delay)
+# One call, no retry: the SDK already retries transient HTTP failures (429/5xx), and a retry
+# wrapper would rerun permanent ones (exit 3 auth, 4 not found) and concatenate their JSON.
 run_xaffinity() {
     local pattern="${XAFFINITY_CLI_PATTERN:-xaffinity --readonly <command> --json}"
     local needs_dotenv=false
@@ -252,15 +253,14 @@ run_xaffinity() {
     # Note: ${arr[@]+...} syntax for Bash 3.2 compatibility with empty arrays
     cmd+=(${filtered_args[@]+"${filtered_args[@]}"})
 
-    # Execute with retry for transient failures
-    mcp_with_retry 3 0.5 -- "${cmd[@]}"
+    "${cmd[@]}"
 }
 
 # Run xaffinity in readonly mode (respects dotenv from check-key)
 # Usage: run_xaffinity_readonly <subcommand> [args...]
 # Note: --quiet is a global option, so we detect and move it to the right position
 # Logs command execution in debug mode (args are not logged for security)
-# Uses mcp_with_retry for transient failure handling (3 attempts, 0.5s base delay)
+# One call, no retry (see run_xaffinity).
 run_xaffinity_readonly() {
     local pattern="${XAFFINITY_CLI_PATTERN:-xaffinity --readonly <command> --json}"
     local needs_dotenv=false
@@ -305,15 +305,9 @@ run_xaffinity_readonly() {
     # Log command start in debug mode
     xaffinity_log_debug "cli" "executing: ${XAFFINITY_CLI:-xaffinity} --readonly $subcommand ..."
 
-    # Execute with retry for transient failures (3 attempts, 0.5s base delay)
-    # Note: mcp_with_retry is only available in tool contexts (tool-sdk.sh sourced).
-    # Resources don't source tool-sdk.sh, so fall back to direct execution.
+    # One call, no retry (see run_xaffinity).
     local output exit_code=0
-    if type mcp_with_retry &>/dev/null; then
-        output=$(mcp_with_retry 3 0.5 -- "${cmd[@]}") || exit_code=$?
-    else
-        output=$("${cmd[@]}") || exit_code=$?
-    fi
+    output=$("${cmd[@]}") || exit_code=$?
 
     # Log result in debug mode
     local output_bytes=${#output}
@@ -550,6 +544,28 @@ get_or_fetch_workflow_config() {
     set_workflow_config_cached "$list_id" "$result" 2>/dev/null || true
 
     echo "$result"
+}
+
+# ==============================================================================
+# CLI errors
+# ==============================================================================
+# The error of a failed CLI call as a JSON object {message, errorType?, hint?}.
+# Usage: xaffinity_cli_error_json <stdout> <stderr> <exit_code>
+# The CLI writes its error to stdout as {"ok": false, "error": {type, message, hint}}; falls back
+# to stderr, then to the exit code.
+xaffinity_cli_error_json() {
+    local stdout="$1" stderr="$2" exit_code="$3"
+    local from_json
+    from_json="$(jq_tool -c 'select(.error | type == "object")
+        | {message: .error.message, errorType: .error.type, hint: .error.hint}
+        | with_entries(select(.value != null and .value != ""))' <<<"${stdout}" 2>/dev/null || true)"
+    if [[ -n "${from_json}" ]] && jq_tool -e '.message' <<<"${from_json}" >/dev/null 2>&1; then
+        printf '%s' "${from_json}"
+    elif [[ -n "${stderr}" ]]; then
+        jq_tool -n -c --arg m "${stderr}" '{message: $m}'
+    else
+        jq_tool -n -c --arg m "CLI exited with code ${exit_code}" '{message: $m}'
+    fi
 }
 
 # ==============================================================================

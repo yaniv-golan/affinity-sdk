@@ -157,7 +157,6 @@ if [[ $exit_code -eq 100 ]]; then
 fi
 
 stdout_content=$(cat "$stdout_file")
-stderr_content=$(cat "$stderr_file")
 
 # Extract cursor from stderr using type field (consistent with progress pattern)
 # CLI emits: {"type": "cursor", "cursor": "eyJ...", "mode": "streaming"}
@@ -242,10 +241,13 @@ if [[ $exit_code -eq 0 ]]; then
         fi
     fi
 else
-    # Error handling - same for all formats
-    printf '%s' "$stderr_content" > "$stderr_file"
+    # Error handling - same for all formats. The CLI's error is JSON on stdout; stderr carries
+    # progress lines, so it is only the fallback.
+    stderr_text=$(jq_tool -R -r 'select((fromjson? | type) != "object")' "$stderr_file" 2>/dev/null || true)
+    # CLI exited with error: its message, type and hint (JSON on stdout), else stderr / exit code
     printf '%s' "$stdout_content" > "$stdout_file"
-    mcp_result_error "$(jq_tool -n --rawfile stderr "$stderr_file" --rawfile stdout "$stdout_file" \
+    cli_error=$(xaffinity_cli_error_json "$stdout_content" "$stderr_text" "$exit_code")
+    mcp_result_error "$(jq_tool -n --argjson err "$cli_error" --rawfile stdout "$stdout_file" \
           --argjson cmd "$cmd_json" --argjson code "$exit_code" \
-          '{type: "cli_error", message: $stderr, output: $stdout, exitCode: $code, executed: $cmd}')"
+          '{type: "cli_error"} + $err + {message: ($err.message + (if $err.hint then " Hint: " + $err.hint else "" end)), output: $stdout, exitCode: $code, executed: $cmd}')"
 fi

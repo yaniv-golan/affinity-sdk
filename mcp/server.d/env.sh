@@ -33,10 +33,13 @@
 # Variables the CLI and our scripts need. Tools, resource providers and completion scripts each
 # run with a stripped environment (mcp-bash env policies), so all three get the same allowlist.
 # Note: only this launcher (xaffinity-mcp.sh) sources env.sh; the MCPB bundle starts mcp-bash
-# directly, so tools/sync_mcp_bundle_env.py copies these settings into
-# server.meta.json "platform_overrides" (keep this line's format: the script parses it).
-# SYSTEMROOT etc.: Python on Windows can't open sockets without them.
-_XAFFINITY_ENV_ALLOWLIST="AFFINITY_API_KEY,AFFINITY_API_KEY_FILE,AFFINITY_API_KEY_COMMAND,XAFFINITY_CLI,XAFFINITY_CLI_PATTERN,XAFFINITY_CLI_VERSION,AFFINITY_MCP_READ_ONLY,AFFINITY_MCP_DISABLE_DESTRUCTIVE,XAFFINITY_DEBUG,AFFINITY_TRACE,AFFINITY_SESSION_CACHE,AFFINITY_SESSION_CACHE_TTL,AFFINITY_API_VERSION,AFFINITY_PROFILE,AFFINITY_V1_BASE_URL,AFFINITY_V2_BASE_URL,XDG_CONFIG_HOME,HTTP_PROXY,HTTPS_PROXY,NO_PROXY,http_proxy,https_proxy,no_proxy,SSL_CERT_FILE,SSL_CERT_DIR,MCPBASH_JSON_TOOL,MCPBASH_JSON_TOOL_BIN,MCPBASH_LOG_LEVEL,SYSTEMROOT,USERPROFILE,APPDATA,LOCALAPPDATA,TEMP,TMP"
+# directly, which reads server.d/server.meta.json "env" instead. tools/sync_mcp_bundle_env.py
+# copies this list there, minus MCPBASH_* names (mcp-bash rejects them in server.meta.json; tools
+# get MCPBASH_* anyway). Keep this line's format: the script parses it. Values set here win over
+# server.meta.json per scope, so the two must stay identical (the script and a test check it).
+# SYSTEMROOT etc.: Python on Windows can't open sockets without them (resource and completion
+# scripts get fewer Windows variables than tools).
+_XAFFINITY_ENV_ALLOWLIST="AFFINITY_API_KEY,AFFINITY_API_KEY_FILE,AFFINITY_API_KEY_COMMAND,XAFFINITY_CLI,XAFFINITY_CLI_PATTERN,XAFFINITY_CLI_VERSION,AFFINITY_MCP_READ_ONLY,AFFINITY_MCP_DISABLE_DESTRUCTIVE,XAFFINITY_DEBUG,AFFINITY_TRACE,AFFINITY_SESSION_CACHE,AFFINITY_SESSION_CACHE_TTL,AFFINITY_API_VERSION,AFFINITY_PROFILE,AFFINITY_V1_BASE_URL,AFFINITY_V2_BASE_URL,XDG_CONFIG_HOME,HTTP_PROXY,HTTPS_PROXY,NO_PROXY,http_proxy,https_proxy,no_proxy,SSL_CERT_FILE,SSL_CERT_DIR,AFFINITY_API_KEY_COMMAND_TIMEOUT,MCPBASH_JSON_TOOL,MCPBASH_JSON_TOOL_BIN,MCPBASH_LOG_LEVEL,SYSTEMROOT,USERPROFILE,APPDATA,LOCALAPPDATA,TEMP,TMP,COMSPEC,PATHEXT"
 export MCPBASH_TOOL_ENV_MODE="allowlist"
 export MCPBASH_TOOL_ENV_ALLOWLIST="${_XAFFINITY_ENV_ALLOWLIST}"
 export MCPBASH_PROVIDER_ENV_MODE="allowlist"
