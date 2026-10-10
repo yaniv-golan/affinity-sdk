@@ -8,7 +8,7 @@ The CLI resolves the API key in this order:
 
 1. `AFFINITY_API_KEY` env var
 2. `AFFINITY_API_KEY_FILE` env var (path to a file containing the key, or a `.env` file with an
-   `AFFINITY_API_KEY=` line — including a 1Password Environments locally mounted `.env`, which the
+   `AFFINITY_API_KEY=` line — including a 1Password Environments locally mounted `.env` file, which the
    CLI waits up to 30 s for while 1Password asks the user to approve the read)
 3. `AFFINITY_API_KEY_COMMAND` env var (shell command whose stdout is the key — git-credential-helper style; works with `op` / `pass` / `vault` / macOS `security`)
 4. `--api-key-file <path>` or `--api-key-stdin` CLI flags
@@ -25,8 +25,8 @@ For most users:
 For users with an existing secret manager, suggest one of these instead (the key stays out of
 config files):
 
-- **1Password Environments** (Mac/Linux, 1Password app running): the user mounts a local `.env`
-  holding `AFFINITY_API_KEY` from the 1Password app, then sets `AFFINITY_API_KEY_FILE` to its path.
+- **1Password Environments** (Mac/Linux, 1Password app running): the user creates an Environment
+  holding `AFFINITY_API_KEY` and a locally mounted `.env` file for it in the 1Password app, then sets `AFFINITY_API_KEY_FILE` to its path.
   The first read shows a 1Password approval prompt, or an unlock prompt if 1Password is locked;
   the CLI waits up to 30 s. A timeout error naming 1Password means the app isn't running or the
   prompt wasn't answered — ask the user to approve or unlock, then retry. `check-key` reports it

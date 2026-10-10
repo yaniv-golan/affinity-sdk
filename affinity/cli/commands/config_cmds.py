@@ -126,8 +126,8 @@ def _find_existing_key(ctx: CLIContext) -> tuple[bool, str | None]:
     if file_path_env:
         try:
             file_path = Path(file_path_env).expanduser()
-            # A named pipe (e.g. a 1Password mounted .env) is not read here: reading it asks
-            # 1Password for approval. Its existence is the evidence.
+            # A named pipe (e.g. a 1Password Environments locally mounted .env file) is not read
+            # here: reading it asks 1Password for approval. Its existence is the evidence.
             if file_path.exists() and stat.S_ISFIFO(file_path.stat().st_mode):
                 return True, "file"
             if file_path.is_file() and file_path.read_text(encoding="utf-8").strip():
@@ -248,7 +248,8 @@ def _probe_key_default_api_version(ctx: CLIContext, source: str | None) -> str |
 
     One unversioned V2 request with a short timeout and no retries. Never raises, never
     runs AFFINITY_API_KEY_COMMAND (check-key deliberately doesn't), never reads stdin and
-    never reads a named pipe (a 1Password mounted .env would prompt the user).
+    never reads a named pipe (a 1Password Environments locally mounted .env file would
+    prompt the user).
     """
     if (
         source == "command"

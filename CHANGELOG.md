@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Highlights
 
-**Read the API key from 1Password.** `AFFINITY_API_KEY_FILE` (and `--api-key-file`) accept a
-`.env` file and a named pipe, so a 1Password Environments locally mounted `.env` works directly:
+**Read the API key from 1Password Environments.** `AFFINITY_API_KEY_FILE` (and `--api-key-file`)
+accept a `.env` file and a named pipe, so an Environment's locally mounted `.env` file works directly:
 the CLI waits for 1Password to supply the key after you approve the read, and the key never
 touches the disk.
 
@@ -23,7 +23,7 @@ touches the disk.
   error. A named pipe is read when its writer supplies the content, waiting up to 30 seconds,
   with a message naming 1Password if nothing arrives. `config check-key` reports a named pipe as
   configured without reading it, and skips its API-version probe for it (reading would prompt).
-  Tested with a 1Password Environments mount: approval and unlock prompts, repeated and
+  Tested with a real 1Password Environments locally mounted `.env` file: approval and unlock prompts, repeated and
   concurrent reads.
 
 ### Changed
@@ -40,7 +40,7 @@ touches the disk.
 - **CLI plugin**: 1.13.0 → 1.13.1 — skill describes the current CLI only (no per-version notes);
   one upgrade hint at install.
 - **CLI plugin**: 1.13.1 → 1.13.2 — skill: `AFFINITY_API_KEY_FILE` reads `.env` files and
-  1Password mounted `.env`s; forced `--strategy field` never falls back.
+  1Password Environments locally mounted `.env` files; forced `--strategy field` never falls back.
 - **SDK plugin**: 1.7.0 → 1.7.1 — skill: API version pinning, note/file/semantic company search,
   hidden values; new `references/services.md` organised by question (field history, org-wide
   activity, notes V2 and replies, transcripts, relationships, merges, dropdown options, uploads).

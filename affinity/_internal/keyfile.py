@@ -59,7 +59,8 @@ _ENV_LINE = re.compile(r"^\s*(?:export\s+)?([A-Z][A-Z0-9_]*)\s*=\s*(.*)$")
 
 
 def _read_fifo(path: Path, timeout: float) -> str:
-    """Read a named pipe whose writer may appear later (e.g. a 1Password mounted .env).
+    """Read a named pipe whose writer may appear later (e.g. a 1Password Environments locally
+    mounted .env file).
 
     Opened non-blocking so a missing writer can't hang the process: reads return nothing until
     a writer has written, and end once it closes.
@@ -80,7 +81,8 @@ def _read_fifo(path: Path, timeout: float) -> str:
             if time.monotonic() > deadline:
                 raise ValueError(
                     f"Timed out after {timeout:g}s waiting for {path} (a named pipe). If it is "
-                    "a 1Password mounted .env: is 1Password running, and was the read approved?"
+                    "a 1Password Environments locally mounted .env file: is 1Password running, and "
+                    "was the read approved?"
                 )
             if not chunk:
                 time.sleep(0.05)

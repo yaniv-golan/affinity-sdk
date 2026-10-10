@@ -67,7 +67,7 @@ env:
 The file can hold just the key, or be a `.env` file: the `AFFINITY_API_KEY=` line is used
 (`export` and quotes are allowed). The same applies to `--api-key-file`.
 
-**1Password Environments.** A 1Password locally mounted `.env` is a named pipe that 1Password
+**1Password Environments.** An Environment's locally mounted `.env` file is a named pipe that 1Password
 fills when it is read, after you approve the read. Point the variable at it:
 
 ```bash
@@ -82,7 +82,7 @@ isn't approved, the CLI stops with a message saying so. The key is never written
 `config check-key` reports a named pipe as configured without reading it (so it never prompts).
 
 While 1Password is unlocked, any program on your computer can read the mounted file (that is
-how 1Password's mounted `.env` files work), so a short auto-lock time in 1Password limits that
+how 1Password's locally mounted `.env` files work), so a short auto-lock time in 1Password limits that
 window.
 
 On Posix systems, a `UserWarning` is emitted if the file is group- or world-readable
