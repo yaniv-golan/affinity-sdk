@@ -3255,7 +3255,10 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"affi
 </code></pre></div></p>
 </li>
 </ol>
-<p><strong>Destructive commands</strong> (delete operations) require explicit confirmation:
+<p><strong>Commands that cannot be undone</strong> (delete, merge) need the user's confirmation. Clients with
+confirmation dialogs (MCP elicitation) ask directly; Claude Desktop extensions have none, so the
+tool refuses the first call and Claude must ask you in the conversation, then retry with
+<code>confirm: true</code> only after you agree:
 <div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"person delete"</span><span class="p">,</span><span class="w"> </span><span class="nt">"argv"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"456"</span><span class="p">],</span><span class="w"> </span><span class="nt">"confirm"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span>
 </code></pre></div></p>
 <h3 id="common-cli-operations-via-gateway">Common CLI Operations (via gateway)<a class="headerlink" href="#common-cli-operations-via-gateway" title="Permanent link">&para;</a></h3>
@@ -3473,13 +3476,21 @@ log-interaction-and-update-workflow(personName: "Alice", interactionType: "call"
 <hr />
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
 <h3 id="read-only-mode">Read-Only Mode<a class="headerlink" href="#read-only-mode" title="Permanent link">&para;</a></h3>
-<p>Restrict to read-only tools:</p>
+<p>Set <code>AFFINITY_MCP_READ_ONLY=1</code> (or <code>true</code>) to block all write tools. In the Claude Desktop
+bundle this is the <strong>Read-Only Mode</strong> setting.</p>
 <div class="highlight"><pre><span></span><code><span class="nv">AFFINITY_MCP_READ_ONLY</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>./xaffinity-mcp.sh
 </code></pre></div>
 <h3 id="disable-destructive-commands">Disable Destructive Commands<a class="headerlink" href="#disable-destructive-commands" title="Permanent link">&para;</a></h3>
-<p>Allow write operations but block delete commands via CLI Gateway:</p>
+<p>Set <code>AFFINITY_MCP_DISABLE_DESTRUCTIVE=1</code> (or <code>true</code>) to allow writes but block commands that
+cannot be undone (delete, merge), even with confirmation. In the bundle this is <strong>Disable
+Destructive Commands</strong>.</p>
 <div class="highlight"><pre><span></span><code><span class="nv">AFFINITY_MCP_DISABLE_DESTRUCTIVE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>./xaffinity-mcp.sh
 </code></pre></div>
+<blockquote>
+<p><strong>Check that a setting took effect:</strong> ask Claude to run a <em>dry-run</em> <code>person delete 1</code>. With
+read-only on, it is refused with "Writes are off: the server is in read-only mode"; with
+destructive commands disabled, it returns <code>destructive_disabled</code>. Nothing is changed either way.</p>
+</blockquote>
 <h3 id="cache-ttl">Cache TTL<a class="headerlink" href="#cache-ttl" title="Permanent link">&para;</a></h3>
 <p>Adjust cache duration (default 10 minutes):</p>
 <div class="highlight"><pre><span></span><code><span class="nv">AFFINITY_SESSION_CACHE_TTL</span><span class="o">=</span><span class="m">300</span><span class="w"> </span>./xaffinity-mcp.sh

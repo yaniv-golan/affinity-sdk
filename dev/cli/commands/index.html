@@ -4594,7 +4594,9 @@ that version for the write; with <code>--api-version 2024-01-01</code> the comma
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>delete<span class="w"> </span><span class="m">26229794</span>
 </code></pre></div>
 <h3 id="xaffinity-person-merge-primaryid-duplicateid"><code>xaffinity person merge &lt;primaryId&gt; &lt;duplicateId&gt;</code><a class="headerlink" href="#xaffinity-person-merge-primaryid-duplicateid" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>merge<span class="w"> </span><span class="m">111</span><span class="w"> </span><span class="m">222</span>
+<p>Merges the duplicate into the primary; the duplicate is removed and this cannot be undone. Asks
+for confirmation; pass <code>--yes</code> to skip it (needed in scripts that don't answer the prompt).</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>person<span class="w"> </span>merge<span class="w"> </span><span class="m">111</span><span class="w"> </span><span class="m">222</span><span class="w"> </span>--yes
 </code></pre></div>
 <h3 id="xaffinity-person-files-dump-personid"><code>xaffinity person files dump &lt;personId&gt;</code><a class="headerlink" href="#xaffinity-person-files-dump-personid" title="Permanent link">&para;</a></h3>
 <p>Downloads all files attached to a person into a folder bundle with a <code>manifest.json</code>.</p>
@@ -4725,7 +4727,9 @@ that version for the write; with <code>--api-version 2024-01-01</code> the comma
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>delete<span class="w"> </span><span class="m">224925494</span>
 </code></pre></div>
 <h3 id="xaffinity-company-merge-primaryid-duplicateid"><code>xaffinity company merge &lt;primaryId&gt; &lt;duplicateId&gt;</code><a class="headerlink" href="#xaffinity-company-merge-primaryid-duplicateid" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>merge<span class="w"> </span><span class="m">111</span><span class="w"> </span><span class="m">222</span>
+<p>Merges the duplicate into the primary; the duplicate is removed and this cannot be undone. Asks
+for confirmation; pass <code>--yes</code> to skip it (needed in scripts that don't answer the prompt).</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>merge<span class="w"> </span><span class="m">111</span><span class="w"> </span><span class="m">222</span><span class="w"> </span>--yes
 </code></pre></div>
 <h3 id="xaffinity-company-files-dump-companyid"><code>xaffinity company files dump &lt;companyId&gt;</code><a class="headerlink" href="#xaffinity-company-files-dump-companyid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>company<span class="w"> </span>files<span class="w"> </span>dump<span class="w"> </span><span class="m">9876</span><span class="w"> </span>--out<span class="w"> </span>./bundle
