@@ -15,8 +15,10 @@ Usage:
     python tools/generate_mcp_command_registry.py
 
 Requirements:
-    - xaffinity CLI must be installed and in PATH
-    - CLI must support `--help --json` for machine-readable help output
+    - Run with a Python that has affinity-sdk installed (any version, e.g. an editable install;
+      `pip install -e '.[dev]'`). The CLI is run from this repo's source (`python -m affinity.cli`),
+      so the registry always matches the current code and no reinstall is needed after a version
+      bump. cliVersion is the pyproject.toml version.
 
 CI Integration:
     Add to .github/workflows/ci.yml:
@@ -29,6 +31,7 @@ CI Integration:
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -48,48 +51,42 @@ def get_pyproject_version() -> str:
     return data["project"]["version"]
 
 
-def get_cli_version() -> str:
-    """Get xaffinity CLI version string."""
+def run_cli_from_source(*args: str) -> str:
+    """Run the CLI from this repo's source tree and return stdout.
+
+    `-m` puts the working directory (the repo root) first on sys.path, ahead of any installed
+    copy; PYTHONPATH covers interpreters started with -P / PYTHONSAFEPATH.
+    """
+    repo_root = Path(__file__).resolve().parent.parent
+    env = dict(os.environ)
+    env["PYTHONPATH"] = os.pathsep.join(p for p in (str(repo_root), env.get("PYTHONPATH", "")) if p)
+    env["PYTHONIOENCODING"] = "utf-8"
     result = subprocess.run(
-        ["xaffinity", "--version"],
+        [sys.executable, "-m", "affinity.cli", *args],
         capture_output=True,
-        text=True,
-        check=True,
+        encoding="utf-8",
+        check=False,
+        cwd=repo_root,
+        env=env,
     )
-    # Output format: "xaffinity, version 0.7.0"
-    return result.stdout.strip().split()[-1]
-
-
-def validate_cli_version(cli_version: str) -> None:
-    """Warn if installed CLI version doesn't match pyproject.toml."""
-    try:
-        pyproject_version = get_pyproject_version()
-        if cli_version != pyproject_version:
-            print(
-                f"WARNING: Installed CLI version ({cli_version}) doesn't match "
-                f"pyproject.toml ({pyproject_version}).",
-                file=sys.stderr,
-            )
-            print(
-                "Run 'pip install -e .[cli]' to update the CLI before committing.",
-                file=sys.stderr,
-            )
-    except (FileNotFoundError, KeyError):
-        pass  # Skip validation if pyproject.toml not found
+    if result.returncode != 0:
+        print(result.stderr, file=sys.stderr)
+        print(
+            f"Error: could not run the CLI from source with {sys.executable}. It needs "
+            "affinity-sdk installed in this interpreter (any version) with the CLI "
+            "dependencies: pip install -e '.[dev]'",
+            file=sys.stderr,
+        )
+        raise subprocess.CalledProcessError(result.returncode, result.args)
+    return result.stdout
 
 
 def get_cli_commands() -> dict[str, dict]:
     """Get all CLI commands as a dict keyed by command name.
 
-    Uses `xaffinity --help --json` to get JSON output.
+    Uses `xaffinity --help --json`, run from the repo's source.
     """
-    result = subprocess.run(
-        ["xaffinity", "--help", "--json"],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    data = json.loads(result.stdout)
+    data = json.loads(run_cli_from_source("--help", "--json"))
     commands = data.get("commands", [])
     # Convert to dict keyed by name for easy lookup
     return {cmd["name"]: cmd for cmd in commands}
@@ -203,16 +200,8 @@ def sort_registry(commands: list[dict]) -> list[dict]:
 
 def generate_registry(config_path: Path, output_path: Path) -> None:
     """Generate the MCP command registry file."""
-    # Get CLI version
-    try:
-        cli_version = get_cli_version()
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        print(f"Error: Cannot get CLI version: {e}", file=sys.stderr)
-        print("Make sure xaffinity CLI is installed and in PATH", file=sys.stderr)
-        sys.exit(1)
-
-    # Warn if installed CLI doesn't match pyproject.toml
-    validate_cli_version(cli_version)
+    # The help comes from the repo's source, so it describes the pyproject version
+    cli_version = get_pyproject_version()
 
     # Load MCP config (whitelist)
     try:

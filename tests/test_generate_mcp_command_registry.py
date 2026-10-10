@@ -187,3 +187,23 @@ def test_search_limits_in_the_registry_match_the_sdk() -> None:
     for name, default in expected.items():
         assert limits[name]["default"] == default, name
         assert limits[name]["max"] == LIMIT_MAX, name
+
+
+def test_registry_is_generated_from_the_source_tree(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The generator runs the CLI from this repo's source, not the `xaffinity` on PATH, and
+    stamps the pyproject version: an editable install's version is fixed at install time, so
+    checking it failed every commit after a version bump until a reinstall."""
+    from tools import generate_mcp_command_registry as gen
+
+    monkeypatch.setenv("PATH", str(tmp_path))  # no xaffinity anywhere
+    output = tmp_path / "commands.generated.json"
+    repo = Path(gen.__file__).resolve().parents[1]
+    gen.generate_registry(repo / "mcp" / ".registry" / "mcp-commands.json", output)
+
+    data = json.loads(output.read_text())
+    assert data["cliVersion"] == gen.get_pyproject_version()
+    assert data["commands"]
+    committed = json.loads((repo / "mcp" / ".registry" / "commands.generated.json").read_text())
+    assert data["commands"] == committed["commands"]
