@@ -128,11 +128,11 @@ version_gte() {
     return 0
 }
 
+# An old CLI doesn't stop the server: tools refuse writes and mark read results (lib/common.sh)
 if ! version_gte "$CLI_VERSION" "$CLI_MIN_VERSION"; then
-    echo "Error: xaffinity CLI version $CLI_VERSION is too old." >&2
-    echo "MCP server requires CLI >= $CLI_MIN_VERSION" >&2
-    echo "Run: pip install --upgrade affinity-sdk" >&2
-    exit 1
+    echo "Warning: xaffinity CLI version $CLI_VERSION is older than this MCP server needs ($CLI_MIN_VERSION)." >&2
+    echo "Changes are refused and results may be incomplete until you update it." >&2
+    echo "Run: pip install --upgrade \"affinity-sdk[cli]\"" >&2
 fi
 
 # Check API key configuration using xaffinity config check-key

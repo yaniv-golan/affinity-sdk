@@ -58,6 +58,9 @@ if ! jq_tool -e '.from' "$query_file" >/dev/null 2>&1; then
     exit 0
 fi
 
+# Old CLI: run anyway; results carry a warning (see xaffinity_note_cli_version)
+xaffinity_note_cli_version
+
 # Cap max_records at 10000 for safety
 if [[ $max_records -gt 10000 ]]; then
     max_records=10000
@@ -197,26 +200,26 @@ if [[ $exit_code -eq 0 ]]; then
             if [[ "$was_truncated" == "true" ]]; then
                 # Truncated: add truncated flag and cursor if present
                 if [[ -n "$next_cursor" ]]; then
-                    mcp_result_success "$(printf '%s' "$stdout_content" | jq_tool \
+                    xaffinity_result_success "$(printf '%s' "$stdout_content" | jq_tool \
                         --argjson cmd "$cmd_json" \
                         --arg cursor "$next_cursor" \
                         --arg mode "$cursor_mode" \
                         '. + {executed: $cmd, truncated: true, nextCursor: $cursor, _cursorMode: $mode}')"
                 else
-                    mcp_result_success "$(printf '%s' "$stdout_content" | jq_tool \
+                    xaffinity_result_success "$(printf '%s' "$stdout_content" | jq_tool \
                         --argjson cmd "$cmd_json" \
                         '. + {executed: $cmd, truncated: true}')"
                 fi
             else
                 # Not truncated: just add executed command (NO truncated: false)
-                mcp_result_success "$(printf '%s' "$stdout_content" | jq_tool \
+                xaffinity_result_success "$(printf '%s' "$stdout_content" | jq_tool \
                     --argjson cmd "$cmd_json" \
                     '. + {executed: $cmd}')"
             fi
         else
             # Invalid JSON - shouldn't happen for --output json
             printf '%s' "$stdout_content" > "$stdout_file"
-            mcp_result_error "$(jq_tool -n --rawfile stdout "$stdout_file" --argjson cmd "$cmd_json" \
+            xaffinity_result_error "$(jq_tool -n --rawfile stdout "$stdout_file" --argjson cmd "$cmd_json" \
                 '{type: "invalid_json_output", message: "CLI returned non-JSON output", output: $stdout, executed: $cmd}')"
         fi
     else
@@ -228,15 +231,15 @@ if [[ $exit_code -eq 0 ]]; then
         if [[ "$was_truncated" == "true" ]]; then
             # Add nextCursor if present (for resumable truncated responses)
             if [[ -n "$next_cursor" ]]; then
-                mcp_result_success "$(jq_tool -n --rawfile text "$stdout_file" --argjson cmd "$cmd_json" \
+                xaffinity_result_success "$(jq_tool -n --rawfile text "$stdout_file" --argjson cmd "$cmd_json" \
                     --arg cursor "$next_cursor" --arg mode "$cursor_mode" \
                     '{content: [{type: "text", text: $text}], truncated: true, nextCursor: $cursor, _cursorMode: $mode, executed: $cmd}')"
             else
-                mcp_result_success "$(jq_tool -n --rawfile text "$stdout_file" --argjson cmd "$cmd_json" \
+                xaffinity_result_success "$(jq_tool -n --rawfile text "$stdout_file" --argjson cmd "$cmd_json" \
                     '{content: [{type: "text", text: $text}], truncated: true, executed: $cmd}')"
             fi
         else
-            mcp_result_success "$(jq_tool -n --rawfile text "$stdout_file" --argjson cmd "$cmd_json" \
+            xaffinity_result_success "$(jq_tool -n --rawfile text "$stdout_file" --argjson cmd "$cmd_json" \
                 '{content: [{type: "text", text: $text}], truncated: false, executed: $cmd}')"
         fi
     fi
@@ -247,7 +250,7 @@ else
     # CLI exited with error: its message, type and hint (JSON on stdout), else stderr / exit code
     printf '%s' "$stdout_content" > "$stdout_file"
     cli_error=$(xaffinity_cli_error_json "$stdout_content" "$stderr_text" "$exit_code")
-    mcp_result_error "$(jq_tool -n --argjson err "$cli_error" --rawfile stdout "$stdout_file" \
+    xaffinity_result_error "$(jq_tool -n --argjson err "$cli_error" --rawfile stdout "$stdout_file" \
           --argjson cmd "$cmd_json" --argjson code "$exit_code" \
           '{type: "cli_error"} + $err + {message: ($err.message + (if $err.hint then " Hint: " + $err.hint else "" end)), output: $stdout, exitCode: $code, executed: $cmd}')"
 fi

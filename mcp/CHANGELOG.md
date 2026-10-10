@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.25.2] - 2026-10-10
+
+### Highlights
+
+**The Claude Desktop extension says when the CLI is too old.** The CLI is installed separately,
+and only the plugin launcher checked its version; the extension ran any CLI and failed with
+unrelated errors (merges with CLI 1.21, for example). With a CLI older than this server needs,
+changes are now refused with a message that names both versions and the update command, and
+reads still run with a warning at the top of the result that they may be incomplete. Keep the
+extension and the CLI in step: merges with CLI 1.22.0 need extension 1.25.1 or later.
+
+### Changed
+
+- Tools that run the CLI check its version first. `execute-write-command` refuses an old CLI
+  (`cli_too_old`, before asking for confirmation); `execute-read-command`, `query`,
+  `get-entity-dossier` and `get-file-url` run and put `cliWarning` first in the result (text and
+  `structuredContent`), also on errors. The version is cached in `~/.cache/xaffinity/` (a new
+  enough one for a day; an old one for 10 minutes and only for reads, so an upgrade unblocks
+  changes on the next call). A version that can't be read never blocks or warns.
+- The plugin launcher (`xaffinity-mcp.sh`) no longer refuses to start with an old CLI; it warns
+  and the tools behave as above.
+- `server.d/requirements.json` carries the minimum CLI version (was 0.4.7), kept equal to
+  `COMPATIBILITY` by `tools/sync_mcp_version.py` and CI.
+- mcp-bash 1.7.0: answers the `server/discover` probe that Claude Code and Claude Desktop send
+  before `initialize` with "method not found"; cancelled calls no longer delay other requests;
+  the server exits non-zero after a fatal shell error on bash 3.2.
+- Docs: keep the CLI and the extension in step.
+
 ## [1.25.1] - 2026-10-10
 
 ### Highlights

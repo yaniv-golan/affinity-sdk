@@ -19,7 +19,8 @@ on a terminal, and take `--yes` to skip the prompt.
 (or pipe in `y`); with no answer the command exits 2 (`usage_error`) and merges nothing. This is a stated
 exception to the MAJOR-bump rule (VERSIONING.md): an irreversible command must not run
 unconfirmed. If you use the MCP server, upgrade it to 1.25.1: MCP 1.25.0 cannot pass `--yes`
-to merges, so merges fail (safely) with CLI 1.22.0.
+to merges, so merges fail (safely) with CLI 1.22.0. This includes the Claude Desktop extension:
+update it to 1.25.1 or later together with the CLI.
 
 ### Changed
 

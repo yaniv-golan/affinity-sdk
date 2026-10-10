@@ -37,6 +37,13 @@ The `.mcpb` bundle is self-contained — it includes the MCP Bash Framework and 
 | xaffinity CLI | `pipx install "affinity-sdk[cli]"` | `xaffinity --version` |
 | Affinity API key | `xaffinity config setup-key` (or let Claude Desktop prompt) | `xaffinity config check-key` |
 
+**Keep the CLI and the extension in step.** They are installed separately. When you upgrade one,
+upgrade the other: download the latest `.mcpb` after `pipx upgrade affinity-sdk`, and the other way
+round. Since MCP 1.25.2, with a CLI older than the extension needs, changes are refused ("This MCP
+server needs the xaffinity CLI … or later to make changes") and reads still run with a warning that
+results may be incomplete. An older extension with a newer CLI can fail without saying why (for
+example, merges with CLI 1.22.0 need extension 1.25.1 or later).
+
 ### For Manual Installation
 
 Manual installation requires additional dependencies:
@@ -180,7 +187,7 @@ mcp-bash install, not just the vendored runtime — see step 4 of manual install
 | Error | Cause | Solution |
 |-------|-------|----------|
 | "Could not detect xaffinity CLI" | CLI not installed | `pip install "affinity-sdk[cli]"` |
-| "CLI version X is too old" | Outdated CLI | `pip install --upgrade "affinity-sdk[cli]"` |
+| "older than this MCP server needs" / "This MCP server needs the xaffinity CLI X or later" | Outdated CLI | `pipx upgrade affinity-sdk` or `pip install --upgrade "affinity-sdk[cli]"` |
 | "API key not configured" | Missing credentials | `xaffinity config setup-key` |
 | "No JSON processor found" | jq/gojq not installed (manual install only) | See [Installing jq/gojq](#installing-jqgojq) |
 | "Framework not found" | Vendored `.mcp-bash/` directory missing | `cd mcp && mcp-bash vendor` |

@@ -29,6 +29,12 @@ jobs:
             echo "::error::SDK version $SDK_VERSION is below MCP minimum ($CLI_MIN_VERSION)"
             exit 1
           fi
+          # The MCPB bundle reads the minimum from requirements.json (it has no COMPATIBILITY)
+          REQ_MIN=$(jq -r '.dependencies[] | select(.name == "xaffinity") | .minVersion' mcp/server.d/requirements.json)
+          if [ "$REQ_MIN" != "$CLI_MIN_VERSION" ]; then
+            echo "::error::mcp/server.d/requirements.json xaffinity minVersion ($REQ_MIN) != COMPATIBILITY CLI_MIN_VERSION ($CLI_MIN_VERSION); run python tools/sync_mcp_version.py"
+            exit 1
+          fi
 
       - name: Check MCP server.meta.json matches VERSION
         run: |

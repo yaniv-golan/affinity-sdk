@@ -140,6 +140,9 @@ while IFS= read -r -d '' item; do
 done < <(apply_limit_cap "$command" ${argv[@]+"${argv[@]}"})
 argv=("${new_argv[@]+"${new_argv[@]}"}")
 
+# Old CLI: run anyway; results carry a warning (see xaffinity_note_cli_version)
+xaffinity_note_cli_version
+
 # Build command array safely
 # Note: --session-cache is a global option that must come BEFORE the subcommand
 # Use XAFFINITY_CLI for full path (set by common.sh for Cowork compatibility)
@@ -159,7 +162,7 @@ fi
 
 # Dry run: return what would be executed
 if [[ "$dry_run" == "true" ]]; then
-    mcp_result_success "$(jq_tool -n --args '$ARGS.positional' -- "${cmd_args[@]}" | \
+    xaffinity_result_success "$(jq_tool -n --args '$ARGS.positional' -- "${cmd_args[@]}" | \
         jq_tool '{result: null, dryRun: true, command: .}')"
     exit 0
 fi
@@ -229,22 +232,22 @@ if [[ $exit_code -eq 0 ]]; then
         truncate_args=("$stdout_content" "$max_output_bytes")
         [[ -n "$array_path" ]] && truncate_args+=(--array-path "$array_path")
         if truncated_result=$(mcp_json_truncate "${truncate_args[@]}"); then
-            mcp_result_success "$(printf '%s' "$truncated_result" | jq_tool --argjson cmd "$cmd_json" '. + {executed: $cmd}')"
+            xaffinity_result_success "$(printf '%s' "$truncated_result" | jq_tool --argjson cmd "$cmd_json" '. + {executed: $cmd}')"
         else
             # Truncation failed (output too large, can't truncate safely)
-            mcp_result_error "$(printf '%s' "$truncated_result" | jq_tool --argjson cmd "$cmd_json" '.error + {executed: $cmd}')"
+            xaffinity_result_error "$(printf '%s' "$truncated_result" | jq_tool --argjson cmd "$cmd_json" '.error + {executed: $cmd}')"
         fi
     else
         # Use temp files to avoid "Argument list too long" error with large outputs
         printf '%s' "$stdout_content" > "$stdout_file"
-        mcp_result_error "$(jq_tool -n --rawfile stdout "$stdout_file" --argjson cmd "$cmd_json" \
+        xaffinity_result_error "$(jq_tool -n --rawfile stdout "$stdout_file" --argjson cmd "$cmd_json" \
             '{type: "invalid_json_output", message: "CLI returned non-JSON output", output: $stdout, executed: $cmd}')"
     fi
 else
     # CLI exited with error: its message, type and hint (JSON on stdout), else stderr / exit code
     printf '%s' "$stdout_content" > "$stdout_file"
     cli_error=$(xaffinity_cli_error_json "$stdout_content" "$stderr_content" "$exit_code")
-    mcp_result_error "$(jq_tool -n --argjson err "$cli_error" --rawfile stdout "$stdout_file" \
+    xaffinity_result_error "$(jq_tool -n --argjson err "$cli_error" --rawfile stdout "$stdout_file" \
           --argjson cmd "$cmd_json" --argjson code "$exit_code" \
           '{type: "cli_error"} + $err + {message: ($err.message + (if $err.hint then " Hint: " + $err.hint else "" end)), output: $stdout, exitCode: $code, executed: $cmd}')"
     exit 0

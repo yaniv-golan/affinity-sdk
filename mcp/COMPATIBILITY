@@ -9,6 +9,10 @@ CLI_MAX_VERSION="1.22.0"
 #   asks for confirmation and appends --yes). MCP 1.25.0 with CLI 1.22.0: merges fail safely.
 # - Destructive commands with no --yes and no answer to the prompt exit 2 (usage_error, JSON).
 
+# MCP 1.25.2: no new CLI requirements. The minimum is now also in server.d/requirements.json
+# (copied by tools/sync_mcp_version.py): the MCPB bundle has no COMPATIBILITY file and its tools
+# check the CLI version themselves.
+
 # MCP 1.25.0: no new CLI requirements (same CLI 1.21.0 range as MCP 1.24.0).
 
 # MCP 1.24.0 requires CLI 1.21.0 for:

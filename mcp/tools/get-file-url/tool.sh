@@ -20,6 +20,9 @@ xaffinity_log_debug "get-file-url" "fileId=$file_id"
 cli_args=(--output json --quiet)
 [[ -n "${AFFINITY_SESSION_CACHE:-}" ]] && cli_args+=(--session-cache "$AFFINITY_SESSION_CACHE")
 
+# Old CLI: run anyway; results carry a warning (see xaffinity_note_cli_version)
+xaffinity_note_cli_version
+
 # Call the CLI command
 mcp_progress 0 "Getting presigned URL" 1
 
@@ -31,10 +34,10 @@ if [[ $exit_code -ne 0 ]]; then
     cli_error=$(xaffinity_cli_error_json "$result" "$(cat "$err_file")" "$exit_code")
     message=$(jq_tool -r '[.message, .hint // empty] | join(" ")' <<<"$cli_error")
     xaffinity_log_error "get-file-url" "CLI failed: $message"
-    mcp_fail -32603 "Failed to get file URL: $message"
+    mcp_fail -32603 "Failed to get file URL: $message${XAFFINITY_CLI_WARNING:+ $XAFFINITY_CLI_WARNING}"
 fi
 
 mcp_progress 1 "Done" 1
 
 # Extract and return the data portion
-mcp_emit_json "$(echo "$result" | jq_tool -c '.data')"
+xaffinity_emit_json "$(echo "$result" | jq_tool -c '.data')"

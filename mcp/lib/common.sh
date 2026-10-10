@@ -90,6 +90,128 @@ version_gte() {
 }
 
 # ==============================================================================
+# CLI Version Check
+# ==============================================================================
+# The CLI is installed separately, so it can be older than this server needs. The MCPB bundle
+# (Claude Desktop) starts mcp-bash directly and has no COMPATIBILITY file, so tools check the
+# version themselves, just before their first CLI call. The minimum is server.d/requirements.json
+# (tools/sync_mcp_version.py copies it from COMPATIBILITY). The minimum rises in most releases, so
+# only writes are refused with an old CLI; reads run and their result carries a warning
+# (XAFFINITY_CLI_WARNING, added by xaffinity_result_success/_error and xaffinity_emit_json).
+# A version that can't be read never blocks or warns (the CLI call reports its own error).
+#
+# Cache (~/.cache/xaffinity/mcp-cli-version, "path<TAB>version"): a passing version is reused for a
+# day; an old one only by reads, for 10 minutes, so an upgrade unblocks writes on the next call.
+# Both are dropped when the CLI path changes or its file is newer (-nt follows symlinks).
+
+# Sets _XAFFINITY_CLI_{PATH,VERSION,MIN,UPGRADE} and returns 1 if the CLI is too old.
+# Usage: _xaffinity_cli_too_old strict|reads
+_xaffinity_cli_too_old() {
+    local mode="$1" min cli version="" cache_file="" cached_cli="" cached_version="" target
+    min=$(jq_tool -r '.dependencies[]? | select(.name == "xaffinity") | .minVersion // empty' \
+        "${MCPBASH_PROJECT_ROOT}/server.d/requirements.json" 2>/dev/null) || return 0
+    [[ -n "$min" ]] || return 0
+    cli=$(command -v "${XAFFINITY_CLI:-xaffinity}" 2>/dev/null) || return 0
+    [[ -n "$cli" ]] || return 0
+
+    # xaffinity-mcp.sh sets this at startup
+    if [[ -n "${XAFFINITY_CLI_VERSION:-}" ]] && version_gte "$XAFFINITY_CLI_VERSION" "$min"; then
+        return 0
+    fi
+
+    # Not when the framework substituted the project root for a missing HOME
+    if [[ -n "${HOME:-}" && "${HOME}" != "${MCPBASH_PROJECT_ROOT}" ]]; then
+        cache_file="${HOME}/.cache/xaffinity/mcp-cli-version"
+        if [[ -f "$cache_file" && ! "$cli" -nt "$cache_file" ]]; then
+            IFS=$'\t' read -r cached_cli cached_version 2>/dev/null <"$cache_file" || true
+        fi
+        if [[ "$cached_cli" == "$cli" && -n "$cached_version" ]]; then
+            if version_gte "$cached_version" "$min"; then
+                [[ -n "$(find "$cache_file" -mmin -1440 2>/dev/null)" ]] && return 0
+            elif [[ "$mode" == "reads" && -n "$(find "$cache_file" -mmin -10 2>/dev/null)" ]]; then
+                version="$cached_version"
+            fi
+        fi
+    fi
+
+    if [[ -z "$version" ]]; then
+        version=$("$cli" version --output json 2>/dev/null | jq_tool -r '.data.version // empty' 2>/dev/null) || version=""
+        [[ -n "$version" ]] || return 0
+        if [[ -n "$cache_file" ]]; then
+            { mkdir -p "${cache_file%/*}" \
+                && printf '%s\t%s\n' "$cli" "$version" >"${cache_file}.$$" \
+                && mv -f "${cache_file}.$$" "$cache_file"; } 2>/dev/null || rm -f "${cache_file}.$$" 2>/dev/null || true
+        fi
+    fi
+    version_gte "$version" "$min" && return 0
+
+    target=$(readlink "$cli" 2>/dev/null) || target=""
+    case "$cli $target" in
+        *pipx*) _XAFFINITY_CLI_UPGRADE="pipx upgrade affinity-sdk" ;;
+        *uv/tools*) _XAFFINITY_CLI_UPGRADE="uv tool upgrade affinity-sdk" ;;
+        *) _XAFFINITY_CLI_UPGRADE='pip install --upgrade "affinity-sdk[cli]"' ;;
+    esac
+    _XAFFINITY_CLI_PATH="$cli"
+    _XAFFINITY_CLI_VERSION="$version"
+    _XAFFINITY_CLI_MIN="$min"
+    xaffinity_log_warn "cli" "xaffinity CLI $version at $cli is older than the required $min"
+    return 1
+}
+
+# For tools that write: refuse an old CLI. Returns 1 after emitting a cli_too_old error result.
+# Usage: xaffinity_require_cli_version || exit 0
+xaffinity_require_cli_version() {
+    _xaffinity_cli_too_old strict && return 0
+    mcp_error "cli_too_old" "This MCP server needs the xaffinity CLI ${_XAFFINITY_CLI_MIN} or later to make changes; the installed CLI is ${_XAFFINITY_CLI_VERSION} (${_XAFFINITY_CLI_PATH}). Nothing was changed. Tell the user to update the CLI (${_XAFFINITY_CLI_UPGRADE}) and then try again; do not retry before that." \
+        --hint "Update the CLI: ${_XAFFINITY_CLI_UPGRADE}"
+    return 1
+}
+
+# For tools that only read: run anyway, and set XAFFINITY_CLI_WARNING for the result. Never fails.
+# Call it directly (not in $(...)), so the variable is set in the tool's shell.
+xaffinity_note_cli_version() {
+    XAFFINITY_CLI_WARNING=""
+    _xaffinity_cli_too_old reads && return 0
+    XAFFINITY_CLI_WARNING="Warning: the xaffinity CLI ${_XAFFINITY_CLI_VERSION} is older than this MCP server needs (${_XAFFINITY_CLI_MIN}), so this result may be incomplete or wrong, and changes are refused. Tell the user to update the CLI (${_XAFFINITY_CLI_UPGRADE})."
+    return 0
+}
+
+# mcp_result_success plus the CLI warning as the first text block (Claude Desktop shows the text;
+# the framework may replace a large result's text with a summary) and in structuredContent.
+xaffinity_result_success() {
+    if [[ -z "${XAFFINITY_CLI_WARNING:-}" ]]; then
+        mcp_result_success "$@"
+        return 0
+    fi
+    local out
+    out=$(mcp_result_success "$@")
+    printf '%s' "$out" | jq_tool -c --arg w "$XAFFINITY_CLI_WARNING" \
+        '.content = [{type: "text", text: $w}] + (.content // []) | .structuredContent.cliWarning = $w' 2>/dev/null \
+        || printf '%s' "$out"
+}
+
+# mcp_result_error with the CLI warning appended to the message (an old CLI is a likely cause)
+xaffinity_result_error() {
+    local err="$1"
+    shift
+    if [[ -n "${XAFFINITY_CLI_WARNING:-}" ]]; then
+        err=$(printf '%s' "$err" | jq_tool -c --arg w "$XAFFINITY_CLI_WARNING" \
+            'if type == "object" then .message = ((.message // "Error") + " " + $w) | .cliWarning = $w else . end' 2>/dev/null) || err="$1"
+    fi
+    mcp_result_error "$err" "$@"
+}
+
+# mcp_emit_json with the CLI warning as the first key (the output becomes the text as it is)
+xaffinity_emit_json() {
+    local data="$1"
+    if [[ -n "${XAFFINITY_CLI_WARNING:-}" ]]; then
+        data=$(printf '%s' "$data" | jq_tool -c --arg w "$XAFFINITY_CLI_WARNING" \
+            'if type == "object" then {cliWarning: $w} + . else {cliWarning: $w, result: .} end' 2>/dev/null) || data="$1"
+    fi
+    mcp_emit_json "$data"
+}
+
+# ==============================================================================
 # CLI Gateway Registry
 # ==============================================================================
 # Pre-generated commands registry for CLI Gateway tools (discover-commands, execute-*-command).

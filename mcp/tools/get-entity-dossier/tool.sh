@@ -59,6 +59,9 @@ total_steps=2  # entity details + relationship strength
 [[ "$include_lists" == "true" ]] && ((++total_steps))
 current_step=0
 
+# Old CLI: run anyway; results carry a warning (see xaffinity_note_cli_version)
+xaffinity_note_cli_version
+
 # Fetch entity details
 mcp_progress 0 "Fetching $entity_type details" "$total_steps"
 cli_args=(--output json --quiet)
@@ -72,7 +75,7 @@ entity_raw=$(run_xaffinity_readonly "$entity_type" get "$entity_id" "${cli_args[
 if [[ $entity_exit -ne 0 ]]; then
     cli_error=$(xaffinity_cli_error_json "$entity_raw" "$(cat "$entity_err")" "$entity_exit")
     rm -f "$entity_err"
-    mcp_result_error "$(jq_tool -n --argjson err "$cli_error" --argjson code "$entity_exit" \
+    xaffinity_result_error "$(jq_tool -n --argjson err "$cli_error" --argjson code "$entity_exit" \
         --arg what "$entity_type get $entity_id" '{type: "cli_error"} + $err + {message: ($err.message + (if $err.hint then " Hint: " + $err.hint else "" end)), exitCode: $code, failed: $what}')"
     exit 0
 fi
@@ -139,7 +142,7 @@ xaffinity_log_debug "get-entity-dossier" "collected interactions=$interactions_c
 mcp_progress "$total_steps" "Building dossier" "$total_steps"
 
 # Build dossier
-mcp_emit_json "$(jq_tool -n \
+xaffinity_emit_json "$(jq_tool -n \
     --arg entityType "$entity_type" \
     --argjson entityId "$entity_id" \
     --argjson entity "$entity_data" \

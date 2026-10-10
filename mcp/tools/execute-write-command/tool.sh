@@ -93,6 +93,9 @@ if xaffinity_flag_enabled "${AFFINITY_MCP_DISABLE_DESTRUCTIVE:-}" && is_destruct
     exit 0
 fi
 
+# Writes need a CLI at least as new as this server requires
+xaffinity_require_cli_version || exit 0
+
 # Handle destructive operations with layered confirmation
 if is_destructive "$command"; then
     # Check if --yes already in argv (user shouldn't provide it directly)

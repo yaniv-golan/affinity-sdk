@@ -64,7 +64,7 @@ repos:
         name: Sync MCP server version
         entry: python tools/sync_mcp_version.py
         language: python
-        files: ^(mcp/VERSION|mcp/server\.d/server\.meta\.json)$
+        files: ^(mcp/VERSION|mcp/COMPATIBILITY|mcp/server\.d/(server\.meta|requirements)\.json)$
         pass_filenames: false
       - id: sync-mcp-bundle-env
         name: Sync MCP bundle env policy (server.meta.json env)
