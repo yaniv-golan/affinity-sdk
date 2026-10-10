@@ -24,6 +24,8 @@ the team knows people at a company. Requires CLI 1.25.0.
 
 ## [1.27.0] - 2026-10-10
 
+Not published separately: these changes ship in 1.28.0.
+
 ### Highlights
 
 **`confirm: true` works only after the server asked.** In Claude Desktop the model once sent a

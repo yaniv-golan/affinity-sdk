@@ -36,6 +36,8 @@ how well (`company relationships`, `person relationships`).
 
 ## [1.24.0] - 2026-10-10
 
+Not published separately: these changes ship in 1.25.0.
+
 ### Highlights
 
 **Dropdown options and meeting transcripts.** List a dropdown, ranked-dropdown or status
