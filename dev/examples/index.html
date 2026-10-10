@@ -386,6 +386,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#dropdown-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dropdown options
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#meeting-transcripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Meeting transcripts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#org-wide-activity-merge-history-and-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Org-wide activity, merge history and relationships
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#field-value-changes-audit-history" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2237,6 +2270,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#dropdown-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dropdown options
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#meeting-transcripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Meeting transcripts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#org-wide-activity-merge-history-and-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Org-wide activity, merge history and relationships
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#field-value-changes-audit-history" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2305,6 +2371,62 @@
 <li><a href="https://github.com/yaniv-golan/affinity-sdk/blob/main/examples/resolve_helpers.py"><code>examples/resolve_helpers.py</code></a> — resolve helpers (IDs from external identifiers)</li>
 <li><a href="https://github.com/yaniv-golan/affinity-sdk/blob/main/examples/task_polling.py"><code>examples/task_polling.py</code></a> — polling long-running tasks</li>
 </ul>
+<h2 id="dropdown-options">Dropdown options<a class="headerlink" href="#dropdown-options" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListId</span>
+
+<span class="k">with</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="c1"># with_status_types=True reports status fields as "status-dropdown" (API version 2026-07-15)</span>
+    <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">lists</span><span class="o">.</span><span class="n">get_field_dropdown_options</span><span class="p">(</span>
+        <span class="n">ListId</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span> <span class="s2">"field-456"</span><span class="p">,</span> <span class="n">with_status_types</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">option</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">option</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">option</span><span class="o">.</span><span class="n">status_category</span><span class="p">)</span>
+
+    <span class="n">option</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">lists</span><span class="o">.</span><span class="n">create_field_dropdown_option</span><span class="p">(</span>
+        <span class="n">ListId</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span> <span class="s2">"field-456"</span><span class="p">,</span> <span class="n">option_type</span><span class="o">=</span><span class="s2">"ranked-dropdown"</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">"Due diligence"</span><span class="p">,</span>
+        <span class="n">rank</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"blue"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">lists</span><span class="o">.</span><span class="n">update_field_dropdown_option</span><span class="p">(</span><span class="n">ListId</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span> <span class="s2">"field-456"</span><span class="p">,</span> <span class="n">option</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">"DD"</span><span class="p">)</span>
+    <span class="c1"># Cannot be undone: also clears the field on every entry set to this option</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">lists</span><span class="o">.</span><span class="n">delete_field_dropdown_option</span><span class="p">(</span><span class="n">ListId</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span> <span class="s2">"field-456"</span><span class="p">,</span> <span class="n">option</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</code></pre></div>
+<p>Global company and person fields' options can be read
+(<code>client.companies.get_field_dropdown_options("field-789")</code>) but not changed.</p>
+<h2 id="meeting-transcripts">Meeting transcripts<a class="headerlink" href="#meeting-transcripts" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+
+<span class="k">with</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">transcript</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">transcripts</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span>
+        <span class="n">created_after</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">transcript</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">transcript</span><span class="o">.</span><span class="n">created_at</span><span class="p">,</span> <span class="n">transcript</span><span class="o">.</span><span class="n">note</span><span class="o">.</span><span class="n">type</span> <span class="k">if</span> <span class="n">transcript</span><span class="o">.</span><span class="n">note</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">full</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">transcripts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">fragment</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">transcripts</span><span class="o">.</span><span class="n">iter_fragments</span><span class="p">(</span><span class="n">full</span><span class="o">.</span><span class="n">id</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">fragment</span><span class="o">.</span><span class="n">start_timestamp</span><span class="p">,</span> <span class="n">fragment</span><span class="o">.</span><span class="n">speaker</span><span class="p">,</span> <span class="n">fragment</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</code></pre></div>
+<p>Only transcripts the API key's user may see are returned.</p>
+<h2 id="org-wide-activity-merge-history-and-relationships">Org-wide activity, merge history and relationships<a class="headerlink" href="#org-wide-activity-merge-history-and-relationships" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompanyId</span>
+
+<span class="n">week_ago</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">email</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">interactions</span><span class="o">.</span><span class="n">iter_emails</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="n">week_ago</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">email</span><span class="o">.</span><span class="n">sent_at</span><span class="p">,</span> <span class="n">email</span><span class="o">.</span><span class="n">subject</span><span class="p">,</span> <span class="n">email</span><span class="o">.</span><span class="n">from_</span><span class="p">,</span> <span class="n">email</span><span class="o">.</span><span class="n">to_total</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">meeting</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">interactions</span><span class="o">.</span><span class="n">iter_meetings</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="n">week_ago</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">meeting</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="n">meeting</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">meeting</span><span class="o">.</span><span class="n">attendees_total</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">merge</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">iter_merges</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">"failed"</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">merge</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">merge</span><span class="o">.</span><span class="n">primary_company_id</span><span class="p">,</span> <span class="n">merge</span><span class="o">.</span><span class="n">error_message</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">iter_relationships</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span> <span class="n">min_score</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">rel</span><span class="o">.</span><span class="n">person1</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span> <span class="n">rel</span><span class="o">.</span><span class="n">person2</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span> <span class="n">rel</span><span class="o">.</span><span class="n">interaction_score</span><span class="p">)</span>
+</code></pre></div>
+<p>Interaction lists cover only what the API key's user may see. Merge history needs the "Manage
+duplicates" permission and the organization admin role. Relationships need Affinity API version
+2026-07-15 or newer.</p>
 <h2 id="field-value-changes-audit-history">Field Value Changes (audit history)<a class="headerlink" href="#field-value-changes-audit-history" title="Permanent link">&para;</a></h2>
 <p>Query the change history for a specific field on an entity:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>

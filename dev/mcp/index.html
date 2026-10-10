@@ -3122,7 +3122,8 @@
 needs, changes are refused ("This MCP server needs the xaffinity CLI … or later to make
 changes") and reads still run with a warning that results may be incomplete. An older extension
 with a newer CLI can fail without saying why (for example, merges with CLI 1.22.0 need extension
-1.25.1 or later).</p>
+1.25.1 or later). Claude Desktop never updates an extension installed from a <code>.mcpb</code> file:
+install each new release yourself.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">MCPB support</p>
@@ -3268,7 +3269,11 @@ confirmation dialogs (MCP elicitation) ask directly; Claude Desktop extensions h
 tool refuses the first call and Claude must ask you in the conversation, then retry with
 <code>confirm: true</code> only after you agree:
 <div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"person delete"</span><span class="p">,</span><span class="w"> </span><span class="nt">"argv"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"456"</span><span class="p">],</span><span class="w"> </span><span class="nt">"confirm"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span>
-</code></pre></div></p>
+</code></pre></div>
+Since MCP 1.27.0 <code>confirm: true</code> counts only after the server refused that exact command (or
+showed its dialog) in the last 15 minutes, once; set on a first call, it is ignored and Claude is
+told to ask you. If Affinity's own claude.ai connector is connected too, Claude may pick either:
+say "use the xaffinity tools" to choose this one.</p>
 <h3 id="common-cli-operations-via-gateway">Common CLI Operations (via gateway)<a class="headerlink" href="#common-cli-operations-via-gateway" title="Permanent link">&para;</a></h3>
 <p>These operations are available through <code>execute-read-command</code> and <code>execute-write-command</code>:</p>
 <p><strong>Search &amp; Lookup (read-only)</strong></p>
