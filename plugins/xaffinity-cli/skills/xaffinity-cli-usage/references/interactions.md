@@ -5,6 +5,8 @@ Read this before running `interaction ls` or `interaction create`.
 ## Listing interactions
 
 Interactions require `--type` and exactly one entity ID (`--person-id`, `--company-id`, or `--opportunity-id`).
+For emails, meetings, calls or chats **across the organization** (not one entity), use
+`interaction feed --type email|meeting|call|chat-message` (see `history-and-activity.md`).
 
 **Valid types:** `email`, `meeting`, `call`, `chat`, `chat-message`, `all`
 

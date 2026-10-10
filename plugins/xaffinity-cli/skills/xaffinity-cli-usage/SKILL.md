@@ -3,7 +3,9 @@ name: xaffinity-cli-usage
 description: >
   Runs the xaffinity CLI in bash to read and manage Affinity CRM data: look up companies and
   people, see which lists/pipelines a company is on and its list field values (Status, Owner),
-  export lists to JSON/CSV, filter pipelines, dedup-check before adding to a list, and create
+  export lists to JSON/CSV, filter pipelines, dedup-check before adding to a list, read field
+  change history (who changed what, deltas since a date), org-wide email/meeting/note feeds,
+  meeting transcripts, team relationships and merge history, manage dropdown options, and create
   notes, interactions and list entries. Use when the user mentions xaffinity, asks for Affinity
   CLI commands, bash scripts, flags or CSV exports, or needs Affinity CRM data and no Affinity
   MCP tools are available. Not for pipeline-history analysis (pipeline-history skill) or
@@ -41,6 +43,10 @@ shape of `data` differs by command — reading the wrong key gives `null`, which
 | `list entry field … --get` | `.data.fields` |
 | `interaction ls` / `note ls` / `<entity> files ls` | `.data[]` — a **bare array** |
 | `note create` / `interaction create` | `.data.note` / `.data.interaction` |
+| `field history` / `field changes` / `field history-bulk` | `.data.fieldValueChanges[]` |
+| `interaction feed` / `note feed` / `note replies` | `.data.interactions[]` / `.data.notes[]` / `.data.replies[]` |
+| `transcript ls` / `transcript get` | `.data.transcripts[]` / `.data.transcript` (`.fragments[]`) |
+| `company\|person relationships` / `field options ls` | `.data.relationships[]` / `.data.options[]` |
 
 When in doubt, look before you extract:
 `... --json | jq '.data | if type == "object" then keys else "array of \(length)" end'`.
@@ -143,7 +149,8 @@ You: xaffinity person delete 123 --yes
 
 **Destructive commands**: `person delete`, `company delete`, `opportunity delete`, `note delete`,
 `reminder delete`, `field delete`, `list entry delete`, `interaction delete`, `person merge`,
-`company merge` (the duplicate record is removed)
+`company merge` (the duplicate record is removed), `field options delete` (clears that value on
+every entry that had it)
 
 The `--yes` flag bypasses the CLI's interactive prompt; the confirmation must come from the user in
 the conversation. Without `--yes` and with nothing answering the prompt, these commands fail with a
@@ -220,6 +227,8 @@ xaffinity --readonly list export "Pipeline" --all --csv --csv-bom > output.csv
 Searching and filtering (`--query` vs `--filter`, saved views, operators): `references/filtering.md`.
 Content search (max 100, no paging): `note search "text"`, `file search "text"` (inside files), `company search "description"` (semantic; for name/domain use `company ls --query`).
 Interactions (types, date ranges, creating them): `references/interactions.md`.
+Field change history, org-wide feeds (`interaction feed`, `note feed`), transcripts,
+relationships, merge history and dropdown options: `references/history-and-activity.md`.
 
 ## List Entry Fields
 
@@ -292,6 +301,12 @@ reference (JSON structure, operators, aggregation, examples): `references/query-
 | Export list (full CSV) | `list export "ListName" --all --csv --csv-bom > out.csv` |
 | List with server filter | `list export "ListName" --saved-view "ViewName" --max-results 50 --json` |
 | List entity files | `company files ls "domain:acme.com" --max-results 20 --json` |
+| Who changed a field, when | `field history field-123 --company-id <id> --json` |
+| What changed since a date (any field) | `field changes --changed-after -7d --max-results 100 --json` |
+| Emails / meetings across the org | `interaction feed --type email --after -7d --max-results 50 --json` |
+| Recent notes across the org | `note feed --created-after -7d --max-results 50 --json` |
+| Who on the team knows a company | `company relationships domain:acme.com --max-results 20 --json` |
+| A dropdown's options | `field options ls field-123 --list-id "Pipeline" --json` |
 | Aggregate/group data | `query --dry-run --file query.json --json` (preview cost first) |
 | Get command help | `xaffinity <command> --help` (USE THIS — don't guess flags) |
 
