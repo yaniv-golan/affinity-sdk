@@ -2107,6 +2107,17 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased">[Unreleased]<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h3 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>CLI plugin</strong>: 1.12.0 → 1.13.0 — skill: field history without a selector, <code>field changes</code>,
+  <code>history-bulk --strategy</code>; <code>interaction feed</code>, <code>note feed</code>, <code>note replies</code>; transcripts;
+  <code>company|person relationships</code>, merge history, <code>task ls</code>; <code>field options</code>.</li>
+<li><strong>CLI plugin</strong>: 1.13.0 → 1.13.1 — skill describes the current CLI only (no per-version notes);
+  one upgrade hint at install.</li>
+<li><strong>SDK plugin</strong>: 1.7.0 → 1.7.1 — skill: API version pinning, note/file/semantic company search,
+  hidden values; new <code>references/services.md</code> organised by question (field history, org-wide
+  activity, notes V2 and replies, transcripts, relationships, merges, dropdown options, uploads).</li>
+</ul>
 <h2 id="1270-2026-10-10">[1.27.0] - 2026-10-10<a class="headerlink" href="#1270-2026-10-10" title="Permanent link">&para;</a></h2>
 <h3 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h3>
 <p><strong><code>field history-bulk --all</code> on a list field: a few calls instead of one per entry.</strong> For a field
@@ -2316,7 +2327,7 @@ Affinity API version 2026-07-15 or newer: unpinned, the CLI sends it for the wri
   as "unchanged". Affinity keeps the <strong>UTC</strong> date of the value written (verified live), not the
   Pacific date of that instant.</li>
 </ul>
-<h3 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_1">Plugins<a class="headerlink" href="#plugins_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>SDK plugin</strong>: 1.6.1 → 1.7.0 — skill: <code>companies/persons.batch_update_fields()</code> and
   <code>get_field_values()</code> (one all-or-nothing write, API version 2026-07-15), <code>lists.pages(term=)</code>;
@@ -2691,7 +2702,7 @@ the key via <code>AFFINITY_API_KEY</code>, project <code>.env</code> + <code>--d
   keyword-only <code>field_ids</code> and <code>field_types</code>, matching <code>list()</code> /
   <code>from_saved_view()</code>. Default behavior is unchanged.</li>
 </ul>
-<h3 id="plugins_1">Plugins<a class="headerlink" href="#plugins_1" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_2">Plugins<a class="headerlink" href="#plugins_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>CLI plugin</strong> (<code>affinity-crm-cli-xaffinity-unofficial</code>): 1.9.0 → 1.10.0 —
   added <code>clis.xaffinity</code> credential-broker manifest block (<code>env.api_key</code> →
@@ -2844,7 +2855,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>Dead <code>mcp/.claude-plugin/.mcp.json</code> (inline <code>mcpServers</code> in <code>plugin.json</code>
   is the source of truth).</li>
 </ul>
-<h3 id="plugins_2">Plugins<a class="headerlink" href="#plugins_2" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_3">Plugins<a class="headerlink" href="#plugins_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>SDK plugin</strong> (<code>affinity-crm-sdk-unofficial</code>): 1.6.0 → 1.6.1 — <code>plugin.json#name</code> alignment + skill frontmatter split.</li>
 <li><strong>CLI plugin</strong> (<code>affinity-crm-cli-xaffinity-unofficial</code>): 1.8.0 → 1.8.2 — <code>plugin.json#name</code> alignment + skill frontmatter split + new <code>AFFINITY_API_KEY_FILE</code> / <code>_COMMAND</code> documentation in the resolution-chain skill content.</li>
