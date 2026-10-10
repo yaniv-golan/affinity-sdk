@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.32.0] - 2026-10-11
+
+### Changed
+
+- `field history-bulk` guidance (registry, pipeline-history skill, data model): global fields
+  work, per company/person, with the company's list entry on each row and changes from before
+  it joined the list; field-wide reads take 10,000 changes per call. Requires CLI 1.29.0.
+
 ## [1.31.0] - 2026-10-11
 
 ### Highlights

@@ -347,7 +347,7 @@
         "max": 500,
         "allowUnboundedWith": ["--strategy", "field"]
       },
-      "whenToUse": "Fetch field change history across an entire list or set of entries. Use for pipeline analysis (stage transitions, funnel conversion, time-in-stage). ALWAYS use --dry-run first. Whole list: --list-id with --all --strategy field reads a field of that list field-wide in a few calls (via MCP --all is accepted only with --strategy field; a global or enriched field is a usage error). Otherwise --max-results N (at most 500 via MCP) or --list-entry-ids: each entry = 1 API call.",
+      "whenToUse": "Fetch field change history across an entire list or set of entries. Use for pipeline analysis (stage transitions, funnel conversion, time-in-stage). ALWAYS use --dry-run first. Whole list: --list-id with --all --strategy field reads the field field-wide in a few calls (via MCP --all is accepted only with --strategy field). A global field (dry run fieldKind global) changes per company/person: rows carry the company's list entry and include changes from before it joined the list; use --list-id, not --list-entry-ids. Enriched fields have no history. Otherwise --max-results N (at most 500 via MCP) or --list-entry-ids: each entry = 1 API call.",
       "examples": [
         "field history-bulk field-358027 --list-id Dealflow --all --strategy field --dry-run",
         "field history-bulk field-358027 --list-id Dealflow --all --strategy field",

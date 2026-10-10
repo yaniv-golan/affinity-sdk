@@ -464,6 +464,8 @@ def field_history(
         # Keep the client-side limit too, in case the server returns more
         if max_results is not None:
             changes = changes[:max_results]
+        if list_entry_id is not None and not changes:
+            _refuse_if_global(ctx, warnings, field_id, "--list-entry-id")
 
         payload = [_field_value_change_payload(item) for item in changes]
 
@@ -1057,7 +1059,11 @@ _HISTORY_BULK_DEFAULT_CONCURRENCY = 15
 # --strategy auto reads a list field's history field-wide only for lists at least this big:
 # field-wide pages are fetched one after another, the per-entry calls 15 at a time.
 _FIELD_WIDE_MIN_ENTRIES = 100
-_FIELD_WIDE_PAGE_SIZE = 500
+_FIELD_WIDE_PAGE_SIZE = 10000  # V1 accepts up to 10,000 changes per call
+# A global field's history spans the whole org (a list field's only its list), so its field-wide
+# read is bounded: auto reads one page and otherwise goes per company/person; a forced
+# --strategy field errors past this many changes rather than fanning out.
+_GLOBAL_FIELD_WIDE_MAX_CHANGES = 200_000
 
 
 def _same_field(a: object, b: str) -> bool:
@@ -1070,6 +1076,36 @@ def _same_field(a: object, b: str) -> bool:
 
 class _FieldWideUnavailable(Exception):
     """The field-wide fetch failed before any data arrived (auto: use the per-entry path)."""
+
+
+class _FieldWideTooLarge(Exception):
+    """A global field's org-wide history is larger than the field-wide read allows."""
+
+
+def _kind(value: object) -> str:
+    return str(getattr(value, "value", value) or "").lower()
+
+
+def _refuse_if_global(ctx: CLIContext, warnings: list[str], field_id: str, by: str) -> None:
+    """A global field's changes carry no list entry, so a per-entry query finds none: say so
+    instead of returning an empty history. Called only when the query came back empty."""
+    try:
+        metas = ctx.get_client(warnings=warnings).fields.list()
+    except AffinityError:
+        return
+    match = next((m for m in metas if _same_field(m.id, field_id)), None)
+    if match is None or match.list_id is not None or match.enrichment_source:
+        return
+    raise CLIError(
+        f"{field_id} is a global field: its changes belong to the company or person, not to a "
+        f"list entry, so {by} finds none.",
+        error_type="usage_error",
+        exit_code=2,
+        hint=(
+            f"Use `field history-bulk {field_id} --list-id <list> --all` (or --max-results N), "
+            f"or `field history {field_id} --company-id <id>` / `--person-id <id>`."
+        ),
+    )
 
 
 def _get_entity_name_from_entry(entry: Any) -> str | None:
@@ -1162,6 +1198,15 @@ def field_history_bulk(
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
         # --- Validation ---
+        try:
+            FieldId(field_id)
+        except ValueError:
+            raise CLIError(
+                f"{field_id} has no change history: only fields with a field-<number> id are "
+                "tracked (enriched and relationship-intelligence fields are not).",
+                error_type="usage_error",
+                exit_code=2,
+            ) from None
         if list_id is not None and list_entry_ids is not None:
             raise CLIError(
                 "--list-id and --list-entry-ids are mutually exclusive.",
@@ -1198,6 +1243,8 @@ def field_history_bulk(
         # entry_names: mapping entry_id -> entity name (populated only for --list-id path)
         entry_ids: list[int] = []
         entry_names: dict[int, str | None] = {}
+        # entry id -> (entity type, entity id); None when the entry has no entity
+        entry_entities: dict[int, tuple[str, int] | None] = {}
 
         if list_entry_ids is not None:
             # Parse comma-separated IDs
@@ -1225,6 +1272,13 @@ def field_history_bulk(
             for count, entry in enumerate(entries_iter, 1):
                 entry_ids.append(int(entry.id))
                 entry_names[int(entry.id)] = _get_entity_name_from_entry(entry)
+                entity = getattr(entry, "entity", None)
+                entity_id = getattr(entity, "id", None) if entity is not None else None
+                entry_entities[int(entry.id)] = (
+                    (_kind(getattr(entry, "type", None)), int(entity_id))
+                    if entity_id is not None
+                    else None
+                )
                 if max_results is not None and count >= max_results:
                     break
 
@@ -1238,14 +1292,14 @@ def field_history_bulk(
                 error_type="usage_error",
                 exit_code=2,
             )
-        if (
-            list_id is not None
-            and all_entries
-            and strategy != "entries"
-            and (strategy == "field" or total >= _FIELD_WIDE_MIN_ENTRIES)
-        ):
+        # What kind of field: a list field's changes belong to list entries, a global field's to
+        # the company/person (they carry no list entry, so per-entry reads find none).
+        field_kind: str | None = None
+        if list_id is not None:
             try:
-                list_fields = client.lists.get_fields(ListId(resolved_list_id))
+                list_fields: list[FieldMetadata] | None = client.lists.get_fields(
+                    ListId(resolved_list_id)
+                )
             except AffinityError as exc:
                 if strategy == "field":
                     # A forced field-wide read never turns into one call per entry
@@ -1255,17 +1309,72 @@ def field_history_bulk(
                         exit_code=1,
                         hint="Retry, or use --strategy entries (one call per entry).",
                     ) from exc
-                list_fields = []
+                list_fields = None
                 warnings.append(f"Could not read the list's fields ({exc}); fetching per entry.")
-            if any(f.type == "list" and _same_field(f.id, field_id) for f in list_fields):
-                chosen = "field"
-            elif strategy == "field":
+            if list_fields is not None:
+                match = next((f for f in list_fields if _same_field(f.id, field_id)), None)
+                if match is None:
+                    raise CLIError(
+                        f"{field_id} is not a field of this list (another list's field, or a "
+                        "person field on a company list), so it has no history on these entries.",
+                        error_type="usage_error",
+                        exit_code=2,
+                        hint="See the list's fields: xaffinity field ls --list-id <list>",
+                    )
+                kind = _kind(match.type)
+                if kind not in ("list", "global"):
+                    raise CLIError(
+                        f"{field_id} ({kind}) has no change history: only list and global "
+                        "fields are tracked.",
+                        error_type="usage_error",
+                        exit_code=2,
+                    )
+                field_kind = kind
+
+        # Global field: one read per company/person, labelled with its entry on the list
+        entity_entry: dict[int, int] = {}  # entity id -> the first entry of it on the list
+        selector = "company_id"
+        if field_kind == "global":
+            no_entity: list[int] = []
+            shared: dict[int, list[int]] = {}
+            entity_types: set[str] = set()
+            for eid in entry_ids:
+                info = entry_entities.get(eid)
+                if info is None:
+                    no_entity.append(eid)
+                    continue
+                entity_types.add(info[0])
+                if info[1] in entity_entry:
+                    shared.setdefault(info[1], []).append(eid)
+                else:
+                    entity_entry[info[1]] = eid
+            if "opportunity" in entity_types:
                 raise CLIError(
-                    f"--strategy field needs a field of this list; {field_id} is not one "
-                    "(global, enriched or another list's field). Use --strategy entries.",
+                    f"{field_id} is a global field, which opportunity lists don't have.",
                     error_type="usage_error",
                     exit_code=2,
                 )
+            selector = "person_id" if entity_types == {"person"} else "company_id"
+            if no_entity:
+                warnings.append(
+                    f"Entry {', '.join(map(str, no_entity))} has no company or person; skipped."
+                )
+            for entity, dupes in shared.items():
+                warnings.append(
+                    f"Entries {', '.join(map(str, dupes))} are the same "
+                    f"{'person' if selector == 'person_id' else 'company'} as entry "
+                    f"{entity_entry[entity]}; its changes are shown once, under entry "
+                    f"{entity_entry[entity]}."
+                )
+        targets = len(entity_entry) if field_kind == "global" else total
+
+        if (
+            field_kind is not None
+            and all_entries
+            and strategy != "entries"
+            and (strategy == "field" or targets >= _FIELD_WIDE_MIN_ENTRIES)
+        ):
+            chosen = "field"
 
         # --- Dry run ---
         if dry_run:
@@ -1278,15 +1387,20 @@ def field_history_bulk(
                 "dryRun": True,
                 "entries": total,
                 "strategy": chosen,
-                # Field-wide: one call per 500 changes, usually far fewer than one per entry;
-                # the per-entry count is the worst case (the fallback)
-                "estimatedApiCalls": total,
+                # Field-wide: one call per 10,000 changes, usually far fewer than one per
+                # entry; the per-entry (per-entity) count is the worst case (the fallback)
+                "estimatedApiCalls": targets,
                 "fieldId": field_id,
             }
+            if field_kind is not None:
+                dry["fieldKind"] = field_kind
+            if field_kind == "global":
+                dry["entities"] = len(entity_entry)
             if chosen == "field":
                 dry["estimatedApiCallsNote"] = (
-                    f"Field-wide: one call per {_FIELD_WIDE_PAGE_SIZE} changes of the field; "
-                    "estimatedApiCalls is the per-entry worst case."
+                    f"Field-wide: one call per {_FIELD_WIDE_PAGE_SIZE} changes of the field "
+                    + ("across the whole org; " if field_kind == "global" else "; ")
+                    + "estimatedApiCalls is the per-entry worst case."
                 )
             return CommandOutput(
                 data=dry,
@@ -1341,18 +1455,33 @@ def field_history_bulk(
                 succeeded = 0
                 failed = 0
 
-                async def fetch_one(eid: int) -> list[dict[str, object]]:
+                async def fetch_one(eid: int, entity: int | None) -> list[dict[str, object]]:
                     nonlocal completed, succeeded, failed
                     try:
                         async with rate_limiter:
-                            changes = await async_client.field_value_changes.list(
-                                field_id=FieldId(field_id),
-                                list_entry_id=ListEntryId(eid),
-                                action_type=parsed_action_type,
-                            )
+                            if entity is None:
+                                changes = await async_client.field_value_changes.list(
+                                    field_id=FieldId(field_id),
+                                    list_entry_id=ListEntryId(eid),
+                                    action_type=parsed_action_type,
+                                )
+                            elif selector == "person_id":
+                                changes = await async_client.field_value_changes.list(
+                                    field_id=FieldId(field_id),
+                                    person_id=PersonId(entity),
+                                    action_type=parsed_action_type,
+                                )
+                            else:
+                                changes = await async_client.field_value_changes.list(
+                                    field_id=FieldId(field_id),
+                                    company_id=CompanyId(entity),
+                                    action_type=parsed_action_type,
+                                )
                         rows: list[dict[str, object]] = []
                         for item in changes:
                             payload = _field_value_change_payload(item)
+                            if entity is not None:  # a global field's change: its entry here
+                                payload["listEntryId"] = eid
                             payload["entityName"] = entry_names.get(eid)
                             rows.append(payload)
                         succeeded += 1
@@ -1364,27 +1493,41 @@ def field_history_bulk(
                     finally:
                         completed += 1
                         if show_progress:
-                            sys.stderr.write(f"\r{completed}/{total} entries processed")
+                            sys.stderr.write(f"\r{completed}/{len(work)} {unit} processed")
                             sys.stderr.flush()
 
-                tasks = [asyncio.create_task(fetch_one(eid)) for eid in entry_ids]
+                work: list[tuple[int, int | None]]
+                if field_kind == "global":
+                    work = [(eid, entity) for entity, eid in entity_entry.items()]
+                    unit = "people" if selector == "person_id" else "companies"
+                else:
+                    work = [(eid, None) for eid in entry_ids]
+                    unit = "entries"
+                tasks = [asyncio.create_task(fetch_one(eid, ent)) for eid, ent in work]
                 for task in asyncio.as_completed(tasks):
                     batch = await task
                     results.extend(batch)
 
                 # Clear progress line
-                if show_progress and total > 0:
+                if show_progress and work:
                     sys.stderr.write("\r" + " " * 40 + "\r")
                     sys.stderr.flush()
 
                 if failed > 0:
                     async_warnings.append(
-                        f"{succeeded} of {total} entries succeeded, {failed} failed"
+                        f"{succeeded} of {len(work)} {unit} succeeded, {failed} failed"
                     )
                 return results, async_warnings
 
         def _field_wide() -> list[dict[str, object]]:
             on_list = set(entry_ids)
+            is_global = field_kind == "global"
+            # auto: one page; forced: up to the cap (never per entity)
+            cap = (
+                (_GLOBAL_FIELD_WIDE_MAX_CHANGES if strategy == "field" else _FIELD_WIDE_PAGE_SIZE)
+                if is_global
+                else None
+            )
             rows: list[dict[str, object]] = []
             dropped = 0
             fetched = 0
@@ -1395,11 +1538,26 @@ def field_history_bulk(
                     page_size=_FIELD_WIDE_PAGE_SIZE,
                 ):
                     fetched += 1
-                    eid = int(item.list_entry_id) if item.list_entry_id is not None else None
-                    if eid is None or eid not in on_list:
-                        dropped += 1
-                        continue
+                    if cap is not None and fetched > cap:
+                        raise _FieldWideTooLarge(str(cap))
+                    eid: int | None
+                    if is_global:
+                        # Changes of companies/people not on this list are simply not ours
+                        eid = (
+                            entity_entry.get(int(item.entity_id))
+                            if item.entity_id is not None
+                            else None
+                        )
+                        if eid is None:
+                            continue
+                    else:
+                        eid = int(item.list_entry_id) if item.list_entry_id is not None else None
+                        if eid is None or eid not in on_list:
+                            dropped += 1
+                            continue
                     payload = _field_value_change_payload(item)
+                    if is_global:
+                        payload["listEntryId"] = eid
                     payload["entityName"] = entry_names.get(eid)
                     rows.append(payload)
                     if show_progress and fetched % _FIELD_WIDE_PAGE_SIZE == 0:
@@ -1430,6 +1588,21 @@ def field_history_bulk(
         if chosen == "field":
             try:
                 all_changes = _field_wide()
+            except _FieldWideTooLarge as exc:
+                if strategy == "field":
+                    raise CLIError(
+                        f"{field_id}'s history across the org holds more than {exc} changes, "
+                        "too many to read field-wide.",
+                        error_type="usage_error",
+                        exit_code=1,
+                        hint="Use --strategy entries (one call per company or person).",
+                    ) from None
+                warnings.append(
+                    f"{field_id}'s history across the org is too large to read field-wide "
+                    f"(more than {exc} changes); fetching per "
+                    f"{'person' if selector == 'person_id' else 'company'} instead."
+                )
+                chosen = "entries"
             except _FieldWideUnavailable as exc:
                 if strategy == "field":
                     raise CLIError(
@@ -1443,6 +1616,8 @@ def field_history_bulk(
         if chosen == "entries":
             all_changes, async_warnings = asyncio.run(_run())
             warnings.extend(async_warnings)
+            if list_entry_ids is not None and not all_changes and not async_warnings:
+                _refuse_if_global(ctx, warnings, field_id, "--list-entry-ids")
         all_changes.sort(
             key=lambda r: (str(r.get("changedAt") or ""), str(r.get("id") or "").zfill(20))
         )

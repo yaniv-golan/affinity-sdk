@@ -450,14 +450,14 @@ def test_concurrency_env_var(monkeypatch: pytest.MonkeyPatch) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _change(cid: int, entry: int | None, when: str) -> object:
+def _change(cid: int, entry: int | None, when: str, *, entity: int | None = None) -> object:
     from affinity.models.entities import FieldValueChange
 
     return FieldValueChange.model_validate(
         {
             "id": cid,
             "field_id": 123,
-            "entity_id": 900 + (entry or 0),
+            "entity_id": entity if entity is not None else 900 + (entry or 0),
             "list_entry_id": entry,
             "action_type": 2,
             "value": "Won",
@@ -474,21 +474,45 @@ def _setup(
     field_type: str = "list",
     field_id: object = "field-123",
     iter_all: object = None,
+    entry_type: str = "company",
+    entity_ids: dict[int, int | None] | None = None,
 ) -> dict[str, list[object]]:
     from affinity.cli.commands import field_cmds
     from affinity.services.lists import ListService
     from affinity.services.v1_only import AsyncFieldValueChangesService, FieldValueChangesService
 
-    seen: dict[str, list[object]] = {"per_entry": [], "field_wide": [], "get_fields": []}
+    seen: dict[str, list[object]] = {
+        "per_entry": [],
+        "per_entity": [],
+        "field_wide": [],
+        "get_fields": [],
+    }
+
+    def entity_of(eid: int) -> int | None:
+        return (entity_ids or {}).get(eid, 900 + eid)
 
     async def per_entry(self, field_id, *, list_entry_id=None, action_type=None, **kw):  # noqa: ARG001
+        if list_entry_id is None:  # global field: by entity, rows carry no list entry
+            kind = "company_id" if kw.get("company_id") is not None else "person_id"
+            entity = int(kw[kind])
+            seen["per_entity"].append((kind, entity))
+            return [_change(7000 + entity, None, "2025-01-02T00:00:00Z", entity=entity)]
         seen["per_entry"].append(int(list_entry_id))
+        if field_type == "global":  # what V1 really does: a global field has no entry rows
+            return []
         return [_change(5000 + int(list_entry_id), int(list_entry_id), "2025-01-02T00:00:00Z")]
 
     def field_wide(self, field_id, *, action_type=None, page_size=100, **kw):  # noqa: ARG001
         seen["field_wide"].append((str(field_id), action_type, page_size))
         if iter_all is not None:
             yield from iter_all()  # type: ignore[operator]
+            return
+        if field_type == "global":  # the whole org's changes; listEntryId is null
+            for eid in range(1, entries + 1):
+                entity = entity_of(eid)
+                if entity is not None:
+                    yield _change(7000 + entity, None, "2025-01-02T00:00:00Z", entity=entity)
+            yield _change(9998, None, "2025-01-03T00:00:00Z", entity=123456)  # not on the list
             return
         for eid in range(1, entries + 1):
             yield _change(5000 + eid, eid, "2025-01-02T00:00:00Z")
@@ -508,10 +532,17 @@ def _setup(
 
     monkeypatch.setattr(ListService, "get_fields", get_fields)
 
+    class FakeEntity:
+        def __init__(self, entity_id: int) -> None:
+            self.id = entity_id
+            self.name = f"Entity {entity_id}"
+
     class FakeEntry:
         def __init__(self, eid: int) -> None:
             self.id = eid
-            self.entity = None
+            self.type = entry_type
+            entity = entity_of(eid)
+            self.entity = FakeEntity(entity) if entity is not None else None
 
     class FakeEntryService:
         def all(self):
@@ -540,7 +571,7 @@ def test_big_list_with_a_list_field_reads_field_wide(monkeypatch: pytest.MonkeyP
     code, out = _bulk("--all", "--action-type", "update")
     assert code == 0, out
     assert seen["per_entry"] == []
-    assert seen["field_wide"] == [("field-123", 2, 500)]
+    assert seen["field_wide"] == [("field-123", 2, 10000)]
     rows = out["data"]["fieldValueChanges"]
     assert len(rows) == 120  # the change on entry 99999 (not on the list) is dropped
     assert any("no longer on the list" in w for w in out["warnings"])
@@ -558,21 +589,17 @@ def test_field_wide_rows_match_per_entry_rows(monkeypatch: pytest.MonkeyPatch) -
 
 
 @pytest.mark.req("CLI-FIELD-HISTORY-BULK")
-def test_small_list_global_field_and_max_results_stay_per_entry(
+def test_small_list_and_max_results_stay_per_entry(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     seen = _setup(monkeypatch, entries=20)
     assert _bulk("--all")[0] == 0
-    assert seen["field_wide"] == [] and seen["get_fields"] == [] and len(seen["per_entry"]) == 20
-
-    seen = _setup(monkeypatch, entries=150, field_type="global")
-    code, out = _bulk("--all")
-    assert code == 0 and seen["field_wide"] == [] and len(seen["per_entry"]) == 150
-    assert out["command"]["modifiers"]["strategy"] == "entries"
+    # the field's kind is always read (one call): a global field must not be read per entry
+    assert seen["field_wide"] == [] and seen["get_fields"] == [42] and len(seen["per_entry"]) == 20
 
     seen = _setup(monkeypatch, entries=150)
     assert _bulk("--max-results", "150")[0] == 0
-    assert seen["get_fields"] == [] and seen["field_wide"] == []
+    assert seen["field_wide"] == [] and len(seen["per_entry"]) == 150
 
 
 @pytest.mark.req("CLI-FIELD-HISTORY-BULK")
@@ -587,9 +614,9 @@ def test_strategy_field_needs_list_all_and_a_list_field(monkeypatch: pytest.Monk
     _setup(monkeypatch, entries=10)
     code, out = _bulk("--max-results", "5", "--strategy", "field")
     assert code == 2 and "--all" in out["error"]["message"]
-    _setup(monkeypatch, entries=10, field_type="global")
+    _setup(monkeypatch, entries=10, field_type="enriched")
     code, out = _bulk("--all", "--strategy", "field")
-    assert code == 2 and "--strategy entries" in out["error"]["message"]
+    assert code == 2 and "no change history" in out["error"]["message"]
 
 
 @pytest.mark.req("CLI-FIELD-HISTORY-BULK")
@@ -712,3 +739,145 @@ def test_dry_run_reports_strategy_and_a_numeric_estimate(monkeypatch: pytest.Mon
     assert data["strategy"] == "field" and data["estimatedApiCalls"] == 120
     assert "estimatedApiCallsNote" in data
     assert seen["field_wide"] == [] and seen["per_entry"] == []
+
+
+# ---------------------------------------------------------------------------
+# Global fields: changes belong to the company/person, not to a list entry
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.req("CLI-FIELD-HISTORY-BULK")
+def test_global_field_small_list_reads_per_entity(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The live bug: per-entry reads of a global field return nothing."""
+    seen = _setup(monkeypatch, entries=3, field_type="global")
+    code, out = _bulk("--all")
+    assert code == 0, out
+    assert seen["per_entry"] == []
+    assert sorted(seen["per_entity"]) == [
+        ("company_id", 901),
+        ("company_id", 902),
+        ("company_id", 903),
+    ]
+    rows = out["data"]["fieldValueChanges"]
+    assert [r["listEntryId"] for r in rows] == [1, 2, 3]
+    assert rows[0]["entityName"] == "Entity 901"
+    assert out["command"]["modifiers"]["strategy"] == "entries"
+
+
+@pytest.mark.req("CLI-FIELD-HISTORY-BULK")
+def test_global_field_max_results_and_person_lists(monkeypatch: pytest.MonkeyPatch) -> None:
+    seen = _setup(monkeypatch, entries=10, field_type="global", entry_type="person")
+    code, out = _bulk("--max-results", "2")
+    assert code == 0, out
+    assert sorted(seen["per_entity"]) == [("person_id", 901), ("person_id", 902)]
+
+
+@pytest.mark.req("CLI-FIELD-HISTORY-BULK")
+def test_global_field_entry_without_entity_and_shared_entity(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    seen = _setup(monkeypatch, entries=3, field_type="global", entity_ids={1: 500, 2: 500, 3: None})
+    code, out = _bulk("--all")
+    assert code == 0, out
+    assert seen["per_entity"] == [("company_id", 500)]
+    rows = out["data"]["fieldValueChanges"]
+    assert len(rows) == 1 and rows[0]["listEntryId"] == 1
+    assert any("entry 3" in w.lower() for w in out["warnings"])
+    assert any("2" in w and "same" in w.lower() for w in out["warnings"])
+
+
+@pytest.mark.req("CLI-FIELD-HISTORY-BULK")
+def test_global_field_big_list_reads_field_wide(monkeypatch: pytest.MonkeyPatch) -> None:
+    seen = _setup(monkeypatch, entries=120, field_type="global")
+    code, out = _bulk("--all", "--dry-run")
+    assert code == 0, out
+    assert out["data"]["fieldKind"] == "global" and out["data"]["strategy"] == "field"
+    seen = _setup(monkeypatch, entries=120, field_type="global")
+    code, out = _bulk("--all")
+    assert code == 0, out
+    assert seen["per_entity"] == [] and seen["field_wide"] == [("field-123", None, 10000)]
+    rows = out["data"]["fieldValueChanges"]
+    assert len(rows) == 120  # the change on a company not on the list is left out, silently
+    assert {r["listEntryId"] for r in rows} == set(range(1, 121))
+    assert not any("no longer on the list" in w for w in out.get("warnings") or [])
+
+
+def _many_global_changes(n: int):  # type: ignore[no-untyped-def]
+    def gen():  # type: ignore[no-untyped-def]
+        for i in range(n):
+            yield _change(100000 + i, None, "2025-01-02T00:00:00Z", entity=10_000_000 + i)
+
+    return gen
+
+
+@pytest.mark.req("CLI-FIELD-HISTORY-BULK")
+def test_global_field_too_big_for_auto_falls_back_per_entity(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    seen = _setup(
+        monkeypatch, entries=120, field_type="global", iter_all=_many_global_changes(10_001)
+    )
+    code, out = _bulk("--all")
+    assert code == 0, out
+    assert len(seen["per_entity"]) == 120
+    assert any("too large" in w for w in out["warnings"])
+    assert out["command"]["modifiers"]["strategy"] == "entries"
+
+
+@pytest.mark.req("CLI-FIELD-HISTORY-BULK")
+def test_global_field_too_big_for_forced_field_is_an_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from affinity.cli.commands import field_cmds
+
+    monkeypatch.setattr(field_cmds, "_GLOBAL_FIELD_WIDE_MAX_CHANGES", 50)
+    seen = _setup(monkeypatch, entries=120, field_type="global", iter_all=_many_global_changes(51))
+    code, out = _bulk("--all", "--strategy", "field")
+    assert code == 1, out
+    assert seen["per_entity"] == []
+    assert "--strategy entries" in out["error"]["hint"]
+
+
+@pytest.mark.req("CLI-FIELD-HISTORY-BULK")
+def test_field_not_on_the_list_is_a_usage_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    seen = _setup(monkeypatch, entries=3, field_id="field-999")
+    code, out = _bulk("--all")
+    assert code == 2, out
+    assert "not a field of" in out["error"]["message"]
+    assert seen["per_entry"] == [] and seen["per_entity"] == []
+
+
+@pytest.mark.req("CLI-FIELD-HISTORY-BULK")
+def test_enriched_field_ids_are_refused_before_any_call(monkeypatch: pytest.MonkeyPatch) -> None:
+    seen = _setup(monkeypatch, entries=3)
+    result = CliRunner().invoke(
+        cli,
+        ["--json", "field", "history-bulk", "dealroom-url", "--list-id", "42", "--all"],
+        env={"AFFINITY_API_KEY": "test-key"},
+    )
+    out = json.loads(result.stdout.strip().splitlines()[-1])
+    assert result.exit_code == 2 and "no change history" in out["error"]["message"]
+    assert seen["get_fields"] == []
+
+
+@pytest.mark.req("CLI-FIELD-HISTORY-BULK")
+def test_list_entry_ids_with_a_global_field_says_how(monkeypatch: pytest.MonkeyPatch) -> None:
+    from affinity.services.v1_only import FieldService
+
+    seen = _setup(monkeypatch, entries=3, field_type="global")
+
+    class Meta:
+        id = "field-123"
+        list_id = None
+        enrichment_source = None
+
+    monkeypatch.setattr(FieldService, "list", lambda self, **kw: [Meta()])  # noqa: ARG005
+    result = CliRunner().invoke(
+        cli,
+        ["--json", "field", "history-bulk", "field-123", "--list-entry-ids", "1,2"],
+        env={"AFFINITY_API_KEY": "test-key"},
+    )
+    out = json.loads(result.stdout.strip().splitlines()[-1])
+    assert result.exit_code == 2, out
+    assert "global" in out["error"]["message"] and "--list-id" in out["error"]["hint"]
+    assert seen["per_entry"] == [1, 2]

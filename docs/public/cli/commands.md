@@ -1143,13 +1143,21 @@ xaffinity field history-bulk field-358027 --list-id Dealflow --max-results 50
 xaffinity field history-bulk field-358027 --list-entry-ids 100,200,300
 ```
 
-With `--all` on a field that belongs to the list, and a list of 100 or more entries, the history
-is read field-wide: one call per 500 changes instead of one per entry, with the same rows.
-Otherwise there is one call per entry, 15 at a time. `--strategy field|entries` forces either
-(a forced `field` read that fails is an error; it never falls back to per-entry calls);
-the dry run shows the `strategy` and `estimatedApiCalls` (the per-entry worst case). Changes on
-entries no longer on the list are left out (a warning says how many). Rows are sorted by
-`changedAt`.
+With `--all` on a list of 100 or more entries, the history is read field-wide: one call per
+10,000 changes instead of one per entry, with the same rows. Otherwise there is one call per
+entry, 15 at a time. `--strategy field|entries` forces either (a forced `field` read that fails
+is an error; it never falls back to per-entry calls); the dry run shows `fieldKind`, the
+`strategy` and `estimatedApiCalls` (the per-entry worst case). Changes on entries no longer on
+the list are left out (a warning says how many). Rows are sorted by `changedAt`.
+
+**Global fields** (company or person fields, not the list's own): their changes belong to the
+company or person, not to a list entry. The CLI reads them per company/person (one call each)
+and labels each row with that company's or person's entry on the list (`listEntryId`); they
+include changes made before it joined the list. Field-wide, a global field's history covers the
+whole org, so `auto` uses it only if it fits in one call (otherwise per company/person, with a
+warning) and a forced `--strategy field` reads up to 200,000 changes, then stops with an error.
+`--list-entry-ids` can't map entries to companies, so a global field there is a usage error, as
+are enriched fields (no change history) and fields that aren't on the list.
 
 ### `xaffinity field options`
 

@@ -278,7 +278,8 @@ Each row has: `id`, `fieldId`, `entityId`, `listEntryId`, `entityName`, `actionT
 **Reconstructing transitions:** Sort events per entity by `changedAt` (parsed as a time, not as text; break ties by `id`). Each row's `value` is the value AT that point — compare consecutive rows to derive old→new transitions.
 
 **Important:**
-- With `--all`, a field that belongs to the list is read field-wide on lists of 100+ entries (one call per 500 changes; dry run shows `strategy: "field"`). Otherwise each list entry = 1 API call: a list with 9,000 entries and a global field = 9,000 calls. `--strategy field|entries` forces either.
+- With `--all` on lists of 100+ entries the field is read field-wide (one call per 10,000 changes; dry run shows `strategy: "field"`). Otherwise each list entry = 1 API call. `--strategy field|entries` forces either.
+- A global field (dry run `fieldKind: "global"`) changes per company/person: rows carry the company's entry as `listEntryId` and include changes from before it joined the list. Its field-wide read covers the whole org, so it is used only when that history is small enough (otherwise one call per company/person). Enriched fields have no history.
 - Always `--dry-run` first to see `estimatedApiCalls`.
 - With `--list-entry-ids`, `entityName` is null — join with `list export` data if names are needed.
 - Partial failures (e.g., deleted entries) are reported as warnings without blocking other entries.

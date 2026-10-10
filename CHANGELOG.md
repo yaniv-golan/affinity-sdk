@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.29.0] - 2026-10-11
+
+### Highlights
+
+**`field history-bulk` works on global fields.** A global field's changes (a company or person
+field shown on a list) belong to the company or person, not to the list entry, so reading them
+per entry returned nothing, with no warning. They are now read per company/person, or
+field-wide when the field's history is small, and each row carries the company's entry on the
+list.
+
+### Fixed
+
+- `field history-bulk` on a global field returned no rows. It now reads per company or person
+  (one call each; entries sharing one are read once, with a warning) and fills `listEntryId`
+  with the entry on the list. With `--all` on 100+ of them it reads the field's org-wide history
+  instead when that fits in one call; a forced `--strategy field` reads up to 200,000 changes and
+  otherwise stops with an error. Rows include changes from before the company joined the list.
+- `field history-bulk` with a field that isn't on the list, or an enriched field, gave empty
+  results; both are usage errors now. So is a global field with `--list-entry-ids`, which can't
+  map entries to companies.
+- `field history --list-entry-id` on a global field returned nothing; it now says the field is
+  global and to use `--company-id` / `--person-id`.
+
+### Changed
+
+- `field history-bulk` reads field-wide 10,000 changes per call (was 500): fewer calls for list
+  fields too. The dry run reports `fieldKind` (`list` / `global`) and, for a global field,
+  `entities`.
+
+### Plugins
+
+- **CLI plugin**: 1.13.2 → 1.13.3 — skill: `history-bulk` on global fields.
+
 ## [1.28.0] - 2026-10-11
 
 ### Highlights

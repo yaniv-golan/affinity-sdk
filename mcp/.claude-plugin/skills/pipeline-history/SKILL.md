@@ -45,11 +45,13 @@ JSON output key is `data.rows`. Each row contains `listEntryId`, `entityId`, `en
 execute-read-command(command: "field history-bulk", argv: ["<field-id>", "--list-id", "YOUR_LIST_NAME", "--all", "--strategy", "field", "--dry-run"])
 ```
 
-`--strategy field` reads the field's whole history in a few calls (one per 500 changes) and keeps
-the rows for this list's entries. It works for a field that belongs to the list (a list field);
-for a global or enriched field the command fails with a usage error — then sample entries with
-`--max-results` (each entry = 1 API call, at most 500 via MCP). Check `estimatedApiCalls` (the
-per-entry worst case) in the dry run before running it.
+`--strategy field` reads the field's whole history in a few calls (one per 10,000 changes) and
+keeps the rows for this list's entries. For a global field (dry run `fieldKind: "global"`, e.g. a
+company field) it reads the field's history across the whole org and keeps this list's companies
+or people; if that holds more than 200,000 changes it stops with an error — then sample with
+`--max-results` (one call per company or person, at most 500 via MCP). A global field's rows
+include changes from before the company joined the list. Enriched fields have no history.
+Check `estimatedApiCalls` (the per-entry worst case) in the dry run before running it.
 
 ### Step 4: Fetch History
 
@@ -57,7 +59,7 @@ per-entry worst case) in the dry run before running it.
 execute-read-command(command: "field history-bulk", argv: ["<field-id>", "--list-id", "YOUR_LIST_NAME", "--max-results", "50"])
 ```
 
-For all entries of a list field (after the dry run):
+For all entries (after the dry run):
 
 ```
 execute-read-command(command: "field history-bulk", argv: ["<field-id>", "--list-id", "YOUR_LIST_NAME", "--all", "--strategy", "field"])

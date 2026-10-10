@@ -373,3 +373,66 @@ def test_field_changes_cursor_cannot_be_combined_with_filters() -> None:
     )
     assert result.exit_code == 2
     assert "--cursor" in result.output
+
+
+def test_list_entry_id_on_a_global_field_says_how(respx_mock: respx.MockRouter) -> None:
+    """A global field's changes carry no list entry, so --list-entry-id finds none: say so."""
+    respx_mock.get("https://api.affinity.co/field-value-changes").mock(
+        return_value=Response(200, json=[])
+    )
+    respx_mock.get("https://api.affinity.co/fields").mock(
+        return_value=Response(
+            200,
+            json=[
+                {
+                    "id": 123,
+                    "name": "Sector",
+                    "list_id": None,
+                    "value_type": 7,
+                    "allows_multiple": False,
+                    "track_changes": True,
+                    "enrichment_source": None,
+                }
+            ],
+        )
+    )
+    result = CliRunner().invoke(
+        cli,
+        ["--json", "field", "history", "field-123", "--list-entry-id", "77"],
+        env={"AFFINITY_API_KEY": "test-key"},
+    )
+    out = json.loads(result.stdout.strip().splitlines()[-1])
+    assert result.exit_code == 2, out
+    assert "global" in out["error"]["message"] and "--company-id" in out["error"]["hint"]
+
+
+def test_list_entry_id_on_a_list_field_with_no_changes_is_empty(
+    respx_mock: respx.MockRouter,
+) -> None:
+    respx_mock.get("https://api.affinity.co/field-value-changes").mock(
+        return_value=Response(200, json=[])
+    )
+    respx_mock.get("https://api.affinity.co/fields").mock(
+        return_value=Response(
+            200,
+            json=[
+                {
+                    "id": 123,
+                    "name": "Status",
+                    "list_id": 9,
+                    "value_type": 7,
+                    "allows_multiple": False,
+                    "track_changes": True,
+                    "enrichment_source": None,
+                }
+            ],
+        )
+    )
+    result = CliRunner().invoke(
+        cli,
+        ["--json", "field", "history", "field-123", "--list-entry-id", "77"],
+        env={"AFFINITY_API_KEY": "test-key"},
+    )
+    out = json.loads(result.stdout.strip().splitlines()[-1])
+    assert result.exit_code == 0, out
+    assert out["data"]["fieldValueChanges"] == []

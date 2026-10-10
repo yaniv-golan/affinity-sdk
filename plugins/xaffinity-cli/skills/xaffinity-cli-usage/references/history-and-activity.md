@@ -18,10 +18,15 @@ these are reads except `field options create|update|delete`.
 - `--max-results` on `field history` is the **most recent** N (`--order asc`: the oldest N).
 - Sort events by `changedAt` **parsed as a time** (string order misplaces same-second events), then
   by `id`. Each row's `value` is the value at that point; derive transitions from consecutive rows.
-- `history-bulk --all` on a field of that list with 100+ entries reads the field's history in a few
-  calls (dry run: `"strategy": "field"`); otherwise one call per entry. Check the dry run's
+- `history-bulk --all` on a list of 100+ entries reads the field's history in a few calls (dry
+  run: `"strategy": "field"`); otherwise one call per entry. Check the dry run's
   `estimatedApiCalls` before a big run. `--strategy field` insists on the field-wide read: if it
   fails, the command fails (retry it) instead of making one call per entry.
+- A **global** field (dry run `"fieldKind": "global"`, e.g. a company field shown on the list)
+  changes per company/person: rows carry that company's entry as `listEntryId` and include
+  changes from before it joined the list. Use `--list-id`, not `--list-entry-ids` (a usage
+  error for global fields); for one company use `field history <field> --company-id <id>`.
+  Enriched fields have no change history.
 
 ## Org-wide activity (not tied to one entity)
 
