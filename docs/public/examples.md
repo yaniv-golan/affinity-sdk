@@ -32,6 +32,49 @@ python examples/basic_usage.py
 - [`examples/resolve_helpers.py`](https://github.com/yaniv-golan/affinity-sdk/blob/main/examples/resolve_helpers.py) — resolve helpers (IDs from external identifiers)
 - [`examples/task_polling.py`](https://github.com/yaniv-golan/affinity-sdk/blob/main/examples/task_polling.py) — polling long-running tasks
 
+## Dropdown options
+
+```python
+from affinity import Affinity
+from affinity.types import ListId
+
+with Affinity.from_env() as client:
+    # with_status_types=True reports status fields as "status-dropdown" (API version 2026-07-15)
+    for option in client.lists.get_field_dropdown_options(
+        ListId(123), "field-456", with_status_types=True
+    ):
+        print(option.id, option.text, option.type, option.status_category)
+
+    option = client.lists.create_field_dropdown_option(
+        ListId(123), "field-456", option_type="ranked-dropdown", text="Due diligence",
+        rank=5, color="blue",
+    )
+    client.lists.update_field_dropdown_option(ListId(123), "field-456", option.id, text="DD")
+    # Cannot be undone: also clears the field on every entry set to this option
+    client.lists.delete_field_dropdown_option(ListId(123), "field-456", option.id)
+```
+
+Global company and person fields' options can be read
+(`client.companies.get_field_dropdown_options("field-789")`) but not changed.
+
+## Meeting transcripts
+
+```python
+from datetime import datetime, timezone
+
+with Affinity.from_env() as client:
+    for transcript in client.transcripts.iter(
+        created_after=datetime(2025, 6, 1, tzinfo=timezone.utc)
+    ):
+        print(transcript.id, transcript.created_at, transcript.note.type if transcript.note else None)
+
+    full = client.transcripts.get(123)
+    for fragment in client.transcripts.iter_fragments(full.id):
+        print(fragment.start_timestamp, fragment.speaker, fragment.content)
+```
+
+Only transcripts the API key's user may see are returned.
+
 ## Field Value Changes (audit history)
 
 Query the change history for a specific field on an entity:

@@ -23,6 +23,7 @@ from ..filters import FilterExpression
 from ..filters import parse as parse_filter
 from ..models.entities import (
     AffinityList,
+    DropdownOption,
     FieldMetadata,
     FieldValues,
     ListCreate,
@@ -49,6 +50,17 @@ from ..models.types import (
     OpportunityId,
     PersonId,
     SavedViewId,
+)
+from ._dropdown_options import (
+    DROPDOWN_OPTION_WRITES_MIN_API_VERSION,
+    DropdownOptionColorName,
+    DropdownOptionType,
+    DropdownStatusCategory,
+    create_body,
+    option_path,
+    options_path,
+    parse_options,
+    update_body,
 )
 from ._field_listing import build_fields_query
 from ._field_updates import (
@@ -394,6 +406,122 @@ class ListService:
         )
 
         return [_safe_model_validate(FieldMetadata, f) for f in data.get("data", [])]
+
+    # =========================================================================
+    # Dropdown options of list fields
+    # =========================================================================
+
+    def get_field_dropdown_options(
+        self, list_id: ListId, field_id: AnyFieldId, *, with_status_types: bool = False
+    ) -> builtins.list[DropdownOption]:
+        """All options of a list field's dropdown, ranked-dropdown or status field (every page).
+
+        Older API versions report status options as ``ranked-dropdown`` without
+        ``status_category``. ``with_status_types=True`` reads with API version
+        {DROPDOWN_OPTION_WRITES_MIN_API_VERSION} (as the option writes do) to get the real
+        ``status-dropdown`` type; a client pinned to an older version then raises
+        ``ApiVersionTooOldError``.
+        """
+        data = self._client.get_all_pages(
+            options_path(field_id, list_id=list_id, entity=None),
+            params={"limit": 100},
+            min_api_version=DROPDOWN_OPTION_WRITES_MIN_API_VERSION if with_status_types else None,
+        )
+        return parse_options(data)
+
+    def get_field_dropdown_option(
+        self, list_id: ListId, field_id: AnyFieldId, option_id: int
+    ) -> DropdownOption:
+        """One option of a list field."""
+        return DropdownOption.model_validate(
+            self._client.get(option_path(list_id, field_id, option_id))
+        )
+
+    def create_field_dropdown_option(
+        self,
+        list_id: ListId,
+        field_id: AnyFieldId,
+        *,
+        option_type: DropdownOptionType,
+        text: str,
+        rank: int | None = None,
+        color: DropdownOptionColorName | None = None,
+        status_category: DropdownStatusCategory | None = None,
+        win_rate: int | None = None,
+    ) -> DropdownOption:
+        """Add an option to a list field.
+
+        ``option_type`` must match the field: ``"dropdown"`` (text only), ``"ranked-dropdown"``
+        (``rank`` and ``color`` required) or ``"status-dropdown"`` (``rank``, ``color`` and
+        ``status_category`` required; ``win_rate`` 0-100 only for ``"open"``). Needs Affinity API
+        version {DROPDOWN_OPTION_WRITES_MIN_API_VERSION} (sent for this call).
+        """
+        body = create_body(
+            option_type=option_type,
+            text=text,
+            rank=rank,
+            color=color,
+            status_category=status_category,
+            win_rate=win_rate,
+        )
+        data = self._client.post(
+            options_path(field_id, list_id=list_id, entity=None),
+            json=body,
+            min_api_version=DROPDOWN_OPTION_WRITES_MIN_API_VERSION,
+        )
+        return DropdownOption.model_validate(data)
+
+    def update_field_dropdown_option(
+        self,
+        list_id: ListId,
+        field_id: AnyFieldId,
+        option_id: int,
+        *,
+        text: str | None = None,
+        rank: int | None = None,
+        color: DropdownOptionColorName | None = None,
+        status_category: DropdownStatusCategory | None = None,
+        win_rate: int | None = None,
+    ) -> DropdownOption:
+        """Change an option of a list field (only what you pass).
+
+        A ``dropdown`` option can change its text; ``ranked-dropdown`` also rank and color;
+        ``status-dropdown`` also status category and win rate. Renaming changes the value shown
+        on every entry that has this option. Returns the option as read back afterwards.
+        """
+        body = update_body(
+            text=text,
+            rank=rank,
+            color=color,
+            status_category=status_category,
+            win_rate=win_rate,
+        )
+        self._client.post(
+            option_path(list_id, field_id, option_id),
+            json=body,
+            min_api_version=DROPDOWN_OPTION_WRITES_MIN_API_VERSION,
+        )
+        # The API answers 204 with no body: read the option back
+        return DropdownOption.model_validate(
+            self._client.get(
+                option_path(list_id, field_id, option_id),
+                min_api_version=DROPDOWN_OPTION_WRITES_MIN_API_VERSION,
+            )
+        )
+
+    def delete_field_dropdown_option(
+        self, list_id: ListId, field_id: AnyFieldId, option_id: int
+    ) -> bool:
+        """Delete an option of a list field. **Cannot be undone.**
+
+        Affinity also clears this field on every list entry currently set to the option; those
+        values cannot be recovered.
+        """
+        self._client.delete(
+            option_path(list_id, field_id, option_id),
+            min_api_version=DROPDOWN_OPTION_WRITES_MIN_API_VERSION,
+        )
+        return True
 
     # =========================================================================
     # Saved View Operations
@@ -1613,6 +1741,122 @@ class AsyncListService:
         )
 
         return [_safe_model_validate(FieldMetadata, f) for f in data.get("data", [])]
+
+    # =========================================================================
+    # Dropdown options of list fields
+    # =========================================================================
+
+    async def get_field_dropdown_options(
+        self, list_id: ListId, field_id: AnyFieldId, *, with_status_types: bool = False
+    ) -> builtins.list[DropdownOption]:
+        """All options of a list field's dropdown, ranked-dropdown or status field (every page).
+
+        Older API versions report status options as ``ranked-dropdown`` without
+        ``status_category``. ``with_status_types=True`` reads with API version
+        {DROPDOWN_OPTION_WRITES_MIN_API_VERSION} (as the option writes do) to get the real
+        ``status-dropdown`` type; a client pinned to an older version then raises
+        ``ApiVersionTooOldError``.
+        """
+        data = await self._client.get_all_pages(
+            options_path(field_id, list_id=list_id, entity=None),
+            params={"limit": 100},
+            min_api_version=DROPDOWN_OPTION_WRITES_MIN_API_VERSION if with_status_types else None,
+        )
+        return parse_options(data)
+
+    async def get_field_dropdown_option(
+        self, list_id: ListId, field_id: AnyFieldId, option_id: int
+    ) -> DropdownOption:
+        """One option of a list field."""
+        return DropdownOption.model_validate(
+            await self._client.get(option_path(list_id, field_id, option_id))
+        )
+
+    async def create_field_dropdown_option(
+        self,
+        list_id: ListId,
+        field_id: AnyFieldId,
+        *,
+        option_type: DropdownOptionType,
+        text: str,
+        rank: int | None = None,
+        color: DropdownOptionColorName | None = None,
+        status_category: DropdownStatusCategory | None = None,
+        win_rate: int | None = None,
+    ) -> DropdownOption:
+        """Add an option to a list field.
+
+        ``option_type`` must match the field: ``"dropdown"`` (text only), ``"ranked-dropdown"``
+        (``rank`` and ``color`` required) or ``"status-dropdown"`` (``rank``, ``color`` and
+        ``status_category`` required; ``win_rate`` 0-100 only for ``"open"``). Needs Affinity API
+        version {DROPDOWN_OPTION_WRITES_MIN_API_VERSION} (sent for this call).
+        """
+        body = create_body(
+            option_type=option_type,
+            text=text,
+            rank=rank,
+            color=color,
+            status_category=status_category,
+            win_rate=win_rate,
+        )
+        data = await self._client.post(
+            options_path(field_id, list_id=list_id, entity=None),
+            json=body,
+            min_api_version=DROPDOWN_OPTION_WRITES_MIN_API_VERSION,
+        )
+        return DropdownOption.model_validate(data)
+
+    async def update_field_dropdown_option(
+        self,
+        list_id: ListId,
+        field_id: AnyFieldId,
+        option_id: int,
+        *,
+        text: str | None = None,
+        rank: int | None = None,
+        color: DropdownOptionColorName | None = None,
+        status_category: DropdownStatusCategory | None = None,
+        win_rate: int | None = None,
+    ) -> DropdownOption:
+        """Change an option of a list field (only what you pass).
+
+        A ``dropdown`` option can change its text; ``ranked-dropdown`` also rank and color;
+        ``status-dropdown`` also status category and win rate. Renaming changes the value shown
+        on every entry that has this option. Returns the option as read back afterwards.
+        """
+        body = update_body(
+            text=text,
+            rank=rank,
+            color=color,
+            status_category=status_category,
+            win_rate=win_rate,
+        )
+        await self._client.post(
+            option_path(list_id, field_id, option_id),
+            json=body,
+            min_api_version=DROPDOWN_OPTION_WRITES_MIN_API_VERSION,
+        )
+        # The API answers 204 with no body: read the option back
+        return DropdownOption.model_validate(
+            await self._client.get(
+                option_path(list_id, field_id, option_id),
+                min_api_version=DROPDOWN_OPTION_WRITES_MIN_API_VERSION,
+            )
+        )
+
+    async def delete_field_dropdown_option(
+        self, list_id: ListId, field_id: AnyFieldId, option_id: int
+    ) -> bool:
+        """Delete an option of a list field. **Cannot be undone.**
+
+        Affinity also clears this field on every list entry currently set to the option; those
+        values cannot be recovered.
+        """
+        await self._client.delete(
+            option_path(list_id, field_id, option_id),
+            min_api_version=DROPDOWN_OPTION_WRITES_MIN_API_VERSION,
+        )
+        return True
 
 
 class AsyncListEntryService:

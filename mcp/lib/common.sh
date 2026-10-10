@@ -212,6 +212,56 @@ xaffinity_emit_json() {
 }
 
 # ==============================================================================
+# Confirmation tokens (actions that cannot be undone)
+# ==============================================================================
+# A destructive command runs with confirm: true only after this server refused that exact
+# command + argv with confirmation_required (or showed a dialog) in the last 15 minutes: a model
+# that sets confirm on its first call is told to ask the user first. Tokens are files named by a
+# checksum of the action, used once. If no token directory can be written, confirm: true is
+# accepted as before (never block on local storage).
+
+_xaffinity_confirm_dir() {
+    if [[ -n "${HOME:-}" && "${HOME}" != "${MCPBASH_PROJECT_ROOT:-}" ]]; then
+        printf '%s' "${HOME}/.cache/xaffinity/mcp-confirm"
+    else
+        printf '%s' "${TMPDIR:-/tmp}/xaffinity-mcp-confirm-$(id -u 2>/dev/null || echo 0)"
+    fi
+}
+
+# Usage: _xaffinity_confirm_key COMMAND [ARGV...]  -> prints the token name
+_xaffinity_confirm_key() {
+    local sum
+    sum=$(printf '%s\0' "$@" | cksum 2>/dev/null | awk '{print $1 "-" $2}') || sum=""
+    printf '%s' "${sum:-unknown}"
+}
+
+# Record that the user must be asked about this action. Returns 1 if it can't be stored.
+# Usage: xaffinity_confirm_request COMMAND [ARGV...]
+xaffinity_confirm_request() {
+    local dir
+    dir=$(_xaffinity_confirm_dir)
+    { mkdir -p "$dir" && : >"$dir/$(_xaffinity_confirm_key "$@")"; } 2>/dev/null || return 1
+    # Drop stale tokens
+    find "$dir" -type f -mmin +15 -delete 2>/dev/null || true
+    return 0
+}
+
+# 0 if a recent request for this exact action exists (and uses it up), or tokens can't be
+# stored at all; 1 if the model set confirm without the user having been asked.
+# Usage: xaffinity_confirm_consume COMMAND [ARGV...]
+xaffinity_confirm_consume() {
+    local dir token
+    dir=$(_xaffinity_confirm_dir)
+    { mkdir -p "$dir" && [[ -w "$dir" ]]; } 2>/dev/null || return 0
+    token="$dir/$(_xaffinity_confirm_key "$@")"
+    if [[ -f "$token" && -n "$(find "$token" -mmin -15 2>/dev/null)" ]]; then
+        rm -f "$token" 2>/dev/null || true
+        return 0
+    fi
+    return 1
+}
+
+# ==============================================================================
 # CLI Gateway Registry
 # ==============================================================================
 # Pre-generated commands registry for CLI Gateway tools (discover-commands, execute-*-command).

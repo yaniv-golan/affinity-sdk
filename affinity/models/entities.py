@@ -286,12 +286,20 @@ class Location(AffinityModel):
 
 
 class DropdownOption(AffinityModel):
-    """A selectable option in a dropdown field."""
+    """A selectable option in a dropdown field.
+
+    ``type`` (``"dropdown"``, ``"ranked-dropdown"`` or ``"status-dropdown"``), ``status_category``
+    and ``win_rate`` come from the V2 dropdown-options endpoints; V1 payloads leave them ``None``
+    and use integer colours.
+    """
 
     id: DropdownOptionId
     text: str
     rank: int | None = None
     color: int | str | None = None
+    type: str | None = None
+    status_category: str | None = Field(None, alias="statusCategory")
+    win_rate: int | None = Field(None, alias="winRate")
 
 
 # =============================================================================

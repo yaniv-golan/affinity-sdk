@@ -55,7 +55,8 @@ The MCPB bundle is self-contained (includes MCP framework and JSON processor) bu
     needs, changes are refused ("This MCP server needs the xaffinity CLI … or later to make
     changes") and reads still run with a warning that results may be incomplete. An older extension
     with a newer CLI can fail without saying why (for example, merges with CLI 1.22.0 need extension
-    1.25.1 or later).
+    1.25.1 or later). Claude Desktop never updates an extension installed from a `.mcpb` file:
+    install each new release yourself.
 
 !!! note "MCPB support"
     MCPB bundles currently only work with **Claude Desktop**. Other clients require manual configuration (see below).
@@ -205,6 +206,10 @@ tool refuses the first call and Claude must ask you in the conversation, then re
 ```json
 {"command": "person delete", "argv": ["456"], "confirm": true}
 ```
+Since MCP 1.27.0 `confirm: true` counts only after the server refused that exact command (or
+showed its dialog) in the last 15 minutes, once; set on a first call, it is ignored and Claude is
+told to ask you. If Affinity's own claude.ai connector is connected too, Claude may pick either:
+say "use the xaffinity tools" to choose this one.
 
 ### Common CLI Operations (via gateway)
 

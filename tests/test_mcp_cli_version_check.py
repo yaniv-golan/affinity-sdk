@@ -212,3 +212,47 @@ def test_read_tools_emit_results_through_the_warning_helpers(tool: str) -> None:
     text = "\n".join(line for line in lines if not line.lstrip().startswith("#"))
     for plain in ("mcp_result_success ", "mcp_result_error ", "mcp_emit_json "):
         assert plain not in text, f"{tool} uses {plain.strip()}; use the xaffinity_ helper"
+
+
+# --- confirmation tokens (actions that cannot be undone) ---------------------------------------
+
+DELETE = ("execute-write-command", '{"command": "person delete", "argv": ["42"], "confirm": true}')
+DELETE_NO_CONFIRM = ("execute-write-command", '{"command": "person delete", "argv": ["42"]}')
+OTHER_DELETE = (
+    "execute-write-command",
+    '{"command": "person delete", "argv": ["43"], "confirm": true}',
+)
+
+
+def test_confirm_on_the_first_call_is_not_used(tmp_path: Path) -> None:
+    result = _run(tmp_path, DELETE, _min_version())
+    assert result["structuredContent"]["error"]["type"] == "confirmation_required"
+    assert "was set before the user was asked" in result["content"][0]["text"]
+    assert not _ran(tmp_path, "delete")
+
+
+def test_confirm_after_the_server_asked_runs_once(tmp_path: Path) -> None:
+    first = _run(tmp_path, DELETE_NO_CONFIRM, _min_version())
+    assert first["structuredContent"]["error"]["type"] == "confirmation_required"
+    second = _run(tmp_path, DELETE, _min_version())
+    assert second.get("isError") is not True, second
+    assert _ran(tmp_path, "person delete 42") and _ran(tmp_path, "--yes")
+    # The token is used up: the same action needs asking again
+    third = _run(tmp_path, DELETE, _min_version())
+    assert third["structuredContent"]["error"]["type"] == "confirmation_required"
+
+
+def test_a_token_covers_only_the_exact_action(tmp_path: Path) -> None:
+    _run(tmp_path, DELETE_NO_CONFIRM, _min_version())
+    other = _run(tmp_path, OTHER_DELETE, _min_version())
+    assert other["structuredContent"]["error"]["type"] == "confirmation_required"
+    assert not _ran(tmp_path, "person delete 43")
+
+
+def test_unwritable_token_storage_does_not_block(tmp_path: Path) -> None:
+    home = tmp_path / "home"
+    home.mkdir()
+    (home / ".cache").write_text("not a directory")  # mkdir -p fails
+    result = _run(tmp_path, DELETE, _min_version(), home=home)
+    assert result.get("isError") is not True, result
+    assert _ran(tmp_path, "person delete 42")

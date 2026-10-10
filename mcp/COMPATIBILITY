@@ -1,8 +1,13 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="1.23.0"
-CLI_MAX_VERSION="1.23.0"
+CLI_MIN_VERSION="1.24.0"
+CLI_MAX_VERSION="1.24.0"
+
+# MCP 1.27.0 requires CLI 1.24.0 for:
+# - `field options ls|create|update|delete` and `transcript ls|get` (new registry commands).
+# - `field ls` output is unchanged (the new DropdownOption fields are None for V1 options and
+#   are dropped from JSON).
 
 # MCP 1.26.0 requires CLI 1.23.0 for:
 # - `field changes` (new read command in the registry: V2 org-wide field value changes).

@@ -329,7 +329,13 @@ jobs:
 
       - name: Smoke test SDK installation
         run: |
-          pip install affinity-sdk==${{ needs.validate.outputs.version_tag }}
+          # PyPI's index can lag the upload by a minute or two
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            pip install --no-cache-dir affinity-sdk==${{ needs.validate.outputs.version_tag }} && break
+            [ "$attempt" = 10 ] && exit 1
+            echo "Not on PyPI yet (attempt $attempt); retrying in 30s"
+            sleep 30
+          done
           python -c "from affinity import Affinity; print('SDK import OK')"
 
       - name: Smoke test CLI installation

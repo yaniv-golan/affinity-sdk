@@ -360,7 +360,8 @@ Some operations run asynchronously and return a **task URL** instead of completi
 
 ### Merge Operations
 Merge duplicate companies or persons into a primary record. The duplicate is removed and this cannot
-be undone, so merges are destructive like deletes: confirm with the user first, then pass
+be undone, so merges are destructive like deletes: call without `confirm` first (the server
+answers `confirmation_required`), ask the user, and only after they agree call again with
 `confirm: true` (CLI: `--yes`):
 ```bash
 company merge 123 456 --yes   # Merge company 456 into company 123

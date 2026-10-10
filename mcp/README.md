@@ -42,7 +42,8 @@ upgrade the other: download the latest `.mcpb` after `pipx upgrade affinity-sdk`
 round. Since MCP 1.25.2, with a CLI older than the extension needs, changes are refused ("This MCP
 server needs the xaffinity CLI … or later to make changes") and reads still run with a warning that
 results may be incomplete. An older extension with a newer CLI can fail without saying why (for
-example, merges with CLI 1.22.0 need extension 1.25.1 or later).
+example, merges with CLI 1.22.0 need extension 1.25.1 or later). Claude Desktop never updates an
+extension installed from a `.mcpb` file: install each new release yourself.
 
 ### For Manual Installation
 
@@ -291,8 +292,14 @@ Commands that cannot be undone (delete, merge) need the user's confirmation:
 {"command": "person delete", "argv": ["456"], "confirm": true}
 ```
 
-The tool appends `--yes` for the CLI. Keep Claude Desktop's tool-approval prompt on for
-`execute-write-command` as a second check.
+The tool appends `--yes` for the CLI. Since MCP 1.27.0 `confirm: true` counts only after the
+server refused that exact command (or showed its dialog) in the last 15 minutes, once: if Claude
+sets it on its first call, the call is refused and Claude is told to ask you. Keep Claude
+Desktop's tool-approval prompt on for `execute-write-command` as a second check.
+
+**Using Affinity's own connector too?** If both this extension and Affinity's claude.ai
+connector are connected, Claude may pick either one. Say "use the xaffinity tools" when you
+mean this one.
 
 ## Prompts
 

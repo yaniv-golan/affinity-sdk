@@ -22,6 +22,7 @@ from ..models.entities import (
     Company,
     CompanyCreate,
     CompanyUpdate,
+    DropdownOption,
     FieldMetadata,
     FieldValues,
     ListEntry,
@@ -44,6 +45,11 @@ from ..models.types import (
     OpportunityId,
     PersonId,
     validate_entity_field_types,
+)
+from ._dropdown_options import (
+    DROPDOWN_OPTION_WRITES_MIN_API_VERSION,
+    options_path,
+    parse_options,
 )
 from ._field_listing import build_fields_query
 from ._field_updates import FIELD_WRITES_MIN_API_VERSION, _batch_update_items
@@ -718,6 +724,23 @@ class CompanyService(CompanySemanticSearchMixin):
         )
 
         return [FieldMetadata.model_validate(f) for f in data.get("data", [])]
+
+    def get_field_dropdown_options(
+        self, field_id: AnyFieldId, *, with_status_types: bool = False
+    ) -> builtins.list[DropdownOption]:
+        """All options of a company dropdown, ranked-dropdown or status field (every page).
+
+        Options with ``type``, ``rank``, ``color`` and (status fields) ``status_category`` /
+        ``win_rate``. Options of global company fields can only be read; list-specific fields'
+        options are managed through ``client.lists``. ``with_status_types=True``: see
+        ``lists.get_field_dropdown_options``.
+        """
+        data = self._client.get_all_pages(
+            options_path(field_id, list_id=None, entity="companies"),
+            params={"limit": 100},
+            min_api_version=DROPDOWN_OPTION_WRITES_MIN_API_VERSION if with_status_types else None,
+        )
+        return parse_options(data)
 
     def get_field_values(
         self,
@@ -1707,6 +1730,23 @@ class AsyncCompanyService(AsyncCompanySemanticSearchMixin):
         )
 
         return [FieldMetadata.model_validate(f) for f in data.get("data", [])]
+
+    async def get_field_dropdown_options(
+        self, field_id: AnyFieldId, *, with_status_types: bool = False
+    ) -> builtins.list[DropdownOption]:
+        """All options of a company dropdown, ranked-dropdown or status field (every page).
+
+        Options with ``type``, ``rank``, ``color`` and (status fields) ``status_category`` /
+        ``win_rate``. Options of global company fields can only be read; list-specific fields'
+        options are managed through ``client.lists``. ``with_status_types=True``: see
+        ``lists.get_field_dropdown_options``.
+        """
+        data = await self._client.get_all_pages(
+            options_path(field_id, list_id=None, entity="companies"),
+            params={"limit": 100},
+            min_api_version=DROPDOWN_OPTION_WRITES_MIN_API_VERSION if with_status_types else None,
+        )
+        return parse_options(data)
 
     async def get_field_values(
         self,

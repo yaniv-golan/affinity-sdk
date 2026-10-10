@@ -31,6 +31,7 @@ from .services.opportunities import AsyncOpportunityService, OpportunityService
 from .services.persons import AsyncPersonService, PersonService
 from .services.rate_limits import AsyncRateLimitService, RateLimitService
 from .services.tasks import AsyncTaskService, TaskService
+from .services.transcripts import AsyncTranscriptService, TranscriptService
 from .services.v1_only import (
     AsyncAuthService,
     AsyncEntityFileService,
@@ -277,6 +278,7 @@ class Affinity:
         self._opportunities: OpportunityService | None = None
         self._tasks: TaskService | None = None
         self._notes: NoteService | None = None
+        self._transcripts: TranscriptService | None = None
         self._reminders: ReminderService | None = None
         self._webhooks: WebhookService | None = None
         self._interactions: InteractionService | None = None
@@ -460,6 +462,13 @@ class Affinity:
         if self._tasks is None:
             self._tasks = TaskService(self._http)
         return self._tasks
+
+    @property
+    def transcripts(self) -> TranscriptService:
+        """Meeting transcripts (AI Notetaker, V2)."""
+        if self._transcripts is None:
+            self._transcripts = TranscriptService(self._http)
+        return self._transcripts
 
     @property
     def notes(self) -> NoteService:
@@ -700,6 +709,7 @@ class AsyncAffinity:
         self._lists: AsyncListService | None = None
         self._tasks: AsyncTaskService | None = None
         self._notes: AsyncNoteService | None = None
+        self._transcripts: AsyncTranscriptService | None = None
         self._reminders: AsyncReminderService | None = None
         self._webhooks: AsyncWebhookService | None = None
         self._interactions: AsyncInteractionService | None = None
@@ -827,6 +837,13 @@ class AsyncAffinity:
         if self._tasks is None:
             self._tasks = AsyncTaskService(self._http)
         return self._tasks
+
+    @property
+    def transcripts(self) -> AsyncTranscriptService:
+        """Meeting transcripts (AI Notetaker, V2)."""
+        if self._transcripts is None:
+            self._transcripts = AsyncTranscriptService(self._http)
+        return self._transcripts
 
     @property
     def notes(self) -> AsyncNoteService:

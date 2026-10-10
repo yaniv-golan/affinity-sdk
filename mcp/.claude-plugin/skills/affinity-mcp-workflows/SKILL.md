@@ -102,14 +102,19 @@ Commands that cannot be undone (delete, merge) require double confirmation. Some
 confirmation dialog; Claude Desktop does not, so this conversation step is the only check there:
 
 1. **Look up the entity first** using `execute-read-command` to show what will be deleted
-2. **Ask the user in your response** by showing them the entity details and requesting confirmation
-3. **Wait for user's next message** - do NOT proceed until they explicitly confirm
-4. **Only after user confirms** should you execute with `confirm: true`
+2. **Call without `confirm`.** The server refuses with `confirmation_required` (or shows the user
+   a dialog, in clients that have one). A `confirm: true` the server didn't ask for is ignored.
+3. **Ask the user in your response** by showing them the entity details and requesting confirmation
+4. **Wait for user's next message** - do NOT proceed until they explicitly confirm
+5. **Only after user confirms** call again, same command and argv, with `confirm: true`
+   (within 15 minutes; after that, or for a different target, the server asks again)
 
 Example flow:
 ```
 User: "Delete person 123"
 You: execute-read-command(command: "person get", argv: ["123"])
+You: execute-write-command(command: "person delete", argv: ["123"])
+     -> confirmation_required
 You: "This will permanently delete John Smith (ID: 123, email: john@example.com).
       Type 'yes' to confirm deletion."
 [Stop here and wait for user's response]

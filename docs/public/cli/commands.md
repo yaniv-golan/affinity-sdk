@@ -1055,6 +1055,58 @@ xaffinity --json field changes --changed-after 2025-06-01T00:00:00Z --all
 For delta sync, store the latest `changedAt` you processed and pass it as `--changed-after`
 next time. It is inclusive, so skip ids you already have.
 
+### `xaffinity field options`
+
+Options of a dropdown, ranked-dropdown or status field.
+
+```bash
+xaffinity field options ls field-123 --list-id Dealflow        # list field (also opportunity fields)
+xaffinity field options ls field-456 --entity-type company     # global company/person field
+xaffinity field options create field-123 --list-id Dealflow --text "Due diligence"
+xaffinity field options update field-123 4567 --list-id Dealflow --text "Closed - won" --color green
+xaffinity field options delete field-123 4567 --list-id Dealflow --yes
+```
+
+- `ls` shows `id`, `text`, `type` (`dropdown`, `ranked-dropdown`, `status-dropdown`), `rank`,
+  `color` and, for status fields, `statusCategory` and `winRate`.
+- `create`, `update` and `delete` work on list fields only (global fields' options can't be
+  changed through the API) and need Affinity API version 2026-07-15 or newer.
+- `create` takes the type from the field's existing options (`--type` if it has none). For
+  ranked and status fields `--rank` defaults to after the last option and `--color` to white;
+  status fields also need `--status-category open|won|lost|on-hold` (`--win-rate 0-100` for
+  open ones). Colors: white, gray, blue, green, purple, orange, red.
+- `update` changes only what you pass; renaming changes the value shown on every entry that
+  has the option.
+- `delete` cannot be undone: Affinity also clears the field on every list entry that has the
+  option. It asks for confirmation (naming the option); scripts pass `--yes`.
+
+## Transcripts
+
+Meeting transcripts from Affinity's AI Notetaker. Only transcripts your API key's user may see
+are returned.
+
+### `xaffinity transcript ls`
+
+```bash
+xaffinity transcript ls --created-after -7d
+xaffinity transcript ls --max-results 50 --with-note
+```
+
+Metadata only: `id`, `createdAt`, `languageCode` and a note reference (`noteId`, `type`,
+`interactionId`, `transcriptId`); `--with-note` includes the whole AI Notetaker note.
+`--created-after` (inclusive) and `--created-before` (exclusive) are rounded outward to whole
+seconds. Paging: `--max-results`, `--all`, `--cursor`.
+
+### `xaffinity transcript get <transcriptId>`
+
+```bash
+xaffinity transcript get 123            # note + preview of the first fragments
+xaffinity transcript get 123 --all      # every fragment
+```
+
+Fragments have `content`, `speaker`, `startTimestamp` and `endTimestamp` (offsets such as
+`00:00:06`); `fragmentsTotal` says how many exist. `--max-results N` fetches the first N.
+
 ## Relationship Strengths
 
 ### `xaffinity relationship-strength get`

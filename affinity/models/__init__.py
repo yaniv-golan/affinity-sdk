@@ -104,6 +104,7 @@ from .secondary import (
     # Auth
     WhoAmI,
 )
+from .transcripts import Transcript, TranscriptFragment
 
 __all__ = [
     # Base
@@ -139,6 +140,8 @@ __all__ = [
     "FieldValueChangeField",
     "FieldValueChangeListEntry",
     "FieldValueChangeV2",
+    "Transcript",
+    "TranscriptFragment",
     "FieldValueCreate",
     "DropdownOption",
     # Saved View

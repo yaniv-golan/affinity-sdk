@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.24.0] - 2026-10-10
+
+### Highlights
+
+**Dropdown options and meeting transcripts.** List a dropdown, ranked-dropdown or status
+field's options and add, rename, recolor or delete them on list fields (`field options`); read
+AI Notetaker transcripts with their dialogue (`transcript ls`, `transcript get`).
+
+### Added
+
+- SDK `lists.get_field_dropdown_options()`, `companies.get_field_dropdown_options()`,
+  `persons.get_field_dropdown_options()` (every page). `with_status_types=True` reads with API
+  version 2026-07-15 so status fields report `status-dropdown` with `status_category` /
+  `win_rate` (older versions show them as `ranked-dropdown`).
+- SDK `lists.get_field_dropdown_option()`, `create_field_dropdown_option()`,
+  `update_field_dropdown_option()` (returns the option read back; the API answers 204) and
+  `delete_field_dropdown_option()`, checked like the API (types, required rank/color/status
+  category, colors white/gray/blue/green/purple/orange/red, win rate 0-100). They send API
+  version 2026-07-15. Deleting an option also clears it from every list entry that has it.
+- `DropdownOption`: `type`, `status_category`, `win_rate` (V2; `None` from V1).
+- SDK `client.transcripts`: `list()` / `iter()` (created-at window, `total_count`), `get()`,
+  `fragments()` / `iter_fragments()`. Models `Transcript`, `TranscriptFragment`.
+  `PaginatedResponse.total_count` (when the endpoint reports it). `NoteV2` gains `interaction`
+  and `transcript_id`.
+- CLI `field options ls|create|update|delete` (`delete` is destructive: confirmation names the
+  option and the data loss; `--yes` in scripts) and `transcript ls|get`.
+- HTTP client: `get()`, `get_all_pages()`, `get_url()`, `post()` and `delete()` accept
+  `min_api_version`; `get_all_pages()` sends it on every page it follows.
+
+### Changed
+
+- The CLI's dropdown lookups for field writes go through the new SDK methods (same requests,
+  still without a version header, so clients pinned to 2024-01-01 keep working).
+
 ## [1.23.0] - 2026-10-10
 
 ### Highlights

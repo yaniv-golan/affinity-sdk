@@ -120,7 +120,14 @@ if is_destructive "$command"; then
         exit 0
     fi
 
-    if [[ "$confirm" == "true" ]]; then
+    # confirm: true counts only after this server asked for confirmation of this exact action
+    confirmed=false
+    if [[ "$confirm" == "true" ]] \
+        && xaffinity_confirm_consume "$command" ${argv[@]+"${argv[@]}"}; then
+        confirmed=true
+    fi
+
+    if [[ "$confirmed" == "true" ]]; then
         argv+=("--yes")
     elif [[ "${MCP_ELICIT_SUPPORTED:-0}" == "1" ]]; then
         response=$(mcp_elicit_confirm "Confirm: $command $(printf '%q ' ${argv[@]+"${argv[@]}"})- This action cannot be undone.")
@@ -149,7 +156,10 @@ if is_destructive "$command"; then
     else
         # No dialog available (e.g. Claude Desktop extensions have no elicitation): the model must
         # ask the user in the conversation. No ready-made retry payload, on purpose.
-        mcp_error "confirmation_required" "$command cannot be undone and needs the user's confirmation; nothing was changed. Ask the user to confirm this exact action in the conversation; only after they explicitly agree, call again with confirm: true. Never set confirm on your own." \
+        xaffinity_confirm_request "$command" ${argv[@]+"${argv[@]}"} || true
+        early=""
+        [[ "$confirm" == "true" ]] && early=" confirm: true was set before the user was asked, so it was not used."
+        mcp_error "confirmation_required" "$command cannot be undone and needs the user's confirmation; nothing was changed.${early} Ask the user to confirm this exact action in the conversation; only after they explicitly agree, call again with confirm: true. Never set confirm on your own." \
             --hint 'Ask the user to confirm this exact action (command and target) in the conversation; only after they explicitly agree, call again with "confirm": true. Never set confirm on your own.' \
             --data "$(jq_tool -n --arg cmd "$command" --argjson argv "$argv_json" '{requiresUserConfirmation: true, command: $cmd, argv: $argv}')"
         exit 0

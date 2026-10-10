@@ -453,6 +453,7 @@ from .commands.reminder_cmds import reminder_group as _reminder_group
 from .commands.resolve_url_cmd import resolve_url_cmd as _resolve_url_cmd
 from .commands.session_cmds import session_group as _session_group
 from .commands.task_cmds import task_group as _task_group
+from .commands.transcript_cmds import transcript_group as _transcript_group
 from .commands.version_cmd import version_cmd as _version_cmd
 from .commands.whoami_cmd import whoami_cmd as _whoami_cmd
 
@@ -461,6 +462,7 @@ cli.add_command(_version_cmd)
 cli.add_command(_config_group)
 cli.add_command(_whoami_cmd)
 cli.add_command(_file_group)
+cli.add_command(_transcript_group)
 cli.add_command(_file_url_cmd)
 cli.add_command(_resolve_url_cmd)
 cli.add_command(_person_group)

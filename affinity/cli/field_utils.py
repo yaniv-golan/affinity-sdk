@@ -82,34 +82,19 @@ def fetch_dropdown_options(
     client: Any, *, entity_type: EntityType, field_id: str, list_id: int | None = None
 ) -> list[Any]:
     """All options of a dropdown field from the V2 API, uncached (every page)."""
-    from affinity.models.entities import DropdownOption
-
     if entity_type == "company":
-        path = f"/companies/fields/{field_id}/dropdown-options"
-    elif entity_type == "person":
-        path = f"/persons/fields/{field_id}/dropdown-options"
-    else:
-        if list_id is None:
-            raise CLIError(
-                f"list_id is required to read the options of {field_id}.",
-                exit_code=2,
-                error_type="internal_error",
-            )
-        path = f"/lists/{list_id}/fields/{field_id}/dropdown-options"
-    options: list[Any] = []
-    payload = client._http.get(path, params={"limit": 100})
-    while True:
-        for item in payload.get("data") or []:
-            if isinstance(item, dict) and "id" in item and "text" in item:
-                options.append(
-                    DropdownOption.model_validate(
-                        {k: item.get(k) for k in ("id", "text", "rank", "color")}
-                    )
-                )
-        next_url = (payload.get("pagination") or {}).get("nextUrl")
-        if not next_url:
-            return options
-        payload = client._http.get_url(next_url)
+        return list(client.companies.get_field_dropdown_options(field_id))
+    if entity_type == "person":
+        return list(client.persons.get_field_dropdown_options(field_id))
+    from affinity.types import ListId
+
+    if list_id is None:
+        raise CLIError(
+            f"list_id is required to read the options of {field_id}.",
+            exit_code=2,
+            error_type="internal_error",
+        )
+    return list(client.lists.get_field_dropdown_options(ListId(list_id), field_id))
 
 
 def with_v2_value_types(

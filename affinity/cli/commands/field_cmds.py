@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import os
 import sys
 from typing import Any
 
-from affinity.models.entities import FieldCreate, FieldMetadata, FieldValueChange
+from pydantic import ValidationError
+
+from affinity.exceptions import ApiVersionTooOldError
+from affinity.models.entities import DropdownOption, FieldCreate, FieldMetadata, FieldValueChange
 from affinity.models.secondary import FieldValueChangeV2
 from affinity.models.types import EntityType, FieldValueType
 from affinity.types import (
@@ -703,6 +707,341 @@ def field_changes(
         )
 
     run_command(ctx, command="field changes", fn=fn)
+
+
+# ---------------------------------------------------------------------------
+# options (V2 dropdown options)
+# ---------------------------------------------------------------------------
+
+_OPTION_TYPES = ("dropdown", "ranked-dropdown", "status-dropdown")
+_OPTION_COLORS = ("white", "gray", "blue", "green", "purple", "orange", "red")
+_STATUS_CATEGORIES = ("open", "won", "lost", "on-hold")
+_OPTION_DELETE_WARNING = (
+    "Affinity also clears this field on every list entry set to the option; "
+    "those values cannot be recovered."
+)
+
+
+def _option_payload(option: DropdownOption) -> dict[str, object]:
+    return serialize_model_for_cli(option)
+
+
+def _resolve_list_id(ctx: CLIContext, client: Any, selector: str) -> int:
+    resolved = resolve_list_selector(client=client, selector=selector, cache=ctx.session_cache)
+    return int(resolved.list.id)
+
+
+@field_group.group(name="options", cls=RichGroup)
+def field_options_group() -> None:
+    """Dropdown options of a field: list them; add, change or delete them on list fields."""
+
+
+@category("read")
+@field_options_group.command(name="ls", cls=RichCommand)
+@click.argument("field_id", type=str)
+@click.option("--list-id", "--list", "list_id", default=None, help="The field's list (ID or name).")
+@click.option(
+    "--entity-type",
+    type=click.Choice(["company", "person"]),
+    default=None,
+    help="For a global company or person field (instead of --list-id).",
+)
+@output_options
+@click.pass_obj
+def field_options_ls(
+    ctx: CLIContext, *, field_id: str, list_id: str | None, entity_type: str | None
+) -> None:
+    """List a dropdown, ranked-dropdown or status field's options.
+
+    Give --list-id for a list field (also opportunity fields) or --entity-type for a global
+    company/person field. Each option has id, text, type, rank, color and, for status fields,
+    statusCategory and winRate.
+
+    Examples:
+
+    - `xaffinity field options ls field-123 --list-id Dealflow`
+
+    - `xaffinity field options ls field-456 --entity-type company`
+    """
+
+    def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
+        if (list_id is None) == (entity_type is None):
+            raise CLIError(
+                "Give exactly one of --list-id (list field) or --entity-type (global field).",
+                error_type="usage_error",
+                exit_code=2,
+            )
+        client = ctx.get_client(warnings=warnings)
+        inputs: dict[str, object] = {"fieldId": field_id}
+        fid = _any_field_id(field_id)
+        if list_id is not None:
+            lid = _resolve_list_id(ctx, client, list_id)
+            inputs["listId"] = lid
+
+            def read(status_types: bool) -> list[DropdownOption]:
+                return client.lists.get_field_dropdown_options(
+                    ListId(lid), fid, with_status_types=status_types
+                )
+        else:
+            inputs["entityType"] = entity_type
+            service = client.companies if entity_type == "company" else client.persons
+
+            def read(status_types: bool) -> list[DropdownOption]:
+                return service.get_field_dropdown_options(fid, with_status_types=status_types)
+
+        # Status options show as ranked-dropdown on older API versions: read with the version
+        # the option writes use, unless the client is pinned older
+        try:
+            options = read(True)
+        except ApiVersionTooOldError:
+            warnings.append(
+                "Pinned to an older Affinity API version: status options show as "
+                "ranked-dropdown without statusCategory."
+            )
+            options = read(False)
+        return CommandOutput(
+            data={"options": [_option_payload(o) for o in options]},
+            context=CommandContext(name="field options ls", inputs=inputs, modifiers={}),
+            api_called=True,
+        )
+
+    run_command(ctx, command="field options ls", fn=fn)
+
+
+def _option_value_options(func: Any) -> Any:
+    for decorator in reversed(
+        [
+            click.option("--rank", type=int, default=None, help="Sort position (0 or more)."),
+            click.option("--color", type=click.Choice(_OPTION_COLORS), default=None, help="Color."),
+            click.option(
+                "--status-category",
+                type=click.Choice(_STATUS_CATEGORIES),
+                default=None,
+                help="Status fields: open, won, lost or on-hold.",
+            ),
+            click.option(
+                "--win-rate",
+                type=int,
+                default=None,
+                help="Status fields, open category: chance of winning, 0-100.",
+            ),
+        ]
+    ):
+        func = decorator(func)
+    return func
+
+
+@category("write")
+@field_options_group.command(name="create", cls=RichCommand)
+@click.argument("field_id", type=str)
+@click.option(
+    "--list-id", "--list", "list_id", required=True, help="The field's list (ID or name)."
+)
+@click.option("--text", required=True, help="The option's text (1-255 characters).")
+@click.option(
+    "--type",
+    "option_type",
+    type=click.Choice(_OPTION_TYPES),
+    default=None,
+    help="Option type; taken from the field's existing options when omitted.",
+)
+@_option_value_options
+@output_options
+@click.pass_obj
+def field_options_create(
+    ctx: CLIContext,
+    *,
+    field_id: str,
+    list_id: str,
+    text: str,
+    option_type: str | None,
+    rank: int | None,
+    color: str | None,
+    status_category: str | None,
+    win_rate: int | None,
+) -> None:
+    """Add an option to a list field's dropdown, ranked-dropdown or status field.
+
+    The type comes from the field's existing options (pass --type if it has none). For ranked
+    and status fields, --rank defaults to after the last option and --color to white; status
+    fields also need --status-category. Global company/person fields' options can't be changed
+    through the API.
+
+    Examples:
+
+    - `xaffinity field options create field-123 --list-id Dealflow --text "Due diligence"`
+
+    - `xaffinity field options create field-124 --list-id Dealflow --text Won --status-category won`
+    """
+
+    def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
+        client = ctx.get_client(warnings=warnings)
+        lid = _resolve_list_id(ctx, client, list_id)
+        existing = client.lists.get_field_dropdown_options(
+            ListId(lid), _any_field_id(field_id), with_status_types=True
+        )
+        kind = option_type or next((o.type for o in existing if o.type), None)
+        if kind is None:
+            raise CLIError(
+                f"{field_id} has no options to take the type from: pass --type "
+                "(dropdown, ranked-dropdown or status-dropdown).",
+                error_type="usage_error",
+                exit_code=2,
+            )
+        new_rank, new_color = rank, color
+        if kind != "dropdown":
+            if new_rank is None:
+                new_rank = max((o.rank or 0 for o in existing), default=-1) + 1
+            if new_color is None:
+                new_color = "white"
+        try:
+            option = client.lists.create_field_dropdown_option(
+                ListId(lid),
+                _any_field_id(field_id),
+                option_type=kind,  # type: ignore[arg-type]
+                text=text,
+                rank=new_rank,
+                color=new_color,  # type: ignore[arg-type]
+                status_category=status_category,  # type: ignore[arg-type]
+                win_rate=win_rate,
+            )
+        except ValidationError:
+            raise  # a response that didn't parse is not a usage error
+        except ValueError as e:
+            raise CLIError(str(e), error_type="usage_error", exit_code=2) from e
+        return CommandOutput(
+            data={"option": _option_payload(option)},
+            context=CommandContext(
+                name="field options create",
+                inputs={"fieldId": field_id, "listId": lid},
+                modifiers={"text": text, "type": kind},
+            ),
+            api_called=True,
+        )
+
+    run_command(ctx, command="field options create", fn=fn)
+
+
+@category("write")
+@field_options_group.command(name="update", cls=RichCommand)
+@click.argument("field_id", type=str)
+@click.argument("option_id", type=int)
+@click.option(
+    "--list-id", "--list", "list_id", required=True, help="The field's list (ID or name)."
+)
+@click.option("--text", default=None, help="New text (1-255 characters).")
+@_option_value_options
+@output_options
+@click.pass_obj
+def field_options_update(
+    ctx: CLIContext,
+    *,
+    field_id: str,
+    option_id: int,
+    list_id: str,
+    text: str | None,
+    rank: int | None,
+    color: str | None,
+    status_category: str | None,
+    win_rate: int | None,
+) -> None:
+    """Change an option of a list field (only the values you pass).
+
+    Renaming changes the value shown on every entry that has the option. Dropdown options can
+    change text; ranked options also rank and color; status options also status category and
+    win rate.
+
+    Example:
+
+    - `xaffinity field options update field-123 4567 --list-id Dealflow --text "Closed - won"`
+    """
+
+    def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
+        client = ctx.get_client(warnings=warnings)
+        lid = _resolve_list_id(ctx, client, list_id)
+        try:
+            option = client.lists.update_field_dropdown_option(
+                ListId(lid),
+                _any_field_id(field_id),
+                option_id,
+                text=text,
+                rank=rank,
+                color=color,  # type: ignore[arg-type]
+                status_category=status_category,  # type: ignore[arg-type]
+                win_rate=win_rate,
+            )
+        except ValidationError:
+            raise  # a response that didn't parse is not a usage error
+        except ValueError as e:
+            raise CLIError(str(e), error_type="usage_error", exit_code=2) from e
+        return CommandOutput(
+            data={"option": _option_payload(option)},
+            context=CommandContext(
+                name="field options update",
+                inputs={"fieldId": field_id, "optionId": option_id, "listId": lid},
+                modifiers={},
+            ),
+            api_called=True,
+        )
+
+    run_command(ctx, command="field options update", fn=fn)
+
+
+@category("write")
+@destructive
+@field_options_group.command(name="delete", cls=RichCommand)
+@click.argument("field_id", type=str)
+@click.argument("option_id", type=int)
+@click.option(
+    "--list-id", "--list", "list_id", required=True, help="The field's list (ID or name)."
+)
+@click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt.")
+@output_options
+@click.pass_obj
+def field_options_delete(
+    ctx: CLIContext, *, field_id: str, option_id: int, list_id: str, yes: bool
+) -> None:
+    """Delete an option of a list field. Cannot be undone.
+
+    Affinity also clears this field on every list entry that has the option; those values
+    cannot be recovered. Asks for confirmation; scripts pass --yes.
+
+    Example:
+
+    - `xaffinity field options delete field-123 4567 --list-id Dealflow --yes`
+    """
+    # Name the option in the prompt so a wrong id is caught (best effort: errors surface below)
+    label = str(option_id)
+    if not yes:
+        with contextlib.suppress(Exception):
+            client = ctx.get_client(warnings=[])
+            lid = _resolve_list_id(ctx, client, list_id)
+            option = client.lists.get_field_dropdown_option(
+                ListId(lid), _any_field_id(field_id), option_id
+            )
+            label = f'{option_id} "{option.text}"'
+
+    def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
+        client = ctx.get_client(warnings=warnings)
+        lid = _resolve_list_id(ctx, client, list_id)
+        client.lists.delete_field_dropdown_option(ListId(lid), _any_field_id(field_id), option_id)
+        return CommandOutput(
+            data={"success": True},
+            context=CommandContext(
+                name="field options delete",
+                inputs={"fieldId": field_id, "optionId": option_id, "listId": lid},
+                modifiers={},
+            ),
+            api_called=True,
+        )
+
+    run_destructive(
+        ctx,
+        command="field options delete",
+        yes=yes,
+        prompt=f"Delete option {label} of {field_id}? {_OPTION_DELETE_WARNING}",
+        fn=fn,
+    )
 
 
 # ---------------------------------------------------------------------------

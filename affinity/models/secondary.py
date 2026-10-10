@@ -118,6 +118,11 @@ class NoteV2(AffinityModel):
     # Mentions
     mentions: list[dict[str, Any]] = Field(default_factory=list)
 
+    # Interaction / AI-notetaker notes: the meeting, and its transcript (None when the org
+    # doesn't keep transcripts or it was deleted)
+    interaction: dict[str, Any] | None = None
+    transcript_id: int | None = Field(None, alias="transcriptId")
+
 
 # =============================================================================
 # Interaction Models (V1 only for CRUD)

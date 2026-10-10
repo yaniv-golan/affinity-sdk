@@ -2,11 +2,11 @@
   "_generated": {
     "warning": "DO NOT EDIT - This file is auto-generated",
     "generator": "tools/generate_mcp_command_registry.py",
-    "cliVersion": "1.23.0",
+    "cliVersion": "1.24.0",
     "sourceConfig": "mcp/.registry/mcp-commands.json"
   },
   "version": 1,
-  "cliVersion": "1.23.0",
+  "cliVersion": "1.24.0",
   "commands": [
     {
       "name": "company create",
@@ -1306,6 +1306,249 @@
       "relatedCommands": [
         "list ls",
         "entry field"
+      ]
+    },
+    {
+      "name": "field options create",
+      "description": "Add an option to a list field's dropdown, ranked-dropdown or status field.",
+      "category": "write",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--color": {
+          "type": "string",
+          "required": false,
+          "help": "Color.",
+          "choices": [
+            "white",
+            "gray",
+            "blue",
+            "green",
+            "purple",
+            "orange",
+            "red"
+          ]
+        },
+        "--list-id": {
+          "type": "string",
+          "required": true,
+          "help": "The field's list (ID or name).",
+          "aliases": [
+            "--list"
+          ]
+        },
+        "--rank": {
+          "type": "int",
+          "required": false,
+          "help": "Sort position (0 or more)."
+        },
+        "--status-category": {
+          "type": "string",
+          "required": false,
+          "help": "Status fields: open, won, lost or on-hold.",
+          "choices": [
+            "open",
+            "won",
+            "lost",
+            "on-hold"
+          ]
+        },
+        "--text": {
+          "type": "string",
+          "required": true,
+          "help": "The option's text (1-255 characters)."
+        },
+        "--type": {
+          "type": "string",
+          "required": false,
+          "help": "Option type; taken from the field's existing options when omitted.",
+          "choices": [
+            "dropdown",
+            "ranked-dropdown",
+            "status-dropdown"
+          ]
+        },
+        "--win-rate": {
+          "type": "int",
+          "required": false,
+          "help": "Status fields, open category: chance of winning, 0-100."
+        }
+      },
+      "positionals": [
+        {
+          "name": "FIELD_ID",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "examples": [
+        "field options create field-123456 --list-id Dealflow --text \"Due diligence\""
+      ],
+      "whenToUse": "Add an option to a list field's dropdown, ranked-dropdown or status field. The type comes from the field's existing options (pass --type if it has none); rank defaults to after the last option and color to white; status fields also need --status-category. Global company/person field options can't be changed.",
+      "relatedCommands": [
+        "field options ls",
+        "field options update"
+      ]
+    },
+    {
+      "name": "field options delete",
+      "description": "Delete an option of a list field. Cannot be undone.",
+      "category": "write",
+      "destructive": true,
+      "progressCapable": false,
+      "parameters": {
+        "--list-id": {
+          "type": "string",
+          "required": true,
+          "help": "The field's list (ID or name).",
+          "aliases": [
+            "--list"
+          ]
+        },
+        "--yes": {
+          "type": "flag",
+          "required": false,
+          "help": "Skip confirmation prompt.",
+          "aliases": [
+            "-y"
+          ]
+        }
+      },
+      "positionals": [
+        {
+          "name": "FIELD_ID",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "OPTION_ID",
+          "type": "int",
+          "required": true
+        }
+      ],
+      "whenToUse": "Delete an option of a list field. Cannot be undone: Affinity also clears the field on every list entry that has the option. Confirm the option (text and id from 'field options ls') with the user first.",
+      "relatedCommands": [
+        "field options ls",
+        "field options update"
+      ]
+    },
+    {
+      "name": "field options ls",
+      "description": "List a dropdown, ranked-dropdown or status field's options.",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--entity-type": {
+          "type": "string",
+          "required": false,
+          "help": "For a global company or person field (instead of --list-id).",
+          "choices": [
+            "company",
+            "person"
+          ]
+        },
+        "--list-id": {
+          "type": "string",
+          "required": false,
+          "help": "The field's list (ID or name).",
+          "aliases": [
+            "--list"
+          ]
+        }
+      },
+      "positionals": [
+        {
+          "name": "FIELD_ID",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "examples": [
+        "field options ls field-123456 --list-id Dealflow",
+        "field options ls field-456 --entity-type company"
+      ],
+      "whenToUse": "List the options of a dropdown, ranked-dropdown or status field: id, text, type, rank, color, and for status fields statusCategory and winRate. Use --list-id for a list field (also opportunity fields) or --entity-type company|person for a global field. Use before setting a dropdown value or managing options.",
+      "relatedCommands": [
+        "field ls",
+        "field options create",
+        "field options update"
+      ]
+    },
+    {
+      "name": "field options update",
+      "description": "Change an option of a list field (only the values you pass).",
+      "category": "write",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--color": {
+          "type": "string",
+          "required": false,
+          "help": "Color.",
+          "choices": [
+            "white",
+            "gray",
+            "blue",
+            "green",
+            "purple",
+            "orange",
+            "red"
+          ]
+        },
+        "--list-id": {
+          "type": "string",
+          "required": true,
+          "help": "The field's list (ID or name).",
+          "aliases": [
+            "--list"
+          ]
+        },
+        "--rank": {
+          "type": "int",
+          "required": false,
+          "help": "Sort position (0 or more)."
+        },
+        "--status-category": {
+          "type": "string",
+          "required": false,
+          "help": "Status fields: open, won, lost or on-hold.",
+          "choices": [
+            "open",
+            "won",
+            "lost",
+            "on-hold"
+          ]
+        },
+        "--text": {
+          "type": "string",
+          "required": false,
+          "help": "New text (1-255 characters)."
+        },
+        "--win-rate": {
+          "type": "int",
+          "required": false,
+          "help": "Status fields, open category: chance of winning, 0-100."
+        }
+      },
+      "positionals": [
+        {
+          "name": "FIELD_ID",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "OPTION_ID",
+          "type": "int",
+          "required": true
+        }
+      ],
+      "whenToUse": "Rename an option or change its rank, color, status category or win rate (only the values given). Renaming changes the value shown on every entry that has the option.",
+      "examples": [
+        "field options update field-123456 4567 --list-id Dealflow --text \"Closed - won\""
+      ],
+      "relatedCommands": [
+        "field options ls"
       ]
     },
     {
@@ -4093,6 +4336,147 @@
       ]
     },
     {
+      "name": "transcript get",
+      "description": "Show a transcript: its note and its dialogue fragments.",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch every fragment.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Fetch up to N dialogue fragments (default: the preview Affinity returns).",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        }
+      },
+      "positionals": [
+        {
+          "name": "TRANSCRIPT_ID",
+          "type": "int",
+          "required": true
+        }
+      ],
+      "examples": [
+        "transcript get 123",
+        "transcript get 123 --max-results 500"
+      ],
+      "whenToUse": "Read a meeting transcript: its AI Notetaker note and dialogue fragments (content, speaker, start/end offsets). Fetches up to --max-results fragments in order (default 200 here); fragmentsTotal says how many exist. Transcripts are meeting dialogue: quote only what the user needs.",
+      "relatedCommands": [
+        "transcript ls",
+        "note get"
+      ],
+      "mcpBehavior": {
+        "limitEnforced": true,
+        "allFlagBlocked": true,
+        "defaultLimit": 200,
+        "maxLimit": 2000
+      },
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      }
+    },
+    {
+      "name": "transcript ls",
+      "description": "List meeting transcripts (metadata, no dialogue).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--created-after": {
+          "type": "string",
+          "required": false,
+          "help": "Only transcripts created at or after this time (ISO date/datetime or relative)."
+        },
+        "--created-before": {
+          "type": "string",
+          "required": false,
+          "help": "Only transcripts created before this time (ISO date/datetime or relative)."
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a previous nextCursor."
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        },
+        "--with-note": {
+          "type": "flag",
+          "required": false,
+          "help": "Include each transcript's whole AI Notetaker note."
+        }
+      },
+      "positionals": [],
+      "examples": [
+        "transcript ls --created-after -7d",
+        "transcript ls --max-results 20"
+      ],
+      "whenToUse": "List AI Notetaker meeting transcripts the user can see (metadata only: id, createdAt, languageCode, note reference with interactionId). Filter by --created-after/--created-before. Use 'transcript get' for the dialogue.",
+      "relatedCommands": [
+        "transcript get",
+        "note get",
+        "interaction ls"
+      ],
+      "mcpBehavior": {
+        "limitEnforced": true,
+        "allFlagBlocked": true,
+        "defaultLimit": 1000,
+        "maxLimit": 10000
+      },
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      }
+    },
+    {
       "name": "whoami",
       "description": "Show current authenticated user information.",
       "category": "read",
@@ -4106,5 +4490,5 @@
       ]
     }
   ],
-  "total": 70
+  "total": 76
 }

@@ -77,6 +77,7 @@ from ..models.types import (
     to_v1_value_type_code,
 )
 from ..progress import ProgressCallback
+from ._v2_filters import v2_filter_datetime
 from .search import (
     AsyncFileSearchMixin,
     AsyncNoteSearchMixin,
@@ -1261,15 +1262,6 @@ def _fvc_utc(value: datetime) -> str:
     return _normalize_to_utc(value).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
 
-def _fvc_v2_utc(value: datetime, *, round_up: bool) -> str:
-    """Whole-second UTC ``Z`` timestamp for a V2 filter (it rejects fractions). Rounded outward
-    (down for a lower bound, up for an upper one) so no change inside the range is lost."""
-    utc = _normalize_to_utc(value)
-    if utc.microsecond:
-        utc = utc.replace(microsecond=0) + (timedelta(seconds=1) if round_up else timedelta())
-    return utc.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
 def _fvc_v1_params(
     field_id: AnyFieldId,
     *,
@@ -1389,9 +1381,9 @@ def _fvc_v2_params(
     if changer_id is not None:
         one_of("changer.id", [str(int(changer_id))])
     if changed_after is not None:
-        clauses.append(f"changedAt>={_fvc_v2_utc(changed_after, round_up=False)}")
+        clauses.append(f"changedAt>={v2_filter_datetime(changed_after, round_up=False)}")
     if changed_before is not None:
-        clauses.append(f"changedAt<{_fvc_v2_utc(changed_before, round_up=True)}")
+        clauses.append(f"changedAt<{v2_filter_datetime(changed_before, round_up=True)}")
     if action_type is not None:
         one_of("actionType", [action_type])
 

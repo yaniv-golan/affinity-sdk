@@ -2354,6 +2354,7 @@ class HTTPClient:
         v1: bool = False,
         cache_key: str | None = None,
         cache_ttl: float | None = None,
+        min_api_version: str | None = None,
     ) -> dict[str, Any]:
         """
         Make a GET request.
@@ -2377,6 +2378,7 @@ class HTTPClient:
             params=encoded_params,
             cache_key=cache_key,
             cache_ttl=cache_ttl,
+            min_api_version=min_api_version,
         )
 
     def get_v1_page(
@@ -2406,6 +2408,7 @@ class HTTPClient:
         cache_key: str | None = None,
         cache_ttl: float | None = None,
         max_pages: int = 100,
+        min_api_version: str | None = None,
     ) -> dict[str, Any]:
         """
         GET a V2 paged collection and follow ``pagination.nextUrl`` to the end.
@@ -2415,14 +2418,20 @@ class HTTPClient:
         merged result replaces the cached first page so later calls do not refetch.
         Stops after ``max_pages`` pages as a guard against a server that never ends paging.
         """
-        data = self.get(path, params=params, cache_key=cache_key, cache_ttl=cache_ttl)
+        data = self.get(
+            path,
+            params=params,
+            cache_key=cache_key,
+            cache_ttl=cache_ttl,
+            min_api_version=min_api_version,
+        )
         next_url = (data.get("pagination") or {}).get("nextUrl")
         if not next_url:
             return data
         items = list(data.get("data", []))
         pages = 1
         while next_url and pages < max_pages:
-            page = self.get_url(next_url)
+            page = self.get_url(next_url, min_api_version=min_api_version)
             items.extend(page.get("data", []))
             next_url = (page.get("pagination") or {}).get("nextUrl")
             pages += 1
@@ -2436,18 +2445,21 @@ class HTTPClient:
             )
         return merged
 
-    def get_url(self, url: str) -> dict[str, Any]:
+    def get_url(self, url: str, *, min_api_version: str | None = None) -> dict[str, Any]:
         """
         Make a GET request to a full URL.
 
-        Used for following pagination URLs.
+        Used for following pagination URLs. Pass the ``min_api_version`` of the first request
+        so every page is read with the same API version.
         """
         absolute, is_v1 = _safe_follow_url(
             url,
             v1_base_url=self._config.v1_base_url,
             v2_base_url=self._config.v2_base_url,
         )
-        return self._request_with_retry("GET", absolute, v1=is_v1, safe_follow=True)
+        return self._request_with_retry(
+            "GET", absolute, v1=is_v1, safe_follow=True, min_api_version=min_api_version
+        )
 
     def post(
         self,
@@ -2456,6 +2468,7 @@ class HTTPClient:
         json: Any = None,
         v1: bool = False,
         read_only: bool = False,
+        min_api_version: str | None = None,
     ) -> dict[str, Any]:
         """Make a POST request.
 
@@ -2464,7 +2477,13 @@ class HTTPClient:
         """
         url = self._build_url(path, v1=v1)
         return self._request_with_retry(
-            "POST", url, v1=v1, json=json, write_intent=not read_only, idempotent=read_only
+            "POST",
+            url,
+            v1=v1,
+            json=json,
+            write_intent=not read_only,
+            idempotent=read_only,
+            min_api_version=min_api_version,
         )
 
     def put(
@@ -2504,6 +2523,7 @@ class HTTPClient:
         *,
         params: Mapping[str, Any] | Sequence[tuple[str, Any]] | None = None,
         v1: bool = False,
+        min_api_version: str | None = None,
     ) -> dict[str, Any]:
         """Make a DELETE request."""
         url = self._build_url(path, v1=v1)
@@ -2513,6 +2533,7 @@ class HTTPClient:
             v1=v1,
             params=_encode_query_params(params),
             write_intent=True,
+            min_api_version=min_api_version,
         )
 
     def upload_file(
@@ -3897,6 +3918,7 @@ class AsyncHTTPClient:
         v1: bool = False,
         cache_key: str | None = None,
         cache_ttl: float | None = None,
+        min_api_version: str | None = None,
     ) -> dict[str, Any]:
         url = self._build_url(path, v1=v1)
         encoded_params = _encode_query_params(params)
@@ -3907,6 +3929,7 @@ class AsyncHTTPClient:
             params=encoded_params,
             cache_key=cache_key,
             cache_ttl=cache_ttl,
+            min_api_version=min_api_version,
         )
 
     async def get_v1_page(
@@ -3931,6 +3954,7 @@ class AsyncHTTPClient:
         cache_key: str | None = None,
         cache_ttl: float | None = None,
         max_pages: int = 100,
+        min_api_version: str | None = None,
     ) -> dict[str, Any]:
         """
         GET a V2 paged collection and follow ``pagination.nextUrl`` to the end.
@@ -3940,14 +3964,20 @@ class AsyncHTTPClient:
         merged result replaces the cached first page so later calls do not refetch.
         Stops after ``max_pages`` pages as a guard against a server that never ends paging.
         """
-        data = await self.get(path, params=params, cache_key=cache_key, cache_ttl=cache_ttl)
+        data = await self.get(
+            path,
+            params=params,
+            cache_key=cache_key,
+            cache_ttl=cache_ttl,
+            min_api_version=min_api_version,
+        )
         next_url = (data.get("pagination") or {}).get("nextUrl")
         if not next_url:
             return data
         items = list(data.get("data", []))
         pages = 1
         while next_url and pages < max_pages:
-            page = await self.get_url(next_url)
+            page = await self.get_url(next_url, min_api_version=min_api_version)
             items.extend(page.get("data", []))
             next_url = (page.get("pagination") or {}).get("nextUrl")
             pages += 1
@@ -3961,7 +3991,7 @@ class AsyncHTTPClient:
             )
         return merged
 
-    async def get_url(self, url: str) -> dict[str, Any]:
+    async def get_url(self, url: str, *, min_api_version: str | None = None) -> dict[str, Any]:
         absolute, is_v1 = _safe_follow_url(
             url,
             v1_base_url=self._config.v1_base_url,
@@ -3972,6 +4002,7 @@ class AsyncHTTPClient:
             absolute,
             v1=is_v1,
             safe_follow=True,
+            min_api_version=min_api_version,
         )
 
     async def post(
@@ -3981,10 +4012,17 @@ class AsyncHTTPClient:
         json: Any = None,
         v1: bool = False,
         read_only: bool = False,
+        min_api_version: str | None = None,
     ) -> dict[str, Any]:
         url = self._build_url(path, v1=v1)
         return await self._request_with_retry(
-            "POST", url, v1=v1, json=json, write_intent=not read_only, idempotent=read_only
+            "POST",
+            url,
+            v1=v1,
+            json=json,
+            write_intent=not read_only,
+            idempotent=read_only,
+            min_api_version=min_api_version,
         )
 
     async def put(
@@ -4023,6 +4061,7 @@ class AsyncHTTPClient:
         *,
         params: Mapping[str, Any] | Sequence[tuple[str, Any]] | None = None,
         v1: bool = False,
+        min_api_version: str | None = None,
     ) -> dict[str, Any]:
         url = self._build_url(path, v1=v1)
         return await self._request_with_retry(
@@ -4031,6 +4070,7 @@ class AsyncHTTPClient:
             v1=v1,
             params=_encode_query_params(params),
             write_intent=True,
+            min_api_version=min_api_version,
         )
 
     async def upload_file(

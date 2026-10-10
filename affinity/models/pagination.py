@@ -71,7 +71,7 @@ class PaginationInfo(AffinityModel):
 class PaginationInfoWithTotal(PaginationInfo):
     """Pagination with total count (used by some endpoints)."""
 
-    total_count: int = Field(0, alias="totalCount")
+    total_count: int | None = Field(None, alias="totalCount")
 
 
 # =============================================================================
@@ -118,6 +118,11 @@ class PaginatedResponse(AffinityModel, Generic[T]):
     next_page_token: str | None = Field(None, alias="nextPageToken")
     _has_next_override: bool | None = PrivateAttr(default=None)
     _filter_stats: FilterStats | None = PrivateAttr(default=None)
+
+    @property
+    def total_count(self) -> int | None:
+        """Total number of matching items, for endpoints that report it (else ``None``)."""
+        return getattr(self.pagination, "total_count", None)
 
     def __len__(self) -> int:
         """Number of items in current page."""

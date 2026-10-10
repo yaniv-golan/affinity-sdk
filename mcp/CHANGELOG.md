@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0] - 2026-10-10
+
+### Highlights
+
+**`confirm: true` works only after the server asked.** In Claude Desktop the model once sent a
+merge with `confirm: true` on its first call, without asking the user. Now a destructive command
+runs with `confirm: true` only after this server refused that exact command (or showed its
+dialog) in the last 15 minutes, once; otherwise it answers `confirmation_required` again and
+tells Claude to ask. Also new: dropdown options and meeting transcripts. Requires CLI 1.24.0.
+
+### Added
+
+- Registry: `field options ls|create|update|delete` (`delete` destructive) and
+  `transcript ls|get` (`transcript get` fetches up to 200 fragments by default, 2000 at most).
+
+### Changed
+
+- `execute-write-command`: confirmation tokens (a checksum of command and arguments, stored in
+  `~/.cache/xaffinity/mcp-confirm`, used once, 15 minutes). The tool description and the
+  workflows skill describe the two-step flow. If tokens can't be stored, `confirm: true` is
+  accepted as before.
+- Docs: if Affinity's own claude.ai connector is connected too, Claude may pick either one;
+  Claude Desktop never auto-updates an extension installed from a `.mcpb` file.
+
 ## [1.26.0] - 2026-10-10
 
 ### Highlights

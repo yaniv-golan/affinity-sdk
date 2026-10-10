@@ -95,6 +95,9 @@ MODEL_MAPPINGS: dict[str, tuple[str, ...]] = {
     "FieldValueChangeField": ("fieldValueChanges.Field",),
     "FieldValueChangeEntity": ("fieldValueChanges.EntityReference",),
     "FieldValueChangeListEntry": ("fieldValueChanges.ListEntry",),
+    # GET /v2/transcripts/{id} (list items are transcripts.BaseTranscript, a subset)
+    "Transcript": ("transcripts.Transcript",),
+    "TranscriptFragment": ("transcripts.Fragment",),
 }
 
 # SDK models deliberately not checked, with the reason.
@@ -115,6 +118,8 @@ SKIPPED_MODELS: dict[str, str] = {
 # Known SDK extensions beyond OpenAPI (documented exceptions, by Python field name).
 # An entry whose field is gone from the model or is now in the spec is an error.
 KNOWN_EXTENSIONS: dict[str, set[str]] = {
+    # fragmentsPreview {data, totalCount} flattened into two fields
+    "Transcript": {"fragments_preview", "fragments_total"},
     # Declared on each of the 15 typed variants, not on FieldValueChangeBase
     "FieldValueChangeV2": {"value_type", "value"},
     "Person": {
@@ -156,8 +161,7 @@ KNOWN_GAPS: dict[tuple[str, str], str] = {
     ("NoteV2", "opportunitiesPreview"): "opt-in `includes` preview; notes on V2 is P2.6",
     ("NoteV2", "personsPreview"): "opt-in `includes` preview; notes on V2 is P2.6",
     ("NoteV2", "repliesCount"): "opt-in `includes` count; notes on V2 is P2.6",
-    ("NoteV2", "interaction"): "interaction / AI-notetaker note variants; P2.6",
-    ("NoteV2", "transcriptId"): "AI-notetaker note variants; P2.6",
+    ("Transcript", "fragmentsPreview"): "flattened into fragments_preview + fragments_total",
     # --- enums ---
     ("DropdownOptionColor", "white"): (
         "SDK enum is the V1 integer palette (DEFAULT, YELLOW, ...); no verified V1 code "
@@ -570,6 +574,7 @@ def get_sdk_models() -> dict[str, type]:
         WebhookSubscription,
         WhoAmI,
     )
+    from affinity.models.transcripts import Transcript, TranscriptFragment
 
     return {
         # Core entities
@@ -592,6 +597,8 @@ def get_sdk_models() -> dict[str, type]:
         "FieldValueChangeField": FieldValueChangeField,
         "FieldValueChangeEntity": FieldValueChangeEntity,
         "FieldValueChangeListEntry": FieldValueChangeListEntry,
+        "Transcript": Transcript,
+        "TranscriptFragment": TranscriptFragment,
         "DropdownOption": DropdownOption,
         # Secondary entities
         "Note": Note,
