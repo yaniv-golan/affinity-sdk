@@ -74,6 +74,11 @@ from .search import (
 from .secondary import (
     # File
     EntityFile,
+    # Field value change (V2)
+    FieldValueChangeEntity,
+    FieldValueChangeField,
+    FieldValueChangeListEntry,
+    FieldValueChangeV2,
     Grant,
     # Interaction
     Interaction,
@@ -130,6 +135,10 @@ __all__ = [
     "FieldCreate",
     "FieldValue",
     "FieldValueChange",
+    "FieldValueChangeEntity",
+    "FieldValueChangeField",
+    "FieldValueChangeListEntry",
+    "FieldValueChangeV2",
     "FieldValueCreate",
     "DropdownOption",
     # Saved View

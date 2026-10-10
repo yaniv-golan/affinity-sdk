@@ -2,11 +2,11 @@
   "_generated": {
     "warning": "DO NOT EDIT - This file is auto-generated",
     "generator": "tools/generate_mcp_command_registry.py",
-    "cliVersion": "1.22.0",
+    "cliVersion": "1.23.0",
     "sourceConfig": "mcp/.registry/mcp-commands.json"
   },
   "version": 1,
-  "cliVersion": "1.22.0",
+  "cliVersion": "1.23.0",
   "commands": [
     {
       "name": "company create",
@@ -870,6 +870,116 @@
       ]
     },
     {
+      "name": "field changes",
+      "description": "List field value changes across all entities and fields (V2).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--action-type": {
+          "type": "string",
+          "required": false,
+          "help": "Only this kind of change.",
+          "choices": [
+            "add",
+            "update",
+            "delete"
+          ]
+        },
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--changed-after": {
+          "type": "string",
+          "required": false,
+          "help": "Only changes at or after this time (ISO date/datetime or relative, e.g. -7d)."
+        },
+        "--changed-before": {
+          "type": "string",
+          "required": false,
+          "help": "Only changes before this time (ISO date/datetime or relative)."
+        },
+        "--changer-id": {
+          "type": "int",
+          "required": false,
+          "help": "Only changes made by this person."
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a previous nextCursor."
+        },
+        "--field-id": {
+          "type": "string",
+          "required": false,
+          "help": "Only this field (e.g. field-123); repeat for several.",
+          "multiple": true
+        },
+        "--list-entry-id": {
+          "type": "int",
+          "required": false,
+          "help": "Only this list entry; repeat for several.",
+          "multiple": true
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        },
+        "--order": {
+          "type": "string",
+          "required": false,
+          "help": "Oldest first (asc) or newest first (desc).",
+          "choices": [
+            "asc",
+            "desc"
+          ]
+        }
+      },
+      "positionals": [],
+      "examples": [
+        "field changes --field-id field-123456 --changed-after -7d",
+        "field changes --list-entry-id 999 --order desc --max-results 20",
+        "field changes --changer-id 555 --changed-after 2025-06-01 --max-results 200"
+      ],
+      "whenToUse": "List field value changes across all entities and fields (V2): what changed, in which list entry, who changed it, and when. Use for delta sync ('what changed since X'), audits by changer, or recent activity on a field or list entry. Filters combine with AND: --field-id and --list-entry-id (repeat for OR), --changer-id, --changed-after, --changed-before, --action-type add|update|delete (V2 names). Oldest first by default; --order desc for newest first. No person/company/opportunity filter: use 'field history' for one entity.",
+      "relatedCommands": [
+        "field history",
+        "field history-bulk",
+        "field ls"
+      ],
+      "mcpBehavior": {
+        "limitEnforced": true,
+        "allFlagBlocked": true,
+        "defaultLimit": 1000,
+        "maxLimit": 10000
+      },
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      }
+    },
+    {
       "name": "field create",
       "description": "Create a field.",
       "category": "write",
@@ -986,6 +1096,11 @@
             "delete"
           ]
         },
+        "--changed-after": {
+          "type": "string",
+          "required": false,
+          "help": "Only changes at or after this time (ISO date/datetime or relative, e.g. -30d)."
+        },
         "--company-id": {
           "type": "int",
           "required": false,
@@ -1010,6 +1125,15 @@
           "required": false,
           "help": "Filter by opportunity ID."
         },
+        "--order": {
+          "type": "string",
+          "required": false,
+          "help": "Newest first (desc) or oldest first (asc).",
+          "choices": [
+            "desc",
+            "asc"
+          ]
+        },
         "--person-id": {
           "type": "int",
           "required": false,
@@ -1026,19 +1150,13 @@
       "examples": [
         "field history field-123456 --person-id 789",
         "field history field-123456 --company-id 456",
-        "field history field-123456 --list-entry-id 999 --max-results 50"
+        "field history field-123456 --list-entry-id 999 --max-results 50",
+        "field history field-123456 --changed-after -30d --order asc"
       ],
-      "whenToUse": "Audit who changed a field value and when for a SINGLE entity. Use to track status changes, see modification timestamps, or investigate field value history. REQUIRES exactly one entity selector: --person-id, --company-id, --opportunity-id, or --list-entry-id. For bulk history across a whole list, use 'field history-bulk' instead.",
-      "requiredOneOf": [
-        [
-          "--person-id",
-          "--company-id",
-          "--opportunity-id",
-          "--list-entry-id"
-        ]
-      ],
+      "whenToUse": "Audit who changed a field value and when. With one entity selector (--person-id, --company-id, --opportunity-id or --list-entry-id) it shows that entity's history; without one it covers every entity and needs --changed-after and/or --max-results. --max-results gives the most recent N (--order asc: the oldest N). Action types: create/update/delete. For changes across many fields, or by changer or time window, use 'field changes'; for one field across a whole list, 'field history-bulk'.",
       "relatedCommands": [
         "field ls",
+        "field changes",
         "field history-bulk",
         "person get",
         "company get",
@@ -3988,5 +4106,5 @@
       ]
     }
   ],
-  "total": 69
+  "total": 70
 }

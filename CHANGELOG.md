@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.23.0] - 2026-10-10
+
+### Highlights
+
+**Field history across all entities, and every change in the workspace.** `field history` no
+longer needs an entity: without one it returns a field's changes for every entity, bounded by
+`--changed-after` and/or `--max-results`. The new `field changes` command (V2) lists changes
+across all fields and entities, filtered by field, list entry, changer, time window and action:
+the basis for delta sync and audits.
+
+### Added
+
+- SDK `field_value_changes.list()`: optional entity selector (at most one) and the new V1
+  parameters `changed_after` (inclusive), `limit`, `order_by` (`"asc"`/`"desc"`) and `after_id`,
+  checked like the API checks them (`after_id` needs `changed_after` and `order_by="asc"`).
+- SDK `field_value_changes.iter_all()`: a field's whole history, oldest first, fetched in pages
+  (keyset paging on `changed_at` and `id`).
+- SDK `field_value_changes.list_global()` / `iter_global()`: `GET /v2/field-value-changes` across
+  all entities and fields, with filters for field(s), list entry(ies), changer, time window and
+  action type (`add`/`update`/`delete`). New model `FieldValueChangeV2` (with
+  `FieldValueChangeField`, `FieldValueChangeEntity`, `FieldValueChangeListEntry`); `value` is
+  kept as the API sends it.
+- CLI `field changes` (V2 org-wide list): `--field-id`/`--list-entry-id` (repeatable, OR),
+  `--changer-id`, `--changed-after`, `--changed-before`, `--action-type`, `--order`, paging.
+- CLI `field history`: `--changed-after` and `--order`; `--max-results` is also sent to the API.
+
+### Changed
+
+- `field history` / `field_value_changes.list()` accept no entity selector (previously exactly
+  one was required). The CLI then requires `--changed-after` or `--max-results`.
+- `field_value_changes.iter()` passes the new parameters through; its behaviour is otherwise
+  unchanged (one request, the API's default order).
+- `--max-results` on `field history` with `--order desc` (the default) returns the most recent
+  N, as before; it is now also applied by the API.
+
 ## [1.22.0] - 2026-10-10
 
 ### Highlights

@@ -32,9 +32,10 @@ from ..models.entities import (
     FieldValueChange,
     FieldValueCreate,
 )
-from ..models.pagination import AsyncPageIterator, PageIterator, PaginatedResponse
+from ..models.pagination import AsyncPageIterator, PageIterator, PaginatedResponse, PaginationInfo
 from ..models.secondary import (
     EntityFile,
+    FieldValueChangeV2,
     Interaction,
     InteractionCreate,
     InteractionUpdate,
@@ -71,6 +72,7 @@ from ..models.types import (
     ReminderType,
     UserId,
     WebhookId,
+    _normalize_to_utc,
     field_id_to_v1_numeric,
     to_v1_value_type_code,
 )
@@ -1250,37 +1252,171 @@ class FieldValueService:
 # =============================================================================
 
 
+_FVC_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+_FVC_V2_ACTIONS = ("add", "update", "delete")
+
+
+def _fvc_utc(value: datetime) -> str:
+    """UTC timestamp with microseconds and a ``Z`` suffix (a naive datetime is taken as UTC)."""
+    return _normalize_to_utc(value).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+
+def _fvc_v2_utc(value: datetime, *, round_up: bool) -> str:
+    """Whole-second UTC ``Z`` timestamp for a V2 filter (it rejects fractions). Rounded outward
+    (down for a lower bound, up for an upper one) so no change inside the range is lost."""
+    utc = _normalize_to_utc(value)
+    if utc.microsecond:
+        utc = utc.replace(microsecond=0) + (timedelta(seconds=1) if round_up else timedelta())
+    return utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _fvc_v1_params(
+    field_id: AnyFieldId,
+    *,
+    person_id: PersonId | None,
+    company_id: CompanyId | None,
+    opportunity_id: OpportunityId | None,
+    list_entry_id: ListEntryId | None,
+    action_type: FieldValueChangeAction | None,
+    changed_after: datetime | None,
+    limit: int | None,
+    order_by: Literal["asc", "desc"] | None,
+    after_id: int | None,
+) -> dict[str, Any]:
+    """Query params for V1 ``GET /field-value-changes``, checked like the server checks them."""
+    provided = [
+        name
+        for name, value in (
+            ("person_id", person_id),
+            ("company_id", company_id),
+            ("opportunity_id", opportunity_id),
+            ("list_entry_id", list_entry_id),
+        )
+        if value is not None
+    ]
+    if len(provided) > 1:
+        raise ValueError(
+            "FieldValueChangesService accepts at most one of: person_id, company_id, "
+            f"opportunity_id, or list_entry_id; got {len(provided)}: {', '.join(provided)}"
+        )
+    if limit is not None and limit < 1:
+        raise ValueError("'limit' must be >= 1")
+    if order_by is not None and order_by not in ("asc", "desc"):
+        raise ValueError("'order_by' must be 'asc' or 'desc'")
+    if after_id is not None and (changed_after is None or order_by != "asc"):
+        raise ValueError(
+            "'after_id' requires changed_after and order_by='asc' (keyset paging: pass the "
+            "changed_at and id of the last change of the previous page)"
+        )
+
+    params: dict[str, Any] = {"field_id": field_id_to_v1_numeric(field_id)}
+    if person_id is not None:
+        params["person_id"] = int(person_id)
+    if company_id is not None:
+        params["organization_id"] = int(company_id)
+    if opportunity_id is not None:
+        params["opportunity_id"] = int(opportunity_id)
+    if list_entry_id is not None:
+        params["list_entry_id"] = int(list_entry_id)
+    if action_type is not None:
+        params["action_type"] = int(action_type)
+    if changed_after is not None:
+        params["changed_after"] = _fvc_utc(changed_after)
+    if limit is not None:
+        params["limit"] = limit
+    if order_by is not None:
+        params["order_by"] = order_by
+    if after_id is not None:
+        params["after_id"] = int(after_id)
+    return params
+
+
+def _fvc_v1_items(data: Any) -> list[FieldValueChange]:
+    items = data.get("data", []) if isinstance(data, dict) else data
+    if not isinstance(items, list):
+        items = []
+    return [FieldValueChange.model_validate(item) for item in items]
+
+
+def _fvc_keyset_done(page: Sequence[FieldValueChange], cursor: tuple[datetime, int | None]) -> bool:
+    """True if the page is empty or doesn't move past the cursor (guards against a loop)."""
+    if not page:
+        return True
+    last = page[-1]
+    after_time, after_id = cursor
+    return after_id is not None and (last.changed_at, int(last.id)) <= (after_time, after_id)
+
+
+def _fvc_v2_params(
+    *,
+    field_id: AnyFieldId | Sequence[AnyFieldId] | None,
+    list_entry_id: ListEntryId | int | Sequence[ListEntryId | int] | None,
+    changer_id: int | None,
+    changed_after: datetime | None,
+    changed_before: datetime | None,
+    action_type: Literal["add", "update", "delete"] | None,
+    order: Literal["asc", "desc"],
+    limit: int | None,
+) -> dict[str, Any]:
+    """Query params for V2 ``GET /v2/field-value-changes``.
+
+    Filter grammar: ``a=1``, ``(a=1 | a=2)``, ``&`` between properties; values unquoted,
+    datetimes whole-second UTC ``Z``.
+    """
+    if limit is not None and not 1 <= limit <= 100:
+        raise ValueError("'limit' must be between 1 and 100")
+    if order not in ("asc", "desc"):
+        raise ValueError("'order' must be 'asc' or 'desc'")
+    if action_type is not None and action_type not in _FVC_V2_ACTIONS:
+        raise ValueError("'action_type' must be 'add', 'update' or 'delete'")
+
+    clauses: list[str] = []
+
+    def one_of(prop: str, values: builtins.list[str]) -> None:
+        if not values:
+            return
+        parts = [f"{prop}={v}" for v in values]
+        clauses.append(parts[0] if len(parts) == 1 else "(" + " | ".join(parts) + ")")
+
+    if field_id is not None:
+        ids = [field_id] if isinstance(field_id, (str, int)) else builtins.list(field_id)
+        one_of("field.id", [f"field-{f}" if isinstance(f, int) else str(f) for f in ids])
+    if list_entry_id is not None:
+        entries = (
+            [list_entry_id] if isinstance(list_entry_id, int) else builtins.list(list_entry_id)
+        )
+        one_of("listEntry.id", [str(int(e)) for e in entries])
+    if changer_id is not None:
+        one_of("changer.id", [str(int(changer_id))])
+    if changed_after is not None:
+        clauses.append(f"changedAt>={_fvc_v2_utc(changed_after, round_up=False)}")
+    if changed_before is not None:
+        clauses.append(f"changedAt<{_fvc_v2_utc(changed_before, round_up=True)}")
+    if action_type is not None:
+        one_of("actionType", [action_type])
+
+    params: dict[str, Any] = {}
+    if clauses:
+        params["filter"] = " & ".join(clauses)
+    if order == "desc":
+        params["orderBy"] = "-changedAt"
+    if limit is not None:
+        params["limit"] = limit
+    return params
+
+
+def _fvc_v2_page(data: dict[str, Any]) -> PaginatedResponse[FieldValueChangeV2]:
+    return PaginatedResponse[FieldValueChangeV2](
+        data=[FieldValueChangeV2.model_validate(item) for item in data.get("data", [])],
+        pagination=PaginationInfo.model_validate(data.get("pagination", {})),
+    )
+
+
 class FieldValueChangesService:
-    """Service for querying field value change history (V1 API)."""
+    """Service for querying field value change history (V1 API, plus the V2 org-wide list)."""
 
     def __init__(self, client: HTTPClient):
         self._client = client
-
-    @staticmethod
-    def _validate_selector(
-        *,
-        person_id: PersonId | None,
-        company_id: CompanyId | None,
-        opportunity_id: OpportunityId | None,
-        list_entry_id: ListEntryId | None,
-    ) -> None:
-        provided = [
-            name
-            for name, value in (
-                ("person_id", person_id),
-                ("company_id", company_id),
-                ("opportunity_id", opportunity_id),
-                ("list_entry_id", list_entry_id),
-            )
-            if value is not None
-        ]
-        if len(provided) != 1:
-            joined = ", ".join(provided) if provided else "(none)"
-            raise ValueError(
-                "FieldValueChangesService.list() requires exactly one of: "
-                "person_id, company_id, opportunity_id, or list_entry_id; "
-                f"got {len(provided)}: {joined}"
-            )
 
     def list(
         self,
@@ -1291,39 +1427,36 @@ class FieldValueChangesService:
         opportunity_id: OpportunityId | None = None,
         list_entry_id: ListEntryId | None = None,
         action_type: FieldValueChangeAction | None = None,
-    ) -> list[FieldValueChange]:
-        """
-        Get field value changes for a specific field and entity.
+        changed_after: datetime | None = None,
+        limit: int | None = None,
+        order_by: Literal["asc", "desc"] | None = None,
+        after_id: int | None = None,
+    ) -> builtins.list[FieldValueChange]:
+        """Get field value changes for a field (V1 API, one response).
 
-        This endpoint is not paginated. For large histories, use narrow filters.
-        V1 requires numeric field IDs; only `field-<digits>` values are convertible.
+        Pass at most one entity selector (``person_id``, ``company_id``, ``opportunity_id``,
+        ``list_entry_id``). Without one, changes for every entity are returned; bound such calls
+        with ``changed_after`` and/or ``limit``, since a field's whole history can time out.
+
+        Results are sorted by ``(changed_at, id)``, newest first unless ``order_by="asc"``.
+        ``changed_after`` is inclusive. ``after_id`` continues after a change (keyset paging) and
+        needs ``changed_after`` and ``order_by="asc"``; :meth:`iter_all` does this for you.
+        V1 requires numeric field IDs; only ``field-<digits>`` values are convertible.
+
         """
-        self._validate_selector(
+        params = _fvc_v1_params(
+            field_id,
             person_id=person_id,
             company_id=company_id,
             opportunity_id=opportunity_id,
             list_entry_id=list_entry_id,
+            action_type=action_type,
+            changed_after=changed_after,
+            limit=limit,
+            order_by=order_by,
+            after_id=after_id,
         )
-
-        params: dict[str, Any] = {
-            "field_id": field_id_to_v1_numeric(field_id),
-        }
-        if person_id is not None:
-            params["person_id"] = int(person_id)
-        if company_id is not None:
-            params["organization_id"] = int(company_id)
-        if opportunity_id is not None:
-            params["opportunity_id"] = int(opportunity_id)
-        if list_entry_id is not None:
-            params["list_entry_id"] = int(list_entry_id)
-        if action_type is not None:
-            params["action_type"] = int(action_type)
-
-        data = self._client.get("/field-value-changes", params=params, v1=True)
-        items = data.get("data", [])
-        if not isinstance(items, list):
-            items = []
-        return [FieldValueChange.model_validate(item) for item in items]
+        return _fvc_v1_items(self._client.get("/field-value-changes", params=params, v1=True))
 
     def iter(
         self,
@@ -1334,8 +1467,11 @@ class FieldValueChangesService:
         opportunity_id: OpportunityId | None = None,
         list_entry_id: ListEntryId | None = None,
         action_type: FieldValueChangeAction | None = None,
+        changed_after: datetime | None = None,
+        limit: int | None = None,
+        order_by: Literal["asc", "desc"] | None = None,
     ) -> Iterator[FieldValueChange]:
-        """Iterate field value changes (convenience wrapper for list())."""
+        """Iterate the result of one :meth:`list` call. For keyset paging use :meth:`iter_all`."""
         yield from self.list(
             field_id,
             person_id=person_id,
@@ -1343,7 +1479,141 @@ class FieldValueChangesService:
             opportunity_id=opportunity_id,
             list_entry_id=list_entry_id,
             action_type=action_type,
+            changed_after=changed_after,
+            limit=limit,
+            order_by=order_by,
         )
+
+    def iter_all(
+        self,
+        field_id: AnyFieldId,
+        *,
+        person_id: PersonId | None = None,
+        company_id: CompanyId | None = None,
+        opportunity_id: OpportunityId | None = None,
+        list_entry_id: ListEntryId | None = None,
+        action_type: FieldValueChangeAction | None = None,
+        changed_after: datetime | None = None,
+        page_size: int = 100,
+    ) -> Iterator[FieldValueChange]:
+        """Iterate a field's changes oldest first, one page at a time (keyset paging).
+
+        Pages of ``page_size`` are fetched with ``order_by="asc"``, each continuing after the
+        last change of the previous page, until a page comes back empty. Optional selector and
+        ``changed_after`` (inclusive) narrow it; without a selector every entity's changes for
+        the field are returned.
+
+        """
+        if page_size < 1:
+            raise ValueError("'page_size' must be >= 1")
+        cursor: tuple[datetime, int | None] = (changed_after or _FVC_EPOCH, None)
+        while True:
+            page = self.list(
+                field_id,
+                person_id=person_id,
+                company_id=company_id,
+                opportunity_id=opportunity_id,
+                list_entry_id=list_entry_id,
+                action_type=action_type,
+                changed_after=cursor[0],
+                limit=page_size,
+                order_by="asc",
+                after_id=cursor[1],
+            )
+            if _fvc_keyset_done(page, cursor):
+                return
+            yield from page
+            cursor = (page[-1].changed_at, int(page[-1].id))
+
+    def list_global(
+        self,
+        *,
+        field_id: AnyFieldId | Sequence[AnyFieldId] | None = None,
+        list_entry_id: ListEntryId | int | Sequence[ListEntryId | int] | None = None,
+        changer_id: int | None = None,
+        changed_after: datetime | None = None,
+        changed_before: datetime | None = None,
+        action_type: Literal["add", "update", "delete"] | None = None,
+        order: Literal["asc", "desc"] = "asc",
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[FieldValueChangeV2]:
+        """Get one page of field value changes across all entities and fields (V2 API).
+
+        Filters (all optional, combined with AND): ``field_id`` and ``list_entry_id`` take one
+        value or several (OR); ``changer_id``; ``changed_after`` (inclusive) and
+        ``changed_before`` (exclusive), rounded outward to whole seconds; ``action_type``
+        ``"add"``, ``"update"`` or ``"delete"`` (V2 names). There is no person/company/
+        opportunity filter; use :meth:`list` for that.
+        ``order`` is ``"asc"`` (oldest first, the default) or ``"desc"``. ``limit`` is 1-100.
+        ``cursor`` (``next_cursor`` of a previous page) can't be combined with other arguments.
+
+        For delta sync, page to the end, store the latest ``changed_at`` you processed, and
+        next time pass it as ``changed_after``; it is inclusive, so skip ids you already have.
+
+        """
+        if cursor is not None:
+            if (
+                any(
+                    v is not None
+                    for v in (
+                        field_id,
+                        list_entry_id,
+                        changer_id,
+                        changed_after,
+                        changed_before,
+                        action_type,
+                        limit,
+                    )
+                )
+                or order != "asc"
+            ):
+                raise ValueError(
+                    "Cannot combine 'cursor' with other parameters; cursor encodes all query "
+                    "context."
+                )
+            return _fvc_v2_page(self._client.get_url(cursor))
+        params = _fvc_v2_params(
+            field_id=field_id,
+            list_entry_id=list_entry_id,
+            changer_id=changer_id,
+            changed_after=changed_after,
+            changed_before=changed_before,
+            action_type=action_type,
+            order=order,
+            limit=limit,
+        )
+        return _fvc_v2_page(self._client.get("/field-value-changes", params=params or None))
+
+    def iter_global(
+        self,
+        *,
+        field_id: AnyFieldId | Sequence[AnyFieldId] | None = None,
+        list_entry_id: ListEntryId | int | Sequence[ListEntryId | int] | None = None,
+        changer_id: int | None = None,
+        changed_after: datetime | None = None,
+        changed_before: datetime | None = None,
+        action_type: Literal["add", "update", "delete"] | None = None,
+        order: Literal["asc", "desc"] = "asc",
+        limit: int | None = None,
+    ) -> Iterator[FieldValueChangeV2]:
+        """Iterate all pages of :meth:`list_global` (same filters; ``limit`` is the page size)."""
+
+        def fetch_page(next_url: str | None) -> PaginatedResponse[FieldValueChangeV2]:
+            if next_url:
+                return self.list_global(cursor=next_url)
+            return self.list_global(
+                field_id=field_id,
+                list_entry_id=list_entry_id,
+                changer_id=changer_id,
+                changed_after=changed_after,
+                changed_before=changed_before,
+                action_type=action_type,
+                order=order,
+                limit=limit,
+            )
+
+        return PageIterator(fetch_page)
 
 
 # =============================================================================
@@ -2947,36 +3217,10 @@ class AsyncFieldValueService:
 
 
 class AsyncFieldValueChangesService:
-    """Async service for querying field value change history (V1 API)."""
+    """Async service for querying field value change history (V1 API, plus the V2 org-wide list)."""
 
     def __init__(self, client: AsyncHTTPClient):
         self._client = client
-
-    @staticmethod
-    def _validate_selector(
-        *,
-        person_id: PersonId | None,
-        company_id: CompanyId | None,
-        opportunity_id: OpportunityId | None,
-        list_entry_id: ListEntryId | None,
-    ) -> None:
-        provided = [
-            name
-            for name, value in (
-                ("person_id", person_id),
-                ("company_id", company_id),
-                ("opportunity_id", opportunity_id),
-                ("list_entry_id", list_entry_id),
-            )
-            if value is not None
-        ]
-        if len(provided) != 1:
-            joined = ", ".join(provided) if provided else "(none)"
-            raise ValueError(
-                "FieldValueChangesService.list() requires exactly one of: "
-                "person_id, company_id, opportunity_id, or list_entry_id; "
-                f"got {len(provided)}: {joined}"
-            )
 
     async def list(
         self,
@@ -2987,39 +3231,36 @@ class AsyncFieldValueChangesService:
         opportunity_id: OpportunityId | None = None,
         list_entry_id: ListEntryId | None = None,
         action_type: FieldValueChangeAction | None = None,
+        changed_after: datetime | None = None,
+        limit: int | None = None,
+        order_by: Literal["asc", "desc"] | None = None,
+        after_id: int | None = None,
     ) -> builtins.list[FieldValueChange]:
-        """
-        Get field value changes for a specific field and entity.
+        """Get field value changes for a field (V1 API, one response).
 
-        This endpoint is not paginated. For large histories, use narrow filters.
-        V1 requires numeric field IDs; only `field-<digits>` values are convertible.
+        Pass at most one entity selector (``person_id``, ``company_id``, ``opportunity_id``,
+        ``list_entry_id``). Without one, changes for every entity are returned; bound such calls
+        with ``changed_after`` and/or ``limit``, since a field's whole history can time out.
+
+        Results are sorted by ``(changed_at, id)``, newest first unless ``order_by="asc"``.
+        ``changed_after`` is inclusive. ``after_id`` continues after a change (keyset paging) and
+        needs ``changed_after`` and ``order_by="asc"``; :meth:`iter_all` does this for you.
+        V1 requires numeric field IDs; only ``field-<digits>`` values are convertible.
+
         """
-        self._validate_selector(
+        params = _fvc_v1_params(
+            field_id,
             person_id=person_id,
             company_id=company_id,
             opportunity_id=opportunity_id,
             list_entry_id=list_entry_id,
+            action_type=action_type,
+            changed_after=changed_after,
+            limit=limit,
+            order_by=order_by,
+            after_id=after_id,
         )
-
-        params: dict[str, Any] = {
-            "field_id": field_id_to_v1_numeric(field_id),
-        }
-        if person_id is not None:
-            params["person_id"] = int(person_id)
-        if company_id is not None:
-            params["organization_id"] = int(company_id)
-        if opportunity_id is not None:
-            params["opportunity_id"] = int(opportunity_id)
-        if list_entry_id is not None:
-            params["list_entry_id"] = int(list_entry_id)
-        if action_type is not None:
-            params["action_type"] = int(action_type)
-
-        data = await self._client.get("/field-value-changes", params=params, v1=True)
-        items = data.get("data", [])
-        if not isinstance(items, list):
-            items = []
-        return [FieldValueChange.model_validate(item) for item in items]
+        return _fvc_v1_items(await self._client.get("/field-value-changes", params=params, v1=True))
 
     async def iter(
         self,
@@ -3030,8 +3271,11 @@ class AsyncFieldValueChangesService:
         opportunity_id: OpportunityId | None = None,
         list_entry_id: ListEntryId | None = None,
         action_type: FieldValueChangeAction | None = None,
+        changed_after: datetime | None = None,
+        limit: int | None = None,
+        order_by: Literal["asc", "desc"] | None = None,
     ) -> AsyncIterator[FieldValueChange]:
-        """Iterate field value changes (convenience wrapper for list())."""
+        """Iterate the result of one :meth:`list` call. For keyset paging use :meth:`iter_all`."""
         for item in await self.list(
             field_id,
             person_id=person_id,
@@ -3039,8 +3283,143 @@ class AsyncFieldValueChangesService:
             opportunity_id=opportunity_id,
             list_entry_id=list_entry_id,
             action_type=action_type,
+            changed_after=changed_after,
+            limit=limit,
+            order_by=order_by,
         ):
             yield item
+
+    async def iter_all(
+        self,
+        field_id: AnyFieldId,
+        *,
+        person_id: PersonId | None = None,
+        company_id: CompanyId | None = None,
+        opportunity_id: OpportunityId | None = None,
+        list_entry_id: ListEntryId | None = None,
+        action_type: FieldValueChangeAction | None = None,
+        changed_after: datetime | None = None,
+        page_size: int = 100,
+    ) -> AsyncIterator[FieldValueChange]:
+        """Iterate a field's changes oldest first, one page at a time (keyset paging).
+
+        Pages of ``page_size`` are fetched with ``order_by="asc"``, each continuing after the
+        last change of the previous page, until a page comes back empty. Optional selector and
+        ``changed_after`` (inclusive) narrow it; without a selector every entity's changes for
+        the field are returned.
+
+        """
+        if page_size < 1:
+            raise ValueError("'page_size' must be >= 1")
+        cursor: tuple[datetime, int | None] = (changed_after or _FVC_EPOCH, None)
+        while True:
+            page = await self.list(
+                field_id,
+                person_id=person_id,
+                company_id=company_id,
+                opportunity_id=opportunity_id,
+                list_entry_id=list_entry_id,
+                action_type=action_type,
+                changed_after=cursor[0],
+                limit=page_size,
+                order_by="asc",
+                after_id=cursor[1],
+            )
+            if _fvc_keyset_done(page, cursor):
+                return
+            for item in page:
+                yield item
+            cursor = (page[-1].changed_at, int(page[-1].id))
+
+    async def list_global(
+        self,
+        *,
+        field_id: AnyFieldId | Sequence[AnyFieldId] | None = None,
+        list_entry_id: ListEntryId | int | Sequence[ListEntryId | int] | None = None,
+        changer_id: int | None = None,
+        changed_after: datetime | None = None,
+        changed_before: datetime | None = None,
+        action_type: Literal["add", "update", "delete"] | None = None,
+        order: Literal["asc", "desc"] = "asc",
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[FieldValueChangeV2]:
+        """Get one page of field value changes across all entities and fields (V2 API).
+
+        Filters (all optional, combined with AND): ``field_id`` and ``list_entry_id`` take one
+        value or several (OR); ``changer_id``; ``changed_after`` (inclusive) and
+        ``changed_before`` (exclusive), rounded outward to whole seconds; ``action_type``
+        ``"add"``, ``"update"`` or ``"delete"`` (V2 names). There is no person/company/
+        opportunity filter; use :meth:`list` for that.
+        ``order`` is ``"asc"`` (oldest first, the default) or ``"desc"``. ``limit`` is 1-100.
+        ``cursor`` (``next_cursor`` of a previous page) can't be combined with other arguments.
+
+        For delta sync, page to the end, store the latest ``changed_at`` you processed, and
+        next time pass it as ``changed_after``; it is inclusive, so skip ids you already have.
+
+        """
+        if cursor is not None:
+            if (
+                any(
+                    v is not None
+                    for v in (
+                        field_id,
+                        list_entry_id,
+                        changer_id,
+                        changed_after,
+                        changed_before,
+                        action_type,
+                        limit,
+                    )
+                )
+                or order != "asc"
+            ):
+                raise ValueError(
+                    "Cannot combine 'cursor' with other parameters; cursor encodes all query "
+                    "context."
+                )
+            return _fvc_v2_page(await self._client.get_url(cursor))
+        params = _fvc_v2_params(
+            field_id=field_id,
+            list_entry_id=list_entry_id,
+            changer_id=changer_id,
+            changed_after=changed_after,
+            changed_before=changed_before,
+            action_type=action_type,
+            order=order,
+            limit=limit,
+        )
+        return _fvc_v2_page(await self._client.get("/field-value-changes", params=params or None))
+
+    def iter_global(
+        self,
+        *,
+        field_id: AnyFieldId | Sequence[AnyFieldId] | None = None,
+        list_entry_id: ListEntryId | int | Sequence[ListEntryId | int] | None = None,
+        changer_id: int | None = None,
+        changed_after: datetime | None = None,
+        changed_before: datetime | None = None,
+        action_type: Literal["add", "update", "delete"] | None = None,
+        order: Literal["asc", "desc"] = "asc",
+        limit: int | None = None,
+    ) -> AsyncIterator[FieldValueChangeV2]:
+        """Iterate all pages of :meth:`list_global` (same filters; ``limit`` is the page size)."""
+
+        async def fetch_page(next_url: str | None) -> PaginatedResponse[FieldValueChangeV2]:
+            if next_url:
+                return await self.list_global(cursor=next_url)
+            return await self.list_global(
+                field_id=field_id,
+                list_entry_id=list_entry_id,
+                changer_id=changer_id,
+                changed_after=changed_after,
+                changed_before=changed_before,
+                action_type=action_type,
+                order=order,
+                limit=limit,
+            )
+
+        return AsyncPageIterator(fetch_page)
 
 
 class AsyncRelationshipStrengthService:

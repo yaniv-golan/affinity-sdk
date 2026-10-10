@@ -63,7 +63,7 @@ execute-read-command(command: "field history-bulk", argv: ["<field-id>", "--list
 
 Each row has: `id`, `fieldId`, `entityId`, `listEntryId`, `entityName`, `actionType`, `value`, `changedAt`, `changerName`.
 
-**Reconstruct transitions:** Sort events per entity by `changedAt`. Each row's `value` is the value AT that point. Compare consecutive rows to derive old→new transitions.
+**Reconstruct transitions:** Sort events per entity by `changedAt` (parse it as a time — comparing the strings misorders events within a second — and break ties by `id`). Each row's `value` is the value AT that point. Compare consecutive rows to derive old→new transitions.
 
 **Common analyses:**
 - **Funnel conversion:** Count distinct entities that ever had `value` = each stage

@@ -19,6 +19,8 @@ from .types import (
     InteractionLoggingType,
     InteractionType,
     ISODatetime,
+    ListEntryId,
+    ListId,
     NoteId,
     NoteType,
     OpportunityId,
@@ -337,6 +339,49 @@ class User(AffinityModel):
     first_name: str = Field(alias="firstName")
     last_name: str | None = Field(alias="lastName")
     email: str = Field(alias="emailAddress")
+
+
+class FieldValueChangeField(AffinityModel):
+    """The field a V2 field value change belongs to."""
+
+    id: str
+    entity_type: str = Field(alias="entityType")
+    name: str
+    type: str  # "global" or "list"
+
+
+class FieldValueChangeEntity(AffinityModel):
+    """The entity (person, company or opportunity) whose field value changed."""
+
+    id: int
+
+
+class FieldValueChangeListEntry(AffinityModel):
+    """The list entry a V2 field value change occurred in."""
+
+    id: ListEntryId
+    list_id: ListId = Field(alias="listId")
+
+
+class FieldValueChangeV2(AffinityModel):
+    """A field value change from ``GET /v2/field-value-changes`` (all entities and fields).
+
+    ``action_type`` is ``"add"``, ``"update"`` or ``"delete"`` (V2 names; V1 uses create/update/
+    delete). ``value_type`` is the field's value type (e.g. ``"ranked-dropdown"``) and ``value``
+    is kept as the API sends it (its shape depends on ``value_type``; a deleted dropdown option
+    or entity comes back as a reference with a ``displayValue`` snapshot). ``changer`` is
+    ``None`` for system changes such as enrichment.
+    """
+
+    id: int
+    field: FieldValueChangeField
+    entity: FieldValueChangeEntity
+    list_entry: FieldValueChangeListEntry | None = Field(None, alias="listEntry")
+    changer: User | None = None
+    changed_at: ISODatetime = Field(alias="changedAt")
+    action_type: str = Field(alias="actionType")
+    value_type: str | None = Field(None, alias="type")
+    value: Any = None
 
 
 class Grant(AffinityModel):

@@ -228,6 +228,9 @@ Or use the resource: `xaffinity://field-catalogs/{listId}` for field schema with
 field history field-123456 --person-id 789           # See change history for a field on a person
 field history field-123456 --company-id 456          # Field history on a company
 field history field-123456 --list-entry-id 999       # Field history on a list entry
+field history field-123456 --changed-after -30d      # Every entity's changes in the last 30 days
+field changes --changed-after -7d --max-results 200  # All fields, all entities (V2)
+field changes --list-entry-id 999 --order desc       # Every field of one list entry, newest first
 ```
 
 Use `field history` to:
@@ -235,7 +238,7 @@ Use `field history` to:
 - Audit field value modifications over time
 - Investigate when a field was last updated
 
-**Note**: Requires the field ID (from `field ls`) and exactly one entity selector (`--person-id`, `--company-id`, `--opportunity-id`, or `--list-entry-id`).
+**Note**: `field history` takes the field ID (from `field ls`) and at most one entity selector (`--person-id`, `--company-id`, `--opportunity-id`, or `--list-entry-id`); without one it needs `--changed-after` and/or `--max-results`. `field changes` covers all fields and entities with filters for field, list entry, changer, time window and action; its action types are `add`/`update`/`delete` (V2 names; `field history` says `create`).
 
 ### Bulk field change history (pipeline analysis)
 For pipeline stage analysis, funnel conversion, or time-in-stage metrics across a whole list, use `field history-bulk`:
@@ -256,7 +259,7 @@ field history-bulk field-358027 --list-id Dealflow --max-results 100 --action-ty
 
 Each row has: `id`, `fieldId`, `entityId`, `listEntryId`, `entityName`, `actionType` (`create`/`update`/`delete`), `value`, `changedAt`, `changerName`, `changer`.
 
-**Reconstructing transitions:** Sort events per entity by `changedAt`. Each row's `value` is the value AT that point — compare consecutive rows to derive old→new transitions.
+**Reconstructing transitions:** Sort events per entity by `changedAt` (parsed as a time, not as text; break ties by `id`). Each row's `value` is the value AT that point — compare consecutive rows to derive old→new transitions.
 
 **Important:**
 - Each list entry = 1 API call. A list with 9,000 entries = 9,000 API calls with `--all`.

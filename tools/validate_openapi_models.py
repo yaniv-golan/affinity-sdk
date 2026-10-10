@@ -90,6 +90,11 @@ MODEL_MAPPINGS: dict[str, tuple[str, ...]] = {
     "FileSearchResult": ("files.SearchResult",),  # POST /v2/files/search
     "SemanticSearchResult": ("SemanticSearchResult",),  # POST /v2/semantic-search
     "SemanticCompany": ("companies.SemanticSearchCompany",),
+    # GET /v2/field-value-changes (type/value are per-variant, see KNOWN_EXTENSIONS)
+    "FieldValueChangeV2": ("fieldValueChanges.FieldValueChangeBase",),
+    "FieldValueChangeField": ("fieldValueChanges.Field",),
+    "FieldValueChangeEntity": ("fieldValueChanges.EntityReference",),
+    "FieldValueChangeListEntry": ("fieldValueChanges.ListEntry",),
 }
 
 # SDK models deliberately not checked, with the reason.
@@ -99,7 +104,7 @@ SKIPPED_MODELS: dict[str, str] = {
     "Reminder": "V1 reminder payload; V2 reminders.* not modelled",
     "WebhookSubscription": "V1 webhook payload; V2 webhooks.Webhook not modelled",
     "EntityFile": "V1 file payload; V2 files.File not modelled",
-    "FieldValueChange": "V1 field-value-change payload; V2 fieldValueChanges.* not modelled",
+    "FieldValueChange": "V1 field-value-change payload (V2 is FieldValueChangeV2)",
     "FieldValue": "V1 field-value row; V2 FieldValue is the nested value union (other concept)",
     "ListPermission": "V1-only (additionalPermissions)",
     "DropdownOption": "spans V1 dropdown options and extracted V2 values; no single V2 schema",
@@ -110,6 +115,8 @@ SKIPPED_MODELS: dict[str, str] = {
 # Known SDK extensions beyond OpenAPI (documented exceptions, by Python field name).
 # An entry whose field is gone from the model or is now in the spec is an error.
 KNOWN_EXTENSIONS: dict[str, set[str]] = {
+    # Declared on each of the 15 typed variants, not on FieldValueChangeBase
+    "FieldValueChangeV2": {"value_type", "value"},
     "Person": {
         "company_ids",
         "opportunity_ids",
@@ -551,6 +558,10 @@ def get_sdk_models() -> dict[str, type]:
     )
     from affinity.models.secondary import (
         EntityFile,
+        FieldValueChangeEntity,
+        FieldValueChangeField,
+        FieldValueChangeListEntry,
+        FieldValueChangeV2,
         Interaction,
         MergeTask,
         Note,
@@ -577,6 +588,10 @@ def get_sdk_models() -> dict[str, type]:
         "FieldMetadata": FieldMetadata,
         "FieldValue": FieldValue,
         "FieldValueChange": FieldValueChange,
+        "FieldValueChangeV2": FieldValueChangeV2,
+        "FieldValueChangeField": FieldValueChangeField,
+        "FieldValueChangeEntity": FieldValueChangeEntity,
+        "FieldValueChangeListEntry": FieldValueChangeListEntry,
         "DropdownOption": DropdownOption,
         # Secondary entities
         "Note": Note,

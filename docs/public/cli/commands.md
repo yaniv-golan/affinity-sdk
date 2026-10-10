@@ -989,7 +989,7 @@ xaffinity field delete field-123
 
 ### `xaffinity field history`
 
-Show field value change history for a specific field on an entity.
+Show field value change history for a field: on one entity, or across all entities.
 
 ```
 xaffinity field history FIELD_ID [OPTIONS]
@@ -1006,15 +1006,54 @@ Options:
 - `--opportunity-id <id>`: Filter by opportunity
 - `--list-entry-id <id>`: Filter by list entry
 - `--action-type <type>`: Filter by action (`create`, `update`, `delete`)
-- `--max-results <n>`: Limit number of results
+- `--changed-after <when>`: Only changes at or after this time (ISO date/datetime, or relative such as `-30d`)
+- `--order desc|asc`: Newest first (default) or oldest first
+- `--max-results <n>`: Limit number of results (the most recent N, or the oldest N with `--order asc`)
 
-Exactly one entity selector is required.
+Use at most one entity selector. Without one, history covers every entity, so
+`--changed-after` and/or `--max-results` is required.
 
 ```bash
 xaffinity field history field-123 --person-id 456
 xaffinity field history field-123 --company-id 789 --action-type update
 xaffinity --json field history field-123 --list-entry-id 101 --max-results 20
+xaffinity field history field-123 --changed-after -30d --order asc
 ```
+
+### `xaffinity field changes`
+
+List field value changes across all entities and fields (V2): what changed, where, who
+changed it, and when. Useful for delta sync and audits.
+
+```
+xaffinity field changes [OPTIONS]
+```
+
+Options (filters combine with AND; repeated values of one option combine with OR):
+
+- `--field-id <id>`: Only this field (repeatable)
+- `--list-entry-id <id>`: Only this list entry (repeatable)
+- `--changer-id <id>`: Only changes made by this person
+- `--changed-after <when>` / `--changed-before <when>`: Time window (at or after / before;
+  rounded outward to whole seconds)
+- `--action-type add|update|delete`: Kind of change (V2 names; `field history` says `create` for `add`)
+- `--order asc|desc`: Oldest first (default) or newest first
+- `--max-results <n>`, `--all`, `--cursor <cursor>`: Paging (one page of up to 100 by default,
+  with `nextCursor`)
+
+There is no person/company/opportunity filter; use `field history` for one entity. Only
+fields with change tracking are included. Each row has `id`, `fieldId`, `fieldName`,
+`fieldEntityType`, `fieldScope` (`global`/`list`), `entityId`, `listEntryId`, `listId`,
+`actionType`, `valueType`, `value`, `changedAt`, `changerId`, `changerName`.
+
+```bash
+xaffinity field changes --field-id field-123 --changed-after -7d
+xaffinity field changes --list-entry-id 101 --order desc --max-results 20
+xaffinity --json field changes --changed-after 2025-06-01T00:00:00Z --all
+```
+
+For delta sync, store the latest `changedAt` you processed and pass it as `--changed-after`
+next time. It is inclusive, so skip ids you already have.
 
 ## Relationship Strengths
 

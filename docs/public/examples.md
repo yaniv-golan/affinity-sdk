@@ -58,7 +58,33 @@ with Affinity.from_env() as client:
     )
 ```
 
-Note: This endpoint is not paginated. For large histories, use narrow filters.
+Without an entity selector, `list()` returns a field's changes for every entity; bound it
+with `changed_after` and/or `limit`. To page through a whole history oldest first, use
+`iter_all()`:
+
+```python
+from datetime import datetime, timezone
+
+with Affinity.from_env() as client:
+    for change in client.field_value_changes.iter_all(
+        FieldId("field-123"), changed_after=datetime(2025, 1, 1, tzinfo=timezone.utc)
+    ):
+        print(change.id, change.changed_at, change.list_entry_id)
+```
+
+For changes across all fields and entities (delta sync, audits by changer), use the V2
+endpoint:
+
+```python
+with Affinity.from_env() as client:
+    for change in client.field_value_changes.iter_global(
+        changed_after=datetime(2025, 6, 1, tzinfo=timezone.utc), action_type="update"
+    ):
+        print(change.field.name, change.entity.id, change.value, change.changer)
+```
+
+`changed_after` is inclusive: when syncing, store the latest `changed_at` you processed and
+skip ids you already have.
 
 ## V1-only exception: company -> people associations
 

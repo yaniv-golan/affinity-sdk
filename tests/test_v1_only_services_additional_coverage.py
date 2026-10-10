@@ -546,10 +546,7 @@ def test_field_value_changes_service_validation_and_request_building() -> None:
     try:
         svc = FieldValueChangesService(http)
 
-        with pytest.raises(ValueError, match="requires exactly one of"):
-            svc.list(FieldId("field-100"))
-
-        with pytest.raises(ValueError, match="got 2"):
+        with pytest.raises(ValueError, match="at most one of"):
             svc.list(
                 FieldId("field-100"),
                 person_id=PersonId(1),

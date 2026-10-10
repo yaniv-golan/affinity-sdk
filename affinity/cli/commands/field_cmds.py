@@ -6,9 +6,12 @@ import sys
 from typing import Any
 
 from affinity.models.entities import FieldCreate, FieldMetadata, FieldValueChange
+from affinity.models.secondary import FieldValueChangeV2
 from affinity.models.types import EntityType, FieldValueType
 from affinity.types import (
+    AnyFieldId,
     CompanyId,
+    EnrichedFieldId,
     FieldId,
     FieldValueChangeAction,
     ListEntryId,
@@ -28,7 +31,7 @@ from ..resolve import resolve_list_selector
 from ..results import CommandContext
 from ..runner import CommandOutput, run_command
 from ..serialization import serialize_model_for_cli
-from ._v1_parsing import parse_choice
+from ._v1_parsing import parse_choice, parse_date_flexible
 
 
 @click.group(name="field", cls=RichGroup)
@@ -111,13 +114,17 @@ def _field_value_change_payload(item: FieldValueChange) -> dict[str, object]:
     }
 
 
-def _validate_exactly_one_selector(
+def _validate_history_selector(
     person_id: int | None,
     company_id: int | None,
     opportunity_id: int | None,
     list_entry_id: int | None,
+    *,
+    changed_after: str | None,
+    max_results: int | None,
 ) -> None:
-    """Validate that exactly one entity selector is provided."""
+    """At most one entity selector; without one, --changed-after or --max-results must bound the
+    query (a field's whole history across all entities can time out)."""
     selectors = {
         "--person-id": person_id,
         "--company-id": company_id,
@@ -126,23 +133,22 @@ def _validate_exactly_one_selector(
     }
     provided = [name for name, value in selectors.items() if value is not None]
 
-    if len(provided) == 1:
-        return
-
-    if len(provided) == 0:
+    if len(provided) > 1:
         raise CLIError(
-            "Exactly one entity selector is required: "
-            "--person-id, --company-id, --opportunity-id, or --list-entry-id.\n"
-            "Example: xaffinity field history field-123 --person-id 456",
+            f"Only one entity selector allowed, but got {len(provided)}: {', '.join(provided)}",
             error_type="usage_error",
             exit_code=2,
         )
 
-    raise CLIError(
-        f"Only one entity selector allowed, but got {len(provided)}: {', '.join(provided)}",
-        error_type="usage_error",
-        exit_code=2,
-    )
+    if not provided and changed_after is None and max_results is None:
+        raise CLIError(
+            "Without an entity selector (--person-id, --company-id, --opportunity-id or "
+            "--list-entry-id), history covers every entity: bound it with --changed-after "
+            "and/or --max-results.\n"
+            "Example: xaffinity field history field-123 --changed-after 2025-01-01",
+            error_type="usage_error",
+            exit_code=2,
+        )
 
 
 @category("read")
@@ -361,6 +367,19 @@ def field_delete(ctx: CLIContext, field_id: str, yes: bool) -> None:
     help="Filter by action type.",
 )
 @click.option(
+    "--changed-after",
+    type=str,
+    default=None,
+    help="Only changes at or after this time (ISO date/datetime or relative, e.g. -30d).",
+)
+@click.option(
+    "--order",
+    type=click.Choice(["desc", "asc"]),
+    default="desc",
+    show_default=True,
+    help="Newest first (desc) or oldest first (asc).",
+)
+@click.option(
     "--max-results", "--limit", "-n", type=int, default=None, help="Limit number of results."
 )
 @output_options
@@ -375,6 +394,8 @@ def field_history(
     opportunity_id: int | None,
     list_entry_id: int | None,
     action_type: str | None,
+    changed_after: str | None,
+    order: str,
     max_results: int | None,
 ) -> None:
     """Show field value change history.
@@ -382,11 +403,17 @@ def field_history(
     FIELD_ID is the field identifier (e.g., 'field-123').
     Use 'xaffinity field ls --list-id LIST' to find field IDs.
 
-    Exactly one entity selector is required.
+    Give one entity selector to see that entity's history. Without one, changes for every
+    entity are returned; then --changed-after and/or --max-results is required.
+    --max-results returns the most recent N (or the oldest N with --order asc).
+    Action types are create/update/delete. For changes across all fields and entities, see
+    `xaffinity field changes`.
 
     Examples:
 
     - `xaffinity field history field-123 --person-id 456`
+
+    - `xaffinity field history field-123 --changed-after 2025-01-01 --order asc`
 
     - `xaffinity field history field-260415 --list-entry-id 789 --action-type update`
 
@@ -394,7 +421,23 @@ def field_history(
     """
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
-        _validate_exactly_one_selector(person_id, company_id, opportunity_id, list_entry_id)
+        _validate_history_selector(
+            person_id,
+            company_id,
+            opportunity_id,
+            list_entry_id,
+            changed_after=changed_after,
+            max_results=max_results,
+        )
+        if max_results is not None and max_results < 1:
+            raise CLIError(
+                "--max-results must be at least 1.", error_type="usage_error", exit_code=2
+            )
+        changed_after_dt = (
+            parse_date_flexible(changed_after, label="--changed-after")
+            if changed_after is not None
+            else None
+        )
 
         client = ctx.get_client(warnings=warnings)
         changes = client.field_value_changes.list(
@@ -404,9 +447,12 @@ def field_history(
             opportunity_id=OpportunityId(opportunity_id) if opportunity_id is not None else None,
             list_entry_id=ListEntryId(list_entry_id) if list_entry_id is not None else None,
             action_type=_ACTION_TYPE_MAP[action_type] if action_type else None,
+            changed_after=changed_after_dt,
+            limit=max_results,
+            order_by="asc" if order == "asc" else "desc",
         )
 
-        # Apply client-side max_results limit
+        # Keep the client-side limit too, in case the server returns more
         if max_results is not None:
             changes = changes[:max_results]
 
@@ -414,7 +460,7 @@ def field_history(
 
         # Build CommandContext for richer output metadata
         # Per spec: required params are inputs, optional params are modifiers
-        # fieldId and exactly one entity selector are required → both are inputs
+        # fieldId is required; the entity selector (if any) is an input too
         inputs: dict[str, object] = {"fieldId": field_id}
         if person_id is not None:
             inputs["personId"] = person_id
@@ -428,6 +474,10 @@ def field_history(
         modifiers: dict[str, object] = {}
         if action_type is not None:
             modifiers["actionType"] = action_type
+        if changed_after_dt is not None:
+            modifiers["changedAfter"] = changed_after_dt.isoformat()
+        if order != "desc":
+            modifiers["order"] = order
         if max_results is not None:
             modifiers["maxResults"] = max_results
 
@@ -442,6 +492,217 @@ def field_history(
         )
 
     run_command(ctx, command="field history", fn=fn)
+
+
+def _any_field_id(value: str) -> AnyFieldId:
+    """A custom field ID (`field-123` or `123`) or an enriched one (e.g. `affinity-data-x`)."""
+    return (
+        FieldId(value) if value.isdigit() or value.startswith("field-") else EnrichedFieldId(value)
+    )
+
+
+def _field_value_change_v2_payload(item: FieldValueChangeV2) -> dict[str, object]:
+    """Convert a V2 field value change to CLI output format."""
+    changer_name = None
+    if item.changer:
+        changer_name = f"{item.changer.first_name} {item.changer.last_name or ''}".strip() or None
+    return {
+        "id": item.id,
+        "fieldId": item.field.id,
+        "fieldName": item.field.name,
+        "fieldEntityType": item.field.entity_type,
+        "fieldScope": item.field.type,
+        "entityId": item.entity.id,
+        "listEntryId": int(item.list_entry.id) if item.list_entry else None,
+        "listId": int(item.list_entry.list_id) if item.list_entry else None,
+        "actionType": item.action_type,
+        "valueType": item.value_type,
+        "value": item.value,
+        "changedAt": item.changed_at,
+        "changerId": int(item.changer.id) if item.changer else None,
+        "changerName": changer_name,
+    }
+
+
+@category("read")
+@field_group.command(name="changes", cls=RichCommand)
+@click.option(
+    "--field-id",
+    "field_ids",
+    multiple=True,
+    help="Only this field (e.g. field-123); repeat for several.",
+)
+@click.option(
+    "--list-entry-id",
+    "list_entry_ids",
+    type=int,
+    multiple=True,
+    help="Only this list entry; repeat for several.",
+)
+@click.option("--changer-id", type=int, default=None, help="Only changes made by this person.")
+@click.option(
+    "--changed-after",
+    type=str,
+    default=None,
+    help="Only changes at or after this time (ISO date/datetime or relative, e.g. -7d).",
+)
+@click.option(
+    "--changed-before",
+    type=str,
+    default=None,
+    help="Only changes before this time (ISO date/datetime or relative).",
+)
+@click.option(
+    "--action-type",
+    type=click.Choice(["add", "update", "delete"]),
+    default=None,
+    help="Only this kind of change.",
+)
+@click.option(
+    "--order",
+    type=click.Choice(["asc", "desc"]),
+    default="asc",
+    show_default=True,
+    help="Oldest first (asc) or newest first (desc).",
+)
+@click.option("--cursor", type=str, default=None, help="Resume from a previous nextCursor.")
+@click.option(
+    "--max-results", "--limit", "-n", type=int, default=None, help="Stop after N results total."
+)
+@click.option("--all", "-A", "all_pages", is_flag=True, help="Fetch all pages.")
+@output_options
+@click.pass_obj
+@apply_mcp_limits()
+def field_changes(
+    ctx: CLIContext,
+    *,
+    field_ids: tuple[str, ...],
+    list_entry_ids: tuple[int, ...],
+    changer_id: int | None,
+    changed_after: str | None,
+    changed_before: str | None,
+    action_type: str | None,
+    order: str,
+    cursor: str | None,
+    max_results: int | None,
+    all_pages: bool,
+) -> None:
+    """List field value changes across all entities and fields (V2).
+
+    For delta sync and audits: what changed, where, and who changed it. Filters combine with
+    AND; repeated --field-id / --list-entry-id values combine with OR. Action types are
+    add/update/delete (V2 names; `field history` uses create/update/delete). To follow one
+    person, company or opportunity, use `xaffinity field history` instead. Only fields with
+    change tracking are included. Times in filters are rounded outward to whole seconds.
+
+    Without --all or --max-results, one page (up to 100) is returned with a nextCursor.
+
+    Examples:
+
+    - `xaffinity field changes --field-id field-123 --changed-after -7d`
+
+    - `xaffinity field changes --list-entry-id 789 --order desc --max-results 20`
+
+    - `xaffinity field changes --changed-after 2025-06-01T00:00:00Z --all`
+    """
+
+    def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
+        filters_given = bool(
+            field_ids
+            or list_entry_ids
+            or changer_id is not None
+            or changed_after
+            or changed_before
+            or action_type
+            or order != "asc"
+        )
+        if cursor is not None and filters_given:
+            raise CLIError(
+                "--cursor can't be combined with filters or --order; the cursor carries them.",
+                error_type="usage_error",
+                exit_code=2,
+            )
+        if max_results is not None and max_results < 1:
+            raise CLIError(
+                "--max-results must be at least 1.", error_type="usage_error", exit_code=2
+            )
+        after_dt = (
+            parse_date_flexible(changed_after, label="--changed-after") if changed_after else None
+        )
+        before_dt = (
+            parse_date_flexible(changed_before, label="--changed-before")
+            if changed_before
+            else None
+        )
+
+        modifiers: dict[str, object] = {}
+        if field_ids:
+            modifiers["fieldIds"] = list(field_ids)
+        if list_entry_ids:
+            modifiers["listEntryIds"] = list(list_entry_ids)
+        if changer_id is not None:
+            modifiers["changerId"] = changer_id
+        if after_dt is not None:
+            modifiers["changedAfter"] = after_dt.isoformat()
+        if before_dt is not None:
+            modifiers["changedBefore"] = before_dt.isoformat()
+        if action_type is not None:
+            modifiers["actionType"] = action_type
+        if order != "asc":
+            modifiers["order"] = order
+        if cursor is not None:
+            modifiers["cursor"] = cursor
+        if max_results is not None:
+            modifiers["maxResults"] = max_results
+        if all_pages:
+            modifiers["allPages"] = True
+        cmd_context = CommandContext(name="field changes", inputs={}, modifiers=modifiers)
+
+        client = ctx.get_client(warnings=warnings)
+        service = client.field_value_changes
+        page_limit = min(max_results, 100) if max_results is not None else None
+        results: list[dict[str, object]] = []
+        next_cursor: str | None = None
+        page = (
+            service.list_global(cursor=cursor)
+            if cursor is not None
+            else service.list_global(
+                field_id=[_any_field_id(f) for f in field_ids] or None,
+                list_entry_id=list(list_entry_ids) or None,
+                changer_id=changer_id,
+                changed_after=after_dt,
+                changed_before=before_dt,
+                action_type=action_type,  # type: ignore[arg-type]
+                order="desc" if order == "desc" else "asc",
+                limit=page_limit,
+            )
+        )
+        while True:
+            for item in page.data:
+                results.append(_field_value_change_v2_payload(item))
+            next_cursor = page.next_cursor
+            if max_results is not None and len(results) >= max_results:
+                if len(results) > max_results:
+                    # Stopped inside a page: its cursor would skip the rest of it
+                    results = results[:max_results]
+                    next_cursor = None
+                    warnings.append(
+                        "Results limited by --max-results. Use --all to fetch all results."
+                    )
+                break
+            if not next_cursor or not (all_pages or max_results is not None):
+                break
+            page = service.list_global(cursor=next_cursor)
+
+        pagination = {"nextCursor": next_cursor, "prevCursor": None} if next_cursor else None
+        return CommandOutput(
+            data={"fieldValueChanges": results},
+            context=cmd_context,
+            pagination=pagination,
+            api_called=True,
+        )
+
+    run_command(ctx, command="field changes", fn=fn)
 
 
 # ---------------------------------------------------------------------------

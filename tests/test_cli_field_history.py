@@ -166,8 +166,8 @@ def test_field_history_with_max_results(respx_mock: respx.MockRouter) -> None:
     assert len(payload["data"]["fieldValueChanges"]) == 2
 
 
-def test_field_history_requires_exactly_one_selector() -> None:
-    """Error when no entity selector or multiple selectors provided."""
+def test_field_history_needs_a_bound_without_a_selector_and_at_most_one_selector() -> None:
+    """No selector and no bound, or several selectors: usage error before any request."""
     runner = CliRunner()
 
     # No selector
@@ -177,7 +177,7 @@ def test_field_history_requires_exactly_one_selector() -> None:
         env={"AFFINITY_API_KEY": "test-key"},
     )
     assert result.exit_code == 2
-    assert "exactly one" in result.output.lower()
+    assert "--changed-after" in result.output
 
     # Multiple selectors
     result = runner.invoke(
@@ -215,3 +215,161 @@ def test_field_history_missing_field_id() -> None:
     assert result.exit_code == 2
     # Click reports missing argument
     assert "field_id" in result.output.lower() or "missing argument" in result.output.lower()
+
+
+V1_URL = "https://api.affinity.co/field-value-changes"
+V2_URL = "https://api.affinity.co/v2/field-value-changes"
+ENV = {"AFFINITY_API_KEY": "test-key"}
+
+
+def _v1_row(change_id: int) -> dict[str, object]:
+    return {
+        "id": change_id,
+        "field_id": 123,
+        "entity_id": 456,
+        "list_entry_id": 7,
+        "action_type": 0,
+        "value": "x",
+        "changed_at": "2024-01-15T03:30:00.123456-07:00",
+        "changer": None,
+    }
+
+
+def test_field_history_without_selector_sends_bound_order_and_limit(
+    respx_mock: respx.MockRouter,
+) -> None:
+    route = respx_mock.get(V1_URL).mock(return_value=Response(200, json=[_v1_row(1), _v1_row(2)]))
+    result = CliRunner().invoke(
+        cli,
+        [
+            "--json",
+            "field",
+            "history",
+            "field-123",
+            "--changed-after",
+            "2024-01-01T00:00:00Z",
+            "--order",
+            "asc",
+            "--max-results",
+            "1",
+        ],
+        env=ENV,
+    )
+    assert result.exit_code == 0, result.output
+    params = dict(route.calls[0].request.url.params)
+    assert params == {
+        "field_id": "123",
+        "changed_after": "2024-01-01T00:00:00.000000Z",
+        "order_by": "asc",
+        "limit": "1",
+    }
+    payload = json.loads(result.output.strip())
+    assert [c["id"] for c in payload["data"]["fieldValueChanges"]] == [1]  # client slice too
+    assert payload["command"]["inputs"] == {"fieldId": "field-123"}
+    assert payload["command"]["modifiers"]["order"] == "asc"
+
+
+def test_field_history_max_results_alone_is_a_bound(respx_mock: respx.MockRouter) -> None:
+    route = respx_mock.get(V1_URL).mock(return_value=Response(200, json=[]))
+    result = CliRunner().invoke(
+        cli, ["--json", "field", "history", "field-123", "--max-results", "5"], env=ENV
+    )
+    assert result.exit_code == 0, result.output
+    assert dict(route.calls[0].request.url.params) == {
+        "field_id": "123",
+        "limit": "5",
+        "order_by": "desc",
+    }
+
+
+def _v2_row(change_id: int) -> dict[str, object]:
+    return {
+        "id": change_id,
+        "field": {"id": "field-123", "entityType": "company", "name": "Status", "type": "list"},
+        "entity": {"id": 456},
+        "listEntry": {"id": 7, "listId": 9},
+        "changer": {"id": 5, "firstName": "Ann", "lastName": "Lee", "emailAddress": "a@x.co"},
+        "changedAt": "2024-01-15T10:30:00Z",
+        "actionType": "update",
+        "type": "dropdown",
+        "value": {"referenceType": "entity", "id": 3, "text": "Won"},
+    }
+
+
+def test_field_changes_one_page_with_cursor(respx_mock: respx.MockRouter) -> None:
+    next_url = f"{V2_URL}?cursor=abc"
+    route = respx_mock.get(V2_URL).mock(
+        return_value=Response(200, json={"data": [_v2_row(1)], "pagination": {"nextUrl": next_url}})
+    )
+    result = CliRunner().invoke(
+        cli,
+        [
+            "--json",
+            "field",
+            "changes",
+            "--field-id",
+            "field-123",
+            "--field-id",
+            "affinity-data-location",
+            "--list-entry-id",
+            "7",
+            "--action-type",
+            "update",
+            "--changed-after",
+            "2024-01-01",
+            "--order",
+            "desc",
+        ],
+        env=ENV,
+    )
+    assert result.exit_code == 0, result.output
+    params = dict(route.calls[0].request.url.params)
+    assert params["filter"].startswith(
+        "(field.id=field-123 | field.id=affinity-data-location) & listEntry.id=7 & changedAt>="
+    )
+    assert params["filter"].endswith(" & actionType=update")
+    assert params["orderBy"] == "-changedAt"
+    payload = json.loads(result.output.strip())
+    row = payload["data"]["fieldValueChanges"][0]
+    assert row == {
+        "id": 1,
+        "fieldId": "field-123",
+        "fieldName": "Status",
+        "fieldEntityType": "company",
+        "fieldScope": "list",
+        "entityId": 456,
+        "listEntryId": 7,
+        "listId": 9,
+        "actionType": "update",
+        "valueType": "dropdown",
+        "value": {"referenceType": "entity", "id": 3, "text": "Won"},
+        "changedAt": "2024-01-15T10:30:00Z",
+        "changerId": 5,
+        "changerName": "Ann Lee",
+    }
+    assert payload["meta"]["pagination"]["nextCursor"] == next_url
+
+
+def test_field_changes_max_results_pages_and_drops_a_mid_page_cursor(
+    respx_mock: respx.MockRouter,
+) -> None:
+    page1 = {"data": [_v2_row(1), _v2_row(2)], "pagination": {"nextUrl": f"{V2_URL}?cursor=p2"}}
+    page2 = {"data": [_v2_row(3), _v2_row(4)], "pagination": {"nextUrl": f"{V2_URL}?cursor=p3"}}
+    respx_mock.get(V2_URL, params={"cursor": "p2"}).mock(return_value=Response(200, json=page2))
+    first = respx_mock.get(V2_URL).mock(return_value=Response(200, json=page1))
+    result = CliRunner().invoke(cli, ["--json", "field", "changes", "--max-results", "3"], env=ENV)
+    assert result.exit_code == 0, result.output
+    assert dict(first.calls[0].request.url.params) == {"limit": "3"}
+    payload = json.loads(result.output.strip())
+    assert [r["id"] for r in payload["data"]["fieldValueChanges"]] == [1, 2, 3]
+    assert payload["meta"].get("pagination") is None
+
+
+def test_field_changes_cursor_cannot_be_combined_with_filters() -> None:
+    result = CliRunner().invoke(
+        cli,
+        ["--json", "field", "changes", "--cursor", "https://x", "--changer-id", "5"],
+        env=ENV,
+    )
+    assert result.exit_code == 2
+    assert "--cursor" in result.output

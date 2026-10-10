@@ -283,15 +283,30 @@
       "whenToUse": "See what custom fields exist on a list. Helps understand available filter fields and dropdown options.",
       "relatedCommands": ["list ls", "entry field"]
     },
+    "field changes": {
+      "whenToUse": "List field value changes across all entities and fields (V2): what changed, in which list entry, who changed it, and when. Use for delta sync ('what changed since X'), audits by changer, or recent activity on a field or list entry. Filters combine with AND: --field-id and --list-entry-id (repeat for OR), --changer-id, --changed-after, --changed-before, --action-type add|update|delete (V2 names). Oldest first by default; --order desc for newest first. No person/company/opportunity filter: use 'field history' for one entity.",
+      "examples": [
+        "field changes --field-id field-123456 --changed-after -7d",
+        "field changes --list-entry-id 999 --order desc --max-results 20",
+        "field changes --changer-id 555 --changed-after 2025-06-01 --max-results 200"
+      ],
+      "relatedCommands": ["field history", "field history-bulk", "field ls"],
+      "mcpBehavior": {
+        "limitEnforced": true,
+        "allFlagBlocked": true,
+        "defaultLimit": 1000,
+        "maxLimit": 10000
+      }
+    },
     "field history": {
-      "whenToUse": "Audit who changed a field value and when for a SINGLE entity. Use to track status changes, see modification timestamps, or investigate field value history. REQUIRES exactly one entity selector: --person-id, --company-id, --opportunity-id, or --list-entry-id. For bulk history across a whole list, use 'field history-bulk' instead.",
-      "requiredOneOf": [["--person-id", "--company-id", "--opportunity-id", "--list-entry-id"]],
+      "whenToUse": "Audit who changed a field value and when. With one entity selector (--person-id, --company-id, --opportunity-id or --list-entry-id) it shows that entity's history; without one it covers every entity and needs --changed-after and/or --max-results. --max-results gives the most recent N (--order asc: the oldest N). Action types: create/update/delete. For changes across many fields, or by changer or time window, use 'field changes'; for one field across a whole list, 'field history-bulk'.",
       "examples": [
         "field history field-123456 --person-id 789",
         "field history field-123456 --company-id 456",
-        "field history field-123456 --list-entry-id 999 --max-results 50"
+        "field history field-123456 --list-entry-id 999 --max-results 50",
+        "field history field-123456 --changed-after -30d --order asc"
       ],
-      "relatedCommands": ["field ls", "field history-bulk", "person get", "company get", "opportunity get", "entry get"],
+      "relatedCommands": ["field ls", "field changes", "field history-bulk", "person get", "company get", "opportunity get", "entry get"],
       "mcpBehavior": {
         "limitEnforced": true,
         "defaultLimit": 1000,

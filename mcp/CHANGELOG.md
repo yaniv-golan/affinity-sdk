@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.26.0] - 2026-10-10
+
+### Highlights
+
+**Org-wide field history.** Claude can ask what changed across the workspace (`field changes`:
+by field, list entry, changer, time window and action) and a field's history across all
+entities (`field history` without an entity). Requires CLI 1.23.0.
+
+### Changed
+
+- Registry: new `field changes`; `field history` no longer requires an entity selector
+  (`--changed-after`, `--order`); updated guidance in the data model and the pipeline-history
+  skill (sort `changedAt` as a time, ties by `id`).
+
 ## [1.25.2] - 2026-10-10
 
 ### Highlights
