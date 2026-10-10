@@ -1591,6 +1591,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#xaffinity-field-history-bulk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity field history-bulk
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#xaffinity-field-options" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4444,6 +4455,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#xaffinity-field-history-bulk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity field history-bulk
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#xaffinity-field-options" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5435,6 +5457,19 @@ xaffinity<span class="w"> </span>--json<span class="w"> </span>field<span class=
 </code></pre></div>
 <p>For delta sync, store the latest <code>changedAt</code> you processed and pass it as <code>--changed-after</code>
 next time. It is inclusive, so skip ids you already have.</p>
+<h3 id="xaffinity-field-history-bulk"><code>xaffinity field history-bulk</code><a class="headerlink" href="#xaffinity-field-history-bulk" title="Permanent link">&para;</a></h3>
+<p>A field's change history for many list entries at once (pipeline analysis).</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span>history-bulk<span class="w"> </span>field-358027<span class="w"> </span>--list-id<span class="w"> </span>Dealflow<span class="w"> </span>--all<span class="w"> </span>--dry-run
+xaffinity<span class="w"> </span>field<span class="w"> </span>history-bulk<span class="w"> </span>field-358027<span class="w"> </span>--list-id<span class="w"> </span>Dealflow<span class="w"> </span>--all
+xaffinity<span class="w"> </span>field<span class="w"> </span>history-bulk<span class="w"> </span>field-358027<span class="w"> </span>--list-id<span class="w"> </span>Dealflow<span class="w"> </span>--max-results<span class="w"> </span><span class="m">50</span>
+xaffinity<span class="w"> </span>field<span class="w"> </span>history-bulk<span class="w"> </span>field-358027<span class="w"> </span>--list-entry-ids<span class="w"> </span><span class="m">100</span>,200,300
+</code></pre></div>
+<p>With <code>--all</code> on a field that belongs to the list, and a list of 100 or more entries, the history
+is read field-wide: one call per 500 changes instead of one per entry, with the same rows.
+Otherwise there is one call per entry, 15 at a time. <code>--strategy field|entries</code> forces either;
+the dry run shows the <code>strategy</code> and <code>estimatedApiCalls</code> (the per-entry worst case). Changes on
+entries no longer on the list are left out (a warning says how many). Rows are sorted by
+<code>changedAt</code>.</p>
 <h3 id="xaffinity-field-options"><code>xaffinity field options</code><a class="headerlink" href="#xaffinity-field-options" title="Permanent link">&para;</a></h3>
 <p>Options of a dropdown, ranked-dropdown or status field.</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span>options<span class="w"> </span>ls<span class="w"> </span>field-123<span class="w"> </span>--list-id<span class="w"> </span>Dealflow<span class="w">        </span><span class="c1"># list field (also opportunity fields)</span>
