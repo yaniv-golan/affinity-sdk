@@ -1,8 +1,12 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="1.27.0"
-CLI_MAX_VERSION="1.27.0"
+CLI_MIN_VERSION="1.28.0"
+CLI_MAX_VERSION="1.28.0"
+
+# MCP 1.31.0 requires CLI 1.28.0 for:
+# - `field history-bulk --strategy field` never falling back to per-entry calls (the gateway
+#   accepts --all only with it, as a bounded field-wide read).
 
 # MCP 1.30.1: no new CLI requirements (gateway, dossier and docs fixes).
 

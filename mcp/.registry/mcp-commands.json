@@ -345,7 +345,6 @@
       "limitConfig": {
         "default": 100,
         "max": 500,
-        "enforceMax": true,
         "allowUnboundedWith": ["--strategy", "field"]
       },
       "whenToUse": "Fetch field change history across an entire list or set of entries. Use for pipeline analysis (stage transitions, funnel conversion, time-in-stage). ALWAYS use --dry-run first. Whole list: --list-id with --all --strategy field reads a field of that list field-wide in a few calls (via MCP --all is accepted only with --strategy field; a global or enriched field is a usage error). Otherwise --max-results N (at most 500 via MCP) or --list-entry-ids: each entry = 1 API call.",
@@ -466,8 +465,8 @@
       }
     },
     "transcript get": {
-      "limitConfig": {"default": 200, "max": 2000},
-      "whenToUse": "Read a meeting transcript: its AI Notetaker note and dialogue fragments (content, speaker, start/end offsets). Fetches up to --max-results fragments in order (default 200 here); fragmentsTotal says how many exist. Transcripts are meeting dialogue: quote only what the user needs.",
+      "limitConfig": {"default": 200, "max": 10000},
+      "whenToUse": "Read a meeting transcript: its AI Notetaker note and dialogue fragments (content, speaker, start/end offsets). Without --max-results it returns the first fragments Affinity previews; --max-results N fetches up to N in order (at most 10000); fragmentsTotal says how many exist. Transcripts are meeting dialogue: quote only what the user needs.",
       "examples": [
         "transcript get 123",
         "transcript get 123 --max-results 500"

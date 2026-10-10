@@ -20,7 +20,8 @@ these are reads except `field options create|update|delete`.
   by `id`. Each row's `value` is the value at that point; derive transitions from consecutive rows.
 - `history-bulk --all` on a field of that list with 100+ entries reads the field's history in a few
   calls (dry run: `"strategy": "field"`); otherwise one call per entry. Check the dry run's
-  `estimatedApiCalls` before a big run.
+  `estimatedApiCalls` before a big run. `--strategy field` insists on the field-wide read: if it
+  fails, the command fails (retry it) instead of making one call per entry.
 
 ## Org-wide activity (not tied to one entity)
 

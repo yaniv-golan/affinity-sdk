@@ -428,24 +428,20 @@ is_destructive() {
 # Proactive Output Limiting
 # ==============================================================================
 
-# Default and maximum limits for pagination (aligned with query tool)
-CLI_GATEWAY_DEFAULT_LIMIT="${CLI_GATEWAY_DEFAULT_LIMIT:-1000}"
-CLI_GATEWAY_MAX_LIMIT="${CLI_GATEWAY_MAX_LIMIT:-10000}"
-
-# Apply limit cap to argv - block unbounded flags and set env vars for Python enforcement
-# This prevents large outputs before they happen (more efficient than post-hoc truncation)
+# Per-command limits come from the registry's limitConfig (flag, aliases, max, unbounded flag,
+# allowUnboundedWith). Without a limit flag a command returns its first page and nextCursor, so
+# nothing is injected; a value above the command's max is refused (not clamped: the agent must
+# not believe it got what it asked for).
+#
 # Args: command argv...
-# Outputs: Modified argv (NUL-delimited) to stdout
-# Usage (bash 3.x compatible):
-#   new_argv=()
-#   while IFS= read -r -d '' item; do new_argv+=("$item"); done < <(apply_limit_cap "$command" "${argv[@]}")
-#   argv=("${new_argv[@]}")
+# Outputs: argv (NUL-delimited) on stdout; on refusal the error result, and returns 1.
+# Usage (bash 3.x compatible; check the status, the output is the error on refusal):
+#   if ! (apply_limit_cap "$command" "${argv[@]}") >"$file"; then cat "$file"; exit 0; fi
 apply_limit_cap() {
     local cmd="$1"
     shift
     local argv=("$@")
 
-    # Get limit config from registry
     local limit_config
     limit_config=$(jq_tool -c --arg cmd "$cmd" \
         '.commands[] | select(.name == $cmd) | .limitConfig // empty' \
@@ -457,13 +453,18 @@ apply_limit_cap() {
         return 0
     fi
 
-    local unbounded_aliases
-    # Get all aliases for the unbounded flag (e.g., ["--all", "-A"])
-    unbounded_aliases=$(echo "$limit_config" | jq_tool -r '.unboundedFlagAliases // [] | .[]')
+    local cmd_max has_cursor more
+    cmd_max=$(echo "$limit_config" | jq_tool -r '.max')
+    has_cursor=$(jq_tool -r --arg cmd "$cmd" \
+        '[.commands[] | select(.name == $cmd) | .parameters // {} | has("--cursor")] | any' \
+        "$REGISTRY_FILE")
+    more=""
+    [[ "$has_cursor" == "true" ]] && more=", then --cursor with the previous nextCursor for more"
 
-    # --all is acceptable only with the option + value in allowUnboundedWith (e.g.
+    # --all is refused unless the option + value in allowUnboundedWith is present (e.g.
     # `--strategy field` for field history-bulk: a bounded field-wide read)
-    local allow_opt allow_val allowed=false i
+    local unbounded_aliases allow_opt allow_val allowed=false i arg alias
+    unbounded_aliases=$(echo "$limit_config" | jq_tool -r '.unboundedFlagAliases // [] | .[]')
     allow_opt=$(echo "$limit_config" | jq_tool -r '.allowUnboundedWith[0] // empty')
     allow_val=$(echo "$limit_config" | jq_tool -r '.allowUnboundedWith[1] // empty')
     if [[ -n "$allow_opt" && ${#argv[@]} -gt 0 ]]; then
@@ -474,9 +475,6 @@ apply_limit_cap() {
             fi
         done
     fi
-
-    # Block unbounded flag (--all and aliases like -A) with clear error
-    # Note: Guard for Bash 3.2 compatibility - empty arrays fail with set -u
     if [[ -n "$unbounded_aliases" && "$allowed" != "true" && ${#argv[@]} -gt 0 ]]; then
         for arg in "${argv[@]}"; do
             for alias in $unbounded_aliases; do
@@ -484,11 +482,11 @@ apply_limit_cap() {
                     if [[ -n "$allow_opt" ]]; then
                         mcp_error "validation_error" \
                             "$alias is allowed via MCP only with $allow_opt $allow_val" \
-                            --hint "Add $allow_opt $allow_val (dry run first), or use --max-results N"
+                            --hint "Add $allow_opt $allow_val (dry run first), or use --max-results N (max: $cmd_max)"
                     else
                         mcp_error "validation_error" \
                             "$alias is not allowed via MCP (prevents unbounded scans)" \
-                            --hint "Use --max-results N (max: $CLI_GATEWAY_MAX_LIMIT), or use --cursor for paginated iteration"
+                            --hint "Use --max-results N (max: $cmd_max)$more"
                     fi
                     return 1
                 fi
@@ -496,12 +494,11 @@ apply_limit_cap() {
         done
     fi
 
-    # enforceMax: refuse a limit above the command's max (its CLI doesn't cap it)
-    local enforce_max cmd_max limit_aliases value
-    enforce_max=$(echo "$limit_config" | jq_tool -r '.enforceMax // false')
-    if [[ "$enforce_max" == "true" && ${#argv[@]} -gt 0 ]]; then
-        cmd_max=$(echo "$limit_config" | jq_tool -r '.max')
-        limit_aliases=$(echo "$limit_config" | jq_tool -r '.flagAliases // [] | .[]')
+    # A limit above the command's max is refused. Compared as digit strings first, so a huge
+    # value can't overflow bash arithmetic past the check.
+    local limit_aliases value digits
+    limit_aliases=$(echo "$limit_config" | jq_tool -r '.flagAliases // [] | .[]')
+    if [[ ${#argv[@]} -gt 0 ]]; then
         for ((i = 0; i < ${#argv[@]}; i++)); do
             value=""
             for alias in $limit_aliases; do
@@ -511,21 +508,17 @@ apply_limit_cap() {
                     value="${argv[i]#"$alias="}"
                 fi
             done
-            if [[ "$value" =~ ^[0-9]+$ ]] && ((10#$value > cmd_max)); then
+            [[ "$value" =~ ^[0-9]+$ ]] || continue
+            digits="${value#"${value%%[!0]*}"}"
+            if ((${#digits} > ${#cmd_max})) || { ((${#digits} == ${#cmd_max})) && [[ "$digits" > "$cmd_max" ]]; }; then
                 mcp_error "validation_error" \
                     "$cmd: --max-results is at most $cmd_max via MCP" \
-                    --hint "Use $cmd_max or fewer; discover-commands describes the command's limits"
+                    --hint "Use $cmd_max or fewer$more"
                 return 1
             fi
         done
     fi
 
-    # Set env vars for Python-side enforcement
-    export AFFINITY_MCP_MAX_LIMIT="$CLI_GATEWAY_MAX_LIMIT"
-    export AFFINITY_MCP_DEFAULT_LIMIT="$CLI_GATEWAY_DEFAULT_LIMIT"
-
-    # Output NUL-delimited for safe consumption with mapfile
-    # Only output if array is non-empty (empty printf '%s\0' would create one empty element)
     [[ ${#argv[@]} -gt 0 ]] && printf '%s\0' "${argv[@]}"
     return 0
 }

@@ -61,11 +61,13 @@ Read-only operations (search, lookup, briefings) can be used proactively to help
 
 The MCP gateway caps how much a command may fetch:
 
-- Always pass `--max-results` with the number of records you need; `discover-commands` shows a
-  sensible size per command (`limitConfig`, e.g. `note feed` 20).
+- Without `--max-results` a list command returns its first page and a `nextCursor`. Pass the
+  number you need, up to the command's max (`discover-commands` → `limitConfig`, e.g.
+  `note feed` 200); above the max is refused.
 - `--all` is refused, except `field history-bulk --all --strategy field` (dry run first). To get
   more, pass `--cursor` with the previous `nextCursor`.
-- Large results are trimmed to fit; the result says how many rows were kept.
+- Large results are trimmed to fit; the result says how many rows were kept, and drops
+  `nextCursor` (it would skip the trimmed rows): re-run with a smaller `--max-results`.
 
 ## Available Tools
 

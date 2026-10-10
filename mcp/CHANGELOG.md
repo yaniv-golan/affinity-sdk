@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.31.0] - 2026-10-11
+
+### Highlights
+
+**Limits that apply.** Each command's limits from the registry are now enforced: a
+`--max-results` above the command's max is refused (e.g. `note feed` 200, `list export` 10000).
+Without `--max-results` a list command returns its first page and `nextCursor`. The documented
+"1000 injected / 10000 capped" never reached the CLI and is gone from the docs. Requires CLI
+1.28.0.
+
+### Fixed
+
+- A `--max-results` with more digits than bash arithmetic holds passed the max check; values are
+  now compared as digit strings.
+- A result trimmed to fit kept `nextCursor`, which points past every fetched row, so paging on
+  skipped the trimmed rows. The cursor is now removed and `paginationNote` says how to page.
+
+### Changed
+
+- `--all` / max refusal hints name the command's own max, and mention `--cursor` only for
+  commands that have it.
+- `transcript get` allows up to 10000 fragments (long meetings; it has no cursor).
+- `field history-bulk --all --strategy field` relies on CLI 1.28.0, where a forced field-wide
+  read never falls back to one call per entry.
+- The gateway no longer exports `AFFINITY_MCP_MAX_LIMIT` / `AFFINITY_MCP_DEFAULT_LIMIT` (they
+  never reached the CLI).
+
 ## [1.30.1] - 2026-10-11
 
 ### Fixed

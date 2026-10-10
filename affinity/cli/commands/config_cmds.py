@@ -3,6 +3,7 @@ from __future__ import annotations
 import getpass
 import os
 import re
+import stat
 import sys
 from contextlib import suppress
 from datetime import datetime, timezone
@@ -125,6 +126,10 @@ def _find_existing_key(ctx: CLIContext) -> tuple[bool, str | None]:
     if file_path_env:
         try:
             file_path = Path(file_path_env).expanduser()
+            # A named pipe (e.g. a 1Password mounted .env) is not read here: reading it asks
+            # 1Password for approval. Its existence is the evidence.
+            if file_path.exists() and stat.S_ISFIFO(file_path.stat().st_mode):
+                return True, "file"
             if file_path.is_file() and file_path.read_text(encoding="utf-8").strip():
                 return True, "file"
         except OSError:

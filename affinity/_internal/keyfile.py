@@ -19,8 +19,10 @@ Both helpers are used by:
 from __future__ import annotations
 
 import os
+import re
 import stat
 import subprocess
+import time
 import warnings
 from pathlib import Path
 
@@ -50,28 +52,92 @@ def _posix_permission_warnings(path: Path) -> list[str]:
     return []
 
 
-def read_key_file(path: Path) -> str:
+# How long to wait for a named pipe's writer (1Password asks the user to approve the read).
+FIFO_TIMEOUT_SECONDS = 30.0
+
+_ENV_LINE = re.compile(r"^\s*(?:export\s+)?([A-Z][A-Z0-9_]*)\s*=\s*(.*)$")
+
+
+def _read_fifo(path: Path, timeout: float) -> str:
+    """Read a named pipe whose writer may appear later (e.g. a 1Password mounted .env).
+
+    Opened non-blocking so a missing writer can't hang the process: reads return nothing until
+    a writer has written, and end once it closes.
     """
-    Read an API key from *path*.
+    fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK)
+    chunks: list[bytes] = []
+    deadline = time.monotonic() + timeout
+    try:
+        while True:
+            try:
+                chunk = os.read(fd, 65536)
+            except BlockingIOError:  # a writer is connected but hasn't written yet
+                chunk = None
+            if chunk:
+                chunks.append(chunk)
+            elif chunk == b"" and chunks:  # writer finished
+                break
+            if time.monotonic() > deadline:
+                raise ValueError(
+                    f"Timed out after {timeout:g}s waiting for {path} (a named pipe). If it is "
+                    "a 1Password mounted .env: is 1Password running, and was the read approved?"
+                )
+            if not chunk:
+                time.sleep(0.05)
+    finally:
+        os.close(fd)
+    return b"".join(chunks).decode("utf-8")
+
+
+def _key_from_content(content: str, path: Path) -> str:
+    """The key in *content*: the whole text, or AFFINITY_API_KEY from a .env-style file."""
+    text = content.strip()
+    assignments = [m for m in (_ENV_LINE.match(line) for line in text.splitlines()) if m]
+    if not assignments:
+        return text
+    for match in assignments:
+        if match.group(1) != "AFFINITY_API_KEY":
+            continue
+        value = match.group(2).strip()
+        if value[:1] in ("'", '"') and value[0] in value[1:]:
+            value = value[1 : value.index(value[0], 1)]
+        else:
+            value = value.split(" #", 1)[0].strip()
+        if value:
+            return value
+    raise ValueError(f"No AFFINITY_API_KEY in {path} (it looks like a .env file).")
+
+
+def read_key_file(path: Path, *, fifo_timeout: float | None = None) -> str:
+    """
+    Read an API key from *path*: a file holding just the key, or a .env-style file with an
+    ``AFFINITY_API_KEY=`` line. A named pipe (e.g. a 1Password Environments locally mounted
+    .env) is read when its writer supplies the content, waiting up to *fifo_timeout* seconds
+    (default :data:`FIFO_TIMEOUT_SECONDS`).
 
     Raises:
-        ValueError: if the path does not exist, or if the file exists but is
-            empty after stripping whitespace.
+        ValueError: if the path does not exist, the file is empty after stripping
+            whitespace, a .env-style file has no AFFINITY_API_KEY, or a named pipe gets no
+            content in time.
         UserWarning: (Posix only) if the file's permissions are group- or
             world-readable.  The warning is emitted via :func:`warnings.warn`
             and the value is still returned.
     """
-    if not path.is_file():
+    is_fifo = path.exists() and stat.S_ISFIFO(path.stat().st_mode)
+    if not path.is_file() and not is_fifo:
         raise ValueError(f"AFFINITY_API_KEY_FILE points to non-existent file: {path}")
 
     for warning_text in _posix_permission_warnings(path):
         warnings.warn(warning_text, UserWarning, stacklevel=3)
 
-    content = path.read_text(encoding="utf-8").strip()
-    if not content:
+    if is_fifo:
+        content = _read_fifo(path, FIFO_TIMEOUT_SECONDS if fifo_timeout is None else fifo_timeout)
+    else:
+        content = path.read_text(encoding="utf-8")
+    if not content.strip():
         raise ValueError(f"Empty API key file: {path}")
 
-    return content
+    return _key_from_content(content, path)
 
 
 def read_key_command(cmd: str) -> str:

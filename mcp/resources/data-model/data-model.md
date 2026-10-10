@@ -352,19 +352,17 @@ The MCP gateway protects against expensive unbounded scans:
 
 | Behavior | Details |
 |----------|---------|
-| `--max-results` | Always pass it, sized to what you need (`discover-commands` → `limitConfig`) |
+| No `--max-results` | A list command returns its first page and `nextCursor` |
+| `--max-results` | At most the command's max (`discover-commands` → `limitConfig`); above it is refused |
 | `--all` flag | **Blocked** with error message, except `field history-bulk --all --strategy field` (dry run first) |
 | `field history-bulk --max-results` | At most 500 (each entry is one API call) |
+| Rows trimmed to fit | `nextCursor` is removed (it would skip the trimmed rows): re-run with a smaller `--max-results` |
 
-**To fetch more than 10000 records:**
-Use cursor pagination:
+**To read more:** page with the previous `nextCursor`:
 ```bash
-# First request
-list export Dealflow --max-results 10000
-# Returns: {"nextCursor": "abc123", ...}
-
-# Subsequent requests
-list export Dealflow --cursor abc123 --max-results 10000
+list export Dealflow --max-results 1000
+# Returns: {"meta": {"pagination": {"nextCursor": "abc123"}}, ...}
+list export Dealflow --cursor abc123 --max-results 1000
 ```
 
 

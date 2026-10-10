@@ -609,6 +609,86 @@ def test_failure_before_any_data_falls_back_to_per_entry(monkeypatch: pytest.Mon
 
 
 @pytest.mark.req("CLI-FIELD-HISTORY-BULK")
+def test_forced_field_never_falls_back_to_per_entry(monkeypatch: pytest.MonkeyPatch) -> None:
+    """--strategy field is a promise of a few calls (MCP allows --all only with it)."""
+    from affinity.exceptions import ValidationError
+
+    def boom():
+        raise ValidationError("bad", status_code=422)
+        yield  # pragma: no cover
+
+    seen = _setup(monkeypatch, entries=120, iter_all=boom)
+    code, out = _bulk("--all", "--strategy", "field")
+    assert code == 1, out
+    assert seen["per_entry"] == []
+    assert "--strategy entries" in out["error"]["hint"]
+
+
+@pytest.mark.req("CLI-FIELD-HISTORY-BULK")
+def test_forced_field_when_the_fields_cannot_be_read(monkeypatch: pytest.MonkeyPatch) -> None:
+    from affinity.exceptions import ServerError
+    from affinity.services.lists import ListService
+
+    seen = _setup(monkeypatch, entries=120)
+
+    def broken(self, list_id, **kw):  # noqa: ARG001
+        raise ServerError("down", status_code=503)
+
+    monkeypatch.setattr(ListService, "get_fields", broken)
+    code, out = _bulk("--all", "--strategy", "field")
+    assert code == 1, out
+    assert seen["per_entry"] == [] and seen["field_wide"] == []
+    assert "could not read" in out["error"]["message"].lower()
+
+
+def _broken_get_fields(monkeypatch: pytest.MonkeyPatch, exc: Exception) -> None:
+    from affinity.services.lists import ListService
+
+    def broken(self, list_id, **kw):  # noqa: ARG001
+        raise exc
+
+    monkeypatch.setattr(ListService, "get_fields", broken)
+
+
+@pytest.mark.req("CLI-FIELD-HISTORY-BULK")
+def test_forced_field_dry_run_reports_the_fields_read_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from affinity.exceptions import ServerError
+
+    _setup(monkeypatch, entries=120)
+    _broken_get_fields(monkeypatch, ServerError("down", status_code=503))
+    code, out = _bulk("--all", "--strategy", "field", "--dry-run")
+    assert code == 1, out
+
+
+@pytest.mark.req("CLI-FIELD-HISTORY-BULK")
+def test_auto_falls_back_when_the_fields_cannot_be_read(monkeypatch: pytest.MonkeyPatch) -> None:
+    from affinity.exceptions import ServerError
+
+    seen = _setup(monkeypatch, entries=120)
+    _broken_get_fields(monkeypatch, ServerError("down", status_code=503))
+    code, out = _bulk("--all")
+    assert code == 0, out
+    assert len(seen["per_entry"]) == 120
+    assert any("fetching per entry" in w for w in out["warnings"])
+
+
+@pytest.mark.req("CLI-FIELD-HISTORY-BULK")
+def test_forced_field_auth_error_does_not_fall_back(monkeypatch: pytest.MonkeyPatch) -> None:
+    from affinity.exceptions import AuthenticationError
+
+    def denied():
+        raise AuthenticationError("no", status_code=401)
+        yield  # pragma: no cover
+
+    seen = _setup(monkeypatch, entries=120, iter_all=denied)
+    code, _ = _bulk("--all", "--strategy", "field")
+    assert code != 0
+    assert seen["per_entry"] == []
+
+
+@pytest.mark.req("CLI-FIELD-HISTORY-BULK")
 def test_failure_after_data_is_an_error(monkeypatch: pytest.MonkeyPatch) -> None:
     from affinity.exceptions import ServerError
 

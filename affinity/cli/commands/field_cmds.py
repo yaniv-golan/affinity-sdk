@@ -1069,7 +1069,7 @@ def _same_field(a: object, b: str) -> bool:
 
 
 class _FieldWideUnavailable(Exception):
-    """The field-wide fetch failed before any data arrived: use the per-entry path."""
+    """The field-wide fetch failed before any data arrived (auto: use the per-entry path)."""
 
 
 def _get_entity_name_from_entry(entry: Any) -> str | None:
@@ -1122,8 +1122,9 @@ def _get_entity_name_from_entry(entry: Any) -> str | None:
     show_default=True,
     help=(
         "field: read the list field's whole history in a few paged calls (needs --list-id and "
-        "--all); entries: one call per entry; auto: field for list fields on lists of "
-        f"{_FIELD_WIDE_MIN_ENTRIES}+ entries."
+        "--all; never falls back to per-entry calls); entries: one call per entry; auto: field "
+        f"for list fields on lists of {_FIELD_WIDE_MIN_ENTRIES}+ entries, per entry if that "
+        "fails before any data."
     ),
 )
 @csv_output_options
@@ -1246,6 +1247,14 @@ def field_history_bulk(
             try:
                 list_fields = client.lists.get_fields(ListId(resolved_list_id))
             except AffinityError as exc:
+                if strategy == "field":
+                    # A forced field-wide read never turns into one call per entry
+                    raise CLIError(
+                        f"Could not read the list's fields ({exc}).",
+                        error_type="api_error",
+                        exit_code=1,
+                        hint="Retry, or use --strategy entries (one call per entry).",
+                    ) from exc
                 list_fields = []
                 warnings.append(f"Could not read the list's fields ({exc}); fetching per entry.")
             if any(f.type == "list" and _same_field(f.id, field_id) for f in list_fields):
@@ -1422,6 +1431,13 @@ def field_history_bulk(
             try:
                 all_changes = _field_wide()
             except _FieldWideUnavailable as exc:
+                if strategy == "field":
+                    raise CLIError(
+                        f"Field-wide fetch failed: {exc}",
+                        error_type="api_error",
+                        exit_code=1,
+                        hint="Retry, or use --strategy entries (one call per entry).",
+                    ) from exc
                 warnings.append(f"Field-wide fetch failed ({exc}); fetching per entry instead.")
                 chosen = "entries"
         if chosen == "entries":

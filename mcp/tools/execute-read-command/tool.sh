@@ -258,7 +258,14 @@ if [[ $exit_code -eq 0 ]]; then
             truncate_args+=(--array-path "$array_path")
         fi
         if truncated_result=$(mcp_json_truncate "${truncate_args[@]}"); then
-            xaffinity_result_success "$(printf '%s' "$truncated_result" | jq_tool --argjson cmd "$cmd_json" '. + {executed: $cmd}')"
+            # Trimmed rows: the CLI's nextCursor points past every row it fetched, so paging on
+            # would skip the trimmed ones. Drop it and say how to page instead.
+            xaffinity_result_success "$(printf '%s' "$truncated_result" | jq_tool --argjson cmd "$cmd_json" '
+                if .truncated == true and (.result.meta.pagination? != null) then
+                    .result.meta.pagination |= del(.. | .nextCursor?)
+                    | . + {paginationNote: ("Rows were trimmed to fit, so nextCursor was removed. Re-run with --max-results \(.kept) or fewer and page with nextCursor.")}
+                else . end
+                | . + {executed: $cmd}')"
         else
             # Truncation failed (output too large, can't truncate safely)
             xaffinity_result_error "$(printf '%s' "$truncated_result" | jq_tool --argjson cmd "$cmd_json" '.error + {executed: $cmd}')"

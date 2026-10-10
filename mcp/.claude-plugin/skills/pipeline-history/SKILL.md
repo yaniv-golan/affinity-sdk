@@ -63,7 +63,9 @@ For all entries of a list field (after the dry run):
 execute-read-command(command: "field history-bulk", argv: ["<field-id>", "--list-id", "YOUR_LIST_NAME", "--all", "--strategy", "field"])
 ```
 
-Through MCP, `--all` is accepted only with `--strategy field`.
+Through MCP, `--all` is accepted only with `--strategy field`. It never falls back to one call
+per entry: if the field-wide read fails, retry it rather than switching the whole list to
+`--strategy entries`.
 
 ### Step 5: Analyze
 

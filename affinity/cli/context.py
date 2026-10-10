@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import time
+import warnings as _warnings
 from contextlib import suppress
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -297,10 +298,12 @@ class CLIContext:
             path = Path(self.api_key_file)
             # Check file permissions (Bug #17)
             warnings.extend(config_file_permission_warnings(path))
-            key = path.read_text(encoding="utf-8").strip()
-            if not key:
-                raise CLIError(f"Empty API key file: {path}", exit_code=2, error_type="usage_error")
-            return key
+            try:
+                with _warnings.catch_warnings():  # permission warning already added above
+                    _warnings.simplefilter("ignore")
+                    return read_key_file(path)
+            except ValueError as exc:
+                raise CLIError(str(exc), exit_code=2, error_type="usage_error") from exc
 
         # Step 5: --api-key-stdin flag.
         if self.api_key_stdin:

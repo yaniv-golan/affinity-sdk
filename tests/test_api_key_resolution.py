@@ -11,6 +11,7 @@ All tests are tagged @pytest.mark.req("REQ-AUTH-RESOLVE-NNN") per .cursorrules.
 from __future__ import annotations
 
 import os
+import time
 from pathlib import Path
 from typing import Any
 
@@ -412,6 +413,24 @@ def test_check_key_detects_file_env_var(tmp_path: Path, monkeypatch: pytest.Monk
     found, source = _find_existing_key_with_isolated_paths(tmp_path, monkeypatch)
     assert found is True
     assert source == "file"
+
+
+@pytest.mark.skipif(not hasattr(os, "mkfifo"), reason="needs named pipes")
+def test_check_key_reports_a_fifo_without_reading_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A FIFO (e.g. a 1Password mounted .env) counts as configured; reading it would ask
+    1Password for approval, so check-key doesn't."""
+    fifo = tmp_path / "key.env"
+    os.mkfifo(fifo, 0o600)  # no writer: a read would wait for the timeout
+    monkeypatch.delenv("AFFINITY_API_KEY", raising=False)
+    monkeypatch.delenv("AFFINITY_API_KEY_COMMAND", raising=False)
+    monkeypatch.setenv("AFFINITY_API_KEY_FILE", str(fifo))
+
+    start = time.monotonic()
+    found, source = _find_existing_key_with_isolated_paths(tmp_path, monkeypatch)
+    assert time.monotonic() - start < 5
+    assert (found, source) == (True, "file")
 
 
 @pytest.mark.req("REQ-AUTH-RESOLVE-023")

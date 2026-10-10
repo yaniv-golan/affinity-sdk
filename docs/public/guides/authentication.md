@@ -16,7 +16,7 @@ The SDK resolves the API key through the following chain (first non-empty value 
 
 1. **Explicit constructor arg** — `Affinity(api_key="…")` or `--api-key` CLI flag
 2. **`AFFINITY_API_KEY`** — standard environment variable
-3. **`AFFINITY_API_KEY_FILE`** — path to a file containing the key (12-factor / Docker secrets)
+3. **`AFFINITY_API_KEY_FILE`** — path to a file containing the key, or a `.env` file / named pipe with `AFFINITY_API_KEY=` (12-factor / Docker secrets / 1Password)
 4. **`AFFINITY_API_KEY_COMMAND`** — shell command whose stdout is the key (credential-helper)
 5. **`--api-key-file <path>`** or **`--api-key-stdin`** — CLI flags
 6. **`xaffinity config setup-key`** — saved to the system keychain
@@ -63,6 +63,21 @@ env:
   - name: AFFINITY_API_KEY_FILE
     value: /etc/secrets/affinity-api-key
 ```
+
+The file can hold just the key, or be a `.env` file: the `AFFINITY_API_KEY=` line is used
+(`export` and quotes are allowed). The same applies to `--api-key-file`.
+
+**1Password Environments.** A 1Password locally mounted `.env` is a named pipe that 1Password
+fills when it is read, after you approve the read. Point the variable at it:
+
+```bash
+export AFFINITY_API_KEY_FILE=~/projects/crm/.env   # the path you chose when mounting it
+xaffinity whoami
+```
+
+The CLI waits up to 30 seconds for 1Password (time to approve). If 1Password isn't running or
+the read isn't approved, it stops with a message saying so. The key is never written to disk.
+`config check-key` reports a named pipe as configured without reading it.
 
 On Posix systems, a `UserWarning` is emitted if the file is group- or world-readable
 (mode `0644` or looser). Use `chmod 600` to silence it. The check is a no-op on Windows.
