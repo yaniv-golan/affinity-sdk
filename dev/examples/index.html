@@ -2327,7 +2327,27 @@
         <span class="n">action_type</span><span class="o">=</span><span class="n">FieldValueChangeAction</span><span class="o">.</span><span class="n">UPDATE</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre></div>
-<p>Note: This endpoint is not paginated. For large histories, use narrow filters.</p>
+<p>Without an entity selector, <code>list()</code> returns a field's changes for every entity; bound it
+with <code>changed_after</code> and/or <code>limit</code>. To page through a whole history oldest first, use
+<code>iter_all()</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+
+<span class="k">with</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">field_value_changes</span><span class="o">.</span><span class="n">iter_all</span><span class="p">(</span>
+        <span class="n">FieldId</span><span class="p">(</span><span class="s2">"field-123"</span><span class="p">),</span> <span class="n">changed_after</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">change</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">change</span><span class="o">.</span><span class="n">changed_at</span><span class="p">,</span> <span class="n">change</span><span class="o">.</span><span class="n">list_entry_id</span><span class="p">)</span>
+</code></pre></div>
+<p>For changes across all fields and entities (delta sync, audits by changer), use the V2
+endpoint:</p>
+<div class="highlight"><pre><span></span><code><span class="k">with</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">field_value_changes</span><span class="o">.</span><span class="n">iter_global</span><span class="p">(</span>
+        <span class="n">changed_after</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span> <span class="n">action_type</span><span class="o">=</span><span class="s2">"update"</span>
+    <span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">change</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">change</span><span class="o">.</span><span class="n">entity</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">change</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">change</span><span class="o">.</span><span class="n">changer</span><span class="p">)</span>
+</code></pre></div>
+<p><code>changed_after</code> is inclusive: when syncing, store the latest <code>changed_at</code> you processed and
+skip ids you already have.</p>
 <h2 id="v1-only-exception-company-people-associations">V1-only exception: company -&gt; people associations<a class="headerlink" href="#v1-only-exception-company-people-associations" title="Permanent link">&para;</a></h2>
 <p>V2 does not expose a company -&gt; people association endpoint yet. These helpers use the v1
 organizations API and are documented as exceptions:</p>

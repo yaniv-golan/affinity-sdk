@@ -1502,6 +1502,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#xaffinity-field-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity field changes
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4206,6 +4217,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#xaffinity-field-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity field changes
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -5032,7 +5054,7 @@ xaffinity<span class="w"> </span>field<span class="w"> </span>create<span class=
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span>delete<span class="w"> </span>field-123
 </code></pre></div>
 <h3 id="xaffinity-field-history"><code>xaffinity field history</code><a class="headerlink" href="#xaffinity-field-history" title="Permanent link">&para;</a></h3>
-<p>Show field value change history for a specific field on an entity.</p>
+<p>Show field value change history for a field: on one entity, or across all entities.</p>
 <div class="highlight"><pre><span></span><code>xaffinity field history FIELD_ID [OPTIONS]
 </code></pre></div>
 <p>Arguments:</p>
@@ -5046,13 +5068,44 @@ xaffinity<span class="w"> </span>field<span class="w"> </span>create<span class=
 <li><code>--opportunity-id &lt;id&gt;</code>: Filter by opportunity</li>
 <li><code>--list-entry-id &lt;id&gt;</code>: Filter by list entry</li>
 <li><code>--action-type &lt;type&gt;</code>: Filter by action (<code>create</code>, <code>update</code>, <code>delete</code>)</li>
-<li><code>--max-results &lt;n&gt;</code>: Limit number of results</li>
+<li><code>--changed-after &lt;when&gt;</code>: Only changes at or after this time (ISO date/datetime, or relative such as <code>-30d</code>)</li>
+<li><code>--order desc|asc</code>: Newest first (default) or oldest first</li>
+<li><code>--max-results &lt;n&gt;</code>: Limit number of results (the most recent N, or the oldest N with <code>--order asc</code>)</li>
 </ul>
-<p>Exactly one entity selector is required.</p>
+<p>Use at most one entity selector. Without one, history covers every entity, so
+<code>--changed-after</code> and/or <code>--max-results</code> is required.</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span><span class="nb">history</span><span class="w"> </span>field-123<span class="w"> </span>--person-id<span class="w"> </span><span class="m">456</span>
 xaffinity<span class="w"> </span>field<span class="w"> </span><span class="nb">history</span><span class="w"> </span>field-123<span class="w"> </span>--company-id<span class="w"> </span><span class="m">789</span><span class="w"> </span>--action-type<span class="w"> </span>update
 xaffinity<span class="w"> </span>--json<span class="w"> </span>field<span class="w"> </span><span class="nb">history</span><span class="w"> </span>field-123<span class="w"> </span>--list-entry-id<span class="w"> </span><span class="m">101</span><span class="w"> </span>--max-results<span class="w"> </span><span class="m">20</span>
+xaffinity<span class="w"> </span>field<span class="w"> </span><span class="nb">history</span><span class="w"> </span>field-123<span class="w"> </span>--changed-after<span class="w"> </span>-30d<span class="w"> </span>--order<span class="w"> </span>asc
 </code></pre></div>
+<h3 id="xaffinity-field-changes"><code>xaffinity field changes</code><a class="headerlink" href="#xaffinity-field-changes" title="Permanent link">&para;</a></h3>
+<p>List field value changes across all entities and fields (V2): what changed, where, who
+changed it, and when. Useful for delta sync and audits.</p>
+<div class="highlight"><pre><span></span><code>xaffinity field changes [OPTIONS]
+</code></pre></div>
+<p>Options (filters combine with AND; repeated values of one option combine with OR):</p>
+<ul>
+<li><code>--field-id &lt;id&gt;</code>: Only this field (repeatable)</li>
+<li><code>--list-entry-id &lt;id&gt;</code>: Only this list entry (repeatable)</li>
+<li><code>--changer-id &lt;id&gt;</code>: Only changes made by this person</li>
+<li><code>--changed-after &lt;when&gt;</code> / <code>--changed-before &lt;when&gt;</code>: Time window (at or after / before;
+  rounded outward to whole seconds)</li>
+<li><code>--action-type add|update|delete</code>: Kind of change (V2 names; <code>field history</code> says <code>create</code> for <code>add</code>)</li>
+<li><code>--order asc|desc</code>: Oldest first (default) or newest first</li>
+<li><code>--max-results &lt;n&gt;</code>, <code>--all</code>, <code>--cursor &lt;cursor&gt;</code>: Paging (one page of up to 100 by default,
+  with <code>nextCursor</code>)</li>
+</ul>
+<p>There is no person/company/opportunity filter; use <code>field history</code> for one entity. Only
+fields with change tracking are included. Each row has <code>id</code>, <code>fieldId</code>, <code>fieldName</code>,
+<code>fieldEntityType</code>, <code>fieldScope</code> (<code>global</code>/<code>list</code>), <code>entityId</code>, <code>listEntryId</code>, <code>listId</code>,
+<code>actionType</code>, <code>valueType</code>, <code>value</code>, <code>changedAt</code>, <code>changerId</code>, <code>changerName</code>.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>field<span class="w"> </span>changes<span class="w"> </span>--field-id<span class="w"> </span>field-123<span class="w"> </span>--changed-after<span class="w"> </span>-7d
+xaffinity<span class="w"> </span>field<span class="w"> </span>changes<span class="w"> </span>--list-entry-id<span class="w"> </span><span class="m">101</span><span class="w"> </span>--order<span class="w"> </span>desc<span class="w"> </span>--max-results<span class="w"> </span><span class="m">20</span>
+xaffinity<span class="w"> </span>--json<span class="w"> </span>field<span class="w"> </span>changes<span class="w"> </span>--changed-after<span class="w"> </span><span class="m">2025</span>-06-01T00:00:00Z<span class="w"> </span>--all
+</code></pre></div>
+<p>For delta sync, store the latest <code>changedAt</code> you processed and pass it as <code>--changed-after</code>
+next time. It is inclusive, so skip ids you already have.</p>
 <h2 id="relationship-strengths">Relationship Strengths<a class="headerlink" href="#relationship-strengths" title="Permanent link">&para;</a></h2>
 <h3 id="xaffinity-relationship-strength-get"><code>xaffinity relationship-strength get</code><a class="headerlink" href="#xaffinity-relationship-strength-get" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>relationship-strength<span class="w"> </span>get<span class="w"> </span>--external-id<span class="w"> </span><span class="m">26229794</span>
