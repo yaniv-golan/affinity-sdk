@@ -1,0 +1,6 @@
+# Same as with-key, but no Affinity key anywhere: the CLI reports it isn't configured.
+model: claude-sonnet-5-5
+plugins:
+  local_plugins: [../../../plugins/xaffinity-cli]
+folders:
+  - { from: ../fixtures/workdir-nokey, mode: r }

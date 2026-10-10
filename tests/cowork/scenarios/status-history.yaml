@@ -1,0 +1,15 @@
+# Who changed a list field and when: the skill should route to `field history`.
+name: status-history
+session: ../sessions/with-key.yaml
+fidelity: container
+on_unanswered: fail
+prompt: "Using the Affinity CLI, who changed Acme Robotics' Status on the Dealflow list, and when?"
+assert:
+  - result: success
+  - skill_triggered: 'xaffinity-cli-usage'
+  - no_hook_event_blocked: {event: PreToolUse}
+  - tool_called: {tool: Bash, input: {command: 'xaffinity\b.*field history'}, result: {matches: 'Dana'}}
+  - tool_result_not_contains: 'fake: no fixture'
+  - tool_not_called: {tool: Bash, input: {command: 'xaffinity(?![^|;&]*(--readonly|config|session|--help|--version))'}}
+  - transcript_matches: 'Dana'
+  - transcript_matches: '2026-09-30|Sep(tember)?\.? 30'

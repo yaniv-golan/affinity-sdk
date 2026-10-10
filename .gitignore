@@ -68,3 +68,6 @@ dormant_founders.json
 docs/superpowers/
 
 uv.lock
+
+# cowork-harness test image build output
+tests/cowork/image/dist/

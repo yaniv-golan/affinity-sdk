@@ -1,0 +1,17 @@
+# Which lists a company is on and its list field values: the answer needs `.data.listEntries`
+# from `company get --expand list-entries` (or `list export`), the read a production agent
+# once got wrong.
+name: company-lists-status
+session: ../sessions/with-key.yaml
+fidelity: container
+on_unanswered: fail
+prompt: "Using the Affinity CLI, which lists is Acme Robotics on, and what is its Status on Dealflow?"
+assert:
+  - result: success
+  - skill_triggered: 'xaffinity-cli-usage'
+  - no_hook_event_blocked: {event: PreToolUse}
+  - tool_called: {tool: Bash, input: {command: 'xaffinity\b.*(company (get|ls)|list export)'}, result: {matches: 'Portfolio Watch|Dealflow'}}
+  - tool_result_not_contains: 'fake: no fixture'
+  - tool_not_called: {tool: Bash, input: {command: 'xaffinity(?![^|;&]*(--readonly|config|session|--help|--version))'}}
+  - transcript_matches: 'Due Diligence'
+  - transcript_matches: 'Portfolio Watch'

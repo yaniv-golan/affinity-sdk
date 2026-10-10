@@ -1,0 +1,790 @@
+{
+ "GET /field-value-changes": [
+  {
+   "action_type": 2,
+   "changed_at": "2026-09-30T14:05:00Z",
+   "changer": {
+    "emails": [
+     "dana@vc.example"
+    ],
+    "first_name": "Dana",
+    "id": 4002,
+    "last_name": "Example",
+    "primary_email": "dana@vc.example",
+    "type": 1
+   },
+   "entity_id": 9000001,
+   "field_id": 501,
+   "id": 600002,
+   "list_entry_id": 8001,
+   "value": {
+    "color": 0,
+    "id": 52,
+    "rank": 1,
+    "text": "Due Diligence"
+   }
+  },
+  {
+   "action_type": 0,
+   "changed_at": "2026-08-01T12:00:00Z",
+   "changer": {
+    "emails": [
+     "robin@vc.example"
+    ],
+    "first_name": "Robin",
+    "id": 4001,
+    "last_name": "Tester",
+    "primary_email": "robin@vc.example",
+    "type": 1
+   },
+   "entity_id": 9000001,
+   "field_id": 501,
+   "id": 600001,
+   "list_entry_id": 8001,
+   "value": {
+    "color": 0,
+    "id": 51,
+    "rank": 0,
+    "text": "Sourced"
+   }
+  }
+ ],
+ "GET /field-value-changes?field_id=501&order_by=desc&list_entry_id=8001": [
+  {
+   "action_type": 2,
+   "changed_at": "2026-09-30T14:05:00Z",
+   "changer": {
+    "emails": [
+     "dana@vc.example"
+    ],
+    "first_name": "Dana",
+    "id": 4002,
+    "last_name": "Example",
+    "primary_email": "dana@vc.example",
+    "type": 1
+   },
+   "entity_id": 9000001,
+   "field_id": 501,
+   "id": 600002,
+   "list_entry_id": 8001,
+   "value": {
+    "color": 0,
+    "id": 52,
+    "rank": 1,
+    "text": "Due Diligence"
+   }
+  },
+  {
+   "action_type": 0,
+   "changed_at": "2026-08-01T12:00:00Z",
+   "changer": {
+    "emails": [
+     "robin@vc.example"
+    ],
+    "first_name": "Robin",
+    "id": 4001,
+    "last_name": "Tester",
+    "primary_email": "robin@vc.example",
+    "type": 1
+   },
+   "entity_id": 9000001,
+   "field_id": 501,
+   "id": 600001,
+   "list_entry_id": 8001,
+   "value": {
+    "color": 0,
+    "id": 51,
+    "rank": 0,
+    "text": "Sourced"
+   }
+  }
+ ],
+ "GET /field-value-changes?field_id=501&order_by=desc&organization_id=9000001": [
+  {
+   "action_type": 2,
+   "changed_at": "2026-09-30T14:05:00Z",
+   "changer": {
+    "emails": [
+     "dana@vc.example"
+    ],
+    "first_name": "Dana",
+    "id": 4002,
+    "last_name": "Example",
+    "primary_email": "dana@vc.example",
+    "type": 1
+   },
+   "entity_id": 9000001,
+   "field_id": 501,
+   "id": 600002,
+   "list_entry_id": 8001,
+   "value": {
+    "color": 0,
+    "id": 52,
+    "rank": 1,
+    "text": "Due Diligence"
+   }
+  },
+  {
+   "action_type": 0,
+   "changed_at": "2026-08-01T12:00:00Z",
+   "changer": {
+    "emails": [
+     "robin@vc.example"
+    ],
+    "first_name": "Robin",
+    "id": 4001,
+    "last_name": "Tester",
+    "primary_email": "robin@vc.example",
+    "type": 1
+   },
+   "entity_id": 9000001,
+   "field_id": 501,
+   "id": 600001,
+   "list_entry_id": 8001,
+   "value": {
+    "color": 0,
+    "id": 51,
+    "rank": 0,
+    "text": "Sourced"
+   }
+  }
+ ],
+ "GET /fields?list_id=7001": [
+  {
+   "allows_multiple": false,
+   "dropdown_options": [
+    {
+     "color": 0,
+     "id": 51,
+     "rank": 0,
+     "text": "Sourced"
+    },
+    {
+     "color": 0,
+     "id": 52,
+     "rank": 1,
+     "text": "Due Diligence"
+    },
+    {
+     "color": 0,
+     "id": 53,
+     "rank": 2,
+     "text": "Closed"
+    }
+   ],
+   "id": 501,
+   "list_id": 7001,
+   "name": "Status",
+   "track_changes": true,
+   "value_type": 7
+  },
+  {
+   "allows_multiple": false,
+   "dropdown_options": [],
+   "id": 502,
+   "list_id": 7001,
+   "name": "Owner",
+   "track_changes": false,
+   "value_type": 0
+  }
+ ],
+ "GET /fields?list_id=7002": [],
+ "GET /lists": [
+  {
+   "creator_id": 4001,
+   "fields": [
+    {
+     "allows_multiple": false,
+     "dropdown_options": [
+      {
+       "color": 0,
+       "id": 51,
+       "rank": 0,
+       "text": "Sourced"
+      },
+      {
+       "color": 0,
+       "id": 52,
+       "rank": 1,
+       "text": "Due Diligence"
+      },
+      {
+       "color": 0,
+       "id": 53,
+       "rank": 2,
+       "text": "Closed"
+      }
+     ],
+     "id": 501,
+     "list_id": 7001,
+     "name": "Status",
+     "track_changes": true,
+     "value_type": 7
+    },
+    {
+     "allows_multiple": false,
+     "dropdown_options": [],
+     "id": 502,
+     "list_id": 7001,
+     "name": "Owner",
+     "track_changes": false,
+     "value_type": 0
+    }
+   ],
+   "id": 7001,
+   "list_size": 2,
+   "name": "Dealflow",
+   "owner_id": 4001,
+   "public": true,
+   "type": 1
+  },
+  {
+   "creator_id": 4001,
+   "fields": [],
+   "id": 7002,
+   "list_size": 1,
+   "name": "Portfolio Watch",
+   "owner_id": 4001,
+   "public": true,
+   "type": 1
+  }
+ ],
+ "GET /lists/7001": {
+  "creator_id": 4001,
+  "fields": [
+   {
+    "allows_multiple": false,
+    "dropdown_options": [
+     {
+      "color": 0,
+      "id": 51,
+      "rank": 0,
+      "text": "Sourced"
+     },
+     {
+      "color": 0,
+      "id": 52,
+      "rank": 1,
+      "text": "Due Diligence"
+     },
+     {
+      "color": 0,
+      "id": 53,
+      "rank": 2,
+      "text": "Closed"
+     }
+    ],
+    "id": 501,
+    "list_id": 7001,
+    "name": "Status",
+    "track_changes": true,
+    "value_type": 7
+   },
+   {
+    "allows_multiple": false,
+    "dropdown_options": [],
+    "id": 502,
+    "list_id": 7001,
+    "name": "Owner",
+    "track_changes": false,
+    "value_type": 0
+   }
+  ],
+  "id": 7001,
+  "list_size": 2,
+  "name": "Dealflow",
+  "owner_id": 4001,
+  "public": true,
+  "type": 1
+ },
+ "GET /lists/7002": {
+  "creator_id": 4001,
+  "fields": [],
+  "id": 7002,
+  "list_size": 1,
+  "name": "Portfolio Watch",
+  "owner_id": 4001,
+  "public": true,
+  "type": 1
+ },
+ "GET /organizations": {
+  "next_page_token": null,
+  "organizations": [
+   {
+    "crunchbase_uuid": null,
+    "domain": "acme-robotics.example",
+    "domains": [
+     "acme-robotics.example"
+    ],
+    "global": false,
+    "id": 9000001,
+    "name": "Acme Robotics",
+    "person_ids": []
+   },
+   {
+    "crunchbase_uuid": null,
+    "domain": "bolt-analytics.example",
+    "domains": [
+     "bolt-analytics.example"
+    ],
+    "global": false,
+    "id": 9000002,
+    "name": "Bolt Analytics",
+    "person_ids": []
+   }
+  ]
+ },
+ "GET /organizations/9000001": {
+  "crunchbase_uuid": null,
+  "domain": "acme-robotics.example",
+  "domains": [
+   "acme-robotics.example"
+  ],
+  "global": false,
+  "id": 9000001,
+  "name": "Acme Robotics",
+  "person_ids": []
+ },
+ "GET /organizations/9000002": {
+  "crunchbase_uuid": null,
+  "domain": "bolt-analytics.example",
+  "domains": [
+   "bolt-analytics.example"
+  ],
+  "global": false,
+  "id": 9000002,
+  "name": "Bolt Analytics",
+  "person_ids": []
+ },
+ "GET /organizations?term=Acme": {
+  "next_page_token": null,
+  "organizations": [
+   {
+    "crunchbase_uuid": null,
+    "domain": "acme-robotics.example",
+    "domains": [
+     "acme-robotics.example"
+    ],
+    "global": false,
+    "id": 9000001,
+    "name": "Acme Robotics",
+    "person_ids": []
+   }
+  ]
+ },
+ "GET /organizations?term=Acme%20Robotics": {
+  "next_page_token": null,
+  "organizations": [
+   {
+    "crunchbase_uuid": null,
+    "domain": "acme-robotics.example",
+    "domains": [
+     "acme-robotics.example"
+    ],
+    "global": false,
+    "id": 9000001,
+    "name": "Acme Robotics",
+    "person_ids": []
+   }
+  ]
+ },
+ "GET /organizations?term=Acme+Robotics": {
+  "next_page_token": null,
+  "organizations": [
+   {
+    "crunchbase_uuid": null,
+    "domain": "acme-robotics.example",
+    "domains": [
+     "acme-robotics.example"
+    ],
+    "global": false,
+    "id": 9000001,
+    "name": "Acme Robotics",
+    "person_ids": []
+   }
+  ]
+ },
+ "GET /v2/auth/whoami": {
+  "grant": {
+   "createdAt": "2025-01-01T00:00:00Z",
+   "scopes": [
+    "api"
+   ],
+   "type": "api-key"
+  },
+  "tenant": {
+   "id": 1,
+   "name": "Example Ventures",
+   "subdomain": "example-ventures"
+  },
+  "user": {
+   "emailAddress": "robin@vc.example",
+   "firstName": "Robin",
+   "id": 4001,
+   "lastName": "Tester"
+  }
+ },
+ "GET /v2/companies/9000001": {
+  "domain": "acme-robotics.example",
+  "domains": [
+   "acme-robotics.example"
+  ],
+  "fields": [],
+  "id": 9000001,
+  "isGlobal": false,
+  "name": "Acme Robotics"
+ },
+ "GET /v2/companies/9000001/list-entries": {
+  "data": [
+   {
+    "createdAt": "2026-08-01T12:00:00Z",
+    "creatorId": 4001,
+    "fields": [
+     {
+      "enrichmentSource": null,
+      "id": "field-501",
+      "name": "Status",
+      "type": "list",
+      "value": {
+       "data": {
+        "dropdownOptionId": 52,
+        "text": "Due Diligence"
+       },
+       "type": "dropdown"
+      }
+     },
+     {
+      "enrichmentSource": null,
+      "id": "field-502",
+      "name": "Owner",
+      "type": "list",
+      "value": {
+       "data": {
+        "firstName": "Dana",
+        "id": 4002,
+        "lastName": "Example",
+        "primaryEmailAddress": "dana@vc.example",
+        "type": "internal"
+       },
+       "type": "person"
+      }
+     }
+    ],
+    "id": 8001,
+    "listId": 7001,
+    "listName": "Dealflow"
+   },
+   {
+    "createdAt": "2026-08-15T12:00:00Z",
+    "creatorId": 4001,
+    "fields": [],
+    "id": 8002,
+    "listId": 7002,
+    "listName": "Portfolio Watch"
+   }
+  ],
+  "pagination": {
+   "nextUrl": null,
+   "prevUrl": null
+  }
+ },
+ "GET /v2/companies/9000002": {
+  "domain": "bolt-analytics.example",
+  "domains": [
+   "bolt-analytics.example"
+  ],
+  "fields": [],
+  "id": 9000002,
+  "isGlobal": false,
+  "name": "Bolt Analytics"
+ },
+ "GET /v2/companies/9000002/list-entries": {
+  "data": [],
+  "pagination": {
+   "nextUrl": null,
+   "prevUrl": null
+  }
+ },
+ "GET /v2/lists": {
+  "data": [
+   {
+    "createdAt": "2025-01-01T00:00:00Z",
+    "creatorId": 4001,
+    "id": 7001,
+    "isPublic": true,
+    "name": "Dealflow",
+    "ownerId": 4001,
+    "type": "company"
+   },
+   {
+    "createdAt": "2025-01-01T00:00:00Z",
+    "creatorId": 4001,
+    "id": 7002,
+    "isPublic": true,
+    "name": "Portfolio Watch",
+    "ownerId": 4001,
+    "type": "company"
+   }
+  ],
+  "pagination": {
+   "nextUrl": null,
+   "prevUrl": null
+  }
+ },
+ "GET /v2/lists/7001": {
+  "createdAt": "2025-01-01T00:00:00Z",
+  "creatorId": 4001,
+  "id": 7001,
+  "isPublic": true,
+  "name": "Dealflow",
+  "ownerId": 4001,
+  "type": "company"
+ },
+ "GET /v2/lists/7001/list-entries": {
+  "data": [
+   {
+    "createdAt": "2026-08-01T12:00:00Z",
+    "creatorId": 4001,
+    "entity": {
+     "domain": "acme-robotics.example",
+     "domains": [
+      "acme-robotics.example"
+     ],
+     "fields": [
+      {
+       "enrichmentSource": null,
+       "id": "field-501",
+       "name": "Status",
+       "type": "list",
+       "value": {
+        "data": {
+         "dropdownOptionId": 52,
+         "text": "Due Diligence"
+        },
+        "type": "dropdown"
+       }
+      },
+      {
+       "enrichmentSource": null,
+       "id": "field-502",
+       "name": "Owner",
+       "type": "list",
+       "value": {
+        "data": {
+         "firstName": "Dana",
+         "id": 4002,
+         "lastName": "Example",
+         "primaryEmailAddress": "dana@vc.example",
+         "type": "internal"
+        },
+        "type": "person"
+       }
+      }
+     ],
+     "id": 9000001,
+     "isGlobal": false,
+     "name": "Acme Robotics"
+    },
+    "id": 8001,
+    "listId": 7001,
+    "type": "company"
+   },
+   {
+    "createdAt": "2026-09-10T12:00:00Z",
+    "creatorId": 4001,
+    "entity": {
+     "domain": "bolt-analytics.example",
+     "domains": [
+      "bolt-analytics.example"
+     ],
+     "fields": [
+      {
+       "enrichmentSource": null,
+       "id": "field-501",
+       "name": "Status",
+       "type": "list",
+       "value": {
+        "data": {
+         "dropdownOptionId": 51,
+         "text": "Sourced"
+        },
+        "type": "dropdown"
+       }
+      },
+      {
+       "enrichmentSource": null,
+       "id": "field-502",
+       "name": "Owner",
+       "type": "list",
+       "value": {
+        "data": {
+         "firstName": "Robin",
+         "id": 4001,
+         "lastName": "Tester",
+         "primaryEmailAddress": "robin@vc.example",
+         "type": "internal"
+        },
+        "type": "person"
+       }
+      }
+     ],
+     "id": 9000002,
+     "isGlobal": false,
+     "name": "Bolt Analytics"
+    },
+    "id": 8003,
+    "listId": 7001,
+    "type": "company"
+   }
+  ],
+  "pagination": {
+   "nextUrl": null,
+   "prevUrl": null
+  }
+ },
+ "GET /v2/lists/7001/list-entries/8001": {
+  "createdAt": "2026-08-01T12:00:00Z",
+  "creatorId": 4001,
+  "entity": {
+   "domain": "acme-robotics.example",
+   "domains": [
+    "acme-robotics.example"
+   ],
+   "fields": [
+    {
+     "enrichmentSource": null,
+     "id": "field-501",
+     "name": "Status",
+     "type": "list",
+     "value": {
+      "data": {
+       "dropdownOptionId": 52,
+       "text": "Due Diligence"
+      },
+      "type": "dropdown"
+     }
+    },
+    {
+     "enrichmentSource": null,
+     "id": "field-502",
+     "name": "Owner",
+     "type": "list",
+     "value": {
+      "data": {
+       "firstName": "Dana",
+       "id": 4002,
+       "lastName": "Example",
+       "primaryEmailAddress": "dana@vc.example",
+       "type": "internal"
+      },
+      "type": "person"
+     }
+    }
+   ],
+   "id": 9000001,
+   "isGlobal": false,
+   "name": "Acme Robotics"
+  },
+  "id": 8001,
+  "listId": 7001,
+  "type": "company"
+ },
+ "GET /v2/lists/7001/list-entries/8003": {
+  "createdAt": "2026-09-10T12:00:00Z",
+  "creatorId": 4001,
+  "entity": {
+   "domain": "bolt-analytics.example",
+   "domains": [
+    "bolt-analytics.example"
+   ],
+   "fields": [
+    {
+     "enrichmentSource": null,
+     "id": "field-501",
+     "name": "Status",
+     "type": "list",
+     "value": {
+      "data": {
+       "dropdownOptionId": 51,
+       "text": "Sourced"
+      },
+      "type": "dropdown"
+     }
+    },
+    {
+     "enrichmentSource": null,
+     "id": "field-502",
+     "name": "Owner",
+     "type": "list",
+     "value": {
+      "data": {
+       "firstName": "Robin",
+       "id": 4001,
+       "lastName": "Tester",
+       "primaryEmailAddress": "robin@vc.example",
+       "type": "internal"
+      },
+      "type": "person"
+     }
+    }
+   ],
+   "id": 9000002,
+   "isGlobal": false,
+   "name": "Bolt Analytics"
+  },
+  "id": 8003,
+  "listId": 7001,
+  "type": "company"
+ },
+ "GET /v2/lists/7002": {
+  "createdAt": "2025-01-01T00:00:00Z",
+  "creatorId": 4001,
+  "id": 7002,
+  "isPublic": true,
+  "name": "Portfolio Watch",
+  "ownerId": 4001,
+  "type": "company"
+ },
+ "GET /v2/lists/7002/list-entries": {
+  "data": [
+   {
+    "createdAt": "2026-08-15T12:00:00Z",
+    "creatorId": 4001,
+    "entity": {
+     "domain": "acme-robotics.example",
+     "domains": [
+      "acme-robotics.example"
+     ],
+     "fields": [],
+     "id": 9000001,
+     "isGlobal": false,
+     "name": "Acme Robotics"
+    },
+    "id": 8002,
+    "listId": 7002,
+    "type": "company"
+   }
+  ],
+  "pagination": {
+   "nextUrl": null,
+   "prevUrl": null
+  }
+ },
+ "GET /v2/lists/7002/list-entries/8002": {
+  "createdAt": "2026-08-15T12:00:00Z",
+  "creatorId": 4001,
+  "entity": {
+   "domain": "acme-robotics.example",
+   "domains": [
+    "acme-robotics.example"
+   ],
+   "fields": [],
+   "id": 9000001,
+   "isGlobal": false,
+   "name": "Acme Robotics"
+  },
+  "id": 8002,
+  "listId": 7002,
+  "type": "company"
+ }
+}

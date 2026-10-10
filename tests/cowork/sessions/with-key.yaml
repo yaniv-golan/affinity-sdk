@@ -1,0 +1,7 @@
+# Cowork-like setup: the xaffinity-cli plugin from this repo, a connected folder whose
+# xaffinity-test-key makes the test image's CLI configured (fake Affinity API, synthetic data).
+model: claude-sonnet-5-5
+plugins:
+  local_plugins: [../../../plugins/xaffinity-cli]
+folders:
+  - { from: ../fixtures/workdir-key, mode: r }

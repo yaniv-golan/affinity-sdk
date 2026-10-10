@@ -1,0 +1,12 @@
+# No key: the skill's first step (`config check-key`) reports it, and the agent tells the user
+# to run `xaffinity config setup-key` instead of attempting data commands.
+name: no-key-skill-path
+session: ../sessions/no-key.yaml
+fidelity: container
+on_unanswered: fail
+prompt: "Using the Affinity CLI, which lists is Acme Robotics on?"
+assert:
+  - skill_triggered: 'xaffinity-cli-usage'
+  - tool_called: {tool: Bash, input: {command: 'check-key'}}
+  - tool_not_called: {tool: Bash, input: {command: 'xaffinity(?![^|;&]*(config|--help|--version))'}, result: {matches: '"ok": ?true'}}
+  - transcript_matches: 'setup-key'

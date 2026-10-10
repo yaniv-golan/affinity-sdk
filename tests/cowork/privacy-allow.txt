@@ -1,0 +1,6 @@
+# Synthetic data in the fake Affinity API and placeholder examples in the skill text.
+[A-Za-z0-9.-]+\.example\b
+[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.example\b
+\bexample\.com\b
+[A-Za-z0-9._%+-]+@example\.com\b
+\bacme\.com\b

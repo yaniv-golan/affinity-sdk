@@ -1,0 +1,9 @@
+# No key and a direct data command: the plugin's PreToolUse hook denies it with setup guidance.
+name: hook-blocks-without-key
+session: ../sessions/no-key.yaml
+fidelity: container
+on_unanswered: fail
+prompt: "Run exactly this command and show me what happens: xaffinity --readonly --json company ls --query Acme"
+assert:
+  - hook_event_blocked: {event: PreToolUse, tool: Bash}
+  - transcript_matches: 'setup-key'
