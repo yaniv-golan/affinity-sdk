@@ -1,8 +1,12 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="1.26.0"
-CLI_MAX_VERSION="1.26.0"
+CLI_MIN_VERSION="1.27.0"
+CLI_MAX_VERSION="1.27.0"
+
+# MCP 1.30.0 requires CLI 1.27.0 for:
+# - `field history-bulk --strategy` and the dry-run `strategy` field the pipeline-history skill
+#   reads (older CLIs reject --strategy and don't report it).
 
 # MCP 1.29.0 requires CLI 1.26.0 for:
 # - `note feed` and `note replies` (new read commands in the registry).

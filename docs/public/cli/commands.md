@@ -1132,6 +1132,24 @@ xaffinity --json field changes --changed-after 2025-06-01T00:00:00Z --all
 For delta sync, store the latest `changedAt` you processed and pass it as `--changed-after`
 next time. It is inclusive, so skip ids you already have.
 
+### `xaffinity field history-bulk`
+
+A field's change history for many list entries at once (pipeline analysis).
+
+```bash
+xaffinity field history-bulk field-358027 --list-id Dealflow --all --dry-run
+xaffinity field history-bulk field-358027 --list-id Dealflow --all
+xaffinity field history-bulk field-358027 --list-id Dealflow --max-results 50
+xaffinity field history-bulk field-358027 --list-entry-ids 100,200,300
+```
+
+With `--all` on a field that belongs to the list, and a list of 100 or more entries, the history
+is read field-wide: one call per 500 changes instead of one per entry, with the same rows.
+Otherwise there is one call per entry, 15 at a time. `--strategy field|entries` forces either;
+the dry run shows the `strategy` and `estimatedApiCalls` (the per-entry worst case). Changes on
+entries no longer on the list are left out (a warning says how many). Rows are sorted by
+`changedAt`.
+
 ### `xaffinity field options`
 
 Options of a dropdown, ranked-dropdown or status field.

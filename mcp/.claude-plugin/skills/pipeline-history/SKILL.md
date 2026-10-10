@@ -45,7 +45,7 @@ JSON output key is `data.rows`. Each row contains `listEntryId`, `entityId`, `en
 execute-read-command(command: "field history-bulk", argv: ["<field-id>", "--list-id", "YOUR_LIST_NAME", "--dry-run"])
 ```
 
-Check `estimatedApiCalls` before proceeding. Each list entry = 1 API call.
+Check `strategy` and `estimatedApiCalls` before proceeding. With `--all` on a list field and a list of 100+ entries, the history is read field-wide (`strategy: "field"`): one call per 500 changes, usually far fewer than `estimatedApiCalls`, which is the per-entry worst case. Otherwise each list entry = 1 API call.
 
 ### Step 4: Fetch History
 

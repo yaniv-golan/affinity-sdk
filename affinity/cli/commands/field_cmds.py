@@ -8,7 +8,12 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from affinity.exceptions import ApiVersionTooOldError
+from affinity.exceptions import (
+    AffinityError,
+    ApiVersionTooOldError,
+    AuthenticationError,
+    AuthorizationError,
+)
 from affinity.models.entities import DropdownOption, FieldCreate, FieldMetadata, FieldValueChange
 from affinity.models.secondary import FieldValueChangeV2
 from affinity.models.types import EntityType, FieldValueType
@@ -1049,6 +1054,22 @@ def field_options_delete(
 # ---------------------------------------------------------------------------
 
 _HISTORY_BULK_DEFAULT_CONCURRENCY = 15
+# --strategy auto reads a list field's history field-wide only for lists at least this big:
+# field-wide pages are fetched one after another, the per-entry calls 15 at a time.
+_FIELD_WIDE_MIN_ENTRIES = 100
+_FIELD_WIDE_PAGE_SIZE = 500
+
+
+def _same_field(a: object, b: str) -> bool:
+    """Field ids compare normalised (``123`` and ``field-123`` are the same field)."""
+    try:
+        return str(FieldId(str(a))) == str(FieldId(b))
+    except ValueError:
+        return str(a) == b
+
+
+class _FieldWideUnavailable(Exception):
+    """The field-wide fetch failed before any data arrived: use the per-entry path."""
 
 
 def _get_entity_name_from_entry(entry: Any) -> str | None:
@@ -1094,6 +1115,17 @@ def _get_entity_name_from_entry(entry: Any) -> str | None:
     help="Filter by action type.",
 )
 @click.option("--dry-run", is_flag=True, help="Show estimated API calls without executing.")
+@click.option(
+    "--strategy",
+    type=click.Choice(["auto", "field", "entries"]),
+    default="auto",
+    show_default=True,
+    help=(
+        "field: read the list field's whole history in a few paged calls (needs --list-id and "
+        "--all); entries: one call per entry; auto: field for list fields on lists of "
+        f"{_FIELD_WIDE_MIN_ENTRIES}+ entries."
+    ),
+)
 @csv_output_options
 @click.pass_obj
 def field_history_bulk(
@@ -1106,10 +1138,13 @@ def field_history_bulk(
     all_entries: bool,
     action_type: str | None,
     dry_run: bool,
+    strategy: str,
 ) -> None:
     """Fetch field value change history for multiple list entries.
 
-    Uses async fan-out with bounded concurrency.
+    With --list-id and --all, a field that belongs to the list is read field-wide (a few paged
+    calls) on lists of 100+ entries; otherwise one call per entry, 15 at a time. --strategy
+    forces either. Rows and their shape are the same either way, sorted by changedAt.
 
     FIELD_ID is the field identifier (e.g., 'field-123').
 
@@ -1194,22 +1229,60 @@ def field_history_bulk(
 
         total = len(entry_ids)
 
+        # --- Strategy ---
+        chosen = "entries"
+        if strategy == "field" and not (list_id is not None and all_entries):
+            raise CLIError(
+                "--strategy field needs --list-id and --all (it reads the whole field).",
+                error_type="usage_error",
+                exit_code=2,
+            )
+        if (
+            list_id is not None
+            and all_entries
+            and strategy != "entries"
+            and (strategy == "field" or total >= _FIELD_WIDE_MIN_ENTRIES)
+        ):
+            try:
+                list_fields = client.lists.get_fields(ListId(resolved_list_id))
+            except AffinityError as exc:
+                list_fields = []
+                warnings.append(f"Could not read the list's fields ({exc}); fetching per entry.")
+            if any(f.type == "list" and _same_field(f.id, field_id) for f in list_fields):
+                chosen = "field"
+            elif strategy == "field":
+                raise CLIError(
+                    f"--strategy field needs a field of this list; {field_id} is not one "
+                    "(global, enriched or another list's field). Use --strategy entries.",
+                    error_type="usage_error",
+                    exit_code=2,
+                )
+
         # --- Dry run ---
         if dry_run:
             cmd_context = CommandContext(
                 name="field history-bulk",
                 inputs={"fieldId": field_id},
-                modifiers={"dryRun": True},
+                modifiers={"dryRun": True, "strategy": chosen},
             )
+            dry: dict[str, object] = {
+                "dryRun": True,
+                "entries": total,
+                "strategy": chosen,
+                # Field-wide: one call per 500 changes, usually far fewer than one per entry;
+                # the per-entry count is the worst case (the fallback)
+                "estimatedApiCalls": total,
+                "fieldId": field_id,
+            }
+            if chosen == "field":
+                dry["estimatedApiCallsNote"] = (
+                    f"Field-wide: one call per {_FIELD_WIDE_PAGE_SIZE} changes of the field; "
+                    "estimatedApiCalls is the per-entry worst case."
+                )
             return CommandOutput(
-                data={
-                    "dryRun": True,
-                    "entries": total,
-                    "estimatedApiCalls": total,
-                    "fieldId": field_id,
-                },
+                data=dry,
                 context=cmd_context,
-                api_called=False,
+                api_called=list_id is not None,
             )
 
         # --- Execute async fan-out ---
@@ -1301,8 +1374,62 @@ def field_history_bulk(
                     )
                 return results, async_warnings
 
-        all_changes, async_warnings = asyncio.run(_run())
-        warnings.extend(async_warnings)
+        def _field_wide() -> list[dict[str, object]]:
+            on_list = set(entry_ids)
+            rows: list[dict[str, object]] = []
+            dropped = 0
+            fetched = 0
+            try:
+                for item in client.field_value_changes.iter_all(
+                    FieldId(field_id),
+                    action_type=parsed_action_type,
+                    page_size=_FIELD_WIDE_PAGE_SIZE,
+                ):
+                    fetched += 1
+                    eid = int(item.list_entry_id) if item.list_entry_id is not None else None
+                    if eid is None or eid not in on_list:
+                        dropped += 1
+                        continue
+                    payload = _field_value_change_payload(item)
+                    payload["entityName"] = entry_names.get(eid)
+                    rows.append(payload)
+                    if show_progress and fetched % _FIELD_WIDE_PAGE_SIZE == 0:
+                        sys.stderr.write(f"\r{fetched} changes fetched (field-wide)")
+                        sys.stderr.flush()
+            except (AuthenticationError, AuthorizationError):
+                raise
+            except AffinityError as exc:
+                if fetched == 0:
+                    raise _FieldWideUnavailable(str(exc)) from exc
+                raise CLIError(
+                    f"Field-wide fetch failed after {fetched} changes: {exc}",
+                    error_type="api_error",
+                    exit_code=1,
+                    hint="Retry, or use --strategy entries to fetch per entry.",
+                ) from exc
+            finally:
+                if show_progress and fetched >= _FIELD_WIDE_PAGE_SIZE:
+                    sys.stderr.write("\r" + " " * 50 + "\r")
+                    sys.stderr.flush()
+            if dropped:
+                warnings.append(
+                    f"{dropped} changes belong to entries no longer on the list and are not shown."
+                )
+            return rows
+
+        all_changes: list[dict[str, object]] = []
+        if chosen == "field":
+            try:
+                all_changes = _field_wide()
+            except _FieldWideUnavailable as exc:
+                warnings.append(f"Field-wide fetch failed ({exc}); fetching per entry instead.")
+                chosen = "entries"
+        if chosen == "entries":
+            all_changes, async_warnings = asyncio.run(_run())
+            warnings.extend(async_warnings)
+        all_changes.sort(
+            key=lambda r: (str(r.get("changedAt") or ""), str(r.get("id") or "").zfill(20))
+        )
 
         # Build CommandContext
         inputs: dict[str, object] = {"fieldId": field_id}
@@ -1317,6 +1444,7 @@ def field_history_bulk(
             modifiers["maxResults"] = max_results
         if all_entries:
             modifiers["all"] = True
+        modifiers["strategy"] = chosen
 
         cmd_context = CommandContext(
             name="field history-bulk",

@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0] - 2026-10-10
+
+### Highlights
+
+**`field history-bulk --all` on a list field: a few calls instead of one per entry.** For a field
+that belongs to the list, on lists of 100 or more entries, the history is now read field-wide
+(one call per 500 changes) and filtered to the list's entries: the same rows as before. A
+9,000-entry pipeline no longer needs 9,000 calls.
+
+### Added
+
+- `field history-bulk --strategy auto|field|entries` (default `auto`). Dry run reports
+  `strategy` and, for `field`, `estimatedApiCallsNote`; `estimatedApiCalls` stays the per-entry
+  worst case.
+
+### Changed
+
+- `field history-bulk` rows are sorted by `changedAt` (they came in no particular order). Changes
+  on entries no longer on the list are counted in a warning when read field-wide. If the
+  field-wide read fails before any data arrives, it falls back to per-entry calls with a warning;
+  a failure partway through is an error that suggests `--strategy entries`.
+
 ## [1.26.0] - 2026-10-10
 
 ### Highlights

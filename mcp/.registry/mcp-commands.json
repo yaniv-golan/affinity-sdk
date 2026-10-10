@@ -342,7 +342,7 @@
       }
     },
     "field history-bulk": {
-      "whenToUse": "Fetch field change history across an entire list or set of entries. Use for pipeline analysis (stage transitions, funnel conversion, time-in-stage). ALWAYS use --dry-run first to estimate API calls. Two modes: (1) --list-id with --all/--max-results for list-wide scans, (2) --list-entry-ids for specific entries. Each entry = 1 API call.",
+      "whenToUse": "Fetch field change history across an entire list or set of entries. Use for pipeline analysis (stage transitions, funnel conversion, time-in-stage). ALWAYS use --dry-run first to estimate API calls. Two modes: (1) --list-id with --all/--max-results for list-wide scans, (2) --list-entry-ids for specific entries. With --all on a field of that list (100+ entries) the history is read field-wide in a few calls (dry run: strategy field); otherwise each entry = 1 API call. --strategy field|entries forces either.",
       "examples": [
         "field history-bulk field-358027 --list-id Dealflow --dry-run",
         "field history-bulk field-358027 --list-id Dealflow --max-results 50",

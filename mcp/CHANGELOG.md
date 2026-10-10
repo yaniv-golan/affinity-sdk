@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.30.0] - 2026-10-10
+
+### Changed
+
+- `field history-bulk` guidance (registry, pipeline-history skill, data model): with `--all` on
+  a list field of 100+ entries the history is read field-wide in a few calls; the dry run shows
+  `strategy`. Requires CLI 1.27.0.
+
 ## [1.29.0] - 2026-10-10
 
 ### Highlights

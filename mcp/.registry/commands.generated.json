@@ -2,11 +2,11 @@
   "_generated": {
     "warning": "DO NOT EDIT - This file is auto-generated",
     "generator": "tools/generate_mcp_command_registry.py",
-    "cliVersion": "1.26.0",
+    "cliVersion": "1.27.0",
     "sourceConfig": "mcp/.registry/mcp-commands.json"
   },
   "version": 1,
-  "cliVersion": "1.26.0",
+  "cliVersion": "1.27.0",
   "commands": [
     {
       "name": "company create",
@@ -1401,6 +1401,16 @@
             "--limit",
             "-n"
           ]
+        },
+        "--strategy": {
+          "type": "string",
+          "required": false,
+          "help": "field: read the list field's whole history in a few paged calls (needs --list-id and --all); entries: one call per entry; auto: field for list fields on lists of 100+ entries.",
+          "choices": [
+            "auto",
+            "field",
+            "entries"
+          ]
         }
       },
       "positionals": [
@@ -1417,7 +1427,7 @@
         "field history-bulk field-358027 --list-entry-ids 100,200,300",
         "field history-bulk field-358027 --list-id Dealflow --max-results 100 --action-type update"
       ],
-      "whenToUse": "Fetch field change history across an entire list or set of entries. Use for pipeline analysis (stage transitions, funnel conversion, time-in-stage). ALWAYS use --dry-run first to estimate API calls. Two modes: (1) --list-id with --all/--max-results for list-wide scans, (2) --list-entry-ids for specific entries. Each entry = 1 API call.",
+      "whenToUse": "Fetch field change history across an entire list or set of entries. Use for pipeline analysis (stage transitions, funnel conversion, time-in-stage). ALWAYS use --dry-run first to estimate API calls. Two modes: (1) --list-id with --all/--max-results for list-wide scans, (2) --list-entry-ids for specific entries. With --all on a field of that list (100+ entries) the history is read field-wide in a few calls (dry run: strategy field); otherwise each entry = 1 API call. --strategy field|entries forces either.",
       "relatedCommands": [
         "field ls",
         "field history",
