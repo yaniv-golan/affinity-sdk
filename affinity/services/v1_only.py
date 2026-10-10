@@ -32,6 +32,7 @@ from ..models.entities import (
     FieldValueChange,
     FieldValueCreate,
 )
+from ..models.interactions_v2 import CallV2, ChatMessageV2, EmailV2, MeetingV2
 from ..models.pagination import AsyncPageIterator, PageIterator, PaginatedResponse, PaginationInfo
 from ..models.secondary import (
     EntityFile,
@@ -77,6 +78,7 @@ from ..models.types import (
     to_v1_value_type_code,
 )
 from ..progress import ProgressCallback
+from ._org_reads import check_cursor_alone, interaction_params, page_of
 from ._v2_filters import v2_filter_datetime
 from .search import (
     AsyncFileSearchMixin,
@@ -857,6 +859,230 @@ class InteractionService:
             if response.next_cursor is None and chunk_index < len(chunks) - 1:
                 response.next_page_token = chunk_sentinel
             return response
+
+        return PageIterator(fetch_page)
+
+    def list_emails(
+        self,
+        *,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        created_after: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[EmailV2]:
+        """One page of emails across the organization (V2), the ones the key's user may see.
+
+        ``after`` (inclusive) / ``before`` (exclusive) filter the sent time (``sentAt``);
+        ``created_after`` / ``updated_after`` filter ``createdAt`` / ``updatedAt`` (inclusive),
+        all rounded outward to whole seconds. There is no sort option, and ``updatedAt`` is
+        empty for items never changed: for delta sync, page to the end and track the latest
+        times yourself. ``limit`` is 1-100; ``cursor`` (a previous ``next_cursor``) can't be
+        combined with other arguments.
+        """
+        check_cursor_alone(cursor, after, before, created_after, updated_after, limit)
+        if cursor is not None:
+            return page_of(EmailV2, self._client.get_url(cursor))
+        params = interaction_params(
+            "sentAt",
+            after=after,
+            before=before,
+            created_after=created_after,
+            updated_after=updated_after,
+            limit=limit,
+        )
+        return page_of(EmailV2, self._client.get("/emails", params=params or None))
+
+    def iter_emails(
+        self,
+        *,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        created_after: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+    ) -> Iterator[EmailV2]:
+        """All emails matching the filters (every page); see :meth:`list_emails`."""
+
+        def fetch_page(next_url: str | None) -> PaginatedResponse[EmailV2]:
+            if next_url:
+                return self.list_emails(cursor=next_url)
+            return self.list_emails(
+                after=after,
+                before=before,
+                created_after=created_after,
+                updated_after=updated_after,
+                limit=limit,
+            )
+
+        return PageIterator(fetch_page)
+
+    def list_meetings(
+        self,
+        *,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        created_after: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[MeetingV2]:
+        """One page of meetings across the organization (V2), the ones the key's user may see.
+
+        ``after`` (inclusive) / ``before`` (exclusive) filter the start time (``startTime``);
+        ``created_after`` / ``updated_after`` filter ``createdAt`` / ``updatedAt`` (inclusive),
+        all rounded outward to whole seconds. There is no sort option, and ``updatedAt`` is
+        empty for items never changed: for delta sync, page to the end and track the latest
+        times yourself. ``limit`` is 1-100; ``cursor`` (a previous ``next_cursor``) can't be
+        combined with other arguments.
+        """
+        check_cursor_alone(cursor, after, before, created_after, updated_after, limit)
+        if cursor is not None:
+            return page_of(MeetingV2, self._client.get_url(cursor))
+        params = interaction_params(
+            "startTime",
+            after=after,
+            before=before,
+            created_after=created_after,
+            updated_after=updated_after,
+            limit=limit,
+        )
+        return page_of(MeetingV2, self._client.get("/meetings", params=params or None))
+
+    def iter_meetings(
+        self,
+        *,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        created_after: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+    ) -> Iterator[MeetingV2]:
+        """All meetings matching the filters (every page); see :meth:`list_meetings`."""
+
+        def fetch_page(next_url: str | None) -> PaginatedResponse[MeetingV2]:
+            if next_url:
+                return self.list_meetings(cursor=next_url)
+            return self.list_meetings(
+                after=after,
+                before=before,
+                created_after=created_after,
+                updated_after=updated_after,
+                limit=limit,
+            )
+
+        return PageIterator(fetch_page)
+
+    def list_calls(
+        self,
+        *,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        created_after: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[CallV2]:
+        """One page of calls across the organization (V2), the ones the key's user may see.
+
+        ``after`` (inclusive) / ``before`` (exclusive) filter the start time (``startTime``);
+        ``created_after`` / ``updated_after`` filter ``createdAt`` / ``updatedAt`` (inclusive),
+        all rounded outward to whole seconds. There is no sort option, and ``updatedAt`` is
+        empty for items never changed: for delta sync, page to the end and track the latest
+        times yourself. ``limit`` is 1-100; ``cursor`` (a previous ``next_cursor``) can't be
+        combined with other arguments.
+        """
+        check_cursor_alone(cursor, after, before, created_after, updated_after, limit)
+        if cursor is not None:
+            return page_of(CallV2, self._client.get_url(cursor))
+        params = interaction_params(
+            "startTime",
+            after=after,
+            before=before,
+            created_after=created_after,
+            updated_after=updated_after,
+            limit=limit,
+        )
+        return page_of(CallV2, self._client.get("/calls", params=params or None))
+
+    def iter_calls(
+        self,
+        *,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        created_after: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+    ) -> Iterator[CallV2]:
+        """All calls matching the filters (every page); see :meth:`list_calls`."""
+
+        def fetch_page(next_url: str | None) -> PaginatedResponse[CallV2]:
+            if next_url:
+                return self.list_calls(cursor=next_url)
+            return self.list_calls(
+                after=after,
+                before=before,
+                created_after=created_after,
+                updated_after=updated_after,
+                limit=limit,
+            )
+
+        return PageIterator(fetch_page)
+
+    def list_chat_messages(
+        self,
+        *,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        created_after: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[ChatMessageV2]:
+        """One page of chat messages across the organization (V2), the ones the key's user may see.
+
+        ``after`` (inclusive) / ``before`` (exclusive) filter the sent time (``sentAt``);
+        ``created_after`` / ``updated_after`` filter ``createdAt`` / ``updatedAt`` (inclusive),
+        all rounded outward to whole seconds. There is no sort option, and ``updatedAt`` is
+        empty for items never changed: for delta sync, page to the end and track the latest
+        times yourself. ``limit`` is 1-100; ``cursor`` (a previous ``next_cursor``) can't be
+        combined with other arguments.
+        """
+        check_cursor_alone(cursor, after, before, created_after, updated_after, limit)
+        if cursor is not None:
+            return page_of(ChatMessageV2, self._client.get_url(cursor))
+        params = interaction_params(
+            "sentAt",
+            after=after,
+            before=before,
+            created_after=created_after,
+            updated_after=updated_after,
+            limit=limit,
+        )
+        return page_of(ChatMessageV2, self._client.get("/chat-messages", params=params or None))
+
+    def iter_chat_messages(
+        self,
+        *,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        created_after: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+    ) -> Iterator[ChatMessageV2]:
+        """All chat messages matching the filters (every page); see :meth:`list_chat_messages`."""
+
+        def fetch_page(next_url: str | None) -> PaginatedResponse[ChatMessageV2]:
+            if next_url:
+                return self.list_chat_messages(cursor=next_url)
+            return self.list_chat_messages(
+                after=after,
+                before=before,
+                created_after=created_after,
+                updated_after=updated_after,
+                limit=limit,
+            )
 
         return PageIterator(fetch_page)
 
@@ -2841,6 +3067,232 @@ class AsyncInteractionService:
             if response.next_cursor is None and chunk_index < len(chunks) - 1:
                 response.next_page_token = chunk_sentinel
             return response
+
+        return AsyncPageIterator(fetch_page)
+
+    async def list_emails(
+        self,
+        *,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        created_after: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[EmailV2]:
+        """One page of emails across the organization (V2), the ones the key's user may see.
+
+        ``after`` (inclusive) / ``before`` (exclusive) filter the sent time (``sentAt``);
+        ``created_after`` / ``updated_after`` filter ``createdAt`` / ``updatedAt`` (inclusive),
+        all rounded outward to whole seconds. There is no sort option, and ``updatedAt`` is
+        empty for items never changed: for delta sync, page to the end and track the latest
+        times yourself. ``limit`` is 1-100; ``cursor`` (a previous ``next_cursor``) can't be
+        combined with other arguments.
+        """
+        check_cursor_alone(cursor, after, before, created_after, updated_after, limit)
+        if cursor is not None:
+            return page_of(EmailV2, await self._client.get_url(cursor))
+        params = interaction_params(
+            "sentAt",
+            after=after,
+            before=before,
+            created_after=created_after,
+            updated_after=updated_after,
+            limit=limit,
+        )
+        return page_of(EmailV2, await self._client.get("/emails", params=params or None))
+
+    def iter_emails(
+        self,
+        *,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        created_after: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+    ) -> AsyncIterator[EmailV2]:
+        """All emails matching the filters (every page); see :meth:`list_emails`."""
+
+        async def fetch_page(next_url: str | None) -> PaginatedResponse[EmailV2]:
+            if next_url:
+                return await self.list_emails(cursor=next_url)
+            return await self.list_emails(
+                after=after,
+                before=before,
+                created_after=created_after,
+                updated_after=updated_after,
+                limit=limit,
+            )
+
+        return AsyncPageIterator(fetch_page)
+
+    async def list_meetings(
+        self,
+        *,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        created_after: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[MeetingV2]:
+        """One page of meetings across the organization (V2), the ones the key's user may see.
+
+        ``after`` (inclusive) / ``before`` (exclusive) filter the start time (``startTime``);
+        ``created_after`` / ``updated_after`` filter ``createdAt`` / ``updatedAt`` (inclusive),
+        all rounded outward to whole seconds. There is no sort option, and ``updatedAt`` is
+        empty for items never changed: for delta sync, page to the end and track the latest
+        times yourself. ``limit`` is 1-100; ``cursor`` (a previous ``next_cursor``) can't be
+        combined with other arguments.
+        """
+        check_cursor_alone(cursor, after, before, created_after, updated_after, limit)
+        if cursor is not None:
+            return page_of(MeetingV2, await self._client.get_url(cursor))
+        params = interaction_params(
+            "startTime",
+            after=after,
+            before=before,
+            created_after=created_after,
+            updated_after=updated_after,
+            limit=limit,
+        )
+        return page_of(MeetingV2, await self._client.get("/meetings", params=params or None))
+
+    def iter_meetings(
+        self,
+        *,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        created_after: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+    ) -> AsyncIterator[MeetingV2]:
+        """All meetings matching the filters (every page); see :meth:`list_meetings`."""
+
+        async def fetch_page(next_url: str | None) -> PaginatedResponse[MeetingV2]:
+            if next_url:
+                return await self.list_meetings(cursor=next_url)
+            return await self.list_meetings(
+                after=after,
+                before=before,
+                created_after=created_after,
+                updated_after=updated_after,
+                limit=limit,
+            )
+
+        return AsyncPageIterator(fetch_page)
+
+    async def list_calls(
+        self,
+        *,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        created_after: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[CallV2]:
+        """One page of calls across the organization (V2), the ones the key's user may see.
+
+        ``after`` (inclusive) / ``before`` (exclusive) filter the start time (``startTime``);
+        ``created_after`` / ``updated_after`` filter ``createdAt`` / ``updatedAt`` (inclusive),
+        all rounded outward to whole seconds. There is no sort option, and ``updatedAt`` is
+        empty for items never changed: for delta sync, page to the end and track the latest
+        times yourself. ``limit`` is 1-100; ``cursor`` (a previous ``next_cursor``) can't be
+        combined with other arguments.
+        """
+        check_cursor_alone(cursor, after, before, created_after, updated_after, limit)
+        if cursor is not None:
+            return page_of(CallV2, await self._client.get_url(cursor))
+        params = interaction_params(
+            "startTime",
+            after=after,
+            before=before,
+            created_after=created_after,
+            updated_after=updated_after,
+            limit=limit,
+        )
+        return page_of(CallV2, await self._client.get("/calls", params=params or None))
+
+    def iter_calls(
+        self,
+        *,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        created_after: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+    ) -> AsyncIterator[CallV2]:
+        """All calls matching the filters (every page); see :meth:`list_calls`."""
+
+        async def fetch_page(next_url: str | None) -> PaginatedResponse[CallV2]:
+            if next_url:
+                return await self.list_calls(cursor=next_url)
+            return await self.list_calls(
+                after=after,
+                before=before,
+                created_after=created_after,
+                updated_after=updated_after,
+                limit=limit,
+            )
+
+        return AsyncPageIterator(fetch_page)
+
+    async def list_chat_messages(
+        self,
+        *,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        created_after: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[ChatMessageV2]:
+        """One page of chat messages across the organization (V2), the ones the key's user may see.
+
+        ``after`` (inclusive) / ``before`` (exclusive) filter the sent time (``sentAt``);
+        ``created_after`` / ``updated_after`` filter ``createdAt`` / ``updatedAt`` (inclusive),
+        all rounded outward to whole seconds. There is no sort option, and ``updatedAt`` is
+        empty for items never changed: for delta sync, page to the end and track the latest
+        times yourself. ``limit`` is 1-100; ``cursor`` (a previous ``next_cursor``) can't be
+        combined with other arguments.
+        """
+        check_cursor_alone(cursor, after, before, created_after, updated_after, limit)
+        if cursor is not None:
+            return page_of(ChatMessageV2, await self._client.get_url(cursor))
+        params = interaction_params(
+            "sentAt",
+            after=after,
+            before=before,
+            created_after=created_after,
+            updated_after=updated_after,
+            limit=limit,
+        )
+        return page_of(
+            ChatMessageV2, await self._client.get("/chat-messages", params=params or None)
+        )
+
+    def iter_chat_messages(
+        self,
+        *,
+        after: datetime | None = None,
+        before: datetime | None = None,
+        created_after: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+    ) -> AsyncIterator[ChatMessageV2]:
+        """All chat messages matching the filters (every page); see :meth:`list_chat_messages`."""
+
+        async def fetch_page(next_url: str | None) -> PaginatedResponse[ChatMessageV2]:
+            if next_url:
+                return await self.list_chat_messages(cursor=next_url)
+            return await self.list_chat_messages(
+                after=after,
+                before=before,
+                created_after=created_after,
+                updated_after=updated_after,
+                limit=limit,
+            )
 
         return AsyncPageIterator(fetch_page)
 

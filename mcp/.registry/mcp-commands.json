@@ -41,6 +41,20 @@
       "whenToUse": "Manage field values on a person (global, enriched and Source of Introduction fields, including 'Current Organization' and 'Phone Number'). Accepts field names or field IDs. All --set/--set-json/--unset of one call are written in one request that Affinity applies completely or not at all; output lists `created` and `cleared` fields. Multi-value fields take at most 100 values. Needs CLI 1.21.0+.",
       "relatedCommands": ["person get", "field ls"]
     },
+    "person merge-history ls": {
+      "whenToUse": "List past person merges, newest first (status, taskId, primary and duplicate ids, errors). Use to check what was merged or why a merge failed. Needs the Manage duplicates permission and the organization admin role. Filter with --status in-progress|success|failed or --task-id (id or task URL from 'person merge').",
+      "relatedCommands": ["person merge-history get", "person merge", "task ls", "task get"],
+      "mcpBehavior": {
+        "limitEnforced": true,
+        "allFlagBlocked": true,
+        "defaultLimit": 1000,
+        "maxLimit": 10000
+      }
+    },
+    "person merge-history get": {
+      "whenToUse": "Show one past person merge by its merge id (from 'person merge-history ls').",
+      "relatedCommands": ["person merge-history ls"]
+    },
     "person merge": {
       "whenToUse": "Merge a duplicate person into a primary person. Combines data from both records. Returns a taskUrl - use 'task wait' to poll for completion.",
       "examples": [
@@ -111,6 +125,20 @@
     "company field": {
       "whenToUse": "Manage field values on a company (global, enriched and Source of Introduction fields). Accepts field names or field IDs. Some enriched names (Industry, Location, Description) exist under multiple enrichment providers and raise AmbiguousFieldError with disambiguation candidates — pass the specific field ID in that case. All --set/--set-json/--unset of one call are written in one request that Affinity applies completely or not at all; output lists `created` and `cleared` fields. Needs CLI 1.21.0+.",
       "relatedCommands": ["company get", "field ls"]
+    },
+    "company merge-history ls": {
+      "whenToUse": "List past company merges, newest first (status, taskId, primary and duplicate ids, errors). Use to check what was merged or why a merge failed. Needs the Manage duplicates permission and the organization admin role. Filter with --status in-progress|success|failed or --task-id (id or task URL from 'company merge').",
+      "relatedCommands": ["company merge-history get", "company merge", "task ls", "task get"],
+      "mcpBehavior": {
+        "limitEnforced": true,
+        "allFlagBlocked": true,
+        "defaultLimit": 1000,
+        "maxLimit": 10000
+      }
+    },
+    "company merge-history get": {
+      "whenToUse": "Show one past company merge by its merge id (from 'company merge-history ls').",
+      "relatedCommands": ["company merge-history ls"]
     },
     "company merge": {
       "whenToUse": "Merge a duplicate company into a primary company. Combines data from both records. Returns a taskUrl - use 'task wait' to poll for completion.",
@@ -362,6 +390,15 @@
       "whenToUse": "Delete an option of a list field. Cannot be undone: Affinity also clears the field on every list entry that has the option. Confirm the option (text and id from 'field options ls') with the user first.",
       "relatedCommands": ["field options ls", "field options update"]
     },
+    "interaction feed": {
+      "limitConfig": {"default": 50, "max": 500},
+      "whenToUse": "List emails, meetings, calls or chat messages ACROSS THE ORGANIZATION (not one entity): recent activity, 'what emails were sent this week', delta sync. --type email|meeting|call|chat-message; --after/--before filter the sent or start time; --updated-after for changes. Rows hold up to 10 participants plus the total. Only what the key's user may see; hidden email subjects show as ********. Org-wide output is sensitive: quote only what the user needs. For one person/company/opportunity use 'interaction ls'.",
+      "examples": [
+        "interaction feed --type email --after -7d --max-results 20",
+        "interaction feed --type meeting --after 2025-06-01 --before 2025-07-01"
+      ],
+      "relatedCommands": ["interaction ls", "transcript ls"]
+    },
     "interaction ls": {
       "whenToUse": "List interactions for an entity. Requires --type (repeatable, or 'all') and one entity selector (--person-id, --company-id, or --opportunity-id). Date range defaults to all-time; use --days or --after to limit. Auto-chunks ranges > 1 year.",
       "requiredOneOf": [["--person-id", "--company-id", "--opportunity-id"]],
@@ -483,6 +520,28 @@
       "whenToUse": "Delete a reminder.",
       "relatedCommands": ["reminder get"]
     },
+    "company relationships": {
+      "whenToUse": "Who on your team knows people at this company, and how well: pairs person1/person2 with interactionScore (0-1, strongest first) and linkedInConnectedOn. Use for warm-intro paths. --min-score filters (LinkedIn-only relationships have score 0 and are dropped by any min-score above 0). Accepts a company id, URL or domain selector. Needs Affinity API version 2026-07-15+.",
+      "examples": ["company relationships 123 --min-score 0.3 --max-results 20"],
+      "relatedCommands": ["person relationships", "relationship-strength ls"],
+      "mcpBehavior": {
+        "limitEnforced": true,
+        "allFlagBlocked": true,
+        "defaultLimit": 100,
+        "maxLimit": 1000
+      }
+    },
+    "person relationships": {
+      "whenToUse": "How strongly your team members are connected to this person: pairs with interactionScore (0-1, strongest first) and linkedInConnectedOn. --min-score filters. Needs Affinity API version 2026-07-15+.",
+      "examples": ["person relationships 456 --max-results 10"],
+      "relatedCommands": ["company relationships", "relationship-strength ls"],
+      "mcpBehavior": {
+        "limitEnforced": true,
+        "allFlagBlocked": true,
+        "defaultLimit": 100,
+        "maxLimit": 1000
+      }
+    },
     "relationship-strength ls": {
       "whenToUse": "List relationship strengths for a person or external ID. Shows connection quality and team members who know them.",
       "relatedCommands": ["person get"]
@@ -558,6 +617,16 @@
         "resolve-url 'https://app.affinity.co/persons/123'"
       ],
       "relatedCommands": ["person get", "company get", "opportunity get", "list get", "entry get"]
+    },
+    "task ls": {
+      "whenToUse": "List company or person merge tasks (batches), newest first: id, status, resultsSummary. --kind company-merge|person-merge, --status. Needs the Manage duplicates permission and the organization admin role.",
+      "relatedCommands": ["task get", "company merge-history ls", "person merge-history ls"],
+      "mcpBehavior": {
+        "limitEnforced": true,
+        "allFlagBlocked": true,
+        "defaultLimit": 1000,
+        "maxLimit": 10000
+      }
     },
     "task get": {
       "whenToUse": "Get current status of an async task (pending/in-progress/success/failed). Operations like 'company merge' and 'person merge' return taskUrls that complete in the background.",

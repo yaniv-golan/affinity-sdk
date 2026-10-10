@@ -353,6 +353,15 @@ that version for the write; with `--api-version 2024-01-01` the command exits 2
 xaffinity person delete 26229794
 ```
 
+### `xaffinity person merge-history ls` / `get <mergeId>`
+
+Past person merges, newest first. Same options as `company merge-history` below.
+
+### `xaffinity person relationships <person>`
+
+How strongly your team members are connected to this person. Same options as
+`company relationships` below.
+
 ### `xaffinity person merge <primaryId> <duplicateId>`
 
 Merges the duplicate into the primary; the duplicate is removed and this cannot be undone. Asks
@@ -533,6 +542,33 @@ that version for the write; with `--api-version 2024-01-01` the command exits 2
 ```bash
 xaffinity company delete 224925494
 ```
+
+### `xaffinity company merge-history ls` / `get <mergeId>`
+
+Past company merges, newest first: `id`, `status`, `taskId`, `startedAt`, `primaryCompanyId`,
+`duplicateCompanyId`, `completedAt`, `errorMessage`.
+
+```bash
+xaffinity company merge-history ls --status failed
+xaffinity company merge-history ls --task-id https://api.affinity.co/v2/tasks/company-merges/<id>
+xaffinity company merge-history get 481975
+```
+
+Needs the "Manage duplicates" permission and the organization admin role.
+
+### `xaffinity company relationships <company>`
+
+Who on your team knows people at this company, and how well (V2).
+
+```bash
+xaffinity company relationships 123 --min-score 0.3 --max-results 20
+xaffinity company relationships domain:acme.com --order asc --all
+```
+
+Rows: `person1`, `person2` (`personId`, `name`, `email`), `interactionScore` (0.0-1.0, strongest
+first by default) and `linkedInConnectedOn`. Relationships known only from LinkedIn have score 0,
+so any `--min-score` above 0 drops them. Needs Affinity API version 2026-07-15 or newer; a
+profile pinned to an older version gets an error.
 
 ### `xaffinity company merge <primaryId> <duplicateId>`
 
@@ -934,6 +970,27 @@ xaffinity interaction ls --type meeting --person-id 123 --after 2025-01-01 --bef
 xaffinity interaction ls --type call --company-id 456 --days 365 --json
 ```
 
+### `xaffinity interaction feed`
+
+Emails, meetings, calls or chat messages across the organization (V2), not tied to one entity.
+
+```bash
+xaffinity interaction feed --type email --after -7d --max-results 50
+xaffinity interaction feed --type meeting --after 2025-06-01 --before 2025-07-01 --all
+xaffinity interaction feed --type chat --updated-after -1d
+```
+
+- `--type email|meeting|call|chat-message` (`chat` also works).
+- `--after` (inclusive) / `--before` (exclusive) filter the sent time (emails, chat) or start time
+  (meetings, calls); `--created-after` and `--updated-after` filter when Affinity logged or last
+  changed the item (items never changed are left out by `--updated-after`). Times are rounded
+  outward to whole seconds.
+- Rows: emails have `subject`, `from`, `to`, `cc`; meetings and calls `title`, `startTime`,
+  `endTime`, `organizer` (meetings), `attendees`; chat messages `creator`, `participants`. Each
+  list holds up to 10 people (`email`, `personId`, `name`) plus a total (`toTotal`, …).
+- Only items the API key's user may see; an email subject they may not see shows as `********`.
+- No sort option. For a sync, page to the end and keep the latest times yourself.
+
 ### `xaffinity interaction get <interactionId>`
 
 ```bash
@@ -1117,6 +1174,16 @@ xaffinity relationship-strength get --external-id 26229794 --internal-id 42
 ```
 
 ## Tasks
+
+### `xaffinity task ls`
+
+Company or person merge tasks (batches of merges), newest first.
+
+```bash
+xaffinity task ls --kind company-merge --status failed
+```
+
+Needs the "Manage duplicates" permission and the organization admin role.
 
 ### `xaffinity task get <taskUrl>`
 

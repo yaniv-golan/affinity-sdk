@@ -98,12 +98,18 @@ MODEL_MAPPINGS: dict[str, tuple[str, ...]] = {
     # GET /v2/transcripts/{id} (list items are transcripts.BaseTranscript, a subset)
     "Transcript": ("transcripts.Transcript",),
     "TranscriptFragment": ("transcripts.Fragment",),
+    # GET /v2/{calls,meetings,emails,chat-messages}
+    "InteractionAttendee": ("Attendee",),
+    "CallV2": ("interactions.Call",),
+    "MeetingV2": ("interactions.Meeting",),
+    "EmailV2": ("interactions.Email",),
+    "ChatMessageV2": ("interactions.ChatMessage",),
 }
 
 # SDK models deliberately not checked, with the reason.
 SKIPPED_MODELS: dict[str, str] = {
     "Note": "V1 note payload (V2 notes are NoteV2)",
-    "Interaction": "V1 interaction payload (integer type codes); V2 interactions.* not modelled",
+    "Interaction": "V1 interaction payload (integer type codes); V2 lists are CallV2 etc.",
     "Reminder": "V1 reminder payload; V2 reminders.* not modelled",
     "WebhookSubscription": "V1 webhook payload; V2 webhooks.Webhook not modelled",
     "EntityFile": "V1 file payload; V2 files.File not modelled",
@@ -118,6 +124,12 @@ SKIPPED_MODELS: dict[str, str] = {
 # Known SDK extensions beyond OpenAPI (documented exceptions, by Python field name).
 # An entry whose field is gone from the model or is now in the spec is an error.
 KNOWN_EXTENSIONS: dict[str, set[str]] = {
+    # Previews {data, totalCount} flattened into a list and a total
+    "CallV2": {"attendees", "attendees_total"},
+    "MeetingV2": {"attendees", "attendees_total"},
+    "EmailV2": {"to", "to_total", "cc", "cc_total"},
+    "ChatMessageV2": {"participants", "participants_total"},
+    "Relationship": {"linkedin_connected_on"},
     # fragmentsPreview {data, totalCount} flattened into two fields
     "Transcript": {"fragments_preview", "fragments_total"},
     # Declared on each of the 15 typed variants, not on FieldValueChangeBase
@@ -162,6 +174,12 @@ KNOWN_GAPS: dict[tuple[str, str], str] = {
     ("NoteV2", "personsPreview"): "opt-in `includes` preview; notes on V2 is P2.6",
     ("NoteV2", "repliesCount"): "opt-in `includes` count; notes on V2 is P2.6",
     ("Transcript", "fragmentsPreview"): "flattened into fragments_preview + fragments_total",
+    ("CallV2", "attendeesPreview"): "flattened into attendees + attendees_total",
+    ("MeetingV2", "attendeesPreview"): "flattened into attendees + attendees_total",
+    ("EmailV2", "toParticipantsPreview"): "flattened into to + to_total",
+    ("EmailV2", "ccParticipantsPreview"): "flattened into cc + cc_total",
+    ("ChatMessageV2", "participantsPreview"): "flattened into participants + participants_total",
+    ("Relationship", "linkedIn"): "flattened into linkedin_connected_on",
     # --- enums ---
     ("DropdownOptionColor", "white"): (
         "SDK enum is the V1 integer palette (DEFAULT, YELLOW, ...); no verified V1 code "
@@ -552,6 +570,14 @@ def get_sdk_models() -> dict[str, type]:
         PersonSummary,
         SavedView,
     )
+    from affinity.models.interactions_v2 import (
+        CallV2,
+        ChatMessageV2,
+        EmailV2,
+        InteractionAttendee,
+        MeetingV2,
+    )
+    from affinity.models.relationships_v2 import Relationship, RelationshipPerson
     from affinity.models.search import (
         FileRef,
         FileSearchResult,
@@ -561,6 +587,7 @@ def get_sdk_models() -> dict[str, type]:
         SemanticSearchResult,
     )
     from affinity.models.secondary import (
+        CompanyMergeState,
         EntityFile,
         FieldValueChangeEntity,
         FieldValueChangeField,
@@ -570,6 +597,7 @@ def get_sdk_models() -> dict[str, type]:
         MergeTask,
         Note,
         NoteV2,
+        PersonMergeState,
         Reminder,
         WebhookSubscription,
         WhoAmI,
@@ -599,6 +627,15 @@ def get_sdk_models() -> dict[str, type]:
         "FieldValueChangeListEntry": FieldValueChangeListEntry,
         "Transcript": Transcript,
         "TranscriptFragment": TranscriptFragment,
+        "InteractionAttendee": InteractionAttendee,
+        "CallV2": CallV2,
+        "MeetingV2": MeetingV2,
+        "EmailV2": EmailV2,
+        "ChatMessageV2": ChatMessageV2,
+        "CompanyMergeState": CompanyMergeState,
+        "PersonMergeState": PersonMergeState,
+        "Relationship": Relationship,
+        "RelationshipPerson": RelationshipPerson,
         "DropdownOption": DropdownOption,
         # Secondary entities
         "Note": Note,

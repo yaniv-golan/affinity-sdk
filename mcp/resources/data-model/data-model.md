@@ -223,6 +223,16 @@ The response includes `dropdownOptions` array for dropdown/ranked-dropdown field
 
 Or use the resource: `xaffinity://field-catalogs/{listId}` for field schema with descriptions.
 
+### Org-wide activity and relationships
+```bash
+interaction feed --type email --after -7d --max-results 20     # emails across the org (not one entity)
+interaction feed --type meeting --after -30d                   # also: call, chat-message
+company relationships 123 --min-score 0.3                      # who on the team knows people there
+company merge-history ls --status failed                       # past merges (admin + Manage duplicates)
+```
+`interaction ls` stays the way to see one person's, company's or opportunity's interactions.
+The feed shows only what the key's user may see; hidden email subjects appear as `********`.
+
 ### Audit field changes (who changed what, when)
 ```bash
 field history field-123456 --person-id 789           # See change history for a field on a person

@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.25.0] - 2026-10-10
+
+### Highlights
+
+**Org-wide activity, merge history and relationships.** List emails, meetings, calls and chat
+messages across the organization (`interaction feed`), past company and person merges
+(`merge-history`, `task ls`), and who on your team knows people at a company, or a person, and
+how well (`company relationships`, `person relationships`).
+
+### Added
+
+- SDK `interactions.list_emails()` / `list_meetings()` / `list_calls()` / `list_chat_messages()`
+  and `iter_*()`: V2 org-wide lists with `after` / `before` (sent or start time),
+  `created_after` and `updated_after`. Models `EmailV2`, `MeetingV2`, `CallV2`, `ChatMessageV2`,
+  `InteractionAttendee` (previews flattened into lists plus totals). Only items the key's user
+  may see. `interactions.list()` (V1, one entity) is unchanged.
+- SDK `companies` / `persons`: `list_merges()`, `iter_merges()`, `get_merge_state()` (models
+  `CompanyMergeState`, `PersonMergeState`); `tasks.list_merge_tasks("company"|"person")` and
+  `iter_merge_tasks()`. They need the "Manage duplicates" permission and the organization admin
+  role.
+- SDK `companies` / `persons`: `list_relationships()` / `iter_relationships()` (models
+  `Relationship`, `RelationshipPerson`), with `min_score`, `order` and `total_count`. They send
+  Affinity API version 2026-07-15 (beta before that); a client pinned to 2024-01-01 gets
+  `ApiVersionTooOldError`.
+- CLI `interaction feed --type email|meeting|call|chat-message`, `company|person merge-history
+  ls|get`, `task ls --kind company-merge|person-merge`, `company|person relationships`.
+
 ## [1.24.0] - 2026-10-10
 
 ### Highlights

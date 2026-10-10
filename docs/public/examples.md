@@ -75,6 +75,31 @@ with Affinity.from_env() as client:
 
 Only transcripts the API key's user may see are returned.
 
+## Org-wide activity, merge history and relationships
+
+```python
+from datetime import datetime, timezone
+
+from affinity.types import CompanyId
+
+week_ago = datetime(2025, 6, 1, tzinfo=timezone.utc)
+with Affinity.from_env() as client:
+    for email in client.interactions.iter_emails(after=week_ago):
+        print(email.sent_at, email.subject, email.from_, email.to_total)
+    for meeting in client.interactions.iter_meetings(after=week_ago):
+        print(meeting.start_time, meeting.title, meeting.attendees_total)
+
+    for merge in client.companies.iter_merges(status="failed"):
+        print(merge.id, merge.primary_company_id, merge.error_message)
+
+    for rel in client.companies.iter_relationships(CompanyId(123), min_score=0.3):
+        print(rel.person1.first_name, rel.person2.first_name, rel.interaction_score)
+```
+
+Interaction lists cover only what the API key's user may see. Merge history needs the "Manage
+duplicates" permission and the organization admin role. Relationships need Affinity API version
+2026-07-15 or newer.
+
 ## Field Value Changes (audit history)
 
 Query the change history for a specific field on an entity:

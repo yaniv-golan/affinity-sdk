@@ -21,6 +21,7 @@ from .types import (
     ISODatetime,
     ListEntryId,
     ListId,
+    MergeStatus,
     NoteId,
     NoteType,
     OpportunityId,
@@ -471,6 +472,32 @@ class MergeTask(AffinityModel):
     id: str
     status: str  # pending, in-progress, success, failed
     results_summary: MergeResultsSummary | None = Field(None, alias="resultsSummary")
+
+
+class CompanyMergeState(AffinityModel):
+    """One company merge (V2 ``GET /v2/company-merges``)."""
+
+    id: int
+    status: MergeStatus
+    task_id: str = Field(alias="taskId")
+    started_at: ISODatetime = Field(alias="startedAt")
+    primary_company_id: CompanyId = Field(alias="primaryCompanyId")
+    duplicate_company_id: CompanyId = Field(alias="duplicateCompanyId")
+    completed_at: ISODatetime | None = Field(None, alias="completedAt")
+    error_message: str | None = Field(None, alias="errorMessage")
+
+
+class PersonMergeState(AffinityModel):
+    """One person merge (V2 ``GET /v2/person-merges``)."""
+
+    id: int
+    status: MergeStatus
+    task_id: str = Field(alias="taskId")
+    started_at: ISODatetime = Field(alias="startedAt")
+    primary_person_id: PersonId = Field(alias="primaryPersonId")
+    duplicate_person_id: PersonId = Field(alias="duplicatePersonId")
+    completed_at: ISODatetime | None = Field(None, alias="completedAt")
+    error_message: str | None = Field(None, alias="errorMessage")
 
 
 class MergeResponse(AffinityModel):

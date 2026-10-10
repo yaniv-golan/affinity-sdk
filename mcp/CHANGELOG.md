@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0] - 2026-10-10
+
+### Highlights
+
+**Org-wide activity, merge history and relationships.** Claude can list recent emails,
+meetings, calls and chat messages across the organization, check past merges, and see who on
+the team knows people at a company. Requires CLI 1.25.0.
+
+### Added
+
+- Registry: `interaction feed` (50 rows by default, 500 at most, no `--all`),
+  `company|person merge-history ls|get`, `task ls`, `company|person relationships`.
+- Data model: when to use the feed vs `interaction ls`; hidden email subjects show as
+  `********`.
+
 ## [1.27.0] - 2026-10-10
 
 ### Highlights

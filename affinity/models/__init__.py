@@ -45,6 +45,7 @@ from .entities import (
     # Saved View
     SavedView,
 )
+from .interactions_v2 import CallV2, ChatMessageV2, EmailV2, InteractionAttendee, MeetingV2
 
 # Pagination
 from .pagination import (
@@ -59,6 +60,7 @@ from .pagination import (
 
 # Rate limit snapshot (unified)
 from .rate_limit_snapshot import RateLimitBucket, RateLimitSnapshot
+from .relationships_v2 import Relationship, RelationshipPerson
 
 # Search (V2)
 from .search import (
@@ -73,6 +75,7 @@ from .search import (
 # Secondary models
 from .secondary import (
     # File
+    CompanyMergeState,
     EntityFile,
     # Field value change (V2)
     FieldValueChangeEntity,
@@ -88,6 +91,7 @@ from .secondary import (
     Note,
     NoteCreate,
     NoteUpdate,
+    PersonMergeState,
     RateLimitInfo,
     RateLimits,
     # Relationship
@@ -141,6 +145,15 @@ __all__ = [
     "FieldValueChangeListEntry",
     "FieldValueChangeV2",
     "Transcript",
+    "CallV2",
+    "ChatMessageV2",
+    "EmailV2",
+    "InteractionAttendee",
+    "MeetingV2",
+    "Relationship",
+    "RelationshipPerson",
+    "CompanyMergeState",
+    "PersonMergeState",
     "TranscriptFragment",
     "FieldValueCreate",
     "DropdownOption",

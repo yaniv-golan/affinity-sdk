@@ -2,11 +2,11 @@
   "_generated": {
     "warning": "DO NOT EDIT - This file is auto-generated",
     "generator": "tools/generate_mcp_command_registry.py",
-    "cliVersion": "1.24.0",
+    "cliVersion": "1.25.0",
     "sourceConfig": "mcp/.registry/mcp-commands.json"
   },
   "version": 1,
-  "cliVersion": "1.24.0",
+  "cliVersion": "1.25.0",
   "commands": [
     {
       "name": "company create",
@@ -554,6 +554,181 @@
         "company ls",
         "task wait"
       ]
+    },
+    {
+      "name": "company merge-history get",
+      "description": "Show one past company merge (ids from `company merge-history ls`).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {},
+      "positionals": [
+        {
+          "name": "MERGE_ID",
+          "type": "int",
+          "required": true
+        }
+      ],
+      "whenToUse": "Show one past company merge by its merge id (from 'company merge-history ls').",
+      "relatedCommands": [
+        "company merge-history ls"
+      ]
+    },
+    {
+      "name": "company merge-history ls",
+      "description": "List past company merges, newest first (id, status, taskId, startedAt, primary and duplicate ids, completedAt, errorMessage). Needs the Manage duplicates permission and the organization admin role.",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a nextCursor."
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        },
+        "--status": {
+          "type": "string",
+          "required": false,
+          "help": "Status.",
+          "choices": [
+            "in-progress",
+            "success",
+            "failed"
+          ]
+        },
+        "--task-id": {
+          "type": "string",
+          "required": false,
+          "help": "One merge task (id or task URL)."
+        }
+      },
+      "positionals": [],
+      "whenToUse": "List past company merges, newest first (status, taskId, primary and duplicate ids, errors). Use to check what was merged or why a merge failed. Needs the Manage duplicates permission and the organization admin role. Filter with --status in-progress|success|failed or --task-id (id or task URL from 'company merge').",
+      "relatedCommands": [
+        "company merge-history get",
+        "company merge",
+        "task ls",
+        "task get"
+      ],
+      "mcpBehavior": {
+        "limitEnforced": true,
+        "allFlagBlocked": true,
+        "defaultLimit": 1000,
+        "maxLimit": 10000
+      },
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      }
+    },
+    {
+      "name": "company relationships",
+      "description": "Relationships between your team and this company's people, strongest first: person1, person2, interactionScore (0.0-1.0) and linkedInConnectedOn. LinkedIn-only relationships have score 0, so any --min-score above 0 drops them. Needs Affinity API version 2026-07-15 or newer.",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a nextCursor."
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        },
+        "--min-score": {
+          "type": "string",
+          "required": false,
+          "help": "Only relationships at least this strong (0.0-1.0)."
+        },
+        "--order": {
+          "type": "string",
+          "required": false,
+          "help": "Strongest first (desc) or weakest first (asc).",
+          "choices": [
+            "desc",
+            "asc"
+          ]
+        }
+      },
+      "positionals": [
+        {
+          "name": "SELECTOR",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "whenToUse": "Who on your team knows people at this company, and how well: pairs person1/person2 with interactionScore (0-1, strongest first) and linkedInConnectedOn. Use for warm-intro paths. --min-score filters (LinkedIn-only relationships have score 0 and are dropped by any min-score above 0). Accepts a company id, URL or domain selector. Needs Affinity API version 2026-07-15+.",
+      "examples": [
+        "company relationships 123 --min-score 0.3 --max-results 20"
+      ],
+      "relatedCommands": [
+        "person relationships",
+        "relationship-strength ls"
+      ],
+      "mcpBehavior": {
+        "limitEnforced": true,
+        "allFlagBlocked": true,
+        "defaultLimit": 100,
+        "maxLimit": 1000
+      },
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      }
     },
     {
       "name": "company search",
@@ -1708,6 +1883,94 @@
       "whenToUse": "Delete an interaction. Use with caution.",
       "relatedCommands": [
         "interaction get"
+      ]
+    },
+    {
+      "name": "interaction feed",
+      "description": "List emails, meetings, calls or chat messages across the organization (V2).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--after": {
+          "type": "string",
+          "required": false,
+          "help": "Sent / start time at or after (ISO date/datetime or relative, e.g. -7d)."
+        },
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--before": {
+          "type": "string",
+          "required": false,
+          "help": "Sent / start time before."
+        },
+        "--created-after": {
+          "type": "string",
+          "required": false,
+          "help": "Logged in Affinity at or after."
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a nextCursor."
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        },
+        "--type": {
+          "type": "string",
+          "required": true,
+          "help": "email, meeting, call or chat-message (chat).",
+          "choices": [
+            "call",
+            "chat",
+            "chat-message",
+            "email",
+            "meeting"
+          ]
+        },
+        "--updated-after": {
+          "type": "string",
+          "required": false,
+          "help": "Changed at or after (items never changed are not included)."
+        }
+      },
+      "positionals": [],
+      "examples": [
+        "interaction feed --type email --after -7d --max-results 20",
+        "interaction feed --type meeting --after 2025-06-01 --before 2025-07-01"
+      ],
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 50,
+        "max": 500,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      },
+      "whenToUse": "List emails, meetings, calls or chat messages ACROSS THE ORGANIZATION (not one entity): recent activity, 'what emails were sent this week', delta sync. --type email|meeting|call|chat-message; --after/--before filter the sent or start time; --updated-after for changes. Rows hold up to 10 participants plus the total. Only what the key's user may see; hidden email subjects show as ********. Org-wide output is sensitive: quote only what the user needs. For one person/company/opportunity use 'interaction ls'.",
+      "relatedCommands": [
+        "interaction ls",
+        "transcript ls"
       ]
     },
     {
@@ -3619,6 +3882,181 @@
       ]
     },
     {
+      "name": "person merge-history get",
+      "description": "Show one past person merge (ids from `person merge-history ls`).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {},
+      "positionals": [
+        {
+          "name": "MERGE_ID",
+          "type": "int",
+          "required": true
+        }
+      ],
+      "whenToUse": "Show one past person merge by its merge id (from 'person merge-history ls').",
+      "relatedCommands": [
+        "person merge-history ls"
+      ]
+    },
+    {
+      "name": "person merge-history ls",
+      "description": "List past person merges, newest first (id, status, taskId, startedAt, primary and duplicate ids, completedAt, errorMessage). Needs the Manage duplicates permission and the organization admin role.",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a nextCursor."
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        },
+        "--status": {
+          "type": "string",
+          "required": false,
+          "help": "Status.",
+          "choices": [
+            "in-progress",
+            "success",
+            "failed"
+          ]
+        },
+        "--task-id": {
+          "type": "string",
+          "required": false,
+          "help": "One merge task (id or task URL)."
+        }
+      },
+      "positionals": [],
+      "whenToUse": "List past person merges, newest first (status, taskId, primary and duplicate ids, errors). Use to check what was merged or why a merge failed. Needs the Manage duplicates permission and the organization admin role. Filter with --status in-progress|success|failed or --task-id (id or task URL from 'person merge').",
+      "relatedCommands": [
+        "person merge-history get",
+        "person merge",
+        "task ls",
+        "task get"
+      ],
+      "mcpBehavior": {
+        "limitEnforced": true,
+        "allFlagBlocked": true,
+        "defaultLimit": 1000,
+        "maxLimit": 10000
+      },
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      }
+    },
+    {
+      "name": "person relationships",
+      "description": "Relationships between your team and this person, strongest first: person1, person2, interactionScore (0.0-1.0) and linkedInConnectedOn. LinkedIn-only relationships have score 0, so any --min-score above 0 drops them. Needs Affinity API version 2026-07-15 or newer.",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a nextCursor."
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        },
+        "--min-score": {
+          "type": "string",
+          "required": false,
+          "help": "Only relationships at least this strong (0.0-1.0)."
+        },
+        "--order": {
+          "type": "string",
+          "required": false,
+          "help": "Strongest first (desc) or weakest first (asc).",
+          "choices": [
+            "desc",
+            "asc"
+          ]
+        }
+      },
+      "positionals": [
+        {
+          "name": "SELECTOR",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "whenToUse": "How strongly your team members are connected to this person: pairs with interactionScore (0-1, strongest first) and linkedInConnectedOn. --min-score filters. Needs Affinity API version 2026-07-15+.",
+      "examples": [
+        "person relationships 456 --max-results 10"
+      ],
+      "relatedCommands": [
+        "company relationships",
+        "relationship-strength ls"
+      ],
+      "mcpBehavior": {
+        "limitEnforced": true,
+        "allFlagBlocked": true,
+        "defaultLimit": 100,
+        "maxLimit": 1000
+      },
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      }
+    },
+    {
       "name": "person update",
       "description": "Update a person.",
       "category": "write",
@@ -4295,6 +4733,84 @@
       ]
     },
     {
+      "name": "task ls",
+      "description": "List company or person merge tasks, newest first.",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a nextCursor."
+        },
+        "--kind": {
+          "type": "string",
+          "required": true,
+          "help": "Which tasks to list.",
+          "choices": [
+            "company-merge",
+            "person-merge"
+          ]
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        },
+        "--status": {
+          "type": "string",
+          "required": false,
+          "help": "Status.",
+          "choices": [
+            "in-progress",
+            "success",
+            "failed"
+          ]
+        }
+      },
+      "positionals": [],
+      "whenToUse": "List company or person merge tasks (batches), newest first: id, status, resultsSummary. --kind company-merge|person-merge, --status. Needs the Manage duplicates permission and the organization admin role.",
+      "relatedCommands": [
+        "task get",
+        "company merge-history ls",
+        "person merge-history ls"
+      ],
+      "mcpBehavior": {
+        "limitEnforced": true,
+        "allFlagBlocked": true,
+        "defaultLimit": 1000,
+        "maxLimit": 10000
+      },
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      }
+    },
+    {
       "name": "task wait",
       "description": "Wait for an async task to complete.",
       "category": "read",
@@ -4490,5 +5006,5 @@
       ]
     }
   ],
-  "total": 76
+  "total": 84
 }

@@ -36,7 +36,8 @@ from ..models.pagination import (
     PaginatedResponse,
     PaginationInfo,
 )
-from ..models.secondary import MergeTask
+from ..models.relationships_v2 import Relationship
+from ..models.secondary import CompanyMergeState, MergeTask
 from ..models.types import (
     AnyFieldId,
     CompanyId,
@@ -53,6 +54,13 @@ from ._dropdown_options import (
 )
 from ._field_listing import build_fields_query
 from ._field_updates import FIELD_WRITES_MIN_API_VERSION, _batch_update_items
+from ._org_reads import (
+    RELATIONSHIPS_MIN_API_VERSION,
+    check_cursor_alone,
+    merge_params,
+    page_of,
+    relationship_params,
+)
 from .search import AsyncCompanySemanticSearchMixin, CompanySemanticSearchMixin
 
 if TYPE_CHECKING:
@@ -1156,6 +1164,108 @@ class CompanyService(CompanySemanticSearchMixin):
         """Check the status of a merge operation."""
         data = self._client.get(f"/tasks/company-merges/{task_id}")
         return MergeTask.model_validate(data)
+
+    # =========================================================================
+    # Merge history and relationships (V2)
+    # =========================================================================
+
+    def list_merges(
+        self,
+        *,
+        status: str | None = None,
+        task_id: str | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[CompanyMergeState]:
+        """One page of past company merges, newest first.
+
+        ``status`` is ``"in-progress"``, ``"success"`` or ``"failed"``; ``task_id`` (or the task
+        URL a merge returned) limits it to one merge task. Needs the "Manage duplicates"
+        permission and the organization admin role (otherwise ``AuthorizationError``).
+        """
+        check_cursor_alone(cursor, status, task_id, limit)
+        if cursor is not None:
+            return page_of(CompanyMergeState, self._client.get_url(cursor))
+        params = merge_params(status=status, task_id=task_id, limit=limit)
+        return page_of(
+            CompanyMergeState, self._client.get("/company-merges", params=params or None)
+        )
+
+    def iter_merges(
+        self, *, status: str | None = None, task_id: str | None = None
+    ) -> Iterator[CompanyMergeState]:
+        """All past company merges matching the filters (every page)."""
+
+        def fetch_page(next_url: str | None) -> PaginatedResponse[CompanyMergeState]:
+            if next_url:
+                return self.list_merges(cursor=next_url)
+            return self.list_merges(status=status, task_id=task_id)
+
+        return PageIterator(fetch_page)
+
+    def get_merge_state(self, merge_id: int) -> CompanyMergeState:
+        """One past company merge (see :meth:`list_merges`)."""
+        return CompanyMergeState.model_validate(
+            self._client.get(f"/company-merges/{int(merge_id)}")
+        )
+
+    def list_relationships(
+        self,
+        company_id: CompanyId,
+        *,
+        min_score: float | None = None,
+        order: Literal["asc", "desc"] = "desc",
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[Relationship]:
+        """One page of the relationships between your team and this company's people.
+
+        Strongest first (``order="asc"`` for weakest first). ``min_score`` (0.0-1.0) keeps
+        relationships at least that strong; relationships known only from LinkedIn have score 0,
+        so any ``min_score`` above 0 drops them. ``limit`` is 1-100 (API default 20). Needs
+        Affinity API version {RELATIONSHIPS_MIN_API_VERSION} (sent for this call and every page).
+        """
+        if cursor is not None:
+            if min_score is not None or limit is not None or total_count or order != "desc":
+                raise ValueError(
+                    "Cannot combine 'cursor' with other parameters; cursor encodes all query "
+                    "context."
+                )
+            return page_of(
+                Relationship,
+                self._client.get_url(cursor, min_api_version=RELATIONSHIPS_MIN_API_VERSION),
+            )
+        params = relationship_params(
+            min_score=min_score, order=order, limit=limit, total_count=total_count
+        )
+        return page_of(
+            Relationship,
+            self._client.get(
+                f"/companies/{int(company_id)}/relationships",
+                params=params or None,
+                min_api_version=RELATIONSHIPS_MIN_API_VERSION,
+            ),
+        )
+
+    def iter_relationships(
+        self,
+        company_id: CompanyId,
+        *,
+        min_score: float | None = None,
+        order: Literal["asc", "desc"] = "desc",
+        limit: int | None = None,
+    ) -> Iterator[Relationship]:
+        """All relationships for this company (every page); see :meth:`list_relationships`."""
+
+        def fetch_page(next_url: str | None) -> PaginatedResponse[Relationship]:
+            if next_url:
+                return self.list_relationships(company_id, cursor=next_url)
+            return self.list_relationships(
+                company_id, min_score=min_score, order=order, limit=limit
+            )
+
+        return PageIterator(fetch_page)
 
 
 class AsyncCompanyService(AsyncCompanySemanticSearchMixin):
@@ -2309,3 +2419,105 @@ class AsyncCompanyService(AsyncCompanySemanticSearchMixin):
         """Check the status of a merge operation."""
         data = await self._client.get(f"/tasks/company-merges/{task_id}")
         return MergeTask.model_validate(data)
+
+    # =========================================================================
+    # Merge history and relationships (V2)
+    # =========================================================================
+
+    async def list_merges(
+        self,
+        *,
+        status: str | None = None,
+        task_id: str | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[CompanyMergeState]:
+        """One page of past company merges, newest first.
+
+        ``status`` is ``"in-progress"``, ``"success"`` or ``"failed"``; ``task_id`` (or the task
+        URL a merge returned) limits it to one merge task. Needs the "Manage duplicates"
+        permission and the organization admin role (otherwise ``AuthorizationError``).
+        """
+        check_cursor_alone(cursor, status, task_id, limit)
+        if cursor is not None:
+            return page_of(CompanyMergeState, await self._client.get_url(cursor))
+        params = merge_params(status=status, task_id=task_id, limit=limit)
+        return page_of(
+            CompanyMergeState, await self._client.get("/company-merges", params=params or None)
+        )
+
+    def iter_merges(
+        self, *, status: str | None = None, task_id: str | None = None
+    ) -> AsyncIterator[CompanyMergeState]:
+        """All past company merges matching the filters (every page)."""
+
+        async def fetch_page(next_url: str | None) -> PaginatedResponse[CompanyMergeState]:
+            if next_url:
+                return await self.list_merges(cursor=next_url)
+            return await self.list_merges(status=status, task_id=task_id)
+
+        return AsyncPageIterator(fetch_page)
+
+    async def get_merge_state(self, merge_id: int) -> CompanyMergeState:
+        """One past company merge (see :meth:`list_merges`)."""
+        return CompanyMergeState.model_validate(
+            await self._client.get(f"/company-merges/{int(merge_id)}")
+        )
+
+    async def list_relationships(
+        self,
+        company_id: CompanyId,
+        *,
+        min_score: float | None = None,
+        order: Literal["asc", "desc"] = "desc",
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[Relationship]:
+        """One page of the relationships between your team and this company's people.
+
+        Strongest first (``order="asc"`` for weakest first). ``min_score`` (0.0-1.0) keeps
+        relationships at least that strong; relationships known only from LinkedIn have score 0,
+        so any ``min_score`` above 0 drops them. ``limit`` is 1-100 (API default 20). Needs
+        Affinity API version {RELATIONSHIPS_MIN_API_VERSION} (sent for this call and every page).
+        """
+        if cursor is not None:
+            if min_score is not None or limit is not None or total_count or order != "desc":
+                raise ValueError(
+                    "Cannot combine 'cursor' with other parameters; cursor encodes all query "
+                    "context."
+                )
+            return page_of(
+                Relationship,
+                await self._client.get_url(cursor, min_api_version=RELATIONSHIPS_MIN_API_VERSION),
+            )
+        params = relationship_params(
+            min_score=min_score, order=order, limit=limit, total_count=total_count
+        )
+        return page_of(
+            Relationship,
+            await self._client.get(
+                f"/companies/{int(company_id)}/relationships",
+                params=params or None,
+                min_api_version=RELATIONSHIPS_MIN_API_VERSION,
+            ),
+        )
+
+    def iter_relationships(
+        self,
+        company_id: CompanyId,
+        *,
+        min_score: float | None = None,
+        order: Literal["asc", "desc"] = "desc",
+        limit: int | None = None,
+    ) -> AsyncIterator[Relationship]:
+        """All relationships for this company (every page); see :meth:`list_relationships`."""
+
+        async def fetch_page(next_url: str | None) -> PaginatedResponse[Relationship]:
+            if next_url:
+                return await self.list_relationships(company_id, cursor=next_url)
+            return await self.list_relationships(
+                company_id, min_score=min_score, order=order, limit=limit
+            )
+
+        return AsyncPageIterator(fetch_page)

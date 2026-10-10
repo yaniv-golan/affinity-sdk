@@ -9,11 +9,14 @@ from __future__ import annotations
 import asyncio
 import random
 import time
-from typing import TYPE_CHECKING
+from collections.abc import AsyncIterator, Iterator
+from typing import TYPE_CHECKING, Literal
 
 from ..exceptions import AffinityError
 from ..exceptions import TimeoutError as AffinityTimeoutError
+from ..models.pagination import AsyncPageIterator, PageIterator, PaginatedResponse
 from ..models.secondary import MergeTask
+from ._org_reads import check_cursor_alone, merge_params, page_of
 
 if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
@@ -60,6 +63,39 @@ class TaskService:
         # Extract task path from full URL if needed
         data = self._client.get_url(task_url)
         return MergeTask.model_validate(data)
+
+    def list_merge_tasks(
+        self,
+        kind: Literal["company", "person"],
+        *,
+        status: str | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[MergeTask]:
+        """One page of company or person merge tasks (batches of merges), newest first.
+
+        ``status`` is ``"in-progress"``, ``"success"`` or ``"failed"``. Needs the "Manage
+        duplicates" permission and the organization admin role.
+        """
+        if kind not in ("company", "person"):
+            raise ValueError("'kind' must be 'company' or 'person'")
+        check_cursor_alone(cursor, status, limit)
+        if cursor is not None:
+            return page_of(MergeTask, self._client.get_url(cursor))
+        params = merge_params(status=status, task_id=None, limit=limit)
+        return page_of(MergeTask, self._client.get(f"/tasks/{kind}-merges", params=params or None))
+
+    def iter_merge_tasks(
+        self, kind: Literal["company", "person"], *, status: str | None = None
+    ) -> Iterator[MergeTask]:
+        """All company or person merge tasks (every page); see :meth:`list_merge_tasks`."""
+
+        def fetch_page(next_url: str | None) -> PaginatedResponse[MergeTask]:
+            if next_url:
+                return self.list_merge_tasks(kind, cursor=next_url)
+            return self.list_merge_tasks(kind, status=status)
+
+        return PageIterator(fetch_page)
 
     def wait(
         self,
@@ -140,6 +176,41 @@ class AsyncTaskService:
         """
         data = await self._client.get_url(task_url)
         return MergeTask.model_validate(data)
+
+    async def list_merge_tasks(
+        self,
+        kind: Literal["company", "person"],
+        *,
+        status: str | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[MergeTask]:
+        """One page of company or person merge tasks (batches of merges), newest first.
+
+        ``status`` is ``"in-progress"``, ``"success"`` or ``"failed"``. Needs the "Manage
+        duplicates" permission and the organization admin role.
+        """
+        if kind not in ("company", "person"):
+            raise ValueError("'kind' must be 'company' or 'person'")
+        check_cursor_alone(cursor, status, limit)
+        if cursor is not None:
+            return page_of(MergeTask, await self._client.get_url(cursor))
+        params = merge_params(status=status, task_id=None, limit=limit)
+        return page_of(
+            MergeTask, await self._client.get(f"/tasks/{kind}-merges", params=params or None)
+        )
+
+    def iter_merge_tasks(
+        self, kind: Literal["company", "person"], *, status: str | None = None
+    ) -> AsyncIterator[MergeTask]:
+        """All company or person merge tasks (every page); see :meth:`list_merge_tasks`."""
+
+        async def fetch_page(next_url: str | None) -> PaginatedResponse[MergeTask]:
+            if next_url:
+                return await self.list_merge_tasks(kind, cursor=next_url)
+            return await self.list_merge_tasks(kind, status=status)
+
+        return AsyncPageIterator(fetch_page)
 
     async def wait(
         self,
