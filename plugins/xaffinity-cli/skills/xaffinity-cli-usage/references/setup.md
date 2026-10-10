@@ -27,9 +27,11 @@ config files):
 
 - **1Password Environments** (Mac/Linux, 1Password app running): the user mounts a local `.env`
   holding `AFFINITY_API_KEY` from the 1Password app, then sets `AFFINITY_API_KEY_FILE` to its path.
-  The first read after each unlock shows a 1Password approval prompt; the CLI waits up to 30 s for
-  it. A timeout error naming 1Password means the app isn't running or the read wasn't approved —
-  ask the user to approve, then retry. `check-key` reports it configured without reading it.
+  The first read shows a 1Password approval prompt, or an unlock prompt if 1Password is locked;
+  the CLI waits up to 30 s. A timeout error naming 1Password means the app isn't running or the
+  prompt wasn't answered — ask the user to approve or unlock, then retry. `check-key` reports it
+  configured without reading it. Works on the Mac itself, not inside Cowork's VM (a named pipe
+  doesn't cross its folder mount).
 - **`AFFINITY_API_KEY_COMMAND`** for vault, pass, Keychain or the 1Password CLI
   (`op read op://…`): a command whose stdout is the key.
 

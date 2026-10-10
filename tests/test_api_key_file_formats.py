@@ -11,6 +11,9 @@ from pathlib import Path
 import pytest
 
 from affinity._internal.keyfile import read_key_file
+from affinity.cli.commands.config_cmds import (
+    _probe_key_default_api_version as real_probe_key_default_api_version,
+)
 
 posix_only = pytest.mark.skipif(not hasattr(os, "mkfifo"), reason="needs named pipes")
 
@@ -103,3 +106,29 @@ def test_cli_api_key_file_flag_reads_dotenv(
     ctx.api_key_file = str(path)
     ctx.api_key_stdin = False
     assert CLIContext.resolve_api_key(ctx, warnings=[]) == "flag-key"
+
+
+@posix_only
+def test_check_key_does_not_read_a_fifo_for_its_version_probe(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The version probe needs the key; reading a 1Password pipe would prompt the user."""
+    import json
+
+    from click.testing import CliRunner
+
+    from affinity.cli.commands import config_cmds
+    from affinity.cli.main import cli
+
+    monkeypatch.setattr(  # conftest stubs the probe; this test is about the real one
+        config_cmds, "_probe_key_default_api_version", real_probe_key_default_api_version
+    )
+    path = _fifo(tmp_path)  # no writer: reading it would wait for the timeout
+    for var in ("AFFINITY_API_KEY", "AFFINITY_API_KEY_COMMAND"):
+        monkeypatch.delenv(var, raising=False)
+    monkeypatch.setenv("AFFINITY_API_KEY_FILE", str(path))
+    start = time.monotonic()
+    result = CliRunner().invoke(cli, ["--json", "config", "check-key"])
+    assert time.monotonic() - start < 5
+    data = json.loads(result.stdout.strip().splitlines()[-1])["data"]
+    assert data["configured"] is True and data["keyDefaultApiVersion"] is None

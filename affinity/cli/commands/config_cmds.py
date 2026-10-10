@@ -233,12 +233,22 @@ def check_key(ctx: CLIContext) -> None:
     run_command(ctx, command="config check-key", fn=fn)
 
 
+def _is_fifo(path: str) -> bool:
+    if not path:
+        return False
+    try:
+        return stat.S_ISFIFO(Path(path).expanduser().stat().st_mode)
+    except OSError:
+        return False
+
+
 def _probe_key_default_api_version(ctx: CLIContext, source: str | None) -> str | None:
     """
     Best-effort: the API key's default Affinity V2 API version, or None.
 
     One unversioned V2 request with a short timeout and no retries. Never raises, never
-    runs AFFINITY_API_KEY_COMMAND (check-key deliberately doesn't) and never reads stdin.
+    runs AFFINITY_API_KEY_COMMAND (check-key deliberately doesn't), never reads stdin and
+    never reads a named pipe (a 1Password mounted .env would prompt the user).
     """
     if (
         source == "command"
@@ -246,6 +256,8 @@ def _probe_key_default_api_version(ctx: CLIContext, source: str | None) -> str |
         or os.getenv("AFFINITY_API_KEY_COMMAND", "").strip()
         or ctx.api_key_stdin
         or ctx.api_key_file == "-"
+        or _is_fifo(os.getenv("AFFINITY_API_KEY_FILE", "").strip())
+        or _is_fifo(ctx.api_key_file or "")
     ):
         return None
     try:

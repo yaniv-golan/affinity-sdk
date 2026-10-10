@@ -75,9 +75,15 @@ export AFFINITY_API_KEY_FILE=~/projects/crm/.env   # the path you chose when mou
 xaffinity whoami
 ```
 
-The CLI waits up to 30 seconds for 1Password (time to approve). If 1Password isn't running or
-the read isn't approved, it stops with a message saying so. The key is never written to disk.
-`config check-key` reports a named pipe as configured without reading it.
+The first read asks you to approve it in 1Password; if 1Password is locked, it asks you to
+unlock it. The CLI waits up to 30 seconds for that. Further reads need nothing until 1Password
+locks again, and several commands can read at once. If 1Password isn't running or the read
+isn't approved, the CLI stops with a message saying so. The key is never written to disk.
+`config check-key` reports a named pipe as configured without reading it (so it never prompts).
+
+While 1Password is unlocked, any program on your computer can read the mounted file (that is
+how 1Password's mounted `.env` files work), so a short auto-lock time in 1Password limits that
+window.
 
 On Posix systems, a `UserWarning` is emitted if the file is group- or world-readable
 (mode `0644` or looser). Use `chmod 600` to silence it. The check is a no-op on Windows.

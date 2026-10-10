@@ -22,7 +22,9 @@ touches the disk.
   for its `AFFINITY_API_KEY=` line (`export` and quotes allowed); a file without that line is an
   error. A named pipe is read when its writer supplies the content, waiting up to 30 seconds,
   with a message naming 1Password if nothing arrives. `config check-key` reports a named pipe as
-  configured without reading it.
+  configured without reading it, and skips its API-version probe for it (reading would prompt).
+  Tested with a 1Password Environments mount: approval and unlock prompts, repeated and
+  concurrent reads.
 
 ### Changed
 
