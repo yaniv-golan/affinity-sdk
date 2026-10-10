@@ -3116,6 +3116,14 @@
 </li>
 </ol>
 <p>The MCPB bundle is self-contained (includes MCP framework and JSON processor) but requires the CLI to be installed separately.</p>
+<div class="admonition warning">
+<p class="admonition-title">Keep the CLI and the extension in step</p>
+<p>When you upgrade one, upgrade the other. Since MCP 1.25.2, with a CLI older than the extension
+needs, changes are refused ("This MCP server needs the xaffinity CLI … or later to make
+changes") and reads still run with a warning that results may be incomplete. An older extension
+with a newer CLI can fail without saying why (for example, merges with CLI 1.22.0 need extension
+1.25.1 or later).</p>
+</div>
 <div class="admonition note">
 <p class="admonition-title">MCPB support</p>
 <p>MCPB bundles currently only work with <strong>Claude Desktop</strong>. Other clients require manual configuration (see below).</p>
