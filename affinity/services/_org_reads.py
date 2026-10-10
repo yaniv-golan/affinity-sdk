@@ -102,3 +102,51 @@ def relationship_params(
     if total_count:
         params["totalCount"] = "true"
     return params
+
+
+NOTE_INCLUDES = ("companiesPreview", "personsPreview", "opportunitiesPreview", "repliesCount")
+# Company notes are beta on 2024-01-01 and GA from 2026-07-15 (same schema).
+COMPANY_NOTES_MIN_API_VERSION = "2026-07-15"
+
+
+def note_params(
+    *,
+    creator_id: int | None,
+    created_after: datetime | None,
+    created_before: datetime | None,
+    updated_after: datetime | None,
+    limit: int | None,
+    total_count: bool,
+    includes: Any = None,
+) -> list[tuple[str, Any]]:
+    """Query for the V2 note lists (filters shared by /notes, replies and entity notes)."""
+    check_limit(limit)
+    clauses = []
+    if creator_id is not None:
+        clauses.append(f"creator.id={int(creator_id)}")
+    if created_after is not None:
+        clauses.append(f"createdAt>={v2_filter_datetime(created_after, round_up=False)}")
+    if created_before is not None:
+        clauses.append(f"createdAt<{v2_filter_datetime(created_before, round_up=True)}")
+    if updated_after is not None:
+        clauses.append(f"updatedAt>={v2_filter_datetime(updated_after, round_up=False)}")
+    params: list[tuple[str, Any]] = []
+    if clauses:
+        params.append(("filter", " & ".join(clauses)))
+    if limit is not None:
+        params.append(("limit", limit))
+    if total_count:
+        params.append(("totalCount", "true"))
+    params.extend(("includes", value) for value in note_includes(includes))
+    return params
+
+
+def note_includes(includes: Any) -> list[str]:
+    """``True`` for all four extras, or a list of them; checked against the API's names."""
+    if not includes:
+        return []
+    values = list(NOTE_INCLUDES) if includes is True else list(includes)
+    unknown = [v for v in values if v not in NOTE_INCLUDES]
+    if unknown:
+        raise ValueError(f"Unknown includes {unknown}; allowed: {', '.join(NOTE_INCLUDES)}")
+    return values

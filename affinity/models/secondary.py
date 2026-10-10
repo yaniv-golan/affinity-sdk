@@ -10,7 +10,7 @@ from typing import Any
 
 from pydantic import AliasChoices, Field, model_validator
 
-from .entities import AffinityModel, PersonSummary
+from .entities import AffinityModel, CompanySummary, OpportunitySummary, PersonSummary
 from .types import (
     CompanyId,
     FileId,
@@ -103,13 +103,18 @@ class NoteContent(AffinityModel):
 
 
 class NoteV2(AffinityModel):
-    """V2 API note format."""
+    """V2 API note format.
+
+    ``replies_count`` and the attached ``companies`` / ``persons`` / ``opportunities`` (first ones,
+    with ``*_total``) are filled only when requested with ``includes`` (``notes.list_v2`` /
+    ``notes.get_v2``); otherwise they are ``None``.
+    """
 
     id: NoteId
     # Discriminator: "entities", "interaction", "ai-notetaker", "ai-notetaker-reply", "user-reply"
     type: str
     content: NoteContent
-    creator: PersonSummary
+    creator: PersonSummary | None = None
     created_at: ISODatetime = Field(alias="createdAt")
     updated_at: ISODatetime | None = Field(None, alias="updatedAt")
 
@@ -123,6 +128,35 @@ class NoteV2(AffinityModel):
     # doesn't keep transcripts or it was deleted)
     interaction: dict[str, Any] | None = None
     transcript_id: int | None = Field(None, alias="transcriptId")
+
+    # Only with includes=
+    replies_count: int | None = Field(None, alias="repliesCount")
+    companies: list[CompanySummary] | None = None
+    companies_total: int | None = None
+    persons: list[PersonSummary] | None = None
+    persons_total: int | None = None
+    opportunities: list[OpportunitySummary] | None = None
+    opportunities_total: int | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _flatten_previews(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+        for preview, key in (
+            ("companiesPreview", "companies"),
+            ("personsPreview", "persons"),
+            ("opportunitiesPreview", "opportunities"),
+        ):
+            if isinstance(data.get(preview), dict):
+                block = data[preview]
+                data = {
+                    **data,
+                    key: block.get("data") or [],
+                    f"{key}_total": block.get("totalCount"),
+                }
+                data.pop(preview, None)
+        return data
 
 
 # =============================================================================

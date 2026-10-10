@@ -11,6 +11,7 @@ import asyncio
 import builtins
 import time
 from collections.abc import AsyncIterator, Iterator, Sequence
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 from ..exceptions import AffinityError, NotFoundError
@@ -27,7 +28,9 @@ from ..models.pagination import (
     PaginatedResponse,
     PaginationInfo,
 )
+from ..models.secondary import NoteV2
 from ..models.types import CompanyId, ListId, OpportunityId, PersonId
+from ._org_reads import check_cursor_alone, note_params, page_of
 from .lists import AsyncListEntryService, ListEntryService
 
 if TYPE_CHECKING:
@@ -746,6 +749,76 @@ class OpportunityService:
                     ) from e
                 # skip: continue without this opportunity
         return result
+
+    # =========================================================================
+    # Notes (V2)
+    # =========================================================================
+
+    def list_notes(
+        self,
+        opportunity_id: OpportunityId,
+        *,
+        creator_id: int | None = None,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[NoteV2]:
+        """One page of this opportunity's notes as V2 notes (``NoteV2``; replies not included).
+
+        Filters: ``creator_id``, ``created_after`` (inclusive) / ``created_before`` (exclusive),
+        ``updated_after``, rounded outward to whole seconds. ``limit`` is 1-100.
+        Affinity may refuse opportunity notes (403 → ``AuthorizationError``).
+        """
+        check_cursor_alone(
+            cursor, creator_id, created_after, created_before, updated_after, limit, total_count
+        )
+        if cursor is not None:
+            return page_of(NoteV2, self._client.get_url(cursor, min_api_version=None))
+        params = note_params(
+            creator_id=creator_id,
+            created_after=created_after,
+            created_before=created_before,
+            updated_after=updated_after,
+            limit=limit,
+            total_count=total_count,
+        )
+        return page_of(
+            NoteV2,
+            self._client.get(
+                f"/opportunities/{int(opportunity_id)}/notes",
+                params=params or None,
+                min_api_version=None,
+            ),
+        )
+
+    def iter_notes(
+        self,
+        opportunity_id: OpportunityId,
+        *,
+        creator_id: int | None = None,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+    ) -> Iterator[NoteV2]:
+        """All of this opportunity's notes (every page); see :meth:`list_notes`."""
+
+        def fetch_page(next_url: str | None) -> PaginatedResponse[NoteV2]:
+            if next_url:
+                return self.list_notes(opportunity_id, cursor=next_url)
+            return self.list_notes(
+                opportunity_id,
+                creator_id=creator_id,
+                created_after=created_after,
+                created_before=created_before,
+                updated_after=updated_after,
+                limit=limit,
+            )
+
+        return PageIterator(fetch_page)
 
 
 class AsyncOpportunityService:
@@ -1500,3 +1573,73 @@ class AsyncOpportunityService:
                     ) from e
                 # skip: continue without this opportunity
         return result
+
+    # =========================================================================
+    # Notes (V2)
+    # =========================================================================
+
+    async def list_notes(
+        self,
+        opportunity_id: OpportunityId,
+        *,
+        creator_id: int | None = None,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[NoteV2]:
+        """One page of this opportunity's notes as V2 notes (``NoteV2``; replies not included).
+
+        Filters: ``creator_id``, ``created_after`` (inclusive) / ``created_before`` (exclusive),
+        ``updated_after``, rounded outward to whole seconds. ``limit`` is 1-100.
+        Affinity may refuse opportunity notes (403 → ``AuthorizationError``).
+        """
+        check_cursor_alone(
+            cursor, creator_id, created_after, created_before, updated_after, limit, total_count
+        )
+        if cursor is not None:
+            return page_of(NoteV2, await self._client.get_url(cursor, min_api_version=None))
+        params = note_params(
+            creator_id=creator_id,
+            created_after=created_after,
+            created_before=created_before,
+            updated_after=updated_after,
+            limit=limit,
+            total_count=total_count,
+        )
+        return page_of(
+            NoteV2,
+            await self._client.get(
+                f"/opportunities/{int(opportunity_id)}/notes",
+                params=params or None,
+                min_api_version=None,
+            ),
+        )
+
+    def iter_notes(
+        self,
+        opportunity_id: OpportunityId,
+        *,
+        creator_id: int | None = None,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+    ) -> AsyncIterator[NoteV2]:
+        """All of this opportunity's notes (every page); see :meth:`list_notes`."""
+
+        async def fetch_page(next_url: str | None) -> PaginatedResponse[NoteV2]:
+            if next_url:
+                return await self.list_notes(opportunity_id, cursor=next_url)
+            return await self.list_notes(
+                opportunity_id,
+                creator_id=creator_id,
+                created_after=created_after,
+                created_before=created_before,
+                updated_after=updated_after,
+                limit=limit,
+            )
+
+        return AsyncPageIterator(fetch_page)

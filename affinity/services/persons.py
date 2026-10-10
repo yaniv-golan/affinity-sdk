@@ -11,6 +11,7 @@ import asyncio
 import builtins
 import time
 from collections.abc import AsyncIterator, Iterator, Mapping, Sequence
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, Literal
 
 from ..exceptions import (
@@ -37,7 +38,7 @@ from ..models.pagination import (
     PaginationInfo,
 )
 from ..models.relationships_v2 import Relationship
-from ..models.secondary import MergeTask, PersonMergeState
+from ..models.secondary import MergeTask, NoteV2, PersonMergeState
 from ..models.types import (
     AnyFieldId,
     CompanyId,
@@ -58,6 +59,7 @@ from ._org_reads import (
     RELATIONSHIPS_MIN_API_VERSION,
     check_cursor_alone,
     merge_params,
+    note_params,
     page_of,
     relationship_params,
 )
@@ -1347,6 +1349,75 @@ class PersonService:
 
         return PageIterator(fetch_page)
 
+    # =========================================================================
+    # Notes (V2)
+    # =========================================================================
+
+    def list_notes(
+        self,
+        person_id: PersonId,
+        *,
+        creator_id: int | None = None,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[NoteV2]:
+        """One page of this person's notes as V2 notes (``NoteV2``; replies not included).
+
+        Filters: ``creator_id``, ``created_after`` (inclusive) / ``created_before`` (exclusive),
+        ``updated_after``, rounded outward to whole seconds. ``limit`` is 1-100.
+        """
+        check_cursor_alone(
+            cursor, creator_id, created_after, created_before, updated_after, limit, total_count
+        )
+        if cursor is not None:
+            return page_of(NoteV2, self._client.get_url(cursor, min_api_version=None))
+        params = note_params(
+            creator_id=creator_id,
+            created_after=created_after,
+            created_before=created_before,
+            updated_after=updated_after,
+            limit=limit,
+            total_count=total_count,
+        )
+        return page_of(
+            NoteV2,
+            self._client.get(
+                f"/persons/{int(person_id)}/notes",
+                params=params or None,
+                min_api_version=None,
+            ),
+        )
+
+    def iter_notes(
+        self,
+        person_id: PersonId,
+        *,
+        creator_id: int | None = None,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+    ) -> Iterator[NoteV2]:
+        """All of this person's notes (every page); see :meth:`list_notes`."""
+
+        def fetch_page(next_url: str | None) -> PaginatedResponse[NoteV2]:
+            if next_url:
+                return self.list_notes(person_id, cursor=next_url)
+            return self.list_notes(
+                person_id,
+                creator_id=creator_id,
+                created_after=created_after,
+                created_before=created_before,
+                updated_after=updated_after,
+                limit=limit,
+            )
+
+        return PageIterator(fetch_page)
+
 
 class AsyncPersonService:
     """Async version of PersonService."""
@@ -2611,6 +2682,75 @@ class AsyncPersonService:
                 return await self.list_relationships(person_id, cursor=next_url)
             return await self.list_relationships(
                 person_id, min_score=min_score, order=order, limit=limit
+            )
+
+        return AsyncPageIterator(fetch_page)
+
+    # =========================================================================
+    # Notes (V2)
+    # =========================================================================
+
+    async def list_notes(
+        self,
+        person_id: PersonId,
+        *,
+        creator_id: int | None = None,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[NoteV2]:
+        """One page of this person's notes as V2 notes (``NoteV2``; replies not included).
+
+        Filters: ``creator_id``, ``created_after`` (inclusive) / ``created_before`` (exclusive),
+        ``updated_after``, rounded outward to whole seconds. ``limit`` is 1-100.
+        """
+        check_cursor_alone(
+            cursor, creator_id, created_after, created_before, updated_after, limit, total_count
+        )
+        if cursor is not None:
+            return page_of(NoteV2, await self._client.get_url(cursor, min_api_version=None))
+        params = note_params(
+            creator_id=creator_id,
+            created_after=created_after,
+            created_before=created_before,
+            updated_after=updated_after,
+            limit=limit,
+            total_count=total_count,
+        )
+        return page_of(
+            NoteV2,
+            await self._client.get(
+                f"/persons/{int(person_id)}/notes",
+                params=params or None,
+                min_api_version=None,
+            ),
+        )
+
+    def iter_notes(
+        self,
+        person_id: PersonId,
+        *,
+        creator_id: int | None = None,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+        updated_after: datetime | None = None,
+        limit: int | None = None,
+    ) -> AsyncIterator[NoteV2]:
+        """All of this person's notes (every page); see :meth:`list_notes`."""
+
+        async def fetch_page(next_url: str | None) -> PaginatedResponse[NoteV2]:
+            if next_url:
+                return await self.list_notes(person_id, cursor=next_url)
+            return await self.list_notes(
+                person_id,
+                creator_id=creator_id,
+                created_after=created_after,
+                created_before=created_before,
+                updated_after=updated_after,
+                limit=limit,
             )
 
         return AsyncPageIterator(fetch_page)

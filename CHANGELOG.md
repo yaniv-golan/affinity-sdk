@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.26.0] - 2026-10-10
+
+### Highlights
+
+**Notes as V2, alongside V1.** List notes across the organization with their creator, HTML
+content, mentions, meeting and transcript links, reply counts and attached records
+(`note feed`), and read a note's replies (`note replies`). `note ls` / `note get` and the V1
+`Note` model are unchanged.
+
+### Added
+
+- SDK `notes.list_v2()` / `iter_v2()` / `get_v2()` (filters: creator, created and updated
+  times; `includes=True` adds reply counts and attached company/person/opportunity previews) and
+  `notes.list_replies()` / `iter_replies()`, returning `NoteV2`.
+- SDK `persons` / `companies` / `opportunities`: `list_notes()` / `iter_notes()` (V2). Company
+  notes send Affinity API version 2026-07-15 (beta before); Affinity may refuse opportunity
+  notes (`AuthorizationError`).
+- `NoteV2`: `replies_count` and `companies` / `persons` / `opportunities` (+ `*_total`), filled
+  only with `includes`; `creator` may be `None`.
+- CLI `note feed` and `note replies`.
+
 ## [1.25.0] - 2026-10-10
 
 ### Highlights

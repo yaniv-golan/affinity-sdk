@@ -461,7 +461,7 @@
     },
     "transcript get": {
       "limitConfig": {"default": 200, "max": 2000},
-      "whenToUse": "Read a meeting transcript: its AI Notetaker note and dialogue fragments (content, speaker, start/end offsets). Fetches up to --max-results fragments in order (default 200 here, at most 2000); fragmentsTotal says how many exist. Transcripts are meeting dialogue: quote only what the user needs.",
+      "whenToUse": "Read a meeting transcript: its AI Notetaker note and dialogue fragments (content, speaker, start/end offsets). Fetches up to --max-results fragments in order (default 200 here); fragmentsTotal says how many exist. Transcripts are meeting dialogue: quote only what the user needs.",
       "examples": [
         "transcript get 123",
         "transcript get 123 --max-results 500"
@@ -476,6 +476,20 @@
         "note search \"pricing\" --company-id \"domain:acme.com\" --max-results 10"
       ],
       "relatedCommands": ["note get", "note ls"]
+    },
+    "note feed": {
+      "limitConfig": {"default": 20, "max": 200},
+      "whenToUse": "List notes ACROSS THE ORGANIZATION, newest first (not one entity): recent notes, notes by one person (--creator-id), changes since a time (--updated-after). Rows carry the note HTML (content), creator, mentionedPersonIds, interaction/transcript ids; --with-attached adds repliesCount and attached company/person/opportunity ids. Org-wide output is sensitive (meeting notes, mentions): quote only what the user needs. For one person/company/opportunity use 'note ls'; for replies use 'note replies'.",
+      "examples": [
+        "note feed --created-after -7d --max-results 20",
+        "note feed --creator-id 123 --with-attached --max-results 10"
+      ],
+      "relatedCommands": ["note ls", "note get", "note replies", "note search"]
+    },
+    "note replies": {
+      "limitConfig": {"default": 100, "max": 1000},
+      "whenToUse": "List the replies to a note (id, type, creator, content, parentId).",
+      "relatedCommands": ["note get", "note feed"]
     },
     "note create": {
       "whenToUse": "Add a note to an entity. Simpler than interactions for quick notes.",

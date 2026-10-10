@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.29.0] - 2026-10-10
+
+### Highlights
+
+**Notes across the organization.** Claude can list recent notes org-wide (`note feed`: creator,
+content, mentions, meeting/transcript links, optionally attached records) and read a note's
+replies (`note replies`). Requires CLI 1.26.0.
+
+### Added
+
+- Registry: `note feed` (20 rows by default, 200 at most, no `--all`) and `note replies`; trimming
+  paths for both.
+
+### Changed
+
+- Docs: the server can't see the conversation, so keep Claude Desktop's tool-approval prompt on
+  for `execute-write-command` and don't choose "always allow".
+
 ## [1.28.1] - 2026-10-10
 
 ### Fixed

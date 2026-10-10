@@ -75,6 +75,28 @@ with Affinity.from_env() as client:
 
 Only transcripts the API key's user may see are returned.
 
+## Notes as V2 (creator, HTML content, attachments)
+
+```python
+from datetime import datetime, timezone
+
+from affinity.types import CompanyId, NoteId
+
+since = datetime(2025, 6, 1, tzinfo=timezone.utc)
+with Affinity.from_env() as client:
+    for note in client.notes.iter_v2(created_after=since, includes=True):
+        print(note.id, note.type, note.creator, note.replies_count, note.companies_total)
+
+    for reply in client.notes.iter_replies(NoteId(123)):
+        print(reply.content.html)
+
+    for note in client.companies.iter_notes(CompanyId(456)):  # also persons / opportunities
+        print(note.created_at, note.type)
+```
+
+`client.notes.list()` / `get()` (V1 `Note`) are unchanged. Company notes need Affinity API
+version 2026-07-15 or newer; Affinity may refuse opportunity notes (`AuthorizationError`).
+
 ## Org-wide activity, merge history and relationships
 
 ```python

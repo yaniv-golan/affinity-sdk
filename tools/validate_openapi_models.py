@@ -124,6 +124,15 @@ SKIPPED_MODELS: dict[str, str] = {
 # Known SDK extensions beyond OpenAPI (documented exceptions, by Python field name).
 # An entry whose field is gone from the model or is now in the spec is an error.
 KNOWN_EXTENSIONS: dict[str, set[str]] = {
+    # includes= previews {data, totalCount} flattened into a list and a total
+    "NoteV2": {
+        "companies",
+        "companies_total",
+        "persons",
+        "persons_total",
+        "opportunities",
+        "opportunities_total",
+    },
     # Previews {data, totalCount} flattened into a list and a total
     "CallV2": {"attendees", "attendees_total"},
     "MeetingV2": {"attendees", "attendees_total"},
@@ -169,10 +178,9 @@ KNOWN_EXTENSIONS: dict[str, set[str]] = {
 # Strict list of deliberate gaps: {(model or enum name, spec property or member): reason}.
 KNOWN_GAPS: dict[tuple[str, str], str] = {
     # --- models ---
-    ("NoteV2", "companiesPreview"): "opt-in `includes` preview; notes on V2 is P2.6",
-    ("NoteV2", "opportunitiesPreview"): "opt-in `includes` preview; notes on V2 is P2.6",
-    ("NoteV2", "personsPreview"): "opt-in `includes` preview; notes on V2 is P2.6",
-    ("NoteV2", "repliesCount"): "opt-in `includes` count; notes on V2 is P2.6",
+    ("NoteV2", "companiesPreview"): "flattened into companies + companies_total (includes=)",
+    ("NoteV2", "opportunitiesPreview"): "flattened into opportunities + opportunities_total",
+    ("NoteV2", "personsPreview"): "flattened into persons + persons_total (includes=)",
     ("Transcript", "fragmentsPreview"): "flattened into fragments_preview + fragments_total",
     ("CallV2", "attendeesPreview"): "flattened into attendees + attendees_total",
     ("MeetingV2", "attendeesPreview"): "flattened into attendees + attendees_total",

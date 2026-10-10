@@ -208,7 +208,8 @@ tool refuses the first call and Claude must ask you in the conversation, then re
 ```
 Since MCP 1.27.0 `confirm: true` counts only after the server refused that exact command (or
 showed its dialog) in the last 15 minutes, once; set on a first call, it is ignored and Claude is
-told to ask you. If Affinity's own claude.ai connector is connected too, Claude may pick either:
+told to ask you. The server can't see the conversation, so keep Claude Desktop's tool-approval
+prompt on for `execute-write-command` and don't choose "always allow". If Affinity's own claude.ai connector is connected too, Claude may pick either:
 say "use the xaffinity tools" to choose this one.
 
 ### Common CLI Operations (via gateway)

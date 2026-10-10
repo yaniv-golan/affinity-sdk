@@ -13,7 +13,7 @@
     },
     {
       "name": "xaffinity",
-      "minVersion": "1.25.0",
+      "minVersion": "1.26.0",
       "check": "xaffinity --version",
       "installHint": "pip install affinity-sdk"
     }

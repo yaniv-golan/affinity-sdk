@@ -15,6 +15,7 @@ from affinity.models.interactions_v2 import (
 )
 from affinity.models.pagination import PaginatedResponse
 from affinity.models.relationships_v2 import Relationship, RelationshipPerson
+from affinity.models.secondary import NoteV2
 
 from ..errors import CLIError
 from ..serialization import serialize_model_for_cli
@@ -162,3 +163,38 @@ def page_limit(max_results: int | None) -> int | None:
 
 def pagination(next_cursor: str | None) -> dict[str, Any] | None:
     return {"nextCursor": next_cursor, "prevCursor": None} if next_cursor else None
+
+
+def note_row(note: NoteV2, *, reply: bool = False) -> dict[str, object]:
+    """One V2 note row (`note feed` / `note replies`). V1 `note ls/get` rows are unchanged."""
+    interaction = note.interaction or {}
+    mentioned = []
+    for mention in note.mentions:
+        person = mention.get("person") if isinstance(mention, dict) else None
+        if isinstance(person, dict) and person.get("id") is not None:
+            mentioned.append(int(person["id"]))
+    row: dict[str, object] = {
+        "id": int(note.id),
+        "type": note.type,
+        "creator": _person(note.creator),
+        "createdAt": note.created_at,
+        "updatedAt": note.updated_at,
+        "content": note.content.html,
+        "mentionedPersonIds": mentioned,
+        "interactionId": interaction.get("id"),
+        "transcriptId": note.transcript_id,
+    }
+    if reply:
+        row["parentId"] = (note.parent or {}).get("id")
+    else:
+        row["repliesCount"] = note.replies_count
+        for key, ids_key in (
+            ("companies", "companyIds"),
+            ("persons", "personIds"),
+            ("opportunities", "opportunityIds"),
+        ):
+            items = getattr(note, key)
+            if items is not None:  # only with --with-attached
+                row[ids_key] = [int(i.id) for i in items]
+                row[f"{key}Total"] = getattr(note, f"{key}_total")
+    return row

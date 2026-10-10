@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
+from affinity.types import NoteId
+
 from ..click_compat import RichCommand, RichGroup, click
 from ..context import CLIContext
 from ..decorators import category
@@ -17,6 +19,7 @@ from ._org_reads import (
     collect_pages,
     interaction_row,
     model_row,
+    note_row,
     page_limit,
     pagination,
     relationship_row,
@@ -24,6 +27,7 @@ from ._org_reads import (
 from ._v1_parsing import parse_date_flexible
 from .company_cmds import _resolve_company_selector, company_group
 from .interaction_cmds import interaction_group
+from .note_cmds import note_group
 from .person_cmds import _resolve_person_selector, person_group
 from .task_cmds import task_group
 
@@ -418,3 +422,140 @@ def task_ls(
         )
 
     run_command(ctx, command="task ls", fn=fn)
+
+
+# ---------------------------------------------------------------------------
+# note feed / note replies (V2)
+# ---------------------------------------------------------------------------
+
+
+@category("read")
+@note_group.command(name="feed", cls=RichCommand)
+@click.option("--created-after", type=str, default=None, help="Created at or after.")
+@click.option("--created-before", type=str, default=None, help="Created before.")
+@click.option("--updated-after", type=str, default=None, help="Changed at or after.")
+@click.option("--creator-id", type=int, default=None, help="Only notes by this person.")
+@click.option(
+    "--with-attached",
+    is_flag=True,
+    help="Add reply counts and the attached company/person/opportunity ids (with totals).",
+)
+@_paging_options
+@output_options
+@click.pass_obj
+@apply_mcp_limits()
+def note_feed(
+    ctx: CLIContext,
+    *,
+    created_after: str | None,
+    created_before: str | None,
+    updated_after: str | None,
+    creator_id: int | None,
+    with_attached: bool,
+    cursor: str | None,
+    max_results: int | None,
+    all_pages: bool,
+) -> None:
+    """List notes across the organization, newest first (V2).
+
+    Rows: id, type (entities, interaction, ai-notetaker), creator, createdAt, updatedAt, content
+    (HTML), mentionedPersonIds, interactionId, transcriptId; --with-attached adds repliesCount and
+    companyIds/personIds/opportunityIds with totals. Replies are not included (`note replies`).
+    For one person, company or opportunity use `note ls`. Times filter whole seconds.
+
+    Examples:
+
+    - `xaffinity note feed --created-after -7d --max-results 50`
+
+    - `xaffinity note feed --creator-id 123 --with-attached`
+    """
+
+    def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
+        _cursor_alone(
+            cursor,
+            created_after=created_after,
+            created_before=created_before,
+            updated_after=updated_after,
+            creator_id=creator_id,
+            with_attached=with_attached or None,
+        )
+        notes = ctx.get_client(warnings=warnings).notes
+        times = {
+            "created_after": _when(created_after, "--created-after"),
+            "created_before": _when(created_before, "--created-before"),
+            "updated_after": _when(updated_after, "--updated-after"),
+        }
+        rows, next_cursor = collect_pages(
+            (lambda: notes.list_v2(cursor=cursor))
+            if cursor is not None
+            else (
+                lambda: notes.list_v2(
+                    **times,
+                    creator_id=creator_id,
+                    includes=True if with_attached else None,
+                    limit=page_limit(max_results),
+                )
+            ),
+            lambda c: notes.list_v2(cursor=c),
+            note_row,
+            max_results=max_results,
+            all_pages=all_pages,
+            warnings=warnings,
+        )
+        modifiers: dict[str, object] = {k: v.isoformat() for k, v in times.items() if v}
+        if creator_id is not None:
+            modifiers["creatorId"] = creator_id
+        if with_attached:
+            modifiers["withAttached"] = True
+        return CommandOutput(
+            data={"notes": rows},
+            context=CommandContext(name="note feed", inputs={}, modifiers=modifiers),
+            pagination=pagination(next_cursor),
+            api_called=True,
+        )
+
+    run_command(ctx, command="note feed", fn=fn)
+
+
+@category("read")
+@note_group.command(name="replies", cls=RichCommand)
+@click.argument("note_id", type=int)
+@_paging_options
+@output_options
+@click.pass_obj
+@apply_mcp_limits()
+def note_replies(
+    ctx: CLIContext,
+    *,
+    note_id: int,
+    cursor: str | None,
+    max_results: int | None,
+    all_pages: bool,
+) -> None:
+    """List the replies to a note (V2): id, type, creator, content, parentId, createdAt.
+
+    Example:
+
+    - `xaffinity note replies 12345`
+    """
+
+    def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
+        notes = ctx.get_client(warnings=warnings).notes
+        rows, next_cursor = collect_pages(
+            (lambda: notes.list_replies(NoteId(note_id), cursor=cursor))
+            if cursor is not None
+            else (lambda: notes.list_replies(NoteId(note_id), limit=page_limit(max_results))),
+            lambda c: notes.list_replies(NoteId(note_id), cursor=c),
+            lambda n: note_row(n, reply=True),
+            max_results=max_results,
+            all_pages=all_pages,
+            warnings=warnings,
+        )
+        return CommandOutput(
+            data={"replies": rows},
+            context=CommandContext(name="note replies", inputs={"noteId": note_id}, modifiers={}),
+            pagination=pagination(next_cursor),
+            api_called=True,
+        )
+
+    run_command(ctx, command="note replies", fn=fn)

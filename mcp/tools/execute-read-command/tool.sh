@@ -18,6 +18,8 @@ _get_array_path() {
     # Commands whose rows live under a key the patterns below don't derive
     case "$cmd" in
         "interaction feed")                              echo ".data.interactions"; return ;;
+        "note feed")                                     echo ".data.notes"; return ;;
+        "note replies")                                  echo ".data.replies"; return ;;
         "transcript ls")                                 echo ".data.transcripts"; return ;;
         "transcript get")                                echo ".data.transcript.fragments"; return ;;
         "field changes" | "field history")               echo ".data.fieldValueChanges"; return ;;

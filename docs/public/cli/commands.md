@@ -866,6 +866,26 @@ xaffinity note search "pricing" --company-id "domain:acme.com" -n 5 --json
 xaffinity note get 9876   # full text of a hit
 ```
 
+### `xaffinity note feed`
+
+Notes across the organization, newest first (V2). `note ls` / `note get` (V1, per entity) are
+unchanged.
+
+```bash
+xaffinity note feed --created-after -7d --max-results 50
+xaffinity note feed --creator-id 123 --with-attached
+```
+
+Rows: `id`, `type` (`entities`, `interaction`, `ai-notetaker`), `creator`, `createdAt`,
+`updatedAt`, `content` (HTML), `mentionedPersonIds`, `interactionId`, `transcriptId`.
+`--with-attached` adds `repliesCount` and `companyIds` / `personIds` / `opportunityIds` with
+totals. Filters: `--created-after` (inclusive), `--created-before` (exclusive), `--updated-after`,
+`--creator-id`; replies are not included.
+
+### `xaffinity note replies <noteId>`
+
+The replies to a note: `id`, `type`, `creator`, `content`, `parentId`, `createdAt`.
+
 ### `xaffinity note create`
 
 ```bash

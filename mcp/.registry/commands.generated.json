@@ -2,11 +2,11 @@
   "_generated": {
     "warning": "DO NOT EDIT - This file is auto-generated",
     "generator": "tools/generate_mcp_command_registry.py",
-    "cliVersion": "1.25.0",
+    "cliVersion": "1.26.0",
     "sourceConfig": "mcp/.registry/mcp-commands.json"
   },
   "version": 1,
-  "cliVersion": "1.25.0",
+  "cliVersion": "1.26.0",
   "commands": [
     {
       "name": "company create",
@@ -2657,6 +2657,89 @@
       ]
     },
     {
+      "name": "note feed",
+      "description": "List notes across the organization, newest first (V2).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--created-after": {
+          "type": "string",
+          "required": false,
+          "help": "Created at or after."
+        },
+        "--created-before": {
+          "type": "string",
+          "required": false,
+          "help": "Created before."
+        },
+        "--creator-id": {
+          "type": "int",
+          "required": false,
+          "help": "Only notes by this person."
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a nextCursor."
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        },
+        "--updated-after": {
+          "type": "string",
+          "required": false,
+          "help": "Changed at or after."
+        },
+        "--with-attached": {
+          "type": "flag",
+          "required": false,
+          "help": "Add reply counts and the attached company/person/opportunity ids (with totals)."
+        }
+      },
+      "positionals": [],
+      "examples": [
+        "note feed --created-after -7d --max-results 20",
+        "note feed --creator-id 123 --with-attached --max-results 10"
+      ],
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 20,
+        "max": 200,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      },
+      "whenToUse": "List notes ACROSS THE ORGANIZATION, newest first (not one entity): recent notes, notes by one person (--creator-id), changes since a time (--updated-after). Rows carry the note HTML (content), creator, mentionedPersonIds, interaction/transcript ids; --with-attached adds repliesCount and attached company/person/opportunity ids. Org-wide output is sensitive (meeting notes, mentions): quote only what the user needs. For one person/company/opportunity use 'note ls'; for replies use 'note replies'.",
+      "relatedCommands": [
+        "note ls",
+        "note get",
+        "note replies",
+        "note search"
+      ]
+    },
+    {
       "name": "note get",
       "description": "Get a note by id.",
       "category": "read",
@@ -2766,6 +2849,64 @@
           "-A"
         ]
       }
+    },
+    {
+      "name": "note replies",
+      "description": "List the replies to a note (V2): id, type, creator, content, parentId, createdAt.",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a nextCursor."
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        }
+      },
+      "positionals": [
+        {
+          "name": "NOTE_ID",
+          "type": "int",
+          "required": true
+        }
+      ],
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 100,
+        "max": 1000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      },
+      "whenToUse": "List the replies to a note (id, type, creator, content, parentId).",
+      "relatedCommands": [
+        "note get",
+        "note feed"
+      ]
     },
     {
       "name": "note search",
@@ -4890,7 +5031,7 @@
           "-A"
         ]
       },
-      "whenToUse": "Read a meeting transcript: its AI Notetaker note and dialogue fragments (content, speaker, start/end offsets). Fetches up to --max-results fragments in order (default 200 here, at most 2000); fragmentsTotal says how many exist. Transcripts are meeting dialogue: quote only what the user needs.",
+      "whenToUse": "Read a meeting transcript: its AI Notetaker note and dialogue fragments (content, speaker, start/end offsets). Fetches up to --max-results fragments in order (default 200 here); fragmentsTotal says how many exist. Transcripts are meeting dialogue: quote only what the user needs.",
       "relatedCommands": [
         "transcript ls",
         "note get"
@@ -4988,5 +5129,5 @@
       ]
     }
   ],
-  "total": 84
+  "total": 86
 }

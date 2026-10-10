@@ -43,6 +43,7 @@ from ..models.secondary import (
     Note,
     NoteCreate,
     NoteUpdate,
+    NoteV2,
     RelationshipStrength,
     Reminder,
     ReminderCreate,
@@ -78,7 +79,13 @@ from ..models.types import (
     to_v1_value_type_code,
 )
 from ..progress import ProgressCallback
-from ._org_reads import check_cursor_alone, interaction_params, page_of
+from ._org_reads import (
+    check_cursor_alone,
+    interaction_params,
+    note_includes,
+    note_params,
+    page_of,
+)
 from ._v2_filters import v2_filter_datetime
 from .search import (
     AsyncFileSearchMixin,
@@ -386,6 +393,124 @@ class NoteService(NoteSearchMixin):
                 page_size=page_size,
                 page_token=cursor,
             )
+
+        return PageIterator(fetch_page)
+
+    # =========================================================================
+    # V2 notes (read): NoteV2 with creator, HTML content, interaction, transcript
+    # =========================================================================
+
+    def list_v2(
+        self,
+        *,
+        creator_id: int | None = None,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+        updated_after: datetime | None = None,
+        includes: bool | Sequence[str] | None = None,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[NoteV2]:
+        """One page of notes across the organization as ``NoteV2`` (replies not included).
+
+        Filters: ``creator_id``, ``created_after`` (inclusive) / ``created_before`` (exclusive),
+        ``updated_after``, rounded outward to whole seconds. ``includes=True`` (or a list of
+        ``"companiesPreview"``, ``"personsPreview"``, ``"opportunitiesPreview"``,
+        ``"repliesCount"``) fills ``companies`` / ``persons`` / ``opportunities`` (the first
+        ones, with totals) and ``replies_count``. ``limit`` is 1-100. :meth:`list` (V1) and its
+        ``Note`` model are unchanged.
+        """
+        check_cursor_alone(
+            cursor,
+            creator_id,
+            created_after,
+            created_before,
+            updated_after,
+            includes,
+            limit,
+            total_count,
+        )
+        if cursor is not None:
+            return page_of(NoteV2, self._client.get_url(cursor))
+        params = note_params(
+            creator_id=creator_id,
+            created_after=created_after,
+            created_before=created_before,
+            updated_after=updated_after,
+            limit=limit,
+            total_count=total_count,
+            includes=includes,
+        )
+        return page_of(NoteV2, self._client.get("/notes", params=params or None))
+
+    def iter_v2(
+        self,
+        *,
+        creator_id: int | None = None,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+        updated_after: datetime | None = None,
+        includes: bool | Sequence[str] | None = None,
+        limit: int | None = None,
+    ) -> Iterator[NoteV2]:
+        """All notes matching the filters (every page); see :meth:`list_v2`."""
+
+        def fetch_page(next_url: str | None) -> PaginatedResponse[NoteV2]:
+            if next_url:
+                return self.list_v2(cursor=next_url)
+            return self.list_v2(
+                creator_id=creator_id,
+                created_after=created_after,
+                created_before=created_before,
+                updated_after=updated_after,
+                includes=includes,
+                limit=limit,
+            )
+
+        return PageIterator(fetch_page)
+
+    def get_v2(self, note_id: NoteId, *, includes: bool | Sequence[str] | None = None) -> NoteV2:
+        """One note as ``NoteV2`` (``includes`` as in :meth:`list_v2`)."""
+        params = [("includes", value) for value in note_includes(includes)]
+        return NoteV2.model_validate(
+            self._client.get(f"/notes/{int(note_id)}", params=params or None)
+        )
+
+    def list_replies(
+        self,
+        note_id: NoteId,
+        *,
+        creator_id: int | None = None,
+        created_after: datetime | None = None,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[NoteV2]:
+        """One page of replies to a note (``NoteV2`` with ``parent``)."""
+        check_cursor_alone(cursor, creator_id, created_after, limit, total_count)
+        if cursor is not None:
+            return page_of(NoteV2, self._client.get_url(cursor))
+        params = note_params(
+            creator_id=creator_id,
+            created_after=created_after,
+            created_before=None,
+            updated_after=None,
+            limit=limit,
+            total_count=total_count,
+        )
+        return page_of(
+            NoteV2,
+            self._client.get(f"/notes/{int(note_id)}/replies", params=params or None),
+        )
+
+    def iter_replies(self, note_id: NoteId, *, limit: int | None = None) -> Iterator[NoteV2]:
+        """All replies to a note (every page)."""
+
+        def fetch_page(next_url: str | None) -> PaginatedResponse[NoteV2]:
+            if next_url:
+                return self.list_replies(note_id, cursor=next_url)
+            return self.list_replies(note_id, limit=limit)
 
         return PageIterator(fetch_page)
 
@@ -2556,6 +2681,126 @@ class AsyncNoteService(AsyncNoteSearchMixin):
                 page_size=page_size,
                 page_token=cursor,
             )
+
+        return AsyncPageIterator(fetch_page)
+
+    # =========================================================================
+    # V2 notes (read): NoteV2 with creator, HTML content, interaction, transcript
+    # =========================================================================
+
+    async def list_v2(
+        self,
+        *,
+        creator_id: int | None = None,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+        updated_after: datetime | None = None,
+        includes: bool | Sequence[str] | None = None,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[NoteV2]:
+        """One page of notes across the organization as ``NoteV2`` (replies not included).
+
+        Filters: ``creator_id``, ``created_after`` (inclusive) / ``created_before`` (exclusive),
+        ``updated_after``, rounded outward to whole seconds. ``includes=True`` (or a list of
+        ``"companiesPreview"``, ``"personsPreview"``, ``"opportunitiesPreview"``,
+        ``"repliesCount"``) fills ``companies`` / ``persons`` / ``opportunities`` (the first
+        ones, with totals) and ``replies_count``. ``limit`` is 1-100. :meth:`list` (V1) and its
+        ``Note`` model are unchanged.
+        """
+        check_cursor_alone(
+            cursor,
+            creator_id,
+            created_after,
+            created_before,
+            updated_after,
+            includes,
+            limit,
+            total_count,
+        )
+        if cursor is not None:
+            return page_of(NoteV2, await self._client.get_url(cursor))
+        params = note_params(
+            creator_id=creator_id,
+            created_after=created_after,
+            created_before=created_before,
+            updated_after=updated_after,
+            limit=limit,
+            total_count=total_count,
+            includes=includes,
+        )
+        return page_of(NoteV2, await self._client.get("/notes", params=params or None))
+
+    def iter_v2(
+        self,
+        *,
+        creator_id: int | None = None,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+        updated_after: datetime | None = None,
+        includes: bool | Sequence[str] | None = None,
+        limit: int | None = None,
+    ) -> AsyncIterator[NoteV2]:
+        """All notes matching the filters (every page); see :meth:`list_v2`."""
+
+        async def fetch_page(next_url: str | None) -> PaginatedResponse[NoteV2]:
+            if next_url:
+                return await self.list_v2(cursor=next_url)
+            return await self.list_v2(
+                creator_id=creator_id,
+                created_after=created_after,
+                created_before=created_before,
+                updated_after=updated_after,
+                includes=includes,
+                limit=limit,
+            )
+
+        return AsyncPageIterator(fetch_page)
+
+    async def get_v2(
+        self, note_id: NoteId, *, includes: bool | Sequence[str] | None = None
+    ) -> NoteV2:
+        """One note as ``NoteV2`` (``includes`` as in :meth:`list_v2`)."""
+        params = [("includes", value) for value in note_includes(includes)]
+        return NoteV2.model_validate(
+            await self._client.get(f"/notes/{int(note_id)}", params=params or None)
+        )
+
+    async def list_replies(
+        self,
+        note_id: NoteId,
+        *,
+        creator_id: int | None = None,
+        created_after: datetime | None = None,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[NoteV2]:
+        """One page of replies to a note (``NoteV2`` with ``parent``)."""
+        check_cursor_alone(cursor, creator_id, created_after, limit, total_count)
+        if cursor is not None:
+            return page_of(NoteV2, await self._client.get_url(cursor))
+        params = note_params(
+            creator_id=creator_id,
+            created_after=created_after,
+            created_before=None,
+            updated_after=None,
+            limit=limit,
+            total_count=total_count,
+        )
+        return page_of(
+            NoteV2,
+            await self._client.get(f"/notes/{int(note_id)}/replies", params=params or None),
+        )
+
+    def iter_replies(self, note_id: NoteId, *, limit: int | None = None) -> AsyncIterator[NoteV2]:
+        """All replies to a note (every page)."""
+
+        async def fetch_page(next_url: str | None) -> PaginatedResponse[NoteV2]:
+            if next_url:
+                return await self.list_replies(note_id, cursor=next_url)
+            return await self.list_replies(note_id, limit=limit)
 
         return AsyncPageIterator(fetch_page)
 
