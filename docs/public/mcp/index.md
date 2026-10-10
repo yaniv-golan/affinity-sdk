@@ -191,7 +191,10 @@ The `discover-commands`, `execute-read-command`, and `execute-write-command` too
    {"command": "list entry add", "argv": ["Pipeline", "--person-id", "123"]}
    ```
 
-**Destructive commands** (delete operations) require explicit confirmation:
+**Commands that cannot be undone** (delete, merge) need the user's confirmation. Clients with
+confirmation dialogs (MCP elicitation) ask directly; Claude Desktop extensions have none, so the
+tool refuses the first call and Claude must ask you in the conversation, then retry with
+`confirm: true` only after you agree:
 ```json
 {"command": "person delete", "argv": ["456"], "confirm": true}
 ```
@@ -316,7 +319,8 @@ Access dynamic data via `xaffinity://` URIs using `read-xaffinity-resource`:
 
 ### Read-Only Mode
 
-Restrict to read-only tools:
+Set `AFFINITY_MCP_READ_ONLY=1` (or `true`) to block all write tools. In the Claude Desktop
+bundle this is the **Read-Only Mode** setting.
 
 ```bash
 AFFINITY_MCP_READ_ONLY=1 ./xaffinity-mcp.sh
@@ -324,11 +328,17 @@ AFFINITY_MCP_READ_ONLY=1 ./xaffinity-mcp.sh
 
 ### Disable Destructive Commands
 
-Allow write operations but block delete commands via CLI Gateway:
+Set `AFFINITY_MCP_DISABLE_DESTRUCTIVE=1` (or `true`) to allow writes but block commands that
+cannot be undone (delete, merge), even with confirmation. In the bundle this is **Disable
+Destructive Commands**.
 
 ```bash
 AFFINITY_MCP_DISABLE_DESTRUCTIVE=1 ./xaffinity-mcp.sh
 ```
+
+> **Check that a setting took effect:** ask Claude to run a *dry-run* `person delete 1`. With
+> read-only on, it is refused with "Writes are off: the server is in read-only mode"; with
+> destructive commands disabled, it returns `destructive_disabled`. Nothing is changed either way.
 
 ### Cache TTL
 

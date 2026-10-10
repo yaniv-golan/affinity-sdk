@@ -219,7 +219,7 @@ xaffinity --help --json
 | `name` | Full command path (e.g., `"person create"`, `"list entry add"`) |
 | `description` | Human-readable description |
 | `category` | `"read"`, `"write"`, or `"local"` (no-network) |
-| `destructive` | `true` for delete commands |
+| `destructive` | `true` for commands that cannot be undone (delete, merge); scripts pass `--yes` |
 | `parameters` | Named options with type info |
 | `positionals` | Positional arguments with type info |
 

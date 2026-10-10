@@ -269,7 +269,7 @@ fi
 # Test: destructive command without confirm is rejected
 printf "  execute-write-command (destructive without confirm)... "
 output=$("${MCPBASH_BIN}" run-tool "execute-write-command" --args '{"command":"person delete","argv":["123"]}' 2>&1)
-if echo "$output" | grep -q 'confirmation_required\|confirm.*true'; then
+if echo "$output" | grep -q 'confirmation_required' && echo "$output" | grep -q 'Ask the user to confirm'; then
     printf '%sPASS%s\n' "${GREEN}" "${RESET}"
     ((++passed)) || true
 else
@@ -344,14 +344,14 @@ else
     ((++failed)) || true
 fi
 
-# Test: confirmation_required includes example field
-printf "  confirmation_required includes example... "
+# Test: confirmation_required names the action but gives no ready-made confirm payload
+printf "  confirmation_required has no retry payload... "
 output=$("${MCPBASH_BIN}" run-tool "execute-write-command" --args '{"command":"person delete","argv":["123"]}' 2>&1)
-if echo "$output" | grep -q '"example"'; then
+if echo "$output" | grep -q '"requiresUserConfirmation"' && ! echo "$output" | grep -q '"example"'; then
     printf '%sPASS%s\n' "${GREEN}" "${RESET}"
     ((++passed)) || true
 else
-    printf '%sFAIL%s (should include example in error)\n' "${RED}" "${RESET}"
+    printf '%sFAIL%s (should flag requiresUserConfirmation, no example payload)\n' "${RED}" "${RESET}"
     ((++failed)) || true
 fi
 

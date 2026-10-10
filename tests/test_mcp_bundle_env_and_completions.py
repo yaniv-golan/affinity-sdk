@@ -233,23 +233,60 @@ def test_cli_error_json_reads_the_cli_error(tmp_path: Path) -> None:
 # --- read-only / disable-destructive flags ------------------------------------------------------
 
 
-@pytest.mark.parametrize(
-    ("value", "blocked"),
-    [("1", True), ("true", True), ("TRUE", True), ("false", False), ("", False)],
-)
-def test_read_only_accepts_the_bundle_true(value: str, blocked: bool) -> None:
-    script = (
-        'source "$1"; mcp_tools_policy_check execute-write-command && echo allowed || echo blocked'
-    )
-    out = subprocess.run(
-        ["bash", "-c", script, "_", str(MCP / "server.d" / "policy.sh")],
+def _policy(tool: str, read_only: str) -> str:
+    script = 'source "$1"; mcp_tools_policy_check "$2" && echo allowed || echo blocked'
+    return subprocess.run(
+        ["bash", "-c", script, "_", str(MCP / "server.d" / "policy.sh"), tool],
         capture_output=True,
         text=True,
-        env={"PATH": os.environ["PATH"], "AFFINITY_MCP_READ_ONLY": value},
+        env={"PATH": os.environ["PATH"], "AFFINITY_MCP_READ_ONLY": read_only},
         timeout=30,
         check=False,
     ).stdout.strip()
-    assert out == ("blocked" if blocked else "allowed")
+
+
+@pytest.mark.parametrize("value", ["1", "true", "TRUE", "false", ""])
+def test_policy_lets_the_write_tool_refuse_read_only_itself(value: str) -> None:
+    """A policy denial reaches Claude Desktop only as a generic error, so the write tool
+    refuses itself (see test_write_tool_refuses_in_read_only_mode); unknown tools stay blocked."""
+    assert _policy("execute-write-command", value) == "allowed"
+    assert _policy("execute-read-command", value) == "allowed"
+    assert _policy("no-such-tool", value) == "blocked"
+
+
+@pytest.mark.parametrize(
+    ("value", "refused"), [("1", True), ("true", True), ("TRUE", True), ("false", False)]
+)
+def test_write_tool_refuses_in_read_only_mode(tmp_path: Path, value: str, refused: bool) -> None:
+    fake = tmp_path / "xaffinity"
+    fake.write_text('#!/bin/sh\necho called >> "$0.log"\nexit 1\n')
+    fake.chmod(0o755)
+    env = {
+        "PATH": os.environ["PATH"],
+        "HOME": str(tmp_path),
+        "MCP_SDK": str(MCP / ".mcp-bash" / "sdk"),
+        "MCPBASH_PROJECT_ROOT": str(MCP),
+        "MCPBASH_JSON_TOOL_BIN": str(JQ),
+        "MCPBASH_JSON_TOOL": "jq",
+        "XAFFINITY_CLI": str(fake),
+        "AFFINITY_MCP_READ_ONLY": value,
+    }
+    out = subprocess.run(
+        ["bash", str(MCP / "tools" / "execute-write-command" / "tool.sh")],
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=60,
+        check=False,
+    ).stdout
+    if refused:
+        result = json.loads(out.strip().splitlines()[-1])
+        assert result["isError"] is True
+        assert result["structuredContent"]["error"]["type"] == "read_only"
+        assert "read-only mode" in result["content"][0]["text"]
+        assert not (tmp_path / "xaffinity.log").exists()
+    else:
+        assert '"read_only"' not in out
 
 
 @pytest.mark.parametrize(

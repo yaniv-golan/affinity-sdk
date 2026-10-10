@@ -95,7 +95,7 @@ def test_person_crud_and_merge(respx_mock: respx.MockRouter) -> None:
 
     merged = runner.invoke(
         cli,
-        ["--json", "--beta", "person", "merge", "1", "2"],
+        ["--json", "--beta", "person", "merge", "1", "2", "--yes"],
         env={"AFFINITY_API_KEY": "test-key"},
     )
     assert merged.exit_code == 0
@@ -172,7 +172,7 @@ def test_company_crud_and_merge(respx_mock: respx.MockRouter) -> None:
 
     merged = runner.invoke(
         cli,
-        ["--json", "--beta", "company", "merge", "1", "2"],
+        ["--json", "--beta", "company", "merge", "1", "2", "--yes"],
         env={"AFFINITY_API_KEY": "test-key"},
     )
     assert merged.exit_code == 0
@@ -443,3 +443,63 @@ def test_relationship_strength_and_task(respx_mock: respx.MockRouter) -> None:
     assert task_get.exit_code == 0
     task_payload = json.loads(task_get.output.strip())
     assert task_payload["data"]["task"]["status"] == "success"
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["person", "merge", "1", "2"],
+        ["company", "merge", "1", "2"],
+        ["person", "delete", "1"],
+        ["company", "delete", "1"],
+        ["opportunity", "delete", "1"],
+        ["note", "delete", "1"],
+        ["reminder", "delete", "1"],
+        ["interaction", "delete", "1", "--type", "call"],
+        ["field", "delete", "field-1"],
+        ["list", "entry", "delete", "1", "2"],
+    ],
+)
+def test_irreversible_commands_need_yes_without_a_terminal(
+    respx_mock: respx.MockRouter, argv: list[str]
+) -> None:
+    """No --yes and no terminal to ask: usage error in the JSON envelope, no API call."""
+    runner = CliRunner()
+    result = runner.invoke(cli, ["--json", *argv], env={"AFFINITY_API_KEY": "test-key"})
+    assert result.exit_code == 2, result.output
+    # The prompt goes to stderr (click < 8.2's CliRunner mixes it into stdout): JSON is last.
+    payload = json.loads(result.stdout.strip().splitlines()[-1])
+    assert payload["ok"] is False
+    assert payload["error"]["type"] == "usage_error"
+    assert "--yes" in payload["error"]["hint"]
+    assert not respx_mock.calls
+
+
+@pytest.mark.parametrize("entity", ["person", "company"])
+def test_merge_is_marked_destructive_in_json_help(entity: str) -> None:
+    from affinity.cli.commands.company_cmds import company_merge
+    from affinity.cli.commands.person_cmds import person_merge
+
+    cmd = person_merge if entity == "person" else company_merge
+    assert getattr(cmd, "destructive", False) is True
+    assert any(p.name == "yes" for p in cmd.params)
+
+
+@pytest.mark.parametrize("answer", ["y\n", "yes\n"])
+def test_piped_yes_still_confirms_a_delete(respx_mock: respx.MockRouter, answer: str) -> None:
+    respx_mock.delete("https://api.affinity.co/persons/1").mock(
+        return_value=Response(200, json={"success": True})
+    )
+    result = CliRunner().invoke(
+        cli, ["--json", "person", "delete", "1"], input=answer, env={"AFFINITY_API_KEY": "k"}
+    )
+    assert result.exit_code == 0, result.output
+    assert len(respx_mock.calls) == 1
+
+
+def test_piped_no_aborts_without_an_api_call(respx_mock: respx.MockRouter) -> None:
+    result = CliRunner().invoke(
+        cli, ["--json", "person", "delete", "1"], input="n\n", env={"AFFINITY_API_KEY": "k"}
+    )
+    assert result.exit_code == 1
+    assert not respx_mock.calls

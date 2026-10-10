@@ -356,10 +356,12 @@ list export Dealflow --cursor abc123 --max-results 10000
 Some operations run asynchronously and return a **task URL** instead of completing immediately.
 
 ### Merge Operations
-Merge duplicate companies or persons into a primary record:
+Merge duplicate companies or persons into a primary record. The duplicate is removed and this cannot
+be undone, so merges are destructive like deletes: confirm with the user first, then pass
+`confirm: true` (CLI: `--yes`):
 ```bash
-company merge 123 456    # Merge company 456 into company 123
-person merge 789 101     # Merge person 101 into person 789
+company merge 123 456 --yes   # Merge company 456 into company 123
+person merge 789 101 --yes    # Merge person 101 into person 789
 ```
 
 These return a `taskUrl` that you can poll for completion:

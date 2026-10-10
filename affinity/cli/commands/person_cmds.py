@@ -19,6 +19,7 @@ from affinity.models.types import FieldId
 from affinity.types import CompanyId, FieldType, ListId, PersonId
 
 from ..click_compat import RichCommand, RichGroup, click
+from ..confirm import run_destructive
 from ..context import CLIContext
 from ..csv_utils import write_csv_to_stdout
 from ..decorators import category, destructive, progress_capable
@@ -2131,8 +2132,6 @@ def person_update(
 @click.pass_obj
 def person_delete(ctx: CLIContext, person_id: int, yes: bool) -> None:
     """Delete a person."""
-    if not yes:
-        click.confirm(f"Delete person {person_id}?", abort=True)
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
         client = ctx.get_client(warnings=warnings)
@@ -2150,21 +2149,29 @@ def person_delete(ctx: CLIContext, person_id: int, yes: bool) -> None:
             api_called=True,
         )
 
-    run_command(ctx, command="person delete", fn=fn)
+    run_destructive(
+        ctx, command="person delete", yes=yes, prompt=f"Delete person {person_id}?", fn=fn
+    )
 
 
 @category("write")
+@destructive
 @person_group.command(name="merge", cls=RichCommand)
 @click.argument("primary_id", type=int)
 @click.argument("duplicate_id", type=int)
+@click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt.")
 @output_options
 @click.pass_obj
 def person_merge(
     ctx: CLIContext,
     primary_id: int,
     duplicate_id: int,
+    yes: bool,
 ) -> None:
     """Merge a duplicate person into a primary.
+
+    The duplicate person is removed; this cannot be undone. Asks for confirmation unless
+    --yes is given (scripts that don't answer the prompt need --yes).
 
     Returns a taskUrl for tracking progress. Use 'task wait <url>' to wait for completion.
     """
@@ -2190,7 +2197,16 @@ def person_merge(
             api_called=True,
         )
 
-    run_command(ctx, command="person merge", fn=fn)
+    run_destructive(
+        ctx,
+        command="person merge",
+        yes=yes,
+        prompt=(
+            f"Merge person {duplicate_id} into {primary_id}? "
+            f"Person {duplicate_id} is removed; this cannot be undone."
+        ),
+        fn=fn,
+    )
 
 
 @category("write")

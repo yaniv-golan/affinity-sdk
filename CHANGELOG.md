@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.22.0] - 2026-10-10
+
+### Highlights
+
+**Merges ask for confirmation, like deletes.** `person merge` and `company merge` remove the
+duplicate record and cannot be undone; they are now marked destructive, prompt for confirmation
+on a terminal, and take `--yes` to skip the prompt.
+
+**Breaking:** scripts that run `person merge` / `company merge` must now confirm: add `--yes`
+(or pipe in `y`); with no answer the command exits 2 (`usage_error`) and merges nothing. This is a stated
+exception to the MAJOR-bump rule (VERSIONING.md): an irreversible command must not run
+unconfirmed. If you use the MCP server, upgrade it to 1.25.1: MCP 1.25.0 cannot pass `--yes`
+to merges, so merges fail (safely) with CLI 1.22.0.
+
+### Changed
+
+- All delete commands and both merges share one confirmation path. The prompt is written to
+  stderr (stdout stays clean for `--json`). A typed or piped `y` still confirms and `n` still
+  aborts (exit 1). With no answer at all (end of input, e.g. a script without `--yes`) they now
+  fail with a usage error (exit 2) in the normal JSON envelope instead of a bare exit 1, and never
+  call the API.
+- `--help --json`: `person merge` and `company merge` have `destructive: true` and a `--yes`
+  parameter.
+
 ## [1.21.0] - 2026-10-09
 
 ### Highlights

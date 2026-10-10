@@ -274,12 +274,18 @@ Control the format of command results for optimal token efficiency:
 
 #### Destructive Commands
 
-Commands that delete data require explicit confirmation:
+Commands that cannot be undone (delete, merge) need the user's confirmation:
+
+- In clients that support confirmation dialogs (MCP elicitation), the server asks you directly.
+- **Claude Desktop extensions get no dialog.** The tool refuses the first call and tells Claude to
+  ask you in the conversation; Claude retries with `confirm: true` only after you agree:
+
 ```json
 {"command": "person delete", "argv": ["456"], "confirm": true}
 ```
 
-The `confirm: true` parameter is required for destructive commands. The tool will automatically append `--yes` to bypass CLI prompts.
+The tool appends `--yes` for the CLI. Keep Claude Desktop's tool-approval prompt on for
+`execute-write-command` as a second check.
 
 ## Prompts
 
@@ -321,7 +327,8 @@ The MCP server uses the xaffinity CLI, which resolves API keys in this order (hi
 
 ### Read-Only Mode
 
-Set `AFFINITY_MCP_READ_ONLY=1` to restrict to read-only tools:
+Set `AFFINITY_MCP_READ_ONLY=1` (or `true`) to block all write tools. In the Claude Desktop
+bundle this is the **Read-Only Mode** setting.
 
 ```bash
 AFFINITY_MCP_READ_ONLY=1 ./xaffinity-mcp.sh
@@ -329,13 +336,17 @@ AFFINITY_MCP_READ_ONLY=1 ./xaffinity-mcp.sh
 
 ### Disable Destructive Commands
 
-Set `AFFINITY_MCP_DISABLE_DESTRUCTIVE=1` to block delete operations via CLI Gateway:
+Set `AFFINITY_MCP_DISABLE_DESTRUCTIVE=1` (or `true`) to allow writes but block commands that
+cannot be undone (delete, merge), even with confirmation. In the bundle this is **Disable
+Destructive Commands**.
 
 ```bash
 AFFINITY_MCP_DISABLE_DESTRUCTIVE=1 ./xaffinity-mcp.sh
 ```
 
-This blocks `execute-write-command` from running any destructive commands (those marked `destructive: true` in the registry).
+> **Check that a setting took effect:** ask Claude to run a *dry-run* `person delete 1`. With
+> read-only on, it is refused with "Writes are off: the server is in read-only mode"; with
+> destructive commands disabled, it returns `destructive_disabled`. Nothing is changed either way.
 
 ### Cache TTL
 

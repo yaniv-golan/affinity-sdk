@@ -12,6 +12,7 @@ from affinity.models.types import ReminderResetType, ReminderStatus, ReminderTyp
 from affinity.types import CompanyId, OpportunityId, PersonId, ReminderIdType, UserId
 
 from ..click_compat import RichCommand, RichGroup, click
+from ..confirm import run_destructive
 from ..context import CLIContext
 from ..decorators import category, destructive
 from ..errors import CLIError
@@ -633,8 +634,6 @@ def reminder_update(
 @click.pass_obj
 def reminder_delete(ctx: CLIContext, reminder_id: int, yes: bool) -> None:
     """Delete a reminder."""
-    if not yes:
-        click.confirm(f"Delete reminder {reminder_id}?", abort=True)
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
         client = ctx.get_client(warnings=warnings)
@@ -652,4 +651,6 @@ def reminder_delete(ctx: CLIContext, reminder_id: int, yes: bool) -> None:
             api_called=True,
         )
 
-    run_command(ctx, command="reminder delete", fn=fn)
+    run_destructive(
+        ctx, command="reminder delete", yes=yes, prompt=f"Delete reminder {reminder_id}?", fn=fn
+    )

@@ -9,6 +9,10 @@ AFFINITY_MCP_TOOLS_READONLY="get-entity-dossier get-file-url read-xaffinity-reso
 # Includes CLI Gateway write tool: execute-write-command
 AFFINITY_MCP_TOOLS_WRITE="execute-write-command"
 
+# Write tools that refuse in read-only mode themselves, with a tool result the user can read
+# (a policy denial reaches Claude Desktop only as a generic error).
+AFFINITY_MCP_TOOLS_SELF_READONLY="execute-write-command"
+
 # All tools
 AFFINITY_MCP_TOOLS_ALL="${AFFINITY_MCP_TOOLS_READONLY} ${AFFINITY_MCP_TOOLS_WRITE}"
 
@@ -27,7 +31,7 @@ mcp_tools_policy_check() {
     local read_only
     read_only="$(printf '%s' "${AFFINITY_MCP_READ_ONLY:-}" | tr '[:upper:]' '[:lower:]')"
     if [[ "${read_only}" == "1" || "${read_only}" == "true" ]]; then
-        case " ${AFFINITY_MCP_TOOLS_READONLY} " in
+        case " ${AFFINITY_MCP_TOOLS_READONLY} ${AFFINITY_MCP_TOOLS_SELF_READONLY} " in
             *" ${tool_name} "*) return 0 ;;
             *)
                 _MCP_TOOLS_ERROR_CODE=-32602

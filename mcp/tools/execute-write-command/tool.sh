@@ -6,6 +6,15 @@ source "${MCP_SDK:?}/tool-sdk.sh"
 source "${MCPBASH_PROJECT_ROOT}/lib/common.sh"
 source "${MCPBASH_PROJECT_ROOT}/lib/cli-gateway.sh"
 
+# Read-only mode is enforced here, not in server.d/policy.sh: a policy denial is a JSON-RPC
+# error, which Claude Desktop shows only as "The connector returned an error", so neither the
+# model nor the user would learn why.
+if xaffinity_flag_enabled "${AFFINITY_MCP_READ_ONLY:-}"; then
+    mcp_error "read_only" "Writes are off: the server is in read-only mode (AFFINITY_MCP_READ_ONLY=${AFFINITY_MCP_READ_ONLY}); nothing was changed. Tell the user; they can turn off Read-Only Mode in the extension's settings." \
+        --hint "Do not retry this or other writes while read-only mode is on."
+    exit 0
+fi
+
 # Validate registry (required for CLI Gateway tools)
 if ! validate_registry; then
     # validate_registry already emitted mcp_result_error with details
@@ -79,7 +88,7 @@ validate_argv "$command" ${argv[@]+"${argv[@]}"} || exit 0
 
 # Block destructive commands entirely if policy disables them
 if xaffinity_flag_enabled "${AFFINITY_MCP_DISABLE_DESTRUCTIVE:-}" && is_destructive "$command"; then
-    mcp_error "destructive_disabled" "Destructive commands are disabled by policy (AFFINITY_MCP_DISABLE_DESTRUCTIVE=1)" \
+    mcp_error "destructive_disabled" "Destructive commands are disabled by policy (AFFINITY_MCP_DISABLE_DESTRUCTIVE=${AFFINITY_MCP_DISABLE_DESTRUCTIVE})" \
         --hint "Contact your administrator to enable destructive operations"
     exit 0
 fi
@@ -93,8 +102,8 @@ if is_destructive "$command"; then
         [[ "$arg" == "--yes" || "$arg" == "-y" ]] && has_yes=true && break
     done
     if [[ "$has_yes" == "true" ]]; then
-        mcp_error "validation_error" "--yes flag not allowed in argv; use confirm parameter instead" \
-            --hint 'Remove --yes from argv and add "confirm": true to your request'
+        mcp_error "validation_error" "--yes flag not allowed in argv; nothing was changed. Ask the user to confirm this exact action in the conversation; only after they explicitly agree, call again with confirm: true." \
+            --hint 'Remove --yes from argv. Ask the user to confirm this exact action in the conversation; only after they explicitly agree, call again with "confirm": true.'
         exit 0
     fi
 
@@ -111,8 +120,11 @@ if is_destructive "$command"; then
     if [[ "$confirm" == "true" ]]; then
         argv+=("--yes")
     elif [[ "${MCP_ELICIT_SUPPORTED:-0}" == "1" ]]; then
-        response=$(mcp_elicit_confirm "Confirm: $command - This action cannot be undone.")
-        action=$(printf '%s' "$response" | jq_tool -r '.action // "error"')
+        response=$(mcp_elicit_confirm "Confirm: $command $(printf '%q ' ${argv[@]+"${argv[@]}"})- This action cannot be undone.")
+        # Accept counts only with the box ticked; an unticked accept is a "no".
+        action=$(printf '%s' "$response" | jq_tool -r '
+            (.action // "error") as $a
+            | if $a == "accept" and (.content.confirmed // false) != true then "decline" else $a end')
         case "$action" in
         accept)
             argv+=("--yes")
@@ -126,16 +138,17 @@ if is_destructive "$command"; then
         *)
             # No answer arrived (timeout or a client that dropped the request): say so, rather
             # than reporting it as the user's decision. Nothing was changed.
-            mcp_error "confirmation_unavailable" "No confirmation was received for $command; nothing was changed" \
-                --hint 'Retry, or pass "confirm": true if the user has already confirmed this action'
+            mcp_error "confirmation_unavailable" "No confirmation was received for $command; nothing was changed. Ask the user to confirm this exact action in the conversation; only after they explicitly agree, call again with confirm: true." \
+                --hint 'Ask the user to confirm this exact action in the conversation; only after they explicitly agree, call again with "confirm": true.'
             exit 0
             ;;
         esac
     else
-        # Build example showing how to confirm
-        mcp_error "confirmation_required" "Destructive command requires confirm=true" \
-            --hint 'Add "confirm": true to your request to proceed' \
-            --data "$(jq_tool -n --arg cmd "$command" --argjson argv "$argv_json" '{example: {command: $cmd, argv: $argv, confirm: true}}')"
+        # No dialog available (e.g. Claude Desktop extensions have no elicitation): the model must
+        # ask the user in the conversation. No ready-made retry payload, on purpose.
+        mcp_error "confirmation_required" "$command cannot be undone and needs the user's confirmation; nothing was changed. Ask the user to confirm this exact action in the conversation; only after they explicitly agree, call again with confirm: true. Never set confirm on your own." \
+            --hint 'Ask the user to confirm this exact action (command and target) in the conversation; only after they explicitly agree, call again with "confirm": true. Never set confirm on your own.' \
+            --data "$(jq_tool -n --arg cmd "$command" --argjson argv "$argv_json" '{requiresUserConfirmation: true, command: $cmd, argv: $argv}')"
         exit 0
     fi
 fi

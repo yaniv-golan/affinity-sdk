@@ -14,6 +14,7 @@ from affinity.services.search import NOTE_SEARCH_DEFAULT_LIMIT, build_keyword_se
 from affinity.types import CompanyId, NoteId, OpportunityId, PersonId, UserId
 
 from ..click_compat import RichCommand, RichGroup, click
+from ..confirm import run_destructive
 from ..context import CLIContext
 from ..decorators import category, destructive
 from ..errors import CLIError
@@ -677,8 +678,6 @@ def note_update(ctx: CLIContext, note_id: int, *, content: str) -> None:
 @click.pass_obj
 def note_delete(ctx: CLIContext, note_id: int, yes: bool) -> None:
     """Delete a note."""
-    if not yes:
-        click.confirm(f"Delete note {note_id}?", abort=True)
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
         client = ctx.get_client(warnings=warnings)
@@ -696,4 +695,4 @@ def note_delete(ctx: CLIContext, note_id: int, yes: bool) -> None:
             api_called=True,
         )
 
-    run_command(ctx, command="note delete", fn=fn)
+    run_destructive(ctx, command="note delete", yes=yes, prompt=f"Delete note {note_id}?", fn=fn)

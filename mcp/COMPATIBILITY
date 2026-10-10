@@ -1,8 +1,13 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="1.21.0"
-CLI_MAX_VERSION="1.21.0"
+CLI_MIN_VERSION="1.22.0"
+CLI_MAX_VERSION="1.22.0"
+
+# MCP 1.25.1 requires CLI 1.22.0 for:
+# - `person merge` / `company merge` marked destructive with `--yes` (execute-write-command
+#   asks for confirmation and appends --yes). MCP 1.25.0 with CLI 1.22.0: merges fail safely.
+# - Destructive commands with no --yes and no answer to the prompt exit 2 (usage_error, JSON).
 
 # MCP 1.25.0: no new CLI requirements (same CLI 1.21.0 range as MCP 1.24.0).
 

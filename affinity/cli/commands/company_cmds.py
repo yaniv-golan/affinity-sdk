@@ -21,6 +21,7 @@ from affinity.services.search import SEMANTIC_SEARCH_DEFAULT_LIMIT, build_semant
 from affinity.types import CompanyId, FieldType, ListId, PersonId
 
 from ..click_compat import RichCommand, RichGroup, click
+from ..confirm import run_destructive
 from ..context import CLIContext
 from ..csv_utils import write_csv_to_stdout
 from ..decorators import category, destructive, progress_capable
@@ -2406,8 +2407,6 @@ def company_update(
 @click.pass_obj
 def company_delete(ctx: CLIContext, company_id: int, yes: bool) -> None:
     """Delete a company."""
-    if not yes:
-        click.confirm(f"Delete company {company_id}?", abort=True)
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
         client = ctx.get_client(warnings=warnings)
@@ -2425,21 +2424,29 @@ def company_delete(ctx: CLIContext, company_id: int, yes: bool) -> None:
             api_called=True,
         )
 
-    run_command(ctx, command="company delete", fn=fn)
+    run_destructive(
+        ctx, command="company delete", yes=yes, prompt=f"Delete company {company_id}?", fn=fn
+    )
 
 
 @category("write")
+@destructive
 @company_group.command(name="merge", cls=RichCommand)
 @click.argument("primary_id", type=int)
 @click.argument("duplicate_id", type=int)
+@click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt.")
 @output_options
 @click.pass_obj
 def company_merge(
     ctx: CLIContext,
     primary_id: int,
     duplicate_id: int,
+    yes: bool,
 ) -> None:
     """Merge a duplicate company into a primary.
+
+    The duplicate company is removed; this cannot be undone. Asks for confirmation unless
+    --yes is given (scripts that don't answer the prompt need --yes).
 
     Returns a taskUrl for tracking progress. Use 'task wait <url>' to wait for completion.
     """
@@ -2468,7 +2475,16 @@ def company_merge(
             api_called=True,
         )
 
-    run_command(ctx, command="company merge", fn=fn)
+    run_destructive(
+        ctx,
+        command="company merge",
+        yes=yes,
+        prompt=(
+            f"Merge company {duplicate_id} into {primary_id}? "
+            f"Company {duplicate_id} is removed; this cannot be undone."
+        ),
+        fn=fn,
+    )
 
 
 @category("write")

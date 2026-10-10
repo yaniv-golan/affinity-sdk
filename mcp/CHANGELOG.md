@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.25.1] - 2026-10-10
+
+### Highlights
+
+**Irreversible commands need the user's explicit confirmation, also in Claude Desktop.** Claude
+Desktop gives extensions no confirmation dialog, so the first call of a delete or merge is refused
+with a message that tells Claude to ask you in the conversation and retry with `confirm: true`
+only after you agree. Merges are now treated like deletes, and a
+write in read-only mode now says why it was refused. Requires CLI 1.22.0.
+
+### Changed
+
+- `execute-write-command`: the confirmation rule is in the error message itself (not only the
+  hint); no ready-made retry payload (`data` is `{requiresUserConfirmation, command, argv}`);
+  the dialog, where a client has one, shows the command's arguments.
+- `person merge` / `company merge` need confirmation, and `AFFINITY_MCP_DISABLE_DESTRUCTIVE` now
+  blocks them too.
+- Docs: how confirmation works in Claude Desktop; how to check that Read-Only Mode and Disable
+  Destructive Commands took effect.
+
+### Fixed
+
+- Read-only mode: a write is refused by `execute-write-command` itself with a readable message
+  ("Writes are off: the server is in read-only mode…"). Before, the refusal was a JSON-RPC error,
+  which Claude Desktop shows only as "The connector returned an error or an invalid response".
+
+- A confirmation dialog accepted with the box unticked counted as a yes; it now counts as a no.
+- `destructive_disabled` shows the setting's actual value.
+
 ## [1.25.0] - 2026-10-10
 
 ### Highlights

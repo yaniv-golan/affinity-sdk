@@ -16,6 +16,7 @@ from affinity.models.types import InteractionDirection, InteractionType
 from affinity.types import CompanyId, InteractionId, OpportunityId, PersonId
 
 from ..click_compat import RichCommand, RichGroup, click
+from ..confirm import run_destructive
 from ..context import CLIContext
 from ..csv_utils import write_csv_to_stdout
 from ..date_utils import ChunkedFetchResult, chunk_date_range
@@ -858,8 +859,6 @@ def interaction_delete(
     ctx: CLIContext, interaction_id: int, *, interaction_type: str, yes: bool
 ) -> None:
     """Delete an interaction."""
-    if not yes:
-        click.confirm(f"Delete interaction {interaction_id}?", abort=True)
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
         parsed_type = parse_choice(
@@ -884,4 +883,10 @@ def interaction_delete(
             api_called=True,
         )
 
-    run_command(ctx, command="interaction delete", fn=fn)
+    run_destructive(
+        ctx,
+        command="interaction delete",
+        yes=yes,
+        prompt=f"Delete interaction {interaction_id}?",
+        fn=fn,
+    )

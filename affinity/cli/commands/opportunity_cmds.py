@@ -23,6 +23,7 @@ from affinity.models.types import ListType
 from affinity.types import CompanyId, ListId, OpportunityId, PersonId
 
 from ..click_compat import RichCommand, RichGroup, click
+from ..confirm import run_destructive
 from ..context import CLIContext
 from ..csv_utils import write_csv_to_stdout
 from ..decorators import category, destructive, progress_capable
@@ -733,8 +734,6 @@ def opportunity_delete(
     Example:
     - `xaffinity opportunity delete 123 --yes`
     """
-    if not yes:
-        click.confirm(f"Delete opportunity {opportunity_id}?", abort=True)
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
         client = ctx.get_client(warnings=warnings)
@@ -760,7 +759,13 @@ def opportunity_delete(
             api_called=True,
         )
 
-    run_command(ctx, command="opportunity delete", fn=fn)
+    run_destructive(
+        ctx,
+        command="opportunity delete",
+        yes=yes,
+        prompt=f"Delete opportunity {opportunity_id}?",
+        fn=fn,
+    )
 
 
 @opportunity_group.group(name="files", cls=RichGroup)

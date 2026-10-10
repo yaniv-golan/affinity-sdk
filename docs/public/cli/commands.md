@@ -355,8 +355,11 @@ xaffinity person delete 26229794
 
 ### `xaffinity person merge <primaryId> <duplicateId>`
 
+Merges the duplicate into the primary; the duplicate is removed and this cannot be undone. Asks
+for confirmation; pass `--yes` to skip it (needed in scripts that don't answer the prompt).
+
 ```bash
-xaffinity person merge 111 222
+xaffinity person merge 111 222 --yes
 ```
 
 ### `xaffinity person files dump <personId>`
@@ -533,8 +536,11 @@ xaffinity company delete 224925494
 
 ### `xaffinity company merge <primaryId> <duplicateId>`
 
+Merges the duplicate into the primary; the duplicate is removed and this cannot be undone. Asks
+for confirmation; pass `--yes` to skip it (needed in scripts that don't answer the prompt).
+
 ```bash
-xaffinity company merge 111 222
+xaffinity company merge 111 222 --yes
 ```
 
 ### `xaffinity company files dump <companyId>`

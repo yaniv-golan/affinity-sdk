@@ -18,6 +18,7 @@ from affinity.types import (
 )
 
 from ..click_compat import RichCommand, RichGroup, click
+from ..confirm import run_destructive
 from ..context import CLIContext
 from ..decorators import category, destructive, progress_capable
 from ..errors import CLIError
@@ -323,8 +324,6 @@ def field_create(
 @click.pass_obj
 def field_delete(ctx: CLIContext, field_id: str, yes: bool) -> None:
     """Delete a field."""
-    if not yes:
-        click.confirm(f"Delete field {field_id}?", abort=True)
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
         client = ctx.get_client(warnings=warnings)
@@ -345,7 +344,7 @@ def field_delete(ctx: CLIContext, field_id: str, yes: bool) -> None:
 
         return CommandOutput(data={"success": success}, context=cmd_context, api_called=True)
 
-    run_command(ctx, command="field delete", fn=fn)
+    run_destructive(ctx, command="field delete", yes=yes, prompt=f"Delete field {field_id}?", fn=fn)
 
 
 @category("read")

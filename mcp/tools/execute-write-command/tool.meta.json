@@ -1,6 +1,6 @@
 {
   "name": "execute-write-command",
-  "description": "Execute a write CLI command (create, update, delete, add, remove). Use discover-commands with category='write' first.\n\nNote: Do not include --json in argv; JSON output is automatic.\n\nCommon operations:\n- Create entities: person create, company create, opportunity create\n- Add to lists: entry add \"<list>\" --person-id <id> (or --company-id)\n- Log interactions: interaction create --type meeting --person-id <id>\n- Update list entry fields: entry field \"<list>\" <entryId> --set <field> <value>\n\nExamples:\n- person create --first-name John --last-name Doe --emails john@example.com\n- interaction create --type meeting --direction outgoing --person-id 123\n- note create --person-id 456 --content 'Meeting notes here'\n- entry field \"Dealflow\" 123 --set Status \"Active\"\n\nDestructive commands (delete, remove) require confirm=true.",
+  "description": "Execute a write CLI command (create, update, delete, add, remove). Use discover-commands with category='write' first.\n\nNote: Do not include --json in argv; JSON output is automatic.\n\nCommon operations:\n- Create entities: person create, company create, opportunity create\n- Add to lists: entry add \"<list>\" --person-id <id> (or --company-id)\n- Log interactions: interaction create --type meeting --person-id <id>\n- Update list entry fields: entry field \"<list>\" <entryId> --set <field> <value>\n\nExamples:\n- person create --first-name John --last-name Doe --emails john@example.com\n- interaction create --type meeting --direction outgoing --person-id 123\n- note create --person-id 456 --content 'Meeting notes here'\n- entry field \"Dealflow\" 123 --set Status \"Active\"\n\nCommands that cannot be undone (delete, merge) require confirm=true, set only after the user has explicitly confirmed that exact action in the conversation. Never set it on your own.",
   "inputSchema": {
     "type": "object",
     "required": ["command"],
@@ -17,7 +17,7 @@
       "confirm": {
         "type": "boolean",
         "default": false,
-        "description": "REQUIRED for destructive commands (delete, remove). Set to true to confirm the operation. Automatically appends --yes to CLI."
+        "description": "REQUIRED for commands that cannot be undone (delete, merge). Set to true only after the user has explicitly confirmed this exact action in the conversation. Automatically appends --yes to CLI."
       },
       "dryRun": {
         "type": "boolean",

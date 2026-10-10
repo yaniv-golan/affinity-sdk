@@ -187,7 +187,7 @@ class TestPersonMerge:
         runner = CliRunner()
         result = runner.invoke(
             cli,
-            ["--json", "--beta", "person", "merge", "100", "101"],
+            ["--json", "--beta", "person", "merge", "100", "101", "--yes"],
             env={"AFFINITY_API_KEY": "test-key"},
         )
         assert result.exit_code == 0

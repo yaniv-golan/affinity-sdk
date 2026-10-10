@@ -28,6 +28,7 @@ from affinity.types import (
 )
 
 from ..click_compat import RichCommand, RichGroup, click
+from ..confirm import run_destructive
 from ..context import CLIContext
 from ..csv_utils import write_csv_to_stdout
 from ..decorators import category, destructive
@@ -3212,8 +3213,6 @@ def list_entry_add(
 @click.pass_obj
 def list_entry_delete(ctx: CLIContext, list_selector: str, entry_id: int, yes: bool) -> None:
     """Delete a list entry."""
-    if not yes:
-        click.confirm(f"Delete entry {entry_id} from list '{list_selector}'?", abort=True)
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
         client = ctx.get_client(warnings=warnings)
@@ -3244,7 +3243,13 @@ def list_entry_delete(ctx: CLIContext, list_selector: str, entry_id: int, yes: b
             api_called=True,
         )
 
-    run_command(ctx, command="list entry delete", fn=fn)
+    run_destructive(
+        ctx,
+        command="list entry delete",
+        yes=yes,
+        prompt=f"Delete entry {entry_id} from list '{list_selector}'?",
+        fn=fn,
+    )
 
 
 def run_entry_field(

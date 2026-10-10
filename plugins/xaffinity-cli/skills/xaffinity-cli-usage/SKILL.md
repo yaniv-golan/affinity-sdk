@@ -123,12 +123,12 @@ ambiguous fields, global companies, file uploads): `references/files-and-writes.
 
 ## Destructive Commands Require Double Confirmation
 
-Before executing ANY delete command:
+Before executing ANY command that cannot be undone (delete, merge):
 
 1. **Look up the entity first** to show the user what will be deleted
 2. **Ask the user in your response**, showing the entity details and requesting confirmation
 3. **Wait for the user's next message** — do NOT proceed until they explicitly confirm
-4. **Only after the user confirms**, run the delete with `--yes`
+4. **Only after the user confirms**, run the command with `--yes`
 
 ```
 User: "Delete person 123"
@@ -142,10 +142,12 @@ You: xaffinity person delete 123 --yes
 ```
 
 **Destructive commands**: `person delete`, `company delete`, `opportunity delete`, `note delete`,
-`reminder delete`, `field delete`, `list entry delete`, `interaction delete`
+`reminder delete`, `field delete`, `list entry delete`, `interaction delete`, `person merge`,
+`company merge` (the duplicate record is removed)
 
 The `--yes` flag bypasses the CLI's interactive prompt; the confirmation must come from the user in
-the conversation.
+the conversation. Without `--yes` and with nothing answering the prompt, these commands fail with a
+usage error (exit 2) and change nothing.
 
 ## Critical Patterns
 
@@ -154,7 +156,7 @@ the conversation.
 | `--readonly` | Prevent accidental data modification (ALWAYS use unless writing) |
 | `--json` | Structured, parseable output (ALWAYS use for commands you will parse) |
 | `--max-results N` | **Limit results (ALWAYS use on list/search commands)**. Aliases: `--limit`, `-n` |
-| `--yes` | Skip confirmation on delete commands (use after the user confirms) |
+| `--yes` | Skip confirmation on delete and merge commands (use after the user confirms) |
 | `--help` | Discover command options (USE THIS, don't guess flags) |
 
 **Always limit results.** Use `--max-results` on every `ls`, `list export`, `interaction ls`, and

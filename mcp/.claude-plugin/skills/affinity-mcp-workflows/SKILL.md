@@ -98,7 +98,8 @@ The CLI Gateway provides full access to the xaffinity CLI:
 
 ### Destructive Commands
 
-Commands that delete data require double confirmation:
+Commands that cannot be undone (delete, merge) require double confirmation. Some clients show a
+confirmation dialog; Claude Desktop does not, so this conversation step is the only check there:
 
 1. **Look up the entity first** using `execute-read-command` to show what will be deleted
 2. **Ask the user in your response** by showing them the entity details and requesting confirmation
