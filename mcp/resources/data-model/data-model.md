@@ -217,9 +217,11 @@ company ls --query "Acme"
 
 ### See list fields and dropdown options
 ```bash
-field ls --list-id Dealflow                    # Returns all fields with dropdown options
+field ls --list-id Dealflow                    # all fields of the list
+field options ls field-123 --list-id Dealflow  # one field's options, incl. status options
 ```
-The response includes `dropdownOptions` array for dropdown/ranked-dropdown fields with `id`, `text`, `rank`, `color`.
+`field options ls` returns `data.options[]`: `id`, `text`, `type` (`dropdown`, `ranked-dropdown`,
+`status-dropdown`), `rank`, `color`, and for status fields `statusCategory` / `winRate`.
 
 Or use the resource: `xaffinity://field-catalogs/{listId}` for field schema with descriptions.
 
@@ -229,8 +231,12 @@ interaction feed --type email --after -7d --max-results 20     # emails across t
 interaction feed --type meeting --after -30d                   # also: call, chat-message
 company relationships 123 --min-score 0.3                      # who on the team knows people there
 company merge-history ls --status failed                       # past merges (admin + Manage duplicates)
+task ls --kind company-merge                                   # merge batches
+note feed --created-after -7d --with-attached                  # notes across the org
+note replies 12345                                             # replies to a note
+transcript ls --created-after -30d                             # AI Notetaker transcripts (then transcript get <id>)
 ```
-`interaction ls` stays the way to see one person's, company's or opportunity's interactions.
+For one person's, company's or opportunity's interactions use `interaction ls`.
 The feed shows only what the key's user may see; hidden email subjects appear as `********`.
 
 ### Audit field changes (who changed what, when)
@@ -258,11 +264,11 @@ For pipeline stage analysis, funnel conversion, or time-in-stage metrics across 
 field ls --list-id Dealflow                          # Look for a dropdown field like "Status"
 
 # Step 2: Estimate API cost (ALWAYS do this first)
-field history-bulk field-358027 --list-id Dealflow --dry-run
+field history-bulk field-358027 --list-id Dealflow --all --strategy field --dry-run
 
 # Step 3: Fetch history (bounded)
-field history-bulk field-358027 --list-id Dealflow --max-results 50    # Sample N entries
-field history-bulk field-358027 --list-id Dealflow --all               # All entries (a list field on a big list: read field-wide, a few calls)
+field history-bulk field-358027 --list-id Dealflow --all --strategy field  # All entries of a list field: read field-wide, a few calls
+field history-bulk field-358027 --list-id Dealflow --max-results 50    # Sample N entries (1 call each; at most 500 via MCP)
 field history-bulk field-358027 --list-entry-ids 100,200,300           # Specific entries only
 field history-bulk field-358027 --list-id Dealflow --max-results 100 --action-type update  # Only stage changes
 ```
@@ -299,7 +305,7 @@ list export Dealflow --filter "Status=New"
 ```
 
 ### Mistake 3: Trying to set enriched fields during `person create`
-"Current Organization" and "Current Job Title" can't be set by `person create`. Set them afterwards with `person field <id> --set "Current Organization" <companyId>` / `--set "Current Job Title" "CEO"` (CLI 1.21.0+).
+"Current Organization" and "Current Job Title" can't be set by `person create`. Set them afterwards with `person field <id> --set "Current Organization" <companyId>` / `--set "Current Job Title" "CEO"`.
 
 ### Enriched Field Writes
 Enriched fields — "Phone Number", "Source of Introduction", "Current Organization", "Industry", "Location", "Description", etc. — **are** writable via `person field --set` / `company field --set`. Pass the field name ("Phone Number") or its field ID and the CLI handles the rest. Every `--set`/`--unset` of one command is written in one request that Affinity applies completely or not at all. Not writable: interaction fields (First Email, Last Meeting, ...) and enriched dropdown fields.
@@ -322,7 +328,7 @@ unambiguous from one call.
 
 - `--json` emits a single JSON object, not NDJSON. Parse the whole blob and read `data.rows`.
 - Never redirect stderr to `/dev/null` — truncation, unknown-option, and client-side-filter warnings all go there.
-- `list export --filter` requires a scope flag (`--all`, `--max-results`, or `--first-page-only`) since v1.13. Unscoped invocations exit 2.
+- `list export --filter` requires a scope flag: `--max-results` or `--first-page-only` (`--all` is blocked here). Unscoped invocations exit 2.
 - For duplicate checks, use `list export --company-id <id>` / `--person-id <id>` instead of `--filter`. Entity-scoped, cheap, unambiguous.
 - Check `meta.truncated` on every JSON response; `meta.truncationReason` names the cause (currently `firstPageOnly`).
 - A plain `company get` / `person get` / `opportunity get` fetches no field values or list entries. `fields: {"requested": false}` or a missing `listEntries` means *not fetched*, not *empty*; `meta.notRequested` lists what was skipped and the flag that fetches it (e.g. `--expand list-entries`, read from `data.listEntries`).
@@ -346,9 +352,9 @@ The MCP gateway protects against expensive unbounded scans:
 
 | Behavior | Details |
 |----------|---------|
-| Default limit | 1000 records (auto-injected) |
-| Maximum limit | 10000 records (higher values capped) |
-| `--all` flag | **Blocked** with error message |
+| `--max-results` | Always pass it, sized to what you need (`discover-commands` → `limitConfig`) |
+| `--all` flag | **Blocked** with error message, except `field history-bulk --all --strategy field` (dry run first) |
+| `field history-bulk --max-results` | At most 500 (each entry is one API call) |
 
 **To fetch more than 10000 records:**
 Use cursor pagination:
@@ -530,7 +536,7 @@ The `query` tool rejects `where` clauses on `companies`, `persons`, and `opportu
 
 ### `company create` / `person create` duplicate protection
 
-As of CLI 0.7.0, `company create` and `person create` refuse to create a duplicate by default. The duplicate key is:
+`company create` and `person create` refuse to create a duplicate by default. The duplicate key is:
 - **Companies:** exact (case-insensitive) name match OR exact domain match.
 - **Persons:** exact email match (primary or any), else exact first-name + last-name match.
 

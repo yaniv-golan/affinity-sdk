@@ -31,7 +31,7 @@ xaffinity --readonly list export "Pipeline" --saved-view "Active Deals" --max-re
 ```
 
 `--filter` on `list export` requires `--all`, `--max-results`, or `--first-page-only` (exit 2
-otherwise, since v1.13). **For large lists (1000+ entries), prefer `--saved-view` over `--filter`.**
+otherwise). **For large lists (1000+ entries), prefer `--saved-view` over `--filter`.**
 For one known company/person, use `--company-id` / `--person-id` instead of any filter.
 
 ## Filter operators

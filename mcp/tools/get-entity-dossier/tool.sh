@@ -53,10 +53,9 @@ validate_entity_type "$entity_type" || mcp_fail_invalid_args "Invalid entity typ
 xaffinity_log_debug "get-entity-dossier" "type=$entity_type id=$entity_id interactions=$include_interactions notes=$include_notes lists=$include_lists"
 
 # Calculate total steps for progress
-total_steps=2  # entity details + relationship strength
+total_steps=2  # entity details (+ list memberships) + relationships
 [[ "$include_interactions" == "true" ]] && ((++total_steps))
 [[ "$include_notes" == "true" ]] && ((++total_steps))
-[[ "$include_lists" == "true" ]] && ((++total_steps))
 current_step=0
 
 # Old CLI: run anyway; results carry a warning (see xaffinity_note_cli_version)
@@ -71,7 +70,11 @@ cli_args=(--output json --quiet)
 # (an auth failure used to look like a successful dossier with no data).
 entity_err=$(mktemp)
 entity_exit=0
-entity_raw=$(run_xaffinity_readonly "$entity_type" get "$entity_id" "${cli_args[@]}" 2>"$entity_err") || entity_exit=$?
+# Person and company list memberships come with the entity (`.data.listEntries`); an
+# opportunity belongs to exactly one list, which its details name.
+get_args=()
+[[ "$include_lists" == "true" && "$entity_type" != "opportunity" ]] && get_args=(--expand list-entries)
+entity_raw=$(run_xaffinity_readonly "$entity_type" get "$entity_id" ${get_args[@]+"${get_args[@]}"} "${cli_args[@]}" 2>"$entity_err") || entity_exit=$?
 if [[ $entity_exit -ne 0 ]]; then
     cli_error=$(xaffinity_cli_error_json "$entity_raw" "$(cat "$entity_err")" "$entity_exit")
     rm -f "$entity_err"
@@ -81,6 +84,7 @@ if [[ $entity_exit -ne 0 ]]; then
 fi
 rm -f "$entity_err"
 entity_data=$(jq_tool -c --arg t "$entity_type" '.data[$t] // {}' <<<"$entity_raw")
+lists=$(jq_tool -c '.data.listEntries // []' <<<"$entity_raw")
 ((++current_step))
 
 # Check for cancellation
@@ -88,11 +92,11 @@ if mcp_is_cancelled; then
     mcp_fail -32001 "Operation cancelled"
 fi
 
-# Get relationship strength if person
-mcp_progress "$current_step" "Getting relationship strength" "$total_steps"
-relationship_data="null"
-if [[ "$entity_type" == "person" ]]; then
-    relationship_data=$(_run_cli_graceful '{"data":{"relationshipStrengths":[]}}' "relationship-strength for $entity_id" run_xaffinity_readonly relationship-strength ls --external-id "$entity_id" "${cli_args[@]}" | jq_tool -c '.data.relationshipStrengths[0] // null')
+# Strongest relationships between the team and this person / company's people
+mcp_progress "$current_step" "Getting relationships" "$total_steps"
+relationships="[]"
+if [[ "$entity_type" != "opportunity" ]]; then
+    relationships=$(_run_cli_graceful '{"data":{"relationships":[]}}' "relationships for $entity_type $entity_id" run_xaffinity_readonly "$entity_type" relationships "$entity_id" --max-results 5 "${cli_args[@]}" | jq_tool -c '.data.relationships // []')
 fi
 ((++current_step))
 
@@ -121,17 +125,6 @@ if [[ "$include_notes" == "true" ]]; then
     ((++current_step))
 fi
 
-# Get list memberships if requested
-lists="[]"
-if [[ "$include_lists" == "true" ]]; then
-    if mcp_is_cancelled; then
-        mcp_fail -32001 "Operation cancelled"
-    fi
-    mcp_progress "$current_step" "Fetching list memberships" "$total_steps"
-    lists=$(_run_cli_graceful '{"data":{"entries":[]}}' "list entries for $entity_type $entity_id" run_xaffinity_readonly list-entry ls --"$entity_type"-id "$entity_id" "${cli_args[@]}" | jq_tool -c '.data.entries // []')
-    ((++current_step))
-fi
-
 # Count collected data for logging
 interactions_count=$(echo "$interactions" | jq_tool 'length')
 notes_count=$(echo "$notes" | jq_tool 'length')
@@ -146,14 +139,14 @@ xaffinity_emit_json "$(jq_tool -n \
     --arg entityType "$entity_type" \
     --argjson entityId "$entity_id" \
     --argjson entity "$entity_data" \
-    --argjson relationship "$relationship_data" \
+    --argjson relationships "$relationships" \
     --argjson interactions "$interactions" \
     --argjson notes "$notes" \
     --argjson lists "$lists" \
     '{
         entity: {type: $entityType, id: $entityId},
         details: $entity,
-        relationshipStrength: $relationship,
+        relationships: $relationships,
         recentInteractions: $interactions,
         recentNotes: $notes,
         listMemberships: $lists

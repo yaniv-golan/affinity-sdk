@@ -37,7 +37,7 @@ xaffinity --readonly note replies 12345 --json                                  
   `interaction ls` (`references/interactions.md`).
 - `note feed` rows: `content` (HTML), `creator`, `mentionedPersonIds`, `interactionId`,
   `transcriptId`; `--with-attached` adds `repliesCount` and company/person/opportunity ids.
-  `note ls` / `note get` (per entity) are unchanged.
+  For one entity's notes use `note ls --company-id|--person-id|--opportunity-id`.
 - Neither has a sort option beyond newest-first notes; for "since X" use `--after` /
   `--created-after` / `--updated-after` (`--updated-after` skips items never changed).
 - This is sensitive data: summarise, don't dump.

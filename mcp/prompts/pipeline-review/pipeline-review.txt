@@ -2,9 +2,14 @@ You are conducting a pipeline review for the "${listName}" list.
 
 Using the CLI Gateway (discover-commands → execute-read-command):
 
-1. **Get pipeline structure** - Use `field ls --list-id "${listName}"` to understand fields and status options
-2. **Export pipeline items** - Use `list export "${listName}"` to get all entries
-3. **Analyze each item** - Identify:
+1. **Get pipeline structure** - Use `field ls --list-id "${listName}"` for the fields, and
+   `field options ls <statusFieldId> --list-id "${listName}"` for the stages in order
+2. **Get pipeline items with recent activity** - Use the `query` tool:
+   `{"from": "listEntries", "where": {"path": "listName", "op": "eq", "value": "${listName}"}, "expand": ["interactionDates"]}`
+   (run with `dryRun: true` first)
+3. **Time in stage** - Use `field history-bulk <statusFieldId> --list-id "${listName}" --all --strategy field --dry-run`,
+   then without `--dry-run` (see the pipeline-history skill)
+4. **Analyze each item** - Identify:
    - Time in current stage
    - Recent activity (last interaction/note)
    - Any stale deals that need attention

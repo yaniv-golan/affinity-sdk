@@ -461,18 +461,62 @@ apply_limit_cap() {
     # Get all aliases for the unbounded flag (e.g., ["--all", "-A"])
     unbounded_aliases=$(echo "$limit_config" | jq_tool -r '.unboundedFlagAliases // [] | .[]')
 
+    # --all is acceptable only with the option + value in allowUnboundedWith (e.g.
+    # `--strategy field` for field history-bulk: a bounded field-wide read)
+    local allow_opt allow_val allowed=false i
+    allow_opt=$(echo "$limit_config" | jq_tool -r '.allowUnboundedWith[0] // empty')
+    allow_val=$(echo "$limit_config" | jq_tool -r '.allowUnboundedWith[1] // empty')
+    if [[ -n "$allow_opt" && ${#argv[@]} -gt 0 ]]; then
+        for ((i = 0; i < ${#argv[@]}; i++)); do
+            if [[ "${argv[i]}" == "$allow_opt=$allow_val" ||
+                ("${argv[i]}" == "$allow_opt" && "${argv[i + 1]:-}" == "$allow_val") ]]; then
+                allowed=true
+            fi
+        done
+    fi
+
     # Block unbounded flag (--all and aliases like -A) with clear error
     # Note: Guard for Bash 3.2 compatibility - empty arrays fail with set -u
-    if [[ -n "$unbounded_aliases" && ${#argv[@]} -gt 0 ]]; then
+    if [[ -n "$unbounded_aliases" && "$allowed" != "true" && ${#argv[@]} -gt 0 ]]; then
         for arg in "${argv[@]}"; do
             for alias in $unbounded_aliases; do
                 if [[ "$arg" == "$alias" ]]; then
-                    mcp_error "validation_error" \
-                        "$alias is not allowed via MCP (prevents unbounded scans)" \
-                        --hint "Use --max-results N (max: $CLI_GATEWAY_MAX_LIMIT), or use --cursor for paginated iteration"
+                    if [[ -n "$allow_opt" ]]; then
+                        mcp_error "validation_error" \
+                            "$alias is allowed via MCP only with $allow_opt $allow_val" \
+                            --hint "Add $allow_opt $allow_val (dry run first), or use --max-results N"
+                    else
+                        mcp_error "validation_error" \
+                            "$alias is not allowed via MCP (prevents unbounded scans)" \
+                            --hint "Use --max-results N (max: $CLI_GATEWAY_MAX_LIMIT), or use --cursor for paginated iteration"
+                    fi
                     return 1
                 fi
             done
+        done
+    fi
+
+    # enforceMax: refuse a limit above the command's max (its CLI doesn't cap it)
+    local enforce_max cmd_max limit_aliases value
+    enforce_max=$(echo "$limit_config" | jq_tool -r '.enforceMax // false')
+    if [[ "$enforce_max" == "true" && ${#argv[@]} -gt 0 ]]; then
+        cmd_max=$(echo "$limit_config" | jq_tool -r '.max')
+        limit_aliases=$(echo "$limit_config" | jq_tool -r '.flagAliases // [] | .[]')
+        for ((i = 0; i < ${#argv[@]}; i++)); do
+            value=""
+            for alias in $limit_aliases; do
+                if [[ "${argv[i]}" == "$alias" ]]; then
+                    value="${argv[i + 1]:-}"
+                elif [[ "${argv[i]}" == "$alias="* ]]; then
+                    value="${argv[i]#"$alias="}"
+                fi
+            done
+            if [[ "$value" =~ ^[0-9]+$ ]] && ((10#$value > cmd_max)); then
+                mcp_error "validation_error" \
+                    "$cmd: --max-results is at most $cmd_max via MCP" \
+                    --hint "Use $cmd_max or fewer; discover-commands describes the command's limits"
+                return 1
+            fi
         done
     fi
 
@@ -483,4 +527,5 @@ apply_limit_cap() {
     # Output NUL-delimited for safe consumption with mapfile
     # Only output if array is non-empty (empty printf '%s\0' would create one empty element)
     [[ ${#argv[@]} -gt 0 ]] && printf '%s\0' "${argv[@]}"
+    return 0
 }

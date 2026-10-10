@@ -2,7 +2,7 @@ You are preparing a briefing for a meeting or interaction with ${entityName}.
 
 Use the get-entity-dossier tool to gather comprehensive information about this person/company including:
 - Basic details and background
-- Relationship strength score
+- Who on the team knows them best (strongest relationships)
 - Recent interactions and notes
 - Current list memberships and workflow status
 

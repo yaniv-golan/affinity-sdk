@@ -22,7 +22,7 @@ _get_array_path() {
         "note replies")                                  echo ".data.replies"; return ;;
         "transcript ls")                                 echo ".data.transcripts"; return ;;
         "transcript get")                                echo ".data.transcript.fragments"; return ;;
-        "field changes" | "field history")               echo ".data.fieldValueChanges"; return ;;
+        "field changes" | "field history" | "field history-bulk") echo ".data.fieldValueChanges"; return ;;
         "field options ls")                              echo ".data.options"; return ;;
         "company relationships" | "person relationships") echo ".data.relationships"; return ;;
         "company merge-history ls" | "person merge-history ls") echo ".data.merges"; return ;;
@@ -148,10 +148,18 @@ validate_argv "$command" ${argv[@]+"${argv[@]}"} || exit 0
 
 # Apply proactive limiting - inject/cap --limit for commands that support it
 # Note: Using while loop instead of mapfile for bash 3.x compatibility (macOS default)
+# A refusal must stop here: its error result is in the output, not argv to run.
+limit_out=$(mktemp)
+if ! (apply_limit_cap "$command" ${argv[@]+"${argv[@]}"}) >"$limit_out"; then
+    cat "$limit_out"
+    rm -f "$limit_out"
+    exit 0
+fi
 new_argv=()
 while IFS= read -r -d '' item; do
     new_argv+=("$item")
-done < <(apply_limit_cap "$command" ${argv[@]+"${argv[@]}"})
+done <"$limit_out"
+rm -f "$limit_out"
 argv=("${new_argv[@]+"${new_argv[@]}"}")
 
 # Old CLI: run anyway; results carry a warning (see xaffinity_note_cli_version)
@@ -244,7 +252,11 @@ if [[ $exit_code -eq 0 ]]; then
         # Apply semantic truncation with command-specific array path
         array_path=$(_get_array_path "$command")
         truncate_args=("$stdout_content" "$max_output_bytes")
-        [[ -n "$array_path" ]] && truncate_args+=(--array-path "$array_path")
+        # Only when the rows are there: a dry run (e.g. field history-bulk) has none
+        if [[ -n "$array_path" ]] &&
+            jq_tool -e "($array_path) | type == \"array\"" >/dev/null 2>&1 <<<"$stdout_content"; then
+            truncate_args+=(--array-path "$array_path")
+        fi
         if truncated_result=$(mcp_json_truncate "${truncate_args[@]}"); then
             xaffinity_result_success "$(printf '%s' "$truncated_result" | jq_tool --argjson cmd "$cmd_json" '. + {executed: $cmd}')"
         else

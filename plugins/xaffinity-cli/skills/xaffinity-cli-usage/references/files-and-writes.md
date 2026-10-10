@@ -26,12 +26,11 @@ xaffinity company files upload 12345 --file ./document.pdf --json
 
 Upload takes a numeric entity id and one `--file` per file. Each `data.uploads[]` row has
 `fileId` (and `createdAt`) of the new file — use it with `files read --file-id` without a
-follow-up `files ls`. `fileId` is `null` if the API didn't return the created file
-(CLI <= 1.18.x never included it).
+follow-up `files ls`. `fileId` is `null` if the API didn't return the created file.
 
 ## `company create` / `person create` refuse duplicates by default
 
-Since CLI 1.12.0, create refuses if an exact name/domain (companies) or email/full-name (persons) match exists:
+Create refuses if an exact name/domain (companies) or email/full-name (persons) match exists:
 
 - Exit code: 6
 - Error type: `duplicate_exists`
@@ -42,7 +41,7 @@ Since CLI 1.12.0, create refuses if an exact name/domain (companies) or email/fu
 
 ## Field writes
 
-- **`company field` / `person field` writes are all-or-nothing** (CLI 1.21.0+): every
+- **`company field` / `person field` writes are all-or-nothing**: every
   `--set`/`--set-json`/`--unset` of one command goes in one request; if Affinity rejects one value,
   nothing changes. JSON output: `created` (`{fieldId, name, value}`) and `cleared`. They use
   Affinity API version 2026-07-15+ (sent automatically; a pin to 2024-01-01 exits 2).
@@ -57,10 +56,9 @@ Since CLI 1.12.0, create refuses if an exact name/domain (companies) or email/fu
 - **`--set` replaces, `--append` adds.** `--set` replaces a field's whole value (a rejected write
   leaves the old value). `--append` only works on multi-value fields; on a single-value field it
   exits 2 — use `--set`. Numbers are plain (`--set Amount 5`); locations are JSON objects
-  (`--set HQ '{"city": "Paris", "country": "France"}'`). Requires CLI 1.18.0+: earlier versions
-  could leave a field empty when a write failed.
-- **One command = one all-or-nothing update** (CLI 1.19.0+, `list entry field` and
-  `opportunity field`): all `--set`/`--set-json`/`--unset` succeed together or none applies. To
-  update several fields consistently, put them in one command.
+  (`--set HQ '{"city": "Paris", "country": "France"}'`).
+- **One command = one all-or-nothing update** (`list entry field` and `opportunity field`): all
+  `--set`/`--set-json`/`--unset` succeed together or none applies. To update several fields
+  consistently, put them in one command.
 - **Hidden is not empty.** A field reported "hidden by Affinity" (restricted opportunity, API
   version 2026-07-15+) is masked: treat it as unknown and don't overwrite it.

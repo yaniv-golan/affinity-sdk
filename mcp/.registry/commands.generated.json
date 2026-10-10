@@ -118,7 +118,7 @@
         "company field 123 --set-json '{\"Industry\": \"Tech\", \"Size\": \"Large\"}'",
         "company field 123 --get Industry --get Size"
       ],
-      "whenToUse": "Manage field values on a company (global, enriched and Source of Introduction fields). Accepts field names or field IDs. Some enriched names (Industry, Location, Description) exist under multiple enrichment providers and raise AmbiguousFieldError with disambiguation candidates — pass the specific field ID in that case. All --set/--set-json/--unset of one call are written in one request that Affinity applies completely or not at all; output lists `created` and `cleared` fields. Needs CLI 1.21.0+.",
+      "whenToUse": "Manage field values on a company (global, enriched and Source of Introduction fields). Accepts field names or field IDs. Some enriched names (Industry, Location, Description) exist under multiple enrichment providers and raise AmbiguousFieldError with disambiguation candidates — pass the specific field ID in that case. All --set/--set-json/--unset of one call are written in one request that Affinity applies completely or not at all; output lists `created` and `cleared` fields.",
       "relatedCommands": [
         "company get",
         "field ls"
@@ -1421,13 +1421,32 @@
         }
       ],
       "examples": [
-        "field history-bulk field-358027 --list-id Dealflow --dry-run",
+        "field history-bulk field-358027 --list-id Dealflow --all --strategy field --dry-run",
+        "field history-bulk field-358027 --list-id Dealflow --all --strategy field",
         "field history-bulk field-358027 --list-id Dealflow --max-results 50",
-        "field history-bulk field-358027 --list-id Dealflow --all",
         "field history-bulk field-358027 --list-entry-ids 100,200,300",
         "field history-bulk field-358027 --list-id Dealflow --max-results 100 --action-type update"
       ],
-      "whenToUse": "Fetch field change history across an entire list or set of entries. Use for pipeline analysis (stage transitions, funnel conversion, time-in-stage). ALWAYS use --dry-run first to estimate API calls. Two modes: (1) --list-id with --all/--max-results for list-wide scans, (2) --list-entry-ids for specific entries. With --all on a field of that list (100+ entries) the history is read field-wide in a few calls (dry run: strategy field); otherwise each entry = 1 API call. --strategy field|entries forces either.",
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 100,
+        "max": 500,
+        "enforceMax": true,
+        "allowUnboundedWith": [
+          "--strategy",
+          "field"
+        ],
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all"
+        ]
+      },
+      "whenToUse": "Fetch field change history across an entire list or set of entries. Use for pipeline analysis (stage transitions, funnel conversion, time-in-stage). ALWAYS use --dry-run first. Whole list: --list-id with --all --strategy field reads a field of that list field-wide in a few calls (via MCP --all is accepted only with --strategy field; a global or enriched field is a usage error). Otherwise --max-results N (at most 500 via MCP) or --list-entry-ids: each entry = 1 API call.",
       "relatedCommands": [
         "field ls",
         "field history",
@@ -1436,20 +1455,6 @@
       "mcpBehavior": {
         "limitEnforced": false,
         "requiresDryRun": true
-      },
-      "limitConfig": {
-        "flag": "--max-results",
-        "flagAliases": [
-          "--max-results",
-          "--limit",
-          "-n"
-        ],
-        "default": 1000,
-        "max": 10000,
-        "unboundedFlag": "--all",
-        "unboundedFlagAliases": [
-          "--all"
-        ]
       }
     },
     {
@@ -3594,7 +3599,7 @@
         "person field 123 --set-json '{\"Phone\": \"+1...\", \"Title\": \"CEO\"}'",
         "person field 123 --get Phone --get Email"
       ],
-      "whenToUse": "Manage field values on a person (global, enriched and Source of Introduction fields, including 'Current Organization' and 'Phone Number'). Accepts field names or field IDs. All --set/--set-json/--unset of one call are written in one request that Affinity applies completely or not at all; output lists `created` and `cleared` fields. Multi-value fields take at most 100 values. Needs CLI 1.21.0+.",
+      "whenToUse": "Manage field values on a person (global, enriched and Source of Introduction fields, including 'Current Organization' and 'Phone Number'). Accepts field names or field IDs. All --set/--set-json/--unset of one call are written in one request that Affinity applies completely or not at all; output lists `created` and `cleared` fields. Multi-value fields take at most 100 values.",
       "relatedCommands": [
         "person get",
         "field ls"

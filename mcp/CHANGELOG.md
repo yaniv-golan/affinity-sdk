@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.30.1] - 2026-10-11
+
+### Fixed
+
+- `field history-bulk`: the field-wide read of a whole list (`--all --strategy field`, a few
+  API calls) can be used through MCP. Bare `--all` stays refused, since it may mean one call per
+  entry, and `--max-results` is limited to 500 entries. Large results are trimmed, and the dry
+  run's output is returned as it is.
+- When the gateway refused a command (e.g. `--all`), the refusal was lost: the command ran with
+  no arguments and failed with an unrelated usage error. The refusal and its hint are now
+  returned.
+- `get-entity-dossier`: list memberships were always empty (it called a command that doesn't
+  exist). They now come from `<type> get --expand list-entries` (person/company).
+- `get-entity-dossier`: `relationshipStrength` (persons only, one row) is replaced by
+  `relationships`: the team's five strongest connections, for persons and companies.
+
+### Changed
+
+- Workflows skill, data model, prompts: describe the current commands only (no version history).
+  Added guidance for org-wide activity (`interaction feed`, `note feed`, `note replies`),
+  transcripts, `field changes`, merge history and dropdown options; warm-intro and briefing use
+  `person|company relationships`; pipeline-review uses `field options ls`, `query` with
+  `interactionDates` and `field history-bulk`; interaction lookups are limited to a year;
+  `field history` no longer described as needing an entity.
+- Registry: `company field` / `person field` guidance no longer names a CLI version.
+
 ## [1.30.0] - 2026-10-10
 
 ### Changed

@@ -133,7 +133,10 @@ def add_limit_config(cmd: dict) -> None:
 
     ``mcp-commands.json`` may set ``limitConfig`` for a command: ``false`` means none (e.g. a
     ``--limit`` that is a byte size), an object sets ``default`` / ``max`` (e.g. an API that
-    caps results at 100). The flag names always come from the CLI.
+    caps results at 100). The flag names always come from the CLI. Two optional keys are kept
+    for the gateway: ``enforceMax`` (refuse a limit above ``max`` instead of leaving it to the
+    CLI) and ``allowUnboundedWith`` (an option and value that make ``--all`` acceptable, e.g.
+    ``["--strategy", "field"]``).
     """
     configured = cmd.get("limitConfig")
     if configured is False:
@@ -161,6 +164,10 @@ def add_limit_config(cmd: dict) -> None:
         "default": values.get("default", 1000),
         "max": values.get("max", 10000),
     }
+    if values.get("enforceMax"):
+        cmd["limitConfig"]["enforceMax"] = True
+    if values.get("allowUnboundedWith"):
+        cmd["limitConfig"]["allowUnboundedWith"] = list(values["allowUnboundedWith"])
 
     # Check for unbounded flag (--all)
     all_info = get_param_with_aliases(params, "--all")

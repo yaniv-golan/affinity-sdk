@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Plugins
+
+- **CLI plugin**: 1.12.0 → 1.13.0 — skill: field history without a selector, `field changes`,
+  `history-bulk --strategy`; `interaction feed`, `note feed`, `note replies`; transcripts;
+  `company|person relationships`, merge history, `task ls`; `field options`.
+- **CLI plugin**: 1.13.0 → 1.13.1 — skill describes the current CLI only (no per-version notes);
+  one upgrade hint at install.
+- **SDK plugin**: 1.7.0 → 1.7.1 — skill: API version pinning, note/file/semantic company search,
+  hidden values; new `references/services.md` organised by question (field history, org-wide
+  activity, notes V2 and replies, transcripts, relationships, merges, dropdown options, uploads).
+
 ## [1.27.0] - 2026-10-10
 
 ### Highlights

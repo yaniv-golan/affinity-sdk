@@ -3,7 +3,7 @@ You need a quick interaction history brief for ${entityName}.
 Using the CLI Gateway (discover-commands → execute-read-command):
 
 1. **Find the entity** - Use `person ls --query "${entityName}"` or `company ls` to get their ID
-2. **Get interactions** - Use `interaction ls --person-id <id> --type all` (or specific types: email, meeting, call, chat-message)
+2. **Get interactions** - Use `interaction ls --person-id <id> --type all --days 365` (or specific types: email, meeting, call, chat-message)
 3. **Summarize** the interaction history:
    - Total interactions by type (calls, meetings, emails)
    - Most recent interaction date and type

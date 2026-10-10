@@ -27,9 +27,8 @@ The CLI must be configured with an API key before the MCP server will work.
 **You MUST complete steps 1-2 before running ANY queries or commands.**
 
 Skipping these steps leads to incorrect or inefficient queries because:
-- Command syntax may have changed since this skill was written
-- New flags (like `--with-interaction-dates`) may exist that you don't know about
-- You may use deprecated syntax that returns incomplete data
+- `discover-commands` has each command's exact flags, limits and examples; this skill shows the
+  shape of a call, not every flag
 - The data model has nuances (e.g., `list export` vs `company ls`) that you'll miss
 
 ### Mandatory Pre-Flight Checklist
@@ -60,17 +59,13 @@ Read-only operations (search, lookup, briefings) can be used proactively to help
 
 ## Full Scan Protection
 
-The MCP gateway enforces pagination limits to prevent unbounded data scans:
+The MCP gateway caps how much a command may fetch:
 
-| Limit | Value | Description |
-|-------|-------|-------------|
-| Default | 1000 records | Applied when no `--max-results` specified |
-| Maximum | 10000 records | Higher values are capped with a warning |
-| `--all` flag | **BLOCKED** | Use `--max-results` or cursor pagination instead |
-
-**Affected commands:** `list export`, `list ls`, `person ls`, `company ls`, `opportunity ls`, `note ls`, `reminder ls`, `interaction ls`, `field history`
-
-**To fetch more than 10000 records:** Use cursor pagination with `--cursor` flag.
+- Always pass `--max-results` with the number of records you need; `discover-commands` shows a
+  sensible size per command (`limitConfig`, e.g. `note feed` 20).
+- `--all` is refused, except `field history-bulk --all --strategy field` (dry run first). To get
+  more, pass `--cursor` with the previous `nextCursor`.
+- Large results are trimmed to fit; the result says how many rows were kept.
 
 ## Available Tools
 
@@ -93,7 +88,7 @@ The CLI Gateway provides full access to the xaffinity CLI:
 
 | Tool | Use Case |
 |------|----------|
-| `get-entity-dossier` | Comprehensive entity info (details, relationship strength, interactions, notes, list memberships) |
+| `get-entity-dossier` | Entity info in one call (details, strongest relationships, recent interactions and notes, list memberships) |
 | `read-xaffinity-resource` | Access dynamic resources via `xaffinity://` URIs |
 
 ### Destructive Commands
@@ -143,7 +138,7 @@ You: execute-write-command(command: "person delete", argv: ["123"], confirm: tru
 
 ### Query Examples (Preferred for Complex Operations)
 
-⚠️ **STOP: Did you complete the pre-flight checklist?** The syntax below may be outdated. Run `discover-commands` first to verify current syntax and available flags.
+⚠️ **STOP: Did you complete the pre-flight checklist?** Run `discover-commands` for the exact flags.
 
 ⚠️ **For queries with `expand` or `include`, ALWAYS use `dryRun: true` first** to see estimated API calls. These cause N+1 API calls (one per record) and can be slow or timeout.
 
@@ -169,7 +164,7 @@ You: execute-write-command(command: "person delete", argv: ["123"], confirm: tru
 
 ## Common CLI Commands
 
-⚠️ **Reminder:** Run `discover-commands` first. The commands below are examples - actual syntax and flags may differ.
+⚠️ **Reminder:** Run `discover-commands` first. The commands below show the shape; it has every flag.
 
 Use `discover-commands` to find commands, then `execute-read-command` or `execute-write-command` to run them.
 
@@ -183,7 +178,7 @@ Use `discover-commands` to find commands, then `execute-read-command` or `execut
 | `note search "..." [--company-id X]` | Find notes by their text |
 | `file search "..." [--company-id X]` | Find files by their contents (then `file-url <fileId>`) |
 | `list ls` | List Affinity lists (`--query NAME` matches part of the name) |
-| `field ls --list-id <id>` | Get field definitions and dropdown options |
+| `field ls --list-id <id>` | Get field definitions (options: `field options ls`) |
 
 **Note:** For list exports needing relationships or computed data, use `query` instead of `list export`.
 
@@ -194,9 +189,25 @@ Use `discover-commands` to find commands, then `execute-read-command` or `execut
 | `person get <id>` | Get person details |
 | `company get <id>` | Get company details |
 | `opportunity get <id>` | Get opportunity details |
-| `relationship-strength ls --external-id <id>` | Get relationship strength for a person |
-| `interaction ls --person-id <id> --type all` | Get all interactions (or use specific type: email, meeting, call, chat-message) |
-| `field history <field-id> --person-id <id>` | Audit who changed a field and when. Use to track status changes or investigate field modifications. **Requires exactly one entity selector**: `--person-id`, `--company-id`, `--opportunity-id`, or `--list-entry-id` |
+| `person relationships <id>` / `company relationships <id or domain:x.com>` | Who on the team knows them, strongest first (`--min-score 0.3`) |
+| `interaction ls --person-id <id> --type all --days 365` | One entity's interactions (or one type: email, meeting, call, chat-message) |
+| `field history <field-id> --person-id <id>` | Who changed one field on one entity, and when (or `--company-id`, `--opportunity-id`, `--list-entry-id`) |
+
+### Org-wide activity and history
+
+| Command | Use Case |
+|---------|----------|
+| `interaction feed --type email --after -7d` | Emails (or `meeting`, `call`, `chat-message`) across the org, not tied to one entity |
+| `note feed --created-after -7d` | Recent notes across the org (`--with-attached` adds the companies/persons/deals and reply counts) |
+| `note replies <noteId>` | Replies to a note |
+| `transcript ls --created-after -30d` / `transcript get <id>` | AI Notetaker meeting transcripts (`get --max-results N` for more fragments) |
+| `field history <field-id> --changed-after -30d` | One field's changes on every entity |
+| `field changes --changed-after -7d` | Any field on any entity (`--changer-id`, `--field-id`, `--list-entry-id`) |
+| `field history-bulk <field-id> --list-id <list> --all --strategy field --dry-run` | One field across a whole list (stage transitions) — see the pipeline-history skill |
+| `company merge-history ls` / `task ls --kind company-merge` | Which merges ran or failed (admin key) |
+| `field options ls <field-id> --list-id <list>` | A dropdown or status field's options (ids, text, rank, status category) |
+
+Only what the API key's user may see. Notes and transcripts are sensitive: summarise them.
 
 ### Write Operations
 
@@ -207,6 +218,8 @@ Use `discover-commands` to find commands, then `execute-read-command` or `execut
 | `entry field "<list>" <entryId> --get <field>` | Read field values (returns resolved person/company objects) |
 | `entry field "<list>" <entryId> --set <field> <value>` | Update a field value |
 | `person create --first-name "..." --last-name "..."` | Create a person |
+| `field options create\|update <field-id> --list-id <list> ...` | Add or rename a dropdown option |
+| `field options delete <field-id> <optionId> --list-id <list>` | **Destructive**: clears the field on every entry with that option (double confirmation) |
 
 ## MCP Prompts (Guided Workflows)
 
@@ -251,7 +264,13 @@ Combine the tools above to handle multi-step tasks:
 
 - **Before a meeting**: `get-entity-dossier` for full context, or `prepare-briefing` prompt
 - **After a call**: `execute-write-command` to log interaction, `query` to find list entry, `entry field` to update status — or `log-interaction-and-update-workflow` prompt
-- **Finding warm intros**: `person ls` → `relationship-strength ls`, or `warm-intro` prompt
+- **Finding warm intros**: `person ls` / `company ls` → `person relationships` /
+  `company relationships`, or `warm-intro` prompt
+- **"What happened this week?"**: `interaction feed --type meeting --after -7d`, `note feed
+  --created-after -7d`
+- **"Who changed X / what did Y change?"**: `field history` (one field), `field changes`
+  (`--changer-id`)
+- **"What was said in the meeting?"**: `transcript ls`, then `transcript get <id>`
 - **Pipeline review**: `query` with aggregation + expand, or `pipeline-review` prompt
 - **"What did we discuss about X?"**: `note search "X"` (add `--company-id` to scope it), then
   `note get <noteId>` for the full note
@@ -262,7 +281,7 @@ Combine the tools above to handle multi-step tasks:
 
 - **Entity types**: `person`, `company`, `opportunity`
 - **Interaction types**: `call`, `meeting`, `email`, `chat-message` (or `chat`)
-- **Dossier is comprehensive**: `get-entity-dossier` returns relationship strength, interactions, notes, and list memberships in one call
+- **Dossier**: `get-entity-dossier` returns details, the team's strongest relationships, recent interactions and notes, and list memberships in one call
 - **Use names directly**: Most commands accept names instead of IDs (e.g., `person ls --query "John"`)
 - **Finding entities in a list**: Use `query` with filters:
   ```json
@@ -307,6 +326,6 @@ Debug logs show component prefixes like `[xaffinity:tool:1.2.3]` to identify whi
 
 ### Field values: hidden is not empty
 
-Since Affinity API version 2026-07-15, fields on restricted opportunities your API key can't
-manage come back masked (`type: "hidden"`, empty value). The CLI warns ("hidden by Affinity").
+With Affinity API version 2026-07-15 or newer, fields on restricted opportunities your API key
+can't manage come back masked (`type: "hidden"`, empty value). The CLI warns ("hidden by Affinity").
 Treat them as unknown, never as empty, and don't overwrite them.

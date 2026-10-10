@@ -48,6 +48,21 @@ async with AsyncAffinity.from_env(policies=Policies(write=WritePolicy.DENY)) as 
     companies = await client.companies.all()
 ```
 
+### API versions
+
+Affinity versions its V2 API by date (`2024-01-01`, `2026-07-15`, `2026-09-17`, or `current`).
+Unpinned, each request uses the API key's default version, and calls that need a newer one
+(relationships, company/person field writes, notes per company) send it themselves. Pin when you
+need consistent response shapes:
+
+```python
+client = Affinity.from_env(affinity_api_version="2026-09-17")
+client.affinity_api_versions_seen        # versions that answered, e.g. frozenset({"2026-09-17"})
+```
+
+A pin older than a call needs raises `ApiVersionTooOldError`; a version Affinity rejects raises
+`UnsupportedApiVersionError` (both from `affinity.exceptions`). There is no silent fallback.
+
 ## Multi-Source Tasks: Output Only the Summary
 
 When a task combines data from **multiple Affinity sources** (e.g., person + interactions + list entries), fetch everything in one script and **print only the relevant summary**. Never dump raw `model_dump_json()` — it floods the conversation with hundreds of lines the agent must parse just to extract a few facts.
@@ -162,14 +177,14 @@ for company in client.companies.all(on_progress=log_progress):
     ...
 ```
 
-## Filtering (Custom Fields Only)
+## Searching and Filtering
 
 **Note:** Global-entity lists (`companies`, `persons`, `opportunities`) do NOT accept `filter=` — server-side filtering is not supported on these endpoints, and the SDK raises `ValueError` to prevent silently-unfiltered results. Use `search_pages()` for name/domain/email fuzzy search, or filter **list entries** (which support client-side filtering).
 
 ```python
 from affinity import F
 
-# Global-entity fuzzy search
+# Global-entity fuzzy search (name / domain / email)
 for page in client.companies.search_pages("Acme"):
     for company in page.data:
         ...
@@ -177,6 +192,18 @@ for page in client.companies.search_pages("Acme"):
 for page in client.persons.search_pages("alex@acme.com"):
     for person in page.data:
         ...
+
+# Companies matching a description (semantic, ranked, up to 100)
+result = client.companies.semantic_search("AI infrastructure startups in Berlin", limit=20)
+for c in result.data:                   # SemanticCompany: id, name, domain, score
+    print(c.name, c.score)
+print(result.explanation)               # how Affinity read the request
+
+# Text inside notes and files (optionally one company)
+for hit in client.notes.search("pricing", company_id=CompanyId(456), limit=20):
+    print(hit.note.id, hit.preview)
+for hit in client.files.search("pitch deck", limit=20):
+    print(hit.file.id, hit.page_number, hit.preview)
 
 # For list-specific field filters, use list entries (client-side, warned)
 entries = client.lists.entries(ListId(123)).list(
@@ -230,18 +257,28 @@ with Affinity.from_env() as client:
     entries_service.add_person() / .add_company() / .add_opportunity()
     entries_service.update_field_value() / .batch_update_fields()
 
-    # Notes, reminders, interactions
+    # Notes, reminders, interactions (one entity)
     client.notes.list() / .create()
     client.reminders.list() / .create()
     client.interactions.list(type=..., start_time=..., end_time=..., person_id=...)
     client.interactions.iter(type=..., start_time=..., person_id=...)  # auto-chunks, defaults end_time to now
 
-    # Rate limits
-    snapshot = client.rate_limits.snapshot()
-
     # Identity
     me = client.whoami()
 ```
+
+**For anything else read `references/services.md`**, organised by question:
+
+| Question | Services |
+|---|---|
+| Who changed this field / what did user X change? | `field_value_changes.list`, `iter_all`, `iter_global` |
+| What happened across the org this week? | `interactions.iter_emails` / `iter_meetings` / `iter_calls` / `iter_chat_messages`, `notes.iter_v2` |
+| Notes on one entity, replies to a note | `companies` / `persons` / `opportunities.iter_notes`, `notes.get_v2`, `notes.iter_replies` |
+| What was said in a meeting? | `transcripts.iter`, `get`, `iter_fragments` |
+| Who on the team knows people at X? | `companies` / `persons.iter_relationships` |
+| Which merges ran or failed? | `companies` / `persons.list_merges`, `tasks.list_merge_tasks` |
+| A dropdown's options; add / rename / delete one | `lists.get_field_dropdown_options`, `create_` / `update_` / `delete_field_dropdown_option` |
+| Upload a file and get its id | `files.upload_path_returning_files` |
 
 ## Error Handling
 
@@ -332,6 +369,11 @@ if company.fields.requested:
     for field_name, value in company.fields.data.items():
         print(f"{field_name}: {value}")
 
+# Values Affinity masks (restricted opportunities, API version 2026-07-15+) are unknown, not empty
+if entry.fields.is_hidden("field-123"):
+    ...                                   # never report as blank, never overwrite
+masked = entry.fields.hidden_fields()     # ids of every masked field
+
 # Available: GLOBAL, LIST, ENRICHED, RELATIONSHIP_INTELLIGENCE
 ```
 
@@ -389,7 +431,7 @@ client.companies.batch_update_fields(
 client.persons.get_field_values(person_id, ids=["affinity-data-current-organization"])
 ```
 
-These writes need Affinity API version 2026-07-15+: unpinned clients send it for the call; a client pinned to 2024-01-01 raises `ApiVersionTooOldError`.
+These writes need API version 2026-07-15 or newer (see "API versions").
 
 For fresh post-write reads where you want to skip the in-memory field-metadata cache, pass `skip_cache=True` to `client.fields.list(...)`.
 

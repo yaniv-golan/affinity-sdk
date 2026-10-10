@@ -1,6 +1,6 @@
 {
   "name": "get-entity-dossier",
-  "description": "Get a comprehensive dossier for a person, company, or opportunity including details, relationship strength, recent interactions, notes, and list memberships.",
+  "description": "Get a dossier for a person, company, or opportunity: details, the team's strongest relationships (person/company), recent interactions and notes, and list memberships (person/company; an opportunity's list is in its details).",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -34,7 +34,7 @@
       "includeLists": {
         "type": "boolean",
         "default": true,
-        "description": "Include list memberships"
+        "description": "Include list memberships (person/company)"
       }
     }
   },

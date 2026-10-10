@@ -24,6 +24,11 @@ CASES = {
     "transcript get": (["1"], ["data", "transcript", "fragments"]),
     "field changes": ([], ["data", "fieldValueChanges"]),
     "field history": (["field-1", "--person-id", "2"], ["data", "fieldValueChanges"]),
+    # --all with --strategy field passes the gateway: the field-wide read
+    "field history-bulk": (
+        ["field-1", "--list-id", "9", "--all", "--strategy", "field"],
+        ["data", "fieldValueChanges"],
+    ),
     "field options ls": (["field-1", "--list-id", "9"], ["data", "options"]),
     "company relationships": (["10"], ["data", "relationships"]),
     "person relationships": (["10"], ["data", "relationships"]),
@@ -91,3 +96,39 @@ def test_large_result_is_trimmed_not_refused(tmp_path: Path, command: str) -> No
     for key in path:
         rows = rows[key]
     assert len(rows) == wrapped["kept"]
+
+
+def test_output_without_the_rows_path_is_returned(tmp_path: Path) -> None:
+    """A dry run (or any output without the rows array) is passed through, not an error."""
+    payload = tmp_path / "payload.json"
+    payload.write_text(json.dumps({"ok": True, "data": {"dryRun": True, "strategy": "field"}}))
+    fake = tmp_path / "xaffinity"
+    fake.write_text(
+        "#!/usr/bin/env bash\n"
+        'for a in "$@"; do [[ "$a" == version ]] && '
+        f'{{ echo \'{{"data":{{"version":"{_min_version()}"}}}}\'; exit 0; }}; done\n'
+        f'cat "{payload}"\n'
+    )
+    fake.chmod(0o755)
+    argv = ["field-1", "--list-id", "9", "--all", "--strategy", "field", "--dry-run"]
+    env = {
+        "PATH": os.environ["PATH"],
+        "HOME": str(tmp_path),
+        "MCP_SDK": str(MCP / ".mcp-bash" / "sdk"),
+        "MCPBASH_PROJECT_ROOT": str(MCP),
+        "MCPBASH_JSON_TOOL_BIN": str(JQ),
+        "MCPBASH_JSON_TOOL": "jq",
+        "MCP_TOOL_ARGS_JSON": json.dumps({"command": "field history-bulk", "argv": argv}),
+        "XAFFINITY_CLI": str(fake),
+    }
+    out = subprocess.run(
+        ["bash", str(MCP / "tools" / "execute-read-command" / "tool.sh")],
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=120,
+        check=False,
+    ).stdout
+    result = json.loads(out.strip().splitlines()[-1])
+    assert result.get("isError") is not True, result
+    assert result["structuredContent"]["result"]["result"]["data"]["strategy"] == "field"

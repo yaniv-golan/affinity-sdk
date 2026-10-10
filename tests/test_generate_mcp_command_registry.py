@@ -152,6 +152,14 @@ class TestConfiguredLimitConfig:
         assert cmd["limitConfig"]["default"] == 1000  # type: ignore[index]
         assert cmd["limitConfig"]["max"] == 100  # type: ignore[index]
 
+    def test_gateway_keys_are_kept(self) -> None:
+        cmd = self._cmd(
+            limitConfig={"max": 500, "enforceMax": True, "allowUnboundedWith": ["--s", "f"]}
+        )
+        add_limit_config(cmd)
+        assert cmd["limitConfig"]["enforceMax"] is True  # type: ignore[index]
+        assert cmd["limitConfig"]["allowUnboundedWith"] == ["--s", "f"]  # type: ignore[index]
+
     def test_false_means_no_limit_config(self) -> None:
         cmd: dict[str, object] = {
             "name": "company files read",

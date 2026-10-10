@@ -3,10 +3,11 @@ You need to find a warm introduction path to ${targetName}.
 Using the CLI Gateway (discover-commands → execute-read-command):
 
 1. **Find the target** - Use `person ls --query "${targetName}"` or `company ls` to locate them
-2. **Get relationship data** - Use `relationship-strength ls --external-id <id>` to analyze:
-   - Current relationship strength with ${targetName}
-   - Who in your org has the strongest connection
-3. **Analyze connections** - Use `interaction ls --person-id <id> --type all` to see:
+2. **Who knows them** - Use `person relationships <id>` (for a company:
+   `company relationships <id or domain:example.com>`). Rows are strongest first: `person1` /
+   `person2` and an `interactionScore` from 0 to 1; LinkedIn-only connections score 0.
+   - Who on your team has the strongest connection with ${targetName}
+3. **Analyze connections** - Use `interaction ls --person-id <id> --type all --days 365` to see:
    - Recent activity showing who on your team has interacted with them
    - Shared connections via interaction participants
 4. **Provide recommendations**:

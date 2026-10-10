@@ -64,7 +64,7 @@ skipped and the flag that fetches it. Never tell the user a record "has no lists
 silent-zero-match result and call it a duplicate check.
 
 **2. `--filter` on `list export` requires `--all`, `--max-results`, or `--first-page-only`.** The
-CLI errors on the unscoped case (v1.13+). Filtering is client-side; for large lists prefer
+CLI errors on the unscoped case. Filtering is client-side; for large lists prefer
 `--saved-view` (server-side) or `--company-id` / `--person-id` (entity-scoped, cheap). Details:
 `references/filtering.md`.
 
@@ -101,8 +101,8 @@ owner_id=$(xaffinity --readonly --json person ls --query "Jane Doe" --max-result
 xaffinity list entry field "Pipeline" 999 --set Owner "$owner_id"
 ```
 
-Since CLI 1.15.0 every `--set` value is validated before any API call, so a bad person ID no longer
-leaves earlier `--set Status=...` writes committed. The CLI still does not resolve names for you.
+Every `--set` value is validated before any API call, so one bad value (e.g. a wrong person ID)
+means nothing is written. The CLI does not resolve names for you.
 
 ## Reading One Company's / Person's Lists and List Fields
 
@@ -311,4 +311,5 @@ reference (JSON structure, operators, aggregation, examples): `references/query-
 | Get command help | `xaffinity <command> --help` (USE THIS — don't guess flags) |
 
 **Remember:** prefix all commands with `xaffinity --readonly` (and `--dotenv` if `check-key` says
-so). Install: `pip install "affinity-sdk[cli]"`. Docs: https://yaniv-golan.github.io/affinity-sdk/latest/
+so). Install: `pip install "affinity-sdk[cli]"`; if a command or flag shown here is missing,
+upgrade with `pip install -U "affinity-sdk[cli]"`. Docs: https://yaniv-golan.github.io/affinity-sdk/latest/

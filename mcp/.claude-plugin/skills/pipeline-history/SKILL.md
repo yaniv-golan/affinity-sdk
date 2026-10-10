@@ -42,10 +42,14 @@ JSON output key is `data.rows`. Each row contains `listEntryId`, `entityId`, `en
 ### Step 3: Estimate API Cost (REQUIRED)
 
 ```
-execute-read-command(command: "field history-bulk", argv: ["<field-id>", "--list-id", "YOUR_LIST_NAME", "--dry-run"])
+execute-read-command(command: "field history-bulk", argv: ["<field-id>", "--list-id", "YOUR_LIST_NAME", "--all", "--strategy", "field", "--dry-run"])
 ```
 
-Check `strategy` and `estimatedApiCalls` before proceeding. With `--all` on a list field and a list of 100+ entries, the history is read field-wide (`strategy: "field"`): one call per 500 changes, usually far fewer than `estimatedApiCalls`, which is the per-entry worst case. Otherwise each list entry = 1 API call.
+`--strategy field` reads the field's whole history in a few calls (one per 500 changes) and keeps
+the rows for this list's entries. It works for a field that belongs to the list (a list field);
+for a global or enriched field the command fails with a usage error — then sample entries with
+`--max-results` (each entry = 1 API call, at most 500 via MCP). Check `estimatedApiCalls` (the
+per-entry worst case) in the dry run before running it.
 
 ### Step 4: Fetch History
 
@@ -53,11 +57,13 @@ Check `strategy` and `estimatedApiCalls` before proceeding. With `--all` on a li
 execute-read-command(command: "field history-bulk", argv: ["<field-id>", "--list-id", "YOUR_LIST_NAME", "--max-results", "50"])
 ```
 
-For all entries (only after confirming cost via dry-run is acceptable):
+For all entries of a list field (after the dry run):
 
 ```
-execute-read-command(command: "field history-bulk", argv: ["<field-id>", "--list-id", "YOUR_LIST_NAME", "--all"])
+execute-read-command(command: "field history-bulk", argv: ["<field-id>", "--list-id", "YOUR_LIST_NAME", "--all", "--strategy", "field"])
 ```
+
+Through MCP, `--all` is accepted only with `--strategy field`.
 
 ### Step 5: Analyze
 

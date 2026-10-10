@@ -7,7 +7,7 @@
     "properties": {
       "command": {
         "type": "string",
-        "description": "CLI command path (e.g., 'person create', 'list-entry add', 'interaction create'). Use discover-commands with category='write' to find available commands."
+        "description": "CLI command path (e.g., 'person create', 'list entry add', 'interaction create'). Use discover-commands with category='write' to find available commands."
       },
       "argv": {
         "type": "array",
