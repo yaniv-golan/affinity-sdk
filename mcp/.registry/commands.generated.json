@@ -700,20 +700,6 @@
           "required": true
         }
       ],
-      "whenToUse": "Who on your team knows people at this company, and how well: pairs person1/person2 with interactionScore (0-1, strongest first) and linkedInConnectedOn. Use for warm-intro paths. --min-score filters (LinkedIn-only relationships have score 0 and are dropped by any min-score above 0). Accepts a company id, URL or domain selector. Needs Affinity API version 2026-07-15+.",
-      "examples": [
-        "company relationships 123 --min-score 0.3 --max-results 20"
-      ],
-      "relatedCommands": [
-        "person relationships",
-        "relationship-strength ls"
-      ],
-      "mcpBehavior": {
-        "limitEnforced": true,
-        "allFlagBlocked": true,
-        "defaultLimit": 100,
-        "maxLimit": 1000
-      },
       "limitConfig": {
         "flag": "--max-results",
         "flagAliases": [
@@ -721,14 +707,22 @@
           "--limit",
           "-n"
         ],
-        "default": 1000,
-        "max": 10000,
+        "default": 100,
+        "max": 1000,
         "unboundedFlag": "--all",
         "unboundedFlagAliases": [
           "--all",
           "-A"
         ]
-      }
+      },
+      "whenToUse": "Who on your team knows people at this company, and how well: pairs person1/person2 with interactionScore (0-1, strongest first) and linkedInConnectedOn. Use for warm-intro paths. --min-score filters (LinkedIn-only relationships have score 0 and are dropped by any min-score above 0). Accepts a company id, URL or domain selector. Needs Affinity API version 2026-07-15+.",
+      "examples": [
+        "company relationships 123 --min-score 0.3 --max-results 20"
+      ],
+      "relatedCommands": [
+        "person relationships",
+        "relationship-strength ls"
+      ]
     },
     {
       "name": "company search",
@@ -4026,20 +4020,6 @@
           "required": true
         }
       ],
-      "whenToUse": "How strongly your team members are connected to this person: pairs with interactionScore (0-1, strongest first) and linkedInConnectedOn. --min-score filters. Needs Affinity API version 2026-07-15+.",
-      "examples": [
-        "person relationships 456 --max-results 10"
-      ],
-      "relatedCommands": [
-        "company relationships",
-        "relationship-strength ls"
-      ],
-      "mcpBehavior": {
-        "limitEnforced": true,
-        "allFlagBlocked": true,
-        "defaultLimit": 100,
-        "maxLimit": 1000
-      },
       "limitConfig": {
         "flag": "--max-results",
         "flagAliases": [
@@ -4047,14 +4027,22 @@
           "--limit",
           "-n"
         ],
-        "default": 1000,
-        "max": 10000,
+        "default": 100,
+        "max": 1000,
         "unboundedFlag": "--all",
         "unboundedFlagAliases": [
           "--all",
           "-A"
         ]
-      }
+      },
+      "whenToUse": "How strongly your team members are connected to this person: pairs with interactionScore (0-1, strongest first) and linkedInConnectedOn. --min-score filters. Needs Affinity API version 2026-07-15+.",
+      "examples": [
+        "person relationships 456 --max-results 10"
+      ],
+      "relatedCommands": [
+        "company relationships",
+        "relationship-strength ls"
+      ]
     },
     {
       "name": "person update",
@@ -4887,17 +4875,6 @@
         "transcript get 123",
         "transcript get 123 --max-results 500"
       ],
-      "whenToUse": "Read a meeting transcript: its AI Notetaker note and dialogue fragments (content, speaker, start/end offsets). Fetches up to --max-results fragments in order (default 200 here); fragmentsTotal says how many exist. Transcripts are meeting dialogue: quote only what the user needs.",
-      "relatedCommands": [
-        "transcript ls",
-        "note get"
-      ],
-      "mcpBehavior": {
-        "limitEnforced": true,
-        "allFlagBlocked": true,
-        "defaultLimit": 200,
-        "maxLimit": 2000
-      },
       "limitConfig": {
         "flag": "--max-results",
         "flagAliases": [
@@ -4905,14 +4882,19 @@
           "--limit",
           "-n"
         ],
-        "default": 1000,
-        "max": 10000,
+        "default": 200,
+        "max": 2000,
         "unboundedFlag": "--all",
         "unboundedFlagAliases": [
           "--all",
           "-A"
         ]
-      }
+      },
+      "whenToUse": "Read a meeting transcript: its AI Notetaker note and dialogue fragments (content, speaker, start/end offsets). Fetches up to --max-results fragments in order (default 200 here, at most 2000); fragmentsTotal says how many exist. Transcripts are meeting dialogue: quote only what the user needs.",
+      "relatedCommands": [
+        "transcript ls",
+        "note get"
+      ]
     },
     {
       "name": "transcript ls",

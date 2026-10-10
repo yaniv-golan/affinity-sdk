@@ -4,6 +4,8 @@
 CLI_MIN_VERSION="1.25.0"
 CLI_MAX_VERSION="1.25.0"
 
+# MCP 1.28.1: no new CLI requirements (MCP-side fixes only).
+
 # MCP 1.28.0 requires CLI 1.25.0 for:
 # - `interaction feed`, `company|person merge-history ls|get`, `task ls`,
 #   `company|person relationships` (new read commands in the registry).

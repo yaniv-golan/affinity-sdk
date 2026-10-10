@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.1] - 2026-10-10
+
+### Fixed
+
+- Large results from the list commands added in 1.26.0-1.28.0 (`interaction feed`,
+  `transcript ls|get`, `field changes`, `field history`, `field options ls`,
+  `company|person relationships`, `company|person merge-history ls`, `task ls`) are trimmed to
+  fewer rows instead of failing with "output too large": `execute-read-command` now knows where
+  each command keeps its rows.
+- MCP limits that weren't applied: `transcript get` fetches 200 fragments by default (2000 at
+  most; was 1000 / 10000) and `company|person relationships` 100 rows (1000 at most; was 1000 /
+  10000).
+
 ## [1.28.0] - 2026-10-10
 
 ### Highlights

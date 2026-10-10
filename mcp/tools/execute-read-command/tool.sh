@@ -15,6 +15,18 @@ _get_array_path() {
     local cmd="$1"
     local entity action data_key
 
+    # Commands whose rows live under a key the patterns below don't derive
+    case "$cmd" in
+        "interaction feed")                              echo ".data.interactions"; return ;;
+        "transcript ls")                                 echo ".data.transcripts"; return ;;
+        "transcript get")                                echo ".data.transcript.fragments"; return ;;
+        "field changes" | "field history")               echo ".data.fieldValueChanges"; return ;;
+        "field options ls")                              echo ".data.options"; return ;;
+        "company relationships" | "person relationships") echo ".data.relationships"; return ;;
+        "company merge-history ls" | "person merge-history ls") echo ".data.merges"; return ;;
+        "task ls")                                       echo ".data.tasks"; return ;;
+    esac
+
     # Parse command: "company ls", "list export", "list-entry ls", etc.
     read -r entity action <<< "$cmd"
 

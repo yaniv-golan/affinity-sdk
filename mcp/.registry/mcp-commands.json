@@ -460,18 +460,13 @@
       }
     },
     "transcript get": {
-      "whenToUse": "Read a meeting transcript: its AI Notetaker note and dialogue fragments (content, speaker, start/end offsets). Fetches up to --max-results fragments in order (default 200 here); fragmentsTotal says how many exist. Transcripts are meeting dialogue: quote only what the user needs.",
+      "limitConfig": {"default": 200, "max": 2000},
+      "whenToUse": "Read a meeting transcript: its AI Notetaker note and dialogue fragments (content, speaker, start/end offsets). Fetches up to --max-results fragments in order (default 200 here, at most 2000); fragmentsTotal says how many exist. Transcripts are meeting dialogue: quote only what the user needs.",
       "examples": [
         "transcript get 123",
         "transcript get 123 --max-results 500"
       ],
-      "relatedCommands": ["transcript ls", "note get"],
-      "mcpBehavior": {
-        "limitEnforced": true,
-        "allFlagBlocked": true,
-        "defaultLimit": 200,
-        "maxLimit": 2000
-      }
+      "relatedCommands": ["transcript ls", "note get"]
     },
     "note search": {
       "limitConfig": {"default": 20, "max": 100},
@@ -521,26 +516,16 @@
       "relatedCommands": ["reminder get"]
     },
     "company relationships": {
+      "limitConfig": {"default": 100, "max": 1000},
       "whenToUse": "Who on your team knows people at this company, and how well: pairs person1/person2 with interactionScore (0-1, strongest first) and linkedInConnectedOn. Use for warm-intro paths. --min-score filters (LinkedIn-only relationships have score 0 and are dropped by any min-score above 0). Accepts a company id, URL or domain selector. Needs Affinity API version 2026-07-15+.",
       "examples": ["company relationships 123 --min-score 0.3 --max-results 20"],
-      "relatedCommands": ["person relationships", "relationship-strength ls"],
-      "mcpBehavior": {
-        "limitEnforced": true,
-        "allFlagBlocked": true,
-        "defaultLimit": 100,
-        "maxLimit": 1000
-      }
+      "relatedCommands": ["person relationships", "relationship-strength ls"]
     },
     "person relationships": {
+      "limitConfig": {"default": 100, "max": 1000},
       "whenToUse": "How strongly your team members are connected to this person: pairs with interactionScore (0-1, strongest first) and linkedInConnectedOn. --min-score filters. Needs Affinity API version 2026-07-15+.",
       "examples": ["person relationships 456 --max-results 10"],
-      "relatedCommands": ["company relationships", "relationship-strength ls"],
-      "mcpBehavior": {
-        "limitEnforced": true,
-        "allFlagBlocked": true,
-        "defaultLimit": 100,
-        "maxLimit": 1000
-      }
+      "relatedCommands": ["company relationships", "relationship-strength ls"]
     },
     "relationship-strength ls": {
       "whenToUse": "List relationship strengths for a person or external ID. Shows connection quality and team members who know them.",
