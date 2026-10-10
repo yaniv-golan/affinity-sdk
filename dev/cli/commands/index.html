@@ -5466,7 +5466,8 @@ xaffinity<span class="w"> </span>field<span class="w"> </span>history-bulk<span 
 </code></pre></div>
 <p>With <code>--all</code> on a field that belongs to the list, and a list of 100 or more entries, the history
 is read field-wide: one call per 500 changes instead of one per entry, with the same rows.
-Otherwise there is one call per entry, 15 at a time. <code>--strategy field|entries</code> forces either;
+Otherwise there is one call per entry, 15 at a time. <code>--strategy field|entries</code> forces either
+(a forced <code>field</code> read that fails is an error; it never falls back to per-entry calls);
 the dry run shows the <code>strategy</code> and <code>estimatedApiCalls</code> (the per-entry worst case). Changes on
 entries no longer on the list are left out (a warning says how many). Rows are sorted by
 <code>changedAt</code>.</p>

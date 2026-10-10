@@ -2383,7 +2383,7 @@
 <ol>
 <li><strong>Explicit constructor arg</strong> — <code>Affinity(api_key="…")</code> or <code>--api-key</code> CLI flag</li>
 <li><strong><code>AFFINITY_API_KEY</code></strong> — standard environment variable</li>
-<li><strong><code>AFFINITY_API_KEY_FILE</code></strong> — path to a file containing the key (12-factor / Docker secrets)</li>
+<li><strong><code>AFFINITY_API_KEY_FILE</code></strong> — path to a file containing the key, or a <code>.env</code> file / named pipe with <code>AFFINITY_API_KEY=</code> (12-factor / Docker secrets / 1Password)</li>
 <li><strong><code>AFFINITY_API_KEY_COMMAND</code></strong> — shell command whose stdout is the key (credential-helper)</li>
 <li><strong><code>--api-key-file &lt;path&gt;</code></strong> or <strong><code>--api-key-stdin</code></strong> — CLI flags</li>
 <li><strong><code>xaffinity config setup-key</code></strong> — saved to the system keychain</li>
@@ -2419,6 +2419,21 @@ env:
 <span class="w">  </span>-<span class="w"> </span>name:<span class="w"> </span>AFFINITY_API_KEY_FILE
 <span class="w">    </span>value:<span class="w"> </span>/etc/secrets/affinity-api-key
 </code></pre></div>
+<p>The file can hold just the key, or be a <code>.env</code> file: the <code>AFFINITY_API_KEY=</code> line is used
+(<code>export</code> and quotes are allowed). The same applies to <code>--api-key-file</code>.</p>
+<p><strong>1Password Environments.</strong> A 1Password locally mounted <code>.env</code> is a named pipe that 1Password
+fills when it is read, after you approve the read. Point the variable at it:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY_FILE</span><span class="o">=</span>~/projects/crm/.env<span class="w">   </span><span class="c1"># the path you chose when mounting it</span>
+xaffinity<span class="w"> </span>whoami
+</code></pre></div>
+<p>The first read asks you to approve it in 1Password; if 1Password is locked, it asks you to
+unlock it. The CLI waits up to 30 seconds for that. Further reads need nothing until 1Password
+locks again, and several commands can read at once. If 1Password isn't running or the read
+isn't approved, the CLI stops with a message saying so. The key is never written to disk.
+<code>config check-key</code> reports a named pipe as configured without reading it (so it never prompts).</p>
+<p>While 1Password is unlocked, any program on your computer can read the mounted file (that is
+how 1Password's mounted <code>.env</code> files work), so a short auto-lock time in 1Password limits that
+window.</p>
 <p>On Posix systems, a <code>UserWarning</code> is emitted if the file is group- or world-readable
 (mode <code>0644</code> or looser). Use <code>chmod 600</code> to silence it. The check is a no-op on Windows.
 An empty file or missing path raises <code>ConfigError</code>.</p>
