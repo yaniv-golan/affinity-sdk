@@ -408,6 +408,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#notes-as-v2-creator-html-content-attachments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes as V2 (creator, HTML content, attachments)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#org-wide-activity-merge-history-and-relationships" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2292,6 +2303,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#notes-as-v2-creator-html-content-attachments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes as V2 (creator, HTML content, attachments)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#org-wide-activity-merge-history-and-relationships" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2406,6 +2428,24 @@
         <span class="nb">print</span><span class="p">(</span><span class="n">fragment</span><span class="o">.</span><span class="n">start_timestamp</span><span class="p">,</span> <span class="n">fragment</span><span class="o">.</span><span class="n">speaker</span><span class="p">,</span> <span class="n">fragment</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
 </code></pre></div>
 <p>Only transcripts the API key's user may see are returned.</p>
+<h2 id="notes-as-v2-creator-html-content-attachments">Notes as V2 (creator, HTML content, attachments)<a class="headerlink" href="#notes-as-v2-creator-html-content-attachments" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompanyId</span><span class="p">,</span> <span class="n">NoteId</span>
+
+<span class="n">since</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">iter_v2</span><span class="p">(</span><span class="n">created_after</span><span class="o">=</span><span class="n">since</span><span class="p">,</span> <span class="n">includes</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">note</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">note</span><span class="o">.</span><span class="n">creator</span><span class="p">,</span> <span class="n">note</span><span class="o">.</span><span class="n">replies_count</span><span class="p">,</span> <span class="n">note</span><span class="o">.</span><span class="n">companies_total</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">reply</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">iter_replies</span><span class="p">(</span><span class="n">NoteId</span><span class="p">(</span><span class="mi">123</span><span class="p">)):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">reply</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">html</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">iter_notes</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">456</span><span class="p">)):</span>  <span class="c1"># also persons / opportunities</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">created_at</span><span class="p">,</span> <span class="n">note</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+</code></pre></div>
+<p><code>client.notes.list()</code> / <code>get()</code> (V1 <code>Note</code>) are unchanged. Company notes need Affinity API
+version 2026-07-15 or newer; Affinity may refuse opportunity notes (<code>AuthorizationError</code>).</p>
 <h2 id="org-wide-activity-merge-history-and-relationships">Org-wide activity, merge history and relationships<a class="headerlink" href="#org-wide-activity-merge-history-and-relationships" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
 

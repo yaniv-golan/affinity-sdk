@@ -1281,6 +1281,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#xaffinity-note-feed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity note feed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-note-replies-noteid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity note replies &lt;noteId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#xaffinity-note-create" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4112,6 +4134,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#xaffinity-note-feed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity note feed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xaffinity-note-replies-noteid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity note replies &lt;noteId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#xaffinity-note-create" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5212,6 +5256,19 @@ can still return low-relevance hits.</p>
 xaffinity<span class="w"> </span>note<span class="w"> </span>search<span class="w"> </span><span class="s2">"pricing"</span><span class="w"> </span>--company-id<span class="w"> </span><span class="s2">"domain:acme.com"</span><span class="w"> </span>-n<span class="w"> </span><span class="m">5</span><span class="w"> </span>--json
 xaffinity<span class="w"> </span>note<span class="w"> </span>get<span class="w"> </span><span class="m">9876</span><span class="w">   </span><span class="c1"># full text of a hit</span>
 </code></pre></div>
+<h3 id="xaffinity-note-feed"><code>xaffinity note feed</code><a class="headerlink" href="#xaffinity-note-feed" title="Permanent link">&para;</a></h3>
+<p>Notes across the organization, newest first (V2). <code>note ls</code> / <code>note get</code> (V1, per entity) are
+unchanged.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>feed<span class="w"> </span>--created-after<span class="w"> </span>-7d<span class="w"> </span>--max-results<span class="w"> </span><span class="m">50</span>
+xaffinity<span class="w"> </span>note<span class="w"> </span>feed<span class="w"> </span>--creator-id<span class="w"> </span><span class="m">123</span><span class="w"> </span>--with-attached
+</code></pre></div>
+<p>Rows: <code>id</code>, <code>type</code> (<code>entities</code>, <code>interaction</code>, <code>ai-notetaker</code>), <code>creator</code>, <code>createdAt</code>,
+<code>updatedAt</code>, <code>content</code> (HTML), <code>mentionedPersonIds</code>, <code>interactionId</code>, <code>transcriptId</code>.
+<code>--with-attached</code> adds <code>repliesCount</code> and <code>companyIds</code> / <code>personIds</code> / <code>opportunityIds</code> with
+totals. Filters: <code>--created-after</code> (inclusive), <code>--created-before</code> (exclusive), <code>--updated-after</code>,
+<code>--creator-id</code>; replies are not included.</p>
+<h3 id="xaffinity-note-replies-noteid"><code>xaffinity note replies &lt;noteId&gt;</code><a class="headerlink" href="#xaffinity-note-replies-noteid" title="Permanent link">&para;</a></h3>
+<p>The replies to a note: <code>id</code>, <code>type</code>, <code>creator</code>, <code>content</code>, <code>parentId</code>, <code>createdAt</code>.</p>
 <h3 id="xaffinity-note-create"><code>xaffinity note create</code><a class="headerlink" href="#xaffinity-note-create" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>note<span class="w"> </span>create<span class="w"> </span>--content<span class="w"> </span><span class="s2">"Met with the team"</span><span class="w"> </span>--person-id<span class="w"> </span><span class="m">123</span>
 xaffinity<span class="w"> </span>note<span class="w"> </span>create<span class="w"> </span>--content<span class="w"> </span><span class="s2">"&lt;p&gt;Meeting notes&lt;/p&gt;"</span><span class="w"> </span>--type<span class="w"> </span>html<span class="w"> </span>--company-id<span class="w"> </span><span class="m">456</span>
