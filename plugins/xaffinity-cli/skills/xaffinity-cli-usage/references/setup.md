@@ -38,8 +38,8 @@ config files):
 ## Claude Cowork
 
 **Installing the CLI.** Cowork's VM may not have `xaffinity` (`command not found`). Install it
-once per task: `pip install --user -q "affinity-sdk[cli]"` (about 10s). It lands in
-`~/.local/bin`, which is not on PATH, and each bash call is a fresh shell, so start every
+once per task: `pip install --user -q --no-warn-script-location "affinity-sdk[cli]"` (about
+10s). It lands in `~/.local/bin`, which is not on PATH, and each bash call is a fresh shell, so start every
 xaffinity call with `export PATH="$HOME/.local/bin:$PATH";` — then commands and check-key's
 `pattern` work as written (or call `~/.local/bin/xaffinity` by its full path). The install lasts
 for the task only; a new task starts without it, so check again there. If pip can't reach PyPI
@@ -56,12 +56,13 @@ it, and their path matters:
   folders are below it: `ls -d /sessions/*/mnt/*/`. `<id>` changes every session, so find the
   path in each session; don't reuse one from an earlier session.
 - **Key in a connected folder's `.env`** (`AFFINITY_API_KEY=…`): name the file on every command,
-  `xaffinity --dotenv --env-file /sessions/<id>/mnt/<folder>/.env …`. Check it with
-  `xaffinity --dotenv --env-file /sessions/<id>/mnt/<folder>/.env config check-key --json`; its
+  `xaffinity --dotenv --env-file "/sessions/<id>/mnt/<folder>/.env" …`. Check it with
+  `xaffinity --dotenv --env-file "/sessions/<id>/mnt/<folder>/.env" config check-key --json`; its
   `pattern` then carries the `--env-file` part to reuse. A plain `--dotenv` searches upward from
   the session root and never finds it.
 - **Key file** (just the key, e.g. `<folder>/.xaffinity-key`, gitignored): prefix each command,
-  `AFFINITY_API_KEY_FILE=/sessions/<id>/mnt/<folder>/.xaffinity-key xaffinity …`.
+  `AFFINITY_API_KEY_FILE="/sessions/<id>/mnt/<folder>/.xaffinity-key" xaffinity …`. Keep the
+  quotes on these paths: folder names can contain spaces.
 - A 1Password locally mounted `.env` does not work inside the VM (the named pipe doesn't cross
   the folder mount). If the xaffinity MCP extension is installed, it already holds the key.
 

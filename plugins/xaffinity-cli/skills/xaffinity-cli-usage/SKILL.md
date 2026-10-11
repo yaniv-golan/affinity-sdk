@@ -23,9 +23,9 @@ xaffinity config check-key --json
 ```
 
 - **`command not found`** (exit 127; e.g. a Claude Cowork VM) — install it once per task:
-  `pip install --user -q "affinity-sdk[cli]"` (about 10s), then start every later bash call
-  with `export PATH="$HOME/.local/bin:$PATH";` (each call is a fresh shell) and run check-key
-  again. Details and the no-network case: `references/setup.md` (Claude Cowork).
+  `pip install --user -q --no-warn-script-location "affinity-sdk[cli]"` (about 10s), then
+  start every later bash call with `export PATH="$HOME/.local/bin:$PATH";` (each call is a
+  fresh shell) and run check-key again. Details and the no-network case: `references/setup.md` (Claude Cowork).
 - **`"configured": true`** — use the `pattern` field from the output for ALL subsequent commands:
   copy its flags (`--dotenv`, and `--env-file <path>` when it names one) into every command.
 - **`"configured": false`** — stop and help the user set up. Read `references/setup.md` (key

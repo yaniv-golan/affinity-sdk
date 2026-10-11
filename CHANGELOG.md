@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Plugins
 
+- **CLI plugin**: 1.13.5 → 1.13.6 — skill: the Cowork install line adds
+  `--no-warn-script-location` (pip's "not on PATH" warning was noise; the skill adds the folder to
+  PATH in each call), and the Cowork key paths (`--env-file`, `AFFINITY_API_KEY_FILE`) are quoted,
+  so connected folders with spaces in their names work.
 - **CLI plugin**: 1.13.4 → 1.13.5 — no `clis` credential declaration. In local Cowork it routed
   every `xaffinity` call through Desktop's CLI credential broker, which isn't enabled yet and
   refuses the call ("cli-wrapper: plugin oauth disabled"), so the CLI never ran whatever key the
