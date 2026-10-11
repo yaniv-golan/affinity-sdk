@@ -224,6 +224,9 @@ jobs:
             echo "Skipping traceability mapping (docs/internal not present in repo checkout)."
           fi
 
+      - name: API coverage ledger matches the pinned specs
+        run: python tools/api_coverage.py --check
+
       - name: MCP commands registry is valid
         run: |
           # Verify registry file exists and is valid JSON with expected structure

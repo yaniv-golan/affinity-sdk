@@ -1,0 +1,1166 @@
+{
+ "operations": [
+  {
+   "op": "GET /v2/auth/whoami",
+   "api": "v2",
+   "status": "supported",
+   "call": "auth.whoami()",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/calls",
+   "api": "v2",
+   "status": "supported",
+   "call": "interactions.list_calls()",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/chat-messages",
+   "api": "v2",
+   "status": "supported",
+   "call": "interactions.list_chat_messages()",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/companies",
+   "api": "v2",
+   "status": "supported",
+   "call": "companies.list()",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/companies/fields",
+   "api": "v2",
+   "status": "supported",
+   "call": "companies.get_fields()",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/companies/fields/{fieldId}/dropdown-options",
+   "api": "v2",
+   "status": "supported",
+   "call": "companies.get_field_dropdown_options(FieldId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "POST /v2/companies/search",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-3",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/companies/{companyId}",
+   "api": "v2",
+   "status": "supported",
+   "call": "companies.get(CompanyId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/companies/{companyId}/fields",
+   "api": "v2",
+   "status": "supported",
+   "call": "companies.get_field_values(CompanyId(1))",
+   "stability": "beta"
+  },
+  {
+   "op": "PATCH /v2/companies/{companyId}/fields",
+   "api": "v2",
+   "status": "supported",
+   "call": "companies.batch_update_fields(CompanyId(1), {\"field-1\": \"x\"})",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/companies/{companyId}/fields/{fieldId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-4",
+   "stability": "beta"
+  },
+  {
+   "op": "POST /v2/companies/{companyId}/fields/{fieldId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-4",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/companies/{companyId}/fields/{fieldId}/values",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-4",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/companies/{companyId}/list-entries",
+   "api": "v2",
+   "status": "supported",
+   "call": "companies.get_list_entries(CompanyId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/companies/{companyId}/lists",
+   "api": "v2",
+   "status": "supported",
+   "call": "companies.get_lists(CompanyId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/companies/{companyId}/notes",
+   "api": "v2",
+   "status": "supported",
+   "call": "companies.list_notes(CompanyId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/companies/{companyId}/relationships",
+   "api": "v2",
+   "status": "supported",
+   "call": "companies.list_relationships(CompanyId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/company-merges",
+   "api": "v2",
+   "status": "supported",
+   "call": "companies.list_merges()",
+   "stability": "ga"
+  },
+  {
+   "op": "POST /v2/company-merges",
+   "api": "v2",
+   "status": "supported",
+   "call": "companies.merge(CompanyId(1), CompanyId(2))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/company-merges/{mergeId}",
+   "api": "v2",
+   "status": "supported",
+   "call": "companies.get_merge_state(1)",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/duplicates/company-suggestions",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-2",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/duplicates/person-suggestions",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-2",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/emails",
+   "api": "v2",
+   "status": "supported",
+   "call": "interactions.list_emails()",
+   "stability": "ga"
+  },
+  {
+   "op": "POST /v2/feedback",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-1",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/field-value-changes",
+   "api": "v2",
+   "status": "supported",
+   "call": "field_value_changes.list_global(field_id=FieldId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/files",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 files.list",
+   "stability": "beta"
+  },
+  {
+   "op": "POST /v2/files/search",
+   "api": "v2",
+   "status": "supported",
+   "call": "files.search(\"prompt text\")",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/files/{fileId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 files.get",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/inferred-connections/coworkers",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-2",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/inferred-connections/investor-executive-connections",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-2",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/lists",
+   "api": "v2",
+   "status": "supported",
+   "call": "lists.list()",
+   "stability": "ga"
+  },
+  {
+   "op": "POST /v2/lists",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 lists.create",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/lists/{listId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 lists.get",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/lists/{listId}/fields",
+   "api": "v2",
+   "status": "supported",
+   "call": "lists.get_fields(ListId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/lists/{listId}/fields/{fieldId}/dropdown-options",
+   "api": "v2",
+   "status": "supported",
+   "call": "lists.get_field_dropdown_options(ListId(1), FieldId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "POST /v2/lists/{listId}/fields/{fieldId}/dropdown-options",
+   "api": "v2",
+   "status": "supported",
+   "call": "lists.create_field_dropdown_option(ListId(1), FieldId(1), option_type=\"dropdown\", text=\"x\")",
+   "stability": "ga"
+  },
+  {
+   "op": "DELETE /v2/lists/{listId}/fields/{fieldId}/dropdown-options/{dropdownOptionId}",
+   "api": "v2",
+   "status": "supported",
+   "call": "lists.delete_field_dropdown_option(ListId(1), FieldId(1), 1)",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/lists/{listId}/fields/{fieldId}/dropdown-options/{dropdownOptionId}",
+   "api": "v2",
+   "status": "supported",
+   "call": "lists.get_field_dropdown_option(ListId(1), FieldId(1), 1)",
+   "stability": "ga"
+  },
+  {
+   "op": "POST /v2/lists/{listId}/fields/{fieldId}/dropdown-options/{dropdownOptionId}",
+   "api": "v2",
+   "status": "supported",
+   "call": "lists.update_field_dropdown_option(ListId(1), FieldId(1), 1, text=\"x\")",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/lists/{listId}/list-entries",
+   "api": "v2",
+   "status": "supported",
+   "call": "lists.entries(ListId(1)).list()",
+   "stability": "ga"
+  },
+  {
+   "op": "POST /v2/lists/{listId}/list-entries",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 lists.entries(list_id).add_person/add_company/add_opportunity",
+   "stability": "beta"
+  },
+  {
+   "op": "POST /v2/lists/{listId}/list-entries/search",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-3",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/lists/{listId}/list-entries/{listEntryId}",
+   "api": "v2",
+   "status": "supported",
+   "call": "lists.entries(ListId(1)).get(ListEntryId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/lists/{listId}/list-entries/{listEntryId}/field-value-changes",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-4",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/lists/{listId}/list-entries/{listEntryId}/fields",
+   "api": "v2",
+   "status": "supported",
+   "call": "lists.entries(ListId(1)).get_field_values(ListEntryId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "PATCH /v2/lists/{listId}/list-entries/{listEntryId}/fields",
+   "api": "v2",
+   "status": "supported",
+   "call": "lists.entries(ListId(1)).batch_update_fields(ListEntryId(1), {\"field-1\": \"x\"})",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/lists/{listId}/list-entries/{listEntryId}/fields/{fieldId}",
+   "api": "v2",
+   "status": "supported",
+   "call": "lists.entries(ListId(1)).get_field_value(ListEntryId(1), FieldId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "POST /v2/lists/{listId}/list-entries/{listEntryId}/fields/{fieldId}",
+   "api": "v2",
+   "status": "supported",
+   "call": "lists.entries(ListId(1)).update_field_value(ListEntryId(1), FieldId(1), \"x\")",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/lists/{listId}/list-entries/{listEntryId}/fields/{fieldId}/values",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-4",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/lists/{listId}/saved-views",
+   "api": "v2",
+   "status": "supported",
+   "call": "lists.get_saved_views(ListId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/lists/{listId}/saved-views/{viewId}",
+   "api": "v2",
+   "status": "supported",
+   "call": "lists.get_saved_view(ListId(1), SavedViewId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/lists/{listId}/saved-views/{viewId}/list-entries",
+   "api": "v2",
+   "status": "supported",
+   "call": "lists.entries(ListId(1)).from_saved_view(SavedViewId(1))",
+   "async_call": null,
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/meetings",
+   "api": "v2",
+   "status": "supported",
+   "call": "interactions.list_meetings()",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/meetings/{meetingId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-1",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/notes",
+   "api": "v2",
+   "status": "supported",
+   "call": "notes.list_v2()",
+   "stability": "ga"
+  },
+  {
+   "op": "POST /v2/notes",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 notes.create",
+   "stability": "ga"
+  },
+  {
+   "op": "POST /v2/notes/search",
+   "api": "v2",
+   "status": "supported",
+   "call": "notes.search(\"prompt text\")",
+   "stability": "ga"
+  },
+  {
+   "op": "DELETE /v2/notes/{noteId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 notes.delete",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/notes/{noteId}",
+   "api": "v2",
+   "status": "supported",
+   "call": "notes.get_v2(NoteId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "POST /v2/notes/{noteId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 notes.update",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/notes/{noteId}/attached-companies",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-1",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/notes/{noteId}/attached-opportunities",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-1",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/notes/{noteId}/attached-persons",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-1",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/notes/{noteId}/replies",
+   "api": "v2",
+   "status": "supported",
+   "call": "notes.list_replies(NoteId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/opportunities",
+   "api": "v2",
+   "status": "supported",
+   "call": "opportunities.list()",
+   "stability": "ga"
+  },
+  {
+   "op": "DELETE /v2/opportunities/{opportunityId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 opportunities.delete",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/opportunities/{opportunityId}",
+   "api": "v2",
+   "status": "supported",
+   "call": "opportunities.get(OpportunityId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "POST /v2/opportunities/{opportunityId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 opportunities.update",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/opportunities/{opportunityId}/notes",
+   "api": "v2",
+   "status": "supported",
+   "call": "opportunities.list_notes(OpportunityId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/person-merges",
+   "api": "v2",
+   "status": "supported",
+   "call": "persons.list_merges()",
+   "stability": "ga"
+  },
+  {
+   "op": "POST /v2/person-merges",
+   "api": "v2",
+   "status": "supported",
+   "call": "persons.merge(PersonId(1), PersonId(2))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/person-merges/{mergeId}",
+   "api": "v2",
+   "status": "supported",
+   "call": "persons.get_merge_state(1)",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/persons",
+   "api": "v2",
+   "status": "supported",
+   "call": "persons.list()",
+   "stability": "ga"
+  },
+  {
+   "op": "POST /v2/persons",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 persons.create",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/persons/fields",
+   "api": "v2",
+   "status": "supported",
+   "call": "persons.get_fields()",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/persons/fields/{fieldId}/dropdown-options",
+   "api": "v2",
+   "status": "supported",
+   "call": "persons.get_field_dropdown_options(FieldId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "POST /v2/persons/search",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-3",
+   "stability": "beta"
+  },
+  {
+   "op": "DELETE /v2/persons/{personId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 persons.delete",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/persons/{personId}",
+   "api": "v2",
+   "status": "supported",
+   "call": "persons.get(PersonId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/persons/{personId}/fields",
+   "api": "v2",
+   "status": "supported",
+   "call": "persons.get_field_values(PersonId(1))",
+   "stability": "beta"
+  },
+  {
+   "op": "PATCH /v2/persons/{personId}/fields",
+   "api": "v2",
+   "status": "supported",
+   "call": "persons.batch_update_fields(PersonId(1), {\"field-1\": \"x\"})",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/persons/{personId}/fields/{fieldId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-4",
+   "stability": "beta"
+  },
+  {
+   "op": "POST /v2/persons/{personId}/fields/{fieldId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-4",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/persons/{personId}/fields/{fieldId}/values",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-4",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/persons/{personId}/list-entries",
+   "api": "v2",
+   "status": "supported",
+   "call": "persons.get_list_entries(PersonId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/persons/{personId}/lists",
+   "api": "v2",
+   "status": "supported",
+   "call": "persons.get_lists(PersonId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/persons/{personId}/notes",
+   "api": "v2",
+   "status": "supported",
+   "call": "persons.list_notes(PersonId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/persons/{personId}/relationships",
+   "api": "v2",
+   "status": "supported",
+   "call": "persons.list_relationships(PersonId(1))",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/rate-limit",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 rate_limits.refresh",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/reminders",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 reminders.list",
+   "stability": "ga"
+  },
+  {
+   "op": "POST /v2/reminders",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 reminders.create",
+   "stability": "ga"
+  },
+  {
+   "op": "DELETE /v2/reminders/{reminderId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 reminders.delete",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/reminders/{reminderId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 reminders.get",
+   "stability": "beta"
+  },
+  {
+   "op": "POST /v2/reminders/{reminderId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 reminders.update",
+   "stability": "beta"
+  },
+  {
+   "op": "POST /v2/semantic-search",
+   "api": "v2",
+   "status": "supported",
+   "call": "companies.semantic_search(\"prompt text\")",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/tasks/company-merges",
+   "api": "v2",
+   "status": "supported",
+   "call": "tasks.list_merge_tasks(\"company\")",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/tasks/company-merges/{taskId}",
+   "api": "v2",
+   "status": "supported",
+   "call": "companies.get_merge_status(\"t1\")",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/tasks/person-merges",
+   "api": "v2",
+   "status": "supported",
+   "call": "tasks.list_merge_tasks(\"person\")",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/tasks/person-merges/{taskId}",
+   "api": "v2",
+   "status": "supported",
+   "call": "persons.get_merge_status(\"t1\")",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/teams",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-1",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/teams/{teamId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-1",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/transcripts",
+   "api": "v2",
+   "status": "supported",
+   "call": "transcripts.list()",
+   "stability": "ga"
+  },
+  {
+   "op": "DELETE /v2/transcripts/{transcriptId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-1",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/transcripts/{transcriptId}",
+   "api": "v2",
+   "status": "supported",
+   "call": "transcripts.get(1)",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/transcripts/{transcriptId}/fragments",
+   "api": "v2",
+   "status": "supported",
+   "call": "transcripts.fragments(1)",
+   "stability": "ga"
+  },
+  {
+   "op": "GET /v2/users",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-1",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/users/{userId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.x-1",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/webhooks",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 webhooks.list",
+   "stability": "beta"
+  },
+  {
+   "op": "POST /v2/webhooks",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 webhooks.create",
+   "stability": "beta"
+  },
+  {
+   "op": "DELETE /v2/webhooks/{webhookId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 webhooks.delete",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/webhooks/{webhookId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 webhooks.get",
+   "stability": "beta"
+  },
+  {
+   "op": "POST /v2/webhooks/{webhookId}",
+   "api": "v2",
+   "status": "planned",
+   "phase": "2.0.0",
+   "note": "today via V1 webhooks.update",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /auth/whoami",
+   "api": "v1",
+   "status": "equivalent",
+   "via": "v2 GET /v2/auth/whoami"
+  },
+  {
+   "op": "GET /entity-files",
+   "api": "v1",
+   "status": "supported",
+   "call": "files.list(company_id=CompanyId(1))"
+  },
+  {
+   "op": "POST /entity-files",
+   "api": "v1",
+   "status": "supported",
+   "call": "files.upload_bytes(b\"x\", \"a.txt\", company_id=CompanyId(1))"
+  },
+  {
+   "op": "GET /entity-files/download/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "files.download(FileId(1))"
+  },
+  {
+   "op": "GET /entity-files/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "files.get(FileId(1))"
+  },
+  {
+   "op": "GET /field-value-changes",
+   "api": "v1",
+   "status": "supported",
+   "call": "field_value_changes.list(FieldId(1), company_id=CompanyId(1))"
+  },
+  {
+   "op": "GET /field-values",
+   "api": "v1",
+   "status": "supported",
+   "call": "field_values.list(company_id=CompanyId(1))"
+  },
+  {
+   "op": "POST /field-values",
+   "api": "v1",
+   "status": "supported",
+   "call": "field_values.create(FieldValueCreate(field_id=FieldId(1), entity_id=1, value=\"x\"))"
+  },
+  {
+   "op": "DELETE /field-values/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "field_values.delete(FieldValueId(1))"
+  },
+  {
+   "op": "PUT /field-values/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "field_values.update(FieldValueId(1), \"x\")"
+  },
+  {
+   "op": "GET /fields",
+   "api": "v1",
+   "status": "supported",
+   "call": "fields.list()"
+  },
+  {
+   "op": "POST /fields",
+   "api": "v1",
+   "status": "supported",
+   "call": "fields.create(FieldCreate(name=\"x\", entity_type=EntityType.PERSON, value_type=FieldValueType.TEXT))"
+  },
+  {
+   "op": "DELETE /fields/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "fields.delete(FieldId(1))"
+  },
+  {
+   "op": "GET /interactions",
+   "api": "v1",
+   "status": "supported",
+   "call": "interactions.list(type=InteractionType.MEETING, person_id=PersonId(1), start_time=datetime(2024, 1, 1, tzinfo=timezone.utc), end_time=datetime(2024, 1, 2, tzinfo=timezone.utc))"
+  },
+  {
+   "op": "POST /interactions",
+   "api": "v1",
+   "status": "supported",
+   "call": "interactions.create(InteractionCreate(type=InteractionType.MEETING, person_ids=[PersonId(1)], content=\"x\", date=\"2024-01-01T00:00:00Z\"))"
+  },
+  {
+   "op": "DELETE /interactions/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "interactions.delete(InteractionId(1), InteractionType.MEETING)"
+  },
+  {
+   "op": "GET /interactions/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "interactions.get(InteractionId(1), InteractionType.MEETING)"
+  },
+  {
+   "op": "PUT /interactions/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "interactions.update(InteractionId(1), InteractionType.MEETING, InteractionUpdate(content=\"x\"))"
+  },
+  {
+   "op": "GET /lists",
+   "api": "v1",
+   "status": "equivalent",
+   "via": "v2 GET /v2/lists"
+  },
+  {
+   "op": "POST /lists",
+   "api": "v1",
+   "status": "supported",
+   "call": "lists.create(ListCreate(name=\"x\", type=ListType.PERSON, is_public=False))"
+  },
+  {
+   "op": "GET /lists/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "lists.get(ListId(1))"
+  },
+  {
+   "op": "GET /lists/{}/list-entries",
+   "api": "v1",
+   "status": "equivalent",
+   "via": "v2 GET /v2/lists/{listId}/list-entries"
+  },
+  {
+   "op": "POST /lists/{}/list-entries",
+   "api": "v1",
+   "status": "supported",
+   "call": "lists.entries(ListId(1)).add_person(PersonId(1))"
+  },
+  {
+   "op": "DELETE /lists/{}/list-entries/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "lists.entries(ListId(1)).delete(ListEntryId(1))"
+  },
+  {
+   "op": "GET /lists/{}/list-entries/{}",
+   "api": "v1",
+   "status": "equivalent",
+   "via": "v2 GET /v2/lists/{listId}/list-entries/{listEntryId}"
+  },
+  {
+   "op": "GET /notes",
+   "api": "v1",
+   "status": "supported",
+   "call": "notes.list()"
+  },
+  {
+   "op": "POST /notes",
+   "api": "v1",
+   "status": "supported",
+   "call": "notes.create(NoteCreate(content=\"x\", person_ids=[PersonId(1)]))"
+  },
+  {
+   "op": "DELETE /notes/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "notes.delete(NoteId(1))"
+  },
+  {
+   "op": "GET /notes/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "notes.get(NoteId(1))"
+  },
+  {
+   "op": "PUT /notes/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "notes.update(NoteId(1), NoteUpdate(content=\"x\"))"
+  },
+  {
+   "op": "GET /opportunities",
+   "api": "v1",
+   "status": "supported",
+   "call": "opportunities.search(\"x\")"
+  },
+  {
+   "op": "POST /opportunities",
+   "api": "v1",
+   "status": "supported",
+   "call": "opportunities.create(OpportunityCreate(name=\"x\", list_id=ListId(1)))"
+  },
+  {
+   "op": "DELETE /opportunities/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "opportunities.delete(OpportunityId(1))"
+  },
+  {
+   "op": "GET /opportunities/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "opportunities.get_details(OpportunityId(1))"
+  },
+  {
+   "op": "PUT /opportunities/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "opportunities.update(OpportunityId(1), OpportunityUpdate(name=\"x\"))"
+  },
+  {
+   "op": "GET /organizations",
+   "api": "v1",
+   "status": "supported",
+   "call": "companies.search(\"x\")"
+  },
+  {
+   "op": "POST /organizations",
+   "api": "v1",
+   "status": "supported",
+   "call": "companies.create(CompanyCreate(name=\"x\"), if_not_exists=False)"
+  },
+  {
+   "op": "GET /organizations/fields",
+   "api": "v1",
+   "status": "equivalent",
+   "via": "v2 GET /v2/companies/fields"
+  },
+  {
+   "op": "DELETE /organizations/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "companies.delete(CompanyId(1))"
+  },
+  {
+   "op": "GET /organizations/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "companies.get_associated_person_ids(CompanyId(1))"
+  },
+  {
+   "op": "PUT /organizations/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "companies.update(CompanyId(1), CompanyUpdate(name=\"x\"))"
+  },
+  {
+   "op": "GET /persons",
+   "api": "v1",
+   "status": "supported",
+   "call": "persons.search(\"x\")"
+  },
+  {
+   "op": "POST /persons",
+   "api": "v1",
+   "status": "supported",
+   "call": "persons.create(PersonCreate(first_name=\"a\", last_name=\"b\"), if_not_exists=False)"
+  },
+  {
+   "op": "GET /persons/fields",
+   "api": "v1",
+   "status": "equivalent",
+   "via": "v2 GET /v2/persons/fields"
+  },
+  {
+   "op": "DELETE /persons/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "persons.delete(PersonId(1))"
+  },
+  {
+   "op": "GET /persons/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "persons.get_associated_company_ids(PersonId(1))"
+  },
+  {
+   "op": "PUT /persons/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "persons.update(PersonId(1), PersonUpdate(first_name=\"a\"))"
+  },
+  {
+   "op": "GET /rate-limit",
+   "api": "v1",
+   "status": "supported",
+   "call": "rate_limits.refresh()"
+  },
+  {
+   "op": "GET /relationships-strengths",
+   "api": "v1",
+   "status": "supported",
+   "call": "relationships.get(PersonId(1))"
+  },
+  {
+   "op": "GET /reminders",
+   "api": "v1",
+   "status": "supported",
+   "call": "reminders.list()"
+  },
+  {
+   "op": "POST /reminders",
+   "api": "v1",
+   "status": "supported",
+   "call": "reminders.create(ReminderCreate(owner_id=UserId(1), type=ReminderType.ONE_TIME, content=\"x\", due_date=\"2024-01-01T00:00:00Z\", person_id=PersonId(1)))"
+  },
+  {
+   "op": "DELETE /reminders/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "reminders.delete(ReminderIdType(1))"
+  },
+  {
+   "op": "GET /reminders/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "reminders.get(ReminderIdType(1))"
+  },
+  {
+   "op": "PUT /reminders/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "reminders.update(ReminderIdType(1), ReminderUpdate(content=\"x\"))"
+  },
+  {
+   "op": "GET /webhook",
+   "api": "v1",
+   "status": "supported",
+   "call": "webhooks.list()"
+  },
+  {
+   "op": "POST /webhook/subscribe",
+   "api": "v1",
+   "status": "supported",
+   "call": "webhooks.create(WebhookCreate(webhook_url=\"https://example.com/h\"))"
+  },
+  {
+   "op": "DELETE /webhook/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "webhooks.delete(WebhookId(1))"
+  },
+  {
+   "op": "GET /webhook/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "webhooks.get(WebhookId(1))"
+  },
+  {
+   "op": "PUT /webhook/{}",
+   "api": "v1",
+   "status": "supported",
+   "call": "webhooks.update(WebhookId(1), WebhookUpdate(disabled=True))"
+  }
+ ]
+}

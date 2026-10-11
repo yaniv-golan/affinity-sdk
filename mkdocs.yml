@@ -70,6 +70,7 @@ nav:
   - Troubleshooting: troubleshooting.md
   - Reference:
       - Client: reference/client.md
+      - API coverage: reference/api-coverage.md
       - Exceptions: reference/exceptions.md
       - Types: reference/types.md
       - Filters: reference/filters.md

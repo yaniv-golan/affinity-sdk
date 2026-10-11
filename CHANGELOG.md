@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Docs
+
+- New **API coverage** reference page: every Affinity API operation (V2 and V1) and how the SDK
+  supports it — the SDK call, an equivalent operation, or the planned release — with beta
+  operations and the minimum API version marked.
+
+### Internal
+
+- `tools/api_coverage.py` and the ledger `tools/api_coverage.json` (CI: `--check`): every
+  operation in the pinned V2 snapshots and the new V1 snapshot (`tools/openapi_snapshots/v1.json`,
+  59 operations) has exactly one row. `tests/test_api_coverage.py` runs each supported row's call,
+  sync and async, against a recording HTTP layer and checks the method, path and API version it
+  requests.
+
 ### Plugins
 
 - **CLI plugin**: 1.13.5 → 1.13.6 — skill: the Cowork install line adds
