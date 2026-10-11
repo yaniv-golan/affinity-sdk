@@ -2109,6 +2109,10 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h2 id="unreleased">[Unreleased]<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <h3 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h3>
 <ul>
+<li><strong>CLI plugin</strong>: 1.13.5 → 1.13.6 — skill: the Cowork install line adds
+  <code>--no-warn-script-location</code> (pip's "not on PATH" warning was noise; the skill adds the folder to
+  PATH in each call), and the Cowork key paths (<code>--env-file</code>, <code>AFFINITY_API_KEY_FILE</code>) are quoted,
+  so connected folders with spaces in their names work.</li>
 <li><strong>CLI plugin</strong>: 1.13.4 → 1.13.5 — no <code>clis</code> credential declaration. In local Cowork it routed
   every <code>xaffinity</code> call through Desktop's CLI credential broker, which isn't enabled yet and
   refuses the call ("cli-wrapper: plugin oauth disabled"), so the CLI never ran whatever key the
