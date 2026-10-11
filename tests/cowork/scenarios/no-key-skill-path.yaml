@@ -1,5 +1,6 @@
 # No key: the skill's first step (`config check-key`) reports it, and the agent tells the user
-# to run `xaffinity config setup-key` instead of attempting data commands.
+# how to set one up instead of attempting data commands: `xaffinity config setup-key`, or (Cowork)
+# an `AFFINITY_API_KEY=` line in a connected folder's .env.
 name: no-key-skill-path
 session: ../sessions/no-key.yaml
 fidelity: container
@@ -9,4 +10,4 @@ assert:
   - skill_triggered: 'xaffinity-cli-usage'
   - tool_called: {tool: Bash, input: {command: 'check-key'}}
   - tool_not_called: {tool: Bash, input: {command: 'xaffinity(?![^|;&]*(config|--help|--version))'}, result: {matches: '"ok": ?true'}}
-  - transcript_matches: 'setup-key'
+  - transcript_matches: 'setup-key|AFFINITY_API_KEY='
