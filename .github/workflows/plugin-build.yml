@@ -40,6 +40,19 @@ jobs:
         # Uses the full mcp-bash installed above; the vendored runtime has no validate.
         run: ./mcp/xaffinity-mcp.sh validate
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install the CLI from this checkout
+        run: python -m pip install -e ".[cli]"
+
+      - name: MCP tool tests (dry runs; no key, API unreachable)
+        env:
+          AFFINITY_V1_BASE_URL: http://127.0.0.1:9
+          AFFINITY_V2_BASE_URL: http://127.0.0.1:9/v2
+        run: ./mcp/test/run.sh
+
       - name: Build MCP plugin ZIP
         run: make -C mcp plugin
 

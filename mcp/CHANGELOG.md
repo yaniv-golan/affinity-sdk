@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.32.2] - 2026-10-11
+
+### Fixed
+
+- `query`: when the CLI fails without a JSON error (a crash, or an error printed as plain text),
+  the agent now gets the CLI's message instead of only "CLI exited with code N". A filter meant
+  to drop JSON progress lines from the CLI's stderr dropped every plain-text line too.
+
+### Internal
+
+- `test/run.sh` runs in CI (dry runs, no key, API unreachable) and no longer needs the tool
+  allowlist set by hand; its local-command and `where` checks match the current CLI.
+
 ## [1.32.1] - 2026-10-11
 
 ### Changed

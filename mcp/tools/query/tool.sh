@@ -246,7 +246,7 @@ if [[ $exit_code -eq 0 ]]; then
 else
     # Error handling - same for all formats. The CLI's error is JSON on stdout; stderr carries
     # progress lines, so it is only the fallback.
-    stderr_text=$(jq_tool -R -r 'select((fromjson? | type) != "object")' "$stderr_file" 2>/dev/null || true)
+    stderr_text=$(jq_tool -R -r 'select(((try fromjson catch null) | type) != "object")' "$stderr_file" 2>/dev/null || true)
     # CLI exited with error: its message, type and hint (JSON on stdout), else stderr / exit code
     printf '%s' "$stdout_content" > "$stdout_file"
     cli_error=$(xaffinity_cli_error_json "$stdout_content" "$stderr_text" "$exit_code")

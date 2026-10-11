@@ -48,6 +48,9 @@ if [[ -z "${MCPBASH_HOME:-}" ]]; then
 	fi
 fi
 
+# mcp-bash denies every tool unless an allowlist names it; tests run them all.
+export MCPBASH_TOOL_ALLOWLIST="${MCPBASH_TOOL_ALLOWLIST:-*}"
+
 VERBOSE="${VERBOSE:-0}"
 FORCE="${FORCE:-0}"
 
@@ -224,7 +227,7 @@ fi
 
 # Test: discover-commands with local category
 printf "  discover-commands (category=local)... "
-output=$("${MCPBASH_BIN}" run-tool "discover-commands" --args '{"query":"version","category":"local","limit":3}' 2>&1)
+output=$("${MCPBASH_BIN}" run-tool "discover-commands" --args '{"query":"config","category":"local","limit":3}' 2>&1)
 if echo "$output" | grep -q '"category":"local"'; then
     printf '%sPASS%s\n' "${GREEN}" "${RESET}"
     ((++passed)) || true
@@ -235,7 +238,7 @@ fi
 
 # Test: execute-read-command accepts local commands
 printf "  execute-read-command (local command)... "
-output=$("${MCPBASH_BIN}" run-tool "execute-read-command" --args '{"command":"version","dryRun":true}' 2>&1)
+output=$("${MCPBASH_BIN}" run-tool "execute-read-command" --args '{"command":"config path","dryRun":true}' 2>&1)
 if echo "$output" | grep -q '"dryRun":true'; then
     printf '%sPASS%s\n' "${GREEN}" "${RESET}"
     ((++passed)) || true
@@ -408,10 +411,10 @@ printf "\n--- Query tool tests (dry-run) ---\n"
 # Basic query validation
 run_dry_run "query" '{"query":{"from":"persons","limit":10},"dryRun":true}'
 
-# Query with where clause
+# Query with where clause (server-side filters are on list entries; persons/companies refuse where)
 printf "  query (with where clause)... "
-output=$("${MCPBASH_BIN}" run-tool "query" --args '{"query":{"from":"persons","where":{"path":"email","op":"contains","value":"@test.com"}},"dryRun":true}' 2>&1)
-if echo "$output" | grep -q '"from".*persons\|execution\|steps'; then
+output=$("${MCPBASH_BIN}" run-tool "query" --args '{"query":{"from":"listEntries","where":{"and":[{"path":"listId","op":"eq","value":12345},{"path":"fields.Status","op":"eq","value":"Active"}]}},"dryRun":true}' 2>&1)
+if echo "$output" | grep -q 'listEntries\|execution\|steps'; then
     printf '%sPASS%s\n' "${GREEN}" "${RESET}"
     ((++passed)) || true
 else
