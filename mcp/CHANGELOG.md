@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.32.1] - 2026-10-11
+
+### Changed
+
+- Runs on mcp-bash 1.8.0. A missing or invalid tool argument (for example `discover-commands`
+  without `query`) and a tool refused by the server's policy now come back as an error result
+  the model can read and act on, instead of a protocol error that Claude Desktop shows only as
+  a generic connector error.
+- A tool call that times out or is cancelled now stops the `xaffinity` process it started,
+  instead of leaving it running.
+
 ## [1.32.0] - 2026-10-11
 
 ### Changed

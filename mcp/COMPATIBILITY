@@ -4,6 +4,8 @@
 CLI_MIN_VERSION="1.29.0"
 CLI_MAX_VERSION="1.29.0"
 
+# MCP 1.32.1: no new CLI requirements (mcp-bash 1.8.0).
+
 # MCP 1.32.0 requires CLI 1.29.0 for:
 # - `field history-bulk` on global fields (per company/person, `fieldKind` in the dry run); the
 #   registry and pipeline-history skill describe it.

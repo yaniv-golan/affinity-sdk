@@ -9,15 +9,16 @@ AFFINITY_MCP_TOOLS_READONLY="get-entity-dossier get-file-url read-xaffinity-reso
 # Includes CLI Gateway write tool: execute-write-command
 AFFINITY_MCP_TOOLS_WRITE="execute-write-command"
 
-# Write tools that refuse in read-only mode themselves, with a tool result the user can read
-# (a policy denial reaches Claude Desktop only as a generic error).
+# Write tools that refuse in read-only mode themselves, with a message that names the setting
+# and how to change it.
 AFFINITY_MCP_TOOLS_SELF_READONLY="execute-write-command"
 
 # All tools
 AFFINITY_MCP_TOOLS_ALL="${AFFINITY_MCP_TOOLS_READONLY} ${AFFINITY_MCP_TOOLS_WRITE}"
 
 # Policy check function called by the framework
-# Sets _MCP_TOOLS_ERROR_MESSAGE on failure for clear error reporting
+# Sets _MCP_TOOLS_ERROR_MESSAGE on failure; the framework returns it as a tool error result
+# (type policy_denied), so the model sees it.
 mcp_tools_policy_check() {
     local tool_name="$1"
 
@@ -34,7 +35,6 @@ mcp_tools_policy_check() {
         case " ${AFFINITY_MCP_TOOLS_READONLY} ${AFFINITY_MCP_TOOLS_SELF_READONLY} " in
             *" ${tool_name} "*) return 0 ;;
             *)
-                _MCP_TOOLS_ERROR_CODE=-32602
                 _MCP_TOOLS_ERROR_MESSAGE="Tool '${tool_name}' is a write tool but the server is in read-only mode (AFFINITY_MCP_READ_ONLY=${AFFINITY_MCP_READ_ONLY})"
                 return 1
                 ;;
@@ -45,7 +45,6 @@ mcp_tools_policy_check() {
     case " ${AFFINITY_MCP_TOOLS_ALL} " in
         *" ${tool_name} "*) return 0 ;;
         *)
-            _MCP_TOOLS_ERROR_CODE=-32602
             _MCP_TOOLS_ERROR_MESSAGE="Tool '${tool_name}' not in server allowlist. Add to AFFINITY_MCP_TOOLS_READONLY or AFFINITY_MCP_TOOLS_WRITE in server.d/policy.sh"
             return 1
             ;;
