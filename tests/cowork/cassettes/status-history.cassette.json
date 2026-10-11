@@ -1,0 +1,433 @@
+{
+  "$schema": "https://raw.githubusercontent.com/yaniv-golan/cowork-harness/main/schema/cassette.v15.json",
+  "generator": "cowork-harness",
+  "cassetteVersion": 15,
+  "scenario": {
+    "name": "status-history",
+    "baseline": "latest",
+    "session": "../sessions/with-key.yaml",
+    "fidelity": "container",
+    "execution": "local",
+    "lane": "local",
+    "prompt": "Using the Affinity CLI, who changed Acme Robotics' Status on the Dealflow list, and when?",
+    "answers": [],
+    "on_unanswered": "fail",
+    "expect_denied": [],
+    "assert": [
+      {
+        "result": "success"
+      },
+      {
+        "skill_triggered": "xaffinity-cli-usage"
+      },
+      {
+        "no_hook_event_blocked": {
+          "event": "PreToolUse"
+        }
+      },
+      {
+        "tool_called": {
+          "tool": "Bash",
+          "input": {
+            "command": "xaffinity\\b.*field history"
+          },
+          "result": {
+            "matches": "Dana"
+          }
+        }
+      },
+      {
+        "tool_result_not_contains": "fake: no fixture"
+      },
+      {
+        "tool_not_called": {
+          "tool": "Bash",
+          "input": {
+            "command": "xaffinity(?![^|;&]*(--readonly|config|session|--help|--version))"
+          }
+        }
+      },
+      {
+        "transcript_matches": "Dana"
+      },
+      {
+        "transcript_matches": "2026-09-30|Sep(tember)?\\.? 30"
+      }
+    ],
+    "skills": [],
+    "requires_capabilities": []
+  },
+  "events": [
+    "{\"type\":\"system\",\"subtype\":\"hook_started\",\"hook_id\":\"4a260f9e-ce5d-46bb-ac4b-abe0d1cf0bc5\",\"hook_name\":\"SessionStart:startup\",\"hook_event\":\"SessionStart\",\"uuid\":\"c519b61f-6fc9-46df-a11c-e758ef760719\",\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\"}",
+    "{\"type\":\"system\",\"subtype\":\"hook_response\",\"hook_id\":\"4a260f9e-ce5d-46bb-ac4b-abe0d1cf0bc5\",\"hook_name\":\"SessionStart:startup\",\"hook_event\":\"SessionStart\",\"output\":\"\",\"stdout\":\"\",\"stderr\":\"\",\"exit_code\":0,\"outcome\":\"success\",\"uuid\":\"4d33fe28-4c77-4c83-8f7a-2ae6f31a6432\",\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\"}",
+    "{\"type\":\"control_request\",\"request_id\":\"57c8c668-cc8b-492a-8b84-fe96f625426b\",\"request\":{\"subtype\":\"mcp_message\",\"server_name\":\"workspace\",\"message\":{\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2025-11-25\",\"capabilities\":{},\"clientInfo\":{\"name\":\"claude-code\",\"title\":\"Claude Code\",\"description\":\"Anthropic's agentic coding tool\",\"websiteUrl\":\"https://claude.com/claude-code\",\"version\":\"2.1.295\"}},\"jsonrpc\":\"2.0\",\"id\":0}}}",
+    "{\"type\":\"control_request\",\"request_id\":\"a66f955b-a663-44aa-9919-5036dd625d05\",\"request\":{\"subtype\":\"mcp_message\",\"server_name\":\"cowork\",\"message\":{\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2025-11-25\",\"capabilities\":{},\"clientInfo\":{\"name\":\"claude-code\",\"title\":\"Claude Code\",\"description\":\"Anthropic's agentic coding tool\",\"websiteUrl\":\"https://claude.com/claude-code\",\"version\":\"2.1.295\"}},\"jsonrpc\":\"2.0\",\"id\":0}}}",
+    "{\"type\":\"control_request\",\"request_id\":\"d0dce214-46e3-4e17-b42c-67a045544065\",\"request\":{\"subtype\":\"mcp_message\",\"server_name\":\"skills\",\"message\":{\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2025-11-25\",\"capabilities\":{},\"clientInfo\":{\"name\":\"claude-code\",\"title\":\"Claude Code\",\"description\":\"Anthropic's agentic coding tool\",\"websiteUrl\":\"https://claude.com/claude-code\",\"version\":\"2.1.295\"}},\"jsonrpc\":\"2.0\",\"id\":0}}}",
+    "{\"type\":\"control_request\",\"request_id\":\"30fa6427-0d5d-4254-90f2-eddbfd8c6e33\",\"request\":{\"subtype\":\"mcp_message\",\"server_name\":\"plugins\",\"message\":{\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2025-11-25\",\"capabilities\":{},\"clientInfo\":{\"name\":\"claude-code\",\"title\":\"Claude Code\",\"description\":\"Anthropic's agentic coding tool\",\"websiteUrl\":\"https://claude.com/claude-code\",\"version\":\"2.1.295\"}},\"jsonrpc\":\"2.0\",\"id\":0}}}",
+    "{\"type\":\"control_response\",\"response\":{\"subtype\":\"success\",\"request_id\":\"init-1\",\"response\":{\"commands\":[{\"name\":\"deep-research\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"affinity-crm-cli-xaffinity-unofficial:xaffinity-cli-usage\",\"description\":\"(affinity-crm-cli-xaffinity-unofficial) Runs the xaffinity CLI in bash to read and manage Affinity CRM data: look up companies and people, see which lists/pipelines a company is on and its list field values (Status, Owner), export lists to JSON/CSV, filter pipelines, dedup-check before adding to a list, read field change history (who changed what, deltas since a date), org-wide email/meeting/note feeds, meeting transcripts, team relationships and merge history, manage dropdown options, and create notes, interactions and list entries. Use when the user mentions xaffinity, asks for Affinity CLI commands, bash scripts, flags or CSV exports, or needs Affinity CRM data and no Affinity MCP tools are available. Not for pipeline-history analysis (pipeline-history skill) or structured MCP queries (query-language skill) when those skills are available.\",\"argumentHint\":\"\",\"aliases\":[\"xaffinity-cli-usage\"]},{\"name\":\"design\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"[built-in hint withheld]\",\"builtin\":true},{\"name\":\"advisor\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"[built-in hint withheld]\",\"builtin\":true},{\"name\":\"agents\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"auto-mode-setup\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"[built-in hint withheld]\",\"builtin\":true},{\"name\":\"autocompact\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"[built-in hint withheld]\",\"builtin\":true},{\"name\":\"clear\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"[built-in hint withheld]\",\"aliases\":[\"reset\",\"new\"],\"builtin\":true},{\"name\":\"color\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"[built-in hint withheld]\",\"builtin\":true},{\"name\":\"compact\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"[built-in hint withheld]\",\"builtin\":true},{\"name\":\"config\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"[built-in hint withheld]\",\"aliases\":[\"settings\"],\"builtin\":true},{\"name\":\"output-style\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"[built-in hint withheld]\",\"builtin\":true},{\"name\":\"context\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"effort\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"[built-in hint withheld]\",\"builtin\":true},{\"name\":\"fast\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"[built-in hint withheld]\",\"builtin\":true},{\"name\":\"focus\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"[built-in hint withheld]\",\"builtin\":true},{\"name\":\"heapdump\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"init\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"mcp\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"[built-in hint withheld]\",\"builtin\":true},{\"name\":\"import\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"model\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"[built-in hint withheld]\",\"builtin\":true},{\"name\":\"__remote-workflow\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"workflow-launch-exec\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"reload-plugins\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"[built-in hint withheld]\",\"builtin\":true},{\"name\":\"reload-skills\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"rename\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"[built-in hint withheld]\",\"aliases\":[\"name\"],\"builtin\":true},{\"name\":\"ultrareview\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"security-review\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"usage\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"aliases\":[\"cost\",\"stats\"],\"builtin\":true},{\"name\":\"insights\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"recap\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"skill-doctor\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"goal\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"design-consent\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"design-revoke\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true},{\"name\":\"list-agents\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"aliases\":[\"peers\"],\"builtin\":true},{\"name\":\"team-onboarding\",\"description\":\"[built-in description withheld]\",\"argumentHint\":\"\",\"builtin\":true}],\"agents\":[{\"name\":\"claude\",\"description\":\"[built-in description withheld]\"},{\"name\":\"claude-code-guide\",\"description\":\"[built-in description withheld]\",\"model\":\"haiku\"},{\"name\":\"Explore\",\"description\":\"[built-in description withheld]\",\"model\":\"inherit\"},{\"name\":\"general-purpose\",\"description\":\"[built-in description withheld]\"},{\"name\":\"Plan\",\"description\":\"[built-in description withheld]\",\"model\":\"inherit\"},{\"name\":\"statusline-setup\",\"description\":\"[built-in description withheld]\",\"model\":\"sonnet\"}],\"output_style\":\"default\",\"available_output_styles\":[\"default\",\"Proactive\",\"Concise\",\"Explanatory\",\"Learning\"],\"user_output_styles_dir\":\"/sessions/local_i42jhq23yd/mnt/.claude/output-styles\",\"models\":[],\"account\":{\"tokenSource\":\"CLAUDE_CODE_OAUTH_TOKEN\",\"apiProvider\":\"firstParty\"},\"pid\":1,\"current_permission_mode\":\"default\",\"hooks_applied\":true,\"feedback_mode\":{\"kind\":\"post\"},\"analytics_disabled\":false,\"remote_control_auto_enable\":false,\"remote_control_auto_connect_default\":false,\"remote_control_available\":true,\"remote_control_auto_on_by_default\":false,\"ide_rc_auto_enable_gate\":true,\"fast_mode_state\":\"off\",\"fast_mode_disabled_reason\":\"sdk_opt_in_required\",\"session_state\":\"idle\",\"capabilities\":[\"ui_surface_v1\"]},\"pending_permission_requests\":[],\"pending_user_dialog_requests\":[]}}",
+    "{\"type\":\"control_request\",\"request_id\":\"d8def316-f7e1-46a8-ba13-60f79c6bbdb6\",\"request\":{\"subtype\":\"mcp_message\",\"server_name\":\"workspace\",\"message\":{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}}}",
+    "{\"type\":\"control_request\",\"request_id\":\"d294760c-d749-4564-9596-f627527a4a62\",\"request\":{\"subtype\":\"mcp_message\",\"server_name\":\"cowork\",\"message\":{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}}}",
+    "{\"type\":\"control_request\",\"request_id\":\"c2d29e38-9687-4d2d-9b10-49bb40b8eb63\",\"request\":{\"subtype\":\"mcp_message\",\"server_name\":\"skills\",\"message\":{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}}}",
+    "{\"type\":\"control_request\",\"request_id\":\"3b1a0172-3796-4ca1-bec6-ebb5a756b613\",\"request\":{\"subtype\":\"mcp_message\",\"server_name\":\"plugins\",\"message\":{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}}}",
+    "{\"type\":\"control_request\",\"request_id\":\"ef890030-c054-4fdd-bf32-b6ad84a48d9b\",\"request\":{\"subtype\":\"mcp_message\",\"server_name\":\"workspace\",\"message\":{\"method\":\"tools/list\",\"jsonrpc\":\"2.0\",\"id\":1}}}",
+    "{\"type\":\"control_request\",\"request_id\":\"b72e7fc5-2994-444b-953c-0bf7e2b12f43\",\"request\":{\"subtype\":\"mcp_message\",\"server_name\":\"cowork\",\"message\":{\"method\":\"tools/list\",\"jsonrpc\":\"2.0\",\"id\":1}}}",
+    "{\"type\":\"control_request\",\"request_id\":\"b60dd31f-466b-4a5c-bbaa-063745142743\",\"request\":{\"subtype\":\"mcp_message\",\"server_name\":\"skills\",\"message\":{\"method\":\"tools/list\",\"jsonrpc\":\"2.0\",\"id\":1}}}",
+    "{\"type\":\"control_request\",\"request_id\":\"95b8e52f-0ea1-44a8-ac2c-c9294b356a37\",\"request\":{\"subtype\":\"mcp_message\",\"server_name\":\"plugins\",\"message\":{\"method\":\"tools/list\",\"jsonrpc\":\"2.0\",\"id\":1}}}",
+    "{\"type\":\"system\",\"subtype\":\"init\",\"cwd\":\"/sessions/local_i42jhq23yd\",\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\",\"tools\":[\"Task\",\"AskUserQuestion\",\"Bash\",\"Edit\",\"Glob\",\"Grep\",\"NotebookEdit\",\"Read\",\"Skill\",\"TaskCreate\",\"TaskGet\",\"TaskList\",\"TaskStop\",\"TaskUpdate\",\"ToolSearch\",\"WebSearch\",\"Write\",\"mcp__cowork__present_files\",\"mcp__plugins__list_plugins\",\"mcp__plugins__search_plugins\",\"mcp__plugins__suggest_plugin_install\",\"mcp__skills__list_skills\",\"mcp__skills__suggest_skills\",\"mcp__workspace__web_fetch\"],\"mcp_servers\":[{\"name\":\"workspace\",\"status\":\"connected\",\"source\":\"sdk\"},{\"name\":\"cowork\",\"status\":\"connected\",\"source\":\"sdk\"},{\"name\":\"skills\",\"status\":\"connected\",\"source\":\"sdk\"},{\"name\":\"plugins\",\"status\":\"connected\",\"source\":\"sdk\"}],\"model\":\"claude-sonnet-5-5\",\"permissionMode\":\"default\",\"slash_commands\":[\"deep-research\",\"affinity-crm-cli-xaffinity-unofficial:xaffinity-cli-usage\",\"design\",\"advisor\",\"agents\",\"auto-mode-setup\",\"autocompact\",\"clear\",\"color\",\"compact\",\"config\",\"output-style\",\"context\",\"effort\",\"fast\",\"focus\",\"heapdump\",\"init\",\"mcp\",\"import\",\"model\",\"__remote-workflow\",\"workflow-launch-exec\",\"reload-plugins\",\"reload-skills\",\"rename\",\"ultrareview\",\"security-review\",\"usage\",\"insights\",\"recap\",\"skill-doctor\",\"goal\",\"design-consent\",\"design-revoke\",\"list-agents\",\"team-onboarding\"],\"terminal_slash_commands\":[\"color\",\"focus\",\"reload-plugins\"],\"apiKeySource\":\"none\",\"claude_code_version\":\"2.1.295\",\"output_style\":\"default\",\"agents\":[\"claude\",\"claude-code-guide\",\"Explore\",\"general-purpose\",\"Plan\",\"statusline-setup\"],\"skills\":[\"deep-research\",\"affinity-crm-cli-xaffinity-unofficial:xaffinity-cli-usage\",\"design\"],\"plugins\":[{\"name\":\"affinity-crm-cli-xaffinity-unofficial\",\"path\":\"/sessions/local_i42jhq23yd/mnt/.local-plugins/marketplaces/local-desktop-app-uploads/xaffinity-cli\",\"source\":\"affinity-crm-cli-xaffinity-unofficial@inline\",\"version\":\"1.13.3\"},{\"name\":\"cc-plugin-agents-md\",\"path\":\"builtin\",\"source\":\"cc-plugin-agents-md@builtin\"},{\"name\":\"cc-plugin-telemetry\",\"path\":\"builtin\",\"source\":\"cc-plugin-telemetry@builtin\"}],\"capabilities\":[\"interrupt_receipt_v1\",\"interrupt_cancel_queued_v1\",\"interrupt_send_now_v1\",\"msg_lifecycle_v1\",\"request_marker_lists_v1\",\"sdk_mcp_tools_list_changed\",\"sdk_mcp_manifests\",\"mcp_read_resource_v1\",\"mcp_tool_ui_meta_v1\",\"ui_surface_v1\"],\"analytics_disabled\":false,\"product_feedback_disabled\":false,\"uuid\":\"7dcf28aa-d089-441a-8efa-309abb851499\",\"messaging_socket_path\":\"/tmp/cc-socks/1.sock\",\"fast_mode_state\":\"off\",\"fast_mode_disabled_reason\":\"sdk_opt_in_required\",\"per_turn_effort_active\":true,\"view_mode\":\"default\"}",
+    "{\"type\":\"assistant\",\"message\":{\"model\":\"claude-sonnet-5-5\",\"id\":\"msg_011CfunKkWTTikYspYPcmLz9\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_01RGc5bXsAaMz918S2xEfPYV\",\"name\":\"Skill\",\"input\":{\"skill\":\"affinity-crm-cli-xaffinity-unofficial:xaffinity-cli-usage\"},\"caller\":{\"type\":\"direct\"}}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":9939,\"cache_read_input_tokens\":12684,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":9939},\"output_tokens\":16,\"service_tier\":\"standard\",\"inference_geo\":\"global\"},\"input_transformations\":[],\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\",\"uuid\":\"7b8582dc-3228-42f2-a4e8-dfd55be81d28\",\"timestamp\":\"2026-10-11T04:00:42.083Z\",\"request_id\":\"req_011CfunKkEbM5sGeHC7G1Sg2\",\"wire_tool_inputs\":{\"toolu_01RGc5bXsAaMz918S2xEfPYV\":{\"skill\":\"affinity-crm-cli-xaffinity-unofficial:xaffinity-cli-usage\"}}}",
+    "{\"type\":\"user\",\"message\":{\"role\":\"user\",\"content\":[{\"type\":\"tool_result\",\"tool_use_id\":\"toolu_01RGc5bXsAaMz918S2xEfPYV\",\"content\":\"Launching skill: affinity-crm-cli-xaffinity-unofficial:xaffinity-cli-usage\"}]},\"parent_tool_use_id\":null,\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\",\"uuid\":\"c4ac7868-61b1-4fdb-9850-1c5ef5502c84\",\"timestamp\":\"2026-10-11T04:00:42.127Z\",\"tool_use_result\":{\"success\":true,\"commandName\":\"affinity-crm-cli-xaffinity-unofficial:xaffinity-cli-usage\"},\"tool_result_meta\":[{\"id\":\"toolu_01RGc5bXsAaMz918S2xEfPYV\",\"permission_decision\":{\"decision\":\"accept\",\"source\":\"config\",\"reason_type\":\"rule\"}}]}",
+    "{\"type\":\"user\",\"message\":{\"role\":\"user\",\"content\":[{\"type\":\"text\",\"text\":\"Base directory for this skill: /sessions/local_i42jhq23yd/mnt/.local-plugins/marketplaces/local-desktop-app-uploads/xaffinity-cli/skills/xaffinity-cli-usage\\n\\n# xaffinity CLI Usage\\n\\n## REQUIRED FIRST STEP: Verify API Key\\n\\nBefore anything else, run:\\n\\n```bash\\nxaffinity config check-key --json\\n```\\n\\n- **`\\\"configured\\\": true`** — use the `pattern` field from the output for ALL subsequent commands:\\n  copy its flags (`--dotenv`, and `--env-file <path>` when it names one) into every command.\\n- **`\\\"configured\\\": false`** — stop and help the user set up. Read `references/setup.md` (key\\n  resolution order, `xaffinity config setup-key` — interactive, the user must run it — and the\\n  Cowork key-in-a-connected-folder setup, which needs `--env-file` with the folder's path).\\n\\n## Read JSON from the right key\\n\\n`--json` emits **one** JSON object (not NDJSON): `{\\\"ok\\\", \\\"data\\\", \\\"warnings\\\", \\\"meta\\\", ...}`. The\\nshape of `data` differs by command — reading the wrong key gives `null`, which looks like real\\n\\\"empty\\\" data. Use this table:\\n\\n| Command | Read |\\n|---------|------|\\n| `list export` | `.data.rows[]` — `listEntryId`, `entityId`, `entityName`, + field values by name |\\n| `person ls` / `company ls` | `.data.persons[]` / `.data.companies[]` |\\n| `person get` / `company get` / `opportunity get` | `.data.person` / `.data.company` / `.data.opportunity` |\\n| …with `--expand list-entries` / `lists` / `persons` | `.data.listEntries` / `.data.lists` / `.data.persons` — **next to** the entity, not inside it |\\n| `list entry field … --get` | `.data.fields` |\\n| `interaction ls` / `note ls` / `<entity> files ls` | `.data[]` — a **bare array** |\\n| `note create` / `interaction create` | `.data.note` / `.data.interaction` |\\n| `field history` / `field changes` / `field history-bulk` | `.data.fieldValueChanges[]` |\\n| `interaction feed` / `note feed` / `note replies` | `.data.interactions[]` / `.data.notes[]` / `.data.replies[]` |\\n| `transcript ls` / `transcript get` | `.data.transcripts[]` / `.data.transcript` (`.fragments[]`) |\\n| `company\\\\|person relationships` / `field options ls` | `.data.relationships[]` / `.data.options[]` |\\n\\nWhen in doubt, look before you extract:\\n`... --json | jq '.data | if type == \\\"object\\\" then keys else \\\"array of \\\\(length)\\\" end'`.\\n\\n**`null` / missing does not mean empty.** A plain `company get` / `person get` / `opportunity get`\\nis a cheap lookup that fetches **no field values and no list entries**: `fields: {\\\"requested\\\":\\nfalse}` and a missing `listEntries` key mean *not fetched*. `meta.notRequested` names what was\\nskipped and the flag that fetches it. Never tell the user a record \\\"has no lists\\\" or \\\"empty fields\\\"\\n— and never offer to write values — without having fetched them.\\n\\n## Common pitfalls (READ THIS FIRST)\\n\\n**1. Never redirect stderr to `/dev/null`.** Every CLI safety signal — \\\"results truncated\\\",\\n\\\"unknown option\\\", \\\"--filter client-side\\\" — lives on stderr. Dropping stderr is how you ship a\\nsilent-zero-match result and call it a duplicate check.\\n\\n**2. `--filter` on `list export` requires `--all`, `--max-results`, or `--first-page-only`.** The\\nCLI errors on the unscoped case. Filtering is client-side; for large lists prefer\\n`--saved-view` (server-side) or `--company-id` / `--person-id` (entity-scoped, cheap). Details:\\n`references/filtering.md`.\\n\\n**3. Duplicate checks: use `--company-id` / `--person-id`, not `--filter`.**\\n`xaffinity list export \\\"Pipeline\\\" --company-id 555 --json` returns 0 or more rows for that exact\\ncompany, with its list field values. Zero rows + the emitted warning is the \\\"not on list\\\" signal.\\n\\n**4. Check `meta.truncated` on every JSON response.** If `true`, the answer is incomplete;\\n`meta.truncationReason` names the cause (currently `firstPageOnly`). Separately, Affinity returns at\\nmost 100 values per multi-value field: a `warnings` entry like \\\"Field 'X' … shows 100 of 250 values\\\"\\nmeans that field's list is partial, so don't count or dedupe from it.\\n\\n**5. Side-effecting commands: capture, then parse.** A pipeline like\\n`xaffinity note create --content \\\"...\\\" --company-id 123 | python3 -c \\\"json.loads(...)\\\"` runs the\\ncreate first, then parses. If you forgot `--json`, the parser crashes and the pipeline exits 1 —\\nbut the note was already created, and a \\\"retry\\\" creates a duplicate. Capture first:\\n\\n```bash\\nout=$(xaffinity --json note create --content \\\"...\\\" --company-id 123)\\nnote_id=$(printf '%s' \\\"$out\\\" | jq -r '.data.note.id')\\n```\\n\\nThe CLI also warns on stderr when identical content from the same author arrives within 5\\nminutes, but that's a safety net — capture-then-parse is the fix.\\n\\n**6. Person/company field values require numeric IDs, not names.**\\n`xaffinity list entry field \\\"Pipeline\\\" 999 --set Owner \\\"Jane Doe\\\"` aborts with an \\\"Invalid entity\\nID\\\" error before any write. Resolve names to IDs first, and check the ID is not `null`:\\n\\n```bash\\nowner_id=$(xaffinity --readonly --json person ls --query \\\"Jane Doe\\\" --max-results 5 \\\\\\n  | jq -r '.data.persons[0].id')\\n[ \\\"$owner_id\\\" != \\\"null\\\" ] || { echo \\\"no match for Jane Doe\\\" >&2; exit 1; }\\nxaffinity list entry field \\\"Pipeline\\\" 999 --set Owner \\\"$owner_id\\\"\\n```\\n\\nEvery `--set` value is validated before any API call, so one bad value (e.g. a wrong person ID)\\nmeans nothing is written. The CLI does not resolve names for you.\\n\\n## Reading One Company's / Person's Lists and List Fields\\n\\n```bash\\n# Which lists is this company on, with each entry's list fields (Status, Owner, ...)\\nxaffinity --readonly company get 314557093 --expand list-entries --json | jq '.data.listEntries'\\n\\n# Only one list (--list implies --expand list-entries)\\nxaffinity --readonly company get 314557093 --list \\\"Dealflow\\\" --json | jq '.data.listEntries'\\n\\n# Rows for that company on a known list (same values, list-export row shape)\\nxaffinity --readonly list export \\\"Dealflow\\\" --company-id 314557093 --json | jq '.data.rows'\\n```\\n\\nRead `.data.listEntries`, not `.data.company.listEntries`.\\n\\n## IMPORTANT: Write Operations Require Explicit User Request\\n\\n**Always use `--readonly` unless the user explicitly requests writes.** Writes include creating,\\nupdating, or deleting notes, interactions, reminders, list entries, field values, persons,\\ncompanies and opportunities. Before writing over an existing field value, read it first and show\\nthe user the current value. Write-side gotchas (duplicate refusal on create, read-only and\\nambiguous fields, global companies, file uploads): `references/files-and-writes.md`.\\n\\n## Destructive Commands Require Double Confirmation\\n\\nBefore executing ANY command that cannot be undone (delete, merge):\\n\\n1. **Look up the entity first** to show the user what will be deleted\\n2. **Ask the user in your response**, showing the entity details and requesting confirmation\\n3. **Wait for the user's next message** — do NOT proceed until they explicitly confirm\\n4. **Only after the user confirms**, run the command with `--yes`\\n\\n```\\nUser: \\\"Delete person 123\\\"\\nYou: xaffinity --readonly person get 123 --json\\nYou: \\\"This will permanently delete John Smith (ID: 123, email: [REDACTED:email:855f96e983f1]).\\n      Type 'yes' to confirm deletion.\\\"\\n[Stop here and wait for user's response]\\n\\nUser: \\\"yes\\\"\\nYou: xaffinity person delete 123 --yes\\n```\\n\\n**Destructive commands**: `person delete`, `company delete`, `opportunity delete`, `note delete`,\\n`reminder delete`, `field delete`, `list entry delete`, `interaction delete`, `person merge`,\\n`company merge` (the duplicate record is removed), `field options delete` (clears that value on\\nevery entry that had it)\\n\\nThe `--yes` flag bypasses the CLI's interactive prompt; the confirmation must come from the user in\\nthe conversation. Without `--yes` and with nothing answering the prompt, these commands fail with a\\nusage error (exit 2) and change nothing.\\n\\n## Critical Patterns\\n\\n| Pattern | Purpose |\\n|---------|---------|\\n| `--readonly` | Prevent accidental data modification (ALWAYS use unless writing) |\\n| `--json` | Structured, parseable output (ALWAYS use for commands you will parse) |\\n| `--max-results N` | **Limit results (ALWAYS use on list/search commands)**. Aliases: `--limit`, `-n` |\\n| `--yes` | Skip confirmation on delete and merge commands (use after the user confirms) |\\n| `--help` | Discover command options (USE THIS, don't guess flags) |\\n\\n**Always limit results.** Use `--max-results` on every `ls`, `list export`, `interaction ls`, and\\n`note ls`. Start small (10-50), increase only if needed — unbounded queries can return hundreds of\\nKB and make many API calls.\\n\\n**Extract only what you need** with `jq` once you know the shape (see the table above):\\n\\n```bash\\n# A person's ID for a follow-up command\\nxaffinity --readonly person get email:[REDACTED:email:ff8d9819fc0e] --json | jq -r '.data.person.id'\\n\\n# Just the fields you need to answer the user\\nxaffinity --readonly person get 123 --json \\\\\\n  | jq '.data.person | {id, firstName, lastName, primaryEmailAddress}'\\n\\n# Entity names from a list export\\nxaffinity --readonly list export \\\"Pipeline\\\" --max-results 20 --json \\\\\\n  | jq '[.data.rows[] | {entityName, entityId}]'\\n```\\n\\n## Multi-Source Tasks: Use a Script\\n\\nWhen a task needs data from **2 or more** CLI commands (e.g., person details + interactions + list\\nentries), write a **single bash script** that prints only the summary, instead of running commands\\none by one — each separate command dumps its full JSON into the conversation. A single command is\\nfine for simple lookups, single writes and quick searches. Worked example (company → interactions\\nsummary): `references/interactions.md`.\\n\\nFor complex joins across 3+ sources, conditional logic, pagination over large datasets, or SDK\\nfeatures like `F` filters or `FieldResolver`, write a Python script using the Affinity SDK (the SDK\\nskill has patterns).\\n\\n## Selectors: Use Names, Not Just IDs\\n\\nMost commands accept names, emails, or domains directly — no ID lookup needed:\\n\\n```bash\\nxaffinity --readonly person get email:[REDACTED:email:ff8d9819fc0e] --json\\nxaffinity --readonly company get domain:acme.com --json\\nxaffinity --readonly list export \\\"My Pipeline\\\" --max-results 20 --json\\nxaffinity --readonly person get 12345 --json      # IDs also work\\n```\\n\\n## Common Commands\\n\\n```bash\\n# Search entities (always limit results)\\nxaffinity --readonly person ls --query \\\"John Smith\\\" --max-results 10 --json\\nxaffinity --readonly company ls --query \\\"Acme\\\" --max-results 10 --json\\n\\n# Lists by name (case-insensitive substring); entries of one list\\nxaffinity --readonly list ls --query \\\"pipeline\\\" --json\\nxaffinity --readonly list export \\\"Pipeline\\\" --max-results 20 --json\\n\\n# Export to CSV\\nxaffinity --readonly person ls --all --csv --csv-bom > contacts.csv\\nxaffinity --readonly list export \\\"Pipeline\\\" --all --csv --csv-bom > output.csv\\n```\\n\\nSearching and filtering (`--query` vs `--filter`, saved views, operators): `references/filtering.md`.\\nContent search (max 100, no paging): `note search \\\"text\\\"`, `file search \\\"text\\\"` (inside files), `company search \\\"description\\\"` (semantic; for name/domain use `company ls --query`).\\nInteractions (types, date ranges, creating them): `references/interactions.md`.\\nField change history, org-wide feeds (`interaction feed`, `note feed`), transcripts,\\nrelationships, merge history and dropdown options: `references/history-and-activity.md`.\\n\\n## List Entry Fields\\n\\n```bash\\n# Read specific fields (resolved person/company objects, matching list export format)\\nxaffinity --readonly list entry field \\\"Pipeline\\\" 12345 --get Owner --get Status --json\\n\\n# Set a field value (requires write permission)\\nxaffinity list entry field \\\"Pipeline\\\" 12345 --set Status \\\"Active\\\"\\n```\\n\\n`--get` and `--set` are mutually exclusive. `--get` returns resolved objects for person/company\\nreference fields (`firstName`, `lastName`, `primaryEmailAddress`) and full dropdown option data\\n(`text`, `color`).\\n\\n## Expand/Include (N+1 Warning)\\n\\n`--expand` on `list export` triggers **one additional API call per record**. Use `--max-results`\\nto control cost.\\n\\n```bash\\n# Safe: 20 records = ~21 API calls\\nxaffinity --readonly list export \\\"Pipeline\\\" --expand persons --max-results 20 --json\\n\\n# DANGEROUS: --expand with --all on a large list (500 entries = 501+ API calls, ~10 minutes)\\n# xaffinity list export \\\"Pipeline\\\" --expand persons --all  # DON'T do this blindly\\n```\\n\\n**Practical limits:** <=100 records is safe. 200 records ~5 min. 400+ records may hit timeouts.\\n\\n## Query Command (Advanced)\\n\\nFor aggregation/groupBy, cross-entity filtering, nested AND/OR/NOT, or a cost preview, use\\n`xaffinity query`. **Always `--dry-run` first** for queries with include/expand/quantifiers. Full\\nreference (JSON structure, operators, aggregation, examples): `references/query-guide.md`.\\n\\n| Need | Use |\\n|------|-----|\\n| Simple search by name/email | `person ls --query` or `person get email:...` |\\n| Export list entries | `list export \\\"ListName\\\"` |\\n| Server-side filtered list | `list export --saved-view \\\"ViewName\\\"` |\\n| Aggregate/group data, filter by related entities | `query` |\\n| Preview API cost first | `query --dry-run` |\\n\\n## Gotchas & Workarounds\\n\\n- **Smart fields (\\\"Last Meeting\\\", \\\"Next Meeting\\\") are UI-only.** Use `--with-interaction-dates` on\\n  **get** commands (not `ls`): `xaffinity --readonly company get domain:acme.com --with-interaction-dates --json`.\\n- **Internal meetings are NOT in interactions** (only meetings with external contacts) — use notes;\\n  see `references/interactions.md`.\\n- **Opportunities are bound to one list.** You cannot search opportunities globally; use\\n  `list export` on their list. `opportunity get` needs `--details` for field values.\\n- **Progress output goes to stderr**, so JSON on stdout stays clean. Use `--quiet` / `-q` to\\n  suppress progress — but don't discard stderr (pitfall 1).\\n- **Affinity API versions differ.** Results come from the API key's default version unless\\n  `--api-version` (e.g. `2026-09-17`) / `AFFINITY_API_VERSION` is set; `meta.affinityApiVersion`\\n  says which answered. Don't add `--api-version` unless the user asks.\\n\\n## Quick Reference\\n\\n| Task | Command |\\n|------|---------|\\n| Find person by email | `person get email:[REDACTED:email:b4c9a289323b] --json` |\\n| Find company by domain | `company get domain:acme.com --json` |\\n| Company's lists + list field values | `company get <id> --expand list-entries --json` |\\n| Is company on list X? (dedup) | `list export \\\"X\\\" --company-id <id> --json` |\\n| Search people | `person ls --query \\\"name\\\" --max-results 10 --json` |\\n| Recent interactions | `interaction ls --type all --company-id ID --days 90 --max-results 50 --json` |\\n| Export list (bounded) | `list export \\\"ListName\\\" --max-results 100 --json` |\\n| Export list (full CSV) | `list export \\\"ListName\\\" --all --csv --csv-bom > out.csv` |\\n| List with server filter | `list export \\\"ListName\\\" --saved-view \\\"ViewName\\\" --max-results 50 --json` |\\n| List entity files | `company files ls \\\"domain:acme.com\\\" --max-results 20 --json` |\\n| Who changed a field, when | `field history field-123 --company-id <id> --json` |\\n| What changed since a date (any field) | `field changes --changed-after -7d --max-results 100 --json` |\\n| Emails / meetings across the org | `interaction feed --type email --after -7d --max-results 50 --json` |\\n| Recent notes across the org | `note feed --created-after -7d --max-results 50 --json` |\\n| Who on the team knows a company | `company relationships domain:acme.com --max-results 20 --json` |\\n| A dropdown's options | `field options ls field-123 --list-id \\\"Pipeline\\\" --json` |\\n| Aggregate/group data | `query --dry-run --file query.json --json` (preview cost first) |\\n| Get command help | `xaffinity <command> --help` (USE THIS — don't guess flags) |\\n\\n**Remember:** prefix all commands with `xaffinity --readonly` (and `--dotenv` if `check-key` says\\nso). Install: `pip install \\\"affinity-sdk[cli]\\\"`; if a command or flag shown here is missing,\\nupgrade with `pip install -U \\\"affinity-sdk[cli]\\\"`. Docs: https://yaniv-golan.github.io/affinity-sdk/latest/\\n\"}]},\"parent_tool_use_id\":null,\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\",\"uuid\":\"e29a2055-da42-43bd-9b80-474bb00881d8\",\"timestamp\":\"2026-10-11T04:00:42.124Z\",\"isSynthetic\":true}",
+    "{\"type\":\"rate_limit_event\",\"rate_limit_info\":{},\"uuid\":\"9779767b-dc41-49a6-b4bc-f1c0f52bfde3\",\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\"}",
+    "{\"type\":\"assistant\",\"message\":{\"model\":\"claude-sonnet-5-5\",\"id\":\"msg_011CfunKvzVaDpQBwcXyfH6s\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_01XYBMguR9gbQJe8H6cA9gg3\",\"name\":\"Bash\",\"input\":{\"command\":\"xaffinity config check-key --json\",\"description\":\"Check Affinity API key configuration\"},\"caller\":{\"type\":\"direct\"}}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":6201,\"cache_read_input_tokens\":22623,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":6201},\"output_tokens\":16,\"service_tier\":\"standard\",\"inference_geo\":\"global\"},\"input_transformations\":[],\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\",\"uuid\":\"520fffd7-8213-44e3-aff3-5434ef435ae9\",\"timestamp\":\"2026-10-11T04:00:44.165Z\",\"request_id\":\"req_011CfunKte6qgKgRLQvGo3Xp\",\"wire_tool_inputs\":{\"toolu_01XYBMguR9gbQJe8H6cA9gg3\":{\"command\":\"xaffinity config check-key --json\",\"description\":\"Check Affinity API key configuration\"}}}",
+    "{\"type\":\"system\",\"subtype\":\"hook_started\",\"hook_id\":\"c8b8dd98-f16c-4a54-8fa4-5cd96fdc648e\",\"hook_name\":\"PreToolUse:Bash\",\"hook_event\":\"PreToolUse\",\"uuid\":\"415ade23-cf9a-4899-9c2f-d2a498af9d5e\",\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\"}",
+    "{\"type\":\"system\",\"subtype\":\"hook_response\",\"hook_id\":\"c8b8dd98-f16c-4a54-8fa4-5cd96fdc648e\",\"hook_name\":\"PreToolUse:Bash\",\"hook_event\":\"PreToolUse\",\"output\":\"\",\"stdout\":\"\",\"stderr\":\"\",\"exit_code\":0,\"outcome\":\"success\",\"uuid\":\"7023ba32-b522-446b-b402-898126cbe0cc\",\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\"}",
+    "{\"type\":\"user\",\"message\":{\"role\":\"user\",\"content\":[{\"tool_use_id\":\"toolu_01XYBMguR9gbQJe8H6cA9gg3\",\"type\":\"tool_result\",\"content\":\"/usr/local/lib/python3.10/dist-packages/affinity/cli/context.py:339: UserWarning: Config file is group/world readable: /sessions/local_i42jhq23yd/mnt/workdir-key/xaffinity-test-key (consider `chmod 600` to protect secrets).\\n  api_key = self.resolve_api_key(warnings=warnings)\\n{\\\"ok\\\": true, \\\"command\\\": {\\\"name\\\": \\\"config check-key\\\", \\\"inputs\\\": {}, \\\"modifiers\\\": {}, \\\"resolved\\\": null}, \\\"data\\\": {\\\"configured\\\": true, \\\"source\\\": \\\"file\\\", \\\"pattern\\\": \\\"xaffinity --readonly <command> --json\\\", \\\"keyDefaultApiVersion\\\": \\\"2026-07-15\\\"}, \\\"artifacts\\\": [], \\\"warnings\\\": [], \\\"meta\\\": {\\\"durationMs\\\": 89, \\\"profile\\\": null, \\\"resolved\\\": null, \\\"pagination\\\": null, \\\"columns\\\": null, \\\"summary\\\": null}, \\\"error\\\": null}\",\"is_error\":false}]},\"parent_tool_use_id\":null,\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\",\"uuid\":\"f8a6c870-68a1-4408-9cf2-00a843f8a526\",\"timestamp\":\"2026-10-11T04:00:45.156Z\",\"tool_use_result\":{\"stdout\":\"/usr/local/lib/python3.10/dist-packages/affinity/cli/context.py:339: UserWarning: Config file is group/world readable: /sessions/local_i42jhq23yd/mnt/workdir-key/xaffinity-test-key (consider `chmod 600` to protect secrets).\\n  api_key = self.resolve_api_key(warnings=warnings)\\n{\\\"ok\\\": true, \\\"command\\\": {\\\"name\\\": \\\"config check-key\\\", \\\"inputs\\\": {}, \\\"modifiers\\\": {}, \\\"resolved\\\": null}, \\\"data\\\": {\\\"configured\\\": true, \\\"source\\\": \\\"file\\\", \\\"pattern\\\": \\\"xaffinity --readonly <command> --json\\\", \\\"keyDefaultApiVersion\\\": \\\"2026-07-15\\\"}, \\\"artifacts\\\": [], \\\"warnings\\\": [], \\\"meta\\\": {\\\"durationMs\\\": 89, \\\"profile\\\": null, \\\"resolved\\\": null, \\\"pagination\\\": null, \\\"columns\\\": null, \\\"summary\\\": null}, \\\"error\\\": null}\",\"stderr\":\"\",\"interrupted\":false,\"isImage\":false,\"noOutputExpected\":false},\"tool_result_meta\":[{\"id\":\"toolu_01XYBMguR9gbQJe8H6cA9gg3\",\"permission_decision\":{\"decision\":\"accept\",\"source\":\"config\",\"reason_type\":\"rule\"}}]}",
+    "{\"type\":\"assistant\",\"message\":{\"model\":\"claude-sonnet-5-5\",\"id\":\"msg_011CfunL7keQMKZ3wQiE7Wv5\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_01P9ApsHdUrS9xMURBwrkjqJ\",\"name\":\"Bash\",\"input\":{\"command\":\"cd /sessions/local_i42jhq23yd; xaffinity --readonly company ls --query \\\"Acme Robotics\\\" --max-results 10 --json | jq '.data.companies[] | {id,name,domain}'; xaffinity --readonly field history --help | head -40\",\"description\":\"Find Acme Robotics and view field history help\"},\"caller\":{\"type\":\"direct\"}}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":415,\"cache_read_input_tokens\":28824,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":415},\"output_tokens\":17,\"service_tier\":\"standard\",\"inference_geo\":\"global\"},\"input_transformations\":[],\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\",\"uuid\":\"17efefd5-272c-4b3b-85bd-36962fc31b08\",\"timestamp\":\"2026-10-11T04:00:47.106Z\",\"request_id\":\"req_011CfunL7W1MNyVoUicSfuRG\",\"wire_tool_inputs\":{\"toolu_01P9ApsHdUrS9xMURBwrkjqJ\":{\"command\":\"cd /sessions/local_i42jhq23yd; xaffinity --readonly company ls --query \\\"Acme Robotics\\\" --max-results 10 --json | jq '.data.companies[] | {id,name,domain}'; xaffinity --readonly field history --help | head -40\",\"description\":\"Find Acme Robotics and view field history help\"}}}",
+    "{\"type\":\"system\",\"subtype\":\"hook_started\",\"hook_id\":\"05c30c26-1dcf-44d8-81b4-eab804f62a0c\",\"hook_name\":\"PreToolUse:Bash\",\"hook_event\":\"PreToolUse\",\"uuid\":\"9100769a-49ad-4978-a937-e1b2f068b8da\",\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\"}",
+    "{\"type\":\"system\",\"subtype\":\"hook_response\",\"hook_id\":\"05c30c26-1dcf-44d8-81b4-eab804f62a0c\",\"hook_name\":\"PreToolUse:Bash\",\"hook_event\":\"PreToolUse\",\"output\":\"\",\"stdout\":\"\",\"stderr\":\"\",\"exit_code\":0,\"outcome\":\"success\",\"uuid\":\"5b28b644-794e-49a1-82d5-a265ac94f610\",\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\"}",
+    "{\"type\":\"user\",\"message\":{\"role\":\"user\",\"content\":[{\"tool_use_id\":\"toolu_01P9ApsHdUrS9xMURBwrkjqJ\",\"type\":\"tool_result\",\"content\":\"/usr/local/lib/python3.10/dist-packages/affinity/cli/context.py:339: UserWarning: Config file is group/world readable: /sessions/local_i42jhq23yd/mnt/workdir-key/xaffinity-test-key (consider `chmod 600` to protect secrets).\\n  api_key = self.resolve_api_key(warnings=warnings)\\n{\\n  \\\"id\\\": 9000001,\\n  \\\"name\\\": \\\"Acme Robotics\\\",\\n  \\\"domain\\\": \\\"acme-robotics.example\\\"\\n}\\n                                                                                \\n Usage: xaffinity.real field history [OPTIONS] FIELD_ID                         \\n                                                                                \\n Show field value change history.                                               \\n FIELD_ID is the field identifier (e.g., 'field-123'). Use 'xaffinity field ls  \\n --list-id LIST' to find field IDs.                                             \\n Give one entity selector to see that entity's history. Without one, changes    \\n for every entity are returned; then --changed-after and/or --max-results is    \\n required. --max-results returns the most recent N (or the oldest N with        \\n --order asc). Action types are create/update/delete. For changes across all    \\n fields and entities, see `xaffinity field changes`.                            \\n Examples:                                                                      \\n - `xaffinity field history field-123 --person-id 456`                          \\n - `xaffinity field history field-123 --changed-after 2025-01-01 --order asc`   \\n - `xaffinity field history field-260415 --list-entry-id 789 --action-type      \\n update`                                                                        \\n - `xaffinity field history field-123 --company-id 100 --max-results 10`        \\n                                                                                \\n╭─ Options ────────────────────────────────────────────────────────────────────╮\\n│ --person-id                INTEGER                  Filter by person ID.     │\\n│ --company-id               INTEGER                  Filter by company ID.    │\\n│ --opportunity-id           INTEGER                  Filter by opportunity    │\\n│                                                     ID.                      │\\n│ --list-entry-id            INTEGER                  Filter by list entry ID. │\\n│ --action-type              [create|update|delete]   Filter by action type.   │\\n│ --changed-after            TEXT                     Only changes at or after │\\n│                                                     this time (ISO           │\\n│                                                     date/datetime or         │\\n│                                                     relative, e.g. -30d).    │\\n│ --order                    [desc|asc]               Newest first (desc) or   │\\n│                                                     oldest first (asc).      │\\n│                                                     [default: desc]          │\\n│ --max-results,--limit  -n  INTEGER                  Limit number of results. │\\n│ --output               -o  [table|json|jsonl|markd  Output format (default:  │\\n│                            own|toon|csv]            table). Pass --json      │\\n│                                                     explicitly when piping   │\\n│                                                     to a JSON parser.        │\\n│ --json                                              Alias for --output json. │\\n│ --help                 -h                           Show this message and    │\\n│                                                     exit.                    │\",\"is_error\":false}]},\"parent_tool_use_id\":null,\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\",\"uuid\":\"4a0b70e4-e6f1-45a0-ada0-0cf198d22c23\",\"timestamp\":\"2026-10-11T04:00:48.539Z\",\"tool_use_result\":{\"stdout\":\"/usr/local/lib/python3.10/dist-packages/affinity/cli/context.py:339: UserWarning: Config file is group/world readable: /sessions/local_i42jhq23yd/mnt/workdir-key/xaffinity-test-key (consider `chmod 600` to protect secrets).\\n  api_key = self.resolve_api_key(warnings=warnings)\\n{\\n  \\\"id\\\": 9000001,\\n  \\\"name\\\": \\\"Acme Robotics\\\",\\n  \\\"domain\\\": \\\"acme-robotics.example\\\"\\n}\\n                                                                                \\n Usage: xaffinity.real field history [OPTIONS] FIELD_ID                         \\n                                                                                \\n Show field value change history.                                               \\n FIELD_ID is the field identifier (e.g., 'field-123'). Use 'xaffinity field ls  \\n --list-id LIST' to find field IDs.                                             \\n Give one entity selector to see that entity's history. Without one, changes    \\n for every entity are returned; then --changed-after and/or --max-results is    \\n required. --max-results returns the most recent N (or the oldest N with        \\n --order asc). Action types are create/update/delete. For changes across all    \\n fields and entities, see `xaffinity field changes`.                            \\n Examples:                                                                      \\n - `xaffinity field history field-123 --person-id 456`                          \\n - `xaffinity field history field-123 --changed-after 2025-01-01 --order asc`   \\n - `xaffinity field history field-260415 --list-entry-id 789 --action-type      \\n update`                                                                        \\n - `xaffinity field history field-123 --company-id 100 --max-results 10`        \\n                                                                                \\n╭─ Options ────────────────────────────────────────────────────────────────────╮\\n│ --person-id                INTEGER                  Filter by person ID.     │\\n│ --company-id               INTEGER                  Filter by company ID.    │\\n│ --opportunity-id           INTEGER                  Filter by opportunity    │\\n│                                                     ID.                      │\\n│ --list-entry-id            INTEGER                  Filter by list entry ID. │\\n│ --action-type              [create|update|delete]   Filter by action type.   │\\n│ --changed-after            TEXT                     Only changes at or after │\\n│                                                     this time (ISO           │\\n│                                                     date/datetime or         │\\n│                                                     relative, e.g. -30d).    │\\n│ --order                    [desc|asc]               Newest first (desc) or   │\\n│                                                     oldest first (asc).      │\\n│                                                     [default: desc]          │\\n│ --max-results,--limit  -n  INTEGER                  Limit number of results. │\\n│ --output               -o  [table|json|jsonl|markd  Output format (default:  │\\n│                            own|toon|csv]            table). Pass --json      │\\n│                                                     explicitly when piping   │\\n│                                                     to a JSON parser.        │\\n│ --json                                              Alias for --output json. │\\n│ --help                 -h                           Show this message and    │\\n│                                                     exit.                    │\",\"stderr\":\"\",\"interrupted\":false,\"isImage\":false,\"noOutputExpected\":false},\"tool_result_meta\":[{\"id\":\"toolu_01P9ApsHdUrS9xMURBwrkjqJ\",\"permission_decision\":{\"decision\":\"accept\",\"source\":\"config\",\"reason_type\":\"rule\"}}]}",
+    "{\"type\":\"assistant\",\"message\":{\"model\":\"claude-sonnet-5-5\",\"id\":\"msg_011CfunLNDHkB5owFvH7YoPS\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"Now I need the Status field ID and list entry on Dealflow.\"}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":1205,\"cache_read_input_tokens\":29239,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":1205},\"output_tokens\":40,\"service_tier\":\"standard\",\"inference_geo\":\"global\"},\"input_transformations\":[],\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\",\"uuid\":\"e3e81eb7-30ef-49aa-9b4d-2120a8fd6485\",\"timestamp\":\"2026-10-11T04:00:49.935Z\",\"request_id\":\"req_011CfunLMyQBZSPbZuEAaWJ4\"}",
+    "{\"type\":\"assistant\",\"message\":{\"model\":\"claude-sonnet-5-5\",\"id\":\"msg_011CfunLNDHkB5owFvH7YoPS\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_01D7gTWvZWSk3x9g28rymHk3\",\"name\":\"Bash\",\"input\":{\"command\":\"cd /sessions/local_i42jhq23yd; xaffinity --readonly list export \\\"Dealflow\\\" --company-id 9000001 --json 2>&1 | grep -v -e UserWarning -e resolve_api_key | jq '.data.rows, .warnings'; xaffinity --readonly field ls --list-id \\\"Dealflow\\\" --json 2>&1 | grep -v -e UserWarning -e resolve_api_key | jq -c '.data.fields[]? // .data[]? | {id,name}'\",\"description\":\"Get Dealflow entry and Status field ID\"},\"caller\":{\"type\":\"direct\"}}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":1205,\"cache_read_input_tokens\":29239,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":1205},\"output_tokens\":40,\"service_tier\":\"standard\",\"inference_geo\":\"global\"},\"input_transformations\":[],\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\",\"uuid\":\"447870ae-bd4c-4139-a286-0fc5ea4a3661\",\"timestamp\":\"2026-10-11T04:00:51.044Z\",\"request_id\":\"req_011CfunLMyQBZSPbZuEAaWJ4\",\"wire_tool_inputs\":{\"toolu_01D7gTWvZWSk3x9g28rymHk3\":{\"command\":\"cd /sessions/local_i42jhq23yd; xaffinity --readonly list export \\\"Dealflow\\\" --company-id 9000001 --json 2>&1 | grep -v -e UserWarning -e resolve_api_key | jq '.data.rows, .warnings'; xaffinity --readonly field ls --list-id \\\"Dealflow\\\" --json 2>&1 | grep -v -e UserWarning -e resolve_api_key | jq -c '.data.fields[]? // .data[]? | {id,name}'\",\"description\":\"Get Dealflow entry and Status field ID\"}}}",
+    "{\"type\":\"system\",\"subtype\":\"hook_started\",\"hook_id\":\"5fb07554-93b2-4fb9-98e9-21d34e09827c\",\"hook_name\":\"PreToolUse:Bash\",\"hook_event\":\"PreToolUse\",\"uuid\":\"7ba9b143-5db2-4c80-937a-1a62f54f05d2\",\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\"}",
+    "{\"type\":\"system\",\"subtype\":\"hook_response\",\"hook_id\":\"5fb07554-93b2-4fb9-98e9-21d34e09827c\",\"hook_name\":\"PreToolUse:Bash\",\"hook_event\":\"PreToolUse\",\"output\":\"\",\"stdout\":\"\",\"stderr\":\"\",\"exit_code\":0,\"outcome\":\"success\",\"uuid\":\"6981ba7d-9297-41b4-932c-7b5d331bfdec\",\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\"}",
+    "{\"type\":\"user\",\"message\":{\"role\":\"user\",\"content\":[{\"tool_use_id\":\"toolu_01D7gTWvZWSk3x9g28rymHk3\",\"type\":\"tool_result\",\"content\":\"[\\n  {\\n    \\\"listEntryId\\\": 8001,\\n    \\\"entityType\\\": \\\"company\\\",\\n    \\\"entityId\\\": 9000001,\\n    \\\"entityName\\\": \\\"Acme Robotics\\\",\\n    \\\"Status\\\": {\\n      \\\"dropdownOptionId\\\": 52,\\n      \\\"text\\\": \\\"Due Diligence\\\"\\n    },\\n    \\\"Owner\\\": {\\n      \\\"firstName\\\": \\\"Dana\\\",\\n      \\\"id\\\": 4002,\\n      \\\"lastName\\\": \\\"Example\\\",\\n      \\\"primaryEmailAddress\\\": \\\"[REDACTED:email:29e8f4e0d852]\\\",\\n      \\\"type\\\": \\\"internal\\\"\\n    }\\n  }\\n]\\n[]\\n{\\\"id\\\":\\\"field-501\\\",\\\"name\\\":\\\"Status\\\"}\\n{\\\"id\\\":\\\"field-502\\\",\\\"name\\\":\\\"Owner\\\"}\",\"is_error\":false}]},\"parent_tool_use_id\":null,\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\",\"uuid\":\"5222c3ee-937f-4dba-8dea-8ad2882aec03\",\"timestamp\":\"2026-10-11T04:00:53.832Z\",\"tool_use_result\":{\"stdout\":\"[\\n  {\\n    \\\"listEntryId\\\": 8001,\\n    \\\"entityType\\\": \\\"company\\\",\\n    \\\"entityId\\\": 9000001,\\n    \\\"entityName\\\": \\\"Acme Robotics\\\",\\n    \\\"Status\\\": {\\n      \\\"dropdownOptionId\\\": 52,\\n      \\\"text\\\": \\\"Due Diligence\\\"\\n    },\\n    \\\"Owner\\\": {\\n      \\\"firstName\\\": \\\"Dana\\\",\\n      \\\"id\\\": 4002,\\n      \\\"lastName\\\": \\\"Example\\\",\\n      \\\"primaryEmailAddress\\\": \\\"[REDACTED:email:29e8f4e0d852]\\\",\\n      \\\"type\\\": \\\"internal\\\"\\n    }\\n  }\\n]\\n[]\\n{\\\"id\\\":\\\"field-501\\\",\\\"name\\\":\\\"Status\\\"}\\n{\\\"id\\\":\\\"field-502\\\",\\\"name\\\":\\\"Owner\\\"}\",\"stderr\":\"\",\"interrupted\":false,\"isImage\":false,\"noOutputExpected\":false},\"tool_result_meta\":[{\"id\":\"toolu_01D7gTWvZWSk3x9g28rymHk3\",\"permission_decision\":{\"decision\":\"accept\",\"source\":\"config\",\"reason_type\":\"rule\"}}]}",
+    "{\"type\":\"assistant\",\"message\":{\"model\":\"claude-sonnet-5-5\",\"id\":\"msg_011CfunLksp47pGdZnsuSmQW\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_01DHt7QRws3WRvz1o5nNWx66\",\"name\":\"Bash\",\"input\":{\"command\":\"cd /sessions/local_i42jhq23yd; xaffinity --readonly field history field-501 --list-entry-id 8001 --json 2>&1 | grep -v -e UserWarning -e resolve_api_key | jq '.data.fieldValueChanges, .meta.truncated, .warnings'\",\"description\":\"Get Status field change history\"},\"caller\":{\"type\":\"direct\"}}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":511,\"cache_read_input_tokens\":30444,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":511},\"output_tokens\":16,\"service_tier\":\"standard\",\"inference_geo\":\"global\"},\"input_transformations\":[],\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\",\"uuid\":\"c03f8da1-917a-4fe4-be06-d0b09c0a6991\",\"timestamp\":\"2026-10-11T04:00:55.847Z\",\"request_id\":\"req_011CfunLkcvkWVaCoqv2HSoS\",\"wire_tool_inputs\":{\"toolu_01DHt7QRws3WRvz1o5nNWx66\":{\"command\":\"cd /sessions/local_i42jhq23yd; xaffinity --readonly field history field-501 --list-entry-id 8001 --json 2>&1 | grep -v -e UserWarning -e resolve_api_key | jq '.data.fieldValueChanges, .meta.truncated, .warnings'\",\"description\":\"Get Status field change history\"}}}",
+    "{\"type\":\"system\",\"subtype\":\"hook_started\",\"hook_id\":\"870c5074-0af4-4b29-b71a-7044eef04525\",\"hook_name\":\"PreToolUse:Bash\",\"hook_event\":\"PreToolUse\",\"uuid\":\"68f22ce3-c05f-463e-b367-d2e87243ea8e\",\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\"}",
+    "{\"type\":\"system\",\"subtype\":\"hook_response\",\"hook_id\":\"870c5074-0af4-4b29-b71a-7044eef04525\",\"hook_name\":\"PreToolUse:Bash\",\"hook_event\":\"PreToolUse\",\"output\":\"\",\"stdout\":\"\",\"stderr\":\"\",\"exit_code\":0,\"outcome\":\"success\",\"uuid\":\"d62edc40-b15b-4bee-8a80-ed422a0fb942\",\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\"}",
+    "{\"type\":\"user\",\"message\":{\"role\":\"user\",\"content\":[{\"tool_use_id\":\"toolu_01DHt7QRws3WRvz1o5nNWx66\",\"type\":\"tool_result\",\"content\":\"[\\n  {\\n    \\\"id\\\": 600002,\\n    \\\"fieldId\\\": \\\"field-501\\\",\\n    \\\"entityId\\\": 9000001,\\n    \\\"listEntryId\\\": 8001,\\n    \\\"actionType\\\": \\\"update\\\",\\n    \\\"value\\\": {\\n      \\\"color\\\": 0,\\n      \\\"id\\\": 52,\\n      \\\"rank\\\": 1,\\n      \\\"text\\\": \\\"Due Diligence\\\"\\n    },\\n    \\\"changedAt\\\": \\\"2026-09-30T14:05:00Z\\\",\\n    \\\"changerName\\\": \\\"Dana Example\\\",\\n    \\\"changer\\\": {\\n      \\\"id\\\": 4002,\\n      \\\"firstName\\\": \\\"Dana\\\",\\n      \\\"lastName\\\": \\\"Example\\\",\\n      \\\"primaryEmailAddress\\\": \\\"[REDACTED:email:29e8f4e0d852]\\\",\\n      \\\"type\\\": \\\"internal\\\"\\n    }\\n  },\\n  {\\n    \\\"id\\\": 600001,\\n    \\\"fieldId\\\": \\\"field-501\\\",\\n    \\\"entityId\\\": 9000001,\\n    \\\"listEntryId\\\": 8001,\\n    \\\"actionType\\\": \\\"create\\\",\\n    \\\"value\\\": {\\n      \\\"color\\\": 0,\\n      \\\"id\\\": 51,\\n      \\\"rank\\\": 0,\\n      \\\"text\\\": \\\"Sourced\\\"\\n    },\\n    \\\"changedAt\\\": \\\"2026-08-01T12:00:00Z\\\",\\n    \\\"changerName\\\": \\\"Robin Tester\\\",\\n    \\\"changer\\\": {\\n      \\\"id\\\": 4001,\\n      \\\"firstName\\\": \\\"Robin\\\",\\n      \\\"lastName\\\": \\\"Tester\\\",\\n      \\\"primaryEmailAddress\\\": \\\"[REDACTED:email:3c2278b025c0]\\\",\\n      \\\"type\\\": \\\"internal\\\"\\n    }\\n  }\\n]\\nnull\\n[]\",\"is_error\":false}]},\"parent_tool_use_id\":null,\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\",\"uuid\":\"02c23355-5348-4129-b2d0-90a115e01551\",\"timestamp\":\"2026-10-11T04:00:59.230Z\",\"tool_use_result\":{\"stdout\":\"[\\n  {\\n    \\\"id\\\": 600002,\\n    \\\"fieldId\\\": \\\"field-501\\\",\\n    \\\"entityId\\\": 9000001,\\n    \\\"listEntryId\\\": 8001,\\n    \\\"actionType\\\": \\\"update\\\",\\n    \\\"value\\\": {\\n      \\\"color\\\": 0,\\n      \\\"id\\\": 52,\\n      \\\"rank\\\": 1,\\n      \\\"text\\\": \\\"Due Diligence\\\"\\n    },\\n    \\\"changedAt\\\": \\\"2026-09-30T14:05:00Z\\\",\\n    \\\"changerName\\\": \\\"Dana Example\\\",\\n    \\\"changer\\\": {\\n      \\\"id\\\": 4002,\\n      \\\"firstName\\\": \\\"Dana\\\",\\n      \\\"lastName\\\": \\\"Example\\\",\\n      \\\"primaryEmailAddress\\\": \\\"[REDACTED:email:29e8f4e0d852]\\\",\\n      \\\"type\\\": \\\"internal\\\"\\n    }\\n  },\\n  {\\n    \\\"id\\\": 600001,\\n    \\\"fieldId\\\": \\\"field-501\\\",\\n    \\\"entityId\\\": 9000001,\\n    \\\"listEntryId\\\": 8001,\\n    \\\"actionType\\\": \\\"create\\\",\\n    \\\"value\\\": {\\n      \\\"color\\\": 0,\\n      \\\"id\\\": 51,\\n      \\\"rank\\\": 0,\\n      \\\"text\\\": \\\"Sourced\\\"\\n    },\\n    \\\"changedAt\\\": \\\"2026-08-01T12:00:00Z\\\",\\n    \\\"changerName\\\": \\\"Robin Tester\\\",\\n    \\\"changer\\\": {\\n      \\\"id\\\": 4001,\\n      \\\"firstName\\\": \\\"Robin\\\",\\n      \\\"lastName\\\": \\\"Tester\\\",\\n      \\\"primaryEmailAddress\\\": \\\"[REDACTED:email:3c2278b025c0]\\\",\\n      \\\"type\\\": \\\"internal\\\"\\n    }\\n  }\\n]\\nnull\\n[]\",\"stderr\":\"\",\"interrupted\":false,\"isImage\":false,\"noOutputExpected\":false},\"tool_result_meta\":[{\"id\":\"toolu_01DHt7QRws3WRvz1o5nNWx66\",\"permission_decision\":{\"decision\":\"accept\",\"source\":\"config\",\"reason_type\":\"rule\"}}]}",
+    "{\"type\":\"assistant\",\"message\":{\"model\":\"claude-sonnet-5-5\",\"id\":\"msg_011CfunMA2rAEAo9Ntps8w1Z\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"Dana Example ([REDACTED:email:29e8f4e0d852]) last changed Acme Robotics' Status on the Dealflow list. They did it on 2026-09-30 at 14:05 UTC (17:05 Israel time), moving it to \\\"Due Diligence\\\". That is still the current value.\\n\\nThe history has one earlier entry. Robin Tester set the Status to \\\"Sourced\\\" on 2026-08-01 at 12:00 UTC, when the list entry was created.\"}],\"container\":null,\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":2,\"cache_creation_input_tokens\":654,\"cache_read_input_tokens\":30955,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":654},\"output_tokens\":143,\"service_tier\":\"standard\",\"inference_geo\":\"global\"},\"input_transformations\":[],\"diagnostics\":null,\"context_management\":null},\"parent_tool_use_id\":null,\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\",\"uuid\":\"efa904f2-4d59-4948-9599-51af1ca4ee81\",\"timestamp\":\"2026-10-11T04:01:02.389Z\",\"request_id\":\"req_011CfunM9oheSzSARdmhvQLP\"}",
+    "{\"duration_api_ms\":13873,\"stop_reason\":\"end_turn\",\"session_id\":\"0cfdb180-ece8-41f9-a097-b924c4f819b3\",\"total_cost_usd\":0.1159378,\"usage\":{\"input_tokens\":12,\"cache_creation_input_tokens\":18925,\"cache_read_input_tokens\":154769,\"output_tokens\":926,\"output_tokens_details\":{\"thinking_tokens\":0},\"server_tool_use\":{\"web_search_requests\":0,\"web_fetch_requests\":0},\"service_tier\":\"standard\",\"cache_creation\":{\"ephemeral_1h_input_tokens\":18925,\"ephemeral_5m_input_tokens\":0},\"inference_geo\":\"global\",\"iterations\":[{\"input_tokens\":2,\"output_tokens\":143,\"cache_read_input_tokens\":30955,\"cache_creation_input_tokens\":654,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":654},\"type\":\"message\"}],\"speed\":\"standard\",\"fallback_credit\":null},\"modelUsage\":{\"claude-sonnet-5-5\":{\"inputTokens\":12,\"outputTokens\":926,\"cacheReadInputTokens\":154769,\"cacheCreationInputTokens\":18925,\"webSearchRequests\":0,\"costUSD\":0.1159378,\"contextWindow\":1000000,\"maxOutputTokens\":128000,\"thinkingTokens\":0,\"canonicalModel\":\"claude-sonnet-5-5\",\"provider\":\"firstParty\",\"costBasis\":\"list\"}},\"permission_denials\":[],\"terminal_reason\":\"completed\",\"fast_mode_state\":\"off\",\"fast_mode_disabled_reason\":\"sdk_opt_in_required\",\"subagent_stats\":{\"spawned\":0,\"requested\":{\"background\":0,\"foreground\":0,\"unset\":0},\"started_in_background\":0,\"max_depth\":0,\"spawned_by_subagents\":0,\"completed\":0,\"failed\":0,\"killed\":{\"parent\":0,\"user\":0,\"system\":0},\"refused\":{\"depth_limit\":0,\"concurrency_limit\":0,\"budget\":0},\"by_type\":{}},\"safety_stops\":0,\"is_error\":false,\"num_turns\":7,\"subtype\":\"success\",\"api_error_status\":null,\"result\":\"Dana Example ([REDACTED:email:29e8f4e0d852]) last changed Acme Robotics' Status on the Dealflow list. They did it on 2026-09-30 at 14:05 UTC (17:05 Israel time), moving it to \\\"Due Diligence\\\". That is still the current value.\\n\\nThe history has one earlier entry. Robin Tester set the Status to \\\"Sourced\\\" on 2026-08-01 at 12:00 UTC, when the list entry was created.\",\"ttft_ms\":2104,\"type\":\"result\",\"duration_ms\":22472,\"uuid\":\"fbc78e72-fd5c-4a00-860c-7a00f43f5b69\",\"ttft_stream_ms\":1490,\"time_to_request_ms\":200,\"first_content_frame_ms\":1491,\"queued_turn_count\":0,\"result_index\":0}"
+  ],
+  "controlOut": [
+    "{\"type\":\"control_request\",\"request_id\":\"init-1\",\"request\":{\"subtype\":\"initialize\",\"appendSubagentSystemPrompt\":\"## Cowork environment\\n\\nYou are running as a subagent inside a Cowork session. Shell commands execute in an isolated Linux sandbox rooted at /sessions/local_i42jhq23yd — files created there (or under /tmp) exist only in the sandbox, not on the user's real computer. User-attached folders are mounted under /sessions/local_i42jhq23yd/mnt/.\\n\\nTo use a skill — including one that comes from a plugin — call the `Skill` tool with the skill's name. A plugin skill's name has the form `plugin-name:skill-name`.\",\"sdkMcpServers\":[\"workspace\",\"cowork\",\"skills\",\"plugins\"],\"hooks\":{\"PreToolUse\":[{\"matcher\":\"Task\",\"hookCallbackIds\":[\"cowork-task-bg-block\"]}]},\"toolAliases\":{\"WebFetch\":\"mcp__workspace__web_fetch\"}}}",
+    "{\"type\":\"user\",\"message\":{\"role\":\"user\",\"content\":[{\"type\":\"text\",\"text\":\"Using the Affinity CLI, who changed Acme Robotics' Status on the Dealflow list, and when?\"}]}}",
+    "{\"type\":\"control_response\",\"response\":{\"subtype\":\"success\",\"request_id\":\"57c8c668-cc8b-492a-8b84-fe96f625426b\",\"response\":{\"mcp_response\":{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2025-11-25\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"workspace\",\"version\":\"1.0.0\"}}}}}}",
+    "{\"type\":\"control_response\",\"response\":{\"subtype\":\"success\",\"request_id\":\"a66f955b-a663-44aa-9919-5036dd625d05\",\"response\":{\"mcp_response\":{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2025-11-25\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"cowork\",\"version\":\"1.0.0\"}}}}}}",
+    "{\"type\":\"control_response\",\"response\":{\"subtype\":\"success\",\"request_id\":\"d0dce214-46e3-4e17-b42c-67a045544065\",\"response\":{\"mcp_response\":{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2025-11-25\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"skills\",\"version\":\"1.0.0\"}}}}}}",
+    "{\"type\":\"control_response\",\"response\":{\"subtype\":\"success\",\"request_id\":\"30fa6427-0d5d-4254-90f2-eddbfd8c6e33\",\"response\":{\"mcp_response\":{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2025-11-25\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"plugins\",\"version\":\"1.0.0\"}}}}}}",
+    "{\"type\":\"control_response\",\"response\":{\"subtype\":\"success\",\"request_id\":\"d8def316-f7e1-46a8-ba13-60f79c6bbdb6\",\"response\":{}}}",
+    "{\"type\":\"control_response\",\"response\":{\"subtype\":\"success\",\"request_id\":\"d294760c-d749-4564-9596-f627527a4a62\",\"response\":{}}}",
+    "{\"type\":\"control_response\",\"response\":{\"subtype\":\"success\",\"request_id\":\"c2d29e38-9687-4d2d-9b10-49bb40b8eb63\",\"response\":{}}}",
+    "{\"type\":\"control_response\",\"response\":{\"subtype\":\"success\",\"request_id\":\"3b1a0172-3796-4ca1-bec6-ebb5a756b613\",\"response\":{}}}",
+    "{\"type\":\"control_response\",\"response\":{\"subtype\":\"success\",\"request_id\":\"ef890030-c054-4fdd-bf32-b6ad84a48d9b\",\"response\":{\"mcp_response\":{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"tools\":[{\"name\":\"web_fetch\",\"description\":\"Fetch a URL from the session network (subject to the egress allowlist). web_fetch can only retrieve URLs that appeared in a user message or a prior result.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"url\":{\"type\":\"string\"}},\"required\":[\"url\"]}}]}}}}}",
+    "{\"type\":\"control_response\",\"response\":{\"subtype\":\"success\",\"request_id\":\"b72e7fc5-2994-444b-953c-0bf7e2b12f43\",\"response\":{\"mcp_response\":{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"tools\":[{\"name\":\"present_files\",\"description\":\"Deliver a file to the user so they can open it on their own computer. If the file is in your scratchpad (not under a mounted folder), it is copied into mnt/outputs first and the new path is returned — keep working against that returned path, not the scratchpad original.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"files\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"file_path\":{\"type\":\"string\"}},\"required\":[\"file_path\"]}}},\"required\":[\"files\"]},\"_meta\":{\"anthropic/alwaysLoad\":true}}]}}}}}",
+    "{\"type\":\"control_response\",\"response\":{\"subtype\":\"success\",\"request_id\":\"b60dd31f-466b-4a5c-bbaa-063745142743\",\"response\":{\"mcp_response\":{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"tools\":[{\"name\":\"list_skills\",\"description\":\"List the skills installed in this session. Omit skill_names to show every installed skill; pass skill_names to highlight specific ones, or keywords to filter by topic. Call this with no arguments when the user asks what skills they have or to show their skills. If nothing matches, fall back to suggest_skills.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"skill_names\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"keywords\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"context_label\":{\"type\":\"string\"}},\"required\":[]},\"_meta\":{\"anthropic/alwaysLoad\":true}},{\"name\":\"suggest_skills\",\"description\":\"Render an interactive widget of standalone skills the user can add — org, shared, or Anthropic skills that are not yet enabled — each with an Add button. Call this when the user's task is the kind a skill would make repeatable (drafting to a house style, reviewing against a playbook or checklist, recurring reports, a domain workflow they will do again) and nothing they have installed covers it; the user does not have to ask about skills first. Also call it when they ask for recommendations outright, ask about a domain they have nothing installed for, or when list_skills came back with no matches. For skills they already have, use list_skills instead.\\nDo NOT call this when: the task is a one-off you can simply answer; you are not confident a skill would genuinely help; or you already rendered a suggestion earlier in this conversation and the user did not engage with it.\\nPass keywords taken from the task itself rather than generic terms, and set trigger — \\\"proactive\\\" when you raised this from task context, \\\"user_asked\\\" when the user asked. This covers standalone skills only, so when search_plugins is available call it too, with the same keywords and the same trigger (a relevant skill may live inside an uninstalled plugin). Do NOT write a lead-in before calling this — pass context_label for the header instead. The result may come back empty; its note field tells you what to do next.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"keywords\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"context_label\":{\"type\":\"string\"},\"trigger\":{\"type\":\"string\",\"enum\":[\"user_asked\",\"proactive\"]}},\"required\":[]},\"_meta\":{\"anthropic/alwaysLoad\":true}}]}}}}}",
+    "{\"type\":\"control_response\",\"response\":{\"subtype\":\"success\",\"request_id\":\"95b8e52f-0ea1-44a8-ac2c-c9294b356a37\",\"response\":{\"mcp_response\":{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"tools\":[{\"name\":\"list_plugins\",\"description\":\"List the plugins installed in this session, each with its skills. Omit keywords to show every installed plugin; pass keywords to filter by topic over each plugin's name/description/skills. context_label is a display-only header — it does not filter.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"keywords\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"context_label\":{\"type\":\"string\"}},\"required\":[]},\"_meta\":{\"anthropic/alwaysLoad\":true}},{\"name\":\"search_plugins\",\"description\":\"Search for a plugin that could help with the user's request. Pass userIntent as the request verbatim or lightly paraphrased (not pre-tokenized keywords); keywords is optional extra filtering. Set includeInstalled to also consider already-installed plugins (onboarding).\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"userIntent\":{\"type\":\"string\"},\"keywords\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"includeInstalled\":{\"type\":\"boolean\"},\"trigger\":{\"type\":\"string\",\"enum\":[\"user_asked\",\"proactive\"]}},\"required\":[\"userIntent\"]},\"_meta\":{\"anthropic/alwaysLoad\":true}},{\"name\":\"suggest_plugin_install\",\"description\":\"Render an install suggestion for one or more plugins. contextLabel is a short (3-5 word) header (\\\"For your …\\\"); plugins is the list of candidates to suggest, each with pluginName, pluginId, and description.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"contextLabel\":{\"type\":\"string\"},\"plugins\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"pluginName\":{\"type\":\"string\"},\"pluginId\":{\"type\":\"string\"},\"description\":{\"type\":\"string\"},\"backendId\":{\"type\":\"string\"},\"skills\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"description\":{\"type\":\"string\"}},\"required\":[\"name\"]}}},\"required\":[\"pluginName\",\"pluginId\",\"description\"]}}},\"required\":[\"contextLabel\",\"plugins\"]},\"_meta\":{\"anthropic/alwaysLoad\":true}}]}}}}}"
+  ],
+  "effectiveFidelity": "container",
+  "artifacts": [
+    {
+      "path": "workdir-key/README.txt",
+      "bytes": 163,
+      "sha256": "c6ef4136e969027f2e4f94d82a70a9dd57be6efa1a7527b05d6694983c0efbe5",
+      "truncated": true,
+      "truncationReason": "readonly"
+    },
+    {
+      "path": "workdir-key/xaffinity-test-key",
+      "bytes": 18,
+      "sha256": "8fe1350585643a9f334aa1469ee77840e1a09d10bb7bb4737ccdd65f153da1f0",
+      "truncated": true,
+      "truncationReason": "readonly"
+    }
+  ],
+  "userVisibleRoots": [
+    "outputs",
+    "workdir-key"
+  ],
+  "preRunPaths": [
+    "workdir-key/README.txt",
+    "workdir-key/xaffinity-test-key"
+  ],
+  "preRunOrigin": "local-walk",
+  "preRunHashes": {
+    "workdir-key/README.txt": "c6ef4136e969027f2e4f94d82a70a9dd57be6efa1a7527b05d6694983c0efbe5",
+    "workdir-key/xaffinity-test-key": "8fe1350585643a9f334aa1469ee77840e1a09d10bb7bb4737ccdd65f153da1f0"
+  },
+  "scenarioSource": "../scenarios/status-history.yaml",
+  "fingerprint": {
+    "baseline": "2.31226.1",
+    "hashFormat": "jcs1",
+    "skillHash": "6b1913f241f61fa6edc006a9d0416104b663a3e30bc064c00fae9c18fac25d60",
+    "promptAssetsHash": "267cb799c2e18b49",
+    "contentSig": "aaaf3c2f52edfbacf1cf764885fcbb9fee185db020ae753fd94de558af32b1a2",
+    "skillSources": [
+      "../../../plugins/xaffinity-cli"
+    ],
+    "mode": "git",
+    "fileSigs": [
+      [
+        ".claude-plugin/plugin.json",
+        "8b0c55aeb413fc880af7d15df4fc4d634aa4093b314b1014038b67c0fdf9a92a"
+      ],
+      [
+        "hooks/guard-env-read.sh",
+        "ce44d6459a12a6bc9fd13e12ded19467232491704d9af65cd1acc56ee7107ee6"
+      ],
+      [
+        "hooks/hooks.json",
+        "18a580795df8e9401f289917cf01b025308dac87cd982a44f4d4c3c914b05980"
+      ],
+      [
+        "hooks/pre-xaffinity.sh",
+        "3f23e9946b1a0a375f23b5ded50177d6313a44299ccfedf5a25154ec7cede6b2"
+      ],
+      [
+        "hooks/session-setup.sh",
+        "a4ae06ec3df58be060772b3e673803562806d6500f6cc40b96e58543c9ce9910"
+      ],
+      [
+        "skills/xaffinity-cli-usage/SKILL.md",
+        "7d470db836f0dfec5436a471e94e20dfc546a63875016ce10aa6f5057f89f451"
+      ],
+      [
+        "skills/xaffinity-cli-usage/references/files-and-writes.md",
+        "190233d214c136895420e8313ddea6bc2effa9fc8fea5fe0b67c9b552636f360"
+      ],
+      [
+        "skills/xaffinity-cli-usage/references/filtering.md",
+        "2feaa7f445fb75ee1b92197d11a4ecc0bba046649d401955767ffcc5a04df39d"
+      ],
+      [
+        "skills/xaffinity-cli-usage/references/history-and-activity.md",
+        "35ec96fc7b2ccaf0d341d19df02e3a51db260d2ab13f2f24d2e0529cf051c65a"
+      ],
+      [
+        "skills/xaffinity-cli-usage/references/interactions.md",
+        "7c668589576cf0833f498871f80274254ac217a42802b325547584bff2673e54"
+      ],
+      [
+        "skills/xaffinity-cli-usage/references/query-guide.md",
+        "a11c54266caf079016cd5cb457eee4e8215caabafc87283807720b57020d80a5"
+      ],
+      [
+        "skills/xaffinity-cli-usage/references/setup.md",
+        "a1f5a4786aacff9c8a553ec3d5dad4be191ac52b9f60344ac4304cfc4cd5d07e"
+      ]
+    ]
+  },
+  "timeline": [
+    {
+      "seq": 0,
+      "ts": 1683,
+      "line": 2,
+      "type": "tool_use",
+      "name": "mcp__workspace__*",
+      "skillScope": "(root)"
+    },
+    {
+      "seq": 1,
+      "ts": 1683,
+      "line": 3,
+      "type": "tool_use",
+      "name": "mcp__cowork__*",
+      "skillScope": "(root)"
+    },
+    {
+      "seq": 2,
+      "ts": 1684,
+      "line": 4,
+      "type": "tool_use",
+      "name": "mcp__skills__*",
+      "skillScope": "(root)"
+    },
+    {
+      "seq": 3,
+      "ts": 1684,
+      "line": 5,
+      "type": "tool_use",
+      "name": "mcp__plugins__*",
+      "skillScope": "(root)"
+    },
+    {
+      "seq": 4,
+      "ts": 1695,
+      "line": 7,
+      "type": "tool_use",
+      "name": "mcp__workspace__*",
+      "skillScope": "(root)"
+    },
+    {
+      "seq": 5,
+      "ts": 1695,
+      "line": 8,
+      "type": "tool_use",
+      "name": "mcp__cowork__*",
+      "skillScope": "(root)"
+    },
+    {
+      "seq": 6,
+      "ts": 1695,
+      "line": 9,
+      "type": "tool_use",
+      "name": "mcp__skills__*",
+      "skillScope": "(root)"
+    },
+    {
+      "seq": 7,
+      "ts": 1695,
+      "line": 10,
+      "type": "tool_use",
+      "name": "mcp__plugins__*",
+      "skillScope": "(root)"
+    },
+    {
+      "seq": 8,
+      "ts": 1696,
+      "line": 11,
+      "type": "tool_use",
+      "name": "mcp__workspace__*",
+      "skillScope": "(root)"
+    },
+    {
+      "seq": 9,
+      "ts": 1697,
+      "line": 12,
+      "type": "tool_use",
+      "name": "mcp__cowork__*",
+      "skillScope": "(root)"
+    },
+    {
+      "seq": 10,
+      "ts": 1697,
+      "line": 13,
+      "type": "tool_use",
+      "name": "mcp__skills__*",
+      "skillScope": "(root)"
+    },
+    {
+      "seq": 11,
+      "ts": 1697,
+      "line": 14,
+      "type": "tool_use",
+      "name": "mcp__plugins__*",
+      "skillScope": "(root)"
+    },
+    {
+      "seq": 12,
+      "ts": 3823,
+      "line": 16,
+      "type": "tool_use",
+      "toolUseId": "toolu_01RGc5bXsAaMz918S2xEfPYV",
+      "name": "Skill",
+      "model": "claude-sonnet-5-5",
+      "skillScope": "affinity-crm-cli-xaffinity-unofficial:xaffinity-cli-usage"
+    },
+    {
+      "seq": 13,
+      "ts": 3858,
+      "line": 17,
+      "type": "tool_result",
+      "toolUseId": "toolu_01RGc5bXsAaMz918S2xEfPYV",
+      "isError": false
+    },
+    {
+      "seq": 14,
+      "ts": 5906,
+      "line": 20,
+      "type": "tool_use",
+      "toolUseId": "toolu_01XYBMguR9gbQJe8H6cA9gg3",
+      "name": "Bash",
+      "model": "claude-sonnet-5-5",
+      "skillScope": "affinity-crm-cli-xaffinity-unofficial:xaffinity-cli-usage"
+    },
+    {
+      "seq": 15,
+      "ts": 6889,
+      "line": 23,
+      "type": "tool_result",
+      "toolUseId": "toolu_01XYBMguR9gbQJe8H6cA9gg3",
+      "isError": false
+    },
+    {
+      "seq": 16,
+      "ts": 8851,
+      "line": 24,
+      "type": "tool_use",
+      "toolUseId": "toolu_01P9ApsHdUrS9xMURBwrkjqJ",
+      "name": "Bash",
+      "model": "claude-sonnet-5-5",
+      "skillScope": "affinity-crm-cli-xaffinity-unofficial:xaffinity-cli-usage"
+    },
+    {
+      "seq": 17,
+      "ts": 10274,
+      "line": 27,
+      "type": "tool_result",
+      "toolUseId": "toolu_01P9ApsHdUrS9xMURBwrkjqJ",
+      "isError": false
+    },
+    {
+      "seq": 18,
+      "ts": 12779,
+      "line": 29,
+      "type": "tool_use",
+      "toolUseId": "toolu_01D7gTWvZWSk3x9g28rymHk3",
+      "name": "Bash",
+      "model": "claude-sonnet-5-5",
+      "skillScope": "affinity-crm-cli-xaffinity-unofficial:xaffinity-cli-usage"
+    },
+    {
+      "seq": 19,
+      "ts": 15571,
+      "line": 32,
+      "type": "tool_result",
+      "toolUseId": "toolu_01D7gTWvZWSk3x9g28rymHk3",
+      "isError": false
+    },
+    {
+      "seq": 20,
+      "ts": 17847,
+      "line": 33,
+      "type": "tool_use",
+      "toolUseId": "toolu_01DHt7QRws3WRvz1o5nNWx66",
+      "name": "Bash",
+      "model": "claude-sonnet-5-5",
+      "skillScope": "affinity-crm-cli-xaffinity-unofficial:xaffinity-cli-usage"
+    },
+    {
+      "seq": 21,
+      "ts": 20971,
+      "line": 36,
+      "type": "tool_result",
+      "toolUseId": "toolu_01DHt7QRws3WRvz1o5nNWx66",
+      "isError": false
+    },
+    {
+      "seq": 22,
+      "ts": 24194,
+      "line": 38,
+      "type": "result",
+      "isError": false
+    }
+  ],
+  "timelineHeader": {
+    "v": 1,
+    "startedAtWall": "2026-10-11T04:00:38.274Z",
+    "startedAtMono": "1839564048096166"
+  },
+  "sessionFingerprint": "cdd38c041e65d0791e17a7119ca404875ebda46cb4d413cdadff67c8146f01d3",
+  "hookFailureBlocks": {
+    "events": []
+  },
+  "folderPrefixMap": [
+    {
+      "from": "[REDACTED:local-path:5ab00365617f]",
+      "mount": "workdir-key"
+    }
+  ],
+  "environment": {
+    "location": "local",
+    "tier": "container",
+    "harnessVersion": "4.7.1",
+    "agentImage": {
+      "ref": "xaffinity-cowork-test:2d6b961",
+      "configId": "sha256:12281892d9e590b37217d26dca3e64a159e23dbf97b0885608c710273acf5247",
+      "registryDigest": "sha256:12281892d9e590b37217d26dca3e64a159e23dbf97b0885608c710273acf5247"
+    },
+    "model": {
+      "id": "claude-sonnet-5-5",
+      "source": "user_setting"
+    }
+  }
+}

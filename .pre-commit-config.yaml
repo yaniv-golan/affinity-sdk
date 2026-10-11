@@ -9,8 +9,11 @@ repos:
       - id: check-toml
       - id: check-yaml
       - id: end-of-file-fixer
+        exclude: ^tests/cowork/cassettes/  # recorded byte-for-byte
       - id: mixed-line-ending
+        exclude: ^tests/cowork/cassettes/  # recorded byte-for-byte
       - id: trailing-whitespace
+        exclude: ^tests/cowork/cassettes/  # recorded byte-for-byte
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.15.0

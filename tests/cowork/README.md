@@ -37,7 +37,8 @@ COWORK_TOKEN_ENV=~/.config/cowork-harness/.env tests/cowork/record.sh --stale   
 COWORK_TOKEN_ENV=~/.config/cowork-harness/.env tests/cowork/record.sh            # all
 ```
 
-Each scenario is one paid model run (`MAX_BUDGET_USD`, default 5, caps a run from history).
+Each scenario is one paid model run (`MAX_BUDGET_USD`, default 5, caps a run from history). The
+first recording (claude-sonnet-5-5, 2026-10-11) cost $0.05–$0.12 per scenario, about $0.39 for all four.
 
 ## Scope
 

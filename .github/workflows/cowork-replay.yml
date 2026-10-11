@@ -1,0 +1,33 @@
+name: Cowork plugin tests (replay)
+
+# Replays the recorded cowork-harness runs of the xaffinity-cli plugin (tests/cowork). No token,
+# Docker or model: it re-checks the recorded runs, and fails when the plugin, a scenario or a
+# session changed since recording (re-record with tests/cowork/record.sh) or when a cassette
+# holds data the privacy scan flags.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  HARNESS: cowork-harness@4.7.1  # the version that recorded the cassettes
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Lint scenarios
+        run: npx --yes "$HARNESS" lint tests/cowork/scenarios/
+      - name: Replay cassettes
+        run: npx --yes "$HARNESS" replay tests/cowork/cassettes/ --output-format json | jq -e '.ok'
+      - name: Verify cassettes (staleness and privacy)
+        working-directory: tests/cowork
+        run: npx --yes "$HARNESS" verify-cassettes cassettes/ --allow-patterns-file privacy-allow.txt
