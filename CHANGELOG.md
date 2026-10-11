@@ -12,9 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CLI plugin**: 1.13.4 → 1.13.5 — no `clis` credential declaration. In local Cowork it routed
   every `xaffinity` call through Desktop's CLI credential broker, which isn't enabled yet and
   refuses the call ("cli-wrapper: plugin oauth disabled"), so the CLI never ran whatever key the
-  VM had. Without it the CLI runs normally and reads the key as the skill describes (a connected
-  folder's `.env` with `--env-file`, a key file, or 1Password). Cowork's plugin settings no longer
-  show an Affinity API Key field.
+  VM had. Cowork's plugin settings no longer show an Affinity API Key field. The VM has no
+  `xaffinity` of its own, so the skill now installs it when it's missing (`pip install --user`,
+  about 10s, once per task) and puts `~/.local/bin` on PATH in each call; the CLI then reads the
+  key as the skill describes (a connected folder's `.env` with `--env-file`, or a key file).
 - **CLI plugin**: 1.13.3 → 1.13.4 — in local Cowork the plugin's hooks run on the host Mac, not
   in the VM where the CLI runs, so the key check saw the Mac's key (or none) and could deny every
   data command even with a key set in Cowork. There the hooks now do nothing; a missing key

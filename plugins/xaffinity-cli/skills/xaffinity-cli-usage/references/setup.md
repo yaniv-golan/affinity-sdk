@@ -35,9 +35,18 @@ config files):
 - **`AFFINITY_API_KEY_COMMAND`** for vault, pass, Keychain or the 1Password CLI
   (`op read op://…`): a command whose stdout is the key.
 
-## Claude Cowork edge case
+## Claude Cowork
 
-If you are running inside a Claude Cowork session and the host CLI is configured but `check-key`
+**Installing the CLI.** Cowork's VM may not have `xaffinity` (`command not found`). Install it
+once per task: `pip install --user -q "affinity-sdk[cli]"` (about 10s). It lands in
+`~/.local/bin`, which is not on PATH, and each bash call is a fresh shell, so start every
+xaffinity call with `export PATH="$HOME/.local/bin:$PATH";` — then commands and check-key's
+`pattern` work as written (or call `~/.local/bin/xaffinity` by its full path). The install lasts
+for the task only; a new task starts without it, so check again there. If pip can't reach PyPI
+(the organization's network policy), stop and tell the user: they can allow PyPI for Cowork, or
+use the xaffinity MCP extension instead.
+
+**Finding the key.** If the host CLI is configured but `check-key`
 returns `configured: false`, the key likely lives in a host-only location (env var, `~/.config/`,
 keychain, host-only credential helper) that the VM does not mount. Only connected folders reach
 it, and their path matters:

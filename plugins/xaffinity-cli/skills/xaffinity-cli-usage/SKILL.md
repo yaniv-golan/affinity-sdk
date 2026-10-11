@@ -22,6 +22,10 @@ Before anything else, run:
 xaffinity config check-key --json
 ```
 
+- **`command not found`** (exit 127; e.g. a Claude Cowork VM) — install it once per task:
+  `pip install --user -q "affinity-sdk[cli]"` (about 10s), then start every later bash call
+  with `export PATH="$HOME/.local/bin:$PATH";` (each call is a fresh shell) and run check-key
+  again. Details and the no-network case: `references/setup.md` (Claude Cowork).
 - **`"configured": true`** — use the `pattern` field from the output for ALL subsequent commands:
   copy its flags (`--dotenv`, and `--env-file <path>` when it names one) into every command.
 - **`"configured": false`** — stop and help the user set up. Read `references/setup.md` (key
@@ -311,5 +315,6 @@ reference (JSON structure, operators, aggregation, examples): `references/query-
 | Get command help | `xaffinity <command> --help` (USE THIS — don't guess flags) |
 
 **Remember:** prefix all commands with `xaffinity --readonly` (and `--dotenv` if `check-key` says
-so). Install: `pip install "affinity-sdk[cli]"`; if a command or flag shown here is missing,
+so). Install: `pip install "affinity-sdk[cli]"` (`--user` plus the PATH line above when
+`xaffinity` isn't found); if a command or flag shown here is missing,
 upgrade with `pip install -U "affinity-sdk[cli]"`. Docs: https://yaniv-golan.github.io/affinity-sdk/latest/
