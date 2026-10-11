@@ -14,10 +14,10 @@ The ledger (``tools/api_coverage.json``) has one row per Affinity API operation:
 - ``stability``: ``"beta"`` or ``"ga"`` (V2 ``x-stability-level``); ``min_api_version`` is the
   first V2 snapshot that has the operation (computed, not stored)
 
-The operations come from the committed snapshots in ``tools/openapi_snapshots/`` (V2 digests,
-plus ``v1.json`` for the V1 docs), so the check runs offline. ``tests/test_api_coverage.py``
-runs every supported row's call against a recording HTTP layer and asserts the method, path and
-API version it requests.
+The operations come from committed snapshots: ``tools/openapi_snapshots/`` (V2 digests) and
+``tools/api_coverage_v1_snapshot.json`` (the V1 docs), so the check runs offline.
+``tests/test_api_coverage.py`` runs every supported row's call against a recording HTTP layer
+and asserts the method, path and API version it requests.
 
 Usage:
     python tools/api_coverage.py --check              # ledger vs snapshots (CI)
@@ -39,7 +39,7 @@ from typing import Any
 TOOLS = Path(__file__).resolve().parent
 LEDGER_PATH = TOOLS / "api_coverage.json"
 SNAPSHOT_DIR = TOOLS / "openapi_snapshots"
-V1_SNAPSHOT = SNAPSHOT_DIR / "v1.json"
+V1_SNAPSHOT = TOOLS / "api_coverage_v1_snapshot.json"
 STATUSES = ("supported", "equivalent", "planned", "unsupported")
 
 _V1_OP = re.compile(
