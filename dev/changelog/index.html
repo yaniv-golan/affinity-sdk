@@ -2107,6 +2107,14 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased">[Unreleased]<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h3 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>CLI plugin</strong>: 1.13.3 → 1.13.4 — in local Cowork the plugin's hooks run on the host Mac, not
+  in the VM where the CLI runs, so the key check saw the Mac's key (or none) and could deny every
+  data command even with a key set in Cowork. There the hooks now do nothing; a missing key
+  shows up as the CLI's own error. Cloud Cowork and Claude Code keep the check. The <code>.env</code> read
+  guard's message no longer claims the key is in the environment.</li>
+</ul>
 <h2 id="1290-2026-10-11">[1.29.0] - 2026-10-11<a class="headerlink" href="#1290-2026-10-11" title="Permanent link">&para;</a></h2>
 <h3 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h3>
 <p><strong><code>field history-bulk</code> works on global fields.</strong> A global field's changes (a company or person
@@ -2136,7 +2144,7 @@ list.</p>
   fields too. The dry run reports <code>fieldKind</code> (<code>list</code> / <code>global</code>) and, for a global field,
   <code>entities</code>.</li>
 </ul>
-<h3 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_1">Plugins<a class="headerlink" href="#plugins_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>CLI plugin</strong>: 1.13.2 → 1.13.3 — skill: <code>history-bulk</code> on global fields; Cowork keys in a
   connected folder need <code>--env-file /sessions/&lt;id&gt;/mnt/&lt;folder&gt;/.env</code> (each shell call starts
@@ -2164,7 +2172,7 @@ touches the disk.</p>
   field-wide read (or reading the list's fields) fails, the command fails with a hint to retry
   or use <code>--strategy entries</code>. <code>--strategy auto</code> still falls back, with a warning.</li>
 </ul>
-<h3 id="plugins_1">Plugins<a class="headerlink" href="#plugins_1" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_2">Plugins<a class="headerlink" href="#plugins_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>CLI plugin</strong>: 1.12.0 → 1.13.0 — skill: field history without a selector, <code>field changes</code>,
   <code>history-bulk --strategy</code>; <code>interaction feed</code>, <code>note feed</code>, <code>note replies</code>; transcripts;
@@ -2386,7 +2394,7 @@ Affinity API version 2026-07-15 or newer: unpinned, the CLI sends it for the wri
   as "unchanged". Affinity keeps the <strong>UTC</strong> date of the value written (verified live), not the
   Pacific date of that instant.</li>
 </ul>
-<h3 id="plugins_2">Plugins<a class="headerlink" href="#plugins_2" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_3">Plugins<a class="headerlink" href="#plugins_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>SDK plugin</strong>: 1.6.1 → 1.7.0 — skill: <code>companies/persons.batch_update_fields()</code> and
   <code>get_field_values()</code> (one all-or-nothing write, API version 2026-07-15), <code>lists.pages(term=)</code>;
@@ -2761,7 +2769,7 @@ the key via <code>AFFINITY_API_KEY</code>, project <code>.env</code> + <code>--d
   keyword-only <code>field_ids</code> and <code>field_types</code>, matching <code>list()</code> /
   <code>from_saved_view()</code>. Default behavior is unchanged.</li>
 </ul>
-<h3 id="plugins_3">Plugins<a class="headerlink" href="#plugins_3" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_4">Plugins<a class="headerlink" href="#plugins_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>CLI plugin</strong> (<code>affinity-crm-cli-xaffinity-unofficial</code>): 1.9.0 → 1.10.0 —
   added <code>clis.xaffinity</code> credential-broker manifest block (<code>env.api_key</code> →
@@ -2914,7 +2922,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>Dead <code>mcp/.claude-plugin/.mcp.json</code> (inline <code>mcpServers</code> in <code>plugin.json</code>
   is the source of truth).</li>
 </ul>
-<h3 id="plugins_4">Plugins<a class="headerlink" href="#plugins_4" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_5">Plugins<a class="headerlink" href="#plugins_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>SDK plugin</strong> (<code>affinity-crm-sdk-unofficial</code>): 1.6.0 → 1.6.1 — <code>plugin.json#name</code> alignment + skill frontmatter split.</li>
 <li><strong>CLI plugin</strong> (<code>affinity-crm-cli-xaffinity-unofficial</code>): 1.8.0 → 1.8.2 — <code>plugin.json#name</code> alignment + skill frontmatter split + new <code>AFFINITY_API_KEY_FILE</code> / <code>_COMMAND</code> documentation in the resolution-chain skill content.</li>
