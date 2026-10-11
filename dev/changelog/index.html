@@ -2109,6 +2109,13 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h2 id="unreleased">[Unreleased]<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <h3 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h3>
 <ul>
+<li><strong>CLI plugin</strong>: 1.13.4 → 1.13.5 — no <code>clis</code> credential declaration. In local Cowork it routed
+  every <code>xaffinity</code> call through Desktop's CLI credential broker, which isn't enabled yet and
+  refuses the call ("cli-wrapper: plugin oauth disabled"), so the CLI never ran whatever key the
+  VM had. Cowork's plugin settings no longer show an Affinity API Key field. The VM has no
+  <code>xaffinity</code> of its own, so the skill now installs it when it's missing (<code>pip install --user</code>,
+  about 10s, once per task) and puts <code>~/.local/bin</code> on PATH in each call; the CLI then reads the
+  key as the skill describes (a connected folder's <code>.env</code> with <code>--env-file</code>, or a key file).</li>
 <li><strong>CLI plugin</strong>: 1.13.3 → 1.13.4 — in local Cowork the plugin's hooks run on the host Mac, not
   in the VM where the CLI runs, so the key check saw the Mac's key (or none) and could deny every
   data command even with a key set in Cowork. There the hooks now do nothing; a missing key
