@@ -153,3 +153,41 @@ def test_writes_claude_env_file(tmp_path: Path):
     assert str(tmp_path / "bin") in contents, (
         f"CLAUDE_ENV_FILE PATH export should include user_bin directory, got: {contents!r}"
     )
+
+
+@pytest.mark.req("CLI-SESSION-SETUP")
+def test_noop_on_cowork_host(tmp_path: Path):
+    """Local Cowork runs hooks on the host: no wrapper, no PATH line, nothing installed there."""
+    _make_mock_python3(tmp_path)
+    env_file = tmp_path / "claude_env"
+    env_file.touch()
+    env = {
+        **_env_without_xaffinity(tmp_path),
+        "CLAUDE_ENV_FILE": str(env_file),
+        "CLAUDE_CODE_IS_COWORK": "1",
+        "CLAUDE_CODE_ENTRYPOINT": "local-agent",
+        "_XAFFINITY_COWORK_SESSIONS_DIR": str(tmp_path / "no-such-dir"),
+    }
+    result = _run_hook(env_override=env)
+
+    assert result.returncode == 0
+    assert not (tmp_path / "bin" / "xaffinity").exists()
+    assert env_file.read_text() == ""
+
+
+@pytest.mark.req("CLI-SESSION-SETUP")
+def test_creates_wrapper_inside_cowork_vm(tmp_path: Path):
+    """Hooks inside the Cowork sandbox (/sessions exists) still bootstrap the CLI."""
+    _make_mock_python3(tmp_path)
+    sessions = tmp_path / "sessions"
+    sessions.mkdir()
+    env = {
+        **_env_without_xaffinity(tmp_path),
+        "CLAUDE_CODE_IS_COWORK": "1",
+        "CLAUDE_CODE_ENTRYPOINT": "local-agent",
+        "_XAFFINITY_COWORK_SESSIONS_DIR": str(sessions),
+    }
+    result = _run_hook(env_override=env)
+
+    assert result.returncode == 0
+    assert (tmp_path / "bin" / "xaffinity").exists()

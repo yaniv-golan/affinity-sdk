@@ -44,6 +44,8 @@ first recording (claude-sonnet-5-5, 2026-10-11) cost $0.05–$0.12 per scenario,
 
 - **Container tier:** the agent loop runs in the sandbox, so hooks and the CLI run there.
   Cowork's default host-loop tier (hooks on the host, shell `mcp__workspace__bash`) isn't covered.
+  There the hooks do nothing by design (they can't see the VM's key or install); the unit tests
+  in `tests/test_cli_pre_xaffinity_hook.py` and `tests/test_cli_session_setup_hook.py` cover that.
 - **Frozen CLI:** replay never re-runs the CLI and the cassette fingerprint doesn't cover
   `affinity/cli`; CLI behaviour is covered by the pytest suite.
 - **Key path:** the key comes from the test folder, not from the plugin's credential settings

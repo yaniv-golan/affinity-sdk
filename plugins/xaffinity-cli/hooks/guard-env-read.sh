@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Block reading .env files to prevent API key exposure in conversation.
-# The API key is already available via env var or config.toml — no need to read .env.
+# Commands load the key from .env themselves (--dotenv / --env-file); reading it isn't needed.
 
 input=$(cat)
 file_path=$(echo "$input" | jq -r '
@@ -23,7 +23,7 @@ case "$file_path" in
   "hookSpecificOutput": {
     "permissionDecision": "deny"
   },
-  "systemMessage": "BLOCKED: Reading .env files is not allowed — it would expose API keys in the conversation. The API key is already loaded as an environment variable. Use 'xaffinity config check-key --json' to verify."
+  "systemMessage": "BLOCKED: Reading .env files is not allowed — it would expose API keys in the conversation. Commands read the key themselves; run 'xaffinity config check-key --json' to see whether a key is configured and the command pattern to use."
 }
 EOF
     exit 2

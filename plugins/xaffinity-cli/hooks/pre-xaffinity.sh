@@ -1,6 +1,15 @@
 #!/bin/bash
 set -euo pipefail
 
+# Local Cowork runs plugin hooks on the host Mac (cwd /private/var/empty) while the shell and the
+# CLI run in the VM: the host can't see the VM's key or install, so do nothing there. Cloud
+# Cowork and the VM loop run hooks next to the CLI and keep the checks.
+if [ "${CLAUDE_CODE_IS_COWORK:-}" = "1" ] && [ "${CLAUDE_CODE_ENTRYPOINT:-}" = "local-agent" ] \
+  && [ ! -d "${_XAFFINITY_COWORK_SESSIONS_DIR:-/sessions}" ]; then
+  cat >/dev/null 2>&1 || true  # drain the hook input
+  exit 0
+fi
+
 input=$(cat)
 # Handle both object and string formats for tool_input
 # Object: {"tool_input": {"command": "..."}}

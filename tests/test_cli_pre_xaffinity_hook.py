@@ -264,3 +264,54 @@ def test_hook_still_gates_real_invocations(tmp_path, command):
     """Every way of actually running the CLI still hits the key check."""
     result = _run_hook(command, env_override=_unconfigured_env(tmp_path), cwd=str(tmp_path))
     assert result.returncode == 2, command
+
+
+@pytest.mark.req("CLI-PRETOOL-HOOK")
+def test_hook_skips_on_cowork_host(tmp_path):
+    """Local Cowork runs plugin hooks on the host (no /sessions); the CLI runs in the VM.
+
+    The host can't see the VM's key, so the hook allows without running xaffinity.
+    """
+    env = _unconfigured_env(tmp_path)
+    calls = tmp_path / "calls"
+    (tmp_path / "xaffinity").write_text(f'#!/bin/bash\necho "$@" >> {calls}\nexit 1\n')
+    env.update(
+        CLAUDE_CODE_IS_COWORK="1",
+        CLAUDE_CODE_ENTRYPOINT="local-agent",
+        _XAFFINITY_COWORK_SESSIONS_DIR=str(tmp_path / "no-such-dir"),
+    )
+    result = _run_hook(
+        "xaffinity --readonly person ls --json",
+        env_override={**env, "AFFINITY_SESSION_CACHE": ""},
+        cwd=str(tmp_path),
+    )
+    assert result.returncode == 0, result.stderr
+    assert not calls.exists(), "the hook must not run xaffinity on the host"
+
+
+@pytest.mark.req("CLI-PRETOOL-HOOK")
+def test_hook_still_gates_inside_cowork_vm(tmp_path):
+    """When hooks run in the Cowork sandbox (/sessions exists), the key check stays."""
+    sessions = tmp_path / "sessions"
+    sessions.mkdir()
+    env = {
+        **_unconfigured_env(tmp_path),
+        "CLAUDE_CODE_IS_COWORK": "1",
+        "CLAUDE_CODE_ENTRYPOINT": "local-agent",
+        "_XAFFINITY_COWORK_SESSIONS_DIR": str(sessions),
+    }
+    result = _run_hook("xaffinity person ls", env_override=env, cwd=str(tmp_path))
+    assert result.returncode == 2
+
+
+@pytest.mark.req("CLI-PRETOOL-HOOK")
+def test_hook_still_gates_in_cloud_cowork(tmp_path):
+    """Cloud Cowork runs hooks in its container next to the CLI (no /sessions there either)."""
+    env = {
+        **_unconfigured_env(tmp_path),
+        "CLAUDE_CODE_IS_COWORK": "1",
+        "CLAUDE_CODE_ENTRYPOINT": "remote_cowork",
+        "_XAFFINITY_COWORK_SESSIONS_DIR": str(tmp_path / "no-such-dir"),
+    }
+    result = _run_hook("xaffinity person ls", env_override=env, cwd=str(tmp_path))
+    assert result.returncode == 2

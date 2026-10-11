@@ -22,6 +22,14 @@ set -euo pipefail
 # The key stays in .env and is read per-command via --dotenv.
 # This prevents the LLM from reading the key via `env` or `echo`.
 
+# Local Cowork runs plugin hooks on the host Mac (cwd /private/var/empty) while the shell and the
+# CLI run in the VM: the host can't see the VM's key or install, so do nothing there. Cloud
+# Cowork and the VM loop run hooks next to the CLI and keep the checks.
+if [ "${CLAUDE_CODE_IS_COWORK:-}" = "1" ] && [ "${CLAUDE_CODE_ENTRYPOINT:-}" = "local-agent" ] \
+  && [ ! -d "${_XAFFINITY_COWORK_SESSIONS_DIR:-/sessions}" ]; then
+  exit 0
+fi
+
 # ---------------------------------------------------------------------------
 # 1. Determine user bin directory
 # ---------------------------------------------------------------------------

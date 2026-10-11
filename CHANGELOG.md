@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Plugins
+
+- **CLI plugin**: 1.13.3 → 1.13.4 — in local Cowork the plugin's hooks run on the host Mac, not
+  in the VM where the CLI runs, so the key check saw the Mac's key (or none) and could deny every
+  data command even with a key set in Cowork. There the hooks now do nothing; a missing key
+  shows up as the CLI's own error. Cloud Cowork and Claude Code keep the check. The `.env` read
+  guard's message no longer claims the key is in the environment.
+
 ## [1.29.0] - 2026-10-11
 
 ### Highlights
