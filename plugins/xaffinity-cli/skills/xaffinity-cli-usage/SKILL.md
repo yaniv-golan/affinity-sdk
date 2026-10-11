@@ -23,10 +23,10 @@ xaffinity config check-key --json
 ```
 
 - **`"configured": true`** — use the `pattern` field from the output for ALL subsequent commands:
-  `"xaffinity --dotenv --readonly <command> --json"` means add `--dotenv`; otherwise no `--dotenv`.
+  copy its flags (`--dotenv`, and `--env-file <path>` when it names one) into every command.
 - **`"configured": false`** — stop and help the user set up. Read `references/setup.md` (key
   resolution order, `xaffinity config setup-key` — interactive, the user must run it — and the
-  Cowork `.env` / `AFFINITY_API_KEY_FILE` workaround).
+  Cowork key-in-a-connected-folder setup, which needs `--env-file` with the folder's path).
 
 ## Read JSON from the right key
 

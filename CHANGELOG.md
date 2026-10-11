@@ -29,6 +29,9 @@ list.
   map entries to companies.
 - `field history --list-entry-id` on a global field returned nothing; it now says the field is
   global and to use `--company-id` / `--person-id`.
+- `config check-key`: when the key comes from a `.env` outside the current directory (e.g.
+  `--env-file` with a Cowork connected folder, where each shell call starts above it), the
+  suggested `pattern` names it with `--env-file <path>`, so later commands find it too.
 
 ### Changed
 
@@ -38,7 +41,9 @@ list.
 
 ### Plugins
 
-- **CLI plugin**: 1.13.2 → 1.13.3 — skill: `history-bulk` on global fields.
+- **CLI plugin**: 1.13.2 → 1.13.3 — skill: `history-bulk` on global fields; Cowork keys in a
+  connected folder need `--env-file /sessions/<id>/mnt/<folder>/.env` (each shell call starts
+  in the session root), and the check-key `pattern` carries it.
 
 ## [1.28.0] - 2026-10-11
 

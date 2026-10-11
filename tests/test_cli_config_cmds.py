@@ -115,6 +115,30 @@ class TestConfigCheckKey:
         assert '"source": "dotenv"' in result.output
         assert '"pattern": "xaffinity --dotenv --readonly <command> --json"' in result.output
 
+    def test_check_key_names_an_env_file_outside_the_current_directory(self, runner, monkeypatch):
+        """In Cowork the shell starts above the connected folder: the pattern must name the file."""
+        import json as _json
+
+        monkeypatch.delenv("AFFINITY_API_KEY", raising=False)
+
+        with runner.isolated_filesystem() as fs:
+            Path("mnt/project").mkdir(parents=True)
+            Path("mnt/project/.env").write_text("AFFINITY_API_KEY=my-secret-key\n")
+            mock_paths = make_mock_paths(Path(fs))
+
+            with mock_cli_paths(mock_paths):
+                result = runner.invoke(
+                    cli, ["--env-file", "mnt/project/.env", "--json", "config", "check-key"]
+                )
+            expected = str((Path(fs) / "mnt/project/.env").resolve())
+
+        assert result.exit_code == 0, result.output
+        data = _json.loads(result.output.strip().splitlines()[-1])["data"]
+        assert data["source"] == "dotenv"
+        assert data["pattern"] == (
+            f"xaffinity --dotenv --env-file {expected} --readonly <command> --json"
+        )
+
     def test_check_key_from_dotenv_file_unquoted(self, runner, monkeypatch):
         """Test check-key finds key in .env file with unquoted value."""
         monkeypatch.delenv("AFFINITY_API_KEY", raising=False)

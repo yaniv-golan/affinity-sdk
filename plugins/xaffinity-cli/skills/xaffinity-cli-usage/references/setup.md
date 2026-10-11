@@ -39,14 +39,22 @@ config files):
 
 If you are running inside a Claude Cowork session and the host CLI is configured but `check-key`
 returns `configured: false`, the key likely lives in a host-only location (env var, `~/.config/`,
-keychain, host-only credential helper) that the microVM does not mount. Two host-portable options:
+keychain, host-only credential helper) that the VM does not mount. Only connected folders reach
+it, and their path matters:
 
-- **Project `.env` + `--dotenv`** — create a project-scope `.env` file with `AFFINITY_API_KEY=…`.
-  The project workdir IS mounted into the VM. This is the most common Cowork path.
-- **`AFFINITY_API_KEY_FILE`** — write the key to a file in the project workdir (e.g.,
-  `.xaffinity-key`, gitignored, `chmod 600`) and `export AFFINITY_API_KEY_FILE=/path/to/.xaffinity-key`.
-  Same reach as `.env`, but works without `--dotenv` on the command line. The folder's absolute
-  path differs between Cowork sessions: build the path from the current directory each session.
+- Each bash call starts in the session root (`/sessions/<id>`), not in the connected folder, and
+  nothing carries over between calls (a `cd` or `export` lasts for that one command). Connected
+  folders are below it: `ls -d /sessions/*/mnt/*/`. `<id>` changes every session, so find the
+  path in each session; don't reuse one from an earlier session.
+- **Key in a connected folder's `.env`** (`AFFINITY_API_KEY=…`): name the file on every command,
+  `xaffinity --dotenv --env-file /sessions/<id>/mnt/<folder>/.env …`. Check it with
+  `xaffinity --dotenv --env-file /sessions/<id>/mnt/<folder>/.env config check-key --json`; its
+  `pattern` then carries the `--env-file` part to reuse. A plain `--dotenv` searches upward from
+  the session root and never finds it.
+- **Key file** (just the key, e.g. `<folder>/.xaffinity-key`, gitignored): prefix each command,
+  `AFFINITY_API_KEY_FILE=/sessions/<id>/mnt/<folder>/.xaffinity-key xaffinity …`.
+- A 1Password locally mounted `.env` does not work inside the VM (the named pipe doesn't cross
+  the folder mount). If the xaffinity MCP extension is installed, it already holds the key.
 
 `AFFINITY_API_KEY_COMMAND` is generally NOT useful in Cowork because the helper binaries (`op`,
 `pass`, `vault`, `security`) typically aren't installed in the VM.

@@ -3,6 +3,7 @@ from __future__ import annotations
 import getpass
 import os
 import re
+import shlex
 import stat
 import sys
 from contextlib import suppress
@@ -212,7 +213,16 @@ def check_key(ctx: CLIContext) -> None:
         pattern: str | None = None
         if key_found:
             if source == "dotenv":
-                pattern = "xaffinity --dotenv --readonly <command> --json"
+                env_file = Path(ctx.env_file).resolve()
+                if env_file == (Path.cwd() / ".env").resolve():
+                    pattern = "xaffinity --dotenv --readonly <command> --json"
+                else:
+                    # Not in the current directory (e.g. Cowork, where each shell call starts
+                    # above the connected folder): name it, or later commands won't find it
+                    pattern = (
+                        f"xaffinity --dotenv --env-file {shlex.quote(str(env_file))} "
+                        "--readonly <command> --json"
+                    )
             else:
                 pattern = "xaffinity --readonly <command> --json"
 
