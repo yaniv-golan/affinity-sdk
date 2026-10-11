@@ -1421,6 +1421,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../reference/api-coverage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API coverage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../reference/exceptions/" class="md-nav__link">
         
   
@@ -1569,10 +1597,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8" >
         
           
-          <label class="md-nav__link" for="__nav_10_7" id="__nav_10_7_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_8" id="__nav_10_8_label" tabindex="0">
             
   
   
@@ -1590,8 +1618,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_7">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1756,10 +1784,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_7_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_6" >
         
           
-          <label class="md-nav__link" for="__nav_10_7_6" id="__nav_10_7_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_8_6" id="__nav_10_8_6_label" tabindex="0">
             
   
   
@@ -1777,8 +1805,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_7_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_7_6">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_8_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2107,6 +2135,20 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased">[Unreleased]<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h3 id="docs">Docs<a class="headerlink" href="#docs" title="Permanent link">&para;</a></h3>
+<ul>
+<li>New <strong>API coverage</strong> reference page: every Affinity API operation (V2 and V1) and how the SDK
+  supports it — the SDK call, an equivalent operation, or the planned release — with beta
+  operations and the minimum API version marked.</li>
+</ul>
+<h3 id="internal">Internal<a class="headerlink" href="#internal" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>tools/api_coverage.py</code> and the ledger <code>tools/api_coverage.json</code> (CI: <code>--check</code>): every
+  operation in the pinned V2 snapshots and the new V1 snapshot (<code>tools/api_coverage_v1_snapshot.json</code>,
+  59 operations) has exactly one row. <code>tests/test_api_coverage.py</code> runs each supported row's call,
+  sync and async, against a recording HTTP layer and checks the method, path and API version it
+  requests.</li>
+</ul>
 <h3 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>CLI plugin</strong>: 1.13.5 → 1.13.6 — skill: the Cowork install line adds
