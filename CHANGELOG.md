@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-10-12
+
+### Highlights
+
+**SDK 2.0 moves to Affinity's V2 API wherever V2 can do the job.** Webhooks, reminders, note
+writes, list get/create, file reads (new `files.get_v2`/`list_v2`) and the rate-limit endpoint
+now use V2; the CLI gains `xaffinity webhook ls|get|create|update|delete`. V1 stays only where
+V2 can't do it, and for person create/delete, opportunity rename/delete and adding to a list,
+which the V2 spec documents but the API didn't serve when tested. **Breaking:** webhook and
+reminder models change shape, note writes return `NoteV2`, `add_opportunity()` is removed, and
+operations added in newer Affinity API versions refuse a client pinned to an older one
+(`ApiVersionTooOldError`). See the [Migrating to 2.0](https://yaniv-golan.github.io/affinity-sdk/latest/guides/migrating-to-2/)
+guide.
+
 ### Changed (breaking)
 
 - **Webhooks use the V2 API** (`/v2/webhooks`, Affinity API 2026-07-15 or later, beta).
@@ -108,6 +122,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Plugins
 
+- **SDK plugin**: 1.7.1 → 2.0.0 (matches SDK 2.0) — skill: note writes go through V2 (HTML, the
+  allowed tags), and `add_opportunity()` is gone (create the opportunity on its list).
+- **CLI plugin**: 1.13.6 → 2.0.0 (matches CLI 2.0; no content change).
+- **MCP**: 1.32.2 → 2.0.0 (requires CLI 2.0.0; see `mcp/CHANGELOG.md`).
 - **CLI plugin**: 1.13.5 → 1.13.6 — skill: the Cowork install line adds
   `--no-warn-script-location` (pip's "not on PATH" warning was noise; the skill adds the folder to
   PATH in each call), and the Cowork key paths (`--env-file`, `AFFINITY_API_KEY_FILE`) are quoted,

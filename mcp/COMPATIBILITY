@@ -1,8 +1,12 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="1.29.0"
-CLI_MAX_VERSION="1.29.0"
+CLI_MIN_VERSION="2.0.0"
+CLI_MAX_VERSION="2.0.0"
+
+# MCP 2.0.0 requires CLI 2.0.0 for:
+# - the `webhook` commands in the registry, `note create/update --type plain-text|html`,
+#   `reminder update --clear-content` and `--reset-type event`.
 
 # MCP 1.32.2: no new CLI requirements.
 # MCP 1.32.1: no new CLI requirements (mcp-bash 1.8.0).

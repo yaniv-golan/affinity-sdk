@@ -7,8 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Needs the CLI with the `webhook` commands (SDK 2.0.0); the minimum CLI version is raised when
-this ships.
+## [2.0.0] - 2026-10-12
+
+Requires CLI 2.0.0 (released together with SDK 2.0.0).
 
 ### Added
 
