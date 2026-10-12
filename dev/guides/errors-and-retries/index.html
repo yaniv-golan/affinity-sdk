@@ -828,6 +828,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../migrating-to-2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migrating to 2.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api-versions-and-routing/" class="md-nav__link">
         
   
@@ -1975,6 +2003,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/services/reminders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reminders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/services/tasks/" class="md-nav__link">
         
   
@@ -1983,6 +2039,34 @@
     
   
     Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/services/webhooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
   
 
     
@@ -2011,10 +2095,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_8" >
         
           
-          <label class="md-nav__link" for="__nav_10_8_6" id="__nav_10_8_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_8_8" id="__nav_10_8_8_label" tabindex="0">
             
   
   
@@ -2032,8 +2116,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_6">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_8_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2058,62 +2142,6 @@
     
   
     Notes
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/services/v1/reminders/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Reminders
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/services/v1/webhooks/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Webhooks
   
 
     
@@ -2567,7 +2595,7 @@
 <li><code>NetworkError</code>: connection or network-level failure</li>
 <li><code>TimeoutError</code>: request or download deadline exceeded</li>
 <li><code>WriteNotAllowedError</code>: you attempted a write while writes are disabled by policy</li>
-<li><code>BetaEndpointDisabledError</code>: you called a beta V2 endpoint without <code>enable_beta_endpoints=True</code></li>
+<li><code>BetaEndpointDisabledError</code>: reserved for a beta endpoint that needs <code>enable_beta_endpoints=True</code> (none does today)</li>
 <li><code>VersionCompatibilityError</code>: response parsing failed, often due to V2 API version mismatch</li>
 </ul>
 <p>See <a href="../../reference/exceptions/">Exceptions</a> for the full hierarchy.</p>
@@ -2679,7 +2707,7 @@
 <p><code>MergedEntityError</code> is a subclass of <code>ValidationError</code>, so existing <code>except ValidationError</code> handlers continue to work. The entity-specific subclasses (<code>CompanyMergedError</code>, <code>PersonMergedError</code>) are auto-detected from the request URL.</p>
 <p><strong>CLI</strong>: The CLI surfaces this as <code>error.type: "entity_merged"</code> with <code>sourceId</code>, <code>targetId</code>, and <code>entityType</code> in <code>error.details</code>. Exit code is 4 (same as not-found — the entity is effectively gone from its original ID).</p>
 <h2 id="v1v2-eventual-consistency">V1→V2 eventual consistency<a class="headerlink" href="#v1v2-eventual-consistency" title="Permanent link">&para;</a></h2>
-<p>The SDK uses V1 API for writes (create/update/delete) and V2 API for reads (get/list). Due to eventual consistency between V1 and V2 backends, a <code>get()</code> call <strong>immediately after</strong> <code>create()</code> may return a 404 <code>NotFoundError</code> even though the entity was successfully created.</p>
+<p>Some writes still go through the V1 API (company create and update, person create and update, opportunity create, interactions, field values on companies and persons, and the documented exceptions listed in <a href="../api-versions-and-routing/">API versions &amp; SDK routing</a>), while reads use V2. Due to eventual consistency between the V1 and V2 backends, a <code>get()</code> call <strong>immediately after</strong> such a <code>create()</code> may return a 404 <code>NotFoundError</code> even though the entity was successfully created. Writes that use V2 (notes, reminders, webhooks) don't have this delay before a V2 read.</p>
 <p>This typically resolves within 100-500ms, but under load the delay can be longer.</p>
 <h3 id="solutions">Solutions<a class="headerlink" href="#solutions" title="Permanent link">&para;</a></h3>
 <p><strong>Option 1: Use the returned object (recommended)</strong></p>
@@ -2713,11 +2741,10 @@
 <h2 id="rate-limits">Rate limits<a class="headerlink" href="#rate-limits" title="Permanent link">&para;</a></h2>
 <p>If you are consistently hitting 429s, see <a href="../rate-limits/">Rate limits</a> for strategies and the rate limit APIs.</p>
 <h2 id="api-versions-and-beta-endpoints">API versions and beta endpoints<a class="headerlink" href="#api-versions-and-beta-endpoints" title="Permanent link">&para;</a></h2>
-<p>If you see <code>BetaEndpointDisabledError</code>, enable beta endpoints:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
-
-<span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">"your-api-key"</span><span class="p">,</span> <span class="n">enable_beta_endpoints</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</code></pre></div>
+<p>The SDK calls Affinity's beta V2 endpoints without an opt-in; <code>enable_beta_endpoints=True</code> is
+kept for endpoints that may need it in future (none does today, so <code>BetaEndpointDisabledError</code>
+isn't raised). If you see <code>ApiVersionTooOldError</code>, the client is pinned to an Affinity API
+version older than the operation needs: raise the pin, or remove it.</p>
 <p>If you see <code>VersionCompatibilityError</code>, this often indicates a V2 API version mismatch between your API key settings and what the SDK expects. Check which version answered (<code>client.affinity_api_versions_seen</code>) and your API key’s “Default API Version”, and consider pinning one:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 

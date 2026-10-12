@@ -826,6 +826,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guides/migrating-to-2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migrating to 2.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guides/api-versions-and-routing/" class="md-nav__link">
         
   
@@ -1809,6 +1837,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../services/reminders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reminders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../services/tasks/" class="md-nav__link">
         
   
@@ -1817,6 +1873,34 @@
     
   
     Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/webhooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
   
 
     
@@ -1845,10 +1929,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_8" >
         
           
-          <label class="md-nav__link" for="__nav_10_8_6" id="__nav_10_8_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_8_8" id="__nav_10_8_8_label" tabindex="0">
             
   
   
@@ -1866,8 +1950,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_6">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_8_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1892,62 +1976,6 @@
     
   
     Notes
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../services/v1/reminders/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Reminders
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../services/v1/webhooks/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Webhooks
   
 
     
@@ -2225,7 +2253,7 @@
 <code>tools/api_coverage.json</code> by <code>python tools/api_coverage.py --markdown</code>; CI checks it
 against the pinned API specs and checks that each supported call requests its operation.</p>
 <h2 id="v2-api">V2 API<a class="headerlink" href="#v2-api" title="Permanent link">&para;</a></h2>
-<p>64 supported, 48 planned</p>
+<p>82 supported, 30 planned</p>
 <table>
 <thead>
 <tr>
@@ -2388,9 +2416,9 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /v2/files</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-09-17+; phase 2.0.0</td>
+<td>supported</td>
+<td><code>files.list_v2()</code></td>
+<td>beta; API 2026-09-17+</td>
 </tr>
 <tr>
 <td><code>POST /v2/files/search</code></td>
@@ -2400,9 +2428,9 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /v2/files/{fileId}</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-09-17+; phase 2.0.0</td>
+<td>supported</td>
+<td><code>files.get_v2(FileId(1))</code></td>
+<td>beta; API 2026-09-17+</td>
 </tr>
 <tr>
 <td><code>GET /v2/inferred-connections/coworkers</code></td>
@@ -2424,15 +2452,15 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>POST /v2/lists</code></td>
-<td>planned</td>
+<td>supported</td>
+<td><code>lists.create(ListCreate(name="x", type=ListType.PERSON, is_public=False))</code></td>
 <td></td>
-<td>phase 2.0.0</td>
 </tr>
 <tr>
 <td><code>GET /v2/lists/{listId}</code></td>
-<td>planned</td>
+<td>supported</td>
+<td><code>lists.get(ListId(1))</code></td>
 <td></td>
-<td>phase 2.0.0</td>
 </tr>
 <tr>
 <td><code>GET /v2/lists/{listId}/fields</code></td>
@@ -2480,7 +2508,7 @@ against the pinned API specs and checks that each supported call requests its op
 <td><code>POST /v2/lists/{listId}/list-entries</code></td>
 <td>planned</td>
 <td></td>
-<td>beta; API 2026-09-17+; phase 2.0.0</td>
+<td>beta; API 2026-09-17+; phase when-live</td>
 </tr>
 <tr>
 <td><code>POST /v2/lists/{listId}/list-entries/search</code></td>
@@ -2568,9 +2596,9 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>POST /v2/notes</code></td>
-<td>planned</td>
+<td>supported</td>
+<td><code>notes.create(NoteCreate(content="x", person_ids=[PersonId(1)]))</code></td>
 <td></td>
-<td>phase 2.0.0</td>
 </tr>
 <tr>
 <td><code>POST /v2/notes/search</code></td>
@@ -2580,9 +2608,9 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>DELETE /v2/notes/{noteId}</code></td>
-<td>planned</td>
+<td>supported</td>
+<td><code>notes.delete(NoteId(1))</code></td>
 <td></td>
-<td>phase 2.0.0</td>
 </tr>
 <tr>
 <td><code>GET /v2/notes/{noteId}</code></td>
@@ -2592,9 +2620,9 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>POST /v2/notes/{noteId}</code></td>
-<td>planned</td>
+<td>supported</td>
+<td><code>notes.update(NoteId(1), NoteUpdate(content="x"))</code></td>
 <td></td>
-<td>phase 2.0.0</td>
 </tr>
 <tr>
 <td><code>GET /v2/notes/{noteId}/attached-companies</code></td>
@@ -2630,7 +2658,7 @@ against the pinned API specs and checks that each supported call requests its op
 <td><code>DELETE /v2/opportunities/{opportunityId}</code></td>
 <td>planned</td>
 <td></td>
-<td>beta; API 2026-09-17+; phase 2.0.0</td>
+<td>beta; API 2026-09-17+; phase when-live</td>
 </tr>
 <tr>
 <td><code>GET /v2/opportunities/{opportunityId}</code></td>
@@ -2642,7 +2670,7 @@ against the pinned API specs and checks that each supported call requests its op
 <td><code>POST /v2/opportunities/{opportunityId}</code></td>
 <td>planned</td>
 <td></td>
-<td>beta; API 2026-09-17+; phase 2.0.0</td>
+<td>beta; API 2026-09-17+; phase when-live</td>
 </tr>
 <tr>
 <td><code>GET /v2/opportunities/{opportunityId}/notes</code></td>
@@ -2678,7 +2706,7 @@ against the pinned API specs and checks that each supported call requests its op
 <td><code>POST /v2/persons</code></td>
 <td>planned</td>
 <td></td>
-<td>beta; API 2026-07-15+; phase 2.0.0</td>
+<td>beta; API 2026-07-15+; phase when-live</td>
 </tr>
 <tr>
 <td><code>GET /v2/persons/fields</code></td>
@@ -2702,7 +2730,7 @@ against the pinned API specs and checks that each supported call requests its op
 <td><code>DELETE /v2/persons/{personId}</code></td>
 <td>planned</td>
 <td></td>
-<td>beta; API 2026-07-15+; phase 2.0.0</td>
+<td>beta; API 2026-07-15+; phase when-live</td>
 </tr>
 <tr>
 <td><code>GET /v2/persons/{personId}</code></td>
@@ -2766,39 +2794,39 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /v2/rate-limit</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-07-15+; phase 2.0.0</td>
+<td>supported</td>
+<td><code>rate_limits.refresh()</code></td>
+<td>beta; API 2026-07-15+</td>
 </tr>
 <tr>
 <td><code>GET /v2/reminders</code></td>
-<td>planned</td>
+<td>supported</td>
+<td><code>reminders.list()</code></td>
 <td></td>
-<td>phase 2.0.0</td>
 </tr>
 <tr>
 <td><code>POST /v2/reminders</code></td>
-<td>planned</td>
+<td>supported</td>
+<td><code>reminders.create(ReminderCreate(owner_id=UserId(1), type=ReminderType.ONE_TIME, due_date=datetime(2026, 1, 1, tzinfo=timezone.utc), person_id=PersonId(1)))</code></td>
 <td></td>
-<td>phase 2.0.0</td>
 </tr>
 <tr>
 <td><code>DELETE /v2/reminders/{reminderId}</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-07-15+; phase 2.0.0</td>
+<td>supported</td>
+<td><code>reminders.delete(ReminderIdType(1))</code></td>
+<td>beta; API 2026-07-15+</td>
 </tr>
 <tr>
 <td><code>GET /v2/reminders/{reminderId}</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-07-15+; phase 2.0.0</td>
+<td>supported</td>
+<td><code>reminders.get(ReminderIdType(1))</code></td>
+<td>beta; API 2026-07-15+</td>
 </tr>
 <tr>
 <td><code>POST /v2/reminders/{reminderId}</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-09-17+; phase 2.0.0</td>
+<td>supported</td>
+<td><code>reminders.update(ReminderIdType(1), ReminderUpdate(content="x"))</code></td>
+<td>beta; API 2026-09-17+</td>
 </tr>
 <tr>
 <td><code>POST /v2/semantic-search</code></td>
@@ -2880,38 +2908,38 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /v2/webhooks</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-07-15+; phase 2.0.0</td>
+<td>supported</td>
+<td><code>webhooks.list()</code></td>
+<td>beta; API 2026-07-15+</td>
 </tr>
 <tr>
 <td><code>POST /v2/webhooks</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-07-15+; phase 2.0.0</td>
+<td>supported</td>
+<td><code>webhooks.create(WebhookCreate(url="https://example.com/h", subscriptions=[]))</code></td>
+<td>beta; API 2026-07-15+</td>
 </tr>
 <tr>
 <td><code>DELETE /v2/webhooks/{webhookId}</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-07-15+; phase 2.0.0</td>
+<td>supported</td>
+<td><code>webhooks.delete(WebhookId(1))</code></td>
+<td>beta; API 2026-07-15+</td>
 </tr>
 <tr>
 <td><code>GET /v2/webhooks/{webhookId}</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-07-15+; phase 2.0.0</td>
+<td>supported</td>
+<td><code>webhooks.get(WebhookId(1))</code></td>
+<td>beta; API 2026-07-15+</td>
 </tr>
 <tr>
 <td><code>POST /v2/webhooks/{webhookId}</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-07-15+; phase 2.0.0</td>
+<td>supported</td>
+<td><code>webhooks.update(WebhookId(1), WebhookUpdate(status="disabled"))</code></td>
+<td>beta; API 2026-07-15+</td>
 </tr>
 </tbody>
 </table>
 <h2 id="v1-api">V1 API<a class="headerlink" href="#v1-api" title="Permanent link">&para;</a></h2>
-<p>53 supported, 6 equivalent</p>
+<p>41 supported, 18 equivalent</p>
 <table>
 <thead>
 <tr>
@@ -2932,7 +2960,7 @@ against the pinned API specs and checks that each supported call requests its op
 <td><code>GET /entity-files</code></td>
 <td>supported</td>
 <td><code>files.list(company_id=CompanyId(1))</code></td>
-<td></td>
+<td>one person's, company's or opportunity's files (V2 lists only org-wide: files.list_v2)</td>
 </tr>
 <tr>
 <td><code>POST /entity-files</code></td>
@@ -2950,7 +2978,7 @@ against the pinned API specs and checks that each supported call requests its op
 <td><code>GET /entity-files/{}</code></td>
 <td>supported</td>
 <td><code>files.get(FileId(1))</code></td>
-<td></td>
+<td>works under any API version pin; files.get_v2 adds a download URL (API 2026-09-17+)</td>
 </tr>
 <tr>
 <td><code>GET /field-value-changes</code></td>
@@ -3039,14 +3067,14 @@ against the pinned API specs and checks that each supported call requests its op
 <tr>
 <td><code>POST /lists</code></td>
 <td>supported</td>
-<td><code>lists.create(ListCreate(name="x", type=ListType.PERSON, is_public=False))</code></td>
-<td></td>
+<td><code>lists.create(ListCreate(name="x", type=ListType.PERSON, is_public=False, owner_id=UserId(1)))</code></td>
+<td>only for a list created with an owner or extra permissions (V2 can't set them)</td>
 </tr>
 <tr>
 <td><code>GET /lists/{}</code></td>
 <td>supported</td>
-<td><code>lists.get(ListId(1))</code></td>
-<td></td>
+<td><code>lists.get_size(ListId(1), force=True)</code></td>
+<td>for the list size only (V2 has none); the list itself is read from V2</td>
 </tr>
 <tr>
 <td><code>GET /lists/{}/list-entries</code></td>
@@ -3080,15 +3108,15 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>POST /notes</code></td>
-<td>supported</td>
-<td><code>notes.create(NoteCreate(content="x", person_ids=[PersonId(1)]))</code></td>
+<td>equivalent</td>
 <td></td>
+<td>via v2 POST /v2/notes</td>
 </tr>
 <tr>
 <td><code>DELETE /notes/{}</code></td>
-<td>supported</td>
-<td><code>notes.delete(NoteId(1))</code></td>
+<td>equivalent</td>
 <td></td>
+<td>via v2 DELETE /v2/notes/{noteId}</td>
 </tr>
 <tr>
 <td><code>GET /notes/{}</code></td>
@@ -3098,9 +3126,9 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>PUT /notes/{}</code></td>
-<td>supported</td>
-<td><code>notes.update(NoteId(1), NoteUpdate(content="x"))</code></td>
+<td>equivalent</td>
 <td></td>
+<td>via v2 POST /v2/notes/{noteId}</td>
 </tr>
 <tr>
 <td><code>GET /opportunities</code></td>
@@ -3206,9 +3234,9 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /rate-limit</code></td>
-<td>supported</td>
-<td><code>rate_limits.refresh()</code></td>
+<td>equivalent</td>
 <td></td>
+<td>via v2 GET /v2/rate-limit</td>
 </tr>
 <tr>
 <td><code>GET /relationships-strengths</code></td>
@@ -3218,63 +3246,63 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /reminders</code></td>
-<td>supported</td>
-<td><code>reminders.list()</code></td>
+<td>equivalent</td>
 <td></td>
+<td>via v2 GET /v2/reminders</td>
 </tr>
 <tr>
 <td><code>POST /reminders</code></td>
-<td>supported</td>
-<td><code>reminders.create(ReminderCreate(owner_id=UserId(1), type=ReminderType.ONE_TIME, content="x", due_date="2024-01-01T00:00:00Z", person_id=PersonId(1)))</code></td>
+<td>equivalent</td>
 <td></td>
+<td>via v2 POST /v2/reminders</td>
 </tr>
 <tr>
 <td><code>DELETE /reminders/{}</code></td>
 <td>supported</td>
 <td><code>reminders.delete(ReminderIdType(1))</code></td>
-<td></td>
+<td>only as the retry when V2 refuses (V2: creator or owner only)</td>
 </tr>
 <tr>
 <td><code>GET /reminders/{}</code></td>
-<td>supported</td>
-<td><code>reminders.get(ReminderIdType(1))</code></td>
+<td>equivalent</td>
 <td></td>
+<td>via v2 GET /v2/reminders/{reminderId}</td>
 </tr>
 <tr>
 <td><code>PUT /reminders/{}</code></td>
 <td>supported</td>
-<td><code>reminders.update(ReminderIdType(1), ReminderUpdate(content="x"))</code></td>
-<td></td>
+<td><code>reminders.update(ReminderIdType(1), ReminderUpdate(type=ReminderType.RECURRING, reset_type=ReminderResetType.EMAIL, reminder_days=30))</code></td>
+<td>to change a reminder's type (V2 can't), and as the retry when V2 refuses an update (V2: creator or owner only)</td>
 </tr>
 <tr>
 <td><code>GET /webhook</code></td>
-<td>supported</td>
-<td><code>webhooks.list()</code></td>
+<td>equivalent</td>
 <td></td>
+<td>via v2 GET /v2/webhooks</td>
 </tr>
 <tr>
 <td><code>POST /webhook/subscribe</code></td>
-<td>supported</td>
-<td><code>webhooks.create(WebhookCreate(webhook_url="https://example.com/h"))</code></td>
+<td>equivalent</td>
 <td></td>
+<td>via v2 POST /v2/webhooks</td>
 </tr>
 <tr>
 <td><code>DELETE /webhook/{}</code></td>
-<td>supported</td>
-<td><code>webhooks.delete(WebhookId(1))</code></td>
+<td>equivalent</td>
 <td></td>
+<td>via v2 DELETE /v2/webhooks/{webhookId}</td>
 </tr>
 <tr>
 <td><code>GET /webhook/{}</code></td>
-<td>supported</td>
-<td><code>webhooks.get(WebhookId(1))</code></td>
+<td>equivalent</td>
 <td></td>
+<td>via v2 GET /v2/webhooks/{webhookId}</td>
 </tr>
 <tr>
 <td><code>PUT /webhook/{}</code></td>
-<td>supported</td>
-<td><code>webhooks.update(WebhookId(1), WebhookUpdate(disabled=True))</code></td>
+<td>equivalent</td>
 <td></td>
+<td>via v2 POST /v2/webhooks/{webhookId}</td>
 </tr>
 </tbody>
 </table>
