@@ -76,7 +76,10 @@ for r in client.notes.iter_replies(NoteId(1)):                    # NoteV2 with 
     ...
 ```
 
-`client.notes.list()` / `create()` (V1) remain the way to read V1-shaped notes and to write.
+`client.notes.list()` / `get()` read V1-shaped notes. `create()` / `update()` / `delete()` write
+through V2 and return `NoteV2`: plain text (the default `type`) is escaped into HTML; with
+`type=NoteType.HTML` only `<p> <br> <strong> <em> <u> <ol> <ul> <li> <span> <a href>` are accepted
+(`<b>`/`<i>` are converted).
 
 ## Meeting transcripts (AI Notetaker)
 
