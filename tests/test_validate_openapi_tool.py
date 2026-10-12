@@ -739,6 +739,39 @@ class TestEnumSince:
         assert any("no longer resolves" in e for e in tool.check_enum(spec, check, {}).errors)
 
 
+class TestModelSince:
+    """MODEL_SINCE: a model whose schema first appears in a later API version."""
+
+    def test_absent_before_since_is_skipped(
+        self, spec: dict[str, Any], monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # The fixture spec is version 2026-01-01 and has no Gadget2 schema.
+        monkeypatch.setattr(tool, "MODEL_SINCE", {"Widget": "2026-07-15"})
+        config = _config(mappings={"Widget": ("Gadget2",), "Note": ("Note",)})
+        widget = next(
+            r for r in tool.validate_all_models(spec, config=config) if r.model_name == "Widget"
+        )
+        assert widget.is_skipped and "2026-07-15" in widget.skip_reason
+
+    def test_present_before_since_is_an_error(
+        self, spec: dict[str, Any], monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(tool, "MODEL_SINCE", {"Widget": "2026-07-15"})
+        widget = next(
+            r for r in tool.validate_all_models(spec, config=_config()) if r.model_name == "Widget"
+        )
+        assert any("before its MODEL_SINCE 2026-07-15" in e for e in widget.errors), widget.errors
+
+    def test_from_since_on_it_is_checked(
+        self, spec: dict[str, Any], monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr(tool, "MODEL_SINCE", {"Widget": "2024-01-01"})
+        widget = next(
+            r for r in tool.validate_all_models(spec, config=_config()) if r.model_name == "Widget"
+        )
+        assert not widget.is_skipped
+
+
 class TestMainAllVersions:
     SHA = "a" * 40
 

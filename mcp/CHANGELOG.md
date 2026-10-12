@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Needs the CLI with the `webhook` commands (SDK 2.0.0); the minimum CLI version is raised when
+this ships.
+
+### Added
+
+- Webhook commands (`webhook ls|get|create|update|delete`) in the command registry.
+  `webhook create`, `update` and `delete` need the user's confirmation, like deletes; for
+  create/update the confirmation says the webhook sends CRM events to an outside URL instead of
+  "cannot be undone".
+
 ## [1.32.2] - 2026-10-11
 
 ### Fixed
