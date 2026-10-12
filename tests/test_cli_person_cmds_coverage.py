@@ -94,7 +94,7 @@ class TestPersonCreate:
 
     def test_create_basic(self, respx_mock: respx.MockRouter) -> None:
         """Basic person create should work."""
-        respx_mock.post("https://api.affinity.co/persons").mock(
+        respx_mock.post("https://api.affinity.co/v2/persons").mock(
             return_value=Response(
                 200,
                 json={
@@ -156,7 +156,7 @@ class TestPersonDelete:
 
     def test_delete_basic(self, respx_mock: respx.MockRouter) -> None:
         """Basic person delete should work."""
-        respx_mock.delete("https://api.affinity.co/persons/123").mock(
+        respx_mock.delete("https://api.affinity.co/v2/persons/123").mock(
             return_value=Response(200, json={"success": True})
         )
 

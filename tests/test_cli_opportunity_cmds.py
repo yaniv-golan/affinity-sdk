@@ -129,13 +129,14 @@ def test_opportunity_create_update_delete(respx_mock: respx.MockRouter) -> None:
             json={"id": 123, "name": "Seed", "list_id": 41780},
         )
     )
-    respx_mock.put("https://api.affinity.co/opportunities/123").mock(
+    respx_mock.post("https://api.affinity.co/v2/opportunities/123").mock(return_value=Response(204))
+    respx_mock.get("https://api.affinity.co/v2/opportunities/123").mock(
         return_value=Response(
             200,
-            json={"id": 123, "name": "Seed (Updated)", "list_id": 41780},
+            json={"id": 123, "name": "Seed (Updated)", "listId": 41780},
         )
     )
-    respx_mock.delete("https://api.affinity.co/opportunities/123").mock(
+    respx_mock.delete("https://api.affinity.co/v2/opportunities/123").mock(
         return_value=Response(200, json={"success": True})
     )
 

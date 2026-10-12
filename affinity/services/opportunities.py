@@ -44,6 +44,18 @@ class OpportunityAssociations(NamedTuple):
     company_ids: builtins.list[CompanyId]
 
 
+OPPORTUNITY_WRITES_MIN_API_VERSION = "2026-09-17"
+
+
+def _update_payload(data: OpportunityUpdate) -> dict[str, Any]:
+    payload = data.model_dump(by_alias=True, mode="json", exclude_unset=True, exclude_none=True)
+    if not payload:
+        raise ValueError(
+            "OpportunityUpdate has nothing to update: set name, person_ids or company_ids"
+        )
+    return payload
+
+
 class OpportunityService:
     """
     Service for managing opportunities.
@@ -404,37 +416,40 @@ class OpportunityService:
         return Opportunity.model_validate(result)
 
     def update(self, opportunity_id: OpportunityId, data: OpportunityUpdate) -> Opportunity:
-        """
-        Update an existing opportunity.
+        """Rename an opportunity, or replace its people/companies.
 
-        Note: When provided, `person_ids` and `company_ids` replace the existing
-        values. To add or remove associations safely, pass the full desired arrays.
+        A rename alone uses V2 (Affinity API 2026-09-17+; needs "Export data from Lists" and
+        manage access) and returns the opportunity as read back from V2, whose
+        ``person_ids``/``company_ids`` are always empty. V2 can't change associations, so an
+        update with ``person_ids`` or ``company_ids`` is one V1 request (they replace the
+        existing arrays; pass the full desired lists) and returns V1's full opportunity.
         """
-        payload = data.model_dump(
-            by_alias=True,
-            mode="json",
-            exclude_unset=True,
-            exclude_none=True,
+        payload = _update_payload(data)
+        if data.person_ids is not None or data.company_ids is not None:
+            result = self._client.put(f"/opportunities/{opportunity_id}", json=payload, v1=True)
+            return Opportunity.model_validate(result)
+        self._client.post(
+            f"/opportunities/{int(opportunity_id)}",
+            json={"name": data.name},
+            min_api_version=OPPORTUNITY_WRITES_MIN_API_VERSION,
+        )
+        return Opportunity.model_validate(
+            self._client.get(
+                f"/opportunities/{int(opportunity_id)}",
+                min_api_version=OPPORTUNITY_WRITES_MIN_API_VERSION,
+            )
         )
 
-        # Uses the v1 endpoint; its PUT semantics replace association arrays.
-        result = self._client.put(f"/opportunities/{opportunity_id}", json=payload, v1=True)
-        return Opportunity.model_validate(result)
-
     def delete(self, opportunity_id: OpportunityId) -> bool:
+        """Delete an opportunity and its list entries (V2, Affinity API 2026-09-17+).
+
+        Needs "Export data from Lists" and manage access to the opportunity. Returns True.
         """
-        Delete an opportunity.
-
-        This removes the opportunity and all associated list entries.
-
-        Args:
-            opportunity_id: The opportunity to delete
-
-        Returns:
-            True if successful
-        """
-        result = self._client.delete(f"/opportunities/{opportunity_id}", v1=True)
-        return bool(result.get("success", False))
+        self._client.delete(
+            f"/opportunities/{int(opportunity_id)}",
+            min_api_version=OPPORTUNITY_WRITES_MIN_API_VERSION,
+        )
+        return True
 
     # =========================================================================
     # Association Methods (V1 API)
@@ -1230,37 +1245,33 @@ class AsyncOpportunityService:
         return Opportunity.model_validate(result)
 
     async def update(self, opportunity_id: OpportunityId, data: OpportunityUpdate) -> Opportunity:
-        """
-        Update an existing opportunity.
-
-        Note: When provided, `person_ids` and `company_ids` replace the existing
-        values. To add or remove associations safely, pass the full desired arrays.
-        """
-        payload = data.model_dump(
-            by_alias=True,
-            mode="json",
-            exclude_unset=True,
-            exclude_none=True,
+        """Rename an opportunity, or replace its people/companies; see
+        :meth:`OpportunityService.update`."""
+        payload = _update_payload(data)
+        if data.person_ids is not None or data.company_ids is not None:
+            result = await self._client.put(
+                f"/opportunities/{opportunity_id}", json=payload, v1=True
+            )
+            return Opportunity.model_validate(result)
+        await self._client.post(
+            f"/opportunities/{int(opportunity_id)}",
+            json={"name": data.name},
+            min_api_version=OPPORTUNITY_WRITES_MIN_API_VERSION,
+        )
+        return Opportunity.model_validate(
+            await self._client.get(
+                f"/opportunities/{int(opportunity_id)}",
+                min_api_version=OPPORTUNITY_WRITES_MIN_API_VERSION,
+            )
         )
 
-        # Uses the v1 endpoint; its PUT semantics replace association arrays.
-        result = await self._client.put(f"/opportunities/{opportunity_id}", json=payload, v1=True)
-        return Opportunity.model_validate(result)
-
     async def delete(self, opportunity_id: OpportunityId) -> bool:
-        """
-        Delete an opportunity.
-
-        This removes the opportunity and all associated list entries.
-
-        Args:
-            opportunity_id: The opportunity to delete
-
-        Returns:
-            True if successful
-        """
-        result = await self._client.delete(f"/opportunities/{opportunity_id}", v1=True)
-        return bool(result.get("success", False))
+        """Delete an opportunity (V2); see :meth:`OpportunityService.delete`."""
+        await self._client.delete(
+            f"/opportunities/{int(opportunity_id)}",
+            min_api_version=OPPORTUNITY_WRITES_MIN_API_VERSION,
+        )
+        return True
 
     # =========================================================================
     # Association Methods (V1 API)

@@ -108,15 +108,11 @@ class TestOpportunityUpdate:
 
     def test_update_basic(self, respx_mock: respx.MockRouter) -> None:
         """Basic opportunity update should work."""
-        respx_mock.put("https://api.affinity.co/opportunities/123").mock(
-            return_value=Response(
-                200,
-                json={
-                    "id": 123,
-                    "name": "Updated Deal",
-                    "list_entries": [],
-                },
-            )
+        respx_mock.post("https://api.affinity.co/v2/opportunities/123").mock(
+            return_value=Response(204)
+        )
+        respx_mock.get("https://api.affinity.co/v2/opportunities/123").mock(
+            return_value=Response(200, json={"id": 123, "name": "Updated Deal", "listId": 9})
         )
 
         runner = CliRunner()
@@ -144,7 +140,7 @@ class TestOpportunityDelete:
 
     def test_delete_basic(self, respx_mock: respx.MockRouter) -> None:
         """Basic opportunity delete should work."""
-        respx_mock.delete("https://api.affinity.co/opportunities/123").mock(
+        respx_mock.delete("https://api.affinity.co/v2/opportunities/123").mock(
             return_value=Response(200, json={"success": True})
         )
 
@@ -369,3 +365,42 @@ class TestOpportunityField:
             env={"AFFINITY_API_KEY": "test-key"},
         )
         assert result.exit_code != 0
+
+
+class TestOpportunityUpdateV2Output:
+    def test_rename_output_leaves_out_unknown_associations(
+        self, respx_mock: respx.MockRouter
+    ) -> None:
+        """V2 reads return empty association arrays; a rename doesn't print them as empty."""
+        respx_mock.post("https://api.affinity.co/v2/opportunities/123").mock(
+            return_value=Response(204)
+        )
+        respx_mock.get("https://api.affinity.co/v2/opportunities/123").mock(
+            return_value=Response(200, json={"id": 123, "name": "Renamed", "listId": 9})
+        )
+        result = CliRunner().invoke(
+            cli,
+            ["--json", "opportunity", "update", "123", "--name", "Renamed"],
+            env={"AFFINITY_API_KEY": "test-key"},
+        )
+        assert result.exit_code == 0, result.output
+        opp = json.loads(result.output)["data"]["opportunity"]
+        assert opp["name"] == "Renamed"
+        assert "personIds" not in opp and "organizationIds" not in opp
+
+    def test_association_change_output_keeps_them(self, respx_mock: respx.MockRouter) -> None:
+        route = respx_mock.put("https://api.affinity.co/opportunities/123").mock(
+            return_value=Response(
+                200,
+                json={"id": 123, "name": "Deal", "person_ids": [5], "organization_ids": [7]},
+            )
+        )
+        result = CliRunner().invoke(
+            cli,
+            ["--json", "opportunity", "update", "123", "--person-id", "5", "--company-id", "7"],
+            env={"AFFINITY_API_KEY": "test-key"},
+        )
+        assert result.exit_code == 0, result.output
+        opp = json.loads(result.output)["data"]["opportunity"]
+        assert opp["personIds"] == [5] and opp["organizationIds"] == [7]
+        assert route.called

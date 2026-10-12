@@ -47,6 +47,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   persons, companies and opportunities (`[]` clears). Changing the text of a note that
   @mentions people is refused by the API; the error now says so. `NoteV2` and `NoteContent`
   are exported from `affinity.models`.
+- **Person create and delete use the V2 API** (Affinity API 2026-07-15+). The first email is
+  the primary one; `PersonCreate.last_name` may be `None`. A person created with `company_ids`
+  still goes through V1, which can link companies (V2 can't). Internal people can't be deleted
+  (403).
+- **Opportunity rename and delete use the V2 API** (Affinity API 2026-09-17+; need "Export data
+  from Lists" and manage access). A rename returns the opportunity as read back from V2, whose
+  `person_ids`/`company_ids` are always empty (use `get_details()` for them). Changing people or
+  companies still goes through V1 in one request, as before. An empty `OpportunityUpdate` raises
+  `ValueError`.
 
 ### Added
 
@@ -54,6 +63,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (repeatable) or `--all-events`; `update` takes `--url`, `--event`/`--all-events`, `--status
   active|disabled`. `create`, `update` and `delete` ask for confirmation (`--yes` in scripts),
   since a webhook sends CRM events to an outside URL. Rows include `allEvents`.
+- **CLI `opportunity update --name` alone** no longer prints `personIds`/`organizationIds`
+  (V2 doesn't return them; they were always empty). With `--person-id`/`--company-id` they are
+  printed as before.
 - **CLI `note update --type plain-text|html`**; `note create --type` is now plain-text or html
   (Affinity creates the other kinds itself). `note create`/`update` output keeps the `note get`
   keys (`type` is `html`; content is the stored HTML). The duplicate-note warning also matches
@@ -63,6 +75,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **MCP:** the webhook commands are in the command registry; `webhook create`/`update`/`delete`
   go through the same user confirmation as deletes, and the confirmation says why (events sent
   to an outside URL).
+
+### Fixed
+
+- `Opportunity.company_ids` is now read from V1 responses (`organization_ids`), e.g. from
+  `opportunities.update()` with associations and `get_details()`; it was always empty.
 
 ### Docs
 

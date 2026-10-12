@@ -23,7 +23,7 @@ if respx is None:  # pragma: no cover
 
 
 def test_person_crud_and_merge(respx_mock: respx.MockRouter) -> None:
-    respx_mock.post("https://api.affinity.co/persons").mock(
+    respx_mock.post("https://api.affinity.co/v2/persons").mock(
         return_value=Response(
             200,
             json={
@@ -45,7 +45,7 @@ def test_person_crud_and_merge(respx_mock: respx.MockRouter) -> None:
             },
         )
     )
-    respx_mock.delete("https://api.affinity.co/persons/1").mock(
+    respx_mock.delete("https://api.affinity.co/v2/persons/1").mock(
         return_value=Response(200, json={"success": True})
     )
     respx_mock.post("https://api.affinity.co/v2/person-merges").mock(
@@ -487,7 +487,7 @@ def test_merge_is_marked_destructive_in_json_help(entity: str) -> None:
 
 @pytest.mark.parametrize("answer", ["y\n", "yes\n"])
 def test_piped_yes_still_confirms_a_delete(respx_mock: respx.MockRouter, answer: str) -> None:
-    respx_mock.delete("https://api.affinity.co/persons/1").mock(
+    respx_mock.delete("https://api.affinity.co/v2/persons/1").mock(
         return_value=Response(200, json={"success": True})
     )
     result = CliRunner().invoke(

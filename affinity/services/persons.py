@@ -131,6 +131,22 @@ def _normalize_v1_person_response(data: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+PERSON_WRITES_MIN_API_VERSION = "2026-07-15"
+
+
+def _person_create_body(data: PersonCreate) -> dict[str, Any]:
+    """``POST /v2/persons`` body. The first email is the primary one."""
+    emails = list(data.emails or [])
+    body: dict[str, Any] = {
+        "firstName": data.first_name,
+        "lastName": data.last_name,
+        "primaryEmailAddress": emails[0] if emails else None,
+    }
+    if emails:
+        body["emailAddresses"] = emails
+    return body
+
+
 class PersonService:
     """
     Service for managing persons (contacts).
@@ -1101,12 +1117,10 @@ class PersonService:
                 OR exact full-name match already exists.
 
         Note:
-            Creates use V1 API, while reads use V2 API. Due to eventual consistency
-            between V1 and V2, a `get()` call immediately after `create()` may return
-            404 NotFoundError. If you need to read immediately after creation, either:
-            - Use the Person object returned by this method (it contains the created data)
-            - Add a short delay (100-500ms) before calling get()
-            - Implement retry logic in your application
+            Uses the V2 API (Affinity API 2026-07-15+); the first email is the primary one. With
+            ``company_ids`` the person is created through V1, which can link companies (V2
+            can't). The duplicate check searches V1, which may not see a person created a
+            moment ago, so retrying a create quickly can still make a duplicate.
         """
         if if_not_exists:
             existing = self._find_exact_duplicate(
@@ -1122,11 +1136,16 @@ class PersonService:
                     existing_name=f"{existing.first_name or ''} {existing.last_name or ''}".strip(),
                 )
 
-        payload = data.model_dump(by_alias=True, mode="json")
-        if not data.company_ids:
-            payload.pop("organization_ids", None)
-
-        result = self._client.post("/persons", json=payload, v1=True)
+        if data.company_ids:
+            # V2 can't link a new person to companies: create through V1 (documented exception)
+            payload = data.model_dump(by_alias=True, mode="json")
+            result = self._client.post("/persons", json=payload, v1=True)
+        else:
+            result = self._client.post(
+                "/persons",
+                json=_person_create_body(data),
+                min_api_version=PERSON_WRITES_MIN_API_VERSION,
+            )
 
         if self._client.cache:
             self._client.cache.invalidate_prefix("person")
@@ -1217,13 +1236,15 @@ class PersonService:
         return Person.model_validate(result)
 
     def delete(self, person_id: PersonId) -> bool:
-        """Delete a person (also deletes associated field values)."""
-        result = self._client.delete(f"/persons/{person_id}", v1=True)
+        """Delete a person and their field values (V2). Internal people can't be deleted (403)."""
+        self._client.delete(
+            f"/persons/{int(person_id)}", min_api_version=PERSON_WRITES_MIN_API_VERSION
+        )
 
         if self._client.cache:
             self._client.cache.invalidate_prefix("person")
 
-        return bool(result.get("success", False))
+        return True
 
     # =========================================================================
     # Merge Operations (V2 BETA)
@@ -2430,12 +2451,10 @@ class AsyncPersonService:
                 OR exact full-name match already exists.
 
         Note:
-            Creates use V1 API, while reads use V2 API. Due to eventual consistency
-            between V1 and V2, a `get()` call immediately after `create()` may return
-            404 NotFoundError. If you need to read immediately after creation, either:
-            - Use the Person object returned by this method (it contains the created data)
-            - Add a short delay (100-500ms) before calling get()
-            - Implement retry logic in your application
+            Uses the V2 API (Affinity API 2026-07-15+); the first email is the primary one. With
+            ``company_ids`` the person is created through V1, which can link companies (V2
+            can't). The duplicate check searches V1, which may not see a person created a
+            moment ago, so retrying a create quickly can still make a duplicate.
         """
         if if_not_exists:
             existing = await self._find_exact_duplicate(
@@ -2451,11 +2470,16 @@ class AsyncPersonService:
                     existing_name=f"{existing.first_name or ''} {existing.last_name or ''}".strip(),
                 )
 
-        payload = data.model_dump(by_alias=True, mode="json")
-        if not data.company_ids:
-            payload.pop("organization_ids", None)
-
-        result = await self._client.post("/persons", json=payload, v1=True)
+        if data.company_ids:
+            # V2 can't link a new person to companies: create through V1 (documented exception)
+            payload = data.model_dump(by_alias=True, mode="json")
+            result = await self._client.post("/persons", json=payload, v1=True)
+        else:
+            result = await self._client.post(
+                "/persons",
+                json=_person_create_body(data),
+                min_api_version=PERSON_WRITES_MIN_API_VERSION,
+            )
 
         if self._client.cache:
             self._client.cache.invalidate_prefix("person")
@@ -2548,13 +2572,15 @@ class AsyncPersonService:
         return Person.model_validate(result)
 
     async def delete(self, person_id: PersonId) -> bool:
-        """Delete a person (also deletes associated field values)."""
-        result = await self._client.delete(f"/persons/{person_id}", v1=True)
+        """Delete a person and their field values (V2). Internal people can't be deleted (403)."""
+        await self._client.delete(
+            f"/persons/{int(person_id)}", min_api_version=PERSON_WRITES_MIN_API_VERSION
+        )
 
         if self._client.cache:
             self._client.cache.invalidate_prefix("person")
 
-        return bool(result.get("success", False))
+        return True
 
     # =========================================================================
     # Merge Operations (V2 BETA)

@@ -85,6 +85,13 @@ def test_opportunity_service_v2_reads_v1_writes_and_pagination() -> None:
                 200, json={"id": 8, "name": "Bare", "listId": 10}, request=request
             )
 
+        if request.method == "POST" and url == httpx.URL("https://v2.example/v2/opportunities/9"):
+            assert json.loads(request.content.decode("utf-8")) == {"name": "Updated"}
+            return httpx.Response(204, request=request)
+        if request.method == "GET" and url == httpx.URL("https://v2.example/v2/opportunities/9"):
+            return httpx.Response(
+                200, json={"id": 9, "name": "Updated", "listId": 10}, request=request
+            )
         if request.method == "PUT" and url == httpx.URL("https://v1.example/opportunities/9"):
             payload = json.loads(request.content.decode("utf-8"))
             assert payload in (
@@ -95,7 +102,7 @@ def test_opportunity_service_v2_reads_v1_writes_and_pagination() -> None:
                 200, json={"id": 9, "name": "Updated", "listId": 10}, request=request
             )
 
-        if request.method == "DELETE" and url == httpx.URL("https://v1.example/opportunities/9"):
+        if request.method == "DELETE" and url == httpx.URL("https://v2.example/v2/opportunities/9"):
             return httpx.Response(200, json={"success": True}, request=request)
 
         return httpx.Response(404, json={"message": "not found"}, request=request)
@@ -191,12 +198,19 @@ async def test_async_opportunity_service_cover_writes_and_all() -> None:
                 200, json={"id": 8, "name": "Bare", "listId": 10}, request=request
             )
 
+        if request.method == "POST" and url == httpx.URL("https://v2.example/v2/opportunities/9"):
+            assert json.loads(request.content.decode("utf-8")) == {"name": "Updated"}
+            return httpx.Response(204, request=request)
+        if request.method == "GET" and url == httpx.URL("https://v2.example/v2/opportunities/9"):
+            return httpx.Response(
+                200, json={"id": 9, "name": "Updated", "listId": 10}, request=request
+            )
         if request.method == "PUT" and url == httpx.URL("https://v1.example/opportunities/9"):
             return httpx.Response(
                 200, json={"id": 9, "name": "Updated", "listId": 10}, request=request
             )
 
-        if request.method == "DELETE" and url == httpx.URL("https://v1.example/opportunities/9"):
+        if request.method == "DELETE" and url == httpx.URL("https://v2.example/v2/opportunities/9"):
             return httpx.Response(200, json={"success": True}, request=request)
 
         return httpx.Response(404, json={"message": "not found"}, request=request)
@@ -234,7 +248,8 @@ async def test_async_opportunity_service_cover_writes_and_all() -> None:
                 company_ids=[CompanyId(2)],
             ),
         )
-        _ = await svc.update(OpportunityId(9), OpportunityUpdate())
+        with pytest.raises(ValueError, match="nothing to update"):
+            await svc.update(OpportunityId(9), OpportunityUpdate())
         assert await svc.delete(OpportunityId(9)) is True
         assert [o.id async for o in svc.iter()] == [OpportunityId(1)]
     finally:

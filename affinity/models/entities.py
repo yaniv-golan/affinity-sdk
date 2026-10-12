@@ -409,8 +409,11 @@ class PersonCreate(AffinityModel):
     """
 
     first_name: str
-    last_name: str
+    # V2 allows a person without a last name
+    last_name: str | None
+    # The first email is the primary one
     emails: list[str] = Field(default_factory=list)
+    # Only V1 can link companies at create: with company_ids the person is created through V1
     company_ids: list[CompanyId] = Field(default_factory=list, alias="organization_ids")
 
 
@@ -538,7 +541,12 @@ class Opportunity(AffinityModel):
     # Associations (Note: V2 API returns empty arrays; use get_details() or
     # get_associated_person_ids() for populated data)
     person_ids: list[PersonId] = Field(default_factory=list, alias="personIds")
-    company_ids: list[CompanyId] = Field(default_factory=list, alias="organizationIds")
+    # V1 responses (get_details, update) send organization_ids
+    company_ids: list[CompanyId] = Field(
+        default_factory=list,
+        alias="organizationIds",
+        validation_alias=AliasChoices("organizationIds", "organization_ids", "company_ids"),
+    )
 
     # Field values (requested-vs-not-requested preserved)
     fields: FieldValues = Field(default_factory=FieldValues, alias="fields")
