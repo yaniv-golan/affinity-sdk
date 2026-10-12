@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-import contextlib
+import re
 import sys
 from contextlib import ExitStack
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+from pydantic import ValidationError as PydanticValidationError
 from rich.console import Console
 from rich.progress import BarColumn, Progress, TaskID, TextColumn, TimeElapsedColumn
 
 from affinity.models.secondary import Note, NoteCreate, NoteUpdate, NoteV2
 from affinity.models.types import InteractionType, NoteType
-from affinity.services._note_html import note_html
 from affinity.services.search import NOTE_SEARCH_DEFAULT_LIMIT, build_keyword_search_body
 from affinity.types import CompanyId, NoteId, OpportunityId, PersonId, UserId
 
@@ -66,6 +66,17 @@ def _get_cached_user_id(ctx: CLIContext, client: Any) -> int | None:
         return None
 
 
+def _comparable(text: str) -> str:
+    """Note text for the duplicate check, in a form both copies share.
+
+    V1 shows notes stored as HTML (every note written through V2) in a markdown form: special
+    characters backslash-escaped (``snake\\_case``) and two spaces before a line break. Undo
+    those, and compare whitespace-insensitively.
+    """
+    text = re.sub(r"\\(.)", r"\1", text)
+    return " ".join(text.split())
+
+
 def _maybe_warn_duplicate_note(
     *,
     ctx: CLIContext,
@@ -77,7 +88,6 @@ def _maybe_warn_duplicate_note(
     opportunity_ids: tuple[int, ...],
     explicit_creator_id: int | None,
     window_seconds: int,
-    note_type: NoteType = NoteType.PLAIN_TEXT,
 ) -> None:
     """Append a stderr warning to ``warnings`` if a recent duplicate exists.
 
@@ -100,13 +110,9 @@ def _maybe_warn_duplicate_note(
             return
         scoped_creator_id = resolved_id
 
-    normalized_new = content.strip()
+    normalized_new = _comparable(content)
     if not normalized_new:
         return
-    # V2 stores notes as HTML: an earlier copy may hold the text as typed or its HTML form
-    same_content = {normalized_new}
-    with contextlib.suppress(ValueError):
-        same_content.add(note_html(content, note_type).strip())
 
     now = datetime.now(timezone.utc)
     window = timedelta(seconds=max(0, window_seconds))
@@ -124,8 +130,7 @@ def _maybe_warn_duplicate_note(
             # transient list failure abort the actual note write.
             return False
         for existing in getattr(page, "data", []) or []:
-            existing_content = (existing.content or "").strip()
-            if existing_content not in same_content:
+            if _comparable(existing.content or "") != normalized_new:
                 continue
             created_at = getattr(existing, "created_at", None)
             if created_at is None:
@@ -185,6 +190,17 @@ def _note_payload(note: Note) -> dict[str, object]:
         "createdAt": note.created_at,
         "updatedAt": note.updated_at,
     }
+
+
+_INPUT_MODELS = ("NoteCreate", "NoteUpdate")
+
+
+def _is_input_error(exc: ValueError) -> bool:
+    """Our own checks, or the request model; not a response the API sent that didn't parse
+    (the write may have happened: a usage error would invite a duplicating retry)."""
+    if isinstance(exc, PydanticValidationError):
+        return exc.title in _INPUT_MODELS
+    return True
 
 
 def _usage(exc: ValueError) -> CLIError:
@@ -662,7 +678,6 @@ def note_create(
                 opportunity_ids=opportunity_ids,
                 explicit_creator_id=creator_id,
                 window_seconds=duplicate_window_seconds,
-                note_type=parsed_type or NoteType.PLAIN_TEXT,
             )
 
         try:
@@ -679,6 +694,8 @@ def note_create(
                 )
             )
         except ValueError as exc:
+            if not _is_input_error(exc):
+                raise
             raise _usage(exc) from exc
 
         ctx_modifiers: dict[str, object] = {}
@@ -748,6 +765,8 @@ def note_update(ctx: CLIContext, note_id: int, *, content: str, note_type: str |
                 NoteUpdate(content=content, type=parsed_type or NoteType.PLAIN_TEXT),
             )
         except ValueError as exc:
+            if not _is_input_error(exc):
+                raise
             raise _usage(exc) from exc
         _truncation_warnings(note, warnings)
 

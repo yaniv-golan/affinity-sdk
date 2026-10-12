@@ -1288,6 +1288,9 @@ class ListEntryService:
                 min_api_version=LIST_ENTRY_ADD_MIN_API_VERSION,
             )
         except ValidationError as e:
+            # Only the API's own 400; subclasses (API-version errors, merged entities) pass through
+            if type(e) is not ValidationError or e.status_code != 400:
+                raise
             raise _entry_error(e, entity_id, self._list_id) from e
         return _entry_from_v2(result)
 
@@ -2377,6 +2380,9 @@ class AsyncListEntryService:
                 min_api_version=LIST_ENTRY_ADD_MIN_API_VERSION,
             )
         except ValidationError as e:
+            # Only the API's own 400; subclasses (API-version errors, merged entities) pass through
+            if type(e) is not ValidationError or e.status_code != 400:
+                raise
             raise _entry_error(e, entity_id, self._list_id) from e
         return _entry_from_v2(result)
 

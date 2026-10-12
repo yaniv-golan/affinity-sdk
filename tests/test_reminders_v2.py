@@ -459,16 +459,44 @@ FORBIDDEN = Response(403, json={"errors": [{"code": "permission-denied", "messag
 
 
 @respx.mock
-def test_update_forbidden_on_v2_retries_on_v1() -> None:
+def test_update_forbidden_on_v2_retries_on_v1_with_a_complete_body() -> None:
+    # V1 needs the type, and due_date (one-time) or reset_type + reminder_days (recurring)
     v2 = respx.post(f"{V2}/reminders/13").mock(return_value=FORBIDDEN)
+    respx.get(f"{V2}/reminders/13").mock(return_value=Response(200, json={**RECURRING, "id": 13}))
     v1 = respx.put(f"{V1}/reminders/13").mock(return_value=Response(200, json=V1_REMINDER))
     with Affinity(api_key="k", max_retries=0) as client:
         result = client.reminders.update(
-            ReminderIdType(13), ReminderUpdate(is_completed=True, content="done")
+            ReminderIdType(13), ReminderUpdate(is_completed=True, reminder_days=60)
         )
     assert v2.called
-    assert _body(v1) == {"content": "done", "is_completed": True}
+    assert _body(v1) == {
+        "type": 1,
+        "reset_type": 1,
+        "reminder_days": 60,
+        "is_completed": True,
+    }
     assert result.id == 13
+
+
+@respx.mock
+def test_update_retry_of_a_one_time_reminder_keeps_its_due_date() -> None:
+    respx.post(f"{V2}/reminders/13").mock(return_value=FORBIDDEN)
+    respx.get(f"{V2}/reminders/13").mock(return_value=Response(200, json={**ONE_TIME, "id": 13}))
+    v1 = respx.put(f"{V1}/reminders/13").mock(return_value=Response(200, json=V1_REMINDER))
+    with Affinity(api_key="k", max_retries=0) as client:
+        client.reminders.update(ReminderIdType(13), ReminderUpdate(content="done"))
+    assert _body(v1) == {"type": 0, "content": "done", "due_date": "2026-11-01T09:00:00Z"}
+
+
+@respx.mock
+def test_update_retry_refused_by_v1_raises_the_v2_refusal() -> None:
+    respx.post(f"{V2}/reminders/13").mock(return_value=FORBIDDEN)
+    respx.get(f"{V2}/reminders/13").mock(return_value=Response(200, json={**ONE_TIME, "id": 13}))
+    respx.put(f"{V1}/reminders/13").mock(
+        return_value=Response(422, json={"message": "Due date is required"})
+    )
+    with Affinity(api_key="k", max_retries=0) as client, pytest.raises(AuthorizationError):
+        client.reminders.update(ReminderIdType(13), ReminderUpdate(content="done"))
 
 
 @respx.mock
@@ -500,6 +528,7 @@ def test_forbidden_clear_content_is_not_retried() -> None:
 @respx.mock
 async def test_async_forbidden_falls_back_to_v1() -> None:
     respx.post(f"{V2}/reminders/13").mock(return_value=FORBIDDEN)
+    respx.get(f"{V2}/reminders/13").mock(return_value=Response(200, json={**ONE_TIME, "id": 13}))
     respx.delete(f"{V2}/reminders/13").mock(return_value=FORBIDDEN)
     put = respx.put(f"{V1}/reminders/13").mock(return_value=Response(200, json=V1_REMINDER))
     delete = respx.delete(f"{V1}/reminders/13").mock(
@@ -508,5 +537,5 @@ async def test_async_forbidden_falls_back_to_v1() -> None:
     async with AsyncAffinity(api_key="k", max_retries=0) as client:
         await client.reminders.update(ReminderIdType(13), ReminderUpdate(owner_id=UserId(4)))
         assert await client.reminders.delete(ReminderIdType(13)) is True
-    assert _body(put) == {"owner_id": 4}
+    assert _body(put) == {"type": 0, "owner_id": 4, "due_date": "2026-11-01T09:00:00Z"}
     assert delete.called

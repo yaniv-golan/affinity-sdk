@@ -83,7 +83,12 @@ def test_person_create_without_email() -> None:
     route = respx.post(f"{V2}/persons").mock(return_value=Response(201, json=PERSON_V2))
     with Affinity(api_key="k", max_retries=0) as client:
         client.persons.create(PersonCreate(first_name="A", last_name="B"), if_not_exists=False)
-    assert _body(route) == {"firstName": "A", "lastName": "B", "primaryEmailAddress": None}
+    assert _body(route) == {
+        "firstName": "A",
+        "lastName": "B",
+        "primaryEmailAddress": None,
+        "emailAddresses": [],
+    }
 
 
 @respx.mock
@@ -183,3 +188,30 @@ async def test_async_person_and_opportunity_writes() -> None:
     for route in (create, v1_create, pdel, rename, assoc, odel):
         assert route.called
     assert _body(assoc) == {"person_ids": [5]}
+
+
+@respx.mock
+def test_person_create_without_email_sends_an_empty_email_list() -> None:
+    route = respx.post(f"{V2}/persons").mock(return_value=Response(201, json=PERSON_V2))
+    with Affinity(api_key="k", max_retries=0) as client:
+        client.persons.create(PersonCreate(first_name="A", last_name="B"), if_not_exists=False)
+    assert _body(route)["emailAddresses"] == []
+
+
+def test_person_create_with_companies_needs_a_last_name() -> None:
+    with (
+        Affinity(api_key="k", max_retries=0) as client,
+        pytest.raises(ValueError, match="last name"),
+    ):
+        client.persons.create(
+            PersonCreate(first_name="A", last_name=None, company_ids=[7]), if_not_exists=False
+        )
+
+
+@respx.mock
+def test_opportunity_rename_read_back_sends_no_version() -> None:
+    respx.post(f"{V2}/opportunities/41").mock(return_value=Response(204))
+    get = respx.get(f"{V2}/opportunities/41").mock(return_value=Response(200, json=OPP_V2))
+    with Affinity(api_key="k", max_retries=0) as client:
+        client.opportunities.update(OpportunityId(41), OpportunityUpdate(name="N"))
+    assert "x-affinity-api-version" not in get.calls[0].request.headers

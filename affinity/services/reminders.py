@@ -7,8 +7,10 @@ returns the same V2-shaped :class:`~affinity.models.Reminder`. Every reminder is
 exactly one person, company or opportunity (both APIs require it).
 
 On V2 only a reminder's creator or owner may update or delete it. When V2 refuses (403), the
-update or delete is retried once through V1, whose docs state no such rule; if V1 refuses too,
-its error is raised. Clearing content can't be retried (V1 can't clear it).
+update or delete is retried once through V1, whose docs state no such rule (an update first
+reads the reminder, since V1 needs its full type-specific fields). If the retry fails too, V2's
+refusal is raised, with the V1 error as its cause. Clearing content can't be retried (V1 can't
+clear it).
 """
 
 from __future__ import annotations
@@ -153,6 +155,20 @@ def v1_update_body(data: ReminderUpdate) -> dict[str, Any]:
         body["reminder_days"] = data.reminder_days
     if data.is_completed is not None:
         body["is_completed"] = data.is_completed
+    return body
+
+
+def v1_retry_body(data: ReminderUpdate, current: Reminder) -> dict[str, Any]:
+    """V1 ``PUT`` body for retrying an update V2 refused: V1 needs the type, and the due date
+    (one-time) or reset type and period (recurring), so the current values fill the gaps."""
+    body = v1_update_body(data.model_copy(update={"type": data.type or current.type}))
+    if ReminderType(current.type) == ReminderType.ONE_TIME:
+        body.setdefault("due_date", v2_body_datetime(current.due_date))
+    else:
+        if "reset_type" not in body and current.reset_type is not None:
+            body["reset_type"] = _V1_RESET[ReminderResetType(current.reset_type)]
+        if "reminder_days" not in body and current.reminder_days is not None:
+            body["reminder_days"] = current.reminder_days
     return body
 
 
@@ -469,15 +485,16 @@ class ReminderService:
             self._client.post(
                 f"/reminders/{int(reminder_id)}", json=body, min_api_version=UPDATE_MIN_API_VERSION
             )
-        except AuthorizationError:
+        except AuthorizationError as refused:
             # V2 lets only the creator or owner change a reminder; V1 states no such rule
             if data.clear_content:
                 raise
-            return reminder_from_v1(
-                self._client.put(
-                    f"/reminders/{int(reminder_id)}", json=v1_update_body(data), v1=True
-                )
-            )
+            try:
+                body = v1_retry_body(data, self.get(reminder_id))
+                result = self._client.put(f"/reminders/{int(reminder_id)}", json=body, v1=True)
+            except AffinityError as retry_error:
+                raise refused from retry_error
+            return reminder_from_v1(result)
         return self.get(reminder_id)
 
     def delete(self, reminder_id: ReminderIdType) -> bool:
@@ -489,8 +506,11 @@ class ReminderService:
             self._client.delete(
                 f"/reminders/{int(reminder_id)}", min_api_version=GET_DELETE_MIN_API_VERSION
             )
-        except AuthorizationError:
-            self._client.delete(f"/reminders/{int(reminder_id)}", v1=True)
+        except AuthorizationError as refused:
+            try:
+                self._client.delete(f"/reminders/{int(reminder_id)}", v1=True)
+            except AffinityError as retry_error:
+                raise refused from retry_error
         return True
 
 
@@ -668,14 +688,17 @@ class AsyncReminderService:
             await self._client.post(
                 f"/reminders/{int(reminder_id)}", json=body, min_api_version=UPDATE_MIN_API_VERSION
             )
-        except AuthorizationError:
+        except AuthorizationError as refused:
             if data.clear_content:
                 raise
-            return reminder_from_v1(
-                await self._client.put(
-                    f"/reminders/{int(reminder_id)}", json=v1_update_body(data), v1=True
+            try:
+                body = v1_retry_body(data, await self.get(reminder_id))
+                result = await self._client.put(
+                    f"/reminders/{int(reminder_id)}", json=body, v1=True
                 )
-            )
+            except AffinityError as retry_error:
+                raise refused from retry_error
+            return reminder_from_v1(result)
         return await self.get(reminder_id)
 
     async def delete(self, reminder_id: ReminderIdType) -> bool:
@@ -684,6 +707,9 @@ class AsyncReminderService:
             await self._client.delete(
                 f"/reminders/{int(reminder_id)}", min_api_version=GET_DELETE_MIN_API_VERSION
             )
-        except AuthorizationError:
-            await self._client.delete(f"/reminders/{int(reminder_id)}", v1=True)
+        except AuthorizationError as refused:
+            try:
+                await self._client.delete(f"/reminders/{int(reminder_id)}", v1=True)
+            except AffinityError as retry_error:
+                raise refused from retry_error
         return True

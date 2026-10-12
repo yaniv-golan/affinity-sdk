@@ -48,9 +48,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   @mentions people is refused by the API; the error now says so. `NoteV2` and `NoteContent`
   are exported from `affinity.models`.
 - **Person create and delete use the V2 API** (Affinity API 2026-07-15+). The first email is
-  the primary one; `PersonCreate.last_name` may be `None`. A person created with `company_ids`
-  still goes through V1, which can link companies (V2 can't). Internal people can't be deleted
-  (403).
+  the primary one; `PersonCreate.last_name` accepts `None` (still a required argument). A person
+  created with `company_ids` still goes through V1, which can link companies (V2 can't) and needs
+  a last name (`ValueError` without one). Internal people can't be deleted (403).
 - **Opportunity rename and delete use the V2 API** (Affinity API 2026-09-17+; need "Export data
   from Lists" and manage access). A rename returns the opportunity as read back from V2, whose
   `person_ids`/`company_ids` are always empty (use `get_details()` for them). Changing people or
@@ -69,7 +69,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ensure_person/ensure_company`; Affinity API 2026-09-17+) and still returns a `ListEntry`. A
   list with a required field can't be added to through the API. **`add_opportunity()` is
   removed**: neither API can add an opportunity to a list; create it on its list with
-  `opportunities.create(OpportunityCreate(list_id=...))`.
+  `opportunities.create(OpportunityCreate(list_id=...))`. A pinned API version older than
+  2026-09-17 raises `ApiVersionTooOldError`, not a list error.
 
 ### Added
 
@@ -82,14 +83,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   active|disabled`. `create`, `update` and `delete` ask for confirmation (`--yes` in scripts),
   since a webhook sends CRM events to an outside URL. Rows include `allEvents`.
 - **CLI `list get <id>`** no longer prints `.data.list.fields` (the fields are in `.data.fields`
-  as before) and adds `createdAt`; `list create --owner-id` creates the list through V1.
+  as before), `additionalPermissions` is always `[]`, and `createdAt` is added; `list create
+  --owner-id` creates the list through V1.
+- **CLI `list entry add`**: `.data.listEntry.entity` is now V2's person/company shape, and
+  `creatorId` may be null.
+- **CLI `reminder create/update --reminder-days`** help now says what it is: the days between a
+  recurring reminder's due dates.
 - **CLI `opportunity update --name` alone** no longer prints `personIds`/`organizationIds`
   (V2 doesn't return them; they were always empty). With `--person-id`/`--company-id` they are
   printed as before.
 - **CLI `note update --type plain-text|html`**; `note create --type` is now plain-text or html
   (Affinity creates the other kinds itself). `note create`/`update` output keeps the `note get`
-  keys (`type` is `html`; content is the stored HTML). The duplicate-note warning also matches
-  an earlier copy stored as HTML.
+  keys (`type` is `html`; content is the stored HTML). The duplicate-note warning still finds
+  an earlier copy: V1 shows notes stored as HTML in a markdown form, which the check allows for.
 - **CLI `reminder update --clear-content`**; `reminder ls --page-size` is now at most 100, and
   rows include `updatedAt`; `--reset-type event` (`meeting` still accepted, printed as `event`).
 - **MCP:** the webhook commands are in the command registry; `webhook create`/`update`/`delete`

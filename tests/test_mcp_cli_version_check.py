@@ -276,3 +276,12 @@ def test_webhook_create_needs_confirmation_and_says_why(tmp_path: Path) -> None:
 def test_delete_confirmation_still_says_it_cannot_be_undone(tmp_path: Path) -> None:
     result = _run(tmp_path, DELETE_NO_CONFIRM, _min_version())
     assert "cannot be undone" in result["content"][0]["text"]
+
+
+def test_webhook_update_confirmation_says_what_it_changes(tmp_path: Path) -> None:
+    update = (
+        "execute-write-command",
+        '{"command": "webhook update", "argv": ["7", "--status", "disabled"]}',
+    )
+    text = _run(tmp_path, update, _min_version())["content"][0]["text"]
+    assert "changes where or which CRM events are sent" in text

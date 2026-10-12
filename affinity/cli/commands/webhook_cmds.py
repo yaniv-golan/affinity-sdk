@@ -24,7 +24,10 @@ from ._org_reads import collect_pages, page_limit, pagination
 from .org_read_cmds import _cursor_alone, _paging_options, _when
 
 _EVENTS = [e.value for e in WebhookEvent]
-_SENDS_DATA_OUT = "sends CRM events to an outside URL"
+_WHY = {
+    "webhook create": "sends CRM events to an outside URL",
+    "webhook update": "changes where or which CRM events are sent to an outside URL",
+}
 
 
 @click.group(name="webhook", cls=RichGroup)
@@ -350,7 +353,7 @@ def webhook_delete(ctx: CLIContext, webhook_id: int, yes: bool) -> None:
 
 
 def _run_checked(ctx: CLIContext, *, command: str, yes: bool, prompt: str, fn: CommandFn) -> None:
-    run_destructive(ctx, command=command, yes=yes, prompt=prompt, fn=fn, why=_SENDS_DATA_OUT)
+    run_destructive(ctx, command=command, yes=yes, prompt=prompt, fn=fn, why=_WHY[command])
 
 
 def _usage_error(ctx: CLIContext, command: str, message: str) -> None:

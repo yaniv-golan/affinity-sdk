@@ -122,9 +122,13 @@ if is_destructive "$command"; then
 
     # Why confirmation is needed: webhook writes are not irreversible, but they send data out
     case "$command" in
-    "webhook create" | "webhook update")
+    "webhook create")
         why="sends CRM events to an outside URL"
         why_sentence="This webhook sends CRM events to an outside URL until it is deleted."
+        ;;
+    "webhook update")
+        why="changes where or which CRM events are sent to an outside URL"
+        why_sentence="This changes a webhook that sends CRM events to an outside URL."
         ;;
     *)
         why="cannot be undone"

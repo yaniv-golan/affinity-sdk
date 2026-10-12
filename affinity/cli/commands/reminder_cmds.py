@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from pydantic import ValidationError as PydanticValidationError
+
 from affinity.models.secondary import Reminder, ReminderCreate, ReminderUpdate
 from affinity.models.types import ReminderResetType, ReminderStatus, ReminderType
 from affinity.types import CompanyId, OpportunityId, PersonId, ReminderIdType, UserId
@@ -67,6 +69,17 @@ def _reminder_payload(reminder: Reminder) -> dict[str, object]:
         "updatedAt": reminder.updated_at,
         "completedAt": reminder.completed_at,
     }
+
+
+_INPUT_MODELS = ("ReminderCreate", "ReminderUpdate")
+
+
+def _is_input_error(exc: ValueError) -> bool:
+    """Our own checks, or the request model; not a response the API sent that didn't parse
+    (the write may have happened: a usage error would invite a duplicating retry)."""
+    if isinstance(exc, PydanticValidationError):
+        return exc.title in _INPUT_MODELS
+    return True
 
 
 def _usage(exc: ValueError) -> CLIError:
@@ -321,7 +334,12 @@ def reminder_get(ctx: CLIContext, reminder_id: int) -> None:
     default=None,
     help="What resets a recurring reminder: interaction, email or event (meeting = event).",
 )
-@click.option("--reminder-days", type=int, default=None, help="Days before due date to remind.")
+@click.option(
+    "--reminder-days",
+    type=int,
+    default=None,
+    help="Recurring: days between due dates (1-3650).",
+)
 @click.option("--person-id", type=int, default=None, help="Associate person id.")
 @click.option("--company-id", type=int, default=None, help="Associate company id.")
 @click.option("--opportunity-id", type=int, default=None, help="Associate opportunity id.")
@@ -396,6 +414,8 @@ def reminder_create(
                 )
             )
         except ValueError as exc:
+            if not _is_input_error(exc):
+                raise
             raise _usage(exc) from exc
 
         # Build CommandContext for reminder create
@@ -457,7 +477,12 @@ def reminder_create(
     default=None,
     help="What resets a recurring reminder: interaction, email or event (meeting = event).",
 )
-@click.option("--reminder-days", type=int, default=None, help="Days before due date to remind.")
+@click.option(
+    "--reminder-days",
+    type=int,
+    default=None,
+    help="Recurring: days between due dates (1-3650).",
+)
 @click.option("--clear-content", is_flag=True, help="Remove the reminder's content.")
 @click.option(
     "--completed/--not-completed",
@@ -528,6 +553,8 @@ def reminder_update(
                 ReminderIdType(reminder_id), ReminderUpdate.model_validate(changes)
             )
         except ValueError as exc:
+            if not _is_input_error(exc):
+                raise
             raise _usage(exc) from exc
 
         # Build CommandContext for reminder update

@@ -172,3 +172,13 @@ async def test_async_lists_and_entries() -> None:
         assert not hasattr(client.lists.entries(ListId(9)), "add_opportunity")
     assert _body(create) == {"name": "X", "type": "person", "isPublic": True}
     assert add.called and entry.entity_id == 7
+
+
+def test_add_with_an_old_pin_raises_the_version_error_unchanged() -> None:
+    from affinity.exceptions import ApiVersionTooOldError
+
+    with (
+        Affinity(api_key="k", max_retries=0, affinity_api_version="2024-01-01") as client,
+        pytest.raises(ApiVersionTooOldError),
+    ):
+        client.lists.entries(ListId(9)).add_person(PersonId(2))

@@ -4546,7 +4546,7 @@
         "--reminder-days": {
           "type": "int",
           "required": false,
-          "help": "Days before due date to remind."
+          "help": "Recurring: days between due dates (1-3650)."
         },
         "--reset-type": {
           "type": "string",
@@ -4805,7 +4805,7 @@
         "--reminder-days": {
           "type": "int",
           "required": false,
-          "help": "Days before due date to remind."
+          "help": "Recurring: days between due dates (1-3650)."
         },
         "--reset-type": {
           "type": "string",

@@ -433,12 +433,7 @@ class OpportunityService:
             json={"name": data.name},
             min_api_version=OPPORTUNITY_WRITES_MIN_API_VERSION,
         )
-        return Opportunity.model_validate(
-            self._client.get(
-                f"/opportunities/{int(opportunity_id)}",
-                min_api_version=OPPORTUNITY_WRITES_MIN_API_VERSION,
-            )
-        )
+        return Opportunity.model_validate(self._client.get(f"/opportunities/{int(opportunity_id)}"))
 
     def delete(self, opportunity_id: OpportunityId) -> bool:
         """Delete an opportunity and its list entries (V2, Affinity API 2026-09-17+).
@@ -1259,10 +1254,7 @@ class AsyncOpportunityService:
             min_api_version=OPPORTUNITY_WRITES_MIN_API_VERSION,
         )
         return Opportunity.model_validate(
-            await self._client.get(
-                f"/opportunities/{int(opportunity_id)}",
-                min_api_version=OPPORTUNITY_WRITES_MIN_API_VERSION,
-            )
+            await self._client.get(f"/opportunities/{int(opportunity_id)}")
         )
 
     async def delete(self, opportunity_id: OpportunityId) -> bool:

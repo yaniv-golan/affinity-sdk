@@ -170,3 +170,12 @@ def test_delete(respx_mock: respx.MockRouter) -> None:
     code, out = _run(["note", "delete", "10", "--yes"])
     assert code == 0 and out["data"] == {"success": True}
     assert route.called
+
+
+def test_a_malformed_api_response_is_not_a_usage_error(respx_mock: respx.MockRouter) -> None:
+    respx_mock.post(f"{V2}/notes").mock(return_value=Response(201, json={"id": 10}))
+    code, out = _run(
+        ["note", "create", "--content", "x", "--person-id", "3", "--skip-duplicate-check"]
+    )
+    assert code != 2
+    assert out["error"]["type"] != "usage_error"

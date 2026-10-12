@@ -142,8 +142,8 @@ def _person_create_body(data: PersonCreate) -> dict[str, Any]:
         "lastName": data.last_name,
         "primaryEmailAddress": emails[0] if emails else None,
     }
-    if emails:
-        body["emailAddresses"] = emails
+    # Explicitly empty: omitted, V2 would default it to [primaryEmailAddress] (null here)
+    body["emailAddresses"] = emails
     return body
 
 
@@ -1138,6 +1138,11 @@ class PersonService:
 
         if data.company_ids:
             # V2 can't link a new person to companies: create through V1 (documented exception)
+            if not data.last_name:
+                raise ValueError(
+                    "A person created with company_ids goes through the V1 API, which needs a "
+                    "last name"
+                )
             payload = data.model_dump(by_alias=True, mode="json")
             result = self._client.post("/persons", json=payload, v1=True)
         else:
@@ -2472,6 +2477,11 @@ class AsyncPersonService:
 
         if data.company_ids:
             # V2 can't link a new person to companies: create through V1 (documented exception)
+            if not data.last_name:
+                raise ValueError(
+                    "A person created with company_ids goes through the V1 API, which needs a "
+                    "last name"
+                )
             payload = data.model_dump(by_alias=True, mode="json")
             result = await self._client.post("/persons", json=payload, v1=True)
         else:

@@ -203,3 +203,10 @@ def test_writes_are_destructive_in_json_help() -> None:
         assert commands[name]["category"] == "write", name
     for name in ("webhook ls", "webhook get"):
         assert commands[name]["category"] == "read", name
+
+
+def test_update_refusal_says_what_it_changes(respx_mock: respx.MockRouter) -> None:
+    respx_mock.post(f"{V2}/webhooks/7").mock(return_value=Response(204))
+    code, out = _run(["webhook", "update", "7", "--status", "disabled"])
+    assert code == 2
+    assert "changes where or which CRM events are sent" in out["error"]["message"]

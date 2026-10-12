@@ -177,7 +177,8 @@ class WebhookService:
 
         Two requests: the update answers with no body, so the webhook is fetched afterwards.
         Changing ``url`` on an active webhook, or setting ``status`` to active, sends a test
-        delivery first. Only the creator, or a user who may manage all webhooks, can update it.
+        delivery first. A webhook you didn't create, without permission to manage all webhooks,
+        is not visible to you (``NotFoundError``).
         """
         self._client.post(
             f"/webhooks/{int(webhook_id)}",
@@ -187,7 +188,8 @@ class WebhookService:
         return self.get(webhook_id)
 
     def delete(self, webhook_id: WebhookId) -> None:
-        """Delete a webhook (its creator, or a user who may manage all webhooks)."""
+        """Delete a webhook. One you didn't create, without permission to manage all webhooks, is
+        not visible to you (``NotFoundError``)."""
         self._client.delete(
             f"/webhooks/{int(webhook_id)}", min_api_version=WEBHOOKS_MIN_API_VERSION
         )

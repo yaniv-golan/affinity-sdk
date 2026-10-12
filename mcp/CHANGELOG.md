@@ -14,14 +14,17 @@ this ships.
 
 - Webhook commands (`webhook ls|get|create|update|delete`) in the command registry.
   `webhook create`, `update` and `delete` need the user's confirmation, like deletes; for
-  create/update the confirmation says the webhook sends CRM events to an outside URL instead of
-  "cannot be undone".
+  create/update the confirmation says what the webhook does with CRM events instead of "cannot
+  be undone". `AFFINITY_MCP_DISABLE_DESTRUCTIVE` blocks them too.
 
 ### Changed
 
 - `note create`/`note update` use the V2 API: content is stored as HTML (plain text is
   escaped), `note update --type plain-text|html`, `note create --type` is plain-text or html.
-- `list get <id>` no longer has `.data.list.fields` (use `.data.fields`), and adds `createdAt`.
+- `list get <id>` no longer has `.data.list.fields` (use `.data.fields`); `additionalPermissions`
+  is always `[]`; adds `createdAt`.
+- `list entry add`: `.data.listEntry.entity` is V2's person/company shape; `creatorId` may be
+  null.
 - `opportunity update --name` alone omits `personIds`/`organizationIds` from its output (they
   were always empty after a rename).
 - `reminder` commands use the V2 API: `reminder update --clear-content`, `--reset-type event`

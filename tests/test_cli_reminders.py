@@ -230,3 +230,24 @@ def test_delete(respx_mock: respx.MockRouter) -> None:
     code, out = _run(["reminder", "delete", "11", "--yes"])
     assert code == 0 and out["data"] == {"success": True}
     assert deleted.calls[0].request.headers["x-affinity-api-version"] == "2026-07-15"
+
+
+def test_a_malformed_api_response_is_not_a_usage_error(respx_mock: respx.MockRouter) -> None:
+    # The reminder was created; reporting a usage error would invite a retry (a duplicate)
+    respx_mock.post(f"{V2}/reminders").mock(return_value=Response(201, json={"id": 11}))
+    code, out = _run(
+        [
+            "reminder",
+            "create",
+            "--type",
+            "one-time",
+            "--owner-id",
+            "2",
+            "--person-id",
+            "5",
+            "--due-date",
+            "2026-11-01T09:00:00Z",
+        ]
+    )
+    assert code != 2
+    assert out["error"]["type"] != "usage_error"

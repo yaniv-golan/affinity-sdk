@@ -490,7 +490,7 @@ those to V2 is planned.
 | List Entries (write) | Create | ✅ | V1 |
 | Field Values (read) | ✅ | ✅ | V2 |
 | Field Values (write) | ✅ | ✅ | V2 (list entries), V1 (companies/persons) |
-| Notes | ✅ | ✅ | V1 |
+| Notes | ✅ | ✅ | V1 reads; V2 writes |
 | Reminders | ✅ | ✅ | V2 (V1 for type changes, and when V2 refuses a non-owner) |
 | Webhooks | ✅ | ✅ | V2 |
 | Interactions | Read-only | ✅ | V1 |

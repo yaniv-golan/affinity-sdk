@@ -723,8 +723,9 @@ def test_note_create_dedup_outside_window_does_not_warn(
 
 
 @pytest.mark.req("CLI-NOTE-DUPLICATE-WARN")
-def test_note_create_dedup_matches_a_copy_stored_as_html(respx_mock: respx.MockRouter) -> None:
-    """V2 stores notes as HTML: an earlier copy holding the converted text still counts."""
+def test_note_create_dedup_matches_the_v1_markdown_form(respx_mock: respx.MockRouter) -> None:
+    """V1 shows a note stored as HTML in a markdown form (escaped underscores, two spaces before
+    a line break); an earlier copy in that form still counts as a duplicate."""
     from datetime import datetime, timezone
 
     routes = _setup_note_dedup_mocks(
@@ -732,7 +733,7 @@ def test_note_create_dedup_matches_a_copy_stored_as_html(respx_mock: respx.MockR
         existing_note={
             "id": 556,
             "creator_id": 42,
-            "content": "<p>Hello &lt;world&gt;</p>",
+            "content": "Met snake\\_case & a < b  \nline two\n\nNext",
             "type": 2,
             "personIds": [3],
             "organizationIds": [],
@@ -742,7 +743,15 @@ def test_note_create_dedup_matches_a_copy_stored_as_html(respx_mock: respx.MockR
     )
     result = CliRunner().invoke(
         cli,
-        ["--json", "note", "create", "--content", "Hello <world>", "--person-id", "3"],
+        [
+            "--json",
+            "note",
+            "create",
+            "--content",
+            "Met snake_case & a < b\nline two\n\nNext",
+            "--person-id",
+            "3",
+        ],
         env={"AFFINITY_API_KEY": "test-key"},
     )
     assert result.exit_code == 0, result.output

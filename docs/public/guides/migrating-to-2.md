@@ -67,7 +67,7 @@ markdown-like form. Changing the text of a note that @mentions people is refused
 
 | 1.x | 2.0 |
 |---|---|
-| `persons.create()` | V2 (first email is primary; `last_name` may be `None`); with `company_ids`, V1 as before |
+| `persons.create()` | V2 (first email is primary; `last_name` accepts `None`); with `company_ids`, V1 as before (needs a last name) |
 | `opportunities.update(name=…)` | V2; the result's `person_ids`/`company_ids` are empty (use `get_details()`) |
 | `opportunities.update(person_ids=/company_ids=)` | V1, unchanged |
 | `OpportunityUpdate()` with nothing set | `ValueError` |
