@@ -32,11 +32,14 @@ from ..exceptions import (
 )
 from ..exceptions import ValidationError as AffinityValidationError
 from ..models.entities import (
+    Company,
     FieldCreate,
     FieldMetadata,
     FieldValue,
     FieldValueChange,
     FieldValueCreate,
+    Opportunity,
+    Person,
 )
 from ..models.interactions_v2 import CallV2, ChatMessageV2, EmailV2, MeetingV2
 from ..models.pagination import AsyncPageIterator, PageIterator, PaginatedResponse, PaginationInfo
@@ -175,6 +178,7 @@ def _coerce_isoformat(payload: dict[str, Any], keys: tuple[str, ...]) -> None:
 
 
 FILES_V2_MIN_API_VERSION = "2026-09-17"
+MEETING_MIN_API_VERSION = "2026-07-15"
 
 
 def _file_params(
@@ -198,6 +202,17 @@ def _file_params(
     params: list[tuple[str, Any]] = []
     if clauses:
         params.append(("filter", " & ".join(clauses)))
+    if limit is not None:
+        params.append(("limit", limit))
+    if total_count:
+        params.append(("totalCount", "true"))
+    return params
+
+
+def _attached_params(limit: int | None, total_count: bool) -> list[tuple[str, Any]]:
+    if limit is not None and not 1 <= limit <= 100:
+        raise ValueError("'limit' must be between 1 and 100")
+    params: list[tuple[str, Any]] = []
     if limit is not None:
         params.append(("limit", limit))
     if total_count:
@@ -557,6 +572,77 @@ class NoteService(NoteSearchMixin):
 
         return PageIterator(fetch_page)
 
+    def list_attached_companies(
+        self,
+        note_id: NoteId,
+        *,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[Company]:
+        """One page of the companies a note is attached to (V2). ``limit`` is 1-100."""
+        return self._attached("companies", Company, note_id, limit, total_count, cursor)
+
+    def list_attached_persons(
+        self,
+        note_id: NoteId,
+        *,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[Person]:
+        """One page of the persons a note is attached to (V2). ``limit`` is 1-100."""
+        return self._attached("persons", Person, note_id, limit, total_count, cursor)
+
+    def list_attached_opportunities(
+        self,
+        note_id: NoteId,
+        *,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[Opportunity]:
+        """One page of the opportunities a note is attached to (V2). ``limit`` is 1-100."""
+        return self._attached("opportunities", Opportunity, note_id, limit, total_count, cursor)
+
+    def iter_attached_companies(self, note_id: NoteId) -> Iterator[Company]:
+        """Every company a note is attached to (all pages)."""
+        return PageIterator(
+            lambda c: self.list_attached_companies(note_id, cursor=c, limit=None if c else 100)
+        )
+
+    def iter_attached_persons(self, note_id: NoteId) -> Iterator[Person]:
+        """Every person a note is attached to (all pages)."""
+        return PageIterator(
+            lambda c: self.list_attached_persons(note_id, cursor=c, limit=None if c else 100)
+        )
+
+    def iter_attached_opportunities(self, note_id: NoteId) -> Iterator[Opportunity]:
+        """Every opportunity a note is attached to (all pages)."""
+        return PageIterator(
+            lambda c: self.list_attached_opportunities(note_id, cursor=c, limit=None if c else 100)
+        )
+
+    def _attached(
+        self,
+        kind: str,
+        model: type[Any],
+        note_id: NoteId,
+        limit: int | None,
+        total_count: bool,
+        cursor: str | None,
+    ) -> PaginatedResponse[Any]:
+        check_cursor_alone(cursor, limit, total_count)
+        if cursor is not None:
+            return page_of(model, self._client.get_url(cursor))
+        return page_of(
+            model,
+            self._client.get(
+                f"/notes/{int(note_id)}/attached-{kind}",
+                params=_attached_params(limit, total_count) or None,
+            ),
+        )
+
 
 # =============================================================================
 # Interaction Service (V1 API)
@@ -882,6 +968,14 @@ class InteractionService:
             limit=limit,
         )
         return page_of(MeetingV2, self._client.get("/meetings", params=params or None))
+
+    def get_meeting(self, meeting_id: int) -> MeetingV2:
+        """One meeting (V2, Affinity API 2026-07-15+), if the key's user may see it."""
+        return MeetingV2.model_validate(
+            self._client.get(
+                f"/meetings/{int(meeting_id)}", min_api_version=MEETING_MIN_API_VERSION
+            )
+        )
 
     def iter_meetings(
         self,
@@ -2647,6 +2741,87 @@ class AsyncNoteService(AsyncNoteSearchMixin):
 
         return AsyncPageIterator(fetch_page)
 
+    async def list_attached_companies(
+        self,
+        note_id: NoteId,
+        *,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[Company]:
+        """One page of the companies a note is attached to (V2). ``limit`` is 1-100."""
+        return await self._attached("companies", Company, note_id, limit, total_count, cursor)
+
+    async def list_attached_persons(
+        self,
+        note_id: NoteId,
+        *,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[Person]:
+        """One page of the persons a note is attached to (V2). ``limit`` is 1-100."""
+        return await self._attached("persons", Person, note_id, limit, total_count, cursor)
+
+    async def list_attached_opportunities(
+        self,
+        note_id: NoteId,
+        *,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[Opportunity]:
+        """One page of the opportunities a note is attached to (V2). ``limit`` is 1-100."""
+        return await self._attached(
+            "opportunities", Opportunity, note_id, limit, total_count, cursor
+        )
+
+    def iter_attached_companies(self, note_id: NoteId) -> AsyncIterator[Company]:
+        """Every company a note is attached to (all pages)."""
+
+        async def fetch(c: str | None) -> PaginatedResponse[Company]:
+            return await self.list_attached_companies(note_id, cursor=c, limit=None if c else 100)
+
+        return AsyncPageIterator(fetch)
+
+    def iter_attached_persons(self, note_id: NoteId) -> AsyncIterator[Person]:
+        """Every person a note is attached to (all pages)."""
+
+        async def fetch(c: str | None) -> PaginatedResponse[Person]:
+            return await self.list_attached_persons(note_id, cursor=c, limit=None if c else 100)
+
+        return AsyncPageIterator(fetch)
+
+    def iter_attached_opportunities(self, note_id: NoteId) -> AsyncIterator[Opportunity]:
+        """Every opportunity a note is attached to (all pages)."""
+
+        async def fetch(c: str | None) -> PaginatedResponse[Opportunity]:
+            return await self.list_attached_opportunities(
+                note_id, cursor=c, limit=None if c else 100
+            )
+
+        return AsyncPageIterator(fetch)
+
+    async def _attached(
+        self,
+        kind: str,
+        model: type[Any],
+        note_id: NoteId,
+        limit: int | None,
+        total_count: bool,
+        cursor: str | None,
+    ) -> PaginatedResponse[Any]:
+        check_cursor_alone(cursor, limit, total_count)
+        if cursor is not None:
+            return page_of(model, await self._client.get_url(cursor))
+        return page_of(
+            model,
+            await self._client.get(
+                f"/notes/{int(note_id)}/attached-{kind}",
+                params=_attached_params(limit, total_count) or None,
+            ),
+        )
+
 
 class AsyncInteractionService:
     """Async service for managing interactions (V1 API)."""
@@ -2939,6 +3114,14 @@ class AsyncInteractionService:
             limit=limit,
         )
         return page_of(MeetingV2, await self._client.get("/meetings", params=params or None))
+
+    async def get_meeting(self, meeting_id: int) -> MeetingV2:
+        """One meeting (V2); see :meth:`InteractionService.get_meeting`."""
+        return MeetingV2.model_validate(
+            await self._client.get(
+                f"/meetings/{int(meeting_id)}", min_api_version=MEETING_MIN_API_VERSION
+            )
+        )
 
     def iter_meetings(
         self,

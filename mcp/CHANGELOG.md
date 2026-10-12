@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Works with CLI 2.0.1: `note get` content is now the stored HTML (same keys).
 
+### Added
+
+- `team ls|get`, `user ls|get`, `meeting get`, `note attached` (reads) and `feedback send`
+  (needs the user's confirmation: the text goes to Affinity's product team) in the registry.
+
 ### Changed
 
 - On mcp-bash 1.9.1 (was 1.8.0). A tool that times out returns the standard error result

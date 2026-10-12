@@ -1321,3 +1321,74 @@ back.
 ```bash
 xaffinity webhook delete 12
 ```
+
+## Teams and users
+
+### `xaffinity team ls`
+
+The teams you can see (V2, beta; Affinity API 2026-09-17+).
+
+```bash
+xaffinity team ls --all
+xaffinity team ls --name-contains invest --with-members
+```
+
+`--name` matches exactly, `--name-contains` anywhere. `--with-members` / `--with-lists` add the
+first 10 members / accessible lists and the totals. `--sort name|-name|createdAt|-createdAt`.
+
+### `xaffinity team get <teamId>`
+
+```bash
+xaffinity team get 42 --with-members --with-lists
+```
+
+### `xaffinity user ls`
+
+The organization's internal users. A user's id is also their person id.
+
+```bash
+xaffinity user ls --term ann
+xaffinity user ls --status active --all
+```
+
+Rows: `id`, `name`, `email`, `status`, and `role` / `emails` (null without the "Manage Users"
+permission).
+
+### `xaffinity user get <userId>`
+
+```bash
+xaffinity user get 26229794
+```
+
+## Meetings
+
+### `xaffinity meeting get <meetingId>`
+
+One meeting: title, times, organizer, creator and attendees (V2, API 2026-07-15+). For many
+meetings, use `interaction feed --type meeting`.
+
+```bash
+xaffinity meeting get 123456
+```
+
+## Note attachments
+
+### `xaffinity note attached <noteId>`
+
+Every company, person and opportunity a note is attached to (all of them; `note get` shows a
+preview).
+
+```bash
+xaffinity note attached 33410431
+```
+
+## Feedback
+
+### `xaffinity feedback send`
+
+Send feedback to Affinity's product team. Asks for confirmation (`--yes` in scripts): the text
+leaves your organization.
+
+```bash
+xaffinity feedback send --type api --subject "Note edits with mentions" --body "..."
+```

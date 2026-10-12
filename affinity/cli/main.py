@@ -444,6 +444,10 @@ from .commands.interaction_cmds import interaction_group as _interaction_group
 from .commands.list_cmds import list_group as _list_group
 from .commands.note_cmds import note_group as _note_group
 from .commands.opportunity_cmds import opportunity_group as _opportunity_group
+from .commands.org_cmds import feedback_group as _feedback_group
+from .commands.org_cmds import meeting_group as _meeting_group
+from .commands.org_cmds import team_group as _team_group
+from .commands.org_cmds import user_group as _user_group
 from .commands.person_cmds import person_group as _person_group
 from .commands.query_cmd import query_cmd as _query_cmd
 from .commands.relationship_strength_cmds import (
@@ -483,4 +487,8 @@ cli.add_command(_relationship_strength_group)
 cli.add_command(_session_group)
 cli.add_command(_task_group)
 cli.add_command(_webhook_group)
+cli.add_command(_team_group)
+cli.add_command(_user_group)
+cli.add_command(_meeting_group)
+cli.add_command(_feedback_group)
 cli.add_command(_query_cmd)

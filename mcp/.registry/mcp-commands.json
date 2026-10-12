@@ -690,6 +690,34 @@
     "webhook delete": {
       "whenToUse": "Delete a webhook. Confirm the webhook (id and url from 'webhook ls') with the user first.",
       "relatedCommands": ["webhook ls", "webhook update"]
+    },
+    "team ls": {
+      "whenToUse": "List the organization's teams (needs Affinity API 2026-09-17). --name (exact) or --name-contains; --with-members / --with-lists add the first 10 members / accessible lists with totals.",
+      "relatedCommands": ["team get", "user ls"]
+    },
+    "team get": {
+      "whenToUse": "Show one team by id; --with-members / --with-lists add members and accessible lists.",
+      "relatedCommands": ["team ls"]
+    },
+    "user ls": {
+      "whenToUse": "List the organization's internal users (colleagues): id, name, email, status. --term matches name or email; --status active|invited|deactivated. A user's id is also their person id.",
+      "relatedCommands": ["user get", "person get"]
+    },
+    "user get": {
+      "whenToUse": "Show one internal user by id (the same id as their person record).",
+      "relatedCommands": ["user ls", "person get"]
+    },
+    "meeting get": {
+      "whenToUse": "Show one meeting by id: title, times, organizer, creator, attendees. For many meetings use 'interaction feed --type meeting'.",
+      "relatedCommands": ["interaction feed", "transcript ls"]
+    },
+    "note attached": {
+      "whenToUse": "List every company, person and opportunity a note is attached to (all of them, not just the preview in note get).",
+      "relatedCommands": ["note get", "note feed"]
+    },
+    "feedback send": {
+      "whenToUse": "Send feedback to Affinity's product team about the API, the MCP server, or something else. Only when the user asks to send feedback; confirm the exact subject and text with them first.",
+      "relatedCommands": []
     }
   }
 }

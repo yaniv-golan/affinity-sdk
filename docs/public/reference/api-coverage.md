@@ -6,7 +6,7 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V2 API
 
-82 supported, 30 planned
+91 supported, 21 planned
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -33,7 +33,7 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/duplicates/company-suggestions` | planned |  | beta; API 2026-07-15+; phase 2.x-2 |
 | `GET /v2/duplicates/person-suggestions` | planned |  | beta; API 2026-07-15+; phase 2.x-2 |
 | `GET /v2/emails` | supported | `interactions.list_emails()` |  |
-| `POST /v2/feedback` | planned |  | phase 2.x-1 |
+| `POST /v2/feedback` | supported | `feedback.send("api", "s", "b")` |  |
 | `GET /v2/field-value-changes` | supported | `field_value_changes.list_global(field_id=FieldId(1))` |  |
 | `GET /v2/files` | supported | `files.feed()` | beta; API 2026-09-17+ |
 | `POST /v2/files/search` | supported | `files.search("prompt text")` |  |
@@ -63,16 +63,16 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/lists/{listId}/saved-views/{viewId}` | supported | `lists.get_saved_view(ListId(1), SavedViewId(1))` |  |
 | `GET /v2/lists/{listId}/saved-views/{viewId}/list-entries` | supported | `lists.entries(ListId(1)).from_saved_view(SavedViewId(1))` |  |
 | `GET /v2/meetings` | supported | `interactions.list_meetings()` |  |
-| `GET /v2/meetings/{meetingId}` | planned |  | beta; API 2026-07-15+; phase 2.x-1 |
+| `GET /v2/meetings/{meetingId}` | supported | `interactions.get_meeting(1)` | beta; API 2026-07-15+ |
 | `GET /v2/notes` | supported | `notes.feed()` |  |
 | `POST /v2/notes` | supported | `notes.create(NoteCreate(content="x", person_ids=[PersonId(1)]))` |  |
 | `POST /v2/notes/search` | supported | `notes.search("prompt text")` |  |
 | `DELETE /v2/notes/{noteId}` | supported | `notes.delete(NoteId(1))` |  |
 | `GET /v2/notes/{noteId}` | supported | `notes.get(NoteId(1))` |  |
 | `POST /v2/notes/{noteId}` | supported | `notes.update(NoteId(1), NoteUpdate(content="x"))` |  |
-| `GET /v2/notes/{noteId}/attached-companies` | planned |  | phase 2.x-1 |
-| `GET /v2/notes/{noteId}/attached-opportunities` | planned |  | phase 2.x-1 |
-| `GET /v2/notes/{noteId}/attached-persons` | planned |  | phase 2.x-1 |
+| `GET /v2/notes/{noteId}/attached-companies` | supported | `notes.list_attached_companies(NoteId(1))` |  |
+| `GET /v2/notes/{noteId}/attached-opportunities` | supported | `notes.list_attached_opportunities(NoteId(1))` |  |
+| `GET /v2/notes/{noteId}/attached-persons` | supported | `notes.list_attached_persons(NoteId(1))` |  |
 | `GET /v2/notes/{noteId}/replies` | supported | `notes.list_replies(NoteId(1))` |  |
 | `GET /v2/opportunities` | supported | `opportunities.list()` |  |
 | `DELETE /v2/opportunities/{opportunityId}` | planned |  | beta; API 2026-09-17+; phase when-live |
@@ -109,14 +109,14 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/tasks/company-merges/{taskId}` | supported | `companies.get_merge_status("t1")` |  |
 | `GET /v2/tasks/person-merges` | supported | `tasks.list_merge_tasks("person")` |  |
 | `GET /v2/tasks/person-merges/{taskId}` | supported | `persons.get_merge_status("t1")` |  |
-| `GET /v2/teams` | planned |  | beta; API 2026-09-17+; phase 2.x-1 |
-| `GET /v2/teams/{teamId}` | planned |  | beta; API 2026-09-17+; phase 2.x-1 |
+| `GET /v2/teams` | supported | `teams.list()` | beta; API 2026-09-17+ |
+| `GET /v2/teams/{teamId}` | supported | `teams.get(1)` | beta; API 2026-09-17+ |
 | `GET /v2/transcripts` | supported | `transcripts.list()` |  |
 | `DELETE /v2/transcripts/{transcriptId}` | planned |  | beta; API 2026-09-17+; phase when-live |
 | `GET /v2/transcripts/{transcriptId}` | supported | `transcripts.get(1)` |  |
 | `GET /v2/transcripts/{transcriptId}/fragments` | supported | `transcripts.fragments(1)` |  |
-| `GET /v2/users` | planned |  | beta; phase 2.x-1 |
-| `GET /v2/users/{userId}` | planned |  | beta; phase 2.x-1 |
+| `GET /v2/users` | supported | `users.list()` | beta |
+| `GET /v2/users/{userId}` | supported | `users.get(UserId(1))` | beta |
 | `GET /v2/webhooks` | supported | `webhooks.list()` | beta; API 2026-07-15+ |
 | `POST /v2/webhooks` | supported | `webhooks.create(WebhookCreate(url="https://example.com/h", subscriptions=[]))` | beta; API 2026-07-15+ |
 | `DELETE /v2/webhooks/{webhookId}` | supported | `webhooks.delete(WebhookId(1))` | beta; API 2026-07-15+ |

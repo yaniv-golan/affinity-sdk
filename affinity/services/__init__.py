@@ -5,6 +5,7 @@ API service implementations.
 from .companies import CompanyService
 from .lists import ListEntryService, ListService
 from .opportunities import OpportunityService
+from .org import FeedbackService, TeamService, UserService
 from .persons import PersonService
 from .rate_limits import RateLimitService
 from .reminders import ReminderService
@@ -30,6 +31,9 @@ __all__ = [
     "RateLimitService",
     "ReminderService",
     "WebhookService",
+    "TeamService",
+    "UserService",
+    "FeedbackService",
     # V1-only services
     "NoteService",
     "InteractionService",

@@ -1039,6 +1039,46 @@
       ]
     },
     {
+      "name": "feedback send",
+      "description": "Send feedback to Affinity's product team. Asks for confirmation (--yes in scripts):",
+      "category": "write",
+      "destructive": true,
+      "progressCapable": false,
+      "parameters": {
+        "--body": {
+          "type": "string",
+          "required": true,
+          "help": "The feedback (up to 10,000 characters)."
+        },
+        "--subject": {
+          "type": "string",
+          "required": true,
+          "help": "Subject (up to 255 characters)."
+        },
+        "--type": {
+          "type": "string",
+          "required": true,
+          "help": "What it is about: the API, the MCP server, or something else.",
+          "choices": [
+            "api",
+            "mcp",
+            "other"
+          ]
+        },
+        "--yes": {
+          "type": "flag",
+          "required": false,
+          "help": "Skip confirmation prompt.",
+          "aliases": [
+            "-y"
+          ]
+        }
+      },
+      "positionals": [],
+      "whenToUse": "Send feedback to Affinity's product team about the API, the MCP server, or something else. Only when the user asks to send feedback; confirm the exact subject and text with them first.",
+      "relatedCommands": []
+    },
+    {
       "name": "field changes",
       "description": "List field value changes across all entities and fields (V2).",
       "category": "read",
@@ -2562,6 +2602,46 @@
           "-A"
         ]
       }
+    },
+    {
+      "name": "meeting get",
+      "description": "Show one meeting: title, times, organizer, creator and attendees (V2, API 2026-07-15+).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {},
+      "positionals": [
+        {
+          "name": "MEETING_ID",
+          "type": "int",
+          "required": true
+        }
+      ],
+      "whenToUse": "Show one meeting by id: title, times, organizer, creator, attendees. For many meetings use 'interaction feed --type meeting'.",
+      "relatedCommands": [
+        "interaction feed",
+        "transcript ls"
+      ]
+    },
+    {
+      "name": "note attached",
+      "description": "Every company, person and opportunity a note is attached to (V2, all pages).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {},
+      "positionals": [
+        {
+          "name": "NOTE_ID",
+          "type": "int",
+          "required": true
+        }
+      ],
+      "whenToUse": "List every company, person and opportunity a note is attached to (all of them, not just the preview in note get).",
+      "relatedCommands": [
+        "note get",
+        "note feed"
+      ]
     },
     {
       "name": "note create",
@@ -5010,6 +5090,119 @@
       ]
     },
     {
+      "name": "team get",
+      "description": "Show one team.",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--with-lists": {
+          "type": "flag",
+          "required": false,
+          "help": "Add the first 10 lists the team can access and the total."
+        },
+        "--with-members": {
+          "type": "flag",
+          "required": false,
+          "help": "Add the first 10 members and the total."
+        }
+      },
+      "positionals": [
+        {
+          "name": "TEAM_ID",
+          "type": "int",
+          "required": true
+        }
+      ],
+      "whenToUse": "Show one team by id; --with-members / --with-lists add members and accessible lists.",
+      "relatedCommands": [
+        "team ls"
+      ]
+    },
+    {
+      "name": "team ls",
+      "description": "List the teams you can see (id, name, createdAt; members/lists with the flags).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a nextCursor."
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        },
+        "--name": {
+          "type": "string",
+          "required": false,
+          "help": "Exact team name."
+        },
+        "--name-contains": {
+          "type": "string",
+          "required": false,
+          "help": "Part of the team name (case-insensitive)."
+        },
+        "--sort": {
+          "type": "string",
+          "required": false,
+          "help": "Order (default name; '-' for descending).",
+          "choices": [
+            "name",
+            "-name",
+            "createdAt",
+            "-createdAt"
+          ]
+        },
+        "--with-lists": {
+          "type": "flag",
+          "required": false,
+          "help": "Add the first 10 lists the team can access and the total."
+        },
+        "--with-members": {
+          "type": "flag",
+          "required": false,
+          "help": "Add the first 10 members and the total."
+        }
+      },
+      "positionals": [],
+      "whenToUse": "List the organization's teams (needs Affinity API 2026-09-17). --name (exact) or --name-contains; --with-members / --with-lists add the first 10 members / accessible lists with totals.",
+      "relatedCommands": [
+        "team get",
+        "user ls"
+      ],
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      }
+    },
+    {
       "name": "transcript get",
       "description": "Show a transcript: its note and its dialogue fragments.",
       "category": "read",
@@ -5128,6 +5321,93 @@
         "defaultLimit": 1000,
         "maxLimit": 10000
       },
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      }
+    },
+    {
+      "name": "user get",
+      "description": "Show one user (the id is also the user's person id).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {},
+      "positionals": [
+        {
+          "name": "USER_ID",
+          "type": "int",
+          "required": true
+        }
+      ],
+      "whenToUse": "Show one internal user by id (the same id as their person record).",
+      "relatedCommands": [
+        "user ls",
+        "person get"
+      ]
+    },
+    {
+      "name": "user ls",
+      "description": "List the organization's users (id, name, email, status). `role` and `emails` need the",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a nextCursor."
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        },
+        "--status": {
+          "type": "string",
+          "required": false,
+          "help": "Account status.",
+          "choices": [
+            "active",
+            "invited",
+            "deactivated"
+          ]
+        },
+        "--term": {
+          "type": "string",
+          "required": false,
+          "help": "Match first name, last name or primary email."
+        }
+      },
+      "positionals": [],
+      "whenToUse": "List the organization's internal users (colleagues): id, name, email, status. --term matches name or email; --status active|invited|deactivated. A user's id is also their person id.",
+      "relatedCommands": [
+        "user get",
+        "person get"
+      ],
       "limitConfig": {
         "flag": "--max-results",
         "flagAliases": [
@@ -5455,5 +5735,5 @@
       ]
     }
   ],
-  "total": 91
+  "total": 98
 }

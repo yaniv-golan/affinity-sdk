@@ -28,6 +28,14 @@ from .policies import Policies, WritePolicy
 from .services.companies import AsyncCompanyService, CompanyService
 from .services.lists import AsyncListService, ListService
 from .services.opportunities import AsyncOpportunityService, OpportunityService
+from .services.org import (
+    AsyncFeedbackService,
+    AsyncTeamService,
+    AsyncUserService,
+    FeedbackService,
+    TeamService,
+    UserService,
+)
 from .services.persons import AsyncPersonService, PersonService
 from .services.rate_limits import AsyncRateLimitService, RateLimitService
 from .services.reminders import AsyncReminderService, ReminderService
@@ -279,6 +287,9 @@ class Affinity:
         self._transcripts: TranscriptService | None = None
         self._reminders: ReminderService | None = None
         self._webhooks: WebhookService | None = None
+        self._teams: TeamService | None = None
+        self._users: UserService | None = None
+        self._feedback: FeedbackService | None = None
         self._interactions: InteractionService | None = None
         self._fields: FieldService | None = None
         self._field_values: FieldValueService | None = None
@@ -488,6 +499,27 @@ class Affinity:
         if self._webhooks is None:
             self._webhooks = WebhookService(self._http)
         return self._webhooks
+
+    @property
+    def teams(self) -> TeamService:
+        """Teams (V2, beta; Affinity API 2026-09-17+)."""
+        if self._teams is None:
+            self._teams = TeamService(self._http)
+        return self._teams
+
+    @property
+    def users(self) -> UserService:
+        """The organization's internal users (V2, beta)."""
+        if self._users is None:
+            self._users = UserService(self._http)
+        return self._users
+
+    @property
+    def feedback(self) -> FeedbackService:
+        """Feedback to Affinity's product team."""
+        if self._feedback is None:
+            self._feedback = FeedbackService(self._http)
+        return self._feedback
 
     @property
     def interactions(self) -> InteractionService:
@@ -710,6 +742,9 @@ class AsyncAffinity:
         self._transcripts: AsyncTranscriptService | None = None
         self._reminders: AsyncReminderService | None = None
         self._webhooks: AsyncWebhookService | None = None
+        self._teams: AsyncTeamService | None = None
+        self._users: AsyncUserService | None = None
+        self._feedback: AsyncFeedbackService | None = None
         self._interactions: AsyncInteractionService | None = None
         self._fields: AsyncFieldService | None = None
         self._field_values: AsyncFieldValueService | None = None
@@ -863,6 +898,27 @@ class AsyncAffinity:
         if self._webhooks is None:
             self._webhooks = AsyncWebhookService(self._http)
         return self._webhooks
+
+    @property
+    def teams(self) -> AsyncTeamService:
+        """Teams (V2, beta; Affinity API 2026-09-17+)."""
+        if self._teams is None:
+            self._teams = AsyncTeamService(self._http)
+        return self._teams
+
+    @property
+    def users(self) -> AsyncUserService:
+        """The organization's internal users (V2, beta)."""
+        if self._users is None:
+            self._users = AsyncUserService(self._http)
+        return self._users
+
+    @property
+    def feedback(self) -> AsyncFeedbackService:
+        """Feedback to Affinity's product team."""
+        if self._feedback is None:
+            self._feedback = AsyncFeedbackService(self._http)
+        return self._feedback
 
     @property
     def interactions(self) -> AsyncInteractionService:

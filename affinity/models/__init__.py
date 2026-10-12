@@ -46,6 +46,7 @@ from .entities import (
     SavedView,
 )
 from .interactions_v2 import CallV2, ChatMessageV2, EmailV2, InteractionAttendee, MeetingV2
+from .org import Team, TeamMember, UserAccount, UserStatus
 
 # Pagination
 from .pagination import (
@@ -118,6 +119,11 @@ from .secondary import (
 from .transcripts import Transcript, TranscriptFragment
 
 __all__ = [
+    # Teams and users (V2)
+    "Team",
+    "TeamMember",
+    "UserAccount",
+    "UserStatus",
     # Base
     "AffinityModel",
     # Person

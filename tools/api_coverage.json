@@ -164,8 +164,8 @@
   {
    "op": "POST /v2/feedback",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-1",
+   "status": "supported",
+   "call": "feedback.send(\"api\", \"s\", \"b\")",
    "stability": "ga"
   },
   {
@@ -376,8 +376,8 @@
   {
    "op": "GET /v2/meetings/{meetingId}",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-1",
+   "status": "supported",
+   "call": "interactions.get_meeting(1)",
    "stability": "beta"
   },
   {
@@ -425,22 +425,22 @@
   {
    "op": "GET /v2/notes/{noteId}/attached-companies",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-1",
+   "status": "supported",
+   "call": "notes.list_attached_companies(NoteId(1))",
    "stability": "ga"
   },
   {
    "op": "GET /v2/notes/{noteId}/attached-opportunities",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-1",
+   "status": "supported",
+   "call": "notes.list_attached_opportunities(NoteId(1))",
    "stability": "ga"
   },
   {
    "op": "GET /v2/notes/{noteId}/attached-persons",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-1",
+   "status": "supported",
+   "call": "notes.list_attached_persons(NoteId(1))",
    "stability": "ga"
   },
   {
@@ -702,15 +702,15 @@
   {
    "op": "GET /v2/teams",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-1",
+   "status": "supported",
+   "call": "teams.list()",
    "stability": "beta"
   },
   {
    "op": "GET /v2/teams/{teamId}",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-1",
+   "status": "supported",
+   "call": "teams.get(1)",
    "stability": "beta"
   },
   {
@@ -745,15 +745,15 @@
   {
    "op": "GET /v2/users",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-1",
+   "status": "supported",
+   "call": "users.list()",
    "stability": "beta"
   },
   {
    "op": "GET /v2/users/{userId}",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-1",
+   "status": "supported",
+   "call": "users.get(UserId(1))",
    "stability": "beta"
   },
   {

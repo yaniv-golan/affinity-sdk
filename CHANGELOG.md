@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Teams, users and feedback (V2):** `client.teams.list/iter/get` (Affinity API 2026-09-17+;
+  filter by name, sort, `includes` for the first members and accessible lists),
+  `client.users.list/iter/get` (internal users; `term`, `status`; a user's id is their person
+  id), `client.feedback.send(kind, subject, body)` (to Affinity's product team). New models
+  `Team`, `TeamMember`, `UserAccount`, `UserStatus`.
+- **`interactions.get_meeting(id)`** (V2, API 2026-07-15+) and
+  **`notes.list/iter_attached_companies|persons|opportunities(note_id)`** (every entity a note
+  is attached to, beyond `get()`'s preview).
+- **CLI:** `team ls|get`, `user ls|get`, `meeting get`, `note attached`, `feedback send` (asks
+  for confirmation: the text leaves your organization). The MCP registry has them; `feedback
+  send` goes through the user-confirmation flow.
+
 ## [2.0.1] - 2026-10-12
 
 ### Changed (breaking)

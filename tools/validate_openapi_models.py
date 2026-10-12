@@ -113,6 +113,10 @@ MODEL_MAPPINGS: dict[str, tuple[str, ...]] = {
     "Reminder": ("reminders.OneTimeReminder", "reminders.RecurringReminder"),
     # /v2/files (list items lack downloadUrl)
     "FileV2": ("files.File",),
+    # /v2/teams, /v2/users
+    "Team": ("Team",),
+    "TeamMember": ("TeamMember",),
+    "UserAccount": ("UserData",),
 }
 
 # Models whose schemas first appear in a later API version: checked from that version on, and
@@ -120,6 +124,8 @@ MODEL_MAPPINGS: dict[str, tuple[str, ...]] = {
 MODEL_SINCE: dict[str, str] = {
     "Webhook": "2026-07-15",
     "FileV2": "2026-09-17",
+    "Team": "2026-09-17",
+    "TeamMember": "2026-09-17",
 }
 
 # SDK models deliberately not checked, with the reason.
@@ -599,6 +605,7 @@ def get_sdk_models() -> dict[str, type]:
         InteractionAttendee,
         MeetingV2,
     )
+    from affinity.models.org import Team, TeamMember, UserAccount
     from affinity.models.relationships_v2 import Relationship, RelationshipPerson
     from affinity.models.search import (
         FileRef,
@@ -670,6 +677,9 @@ def get_sdk_models() -> dict[str, type]:
         "Reminder": Reminder,
         "Webhook": Webhook,
         "FileV2": FileV2,
+        "Team": Team,
+        "TeamMember": TeamMember,
+        "UserAccount": UserAccount,
         "PersonRef": PersonRef,
         "CompanyRef": CompanyRef,
         "OpportunityRef": OpportunityRef,

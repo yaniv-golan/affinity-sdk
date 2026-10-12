@@ -126,6 +126,10 @@ if is_destructive "$command"; then
         why="sends CRM events to an outside URL"
         why_sentence="This webhook sends CRM events to an outside URL until it is deleted."
         ;;
+    "feedback send")
+        why="sends a message to Affinity's product team"
+        why_sentence="This sends the text to Affinity's product team, outside your organization."
+        ;;
     "webhook update")
         why="changes where or which CRM events are sent to an outside URL"
         why_sentence="This changes a webhook that sends CRM events to an outside URL."

@@ -85,6 +85,7 @@ nav:
           - Reminders: reference/services/reminders.md
           - Tasks: reference/services/tasks.md
           - Webhooks: reference/services/webhooks.md
+          - Teams, users and feedback: reference/services/teams-users.md
           - V1 endpoints:
               - Notes: reference/services/v1/notes.md
               - Interactions: reference/services/v1/interactions.md
