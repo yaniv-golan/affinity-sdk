@@ -59,8 +59,10 @@ ls|get|create|update|delete`; create, update and delete ask for confirmation.
 | `type=HTML` with any tags | `<b>`/`<i>` become `<strong>`/`<em>`; tags Affinity rejects raise `ValueError` naming the allowed ones |
 | `parent_id` with entity ids (ids ignored) | `ValidationError` |
 
-`note get`/`note ls` and `notes.list/get` still use V1, which shows notes stored as HTML in a
-markdown-like form. Changing the text of a note that @mentions people is refused by the API.
+`notes.get()` returns `NoteV2` (`includes=True` adds the attached companies, persons and
+opportunities); `notes.list_v2()`/`iter_v2()`/`get_v2()` are now `notes.feed()`/`iter_feed()`/
+`get()`. `notes.list()` (one entity's notes) and CLI `note ls` still use V1, which shows notes
+stored as HTML in a markdown-like form. Changing the text of a note that @mentions people is refused by the API.
 
 ## Lists
 
@@ -76,9 +78,9 @@ unchanged (V1): Affinity's V2 spec documents them, but the API didn't serve them
 
 ## Files and rate limits
 
-`files.get/list/iter` are unchanged (V1). New: `files.get_v2()` (with a download URL that
-expires after 60 seconds) and `files.list_v2()`/`iter_v2()` (every file you can see, newest
-first). `rate_limits.refresh()` reads the V2 endpoint; `RateLimitSnapshot` is unchanged.
+`files.list/iter` are unchanged (V1, one entity's files). `files.get()` now reads V2 and
+returns `FileV2` (with a download URL that expires after 60 seconds; no person, company or
+opportunity ids). New: `files.feed()`/`iter_feed()` (every file you can see, newest first). `rate_limits.refresh()` reads the V2 endpoint; `RateLimitSnapshot` is unchanged.
 
 ## CLI and MCP
 

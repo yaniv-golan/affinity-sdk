@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Works with CLI 2.0.1: `note get` content is now the stored HTML (same keys).
+
 ## [2.0.0] - 2026-10-12
 
 Requires CLI 2.0.0 (released together with SDK 2.0.0).

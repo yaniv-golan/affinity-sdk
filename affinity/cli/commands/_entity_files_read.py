@@ -107,8 +107,8 @@ def read_file_content(
                 hint=f"File size is {file_size} bytes. Use --offset 0 to start from beginning.",
             )
 
-        # Get presigned URL
-        presigned = client.files.get_download_url(FileId(file_id))
+        # V2 metadata carries a signed download URL (valid 60s); fall back to V1's redirect
+        download_url = file_meta.download_url or client.files.get_download_url(FileId(file_id)).url
 
         # Calculate actual bytes to read
         remaining = file_size - offset
@@ -121,7 +121,7 @@ def read_file_content(
         try:
             # Use a fresh httpx client for the S3 request (no auth needed)
             with httpx.Client(timeout=60.0) as http_client:
-                response = http_client.get(presigned.url, headers=headers)
+                response = http_client.get(download_url, headers=headers)
                 response.raise_for_status()
                 content_bytes = response.content
         except httpx.HTTPStatusError as e:

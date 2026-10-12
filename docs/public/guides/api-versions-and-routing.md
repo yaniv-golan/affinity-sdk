@@ -28,7 +28,7 @@ Where V2 has the operation but can't do one part of it, that case goes through V
 | `lists.create` | `owner_id` or `additional_permissions` is set |
 | `reminders.update` | `type` is set (V2 can't change a reminder's type) |
 | `reminders.update` / `delete` | V2 refuses (403: only the creator or owner may change it on V2); retried once on V1 |
-| `files.list` / `iter` / `get` | always (only V1 lists one entity's files; `files.list_v2`/`get_v2` are the V2 reads) |
+| `files.list` / `iter` | always (only V1 lists one entity's files; `files.get` and `files.feed` read V2) |
 | `lists.get_size` | always (V2 has no list size) |
 
 The [API coverage](../reference/api-coverage.md) page lists every operation, the SDK call that

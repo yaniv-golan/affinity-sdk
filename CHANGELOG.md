@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-10-12
+
+### Changed (breaking)
+
+**Exception to semantic versioning:** these renames break code written against 2.0.0, in a
+patch release. 2.0.0 had been out for under an hour, and the renames remove method names that
+said which Affinity API they used instead of what they do.
+
+- `notes.list_v2()` / `iter_v2()` → **`notes.feed()` / `iter_feed()`** (every note across the
+  organization; the CLI's `note feed`).
+- `notes.get_v2()` → **`notes.get()`**, which now returns `NoteV2` (`includes=True` adds the
+  attached companies, persons and opportunities). The V1 `notes.get()` (returning `Note`) is
+  removed; `notes.list()` (one entity's notes, V1) is unchanged.
+- `files.list_v2()` / `iter_v2()` → **`files.feed()` / `iter_feed()`** (every file you can see,
+  newest first).
+- `files.get_v2()` → **`files.get()`**, which now returns `FileV2` (with a download URL valid
+  for 60 seconds; Affinity API 2026-09-17+; no person/company/opportunity ids). Async
+  `files.batch_get()` returns `FileV2` too. `files.list()`/`iter()` (one entity's files, V1)
+  are unchanged.
+- CLI `note get` reads the note from V2: same output keys, `content` is the stored HTML (as in
+  `note create`/`update` output), and the attachment ids come from V2.
+- CLI `files read` downloads through V2's signed URL (two fewer requests per read).
+
+### Plugins
+
+- **SDK plugin**: 2.0.0 → 2.0.1 — skill: the renamed note methods.
+
 ## [2.0.0] - 2026-10-12
 
 ### Highlights

@@ -134,8 +134,8 @@ class NoteV2(AffinityModel):
     """V2 API note format.
 
     ``replies_count`` and the attached ``companies`` / ``persons`` / ``opportunities`` (first ones,
-    with ``*_total``) are filled only when requested with ``includes`` (``notes.list_v2`` /
-    ``notes.get_v2``); otherwise they are ``None``.
+    with ``*_total``) are filled only when requested with ``includes`` (``notes.feed`` /
+    ``notes.get``); otherwise they are ``None``.
     """
 
     id: NoteId
@@ -280,9 +280,9 @@ class OpportunityRef(AffinityModel):
 
 
 class FileV2(AffinityModel):
-    """A file's metadata from V2 (``files.get_v2``, ``files.list_v2``).
+    """A file's metadata from V2 (``files.get``, ``files.feed``).
 
-    V2 files carry no person/company/opportunity; ``download_url`` (``get_v2`` only) is a signed
+    V2 files carry no person/company/opportunity; ``download_url`` (``files.get`` only) is a signed
     URL that expires 60 seconds after the response.
     """
 

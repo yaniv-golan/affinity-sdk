@@ -179,7 +179,7 @@
    "op": "GET /v2/files",
    "api": "v2",
    "status": "supported",
-   "call": "files.list_v2()",
+   "call": "files.feed()",
    "stability": "beta"
   },
   {
@@ -193,7 +193,7 @@
    "op": "GET /v2/files/{fileId}",
    "api": "v2",
    "status": "supported",
-   "call": "files.get_v2(FileId(1))",
+   "call": "files.get(FileId(1))",
    "stability": "beta"
   },
   {
@@ -384,7 +384,7 @@
    "op": "GET /v2/notes",
    "api": "v2",
    "status": "supported",
-   "call": "notes.list_v2()",
+   "call": "notes.feed()",
    "stability": "ga"
   },
   {
@@ -412,7 +412,7 @@
    "op": "GET /v2/notes/{noteId}",
    "api": "v2",
    "status": "supported",
-   "call": "notes.get_v2(NoteId(1))",
+   "call": "notes.get(NoteId(1))",
    "stability": "ga"
   },
   {
@@ -801,7 +801,7 @@
    "api": "v1",
    "status": "supported",
    "call": "files.list(company_id=CompanyId(1))",
-   "note": "one person's, company's or opportunity's files (V2 lists only org-wide: files.list_v2)"
+   "note": "one person's, company's or opportunity's files (V2 lists only org-wide: files.feed)"
   },
   {
    "op": "POST /entity-files",
@@ -819,8 +819,8 @@
    "op": "GET /entity-files/{}",
    "api": "v1",
    "status": "supported",
-   "call": "files.get(FileId(1))",
-   "note": "works under any API version pin; files.get_v2 adds a download URL (API 2026-09-17+)"
+   "call": "files.get_download_url(FileId(1))",
+   "note": "file metadata for get_download_url (files.get reads V2)"
   },
   {
    "op": "GET /field-value-changes",
@@ -965,8 +965,8 @@
   {
    "op": "GET /notes/{}",
    "api": "v1",
-   "status": "supported",
-   "call": "notes.get(NoteId(1))"
+   "status": "equivalent",
+   "via": "v2 GET /v2/notes/{noteId}"
   },
   {
    "op": "PUT /notes/{}",

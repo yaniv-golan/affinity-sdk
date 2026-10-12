@@ -486,17 +486,17 @@ def note_feed(
             "updated_after": _when(updated_after, "--updated-after"),
         }
         rows, next_cursor = collect_pages(
-            (lambda: notes.list_v2(cursor=cursor))
+            (lambda: notes.feed(cursor=cursor))
             if cursor is not None
             else (
-                lambda: notes.list_v2(
+                lambda: notes.feed(
                     **times,
                     creator_id=creator_id,
                     includes=True if with_attached else None,
                     limit=page_limit(max_results),
                 )
             ),
-            lambda c: notes.list_v2(cursor=c),
+            lambda c: notes.feed(cursor=c),
             note_row,
             max_results=max_results,
             all_pages=all_pages,

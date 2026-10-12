@@ -28,20 +28,20 @@ if respx is None:  # pragma: no cover
 
 
 # Sample file metadata returned by the V1 API
+# Presigned URL for file download
+PRESIGNED_URL = "https://userfiles.affinity.co/abc123?X-Amz-Expires=60&X-Amz-Signature=xyz"
+
+# V2 file metadata (files.get)
 SAMPLE_FILE_METADATA = {
     "id": 9192757,
     "name": "Pitch Deck 2025.pdf",
     "size": 5242880,  # 5MB
-    "content_type": "application/pdf",
-    "person_id": None,
-    "organization_id": 306016520,
-    "opportunity_id": None,
-    "uploader_id": 222321674,
-    "created_at": "2025-09-16T12:53:13.339Z",
+    "type": "application/pdf",
+    "creator": {"id": 222321674},
+    "createdAt": "2025-09-16T12:53:13Z",
+    "updatedAt": None,
+    "downloadUrl": PRESIGNED_URL,
 }
-
-# Presigned URL for file download
-PRESIGNED_URL = "https://userfiles.affinity.co/abc123?X-Amz-Expires=60&X-Amz-Signature=xyz"
 
 
 class TestParseSize:
@@ -114,7 +114,7 @@ class TestFilesReadCommand:
         file_content = b"Hello, World! This is test content."
 
         # Mock the file metadata endpoint
-        respx_mock.get("https://api.affinity.co/entity-files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
         # Mock the download endpoint to return a redirect
@@ -144,7 +144,7 @@ class TestFilesReadCommand:
     def test_person_files_read_works(self, respx_mock: respx.MockRouter) -> None:
         """person files read command works."""
         file_content = b"Test content"
-        respx_mock.get("https://api.affinity.co/entity-files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
         respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
@@ -165,7 +165,7 @@ class TestFilesReadCommand:
     def test_opportunity_files_read_works(self, respx_mock: respx.MockRouter) -> None:
         """opportunity files read command works."""
         file_content = b"Test content"
-        respx_mock.get("https://api.affinity.co/entity-files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
         respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
@@ -186,7 +186,7 @@ class TestFilesReadCommand:
     def test_files_read_with_offset(self, respx_mock: respx.MockRouter) -> None:
         """files read with offset starts at correct position."""
         file_content = b"Content from offset"
-        respx_mock.get("https://api.affinity.co/entity-files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
         respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
@@ -217,7 +217,7 @@ class TestFilesReadCommand:
     def test_files_read_with_limit(self, respx_mock: respx.MockRouter) -> None:
         """files read with limit respects size limit."""
         file_content = b"Limited content"
-        respx_mock.get("https://api.affinity.co/entity-files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
         respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
@@ -254,7 +254,7 @@ class TestFilesReadChunking:
         """hasMore is true when more content is available."""
         # Create a 100-byte chunk from a 5MB file
         chunk_content = b"x" * 100
-        respx_mock.get("https://api.affinity.co/entity-files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
         respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
@@ -288,7 +288,7 @@ class TestFilesReadChunking:
         # Small file that fits in one read
         small_file = {**SAMPLE_FILE_METADATA, "size": 100}
         chunk_content = b"x" * 100
-        respx_mock.get("https://api.affinity.co/entity-files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
             return_value=Response(200, json=small_file)
         )
         respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
@@ -310,7 +310,7 @@ class TestFilesReadChunking:
     def test_next_offset_calculation(self, respx_mock: respx.MockRouter) -> None:
         """nextOffset is correctly calculated from offset + actual length."""
         chunk_content = b"x" * 500  # 500 bytes
-        respx_mock.get("https://api.affinity.co/entity-files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
         respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
@@ -348,7 +348,7 @@ class TestFilesReadErrors:
 
     def test_negative_offset_error(self, respx_mock: respx.MockRouter) -> None:
         """Negative offset raises error."""
-        respx_mock.get("https://api.affinity.co/entity-files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
 
@@ -376,7 +376,7 @@ class TestFilesReadErrors:
     def test_offset_exceeds_file_size_error(self, respx_mock: respx.MockRouter) -> None:
         """Offset >= file size raises error."""
         small_file = {**SAMPLE_FILE_METADATA, "size": 100}
-        respx_mock.get("https://api.affinity.co/entity-files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
             return_value=Response(200, json=small_file)
         )
 
@@ -444,7 +444,7 @@ class TestFilesReadErrors:
 
     def test_s3_range_not_satisfiable_error(self, respx_mock: respx.MockRouter) -> None:
         """S3 416 Range Not Satisfiable is handled gracefully."""
-        respx_mock.get("https://api.affinity.co/entity-files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
         respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(

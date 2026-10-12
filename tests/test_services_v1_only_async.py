@@ -124,8 +124,6 @@ async def test_async_note_service_crud() -> None:
         page = await svc.list()
         assert page.data[0].id == NoteId(1)
         assert page.next_page_token == "next"
-        note = await svc.get(NoteId(1))
-        assert note.content == "Hello"
 
 
 @pytest.mark.asyncio

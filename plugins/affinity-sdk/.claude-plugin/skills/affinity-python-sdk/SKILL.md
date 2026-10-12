@@ -272,8 +272,8 @@ with Affinity.from_env() as client:
 | Question | Services |
 |---|---|
 | Who changed this field / what did user X change? | `field_value_changes.list`, `iter_all`, `iter_global` |
-| What happened across the org this week? | `interactions.iter_emails` / `iter_meetings` / `iter_calls` / `iter_chat_messages`, `notes.iter_v2` |
-| Notes on one entity, replies to a note | `companies` / `persons` / `opportunities.iter_notes`, `notes.get_v2`, `notes.iter_replies` |
+| What happened across the org this week? | `interactions.iter_emails` / `iter_meetings` / `iter_calls` / `iter_chat_messages`, `notes.iter_feed` |
+| Notes on one entity, replies to a note | `companies` / `persons` / `opportunities.iter_notes`, `notes.get`, `notes.iter_replies` |
 | What was said in a meeting? | `transcripts.iter`, `get`, `iter_fragments` |
 | Who on the team knows people at X? | `companies` / `persons.iter_relationships` |
 | Which merges ran or failed? | `companies` / `persons.list_merges`, `tasks.list_merge_tasks` |

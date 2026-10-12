@@ -35,9 +35,9 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/emails` | supported | `interactions.list_emails()` |  |
 | `POST /v2/feedback` | planned |  | phase 2.x-1 |
 | `GET /v2/field-value-changes` | supported | `field_value_changes.list_global(field_id=FieldId(1))` |  |
-| `GET /v2/files` | supported | `files.list_v2()` | beta; API 2026-09-17+ |
+| `GET /v2/files` | supported | `files.feed()` | beta; API 2026-09-17+ |
 | `POST /v2/files/search` | supported | `files.search("prompt text")` |  |
-| `GET /v2/files/{fileId}` | supported | `files.get_v2(FileId(1))` | beta; API 2026-09-17+ |
+| `GET /v2/files/{fileId}` | supported | `files.get(FileId(1))` | beta; API 2026-09-17+ |
 | `GET /v2/inferred-connections/coworkers` | planned |  | beta; phase 2.x-2 |
 | `GET /v2/inferred-connections/investor-executive-connections` | planned |  | beta; phase 2.x-2 |
 | `GET /v2/lists` | supported | `lists.list()` |  |
@@ -64,11 +64,11 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/lists/{listId}/saved-views/{viewId}/list-entries` | supported | `lists.entries(ListId(1)).from_saved_view(SavedViewId(1))` |  |
 | `GET /v2/meetings` | supported | `interactions.list_meetings()` |  |
 | `GET /v2/meetings/{meetingId}` | planned |  | beta; API 2026-07-15+; phase 2.x-1 |
-| `GET /v2/notes` | supported | `notes.list_v2()` |  |
+| `GET /v2/notes` | supported | `notes.feed()` |  |
 | `POST /v2/notes` | supported | `notes.create(NoteCreate(content="x", person_ids=[PersonId(1)]))` |  |
 | `POST /v2/notes/search` | supported | `notes.search("prompt text")` |  |
 | `DELETE /v2/notes/{noteId}` | supported | `notes.delete(NoteId(1))` |  |
-| `GET /v2/notes/{noteId}` | supported | `notes.get_v2(NoteId(1))` |  |
+| `GET /v2/notes/{noteId}` | supported | `notes.get(NoteId(1))` |  |
 | `POST /v2/notes/{noteId}` | supported | `notes.update(NoteId(1), NoteUpdate(content="x"))` |  |
 | `GET /v2/notes/{noteId}/attached-companies` | planned |  | phase 2.x-1 |
 | `GET /v2/notes/{noteId}/attached-opportunities` | planned |  | phase 2.x-1 |
@@ -125,15 +125,15 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V1 API
 
-41 supported, 18 equivalent
+40 supported, 19 equivalent
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
 | `GET /auth/whoami` | equivalent |  | via v2 GET /v2/auth/whoami |
-| `GET /entity-files` | supported | `files.list(company_id=CompanyId(1))` | one person's, company's or opportunity's files (V2 lists only org-wide: files.list_v2) |
+| `GET /entity-files` | supported | `files.list(company_id=CompanyId(1))` | one person's, company's or opportunity's files (V2 lists only org-wide: files.feed) |
 | `POST /entity-files` | supported | `files.upload_bytes(b"x", "a.txt", company_id=CompanyId(1))` |  |
 | `GET /entity-files/download/{}` | supported | `files.download(FileId(1))` |  |
-| `GET /entity-files/{}` | supported | `files.get(FileId(1))` | works under any API version pin; files.get_v2 adds a download URL (API 2026-09-17+) |
+| `GET /entity-files/{}` | supported | `files.get_download_url(FileId(1))` | file metadata for get_download_url (files.get reads V2) |
 | `GET /field-value-changes` | supported | `field_value_changes.list(FieldId(1), company_id=CompanyId(1))` |  |
 | `GET /field-values` | supported | `field_values.list(company_id=CompanyId(1))` |  |
 | `POST /field-values` | supported | `field_values.create(FieldValueCreate(field_id=FieldId(1), entity_id=1, value="x"))` |  |
@@ -157,7 +157,7 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /notes` | supported | `notes.list()` |  |
 | `POST /notes` | equivalent |  | via v2 POST /v2/notes |
 | `DELETE /notes/{}` | equivalent |  | via v2 DELETE /v2/notes/{noteId} |
-| `GET /notes/{}` | supported | `notes.get(NoteId(1))` |  |
+| `GET /notes/{}` | equivalent |  | via v2 GET /v2/notes/{noteId} |
 | `PUT /notes/{}` | equivalent |  | via v2 POST /v2/notes/{noteId} |
 | `GET /opportunities` | supported | `opportunities.search("x")` |  |
 | `POST /opportunities` | supported | `opportunities.create(OpportunityCreate(name="x", list_id=ListId(1)))` |  |

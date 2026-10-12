@@ -355,7 +355,6 @@ def test_v1_only_services_end_to_end_smoke_and_branch_coverage(tmp_path: Path) -
 
         notes = NoteService(http)
         assert notes.list(person_id=PersonId(1)).data[0].id == NoteId(1)
-        assert notes.get(NoteId(1)).content == "x"
 
         interactions = InteractionService(http)
         _st = datetime(2024, 1, 1, tzinfo=timezone.utc)
@@ -443,7 +442,6 @@ def test_v1_only_services_end_to_end_smoke_and_branch_coverage(tmp_path: Path) -
         with pytest.raises(ValueError):
             files.list(person_id=PersonId(1), company_id=CompanyId(2))
         assert files.list(person_id=PersonId(1)).data[0].id == FileId(1)
-        assert files.get(FileId(1)).name == "a"
         assert files.upload_bytes(b"x", "a.txt", person_id=PersonId(1)) is True
         p = tmp_path / "a.txt"
         p.write_text("x", encoding="utf-8")

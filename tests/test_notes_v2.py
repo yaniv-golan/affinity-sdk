@@ -81,10 +81,10 @@ def _page(items: list[dict[str, Any]], next_url: str | None = None) -> dict[str,
 
 
 @respx.mock
-def test_list_v2_filters_includes_and_variants() -> None:
+def test_feed_filters_includes_and_variants() -> None:
     route = respx.get(f"{V2}/notes").mock(return_value=Response(200, json=_page([ENTITIES, AI])))
     with Affinity(api_key="k", max_retries=0) as client:
-        page = client.notes.list_v2(
+        page = client.notes.feed(
             creator_id=5,
             created_after=datetime(2025, 6, 1, tzinfo=timezone.utc),
             includes=True,
@@ -110,7 +110,7 @@ def test_unknown_includes_are_refused() -> None:
         Affinity(api_key="k", max_retries=0) as client,
         pytest.raises(ValueError, match="includes"),
     ):
-        client.notes.list_v2(includes=["comments"])
+        client.notes.feed(includes=["comments"])
 
 
 @respx.mock
@@ -118,7 +118,7 @@ def test_get_v2_and_replies() -> None:
     get = respx.get(f"{V2}/notes/1").mock(return_value=Response(200, json=ENTITIES))
     respx.get(f"{V2}/notes/1/replies").mock(return_value=Response(200, json=_page([REPLY])))
     with Affinity(api_key="k", max_retries=0) as client:
-        note = client.notes.get_v2(NoteId(1), includes=["repliesCount"])
+        note = client.notes.get(NoteId(1), includes=["repliesCount"])
         replies = list(client.notes.iter_replies(NoteId(1)))
     assert get.calls[0].request.url.params.get_list("includes") == ["repliesCount"]
     assert note.replies_count == 2
@@ -162,7 +162,7 @@ async def test_async_list_v2_and_entity_notes() -> None:
     respx.get(f"{V2}/notes").mock(return_value=Response(200, json=_page([ENTITIES])))
     respx.get(f"{V2}/persons/5/notes").mock(return_value=Response(200, json=_page([AI])))
     async with AsyncAffinity(api_key="k", max_retries=0) as client:
-        notes = [n async for n in client.notes.iter_v2()]
+        notes = [n async for n in client.notes.iter_feed()]
         person = await client.persons.list_notes(PersonId(5))
     assert [n.id for n in notes] == [1] and person.data[0].type == "ai-notetaker"
 

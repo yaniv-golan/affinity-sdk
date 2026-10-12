@@ -84,7 +84,7 @@ from affinity.types import CompanyId, NoteId
 
 since = datetime(2025, 6, 1, tzinfo=timezone.utc)
 with Affinity.from_env() as client:
-    for note in client.notes.iter_v2(created_after=since, includes=True):
+    for note in client.notes.iter_feed(created_after=since, includes=True):
         print(note.id, note.type, note.creator, note.replies_count, note.companies_total)
 
     for reply in client.notes.iter_replies(NoteId(123)):

@@ -55,7 +55,7 @@ for e in client.interactions.iter_emails(after=since):           # EmailV2: subj
 # also iter_calls(), iter_chat_messages(); list_* for one page; before=, created_after=,
 # updated_after= filters
 
-for n in client.notes.iter_v2(created_after=since, includes=True):   # NoteV2
+for n in client.notes.iter_feed(created_after=since, includes=True):   # NoteV2
     print(n.created_at, n.creator, n.replies_count, n.companies)
 ```
 
@@ -71,12 +71,12 @@ from affinity.types import CompanyId, NoteId
 for n in client.companies.iter_notes(CompanyId(456), created_after=since):  # NoteV2
     ...
 # persons.iter_notes(PersonId), opportunities.iter_notes(OpportunityId); list_notes for a page
-note = client.notes.get_v2(NoteId(1), includes=["repliesCount"])
+note = client.notes.get(NoteId(1), includes=["repliesCount"])          # NoteV2
 for r in client.notes.iter_replies(NoteId(1)):                    # NoteV2 with .parent
     ...
 ```
 
-`client.notes.list()` / `get()` read V1-shaped notes. `create()` / `update()` / `delete()` write
+`client.notes.list()` reads V1-shaped notes (`Note`) for one entity. `create()` / `update()` / `delete()` write
 through V2 and return `NoteV2`: plain text (the default `type`) is escaped into HTML; with
 `type=NoteType.HTML` only `<p> <br> <strong> <em> <u> <ol> <ul> <li> <span> <a href>` are accepted
 (`<b>`/`<i>` are converted).

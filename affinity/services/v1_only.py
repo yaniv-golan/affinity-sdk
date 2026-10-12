@@ -345,11 +345,6 @@ class NoteService(NoteSearchMixin):
             next_page_token=data.get("next_page_token") or data.get("nextPageToken"),
         )
 
-    def get(self, note_id: NoteId) -> Note:
-        """Get a single note by ID."""
-        data = self._client.get(f"/notes/{note_id}", v1=True)
-        return Note.model_validate(data)
-
     def create(self, data: NoteCreate) -> NoteV2:
         """Create a note (V2) and return it.
 
@@ -373,11 +368,11 @@ class NoteService(NoteSearchMixin):
             if data.content is not None:
                 note = None
                 with contextlib.suppress(AffinityError):
-                    note = self.get_v2(note_id)
+                    note = self.get(note_id)
                 if has_mentions(note):
                     raise mentions_error(exc) from exc
             raise
-        return self.get_v2(note_id, includes=True)
+        return self.get(note_id, includes=True)
 
     def delete(self, note_id: NoteId) -> bool:
         """Delete a note you created (V2). Deleting a note also deletes its replies."""
@@ -423,7 +418,7 @@ class NoteService(NoteSearchMixin):
     # V2 notes (read): NoteV2 with creator, HTML content, interaction, transcript
     # =========================================================================
 
-    def list_v2(
+    def feed(
         self,
         *,
         creator_id: int | None = None,
@@ -467,7 +462,7 @@ class NoteService(NoteSearchMixin):
         )
         return page_of(NoteV2, self._client.get("/notes", params=params or None))
 
-    def iter_v2(
+    def iter_feed(
         self,
         *,
         creator_id: int | None = None,
@@ -477,12 +472,12 @@ class NoteService(NoteSearchMixin):
         includes: bool | Sequence[str] | None = None,
         limit: int | None = None,
     ) -> Iterator[NoteV2]:
-        """All notes matching the filters (every page); see :meth:`list_v2`."""
+        """All notes matching the filters (every page); see :meth:`feed`."""
 
         def fetch_page(next_url: str | None) -> PaginatedResponse[NoteV2]:
             if next_url:
-                return self.list_v2(cursor=next_url)
-            return self.list_v2(
+                return self.feed(cursor=next_url)
+            return self.feed(
                 creator_id=creator_id,
                 created_after=created_after,
                 created_before=created_before,
@@ -493,8 +488,8 @@ class NoteService(NoteSearchMixin):
 
         return PageIterator(fetch_page)
 
-    def get_v2(self, note_id: NoteId, *, includes: bool | Sequence[str] | None = None) -> NoteV2:
-        """One note as ``NoteV2`` (``includes`` as in :meth:`list_v2`)."""
+    def get(self, note_id: NoteId, *, includes: bool | Sequence[str] | None = None) -> NoteV2:
+        """One note as ``NoteV2`` (``includes`` as in :meth:`feed`)."""
         params = [("includes", value) for value in note_includes(includes)]
         return NoteV2.model_validate(
             self._client.get(f"/notes/{int(note_id)}", params=params or None)
@@ -1851,19 +1846,18 @@ class EntityFileService(FileSearchMixin):
             next_page_token=data.get("next_page_token") or data.get("nextPageToken"),
         )
 
-    def get(self, file_id: FileId) -> EntityFile:
-        """Get file metadata."""
+    def _get_v1(self, file_id: FileId) -> EntityFile:
         data = self._client.get(f"/entity-files/{file_id}", v1=True)
         return EntityFile.model_validate(data)
 
-    def get_v2(self, file_id: FileId) -> FileV2:
-        """One file's metadata from V2 (Affinity API 2026-09-17+), with a download URL that
-        expires 60 seconds later. :meth:`get` (V1) is unchanged."""
+    def get(self, file_id: FileId) -> FileV2:
+        """One file's metadata (V2, Affinity API 2026-09-17+), with a download URL that expires
+        60 seconds later. V2 files carry no person/company/opportunity: :meth:`list` gives those."""
         return FileV2.model_validate(
             self._client.get(f"/files/{int(file_id)}", min_api_version=FILES_V2_MIN_API_VERSION)
         )
 
-    def list_v2(
+    def feed(
         self,
         *,
         created_after: datetime | None = None,
@@ -1895,7 +1889,7 @@ class EntityFileService(FileSearchMixin):
             ),
         )
 
-    def iter_v2(
+    def iter_feed(
         self,
         *,
         created_after: datetime | None = None,
@@ -1903,12 +1897,12 @@ class EntityFileService(FileSearchMixin):
         creator_id: UserId | None = None,
         limit: int | None = None,
     ) -> Iterator[FileV2]:
-        """All files matching the filters (every page); see :meth:`list_v2`."""
+        """All files matching the filters (every page); see :meth:`feed`."""
 
         def fetch_page(next_url: str | None) -> PaginatedResponse[FileV2]:
             if next_url:
-                return self.list_v2(cursor=next_url)
-            return self.list_v2(
+                return self.feed(cursor=next_url)
+            return self.feed(
                 created_after=created_after,
                 created_before=created_before,
                 creator_id=creator_id,
@@ -1955,7 +1949,7 @@ class EntityFileService(FileSearchMixin):
             AffinityError: If the API doesn't return a redirect URL
         """
         # Fetch file metadata first
-        file_meta = self.get(file_id)
+        file_meta = self._get_v1(file_id)
 
         url = self._client.get_redirect_url(
             f"/entity-files/download/{file_id}",
@@ -2468,10 +2462,6 @@ class AsyncNoteService(AsyncNoteSearchMixin):
             next_page_token=data.get("next_page_token") or data.get("nextPageToken"),
         )
 
-    async def get(self, note_id: NoteId) -> Note:
-        data = await self._client.get(f"/notes/{note_id}", v1=True)
-        return Note.model_validate(data)
-
     async def create(self, data: NoteCreate) -> NoteV2:
         """Create a note (V2); see :meth:`NoteService.create`."""
         return NoteV2.model_validate(await self._client.post("/notes", json=note_create_body(data)))
@@ -2484,11 +2474,11 @@ class AsyncNoteService(AsyncNoteSearchMixin):
             if data.content is not None:
                 note = None
                 with contextlib.suppress(AffinityError):
-                    note = await self.get_v2(note_id)
+                    note = await self.get(note_id)
                 if has_mentions(note):
                     raise mentions_error(exc) from exc
             raise
-        return await self.get_v2(note_id, includes=True)
+        return await self.get(note_id, includes=True)
 
     async def delete(self, note_id: NoteId) -> bool:
         """Delete a note you created (V2); see :meth:`NoteService.delete`."""
@@ -2534,7 +2524,7 @@ class AsyncNoteService(AsyncNoteSearchMixin):
     # V2 notes (read): NoteV2 with creator, HTML content, interaction, transcript
     # =========================================================================
 
-    async def list_v2(
+    async def feed(
         self,
         *,
         creator_id: int | None = None,
@@ -2578,7 +2568,7 @@ class AsyncNoteService(AsyncNoteSearchMixin):
         )
         return page_of(NoteV2, await self._client.get("/notes", params=params or None))
 
-    def iter_v2(
+    def iter_feed(
         self,
         *,
         creator_id: int | None = None,
@@ -2588,12 +2578,12 @@ class AsyncNoteService(AsyncNoteSearchMixin):
         includes: bool | Sequence[str] | None = None,
         limit: int | None = None,
     ) -> AsyncIterator[NoteV2]:
-        """All notes matching the filters (every page); see :meth:`list_v2`."""
+        """All notes matching the filters (every page); see :meth:`feed`."""
 
         async def fetch_page(next_url: str | None) -> PaginatedResponse[NoteV2]:
             if next_url:
-                return await self.list_v2(cursor=next_url)
-            return await self.list_v2(
+                return await self.feed(cursor=next_url)
+            return await self.feed(
                 creator_id=creator_id,
                 created_after=created_after,
                 created_before=created_before,
@@ -2604,10 +2594,8 @@ class AsyncNoteService(AsyncNoteSearchMixin):
 
         return AsyncPageIterator(fetch_page)
 
-    async def get_v2(
-        self, note_id: NoteId, *, includes: bool | Sequence[str] | None = None
-    ) -> NoteV2:
-        """One note as ``NoteV2`` (``includes`` as in :meth:`list_v2`)."""
+    async def get(self, note_id: NoteId, *, includes: bool | Sequence[str] | None = None) -> NoteV2:
+        """One note as ``NoteV2`` (``includes`` as in :meth:`feed`)."""
         params = [("includes", value) for value in note_includes(includes)]
         return NoteV2.model_validate(
             await self._client.get(f"/notes/{int(note_id)}", params=params or None)
@@ -3734,20 +3722,20 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
             next_page_token=data.get("next_page_token") or data.get("nextPageToken"),
         )
 
-    async def get(self, file_id: FileId) -> EntityFile:
+    async def _get_v1(self, file_id: FileId) -> EntityFile:
         data = await self._client.get(f"/entity-files/{file_id}", v1=True)
         return EntityFile.model_validate(data)
 
-    async def get_v2(self, file_id: FileId) -> FileV2:
-        """One file's metadata from V2 (Affinity API 2026-09-17+), with a download URL that
-        expires 60 seconds later. :meth:`get` (V1) is unchanged."""
+    async def get(self, file_id: FileId) -> FileV2:
+        """One file's metadata (V2, Affinity API 2026-09-17+), with a download URL that expires
+        60 seconds later. V2 files carry no person/company/opportunity: :meth:`list` gives those."""
         return FileV2.model_validate(
             await self._client.get(
                 f"/files/{int(file_id)}", min_api_version=FILES_V2_MIN_API_VERSION
             )
         )
 
-    async def list_v2(
+    async def feed(
         self,
         *,
         created_after: datetime | None = None,
@@ -3780,7 +3768,7 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
             ),
         )
 
-    def iter_v2(
+    def iter_feed(
         self,
         *,
         created_after: datetime | None = None,
@@ -3788,12 +3776,12 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
         creator_id: UserId | None = None,
         limit: int | None = None,
     ) -> AsyncIterator[FileV2]:
-        """All files matching the filters (every page); see :meth:`list_v2`."""
+        """All files matching the filters (every page); see :meth:`feed`."""
 
         async def fetch_page(next_url: str | None) -> PaginatedResponse[FileV2]:
             if next_url:
-                return await self.list_v2(cursor=next_url)
-            return await self.list_v2(
+                return await self.feed(cursor=next_url)
+            return await self.feed(
                 created_after=created_after,
                 created_before=created_before,
                 creator_id=creator_id,
@@ -3808,7 +3796,7 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
         *,
         max_concurrent: int = 10,
         on_error: Literal["raise", "skip"] = "raise",
-    ) -> dict[FileId, EntityFile]:
+    ) -> dict[FileId, FileV2]:
         """
         Fetch metadata for multiple files with controlled concurrency.
 
@@ -3822,7 +3810,7 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
                 - "skip": Skip failed IDs, return partial results
 
         Returns:
-            Dict mapping file_id -> EntityFile for successfully fetched files.
+            Dict mapping file_id -> FileV2 for successfully fetched files.
 
         Raises:
             AffinityError: If on_error="raise" and any fetch fails.
@@ -3833,9 +3821,9 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
             raise ValueError("max_concurrent must be at least 1")
 
         unique_ids = list(dict.fromkeys(file_ids))
-        results: dict[FileId, EntityFile] = {}
+        results: dict[FileId, FileV2] = {}
 
-        async def fetch_one(fid: FileId) -> tuple[FileId, EntityFile | None]:
+        async def fetch_one(fid: FileId) -> tuple[FileId, FileV2 | None]:
             try:
                 entity_file = await self.get(fid)
                 return (fid, entity_file)
@@ -3993,7 +3981,7 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
             AffinityError: If the API doesn't return a redirect URL
         """
         # Fetch file metadata first
-        file_meta = await self.get(file_id)
+        file_meta = await self._get_v1(file_id)
 
         url = await self._client.get_redirect_url(
             f"/entity-files/download/{file_id}",

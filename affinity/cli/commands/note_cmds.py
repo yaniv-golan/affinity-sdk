@@ -432,7 +432,8 @@ def note_get(ctx: CLIContext, note_id: int) -> None:
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
         client = ctx.get_client(warnings=warnings)
-        note = client.notes.get(NoteId(note_id))
+        note = client.notes.get(NoteId(note_id), includes=True)
+        _truncation_warnings(note, warnings)
 
         cmd_context = CommandContext(
             name="note get",
@@ -440,7 +441,7 @@ def note_get(ctx: CLIContext, note_id: int) -> None:
             modifiers={},
         )
 
-        payload = _note_payload(note)
+        payload = _note_v2_payload(note)
 
         # For table display, separate content from metadata for better readability
         if ctx.output != "json":
