@@ -1,0 +1,3369 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Strongly-typed Python SDK for the Affinity CRM API">
+      
+      
+      
+      
+        <link rel="prev" href="../client/">
+      
+      
+        <link rel="next" href="../exceptions/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>API coverage - Affinity Python SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#api-coverage" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Affinity Python SDK" class="md-header__button md-logo" aria-label="Affinity Python SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Affinity Python SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              API coverage
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/yaniv-golan/affinity-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Affinity Python SDK" class="md-nav__button md-logo" aria-label="Affinity Python SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Affinity Python SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/yaniv-golan/affinity-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CLI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/scripting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scripting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JSON Output Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Integrations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AI Integrations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ai-integrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/claude-code-plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Code Plugins & Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/affinity-official-mcp-comparison/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vs. Affinity Official MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/migrating-to-2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migrating to 2.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/api-versions-and-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API versions & routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/api-versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Affinity API versions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pagination/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pagination
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/errors-and-retries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors & retries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rate-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rate limits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/filtering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/query-command/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/datetime-handling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datetime handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/csv-export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSV Export (CLI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/field-types-and-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field types & values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/field-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/ids-and-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IDs & types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/sync-vs-async/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sync vs async
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/debugging-hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debugging hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/webhooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/opportunity-associations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Opportunity associations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API coverage
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API coverage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v2-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        V2 API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v1-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        V1 API
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query Language
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_8" id="__nav_10_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/companies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Companies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/persons/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Persons
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/lists/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lists
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/opportunities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Opportunities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/reminders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reminders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/webhooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_8_8" id="__nav_10_8_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V1 endpoints
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_8_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    V1 endpoints
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/v1/notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/v1/interactions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interactions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/v1/fields/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fields
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/v1/field-values/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/v1/files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/v1/relationships/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relationships
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/v1/auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v2-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        V2 API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v1-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        V1 API
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="api-coverage">API coverage<a class="headerlink" href="#api-coverage" title="Permanent link">&para;</a></h1>
+<p>Every Affinity API operation and how the SDK supports it. Generated from
+<code>tools/api_coverage.json</code> by <code>python tools/api_coverage.py --markdown</code>; CI checks it
+against the pinned API specs and checks that each supported call requests its operation.</p>
+<h2 id="v2-api">V2 API<a class="headerlink" href="#v2-api" title="Permanent link">&para;</a></h2>
+<p>82 supported, 30 planned</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Status</th>
+<th>SDK</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /v2/auth/whoami</code></td>
+<td>supported</td>
+<td><code>auth.whoami()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/calls</code></td>
+<td>supported</td>
+<td><code>interactions.list_calls()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/chat-messages</code></td>
+<td>supported</td>
+<td><code>interactions.list_chat_messages()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/companies</code></td>
+<td>supported</td>
+<td><code>companies.list()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/companies/fields</code></td>
+<td>supported</td>
+<td><code>companies.get_fields()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/companies/fields/{fieldId}/dropdown-options</code></td>
+<td>supported</td>
+<td><code>companies.get_field_dropdown_options(FieldId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /v2/companies/search</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; phase 2.x-3</td>
+</tr>
+<tr>
+<td><code>GET /v2/companies/{companyId}</code></td>
+<td>supported</td>
+<td><code>companies.get(CompanyId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/companies/{companyId}/fields</code></td>
+<td>supported</td>
+<td><code>companies.get_field_values(CompanyId(1))</code></td>
+<td>beta</td>
+</tr>
+<tr>
+<td><code>PATCH /v2/companies/{companyId}/fields</code></td>
+<td>supported</td>
+<td><code>companies.batch_update_fields(CompanyId(1), {"field-1": "x"})</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/companies/{companyId}/fields/{fieldId}</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; phase 2.x-4</td>
+</tr>
+<tr>
+<td><code>POST /v2/companies/{companyId}/fields/{fieldId}</code></td>
+<td>planned</td>
+<td></td>
+<td>phase 2.x-4</td>
+</tr>
+<tr>
+<td><code>GET /v2/companies/{companyId}/fields/{fieldId}/values</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; API 2026-09-17+; phase 2.x-4</td>
+</tr>
+<tr>
+<td><code>GET /v2/companies/{companyId}/list-entries</code></td>
+<td>supported</td>
+<td><code>companies.get_list_entries(CompanyId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/companies/{companyId}/lists</code></td>
+<td>supported</td>
+<td><code>companies.get_lists(CompanyId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/companies/{companyId}/notes</code></td>
+<td>supported</td>
+<td><code>companies.list_notes(CompanyId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/companies/{companyId}/relationships</code></td>
+<td>supported</td>
+<td><code>companies.list_relationships(CompanyId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/company-merges</code></td>
+<td>supported</td>
+<td><code>companies.list_merges()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /v2/company-merges</code></td>
+<td>supported</td>
+<td><code>companies.merge(CompanyId(1), CompanyId(2))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/company-merges/{mergeId}</code></td>
+<td>supported</td>
+<td><code>companies.get_merge_state(1)</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/duplicates/company-suggestions</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; API 2026-07-15+; phase 2.x-2</td>
+</tr>
+<tr>
+<td><code>GET /v2/duplicates/person-suggestions</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; API 2026-07-15+; phase 2.x-2</td>
+</tr>
+<tr>
+<td><code>GET /v2/emails</code></td>
+<td>supported</td>
+<td><code>interactions.list_emails()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /v2/feedback</code></td>
+<td>planned</td>
+<td></td>
+<td>phase 2.x-1</td>
+</tr>
+<tr>
+<td><code>GET /v2/field-value-changes</code></td>
+<td>supported</td>
+<td><code>field_value_changes.list_global(field_id=FieldId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/files</code></td>
+<td>supported</td>
+<td><code>files.feed()</code></td>
+<td>beta; API 2026-09-17+</td>
+</tr>
+<tr>
+<td><code>POST /v2/files/search</code></td>
+<td>supported</td>
+<td><code>files.search("prompt text")</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/files/{fileId}</code></td>
+<td>supported</td>
+<td><code>files.get_download_url(FileId(1))</code></td>
+<td>beta; API 2026-09-17+</td>
+</tr>
+<tr>
+<td><code>GET /v2/inferred-connections/coworkers</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; phase 2.x-2</td>
+</tr>
+<tr>
+<td><code>GET /v2/inferred-connections/investor-executive-connections</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; phase 2.x-2</td>
+</tr>
+<tr>
+<td><code>GET /v2/lists</code></td>
+<td>supported</td>
+<td><code>lists.list()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /v2/lists</code></td>
+<td>supported</td>
+<td><code>lists.create(ListCreate(name="x", type=ListType.PERSON, is_public=False))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/lists/{listId}</code></td>
+<td>supported</td>
+<td><code>lists.get(ListId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/lists/{listId}/fields</code></td>
+<td>supported</td>
+<td><code>lists.get_fields(ListId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/lists/{listId}/fields/{fieldId}/dropdown-options</code></td>
+<td>supported</td>
+<td><code>lists.get_field_dropdown_options(ListId(1), FieldId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /v2/lists/{listId}/fields/{fieldId}/dropdown-options</code></td>
+<td>supported</td>
+<td><code>lists.create_field_dropdown_option(ListId(1), FieldId(1), option_type="dropdown", text="x")</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DELETE /v2/lists/{listId}/fields/{fieldId}/dropdown-options/{dropdownOptionId}</code></td>
+<td>supported</td>
+<td><code>lists.delete_field_dropdown_option(ListId(1), FieldId(1), 1)</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/lists/{listId}/fields/{fieldId}/dropdown-options/{dropdownOptionId}</code></td>
+<td>supported</td>
+<td><code>lists.get_field_dropdown_option(ListId(1), FieldId(1), 1)</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /v2/lists/{listId}/fields/{fieldId}/dropdown-options/{dropdownOptionId}</code></td>
+<td>supported</td>
+<td><code>lists.update_field_dropdown_option(ListId(1), FieldId(1), 1, text="x")</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/lists/{listId}/list-entries</code></td>
+<td>supported</td>
+<td><code>lists.entries(ListId(1)).list()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /v2/lists/{listId}/list-entries</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; API 2026-09-17+; phase when-live</td>
+</tr>
+<tr>
+<td><code>POST /v2/lists/{listId}/list-entries/search</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; phase 2.x-3</td>
+</tr>
+<tr>
+<td><code>GET /v2/lists/{listId}/list-entries/{listEntryId}</code></td>
+<td>supported</td>
+<td><code>lists.entries(ListId(1)).get(ListEntryId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/lists/{listId}/list-entries/{listEntryId}/field-value-changes</code></td>
+<td>planned</td>
+<td></td>
+<td>phase 2.x-4</td>
+</tr>
+<tr>
+<td><code>GET /v2/lists/{listId}/list-entries/{listEntryId}/fields</code></td>
+<td>supported</td>
+<td><code>lists.entries(ListId(1)).get_field_values(ListEntryId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>PATCH /v2/lists/{listId}/list-entries/{listEntryId}/fields</code></td>
+<td>supported</td>
+<td><code>lists.entries(ListId(1)).batch_update_fields(ListEntryId(1), {"field-1": "x"})</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/lists/{listId}/list-entries/{listEntryId}/fields/{fieldId}</code></td>
+<td>supported</td>
+<td><code>lists.entries(ListId(1)).get_field_value(ListEntryId(1), FieldId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /v2/lists/{listId}/list-entries/{listEntryId}/fields/{fieldId}</code></td>
+<td>supported</td>
+<td><code>lists.entries(ListId(1)).update_field_value(ListEntryId(1), FieldId(1), "x")</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/lists/{listId}/list-entries/{listEntryId}/fields/{fieldId}/values</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; API 2026-09-17+; phase 2.x-4</td>
+</tr>
+<tr>
+<td><code>GET /v2/lists/{listId}/saved-views</code></td>
+<td>supported</td>
+<td><code>lists.get_saved_views(ListId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/lists/{listId}/saved-views/{viewId}</code></td>
+<td>supported</td>
+<td><code>lists.get_saved_view(ListId(1), SavedViewId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/lists/{listId}/saved-views/{viewId}/list-entries</code></td>
+<td>supported</td>
+<td><code>lists.entries(ListId(1)).from_saved_view(SavedViewId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/meetings</code></td>
+<td>supported</td>
+<td><code>interactions.list_meetings()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/meetings/{meetingId}</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; API 2026-07-15+; phase 2.x-1</td>
+</tr>
+<tr>
+<td><code>GET /v2/notes</code></td>
+<td>supported</td>
+<td><code>notes.feed()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /v2/notes</code></td>
+<td>supported</td>
+<td><code>notes.create(NoteCreate(content="x", person_ids=[PersonId(1)]))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /v2/notes/search</code></td>
+<td>supported</td>
+<td><code>notes.search("prompt text")</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DELETE /v2/notes/{noteId}</code></td>
+<td>supported</td>
+<td><code>notes.delete(NoteId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/notes/{noteId}</code></td>
+<td>supported</td>
+<td><code>notes.get(NoteId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /v2/notes/{noteId}</code></td>
+<td>supported</td>
+<td><code>notes.update(NoteId(1), NoteUpdate(content="x"))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/notes/{noteId}/attached-companies</code></td>
+<td>planned</td>
+<td></td>
+<td>phase 2.x-1</td>
+</tr>
+<tr>
+<td><code>GET /v2/notes/{noteId}/attached-opportunities</code></td>
+<td>planned</td>
+<td></td>
+<td>phase 2.x-1</td>
+</tr>
+<tr>
+<td><code>GET /v2/notes/{noteId}/attached-persons</code></td>
+<td>planned</td>
+<td></td>
+<td>phase 2.x-1</td>
+</tr>
+<tr>
+<td><code>GET /v2/notes/{noteId}/replies</code></td>
+<td>supported</td>
+<td><code>notes.list_replies(NoteId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/opportunities</code></td>
+<td>supported</td>
+<td><code>opportunities.list()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DELETE /v2/opportunities/{opportunityId}</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; API 2026-09-17+; phase when-live</td>
+</tr>
+<tr>
+<td><code>GET /v2/opportunities/{opportunityId}</code></td>
+<td>supported</td>
+<td><code>opportunities.get(OpportunityId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /v2/opportunities/{opportunityId}</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; API 2026-09-17+; phase when-live</td>
+</tr>
+<tr>
+<td><code>GET /v2/opportunities/{opportunityId}/notes</code></td>
+<td>supported</td>
+<td><code>opportunities.list_notes(OpportunityId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/person-merges</code></td>
+<td>supported</td>
+<td><code>persons.list_merges()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /v2/person-merges</code></td>
+<td>supported</td>
+<td><code>persons.merge(PersonId(1), PersonId(2))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/person-merges/{mergeId}</code></td>
+<td>supported</td>
+<td><code>persons.get_merge_state(1)</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/persons</code></td>
+<td>supported</td>
+<td><code>persons.list()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /v2/persons</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; API 2026-07-15+; phase when-live</td>
+</tr>
+<tr>
+<td><code>GET /v2/persons/fields</code></td>
+<td>supported</td>
+<td><code>persons.get_fields()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/persons/fields/{fieldId}/dropdown-options</code></td>
+<td>supported</td>
+<td><code>persons.get_field_dropdown_options(FieldId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /v2/persons/search</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; phase 2.x-3</td>
+</tr>
+<tr>
+<td><code>DELETE /v2/persons/{personId}</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; API 2026-07-15+; phase when-live</td>
+</tr>
+<tr>
+<td><code>GET /v2/persons/{personId}</code></td>
+<td>supported</td>
+<td><code>persons.get(PersonId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/persons/{personId}/fields</code></td>
+<td>supported</td>
+<td><code>persons.get_field_values(PersonId(1))</code></td>
+<td>beta</td>
+</tr>
+<tr>
+<td><code>PATCH /v2/persons/{personId}/fields</code></td>
+<td>supported</td>
+<td><code>persons.batch_update_fields(PersonId(1), {"field-1": "x"})</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/persons/{personId}/fields/{fieldId}</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; phase 2.x-4</td>
+</tr>
+<tr>
+<td><code>POST /v2/persons/{personId}/fields/{fieldId}</code></td>
+<td>planned</td>
+<td></td>
+<td>phase 2.x-4</td>
+</tr>
+<tr>
+<td><code>GET /v2/persons/{personId}/fields/{fieldId}/values</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; API 2026-09-17+; phase 2.x-4</td>
+</tr>
+<tr>
+<td><code>GET /v2/persons/{personId}/list-entries</code></td>
+<td>supported</td>
+<td><code>persons.get_list_entries(PersonId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/persons/{personId}/lists</code></td>
+<td>supported</td>
+<td><code>persons.get_lists(PersonId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/persons/{personId}/notes</code></td>
+<td>supported</td>
+<td><code>persons.list_notes(PersonId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/persons/{personId}/relationships</code></td>
+<td>supported</td>
+<td><code>persons.list_relationships(PersonId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/rate-limit</code></td>
+<td>supported</td>
+<td><code>rate_limits.refresh()</code></td>
+<td>beta; API 2026-07-15+</td>
+</tr>
+<tr>
+<td><code>GET /v2/reminders</code></td>
+<td>supported</td>
+<td><code>reminders.list()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /v2/reminders</code></td>
+<td>supported</td>
+<td><code>reminders.create(ReminderCreate(owner_id=UserId(1), type=ReminderType.ONE_TIME, due_date=datetime(2026, 1, 1, tzinfo=timezone.utc), person_id=PersonId(1)))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DELETE /v2/reminders/{reminderId}</code></td>
+<td>supported</td>
+<td><code>reminders.delete(ReminderIdType(1))</code></td>
+<td>beta; API 2026-07-15+</td>
+</tr>
+<tr>
+<td><code>GET /v2/reminders/{reminderId}</code></td>
+<td>supported</td>
+<td><code>reminders.get(ReminderIdType(1))</code></td>
+<td>beta; API 2026-07-15+</td>
+</tr>
+<tr>
+<td><code>POST /v2/reminders/{reminderId}</code></td>
+<td>supported</td>
+<td><code>reminders.update(ReminderIdType(1), ReminderUpdate(content="x"))</code></td>
+<td>beta; API 2026-09-17+</td>
+</tr>
+<tr>
+<td><code>POST /v2/semantic-search</code></td>
+<td>supported</td>
+<td><code>companies.semantic_search("prompt text")</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/tasks/company-merges</code></td>
+<td>supported</td>
+<td><code>tasks.list_merge_tasks("company")</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/tasks/company-merges/{taskId}</code></td>
+<td>supported</td>
+<td><code>companies.get_merge_status("t1")</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/tasks/person-merges</code></td>
+<td>supported</td>
+<td><code>tasks.list_merge_tasks("person")</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/tasks/person-merges/{taskId}</code></td>
+<td>supported</td>
+<td><code>persons.get_merge_status("t1")</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/teams</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; API 2026-09-17+; phase 2.x-1</td>
+</tr>
+<tr>
+<td><code>GET /v2/teams/{teamId}</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; API 2026-09-17+; phase 2.x-1</td>
+</tr>
+<tr>
+<td><code>GET /v2/transcripts</code></td>
+<td>supported</td>
+<td><code>transcripts.list()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DELETE /v2/transcripts/{transcriptId}</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; API 2026-09-17+; phase 2.x-1</td>
+</tr>
+<tr>
+<td><code>GET /v2/transcripts/{transcriptId}</code></td>
+<td>supported</td>
+<td><code>transcripts.get(1)</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/transcripts/{transcriptId}/fragments</code></td>
+<td>supported</td>
+<td><code>transcripts.fragments(1)</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /v2/users</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; phase 2.x-1</td>
+</tr>
+<tr>
+<td><code>GET /v2/users/{userId}</code></td>
+<td>planned</td>
+<td></td>
+<td>beta; phase 2.x-1</td>
+</tr>
+<tr>
+<td><code>GET /v2/webhooks</code></td>
+<td>supported</td>
+<td><code>webhooks.list()</code></td>
+<td>beta; API 2026-07-15+</td>
+</tr>
+<tr>
+<td><code>POST /v2/webhooks</code></td>
+<td>supported</td>
+<td><code>webhooks.create(WebhookCreate(url="https://example.com/h", subscriptions=[]))</code></td>
+<td>beta; API 2026-07-15+</td>
+</tr>
+<tr>
+<td><code>DELETE /v2/webhooks/{webhookId}</code></td>
+<td>supported</td>
+<td><code>webhooks.delete(WebhookId(1))</code></td>
+<td>beta; API 2026-07-15+</td>
+</tr>
+<tr>
+<td><code>GET /v2/webhooks/{webhookId}</code></td>
+<td>supported</td>
+<td><code>webhooks.get(WebhookId(1))</code></td>
+<td>beta; API 2026-07-15+</td>
+</tr>
+<tr>
+<td><code>POST /v2/webhooks/{webhookId}</code></td>
+<td>supported</td>
+<td><code>webhooks.update(WebhookId(1), WebhookUpdate(status="disabled"))</code></td>
+<td>beta; API 2026-07-15+</td>
+</tr>
+</tbody>
+</table>
+<h2 id="v1-api">V1 API<a class="headerlink" href="#v1-api" title="Permanent link">&para;</a></h2>
+<p>40 supported, 19 equivalent</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Status</th>
+<th>SDK</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /auth/whoami</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 GET /v2/auth/whoami</td>
+</tr>
+<tr>
+<td><code>GET /entity-files</code></td>
+<td>supported</td>
+<td><code>files.list(company_id=CompanyId(1))</code></td>
+<td>one person's, company's or opportunity's files (V2 lists only org-wide: files.feed)</td>
+</tr>
+<tr>
+<td><code>POST /entity-files</code></td>
+<td>supported</td>
+<td><code>files.upload_bytes(b"x", "a.txt", company_id=CompanyId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /entity-files/download/{}</code></td>
+<td>supported</td>
+<td><code>files.download(FileId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /entity-files/{}</code></td>
+<td>supported</td>
+<td><code>files.get(FileId(1))</code></td>
+<td>the file's record, with its person/company/opportunity, under any API version pin; get_download_url uses V2 when it can</td>
+</tr>
+<tr>
+<td><code>GET /field-value-changes</code></td>
+<td>supported</td>
+<td><code>field_value_changes.list(FieldId(1), company_id=CompanyId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /field-values</code></td>
+<td>supported</td>
+<td><code>field_values.list(company_id=CompanyId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /field-values</code></td>
+<td>supported</td>
+<td><code>field_values.create(FieldValueCreate(field_id=FieldId(1), entity_id=1, value="x"))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DELETE /field-values/{}</code></td>
+<td>supported</td>
+<td><code>field_values.delete(FieldValueId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>PUT /field-values/{}</code></td>
+<td>supported</td>
+<td><code>field_values.update(FieldValueId(1), "x")</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /fields</code></td>
+<td>supported</td>
+<td><code>fields.list()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /fields</code></td>
+<td>supported</td>
+<td><code>fields.create(FieldCreate(name="x", entity_type=EntityType.PERSON, value_type=FieldValueType.TEXT))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DELETE /fields/{}</code></td>
+<td>supported</td>
+<td><code>fields.delete(FieldId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /interactions</code></td>
+<td>supported</td>
+<td><code>interactions.list(type=InteractionType.MEETING, person_id=PersonId(1), start_time=datetime(2024, 1, 1, tzinfo=timezone.utc), end_time=datetime(2024, 1, 2, tzinfo=timezone.utc))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /interactions</code></td>
+<td>supported</td>
+<td><code>interactions.create(InteractionCreate(type=InteractionType.MEETING, person_ids=[PersonId(1)], content="x", date="2024-01-01T00:00:00Z"))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DELETE /interactions/{}</code></td>
+<td>supported</td>
+<td><code>interactions.delete(InteractionId(1), InteractionType.MEETING)</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /interactions/{}</code></td>
+<td>supported</td>
+<td><code>interactions.get(InteractionId(1), InteractionType.MEETING)</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>PUT /interactions/{}</code></td>
+<td>supported</td>
+<td><code>interactions.update(InteractionId(1), InteractionType.MEETING, InteractionUpdate(content="x"))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /lists</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 GET /v2/lists</td>
+</tr>
+<tr>
+<td><code>POST /lists</code></td>
+<td>supported</td>
+<td><code>lists.create(ListCreate(name="x", type=ListType.PERSON, is_public=False, owner_id=UserId(1)))</code></td>
+<td>only for a list created with an owner or extra permissions (V2 can't set them)</td>
+</tr>
+<tr>
+<td><code>GET /lists/{}</code></td>
+<td>supported</td>
+<td><code>lists.get_size(ListId(1), force=True)</code></td>
+<td>for the list size only (V2 has none); the list itself is read from V2</td>
+</tr>
+<tr>
+<td><code>GET /lists/{}/list-entries</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 GET /v2/lists/{listId}/list-entries</td>
+</tr>
+<tr>
+<td><code>POST /lists/{}/list-entries</code></td>
+<td>supported</td>
+<td><code>lists.entries(ListId(1)).add_person(PersonId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DELETE /lists/{}/list-entries/{}</code></td>
+<td>supported</td>
+<td><code>lists.entries(ListId(1)).delete(ListEntryId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /lists/{}/list-entries/{}</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 GET /v2/lists/{listId}/list-entries/{listEntryId}</td>
+</tr>
+<tr>
+<td><code>GET /notes</code></td>
+<td>supported</td>
+<td><code>notes.list()</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /notes</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 POST /v2/notes</td>
+</tr>
+<tr>
+<td><code>DELETE /notes/{}</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 DELETE /v2/notes/{noteId}</td>
+</tr>
+<tr>
+<td><code>GET /notes/{}</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 GET /v2/notes/{noteId}</td>
+</tr>
+<tr>
+<td><code>PUT /notes/{}</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 POST /v2/notes/{noteId}</td>
+</tr>
+<tr>
+<td><code>GET /opportunities</code></td>
+<td>supported</td>
+<td><code>opportunities.search("x")</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /opportunities</code></td>
+<td>supported</td>
+<td><code>opportunities.create(OpportunityCreate(name="x", list_id=ListId(1)))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DELETE /opportunities/{}</code></td>
+<td>supported</td>
+<td><code>opportunities.delete(OpportunityId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /opportunities/{}</code></td>
+<td>supported</td>
+<td><code>opportunities.get_details(OpportunityId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>PUT /opportunities/{}</code></td>
+<td>supported</td>
+<td><code>opportunities.update(OpportunityId(1), OpportunityUpdate(name="x"))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /organizations</code></td>
+<td>supported</td>
+<td><code>companies.search("x")</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /organizations</code></td>
+<td>supported</td>
+<td><code>companies.create(CompanyCreate(name="x"), if_not_exists=False)</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /organizations/fields</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 GET /v2/companies/fields</td>
+</tr>
+<tr>
+<td><code>DELETE /organizations/{}</code></td>
+<td>supported</td>
+<td><code>companies.delete(CompanyId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /organizations/{}</code></td>
+<td>supported</td>
+<td><code>companies.get_associated_person_ids(CompanyId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>PUT /organizations/{}</code></td>
+<td>supported</td>
+<td><code>companies.update(CompanyId(1), CompanyUpdate(name="x"))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /persons</code></td>
+<td>supported</td>
+<td><code>persons.search("x")</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /persons</code></td>
+<td>supported</td>
+<td><code>persons.create(PersonCreate(first_name="a", last_name="b"), if_not_exists=False)</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /persons/fields</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 GET /v2/persons/fields</td>
+</tr>
+<tr>
+<td><code>DELETE /persons/{}</code></td>
+<td>supported</td>
+<td><code>persons.delete(PersonId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /persons/{}</code></td>
+<td>supported</td>
+<td><code>persons.get_associated_company_ids(PersonId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>PUT /persons/{}</code></td>
+<td>supported</td>
+<td><code>persons.update(PersonId(1), PersonUpdate(first_name="a"))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /rate-limit</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 GET /v2/rate-limit</td>
+</tr>
+<tr>
+<td><code>GET /relationships-strengths</code></td>
+<td>supported</td>
+<td><code>relationships.get(PersonId(1))</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /reminders</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 GET /v2/reminders</td>
+</tr>
+<tr>
+<td><code>POST /reminders</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 POST /v2/reminders</td>
+</tr>
+<tr>
+<td><code>DELETE /reminders/{}</code></td>
+<td>supported</td>
+<td><code>reminders.delete(ReminderIdType(1))</code></td>
+<td>only as the retry when V2 refuses (V2: creator or owner only)</td>
+</tr>
+<tr>
+<td><code>GET /reminders/{}</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 GET /v2/reminders/{reminderId}</td>
+</tr>
+<tr>
+<td><code>PUT /reminders/{}</code></td>
+<td>supported</td>
+<td><code>reminders.update(ReminderIdType(1), ReminderUpdate(type=ReminderType.RECURRING, reset_type=ReminderResetType.EMAIL, reminder_days=30))</code></td>
+<td>to change a reminder's type (V2 can't), and as the retry when V2 refuses an update (V2: creator or owner only)</td>
+</tr>
+<tr>
+<td><code>GET /webhook</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 GET /v2/webhooks</td>
+</tr>
+<tr>
+<td><code>POST /webhook/subscribe</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 POST /v2/webhooks</td>
+</tr>
+<tr>
+<td><code>DELETE /webhook/{}</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 DELETE /v2/webhooks/{webhookId}</td>
+</tr>
+<tr>
+<td><code>GET /webhook/{}</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 GET /v2/webhooks/{webhookId}</td>
+</tr>
+<tr>
+<td><code>PUT /webhook/{}</code></td>
+<td>equivalent</td>
+<td></td>
+<td>via v2 POST /v2/webhooks/{webhookId}</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Disclaimer: Unofficial community project; not affiliated with, endorsed by, or sponsored by Affinity. "Affinity" and related marks are trademarks of their respective owners. Use of the Affinity API is subject to Affinity Terms of Service.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
