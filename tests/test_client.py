@@ -677,7 +677,7 @@ class TestListService:
 
     def test_get_list(self, respx_mock: respx.MockRouter) -> None:
         """Test getting a list."""
-        respx_mock.get("https://api.affinity.co/lists/789").mock(
+        respx_mock.get("https://api.affinity.co/v2/lists/789").mock(
             return_value=Response(
                 200,
                 json={
@@ -706,7 +706,7 @@ class TestListService:
                 json={"data": [], "pagination": {"nextUrl": None, "prevUrl": None}},
             )
         )
-        create_route = respx_mock.post("https://api.affinity.co/lists").mock(
+        create_route = respx_mock.post("https://api.affinity.co/v2/lists").mock(
             return_value=Response(
                 200,
                 json={

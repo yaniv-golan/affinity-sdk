@@ -107,7 +107,7 @@ MOCK_LIST_FIELDS = {
 def test_list_export_expand_interactions_json(respx_mock: respx.MockRouter) -> None:
     """Test list export with --expand interactions in JSON format."""
     # Mock list endpoint
-    respx_mock.get("https://api.affinity.co/lists/12345").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
         return_value=Response(200, json=MOCK_LIST_COMPANY)
     )
 
@@ -165,7 +165,7 @@ def test_list_export_expand_interactions_json(respx_mock: respx.MockRouter) -> N
 
 def test_list_export_expand_interactions_with_persons(respx_mock: respx.MockRouter) -> None:
     """Test combining --expand interactions with --expand persons."""
-    respx_mock.get("https://api.affinity.co/lists/12345").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
         return_value=Response(200, json=MOCK_LIST_COMPANY)
     )
     respx_mock.get("https://api.affinity.co/v2/lists/12345/fields").mock(
@@ -210,7 +210,7 @@ def test_list_export_expand_interactions_with_persons(respx_mock: respx.MockRout
 
 def test_list_export_expand_interactions_csv(respx_mock: respx.MockRouter) -> None:
     """Test list export with --expand interactions in CSV format."""
-    respx_mock.get("https://api.affinity.co/lists/12345").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
         return_value=Response(200, json=MOCK_LIST_COMPANY)
     )
     respx_mock.get("https://api.affinity.co/v2/lists/12345/fields").mock(
@@ -298,7 +298,7 @@ def test_list_export_expand_interactions_no_interaction_data(respx_mock: respx.M
         "interactions": None,
     }
 
-    respx_mock.get("https://api.affinity.co/lists/12345").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
         return_value=Response(200, json=MOCK_LIST_COMPANY)
     )
     respx_mock.get("https://api.affinity.co/v2/lists/12345/fields").mock(
@@ -328,7 +328,7 @@ def test_list_export_expand_interactions_no_interaction_data(respx_mock: respx.M
 
 def test_list_export_expand_interactions_dry_run(respx_mock: respx.MockRouter) -> None:
     """Test --dry-run with --expand interactions."""
-    respx_mock.get("https://api.affinity.co/lists/12345").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
         return_value=Response(200, json=MOCK_LIST_COMPANY)
     )
     respx_mock.get("https://api.affinity.co/v2/lists/12345/fields").mock(
@@ -361,7 +361,7 @@ def test_list_export_dry_run_uses_list_size_hint(respx_mock: respx.MockRouter) -
     used in dry-run estimation output.
     """
     # Mock V1 list get - returns accurate list_size
-    respx_mock.get("https://api.affinity.co/lists/12345").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
         return_value=Response(
             200,
             json={

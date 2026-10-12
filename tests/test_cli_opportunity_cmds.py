@@ -109,7 +109,7 @@ def test_opportunity_get_details_uses_v1(respx_mock: respx.MockRouter) -> None:
 
 
 def test_opportunity_create_update_delete(respx_mock: respx.MockRouter) -> None:
-    respx_mock.get("https://api.affinity.co/lists/41780").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/41780$").mock(
         return_value=Response(
             200,
             json={

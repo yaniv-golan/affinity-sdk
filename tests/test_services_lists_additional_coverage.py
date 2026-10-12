@@ -17,7 +17,6 @@ from affinity.models.types import (
     ListId,
     ListRole,
     ListType,
-    OpportunityId,
     PersonId,
     UserId,
 )
@@ -65,7 +64,10 @@ def test_list_service_list_all_get_fields_and_create_entry_helpers() -> None:
                 200, json={"data": [], "pagination": {"nextUrl": None}}, request=request
             )
 
-        if request.method == "GET" and url == httpx.URL("https://v1.example/lists/10"):
+        if request.method == "GET" and url in (
+            httpx.URL("https://v1.example/lists/10"),
+            httpx.URL("https://v2.example/v2/lists/10"),
+        ):
             return httpx.Response(
                 200,
                 json={
@@ -183,13 +185,19 @@ def test_list_service_list_all_get_fields_and_create_entry_helpers() -> None:
             )
 
         if request.method == "POST" and url == httpx.URL(
-            "https://v1.example/lists/10/list-entries"
+            "https://v2.example/v2/lists/10/list-entries"
         ):
             payload = json.loads(request.content.decode("utf-8"))
-            assert payload in ({"entity_id": 1}, {"entity_id": 1, "creator_id": 123})
+            assert payload in ({"entity": {"id": 1}}, {"entity": {"id": 1}, "creatorId": 123})
             return httpx.Response(
                 200,
-                json={"id": 5, "listId": 10, "createdAt": created_at, "entityId": 1, "fields": {}},
+                json={
+                    "id": 5,
+                    "listId": 10,
+                    "createdAt": created_at,
+                    "entity": {"id": 1},
+                    "fields": {},
+                },
                 request=request,
             )
 
@@ -431,7 +439,10 @@ async def test_async_list_service_and_list_entry_membership() -> None:
                 request=request,
             )
 
-        if request.method == "GET" and url == httpx.URL("https://v1.example/lists/10"):
+        if request.method == "GET" and url in (
+            httpx.URL("https://v1.example/lists/10"),
+            httpx.URL("https://v2.example/v2/lists/10"),
+        ):
             return httpx.Response(
                 200,
                 json={
@@ -494,7 +505,10 @@ def test_list_service_create_saved_views_and_list_entry_params() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         url = request.url
 
-        if request.method == "POST" and url == httpx.URL("https://v1.example/lists"):
+        if request.method == "POST" and url in (
+            httpx.URL("https://v2.example/v2/lists"),
+            httpx.URL("https://v1.example/lists"),
+        ):
             payload = json.loads(request.content.decode("utf-8"))
             assert payload == {
                 "name": "New List",
@@ -579,11 +593,17 @@ def test_list_service_create_saved_views_and_list_entry_params() -> None:
             )
 
         if request.method == "POST" and url == httpx.URL(
-            "https://v1.example/lists/11/list-entries"
+            "https://v2.example/v2/lists/11/list-entries"
         ):
             return httpx.Response(
                 200,
-                json={"id": 99, "listId": 11, "createdAt": created_at, "entityId": 3, "fields": {}},
+                json={
+                    "id": 99,
+                    "listId": 11,
+                    "createdAt": created_at,
+                    "entity": {"id": 3},
+                    "fields": {},
+                },
                 request=request,
             )
 
@@ -638,8 +658,7 @@ def test_list_service_create_saved_views_and_list_entry_params() -> None:
         existing = entries.ensure_company(2)
         assert existing.id == ListEntryId(2)
 
-        created_entry = entries.add_opportunity(3)
-        assert created_entry.id == ListEntryId(99)
+        assert not hasattr(entries, "add_opportunity")
     finally:
         http.close()
 
@@ -686,7 +705,10 @@ async def test_async_list_service_resolve_and_resolve_all_case_insensitive_and_c
 
 def test_list_create_does_not_invalidate_when_cache_disabled() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
-        if request.method == "POST" and request.url == httpx.URL("https://v1.example/lists"):
+        if request.method == "POST" and request.url in (
+            httpx.URL("https://v2.example/v2/lists"),
+            httpx.URL("https://v1.example/lists"),
+        ):
             return httpx.Response(
                 200,
                 json={
@@ -863,7 +885,10 @@ async def test_async_list_service_create_fields_and_entry_write_ops() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         url = request.url
 
-        if request.method == "POST" and url == httpx.URL("https://v1.example/lists"):
+        if request.method == "POST" and url in (
+            httpx.URL("https://v2.example/v2/lists"),
+            httpx.URL("https://v1.example/lists"),
+        ):
             payload = json.loads(request.content.decode("utf-8"))
             assert payload == {
                 "name": "New List",
@@ -920,29 +945,29 @@ async def test_async_list_service_create_fields_and_entry_write_ops() -> None:
             )
 
         if request.method == "POST" and url == httpx.URL(
-            "https://v1.example/lists/11/list-entries"
+            "https://v2.example/v2/lists/11/list-entries"
         ):
             payload = json.loads(request.content.decode("utf-8"))
-            if payload["entity_id"] == 2:
+            if payload["entity"]["id"] == 2:
                 return httpx.Response(
                     200,
                     json={
                         "id": 99,
                         "listId": 11,
                         "createdAt": created_at,
-                        "entityId": 2,
+                        "entity": {"id": 2},
                         "fields": {},
                     },
                     request=request,
                 )
-            if payload["entity_id"] == 3:
+            if payload["entity"]["id"] == 3:
                 return httpx.Response(
                     200,
                     json={
                         "id": 100,
                         "listId": 11,
                         "createdAt": created_at,
-                        "entityId": 3,
+                        "entity": {"id": 3},
                         "fields": {},
                     },
                     request=request,
@@ -1058,8 +1083,7 @@ async def test_async_list_service_create_fields_and_entry_write_ops() -> None:
         created_entry = await entries.ensure_company(CompanyId(2))
         assert created_entry.id == ListEntryId(99)
 
-        created_opportunity = await entries.add_opportunity(OpportunityId(3))
-        assert created_opportunity.id == ListEntryId(100)
+        assert not hasattr(entries, "add_opportunity")
 
         assert await entries.delete(ListEntryId(99)) is True
         fv = await entries.get_field_values(ListEntryId(99))

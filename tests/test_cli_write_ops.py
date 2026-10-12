@@ -181,7 +181,7 @@ def test_company_crud_and_merge(respx_mock: respx.MockRouter) -> None:
 
 
 def test_list_create_and_entry_ops(respx_mock: respx.MockRouter) -> None:
-    respx_mock.post("https://api.affinity.co/lists").mock(
+    respx_mock.post("https://api.affinity.co/v2/lists").mock(
         return_value=Response(
             200,
             json={
@@ -193,7 +193,7 @@ def test_list_create_and_entry_ops(respx_mock: respx.MockRouter) -> None:
             },
         )
     )
-    respx_mock.get("https://api.affinity.co/lists/123").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/123$").mock(
         return_value=Response(
             200,
             json={
@@ -205,15 +205,16 @@ def test_list_create_and_entry_ops(respx_mock: respx.MockRouter) -> None:
             },
         )
     )
-    respx_mock.post("https://api.affinity.co/lists/123/list-entries").mock(
+    respx_mock.post("https://api.affinity.co/v2/lists/123/list-entries").mock(
         return_value=Response(
-            200,
+            201,
             json={
                 "id": 98765,
+                "type": "company",
                 "listId": 123,
-                "entityId": 224925494,
-                "entityType": 1,
-                "createdAt": "2024-01-01T00:00:00Z",
+                "creatorId": 1,
+                "createdAt": "2024-01-15T10:00:00Z",
+                "entity": {"id": 1, "name": "Co", "domain": None},
             },
         )
     )

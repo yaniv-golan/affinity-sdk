@@ -6,7 +6,7 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V2 API
 
-81 supported, 31 planned
+84 supported, 28 planned
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -41,8 +41,8 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/inferred-connections/coworkers` | planned |  | beta; phase 2.x-2 |
 | `GET /v2/inferred-connections/investor-executive-connections` | planned |  | beta; phase 2.x-2 |
 | `GET /v2/lists` | supported | `lists.list()` |  |
-| `POST /v2/lists` | planned |  | phase 2.0.0 |
-| `GET /v2/lists/{listId}` | planned |  | phase 2.0.0 |
+| `POST /v2/lists` | supported | `lists.create(ListCreate(name="x", type=ListType.PERSON, is_public=False))` |  |
+| `GET /v2/lists/{listId}` | supported | `lists.get(ListId(1))` |  |
 | `GET /v2/lists/{listId}/fields` | supported | `lists.get_fields(ListId(1))` |  |
 | `GET /v2/lists/{listId}/fields/{fieldId}/dropdown-options` | supported | `lists.get_field_dropdown_options(ListId(1), FieldId(1))` |  |
 | `POST /v2/lists/{listId}/fields/{fieldId}/dropdown-options` | supported | `lists.create_field_dropdown_option(ListId(1), FieldId(1), option_type="dropdown", text="x")` |  |
@@ -50,7 +50,7 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/lists/{listId}/fields/{fieldId}/dropdown-options/{dropdownOptionId}` | supported | `lists.get_field_dropdown_option(ListId(1), FieldId(1), 1)` |  |
 | `POST /v2/lists/{listId}/fields/{fieldId}/dropdown-options/{dropdownOptionId}` | supported | `lists.update_field_dropdown_option(ListId(1), FieldId(1), 1, text="x")` |  |
 | `GET /v2/lists/{listId}/list-entries` | supported | `lists.entries(ListId(1)).list()` |  |
-| `POST /v2/lists/{listId}/list-entries` | planned |  | beta; API 2026-09-17+; phase 2.0.0 |
+| `POST /v2/lists/{listId}/list-entries` | supported | `lists.entries(ListId(1)).add_person(PersonId(1))` | beta; API 2026-09-17+ |
 | `POST /v2/lists/{listId}/list-entries/search` | planned |  | beta; phase 2.x-3 |
 | `GET /v2/lists/{listId}/list-entries/{listEntryId}` | supported | `lists.entries(ListId(1)).get(ListEntryId(1))` |  |
 | `GET /v2/lists/{listId}/list-entries/{listEntryId}/field-value-changes` | planned |  | phase 2.x-4 |
@@ -125,7 +125,7 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V1 API
 
-40 supported, 19 equivalent
+39 supported, 20 equivalent
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -148,10 +148,10 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /interactions/{}` | supported | `interactions.get(InteractionId(1), InteractionType.MEETING)` |  |
 | `PUT /interactions/{}` | supported | `interactions.update(InteractionId(1), InteractionType.MEETING, InteractionUpdate(content="x"))` |  |
 | `GET /lists` | equivalent |  | via v2 GET /v2/lists |
-| `POST /lists` | supported | `lists.create(ListCreate(name="x", type=ListType.PERSON, is_public=False))` |  |
-| `GET /lists/{}` | supported | `lists.get(ListId(1))` |  |
+| `POST /lists` | supported | `lists.create(ListCreate(name="x", type=ListType.PERSON, is_public=False, owner_id=UserId(1)))` | only for a list created with an owner or extra permissions (V2 can't set them) |
+| `GET /lists/{}` | supported | `lists.get_size(ListId(1), force=True)` | for the list size only (V2 has none); the list itself is read from V2 |
 | `GET /lists/{}/list-entries` | equivalent |  | via v2 GET /v2/lists/{listId}/list-entries |
-| `POST /lists/{}/list-entries` | supported | `lists.entries(ListId(1)).add_person(PersonId(1))` |  |
+| `POST /lists/{}/list-entries` | equivalent |  | via v2 POST /v2/lists/{listId}/list-entries |
 | `DELETE /lists/{}/list-entries/{}` | supported | `lists.entries(ListId(1)).delete(ListEntryId(1))` |  |
 | `GET /lists/{}/list-entries/{}` | equivalent |  | via v2 GET /v2/lists/{listId}/list-entries/{listEntryId} |
 | `GET /notes` | supported | `notes.list()` |  |

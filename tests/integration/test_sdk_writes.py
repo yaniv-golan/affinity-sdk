@@ -487,8 +487,8 @@ def verify_opportunity_crud(
     separately via create_persistent_opportunity().
 
     Note: Opportunities are automatically added to their designated list on creation.
-    Unlike persons/companies, opportunities are bound to a single list and cannot be
-    added to multiple lists via add_opportunity().
+    Unlike persons/companies, opportunities are bound to a single list; they can't be added
+    to a list entry-wise.
     """
     # CREATE (auto-adds to the opportunity list)
     opp = client.opportunities.create(

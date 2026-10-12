@@ -292,7 +292,12 @@ def list_ls(
     default=False,
     help="Whether the list is public (default: private).",
 )
-@click.option("--owner-id", type=int, default=None, help="Owner id.")
+@click.option(
+    "--owner-id",
+    type=int,
+    default=None,
+    help="Owner id (creates the list through the V1 API; otherwise you are the owner).",
+)
 @output_options
 @click.pass_obj
 def list_create(

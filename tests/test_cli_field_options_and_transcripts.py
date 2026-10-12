@@ -34,7 +34,7 @@ RANKED = [
 @pytest.fixture(autouse=True)
 def _list_9(respx_mock: respx.MockRouter) -> None:
     """`--list-id 9` resolves the list first (V1 GET /lists/9)."""
-    respx_mock.get("https://api.affinity.co/lists/9").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/9$").mock(
         return_value=Response(
             200,
             json={

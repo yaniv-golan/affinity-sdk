@@ -2217,7 +2217,7 @@
         "--owner-id": {
           "type": "int",
           "required": false,
-          "help": "Owner id."
+          "help": "Owner id (creates the list through the V1 API; otherwise you are the owner)."
         },
         "--public": {
           "type": "flag",

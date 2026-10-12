@@ -183,7 +183,7 @@ class TestListCreate:
 
     def test_create_basic(self, respx_mock: respx.MockRouter) -> None:
         """Basic list create should work."""
-        respx_mock.post("https://api.affinity.co/lists").mock(
+        respx_mock.post("https://api.affinity.co/v2/lists").mock(
             return_value=Response(
                 200,
                 json={
@@ -206,7 +206,7 @@ class TestListCreate:
 
     def test_create_public(self, respx_mock: respx.MockRouter) -> None:
         """List create with --public flag."""
-        respx_mock.post("https://api.affinity.co/lists").mock(
+        respx_mock.post("https://api.affinity.co/v2/lists").mock(
             return_value=Response(
                 200,
                 json={
@@ -234,7 +234,7 @@ class TestListGet:
     def test_get_by_id(self, respx_mock: respx.MockRouter) -> None:
         """Get list by numeric ID."""
         # Mock V1 list get (for ID resolution)
-        respx_mock.get("https://api.affinity.co/lists/123").mock(
+        respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/123$").mock(
             return_value=Response(
                 200,
                 json={"id": 123, "name": "Pipeline", "type": 0, "public": False, "owner_id": 100},
@@ -288,7 +288,7 @@ class TestListGet:
             )
         )
         # V1 API for accurate listSize (called by resolve_list_selector after V2 resolution)
-        respx_mock.get("https://api.affinity.co/lists/456").mock(
+        respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/456$").mock(
             return_value=Response(
                 200,
                 json={
@@ -330,7 +330,7 @@ class TestListGet:
     def test_get_json_includes_list_size(self, respx_mock: respx.MockRouter) -> None:
         """Test that list get JSON output includes listSize for MCP compatibility."""
         # Mock V1 list get
-        respx_mock.get("https://api.affinity.co/lists/789").mock(
+        respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/789$").mock(
             return_value=Response(
                 200,
                 json={
@@ -381,7 +381,7 @@ class TestListEntryGet:
     def test_entry_get_basic(self, respx_mock: respx.MockRouter) -> None:
         """Get list entry by ID."""
         # Mock V1 list get (for ID resolution)
-        respx_mock.get("https://api.affinity.co/lists/100").mock(
+        respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/100$").mock(
             return_value=Response(
                 200,
                 json={"id": 100, "name": "Pipeline", "type": 0, "public": False, "owner_id": 100},
@@ -413,7 +413,7 @@ class TestListEntryGet:
         self, respx_mock: respx.MockRouter
     ) -> None:
         """V2 omits field values unless requested; entry get must ask for list fields."""
-        respx_mock.get("https://api.affinity.co/lists/100").mock(
+        respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/100$").mock(
             return_value=Response(
                 200,
                 json={"id": 100, "name": "Pipeline", "type": 1, "public": False, "owner_id": 100},
@@ -485,23 +485,29 @@ class TestListEntryAdd:
     def test_entry_add_with_person_id(self, respx_mock: respx.MockRouter) -> None:
         """Add list entry with person ID."""
         # Mock V1 list get (for ID resolution)
-        respx_mock.get("https://api.affinity.co/lists/100").mock(
+        respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/100$").mock(
             return_value=Response(
                 200,
                 json={"id": 100, "name": "Pipeline", "type": 0, "public": False, "owner_id": 100},
             )
         )
         # Mock add entry (V1 endpoint)
-        respx_mock.post("https://api.affinity.co/lists/100/list-entries").mock(
+        respx_mock.post("https://api.affinity.co/v2/lists/100/list-entries").mock(
             return_value=Response(
-                200,
+                201,
                 json={
                     "id": 1001,
-                    "list_id": 100,
-                    "entity_id": 500,
-                    "entity_type": 0,
-                    "creator_id": 1,
-                    "created_at": "2024-01-15T10:00:00Z",
+                    "type": "person",
+                    "listId": 100,
+                    "creatorId": 1,
+                    "createdAt": "2024-01-15T10:00:00Z",
+                    "entity": {
+                        "id": 500,
+                        "firstName": "A",
+                        "lastName": "B",
+                        "primaryEmailAddress": None,
+                        "type": "external",
+                    },
                 },
             )
         )
@@ -517,23 +523,23 @@ class TestListEntryAdd:
     def test_entry_add_with_company_id(self, respx_mock: respx.MockRouter) -> None:
         """Add list entry with company ID."""
         # Mock V1 list get (for ID resolution)
-        respx_mock.get("https://api.affinity.co/lists/200").mock(
+        respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/200$").mock(
             return_value=Response(
                 200,
                 json={"id": 200, "name": "Companies", "type": 1, "public": False, "owner_id": 100},
             )
         )
         # Mock add entry (V1 endpoint)
-        respx_mock.post("https://api.affinity.co/lists/200/list-entries").mock(
+        respx_mock.post("https://api.affinity.co/v2/lists/200/list-entries").mock(
             return_value=Response(
-                200,
+                201,
                 json={
                     "id": 2001,
-                    "list_id": 200,
-                    "entity_id": 600,
-                    "entity_type": 1,
-                    "creator_id": 1,
-                    "created_at": "2024-01-15T10:00:00Z",
+                    "type": "company",
+                    "listId": 200,
+                    "creatorId": 1,
+                    "createdAt": "2024-01-15T10:00:00Z",
+                    "entity": {"id": 600, "name": "Co", "domain": None},
                 },
             )
         )
@@ -564,7 +570,7 @@ class TestListEntryDelete:
     def test_entry_delete_basic(self, respx_mock: respx.MockRouter) -> None:
         """Delete list entry by ID."""
         # Mock V1 list get (for ID resolution)
-        respx_mock.get("https://api.affinity.co/lists/100").mock(
+        respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/100$").mock(
             return_value=Response(
                 200,
                 json={"id": 100, "name": "Pipeline", "type": 0, "public": False, "owner_id": 100},
@@ -667,7 +673,7 @@ class TestListExport:
             return_value=Response(200, json=_list_json)
         )
         # V1 list metadata
-        respx_mock.get("https://api.affinity.co/lists/42").mock(
+        respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/42$").mock(
             return_value=Response(200, json=_list_json)
         )
         # List entries
@@ -731,7 +737,7 @@ class TestListExport:
         respx_mock.get("https://api.affinity.co/v2/lists/42").mock(
             return_value=Response(200, json=_list_json)
         )
-        respx_mock.get("https://api.affinity.co/lists/42").mock(
+        respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/42$").mock(
             return_value=Response(200, json=_list_json)
         )
         # V1 fields (with list_id query param)
@@ -818,7 +824,7 @@ class TestListEntryField:
             )
         )
         # V1 list metadata
-        respx_mock.get("https://api.affinity.co/lists/42").mock(
+        respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/42$").mock(
             return_value=Response(200, json={"id": 42, "name": "Pipeline"})
         )
         # Fields (for resolver)

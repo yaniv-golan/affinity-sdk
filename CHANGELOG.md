@@ -56,6 +56,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `person_ids`/`company_ids` are always empty (use `get_details()` for them). Changing people or
   companies still goes through V1 in one request, as before. An empty `OpportunityUpdate` raises
   `ValueError`.
+- **Lists: `get()` and `create()` use the V2 API.** `get()` no longer fills `fields` (use
+  `get_fields()`) or `additional_permissions`; it sets `created_at`. `get_size()` still reads
+  the size from V1 (V2 has none). `create()` makes the caller the owner; a public list needs the
+  "Share accessible Lists globally" permission. A list created with `owner_id` or
+  `additional_permissions` still goes through V1.
+- **Adding to a list uses the V2 API** (`entries(list_id).add_person/add_company`,
+  `ensure_person/ensure_company`; Affinity API 2026-09-17+) and still returns a `ListEntry`. A
+  list with a required field can't be added to through the API. **`add_opportunity()` is
+  removed**: neither API can add an opportunity to a list; create it on its list with
+  `opportunities.create(OpportunityCreate(list_id=...))`.
 
 ### Added
 
@@ -63,6 +73,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (repeatable) or `--all-events`; `update` takes `--url`, `--event`/`--all-events`, `--status
   active|disabled`. `create`, `update` and `delete` ask for confirmation (`--yes` in scripts),
   since a webhook sends CRM events to an outside URL. Rows include `allEvents`.
+- **CLI `list get <id>`** no longer prints `.data.list.fields` (the fields are in `.data.fields`
+  as before) and adds `createdAt`; `list create --owner-id` creates the list through V1.
 - **CLI `opportunity update --name` alone** no longer prints `personIds`/`organizationIds`
   (V2 doesn't return them; they were always empty). With `--person-id`/`--company-id` they are
   printed as before.

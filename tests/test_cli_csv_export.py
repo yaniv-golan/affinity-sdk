@@ -82,7 +82,7 @@ def test_csv_and_json_mutually_exclusive_opportunity_ls() -> None:
 
 def test_csv_and_json_mutually_exclusive_list_export(respx_mock: respx.MockRouter) -> None:
     """Test that --csv and --json are mutually exclusive for list export."""
-    respx_mock.get("https://api.affinity.co/lists/12345").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
         return_value=Response(
             200,
             json={
@@ -460,7 +460,7 @@ def test_list_export_expand_invalid_on_person_list(
     respx_mock: respx.MockRouter,
 ) -> None:
     """Test that --expand people fails on a person list (only companies is valid)."""
-    respx_mock.get("https://api.affinity.co/lists/12345").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
         return_value=Response(
             200,
             json={
@@ -497,7 +497,7 @@ def test_list_export_expand_invalid_on_company_list(
     respx_mock: respx.MockRouter,
 ) -> None:
     """Test that --expand companies fails on a company list (only people is valid)."""
-    respx_mock.get("https://api.affinity.co/lists/12345").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
         return_value=Response(
             200,
             json={
@@ -534,7 +534,7 @@ def test_list_export_expand_cursor_combination_fails(
     respx_mock: respx.MockRouter,
 ) -> None:
     """Test that --cursor cannot be combined with --expand."""
-    respx_mock.get("https://api.affinity.co/lists/12345").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
         return_value=Response(
             200,
             json={
@@ -574,7 +574,7 @@ def test_list_export_expand_cursor_combination_fails(
 def test_list_export_csv_to_stdout(respx_mock: respx.MockRouter) -> None:
     """Test list export with --csv outputs CSV to stdout."""
     # Mock list metadata
-    respx_mock.get("https://api.affinity.co/lists/12345").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
         return_value=Response(
             200,
             json={
@@ -650,7 +650,7 @@ def test_list_export_csv_to_stdout(respx_mock: respx.MockRouter) -> None:
 def test_list_export_expand_json_output(respx_mock: respx.MockRouter) -> None:
     """Test list export with --expand produces JSON with nested arrays."""
     # Mock list metadata
-    respx_mock.get("https://api.affinity.co/lists/12345").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
         return_value=Response(
             200,
             json={
@@ -791,7 +791,7 @@ def test_list_export_expand_json_output(respx_mock: respx.MockRouter) -> None:
 def test_list_export_dry_run_with_expand(respx_mock: respx.MockRouter) -> None:
     """Test --dry-run output includes expand info."""
     # Mock list metadata with entry count
-    respx_mock.get("https://api.affinity.co/lists/12345").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
         return_value=Response(
             200,
             json={
@@ -915,7 +915,7 @@ def test_list_export_expand_opportunities_list_requires_expand_opportunities(
 ) -> None:
     """Test --expand-opportunities-list requires --expand opportunities."""
     # Mock list lookup
-    respx_mock.get("https://api.affinity.co/lists/12345").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
         return_value=Response(
             200,
             json={
@@ -958,7 +958,7 @@ def test_list_export_expand_opportunities_valid_on_person_list(
 ) -> None:
     """Test --expand opportunities is valid on person lists (no error)."""
     # Mock person list
-    respx_mock.get("https://api.affinity.co/lists/12345").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
         return_value=Response(
             200,
             json={
@@ -1009,7 +1009,7 @@ def test_list_export_expand_opportunities_invalid_on_opportunity_list(
 ) -> None:
     """Test --expand opportunities is NOT valid on opportunity lists."""
     # Mock opportunity list
-    respx_mock.get("https://api.affinity.co/lists/12345").mock(
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
         return_value=Response(
             200,
             json={

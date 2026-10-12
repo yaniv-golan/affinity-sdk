@@ -254,7 +254,7 @@ with Affinity.from_env() as client:
     # List entries
     entries_service = client.lists.entries(ListId(123))
     entries_service.list() / .get() / .all()
-    entries_service.add_person() / .add_company() / .add_opportunity()
+    entries_service.add_person() / .add_company()   # opportunities: opportunities.create(list_id=)
     entries_service.update_field_value() / .batch_update_fields()
 
     # Notes, reminders, interactions (one entity)

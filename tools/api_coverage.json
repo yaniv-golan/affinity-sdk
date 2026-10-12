@@ -222,17 +222,15 @@
   {
    "op": "POST /v2/lists",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.0.0",
-   "note": "today via V1 lists.create",
+   "status": "supported",
+   "call": "lists.create(ListCreate(name=\"x\", type=ListType.PERSON, is_public=False))",
    "stability": "ga"
   },
   {
    "op": "GET /v2/lists/{listId}",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.0.0",
-   "note": "today via V1 lists.get",
+   "status": "supported",
+   "call": "lists.get(ListId(1))",
    "stability": "ga"
   },
   {
@@ -287,9 +285,8 @@
   {
    "op": "POST /v2/lists/{listId}/list-entries",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.0.0",
-   "note": "today via V1 lists.entries(list_id).add_person/add_company/add_opportunity",
+   "status": "supported",
+   "call": "lists.entries(ListId(1)).add_person(PersonId(1))",
    "stability": "beta"
   },
   {
@@ -909,13 +906,15 @@
    "op": "POST /lists",
    "api": "v1",
    "status": "supported",
-   "call": "lists.create(ListCreate(name=\"x\", type=ListType.PERSON, is_public=False))"
+   "call": "lists.create(ListCreate(name=\"x\", type=ListType.PERSON, is_public=False, owner_id=UserId(1)))",
+   "note": "only for a list created with an owner or extra permissions (V2 can't set them)"
   },
   {
    "op": "GET /lists/{}",
    "api": "v1",
    "status": "supported",
-   "call": "lists.get(ListId(1))"
+   "call": "lists.get_size(ListId(1), force=True)",
+   "note": "for the list size only (V2 has none); the list itself is read from V2"
   },
   {
    "op": "GET /lists/{}/list-entries",
@@ -926,8 +925,8 @@
   {
    "op": "POST /lists/{}/list-entries",
    "api": "v1",
-   "status": "supported",
-   "call": "lists.entries(ListId(1)).add_person(PersonId(1))"
+   "status": "equivalent",
+   "via": "v2 POST /v2/lists/{listId}/list-entries"
   },
   {
    "op": "DELETE /lists/{}/list-entries/{}",

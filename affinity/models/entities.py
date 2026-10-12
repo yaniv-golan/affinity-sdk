@@ -622,9 +622,9 @@ class AffinityList(AffinityModel):
     Named AffinityList to avoid collision with Python's list type.
 
     Note:
-        The list_size field was removed in v0.13.0 because the V2 API returns
-        incorrect values (often 0 for non-empty lists). Use
-        ``client.lists.get_size(list_id)`` to get accurate list size via V1 API.
+        ``client.lists.get()`` reads the list from V2, so ``fields`` is ``None`` (use
+        ``client.lists.get_fields(list_id)``) and ``additional_permissions`` is empty. Use
+        ``client.lists.get_size(list_id)`` for the number of entries (read from V1).
     """
 
     id: ListId
@@ -688,7 +688,11 @@ class ListSummary(AffinityModel):
 
 
 class ListCreate(AffinityModel):
-    """Data for creating a new list (V1 API)."""
+    """A list to create (V2). The caller becomes its creator and owner.
+
+    ``owner_id`` and ``additional_permissions`` can only be set through V1: with either, the
+    list is created through the V1 API.
+    """
 
     name: str
     type: ListType

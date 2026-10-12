@@ -98,7 +98,7 @@ def test_list_entry_ensure_company_creates_v1_list_entry_when_absent() -> None:
             )
 
         if request.method == "POST" and request.url == httpx.URL(
-            "https://v1.example/lists/10/list-entries"
+            "https://v2.example/v2/lists/10/list-entries"
         ):
             body = json.loads(request.content.decode("utf-8"))
             calls.append((request.method, str(request.url), body))
@@ -107,7 +107,7 @@ def test_list_entry_ensure_company_creates_v1_list_entry_when_absent() -> None:
                 json={
                     "id": 42,
                     "listId": 10,
-                    "entityId": 2,
+                    "entity": {"id": 2},
                     "createdAt": created_at,
                     "creatorId": 123,
                 },
@@ -133,8 +133,8 @@ def test_list_entry_ensure_company_creates_v1_list_entry_when_absent() -> None:
         assert calls == [
             (
                 "POST",
-                "https://v1.example/lists/10/list-entries",
-                {"entity_id": 2, "creator_id": 123},
+                "https://v2.example/v2/lists/10/list-entries",
+                {"entity": {"id": 2}, "creatorId": 123},
             )
         ]
     finally:

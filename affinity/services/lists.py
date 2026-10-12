@@ -42,12 +42,12 @@ from ..models.pagination import (
 from ..models.types import (
     AnyFieldId,
     CompanyId,
+    EntityType,
     FieldType,
     FieldValueType,
     ListEntryId,
     ListId,
     ListType,
-    OpportunityId,
     PersonId,
     SavedViewId,
 )
@@ -134,6 +134,71 @@ def _exact_name_matches(
         for item in items
         if item.name.lower() == name_lower and (list_type is None or item.type == list_type)
     ]
+
+
+LIST_ENTRY_ADD_MIN_API_VERSION = "2026-09-17"
+_LIST_TYPE_NAMES = {
+    ListType.PERSON: "person",
+    ListType.COMPANY: "company",
+    ListType.OPPORTUNITY: "opportunity",
+}
+_ENTRY_TYPES = {"person": EntityType.PERSON, "company": EntityType.ORGANIZATION}
+
+
+def _uses_v1_create(data: ListCreate) -> bool:
+    # V2 can't set an owner or extra permissions at create (documented V1 exception)
+    return data.owner_id is not None or bool(data.additional_permissions)
+
+
+def _list_create_body(data: ListCreate) -> dict[str, Any]:
+    return {
+        "name": data.name,
+        "type": _LIST_TYPE_NAMES[ListType(data.type)],
+        "isPublic": data.is_public,
+    }
+
+
+def _v1_list_create_payload(data: ListCreate) -> dict[str, Any]:
+    payload = data.model_dump(mode="json", exclude_none=True, exclude_unset=True)
+    if not data.additional_permissions:
+        payload.pop("additional_permissions", None)
+    return payload
+
+
+def _entry_body(entity_id: int, creator_id: int | None) -> dict[str, Any]:
+    body: dict[str, Any] = {"entity": {"id": entity_id}}
+    if creator_id:
+        body["creatorId"] = creator_id
+    return body
+
+
+def _entry_from_v2(result: dict[str, Any]) -> ListEntry:
+    """The V2 201 body (``ListEntryWithEntity``) as the ``ListEntry`` the SDK always returned."""
+    entity = result.get("entity") or {}
+    return _safe_model_validate(
+        ListEntry,
+        {
+            "id": result.get("id"),
+            "listId": result.get("listId"),
+            "creatorId": result.get("creatorId"),
+            "createdAt": result.get("createdAt"),
+            "entityId": entity.get("id"),
+            "entityType": _ENTRY_TYPES.get(str(result.get("type"))),
+            "entity": entity or None,
+        },
+    )
+
+
+def _entry_error(e: ValidationError, entity_id: int, list_id: ListId) -> ValidationError:
+    return ValidationError(
+        f"Cannot add entity {entity_id} to list {list_id}: {e.message}. The entity must exist "
+        "and match the list's type (a person for a person list, a company for a company list), "
+        "and a list with a required field can't be added to through the API.",
+        param=e.param,
+        status_code=e.status_code,
+        response_body=e.response_body,
+        diagnostics=e.diagnostics,
+    )
 
 
 class ListService:
@@ -268,14 +333,12 @@ class ListService:
 
     def get(self, list_id: ListId) -> AffinityList:
         """
-        Get a single list by ID.
+        Get a single list by ID (V2).
 
-        Includes field metadata for the list.
-
-        Note: Uses V1 API because V2's listSize field is undocumented and
-        returns incorrect values (often 0 for non-empty lists).
+        ``fields`` is not filled: use :meth:`get_fields`. For the number of entries use
+        :meth:`get_size`.
         """
-        data = self._client.get(f"/lists/{list_id}", v1=True)
+        data = self._client.get(f"/lists/{int(list_id)}")
         return _safe_model_validate(AffinityList, data)
 
     def get_size(self, list_id: ListId, *, force: bool = False) -> int:
@@ -294,8 +357,9 @@ class ListService:
             if time.monotonic() - cached_at < _SIZE_CACHE_TTL:
                 return size
 
-        lst = self.get(list_id)
-        size = lst._list_size_hint
+        # V2 has no list size: read it from V1
+        data = self._client.get(f"/lists/{int(list_id)}", v1=True)
+        size = _safe_model_validate(AffinityList, data)._list_size_hint
         self._size_cache[list_id] = (time.monotonic(), size)
         return size
 
@@ -351,15 +415,15 @@ class ListService:
 
     def create(self, data: ListCreate) -> AffinityList:
         """
-        Create a new list.
+        Create a list (V2); the caller becomes its creator and owner.
 
-        Uses V1 API.
+        A public list needs the "Share accessible Lists globally" permission. V2 can't set
+        ``owner_id`` or ``additional_permissions``: with either, the list is created through V1.
         """
-        payload = data.model_dump(mode="json", exclude_none=True, exclude_unset=True)
-        if not data.additional_permissions:
-            payload.pop("additional_permissions", None)
-
-        result = self._client.post("/lists", json=payload, v1=True)
+        if _uses_v1_create(data):
+            result = self._client.post("/lists", json=_v1_list_create_payload(data), v1=True)
+        else:
+            result = self._client.post("/lists", json=_list_create_body(data))
 
         # Invalidate cache
         if self._client.cache:
@@ -1206,53 +1270,26 @@ class ListEntryService:
         """Add a company to this list."""
         return self._create_entry(int(company_id), creator_id)
 
-    def add_opportunity(
-        self,
-        opportunity_id: OpportunityId,
-        *,
-        creator_id: int | None = None,
-    ) -> ListEntry:
-        """Add an opportunity to this list."""
-        return self._create_entry(int(opportunity_id), creator_id)
-
     def _create_entry(
         self,
         entity_id: int,
         creator_id: int | None = None,
     ) -> ListEntry:
-        """Internal method to create a list entry.
+        """Add a person or company to this list (V2, Affinity API 2026-09-17+).
 
-        Note: The entity type must match the list type:
-        - Person lists only accept person IDs via add_person()
-        - Company lists only accept company IDs via add_company()
-        - Opportunity lists only accept opportunity IDs via add_opportunity()
+        The entity must match the list type. Opportunities can't be added this way: create
+        them with ``opportunities.create(OpportunityCreate(list_id=...))``. A list with a
+        required field can't be added to through the API.
         """
-        payload: dict[str, Any] = {"entity_id": entity_id}
-        if creator_id:
-            payload["creator_id"] = creator_id
-
         try:
             result = self._client.post(
-                f"/lists/{self._list_id}/list-entries",
-                json=payload,
-                v1=True,
+                f"/lists/{int(self._list_id)}/list-entries",
+                json=_entry_body(entity_id, creator_id),
+                min_api_version=LIST_ENTRY_ADD_MIN_API_VERSION,
             )
         except ValidationError as e:
-            # 422 + param=entity_id means entity type doesn't match list type
-            if e.status_code == 422 and e.param == "entity_id":
-                raise ValidationError(
-                    f"Cannot add entity {entity_id} to list {self._list_id}. "
-                    f"The entity type must match the list type "
-                    f"(person lists accept persons, company lists accept companies, "
-                    f"opportunity lists accept opportunities).",
-                    param=e.param,
-                    status_code=e.status_code,
-                    response_body=e.response_body,
-                    diagnostics=e.diagnostics,
-                ) from e
-            raise
-
-        return _safe_model_validate(ListEntry, result)
+            raise _entry_error(e, entity_id, self._list_id) from e
+        return _entry_from_v2(result)
 
     def delete(self, entry_id: ListEntryId) -> bool:
         """
@@ -1600,14 +1637,12 @@ class AsyncListService:
 
     async def get(self, list_id: ListId) -> AffinityList:
         """
-        Get a single list by ID.
+        Get a single list by ID (V2).
 
-        Includes field metadata for the list.
-
-        Note: Uses V1 API because V2's listSize field is undocumented and
-        returns incorrect values (often 0 for non-empty lists).
+        ``fields`` is not filled: use :meth:`get_fields`. For the number of entries use
+        :meth:`get_size`.
         """
-        data = await self._client.get(f"/lists/{list_id}", v1=True)
+        data = await self._client.get(f"/lists/{int(list_id)}")
         return _safe_model_validate(AffinityList, data)
 
     async def get_size(self, list_id: ListId, *, force: bool = False) -> int:
@@ -1626,8 +1661,9 @@ class AsyncListService:
             if time.monotonic() - cached_at < _SIZE_CACHE_TTL:
                 return size
 
-        lst = await self.get(list_id)
-        size = lst._list_size_hint
+        # V2 has no list size: read it from V1
+        data = await self._client.get(f"/lists/{int(list_id)}", v1=True)
+        size = _safe_model_validate(AffinityList, data)._list_size_hint
         self._size_cache[list_id] = (time.monotonic(), size)
         return size
 
@@ -1687,15 +1723,15 @@ class AsyncListService:
 
     async def create(self, data: ListCreate) -> AffinityList:
         """
-        Create a new list.
+        Create a list (V2); the caller becomes its creator and owner.
 
-        Uses V1 API.
+        A public list needs the "Share accessible Lists globally" permission. V2 can't set
+        ``owner_id`` or ``additional_permissions``: with either, the list is created through V1.
         """
-        payload = data.model_dump(mode="json", exclude_none=True, exclude_unset=True)
-        if not data.additional_permissions:
-            payload.pop("additional_permissions", None)
-
-        result = await self._client.post("/lists", json=payload, v1=True)
+        if _uses_v1_create(data):
+            result = await self._client.post("/lists", json=_v1_list_create_payload(data), v1=True)
+        else:
+            result = await self._client.post("/lists", json=_list_create_body(data))
 
         if self._client.cache:
             self._client.cache.invalidate_prefix("list")
@@ -2323,53 +2359,26 @@ class AsyncListEntryService:
         """Add a company to this list."""
         return await self._create_entry(int(company_id), creator_id)
 
-    async def add_opportunity(
-        self,
-        opportunity_id: OpportunityId,
-        *,
-        creator_id: int | None = None,
-    ) -> ListEntry:
-        """Add an opportunity to this list."""
-        return await self._create_entry(int(opportunity_id), creator_id)
-
     async def _create_entry(
         self,
         entity_id: int,
         creator_id: int | None = None,
     ) -> ListEntry:
-        """Internal method to create a list entry.
+        """Add a person or company to this list (V2, Affinity API 2026-09-17+).
 
-        Note: The entity type must match the list type:
-        - Person lists only accept person IDs via add_person()
-        - Company lists only accept company IDs via add_company()
-        - Opportunity lists only accept opportunity IDs via add_opportunity()
+        The entity must match the list type. Opportunities can't be added this way: create
+        them with ``opportunities.create(OpportunityCreate(list_id=...))``. A list with a
+        required field can't be added to through the API.
         """
-        payload: dict[str, Any] = {"entity_id": entity_id}
-        if creator_id:
-            payload["creator_id"] = creator_id
-
         try:
             result = await self._client.post(
-                f"/lists/{self._list_id}/list-entries",
-                json=payload,
-                v1=True,
+                f"/lists/{int(self._list_id)}/list-entries",
+                json=_entry_body(entity_id, creator_id),
+                min_api_version=LIST_ENTRY_ADD_MIN_API_VERSION,
             )
         except ValidationError as e:
-            # 422 + param=entity_id means entity type doesn't match list type
-            if e.status_code == 422 and e.param == "entity_id":
-                raise ValidationError(
-                    f"Cannot add entity {entity_id} to list {self._list_id}. "
-                    f"The entity type must match the list type "
-                    f"(person lists accept persons, company lists accept companies, "
-                    f"opportunity lists accept opportunities).",
-                    param=e.param,
-                    status_code=e.status_code,
-                    response_body=e.response_body,
-                    diagnostics=e.diagnostics,
-                ) from e
-            raise
-
-        return _safe_model_validate(ListEntry, result)
+            raise _entry_error(e, entity_id, self._list_id) from e
+        return _entry_from_v2(result)
 
     async def delete(self, entry_id: ListEntryId) -> bool:
         """

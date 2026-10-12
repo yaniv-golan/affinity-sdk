@@ -21,6 +21,7 @@ this ships.
 
 - `note create`/`note update` use the V2 API: content is stored as HTML (plain text is
   escaped), `note update --type plain-text|html`, `note create --type` is plain-text or html.
+- `list get <id>` no longer has `.data.list.fields` (use `.data.fields`), and adds `createdAt`.
 - `opportunity update --name` alone omits `personIds`/`organizationIds` from its output (they
   were always empty after a rename).
 - `reminder` commands use the V2 API: `reminder update --clear-content`, `--reset-type event`
