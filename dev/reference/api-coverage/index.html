@@ -2417,7 +2417,7 @@ against the pinned API specs and checks that each supported call requests its op
 <tr>
 <td><code>GET /v2/files</code></td>
 <td>supported</td>
-<td><code>files.list_v2()</code></td>
+<td><code>files.feed()</code></td>
 <td>beta; API 2026-09-17+</td>
 </tr>
 <tr>
@@ -2429,7 +2429,7 @@ against the pinned API specs and checks that each supported call requests its op
 <tr>
 <td><code>GET /v2/files/{fileId}</code></td>
 <td>supported</td>
-<td><code>files.get_v2(FileId(1))</code></td>
+<td><code>files.get_download_url(FileId(1))</code></td>
 <td>beta; API 2026-09-17+</td>
 </tr>
 <tr>
@@ -2591,7 +2591,7 @@ against the pinned API specs and checks that each supported call requests its op
 <tr>
 <td><code>GET /v2/notes</code></td>
 <td>supported</td>
-<td><code>notes.list_v2()</code></td>
+<td><code>notes.feed()</code></td>
 <td></td>
 </tr>
 <tr>
@@ -2615,7 +2615,7 @@ against the pinned API specs and checks that each supported call requests its op
 <tr>
 <td><code>GET /v2/notes/{noteId}</code></td>
 <td>supported</td>
-<td><code>notes.get_v2(NoteId(1))</code></td>
+<td><code>notes.get(NoteId(1))</code></td>
 <td></td>
 </tr>
 <tr>
@@ -2939,7 +2939,7 @@ against the pinned API specs and checks that each supported call requests its op
 </tbody>
 </table>
 <h2 id="v1-api">V1 API<a class="headerlink" href="#v1-api" title="Permanent link">&para;</a></h2>
-<p>41 supported, 18 equivalent</p>
+<p>40 supported, 19 equivalent</p>
 <table>
 <thead>
 <tr>
@@ -2960,7 +2960,7 @@ against the pinned API specs and checks that each supported call requests its op
 <td><code>GET /entity-files</code></td>
 <td>supported</td>
 <td><code>files.list(company_id=CompanyId(1))</code></td>
-<td>one person's, company's or opportunity's files (V2 lists only org-wide: files.list_v2)</td>
+<td>one person's, company's or opportunity's files (V2 lists only org-wide: files.feed)</td>
 </tr>
 <tr>
 <td><code>POST /entity-files</code></td>
@@ -2978,7 +2978,7 @@ against the pinned API specs and checks that each supported call requests its op
 <td><code>GET /entity-files/{}</code></td>
 <td>supported</td>
 <td><code>files.get(FileId(1))</code></td>
-<td>works under any API version pin; files.get_v2 adds a download URL (API 2026-09-17+)</td>
+<td>the file's record, with its person/company/opportunity, under any API version pin; get_download_url uses V2 when it can</td>
 </tr>
 <tr>
 <td><code>GET /field-value-changes</code></td>
@@ -3120,9 +3120,9 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /notes/{}</code></td>
-<td>supported</td>
-<td><code>notes.get(NoteId(1))</code></td>
+<td>equivalent</td>
 <td></td>
+<td>via v2 GET /v2/notes/{noteId}</td>
 </tr>
 <tr>
 <td><code>PUT /notes/{}</code></td>

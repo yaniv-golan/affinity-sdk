@@ -8155,9 +8155,9 @@ or entity comes back as a reference with a <code>displayValue</code> snapshot). 
 
 
 
-        <p>A file's metadata from V2 (<code>files.get_v2</code>, <code>files.list_v2</code>).</p>
-<p>V2 files carry no person/company/opportunity; <code>download_url</code> (<code>get_v2</code> only) is a signed
-URL that expires 60 seconds after the response.</p>
+        <p>A file's metadata from V2 (<code>files.feed</code>).</p>
+<p>V2 files carry no person/company/opportunity; <code>download_url</code> (single-file reads only) is
+a signed URL that expires 60 seconds after the response.</p>
 
 
 
@@ -8185,10 +8185,10 @@ URL that expires 60 seconds after the response.</p>
 <span class="normal">296</span>
 <span class="normal">297</span>
 <span class="normal">298</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FileV2</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""A file's metadata from V2 (``files.get_v2``, ``files.list_v2``).</span>
+<span class="w">    </span><span class="sd">"""A file's metadata from V2 (``files.feed``).</span>
 
-<span class="sd">    V2 files carry no person/company/opportunity; ``download_url`` (``get_v2`` only) is a signed</span>
-<span class="sd">    URL that expires 60 seconds after the response.</span>
+<span class="sd">    V2 files carry no person/company/opportunity; ``download_url`` (single-file reads only) is</span>
+<span class="sd">    a signed URL that expires 60 seconds after the response.</span>
 <span class="sd">    """</span>
 
     <span class="nb">id</span><span class="p">:</span> <span class="n">FileId</span>
@@ -9858,8 +9858,8 @@ notes only).</p>
 
         <p>V2 API note format.</p>
 <p><code>replies_count</code> and the attached <code>companies</code> / <code>persons</code> / <code>opportunities</code> (first ones,
-with <code>*_total</code>) are filled only when requested with <code>includes</code> (<code>notes.list_v2</code> /
-<code>notes.get_v2</code>); otherwise they are <code>None</code>.</p>
+with <code>*_total</code>) are filled only when requested with <code>includes</code> (<code>notes.feed</code> /
+<code>notes.get</code>); otherwise they are <code>None</code>.</p>
 
 
 
@@ -9928,8 +9928,8 @@ with <code>*_total</code>) are filled only when requested with <code>includes</c
 <span class="w">    </span><span class="sd">"""V2 API note format.</span>
 
 <span class="sd">    ``replies_count`` and the attached ``companies`` / ``persons`` / ``opportunities`` (first ones,</span>
-<span class="sd">    with ``*_total``) are filled only when requested with ``includes`` (``notes.list_v2`` /</span>
-<span class="sd">    ``notes.get_v2``); otherwise they are ``None``.</span>
+<span class="sd">    with ``*_total``) are filled only when requested with ``includes`` (``notes.feed`` /</span>
+<span class="sd">    ``notes.get``); otherwise they are ``None``.</span>
 <span class="sd">    """</span>
 
     <span class="nb">id</span><span class="p">:</span> <span class="n">NoteId</span>

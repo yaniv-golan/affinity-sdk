@@ -2415,8 +2415,12 @@
 <td>V2 refuses (403: only the creator or owner may change it on V2); retried once on V1</td>
 </tr>
 <tr>
-<td><code>files.list</code> / <code>iter</code> / <code>get</code></td>
-<td>always (only V1 lists one entity's files; <code>files.list_v2</code>/<code>get_v2</code> are the V2 reads)</td>
+<td><code>files.get</code> / <code>list</code> / <code>iter</code></td>
+<td>always (only V1 has the file's person, company or opportunity and works under any version pin; <code>files.feed</code> lists through V2)</td>
+</tr>
+<tr>
+<td><code>files.get_download_url</code></td>
+<td>when V2 can't answer: pinned older than 2026-09-17, or V2 refuses (V2 otherwise, in one request)</td>
 </tr>
 <tr>
 <td><code>lists.get_size</code></td>

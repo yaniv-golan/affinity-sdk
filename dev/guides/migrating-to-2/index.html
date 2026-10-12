@@ -2499,8 +2499,10 @@ ls|get|create|update|delete</code>; create, update and delete ask for confirmati
 </tr>
 </tbody>
 </table>
-<p><code>note get</code>/<code>note ls</code> and <code>notes.list/get</code> still use V1, which shows notes stored as HTML in a
-markdown-like form. Changing the text of a note that @mentions people is refused by the API.</p>
+<p><code>notes.get()</code> returns <code>NoteV2</code> (<code>includes=True</code> adds the attached companies, persons and
+opportunities); <code>notes.list_v2()</code>/<code>iter_v2()</code>/<code>get_v2()</code> are now <code>notes.feed()</code>/<code>iter_feed()</code>/
+<code>get()</code>. <code>notes.list()</code> (one entity's notes) and CLI <code>note ls</code> still use V1, which shows notes
+stored as HTML in a markdown-like form. Changing the text of a note that @mentions people is refused by the API.</p>
 <h2 id="lists">Lists<a class="headerlink" href="#lists" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2528,9 +2530,9 @@ markdown-like form. Changing the text of a note that @mentions people is refused
 unchanged (V1): Affinity's V2 spec documents them, but the API didn't serve them when tested (2026-10-12).
 <code>Person.company_ids</code> and <code>Opportunity.company_ids</code> are now filled from V1 responses.</p>
 <h2 id="files-and-rate-limits">Files and rate limits<a class="headerlink" href="#files-and-rate-limits" title="Permanent link">&para;</a></h2>
-<p><code>files.get/list/iter</code> are unchanged (V1). New: <code>files.get_v2()</code> (with a download URL that
-expires after 60 seconds) and <code>files.list_v2()</code>/<code>iter_v2()</code> (every file you can see, newest
-first). <code>rate_limits.refresh()</code> reads the V2 endpoint; <code>RateLimitSnapshot</code> is unchanged.</p>
+<p><code>files.get/list/iter</code> are unchanged (V1). <code>files.get_download_url()</code> uses V2 when it can (one
+request for the details and a URL valid 60 seconds) and V1 otherwise. New:
+<code>files.feed()</code>/<code>iter_feed()</code> (every file you can see, newest first, as <code>FileV2</code>). <code>rate_limits.refresh()</code> reads the V2 endpoint; <code>RateLimitSnapshot</code> is unchanged.</p>
 <h2 id="cli-and-mcp">CLI and MCP<a class="headerlink" href="#cli-and-mcp" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>reminder ls --page-size</code> is at most 100; <code>reminder update --clear-content</code>; <code>--reset-type

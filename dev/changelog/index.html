@@ -2163,6 +2163,34 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased">[Unreleased]<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h2 id="201-2026-10-12">[2.0.1] - 2026-10-12<a class="headerlink" href="#201-2026-10-12" title="Permanent link">&para;</a></h2>
+<h3 id="changed-breaking">Changed (breaking)<a class="headerlink" href="#changed-breaking" title="Permanent link">&para;</a></h3>
+<p><strong>Exception to semantic versioning:</strong> these renames break code written against 2.0.0, in a
+patch release. 2.0.0 had been out for under an hour, and the renames remove method names that
+said which Affinity API they used instead of what they do.</p>
+<ul>
+<li><code>notes.list_v2()</code> / <code>iter_v2()</code> → <strong><code>notes.feed()</code> / <code>iter_feed()</code></strong> (every note across the
+  organization; the CLI's <code>note feed</code>).</li>
+<li><code>notes.get_v2()</code> → <strong><code>notes.get()</code></strong>, which now returns <code>NoteV2</code> (<code>includes=True</code> adds the
+  attached companies, persons and opportunities). The V1 <code>notes.get()</code> (returning <code>Note</code>) is
+  removed; <code>notes.list()</code> (one entity's notes, V1) is unchanged.</li>
+<li><code>files.list_v2()</code> / <code>iter_v2()</code> → <strong><code>files.feed()</code> / <code>iter_feed()</code></strong> (every file you can see,
+  newest first).</li>
+<li><code>files.get_v2()</code> is removed. <strong><code>files.get_download_url()</code></strong> now asks V2 first: one request
+  for the details and a signed URL (valid 60 seconds) instead of V1's two. It falls back to
+  V1 when the client is pinned to an API version older than 2026-09-17, or when V2 refuses or
+  doesn't find the file; the result (<code>PresignedUrl</code>) is the same either way. <code>files.get()</code>
+  stays on V1 (<code>EntityFile</code>, with the file's person, company or opportunity) and works under
+  any version pin.</li>
+<li>CLI <code>note get</code> reads the note from V2: same output keys, <code>content</code> is the stored HTML (as in
+  <code>note create</code>/<code>update</code> output), and the attachment ids come from V2.</li>
+<li>CLI <code>files read</code> and <code>file-url</code> get the file's details and URL in one request where V2 can
+  answer (V1's path otherwise).</li>
+</ul>
+<h3 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>SDK plugin</strong>: 2.0.0 → 2.0.1 — skill: the renamed note methods.</li>
+</ul>
 <h2 id="200-2026-10-12">[2.0.0] - 2026-10-12<a class="headerlink" href="#200-2026-10-12" title="Permanent link">&para;</a></h2>
 <h3 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h3>
 <p><strong>SDK 2.0 moves to Affinity's V2 API wherever V2 can do the job.</strong> Webhooks, reminders, note
@@ -2174,7 +2202,7 @@ reminder models change shape, note writes return <code>NoteV2</code>, <code>add_
 operations added in newer Affinity API versions refuse a client pinned to an older one
 (<code>ApiVersionTooOldError</code>). See the <a href="https://yaniv-golan.github.io/affinity-sdk/latest/guides/migrating-to-2/">Migrating to 2.0</a>
 guide.</p>
-<h3 id="changed-breaking">Changed (breaking)<a class="headerlink" href="#changed-breaking" title="Permanent link">&para;</a></h3>
+<h3 id="changed-breaking_1">Changed (breaking)<a class="headerlink" href="#changed-breaking_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Webhooks use the V2 API</strong> (<code>/v2/webhooks</code>, Affinity API 2026-07-15 or later, beta).
   <code>WebhookSubscription</code> is now <code>Webhook</code>: <code>webhook_url</code> → <code>url</code>, <code>disabled</code> →
@@ -2273,7 +2301,7 @@ guide.</p>
   sync and async, against a recording HTTP layer and checks the method, path and API version it
   requests.</li>
 </ul>
-<h3 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_1">Plugins<a class="headerlink" href="#plugins_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>SDK plugin</strong>: 1.7.1 → 2.0.0 (matches SDK 2.0) — skill: note writes go through V2 (HTML, the
   allowed tags), and <code>add_opportunity()</code> is gone (create the opportunity on its list).</li>
@@ -2325,7 +2353,7 @@ list.</p>
   fields too. The dry run reports <code>fieldKind</code> (<code>list</code> / <code>global</code>) and, for a global field,
   <code>entities</code>.</li>
 </ul>
-<h3 id="plugins_1">Plugins<a class="headerlink" href="#plugins_1" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_2">Plugins<a class="headerlink" href="#plugins_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>CLI plugin</strong>: 1.13.2 → 1.13.3 — skill: <code>history-bulk</code> on global fields; Cowork keys in a
   connected folder need <code>--env-file /sessions/&lt;id&gt;/mnt/&lt;folder&gt;/.env</code> (each shell call starts
@@ -2353,7 +2381,7 @@ touches the disk.</p>
   field-wide read (or reading the list's fields) fails, the command fails with a hint to retry
   or use <code>--strategy entries</code>. <code>--strategy auto</code> still falls back, with a warning.</li>
 </ul>
-<h3 id="plugins_2">Plugins<a class="headerlink" href="#plugins_2" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_3">Plugins<a class="headerlink" href="#plugins_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>CLI plugin</strong>: 1.12.0 → 1.13.0 — skill: field history without a selector, <code>field changes</code>,
   <code>history-bulk --strategy</code>; <code>interaction feed</code>, <code>note feed</code>, <code>note replies</code>; transcripts;
@@ -2575,7 +2603,7 @@ Affinity API version 2026-07-15 or newer: unpinned, the CLI sends it for the wri
   as "unchanged". Affinity keeps the <strong>UTC</strong> date of the value written (verified live), not the
   Pacific date of that instant.</li>
 </ul>
-<h3 id="plugins_3">Plugins<a class="headerlink" href="#plugins_3" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_4">Plugins<a class="headerlink" href="#plugins_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>SDK plugin</strong>: 1.6.1 → 1.7.0 — skill: <code>companies/persons.batch_update_fields()</code> and
   <code>get_field_values()</code> (one all-or-nothing write, API version 2026-07-15), <code>lists.pages(term=)</code>;
@@ -2950,7 +2978,7 @@ the key via <code>AFFINITY_API_KEY</code>, project <code>.env</code> + <code>--d
   keyword-only <code>field_ids</code> and <code>field_types</code>, matching <code>list()</code> /
   <code>from_saved_view()</code>. Default behavior is unchanged.</li>
 </ul>
-<h3 id="plugins_4">Plugins<a class="headerlink" href="#plugins_4" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_5">Plugins<a class="headerlink" href="#plugins_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>CLI plugin</strong> (<code>affinity-crm-cli-xaffinity-unofficial</code>): 1.9.0 → 1.10.0 —
   added <code>clis.xaffinity</code> credential-broker manifest block (<code>env.api_key</code> →
@@ -3103,7 +3131,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>Dead <code>mcp/.claude-plugin/.mcp.json</code> (inline <code>mcpServers</code> in <code>plugin.json</code>
   is the source of truth).</li>
 </ul>
-<h3 id="plugins_5">Plugins<a class="headerlink" href="#plugins_5" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_6">Plugins<a class="headerlink" href="#plugins_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>SDK plugin</strong> (<code>affinity-crm-sdk-unofficial</code>): 1.6.0 → 1.6.1 — <code>plugin.json#name</code> alignment + skill frontmatter split.</li>
 <li><strong>CLI plugin</strong> (<code>affinity-crm-cli-xaffinity-unofficial</code>): 1.8.0 → 1.8.2 — <code>plugin.json#name</code> alignment + skill frontmatter split + new <code>AFFINITY_API_KEY_FILE</code> / <code>_COMMAND</code> documentation in the resolution-chain skill content.</li>
@@ -3129,7 +3157,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI/SDK: <code>meta.truncated</code> (bool) and <code>meta.truncationReason</code> (string) on all <code>CommandResult</code> envelopes. Both keys are stripped from the JSON output when <code>None</code>. Known values for <code>truncationReason</code>: <code>firstPageOnly</code>.</li>
 <li>SDK: <code>_entry_to_filter_dict</code> now includes <code>listEntryId</code>, <code>entityId</code>, <code>entityName</code>, <code>entityType</code> — filtering on the row-level keys the CLI outputs no longer silently matches zero rows.</li>
 </ul>
-<h3 id="changed-breaking_1">Changed (breaking)<a class="headerlink" href="#changed-breaking_1" title="Permanent link">&para;</a></h3>
+<h3 id="changed-breaking_2">Changed (breaking)<a class="headerlink" href="#changed-breaking_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>list export --filter</code> now errors (exit code 2, <code>usage_error</code>) without one of <code>--all</code>, <code>--max-results</code>, or <code>--first-page-only</code>. Previous versions silently returned first-page-only results.</li>
 <li><strong>Migration:</strong> Add the intended scope flag. For "filter all list entries" → <code>--all</code>; for "filter the first N" → <code>--max-results N</code>; for "filter what fits on page 1" → <code>--first-page-only</code>. On very large lists prefer <code>--saved-view</code> (server-side) or the new <code>--company-id</code>/<code>--person-id</code> (entity-scoped).</li>
@@ -3155,7 +3183,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI <code>duplicate_exists</code> error type (exit code 6) with <code>error.details.existing.{companyId|personId, name, domain, isGlobal}</code> for recovery</li>
 <li>CLI <code>unsupported_filter</code> error type (exit code 2) on <code>company ls --filter</code>, <code>person ls --filter</code>, and <code>query</code> on companies/persons/opportunities</li>
 </ul>
-<h3 id="changed-breaking_2">Changed (breaking)<a class="headerlink" href="#changed-breaking_2" title="Permanent link">&para;</a></h3>
+<h3 id="changed-breaking_3">Changed (breaking)<a class="headerlink" href="#changed-breaking_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>companies.list()</code>, <code>persons.list()</code>, and their <code>.get_first() / .all() / .iter() / .pages()</code> variants now raise <code>ValueError</code> if <code>filter=</code> is passed. Previous versions silently returned unfiltered results because server-side filtering is unsupported on these list endpoints.</li>
 <li><code>query</code> CLI command: <code>where</code> clauses on <code>companies</code>, <code>persons</code>, <code>opportunities</code> now raise <code>QueryValidationError</code> instead of silently returning all records. The schema registry's <code>filterable_fields</code> is empty for these entities. Use <code>listEntries</code> with a <code>listId</code> filter for list-scoped queries.</li>
@@ -3585,7 +3613,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>Docs: "Verify Installation" section in CLI documentation with step-by-step health check instructions (<code>xaffinity --version</code>, <code>AFFINITY_API_KEY=... xaffinity whoami</code>).</li>
 </ul>
 <h2 id="0160-2026-01-26">[0.16.0] - 2026-01-26<a class="headerlink" href="#0160-2026-01-26" title="Permanent link">&para;</a></h2>
-<h3 id="changed-breaking_3">Changed (Breaking)<a class="headerlink" href="#changed-breaking_3" title="Permanent link">&para;</a></h3>
+<h3 id="changed-breaking_4">Changed (Breaking)<a class="headerlink" href="#changed-breaking_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>Person.interactions</code> and <code>Company.interactions</code> attribute type changed from <code>dict[str, Any]</code> to typed <code>Interactions</code> model. Migration: change dict access (<code>person.interactions["last_event"]["person_ids"]</code>) to attribute access (<code>person.interactions.last_event.person_ids</code>). The <code>Interactions</code> model provides typed access to <code>first_email</code>, <code>last_email</code>, <code>first_event</code>, <code>last_event</code>, <code>next_event</code>, <code>last_chat_message</code>, and <code>last_interaction</code> fields, each containing an <code>InteractionEvent</code> with <code>date</code> and <code>person_ids</code> attributes.</li>
 </ul>
@@ -3636,7 +3664,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI: Query progress now emits <code>progress: 0</code> in <code>on_step_start</code> events, enabling mcp-bash timeout extension for slow first-page fetches</li>
 </ul>
 <h2 id="0130-2026-01-21">0.13.0 - 2026-01-21<a class="headerlink" href="#0130-2026-01-21" title="Permanent link">&para;</a></h2>
-<h3 id="changed-breaking_4">Changed (Breaking)<a class="headerlink" href="#changed-breaking_4" title="Permanent link">&para;</a></h3>
+<h3 id="changed-breaking_5">Changed (Breaking)<a class="headerlink" href="#changed-breaking_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>AffinityList.list_size</code> field removed. The V2 API returns incorrect values (often 0 for non-empty lists). Use <code>client.lists.get_size(list_id)</code> instead, which fetches from the V1 API and caches for 5 minutes.</li>
 </ul>
@@ -3701,7 +3729,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI: Let <code>AuthenticationError</code>/<code>AuthorizationError</code> propagate in query executor instead of silent catch.</li>
 <li>CLI: Added logging to silent exception handlers in entity validation.</li>
 </ul>
-<h3 id="changed-breaking_5">Changed (Breaking)<a class="headerlink" href="#changed-breaking_5" title="Permanent link">&para;</a></h3>
+<h3 id="changed-breaking_6">Changed (Breaking)<a class="headerlink" href="#changed-breaking_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>--check-unreplied-emails</code> renamed to <code>--check-unreplied</code> with support for both email and chat messages.</li>
 <li>New <code>--unreplied-types</code> flag: comma-separated list of types to check (<code>email</code>, <code>chat</code>, <code>all</code>). Default: <code>email,chat</code></li>
@@ -3784,7 +3812,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>SDK: Query executor <code>_batch_fetch_by_ids()</code> now uses V2 batch lookup for persons and companies, improving query performance on relationship includes.</li>
 <li>CLI: Query <code>include</code> clause now fetches relationship IDs in parallel, then batch-fetches full records via V2 API, reducing API calls from N×M to N+1 for deduped lookups.</li>
 </ul>
-<h3 id="changed-breaking_6">Changed (Breaking)<a class="headerlink" href="#changed-breaking_6" title="Permanent link">&para;</a></h3>
+<h3 id="changed-breaking_7">Changed (Breaking)<a class="headerlink" href="#changed-breaking_7" title="Permanent link">&para;</a></h3>
 <ul>
 <li>MCP: Query tool default format changed from <code>json</code> to <code>toon</code> for better token efficiency (~40% fewer tokens).</li>
 <li>CLI: TOON query output now includes full envelope structure instead of data-only format. The <code>data</code> prefix is added to the array header: <code>data[N]{fields}:</code> instead of <code>[N]{fields}:</code>.</li>
@@ -3805,7 +3833,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>Available relationship paths: persons→companies/opportunities/interactions/notes/listEntries, companies→persons/opportunities/interactions/notes/listEntries, opportunities→persons/companies/interactions</li>
 <li>Note: These features cause N+1 API calls to fetch relationship data; use <code>--dry-run</code> to preview</li>
 </ul>
-<h3 id="changed-breaking_7">Changed (Breaking)<a class="headerlink" href="#changed-breaking_7" title="Permanent link">&para;</a></h3>
+<h3 id="changed-breaking_8">Changed (Breaking)<a class="headerlink" href="#changed-breaking_8" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Renamed relationship <code>"people"</code> to <code>"persons"</code> for consistency with entity type names:</li>
 <li>Query <code>include</code>: <code>{"from": "companies", "include": ["people"]}</code> → use <code>["persons"]</code></li>

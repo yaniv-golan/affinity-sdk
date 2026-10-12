@@ -2141,6 +2141,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#affinity.services.v1_only.EntityFileService.feed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        feed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#affinity.services.v1_only.EntityFileService.get" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2163,17 +2174,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#affinity.services.v1_only.EntityFileService.get_v2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        get_v2
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#affinity.services.v1_only.EntityFileService.iter" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2185,10 +2185,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#affinity.services.v1_only.EntityFileService.iter_v2" class="md-nav__link">
+  <a href="#affinity.services.v1_only.EntityFileService.iter_feed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        iter_v2
+        iter_feed
       
     </span>
   </a>
@@ -2200,17 +2200,6 @@
     <span class="md-ellipsis">
       
         list
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#affinity.services.v1_only.EntityFileService.list_v2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        list_v2
       
     </span>
   </a>
@@ -2464,6 +2453,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#affinity.services.v1_only.EntityFileService.feed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        feed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#affinity.services.v1_only.EntityFileService.get" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2486,17 +2486,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#affinity.services.v1_only.EntityFileService.get_v2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        get_v2
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#affinity.services.v1_only.EntityFileService.iter" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2508,10 +2497,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#affinity.services.v1_only.EntityFileService.iter_v2" class="md-nav__link">
+  <a href="#affinity.services.v1_only.EntityFileService.iter_feed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        iter_v2
+        iter_feed
       
     </span>
   </a>
@@ -2523,17 +2512,6 @@
     <span class="md-ellipsis">
       
         list
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#affinity.services.v1_only.EntityFileService.list_v2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        list_v2
       
     </span>
   </a>
@@ -2627,10 +2605,10 @@
 
 
 <h1 id="files">Files<a class="headerlink" href="#files" title="Permanent link">&para;</a></h1>
-<p><code>list</code>, <code>all</code>, <code>iter</code>, <code>get</code>, uploads and downloads use V1: only V1 lists one person's,
-company's or opportunity's files. <code>get_v2</code> (a file with a short-lived download URL) and
-<code>list_v2</code>/<code>iter_v2</code> (every file visible to you, newest first) use V2 (Affinity API
-2026-09-17+).</p>
+<p><code>get</code>, <code>list</code>, <code>all</code>, <code>iter</code>, uploads and downloads use V1: only V1 has a file's person,
+company or opportunity, and it works under any API version pin. <code>get_download_url</code> uses V2 when
+it can (one request for the details and a signed URL) and V1 otherwise. <code>feed</code>/<code>iter_feed</code>
+list every file visible to you, newest first, through V2 (Affinity API 2026-09-17+).</p>
 
 
 <div class="doc doc-object doc-class">
@@ -2655,27 +2633,7 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1792</span>
-<span class="normal">1793</span>
-<span class="normal">1794</span>
-<span class="normal">1795</span>
-<span class="normal">1796</span>
-<span class="normal">1797</span>
-<span class="normal">1798</span>
-<span class="normal">1799</span>
-<span class="normal">1800</span>
-<span class="normal">1801</span>
-<span class="normal">1802</span>
-<span class="normal">1803</span>
-<span class="normal">1804</span>
-<span class="normal">1805</span>
-<span class="normal">1806</span>
-<span class="normal">1807</span>
-<span class="normal">1808</span>
-<span class="normal">1809</span>
-<span class="normal">1810</span>
-<span class="normal">1811</span>
-<span class="normal">1812</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1812</span>
 <span class="normal">1813</span>
 <span class="normal">1814</span>
 <span class="normal">1815</span>
@@ -3263,7 +3221,10 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
 <span class="normal">2397</span>
 <span class="normal">2398</span>
 <span class="normal">2399</span>
-<span class="normal">2400</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EntityFileService</span><span class="p">(</span><span class="n">FileSearchMixin</span><span class="p">):</span>
+<span class="normal">2400</span>
+<span class="normal">2401</span>
+<span class="normal">2402</span>
+<span class="normal">2403</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EntityFileService</span><span class="p">(</span><span class="n">FileSearchMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Service for managing files attached to entities."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">HTTPClient</span><span class="p">):</span>
@@ -3326,18 +3287,12 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EntityFile</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Get file metadata."""</span>
+<span class="w">        </span><span class="sd">"""A file's details, including the person, company or opportunity it belongs to (V1;</span>
+<span class="sd">        works under any API version). :meth:`get_download_url` adds a download link."""</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/entity-files/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">EntityFile</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_v2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FileV2</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""One file's metadata from V2 (Affinity API 2026-09-17+), with a download URL that</span>
-<span class="sd">        expires 60 seconds later. :meth:`get` (V1) is unchanged."""</span>
-        <span class="k">return</span> <span class="n">FileV2</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/files/</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">file_id</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">min_api_version</span><span class="o">=</span><span class="n">FILES_V2_MIN_API_VERSION</span><span class="p">)</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">list_v2</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">feed</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">created_after</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3369,7 +3324,7 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
             <span class="p">),</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">iter_v2</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iter_feed</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">created_after</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3377,12 +3332,12 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
         <span class="n">creator_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">FileV2</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""All files matching the filters (every page); see :meth:`list_v2`."""</span>
+<span class="w">        </span><span class="sd">"""All files matching the filters (every page); see :meth:`feed`."""</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">fetch_page</span><span class="p">(</span><span class="n">next_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">FileV2</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">next_url</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_v2</span><span class="p">(</span><span class="n">cursor</span><span class="o">=</span><span class="n">next_url</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_v2</span><span class="p">(</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">feed</span><span class="p">(</span><span class="n">cursor</span><span class="o">=</span><span class="n">next_url</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">feed</span><span class="p">(</span>
                 <span class="n">created_after</span><span class="o">=</span><span class="n">created_after</span><span class="p">,</span>
                 <span class="n">created_before</span><span class="o">=</span><span class="n">created_before</span><span class="p">,</span>
                 <span class="n">creator_id</span><span class="o">=</span><span class="n">creator_id</span><span class="p">,</span>
@@ -3428,7 +3383,16 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
 <span class="sd">        Raises:</span>
 <span class="sd">            AffinityError: If the API doesn't return a redirect URL</span>
 <span class="sd">        """</span>
-        <span class="c1"># Fetch file metadata first</span>
+        <span class="c1"># V2 answers with the details and a signed URL in one request (API 2026-09-17+, beta);</span>
+        <span class="c1"># a client pinned older, or a V2 refusal, uses V1's details and redirect instead</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">FileV2</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/files/</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">file_id</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">min_api_version</span><span class="o">=</span><span class="n">FILES_V2_MIN_API_VERSION</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">v2</span><span class="o">.</span><span class="n">download_url</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_presigned</span><span class="p">(</span><span class="n">v2</span><span class="o">.</span><span class="n">download_url</span><span class="p">,</span> <span class="n">v2</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">v2</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">v2</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">v2</span><span class="o">.</span><span class="n">content_type</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ApiVersionTooOldError</span><span class="p">,</span> <span class="n">AuthorizationError</span><span class="p">,</span> <span class="n">NotFoundError</span><span class="p">):</span>
+            <span class="k">pass</span>
         <span class="n">file_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file_id</span><span class="p">)</span>
 
         <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get_redirect_url</span><span class="p">(</span>
@@ -3441,27 +3405,7 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
                 <span class="sa">f</span><span class="s2">"Failed to get presigned URL for file </span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">: no redirect returned"</span>
             <span class="p">)</span>
 
-        <span class="c1"># Parse X-Amz-Expires from the presigned URL to determine TTL</span>
-        <span class="c1"># Default to 60 seconds if not found (Affinity's typical TTL)</span>
-        <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="n">qs</span> <span class="o">=</span> <span class="n">parse_qs</span><span class="p">(</span><span class="n">parsed</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
-        <span class="n">expires_in</span> <span class="o">=</span> <span class="mi">60</span>  <span class="c1"># default</span>
-        <span class="k">if</span> <span class="s2">"X-Amz-Expires"</span> <span class="ow">in</span> <span class="n">qs</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
-                <span class="n">expires_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">qs</span><span class="p">[</span><span class="s2">"X-Amz-Expires"</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-
-        <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
-        <span class="n">expires_at</span> <span class="o">=</span> <span class="n">now</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">expires_in</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">PresignedUrl</span><span class="p">(</span>
-            <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
-            <span class="n">file_id</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">file_id</span><span class="p">),</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">file_meta</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">size</span><span class="o">=</span><span class="n">file_meta</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
-            <span class="n">content_type</span><span class="o">=</span><span class="n">file_meta</span><span class="o">.</span><span class="n">content_type</span><span class="p">,</span>
-            <span class="n">expires_in</span><span class="o">=</span><span class="n">expires_in</span><span class="p">,</span>
-            <span class="n">expires_at</span><span class="o">=</span><span class="n">expires_at</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_presigned</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">file_id</span><span class="p">,</span> <span class="n">file_meta</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">file_meta</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">file_meta</span><span class="o">.</span><span class="n">content_type</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">download_stream</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3904,10 +3848,7 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2361</span>
-<span class="normal">2362</span>
-<span class="normal">2363</span>
-<span class="normal">2364</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2364</span>
 <span class="normal">2365</span>
 <span class="normal">2366</span>
 <span class="normal">2367</span>
@@ -3929,7 +3870,10 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
 <span class="normal">2383</span>
 <span class="normal">2384</span>
 <span class="normal">2385</span>
-<span class="normal">2386</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">all</span><span class="p">(</span>
+<span class="normal">2386</span>
+<span class="normal">2387</span>
+<span class="normal">2388</span>
+<span class="normal">2389</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">all</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3977,20 +3921,20 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1920</span>
-<span class="normal">1921</span>
-<span class="normal">1922</span>
-<span class="normal">1923</span>
-<span class="normal">1924</span>
-<span class="normal">1925</span>
-<span class="normal">1926</span>
-<span class="normal">1927</span>
-<span class="normal">1928</span>
-<span class="normal">1929</span>
-<span class="normal">1930</span>
-<span class="normal">1931</span>
-<span class="normal">1932</span>
-<span class="normal">1933</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1934</span>
+<span class="normal">1935</span>
+<span class="normal">1936</span>
+<span class="normal">1937</span>
+<span class="normal">1938</span>
+<span class="normal">1939</span>
+<span class="normal">1940</span>
+<span class="normal">1941</span>
+<span class="normal">1942</span>
+<span class="normal">1943</span>
+<span class="normal">1944</span>
+<span class="normal">1945</span>
+<span class="normal">1946</span>
+<span class="normal">1947</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -4026,10 +3970,7 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1992</span>
-<span class="normal">1993</span>
-<span class="normal">1994</span>
-<span class="normal">1995</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1995</span>
 <span class="normal">1996</span>
 <span class="normal">1997</span>
 <span class="normal">1998</span>
@@ -4043,7 +3984,10 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
 <span class="normal">2006</span>
 <span class="normal">2007</span>
 <span class="normal">2008</span>
-<span class="normal">2009</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download_stream</span><span class="p">(</span>
+<span class="normal">2009</span>
+<span class="normal">2010</span>
+<span class="normal">2011</span>
+<span class="normal">2012</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download_stream</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -4087,10 +4031,7 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2011</span>
-<span class="normal">2012</span>
-<span class="normal">2013</span>
-<span class="normal">2014</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2014</span>
 <span class="normal">2015</span>
 <span class="normal">2016</span>
 <span class="normal">2017</span>
@@ -4111,7 +4052,10 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
 <span class="normal">2032</span>
 <span class="normal">2033</span>
 <span class="normal">2034</span>
-<span class="normal">2035</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download_stream_with_info</span><span class="p">(</span>
+<span class="normal">2035</span>
+<span class="normal">2036</span>
+<span class="normal">2037</span>
+<span class="normal">2038</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download_stream_with_info</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -4260,10 +4204,7 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2037</span>
-<span class="normal">2038</span>
-<span class="normal">2039</span>
-<span class="normal">2040</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2040</span>
 <span class="normal">2041</span>
 <span class="normal">2042</span>
 <span class="normal">2043</span>
@@ -4303,7 +4244,10 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
 <span class="normal">2077</span>
 <span class="normal">2078</span>
 <span class="normal">2079</span>
-<span class="normal">2080</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download_to</span><span class="p">(</span>
+<span class="normal">2080</span>
+<span class="normal">2081</span>
+<span class="normal">2082</span>
+<span class="normal">2083</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download_to</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
@@ -4356,6 +4300,91 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
 <div class="doc doc-object doc-function">
 
 
+<h2 id="affinity.services.v1_only.EntityFileService.feed" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">feed</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">created_after</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">created_before</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">creator_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">total_count</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">cursor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">FileV2</span><span class="p">]</span></code>
+
+<a href="#affinity.services.v1_only.EntityFileService.feed" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>One page of the files visible to the caller across the organization, newest first
+(V2, Affinity API 2026-09-17+). V2 can't filter by person, company or opportunity: use
+:meth:<code>list</code> for one entity's files. <code>limit</code> is 1-100.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1880</span>
+<span class="normal">1881</span>
+<span class="normal">1882</span>
+<span class="normal">1883</span>
+<span class="normal">1884</span>
+<span class="normal">1885</span>
+<span class="normal">1886</span>
+<span class="normal">1887</span>
+<span class="normal">1888</span>
+<span class="normal">1889</span>
+<span class="normal">1890</span>
+<span class="normal">1891</span>
+<span class="normal">1892</span>
+<span class="normal">1893</span>
+<span class="normal">1894</span>
+<span class="normal">1895</span>
+<span class="normal">1896</span>
+<span class="normal">1897</span>
+<span class="normal">1898</span>
+<span class="normal">1899</span>
+<span class="normal">1900</span>
+<span class="normal">1901</span>
+<span class="normal">1902</span>
+<span class="normal">1903</span>
+<span class="normal">1904</span>
+<span class="normal">1905</span>
+<span class="normal">1906</span>
+<span class="normal">1907</span>
+<span class="normal">1908</span>
+<span class="normal">1909</span>
+<span class="normal">1910</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">feed</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">created_after</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">created_before</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">creator_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">total_count</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">cursor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">FileV2</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""One page of the files visible to the caller across the organization, newest first</span>
+<span class="sd">    (V2, Affinity API 2026-09-17+). V2 can't filter by person, company or opportunity: use</span>
+<span class="sd">    :meth:`list` for one entity's files. ``limit`` is 1-100."""</span>
+    <span class="n">check_cursor_alone</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">created_after</span><span class="p">,</span> <span class="n">created_before</span><span class="p">,</span> <span class="n">creator_id</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">total_count</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cursor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">page_of</span><span class="p">(</span>
+            <span class="n">FileV2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get_url</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">min_api_version</span><span class="o">=</span><span class="n">FILES_V2_MIN_API_VERSION</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">_file_params</span><span class="p">(</span>
+        <span class="n">created_after</span><span class="o">=</span><span class="n">created_after</span><span class="p">,</span>
+        <span class="n">created_before</span><span class="o">=</span><span class="n">created_before</span><span class="p">,</span>
+        <span class="n">creator_id</span><span class="o">=</span><span class="n">creator_id</span><span class="p">,</span>
+        <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span>
+        <span class="n">total_count</span><span class="o">=</span><span class="n">total_count</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">page_of</span><span class="p">(</span>
+        <span class="n">FileV2</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">"/files"</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">min_api_version</span><span class="o">=</span><span class="n">FILES_V2_MIN_API_VERSION</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h2 id="affinity.services.v1_only.EntityFileService.get" class="doc doc-heading">
             <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EntityFile</span></code>
 
@@ -4364,16 +4393,19 @@ company's or opportunity's files. <code>get_v2</code> (a file with a short-lived
 
     <div class="doc doc-contents ">
 
-        <p>Get file metadata.</p>
+        <p>A file's details, including the person, company or opportunity it belongs to (V1;
+works under any API version). :meth:<code>get_download_url</code> adds a download link.</p>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1854</span>
-<span class="normal">1855</span>
-<span class="normal">1856</span>
-<span class="normal">1857</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EntityFile</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Get file metadata."""</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1874</span>
+<span class="normal">1875</span>
+<span class="normal">1876</span>
+<span class="normal">1877</span>
+<span class="normal">1878</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EntityFile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A file's details, including the person, company or opportunity it belongs to (V1;</span>
+<span class="sd">    works under any API version). :meth:`get_download_url` adds a download link."""</span>
     <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/entity-files/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">EntityFile</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -4493,21 +4525,7 @@ fetched without authentication (it's self-authenticating via signature).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1935</span>
-<span class="normal">1936</span>
-<span class="normal">1937</span>
-<span class="normal">1938</span>
-<span class="normal">1939</span>
-<span class="normal">1940</span>
-<span class="normal">1941</span>
-<span class="normal">1942</span>
-<span class="normal">1943</span>
-<span class="normal">1944</span>
-<span class="normal">1945</span>
-<span class="normal">1946</span>
-<span class="normal">1947</span>
-<span class="normal">1948</span>
-<span class="normal">1949</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1949</span>
 <span class="normal">1950</span>
 <span class="normal">1951</span>
 <span class="normal">1952</span>
@@ -4548,7 +4566,10 @@ fetched without authentication (it's self-authenticating via signature).</p>
 <span class="normal">1987</span>
 <span class="normal">1988</span>
 <span class="normal">1989</span>
-<span class="normal">1990</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_download_url</span><span class="p">(</span>
+<span class="normal">1990</span>
+<span class="normal">1991</span>
+<span class="normal">1992</span>
+<span class="normal">1993</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_download_url</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -4570,7 +4591,16 @@ fetched without authentication (it's self-authenticating via signature).</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        AffinityError: If the API doesn't return a redirect URL</span>
 <span class="sd">    """</span>
-    <span class="c1"># Fetch file metadata first</span>
+    <span class="c1"># V2 answers with the details and a signed URL in one request (API 2026-09-17+, beta);</span>
+    <span class="c1"># a client pinned older, or a V2 refusal, uses V1's details and redirect instead</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">v2</span> <span class="o">=</span> <span class="n">FileV2</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/files/</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">file_id</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">min_api_version</span><span class="o">=</span><span class="n">FILES_V2_MIN_API_VERSION</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">v2</span><span class="o">.</span><span class="n">download_url</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_presigned</span><span class="p">(</span><span class="n">v2</span><span class="o">.</span><span class="n">download_url</span><span class="p">,</span> <span class="n">v2</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">v2</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">v2</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">v2</span><span class="o">.</span><span class="n">content_type</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="n">ApiVersionTooOldError</span><span class="p">,</span> <span class="n">AuthorizationError</span><span class="p">,</span> <span class="n">NotFoundError</span><span class="p">):</span>
+        <span class="k">pass</span>
     <span class="n">file_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file_id</span><span class="p">)</span>
 
     <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get_redirect_url</span><span class="p">(</span>
@@ -4583,61 +4613,7 @@ fetched without authentication (it's self-authenticating via signature).</p>
             <span class="sa">f</span><span class="s2">"Failed to get presigned URL for file </span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">: no redirect returned"</span>
         <span class="p">)</span>
 
-    <span class="c1"># Parse X-Amz-Expires from the presigned URL to determine TTL</span>
-    <span class="c1"># Default to 60 seconds if not found (Affinity's typical TTL)</span>
-    <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-    <span class="n">qs</span> <span class="o">=</span> <span class="n">parse_qs</span><span class="p">(</span><span class="n">parsed</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
-    <span class="n">expires_in</span> <span class="o">=</span> <span class="mi">60</span>  <span class="c1"># default</span>
-    <span class="k">if</span> <span class="s2">"X-Amz-Expires"</span> <span class="ow">in</span> <span class="n">qs</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
-            <span class="n">expires_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">qs</span><span class="p">[</span><span class="s2">"X-Amz-Expires"</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-
-    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
-    <span class="n">expires_at</span> <span class="o">=</span> <span class="n">now</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">expires_in</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">PresignedUrl</span><span class="p">(</span>
-        <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
-        <span class="n">file_id</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">file_id</span><span class="p">),</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">file_meta</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-        <span class="n">size</span><span class="o">=</span><span class="n">file_meta</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
-        <span class="n">content_type</span><span class="o">=</span><span class="n">file_meta</span><span class="o">.</span><span class="n">content_type</span><span class="p">,</span>
-        <span class="n">expires_in</span><span class="o">=</span><span class="n">expires_in</span><span class="p">,</span>
-        <span class="n">expires_at</span><span class="o">=</span><span class="n">expires_at</span><span class="p">,</span>
-    <span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h2 id="affinity.services.v1_only.EntityFileService.get_v2" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_v2</span><span class="p">(</span><span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FileV2</span></code>
-
-<a href="#affinity.services.v1_only.EntityFileService.get_v2" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents ">
-
-        <p>One file's metadata from V2 (Affinity API 2026-09-17+), with a download URL that
-expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1859</span>
-<span class="normal">1860</span>
-<span class="normal">1861</span>
-<span class="normal">1862</span>
-<span class="normal">1863</span>
-<span class="normal">1864</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_v2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_id</span><span class="p">:</span> <span class="n">FileId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FileV2</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""One file's metadata from V2 (Affinity API 2026-09-17+), with a download URL that</span>
-<span class="sd">    expires 60 seconds later. :meth:`get` (V1) is unchanged."""</span>
-    <span class="k">return</span> <span class="n">FileV2</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/files/</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">file_id</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">min_api_version</span><span class="o">=</span><span class="n">FILES_V2_MIN_API_VERSION</span><span class="p">)</span>
-    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_presigned</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">file_id</span><span class="p">,</span> <span class="n">file_meta</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">file_meta</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">file_meta</span><span class="o">.</span><span class="n">content_type</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4660,10 +4636,7 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2388</span>
-<span class="normal">2389</span>
-<span class="normal">2390</span>
-<span class="normal">2391</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2391</span>
 <span class="normal">2392</span>
 <span class="normal">2393</span>
 <span class="normal">2394</span>
@@ -4672,7 +4645,10 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
 <span class="normal">2397</span>
 <span class="normal">2398</span>
 <span class="normal">2399</span>
-<span class="normal">2400</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter</span><span class="p">(</span>
+<span class="normal">2400</span>
+<span class="normal">2401</span>
+<span class="normal">2402</span>
+<span class="normal">2403</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4694,40 +4670,40 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
 <div class="doc doc-object doc-function">
 
 
-<h2 id="affinity.services.v1_only.EntityFileService.iter_v2" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">iter_v2</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">created_after</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">created_before</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">creator_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">FileV2</span><span class="p">]</span></code>
+<h2 id="affinity.services.v1_only.EntityFileService.iter_feed" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">iter_feed</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">created_after</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">created_before</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">creator_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">FileV2</span><span class="p">]</span></code>
 
-<a href="#affinity.services.v1_only.EntityFileService.iter_v2" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#affinity.services.v1_only.EntityFileService.iter_feed" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents ">
 
-        <p>All files matching the filters (every page); see :meth:<code>list_v2</code>.</p>
+        <p>All files matching the filters (every page); see :meth:<code>feed</code>.</p>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1898</span>
-<span class="normal">1899</span>
-<span class="normal">1900</span>
-<span class="normal">1901</span>
-<span class="normal">1902</span>
-<span class="normal">1903</span>
-<span class="normal">1904</span>
-<span class="normal">1905</span>
-<span class="normal">1906</span>
-<span class="normal">1907</span>
-<span class="normal">1908</span>
-<span class="normal">1909</span>
-<span class="normal">1910</span>
-<span class="normal">1911</span>
-<span class="normal">1912</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1912</span>
 <span class="normal">1913</span>
 <span class="normal">1914</span>
 <span class="normal">1915</span>
 <span class="normal">1916</span>
 <span class="normal">1917</span>
-<span class="normal">1918</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter_v2</span><span class="p">(</span>
+<span class="normal">1918</span>
+<span class="normal">1919</span>
+<span class="normal">1920</span>
+<span class="normal">1921</span>
+<span class="normal">1922</span>
+<span class="normal">1923</span>
+<span class="normal">1924</span>
+<span class="normal">1925</span>
+<span class="normal">1926</span>
+<span class="normal">1927</span>
+<span class="normal">1928</span>
+<span class="normal">1929</span>
+<span class="normal">1930</span>
+<span class="normal">1931</span>
+<span class="normal">1932</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter_feed</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">created_after</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4735,12 +4711,12 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
     <span class="n">creator_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">FileV2</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""All files matching the filters (every page); see :meth:`list_v2`."""</span>
+<span class="w">    </span><span class="sd">"""All files matching the filters (every page); see :meth:`feed`."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">fetch_page</span><span class="p">(</span><span class="n">next_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">FileV2</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">next_url</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_v2</span><span class="p">(</span><span class="n">cursor</span><span class="o">=</span><span class="n">next_url</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_v2</span><span class="p">(</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">feed</span><span class="p">(</span><span class="n">cursor</span><span class="o">=</span><span class="n">next_url</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">feed</span><span class="p">(</span>
             <span class="n">created_after</span><span class="o">=</span><span class="n">created_after</span><span class="p">,</span>
             <span class="n">created_before</span><span class="o">=</span><span class="n">created_before</span><span class="p">,</span>
             <span class="n">creator_id</span><span class="o">=</span><span class="n">creator_id</span><span class="p">,</span>
@@ -4770,27 +4746,7 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1813</span>
-<span class="normal">1814</span>
-<span class="normal">1815</span>
-<span class="normal">1816</span>
-<span class="normal">1817</span>
-<span class="normal">1818</span>
-<span class="normal">1819</span>
-<span class="normal">1820</span>
-<span class="normal">1821</span>
-<span class="normal">1822</span>
-<span class="normal">1823</span>
-<span class="normal">1824</span>
-<span class="normal">1825</span>
-<span class="normal">1826</span>
-<span class="normal">1827</span>
-<span class="normal">1828</span>
-<span class="normal">1829</span>
-<span class="normal">1830</span>
-<span class="normal">1831</span>
-<span class="normal">1832</span>
-<span class="normal">1833</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1833</span>
 <span class="normal">1834</span>
 <span class="normal">1835</span>
 <span class="normal">1836</span>
@@ -4809,7 +4765,27 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
 <span class="normal">1849</span>
 <span class="normal">1850</span>
 <span class="normal">1851</span>
-<span class="normal">1852</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
+<span class="normal">1852</span>
+<span class="normal">1853</span>
+<span class="normal">1854</span>
+<span class="normal">1855</span>
+<span class="normal">1856</span>
+<span class="normal">1857</span>
+<span class="normal">1858</span>
+<span class="normal">1859</span>
+<span class="normal">1860</span>
+<span class="normal">1861</span>
+<span class="normal">1862</span>
+<span class="normal">1863</span>
+<span class="normal">1864</span>
+<span class="normal">1865</span>
+<span class="normal">1866</span>
+<span class="normal">1867</span>
+<span class="normal">1868</span>
+<span class="normal">1869</span>
+<span class="normal">1870</span>
+<span class="normal">1871</span>
+<span class="normal">1872</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">person_id</span><span class="p">:</span> <span class="n">PersonId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4848,91 +4824,6 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
     <span class="k">return</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">EntityFile</span><span class="p">](</span>
         <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">EntityFile</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">items</span><span class="p">],</span>
         <span class="n">next_page_token</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"next_page_token"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"nextPageToken"</span><span class="p">),</span>
-    <span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h2 id="affinity.services.v1_only.EntityFileService.list_v2" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">list_v2</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">created_after</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">created_before</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">creator_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">total_count</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">cursor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">FileV2</span><span class="p">]</span></code>
-
-<a href="#affinity.services.v1_only.EntityFileService.list_v2" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents ">
-
-        <p>One page of the files visible to the caller across the organization, newest first
-(V2, Affinity API 2026-09-17+). V2 can't filter by person, company or opportunity: use
-:meth:<code>list</code> for one entity's files. <code>limit</code> is 1-100.</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1866</span>
-<span class="normal">1867</span>
-<span class="normal">1868</span>
-<span class="normal">1869</span>
-<span class="normal">1870</span>
-<span class="normal">1871</span>
-<span class="normal">1872</span>
-<span class="normal">1873</span>
-<span class="normal">1874</span>
-<span class="normal">1875</span>
-<span class="normal">1876</span>
-<span class="normal">1877</span>
-<span class="normal">1878</span>
-<span class="normal">1879</span>
-<span class="normal">1880</span>
-<span class="normal">1881</span>
-<span class="normal">1882</span>
-<span class="normal">1883</span>
-<span class="normal">1884</span>
-<span class="normal">1885</span>
-<span class="normal">1886</span>
-<span class="normal">1887</span>
-<span class="normal">1888</span>
-<span class="normal">1889</span>
-<span class="normal">1890</span>
-<span class="normal">1891</span>
-<span class="normal">1892</span>
-<span class="normal">1893</span>
-<span class="normal">1894</span>
-<span class="normal">1895</span>
-<span class="normal">1896</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list_v2</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">created_after</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">created_before</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">creator_id</span><span class="p">:</span> <span class="n">UserId</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">total_count</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">cursor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">FileV2</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""One page of the files visible to the caller across the organization, newest first</span>
-<span class="sd">    (V2, Affinity API 2026-09-17+). V2 can't filter by person, company or opportunity: use</span>
-<span class="sd">    :meth:`list` for one entity's files. ``limit`` is 1-100."""</span>
-    <span class="n">check_cursor_alone</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">created_after</span><span class="p">,</span> <span class="n">created_before</span><span class="p">,</span> <span class="n">creator_id</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">total_count</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">cursor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">page_of</span><span class="p">(</span>
-            <span class="n">FileV2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get_url</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">min_api_version</span><span class="o">=</span><span class="n">FILES_V2_MIN_API_VERSION</span><span class="p">)</span>
-        <span class="p">)</span>
-    <span class="n">params</span> <span class="o">=</span> <span class="n">_file_params</span><span class="p">(</span>
-        <span class="n">created_after</span><span class="o">=</span><span class="n">created_after</span><span class="p">,</span>
-        <span class="n">created_before</span><span class="o">=</span><span class="n">created_before</span><span class="p">,</span>
-        <span class="n">creator_id</span><span class="o">=</span><span class="n">creator_id</span><span class="p">,</span>
-        <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span>
-        <span class="n">total_count</span><span class="o">=</span><span class="n">total_count</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">page_of</span><span class="p">(</span>
-        <span class="n">FileV2</span><span class="p">,</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s2">"/files"</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">min_api_version</span><span class="o">=</span><span class="n">FILES_V2_MIN_API_VERSION</span>
-        <span class="p">),</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5068,10 +4959,7 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2181</span>
-<span class="normal">2182</span>
-<span class="normal">2183</span>
-<span class="normal">2184</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2184</span>
 <span class="normal">2185</span>
 <span class="normal">2186</span>
 <span class="normal">2187</span>
@@ -5096,7 +4984,10 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
 <span class="normal">2206</span>
 <span class="normal">2207</span>
 <span class="normal">2208</span>
-<span class="normal">2209</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload</span><span class="p">(</span>
+<span class="normal">2209</span>
+<span class="normal">2210</span>
+<span class="normal">2211</span>
+<span class="normal">2212</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">files</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
     <span class="o">*</span><span class="p">,</span>
@@ -5151,10 +5042,7 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2301</span>
-<span class="normal">2302</span>
-<span class="normal">2303</span>
-<span class="normal">2304</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2304</span>
 <span class="normal">2305</span>
 <span class="normal">2306</span>
 <span class="normal">2307</span>
@@ -5180,7 +5068,10 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
 <span class="normal">2327</span>
 <span class="normal">2328</span>
 <span class="normal">2329</span>
-<span class="normal">2330</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload_bytes</span><span class="p">(</span>
+<span class="normal">2330</span>
+<span class="normal">2331</span>
+<span class="normal">2332</span>
+<span class="normal">2333</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload_bytes</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span>
     <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -5234,10 +5125,7 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2332</span>
-<span class="normal">2333</span>
-<span class="normal">2334</span>
-<span class="normal">2335</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2335</span>
 <span class="normal">2336</span>
 <span class="normal">2337</span>
 <span class="normal">2338</span>
@@ -5261,7 +5149,10 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
 <span class="normal">2356</span>
 <span class="normal">2357</span>
 <span class="normal">2358</span>
-<span class="normal">2359</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload_bytes_returning_files</span><span class="p">(</span>
+<span class="normal">2359</span>
+<span class="normal">2360</span>
+<span class="normal">2361</span>
+<span class="normal">2362</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload_bytes_returning_files</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span>
     <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -5315,10 +5206,7 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2241</span>
-<span class="normal">2242</span>
-<span class="normal">2243</span>
-<span class="normal">2244</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2244</span>
 <span class="normal">2245</span>
 <span class="normal">2246</span>
 <span class="normal">2247</span>
@@ -5344,7 +5232,10 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
 <span class="normal">2267</span>
 <span class="normal">2268</span>
 <span class="normal">2269</span>
-<span class="normal">2270</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload_path</span><span class="p">(</span>
+<span class="normal">2270</span>
+<span class="normal">2271</span>
+<span class="normal">2272</span>
+<span class="normal">2273</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload_path</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -5398,10 +5289,7 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2272</span>
-<span class="normal">2273</span>
-<span class="normal">2274</span>
-<span class="normal">2275</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2275</span>
 <span class="normal">2276</span>
 <span class="normal">2277</span>
 <span class="normal">2278</span>
@@ -5425,7 +5313,10 @@ expires 60 seconds later. :meth:<code>get</code> (V1) is unchanged.</p>
 <span class="normal">2296</span>
 <span class="normal">2297</span>
 <span class="normal">2298</span>
-<span class="normal">2299</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload_path_returning_files</span><span class="p">(</span>
+<span class="normal">2299</span>
+<span class="normal">2300</span>
+<span class="normal">2301</span>
+<span class="normal">2302</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload_path_returning_files</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -5540,10 +5431,7 @@ so the new file ids can be used with <code>get()</code>/<code>download()</code> 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/v1_only.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2211</span>
-<span class="normal">2212</span>
-<span class="normal">2213</span>
-<span class="normal">2214</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2214</span>
 <span class="normal">2215</span>
 <span class="normal">2216</span>
 <span class="normal">2217</span>
@@ -5568,7 +5456,10 @@ so the new file ids can be used with <code>get()</code>/<code>download()</code> 
 <span class="normal">2236</span>
 <span class="normal">2237</span>
 <span class="normal">2238</span>
-<span class="normal">2239</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload_returning_files</span><span class="p">(</span>
+<span class="normal">2239</span>
+<span class="normal">2240</span>
+<span class="normal">2241</span>
+<span class="normal">2242</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upload_returning_files</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">files</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
     <span class="o">*</span><span class="p">,</span>
