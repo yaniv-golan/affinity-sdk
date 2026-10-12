@@ -15,7 +15,7 @@ The SDK raises typed exceptions (subclasses of `AffinityError`) and retries some
 - `NetworkError`: connection or network-level failure
 - `TimeoutError`: request or download deadline exceeded
 - `WriteNotAllowedError`: you attempted a write while writes are disabled by policy
-- `BetaEndpointDisabledError`: you called a beta V2 endpoint without `enable_beta_endpoints=True`
+- `BetaEndpointDisabledError`: reserved for a beta endpoint that needs `enable_beta_endpoints=True` (none does today)
 - `VersionCompatibilityError`: response parsing failed, often due to V2 API version mismatch
 
 See [Exceptions](../reference/exceptions.md) for the full hierarchy.
@@ -154,7 +154,7 @@ except MergedEntityError as e:
 
 ## V1→V2 eventual consistency
 
-The SDK uses V1 API for writes (create/update/delete) and V2 API for reads (get/list). Due to eventual consistency between V1 and V2 backends, a `get()` call **immediately after** `create()` may return a 404 `NotFoundError` even though the entity was successfully created.
+Some writes still go through the V1 API (company create and update, person update, opportunity create, interactions, field values on companies and persons, and the documented exceptions listed in [API versions & SDK routing](api-versions-and-routing.md)), while reads use V2. Due to eventual consistency between the V1 and V2 backends, a `get()` call **immediately after** such a `create()` may return a 404 `NotFoundError` even though the entity was successfully created. Writes that use V2 (for example person create, notes, reminders, webhooks) don't have this delay before a V2 read.
 
 This typically resolves within 100-500ms, but under load the delay can be longer.
 
@@ -212,13 +212,10 @@ If you are consistently hitting 429s, see [Rate limits](rate-limits.md) for stra
 
 ## API versions and beta endpoints
 
-If you see `BetaEndpointDisabledError`, enable beta endpoints:
-
-```python
-from affinity import Affinity
-
-client = Affinity(api_key="your-api-key", enable_beta_endpoints=True)
-```
+The SDK calls Affinity's beta V2 endpoints without an opt-in; `enable_beta_endpoints=True` is
+kept for endpoints that may need it in future (none does today, so `BetaEndpointDisabledError`
+isn't raised). If you see `ApiVersionTooOldError`, the client is pinned to an Affinity API
+version older than the operation needs: raise the pin, or remove it.
 
 If you see `VersionCompatibilityError`, this often indicates a V2 API version mismatch between your API key settings and what the SDK expects. Check which version answered (`client.affinity_api_versions_seen`) and your API key’s “Default API Version”, and consider pinning one:
 

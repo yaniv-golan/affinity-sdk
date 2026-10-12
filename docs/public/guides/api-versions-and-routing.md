@@ -7,25 +7,55 @@
     - **Default API Version**: your Affinity setting that selects the V2 version
     - **Beta endpoints**: newer V2 endpoints that require opt-in
 
-The SDK prefers V2 endpoints where available and falls back to V1 for operations not yet supported in V2.
+The SDK uses V2 endpoints wherever V2 can do the job, and V1 where it can't.
 
 ## What this means in practice
 
-- **Reads** (list/get/search) are typically **V2**.
-- **Writes** (create/update/delete) are often **V1** today.
+- **Reads** (list/get/search) use **V2**, except notes `list`/`get`, interactions per entity,
+  files per entity, field values on companies and persons, and list sizes.
+- **Writes** use **V2** for webhooks, reminders, notes, person create/delete, opportunity
+  rename/delete, list create, and adding people or companies to a list. **V1** remains for
+  writes V2 doesn't offer: company create/update, person update, opportunity create, interactions,
+  entity files, and field values on companies and persons.
 
-Example: companies
+### Documented V1 exceptions
 
-- `client.companies.get(...)` uses V2
-- `client.companies.create(...)` uses V1
+Where V2 has the operation but can't do one part of it, that case goes through V1:
+
+| Operation | Goes through V1 when… |
+|---|---|
+| `persons.create` | `company_ids` is set (V2 can't link companies at create) |
+| `opportunities.update` | `person_ids` or `company_ids` is set (V2 can only rename) |
+| `lists.create` | `owner_id` or `additional_permissions` is set |
+| `reminders.update` | `type` is set (V2 can't change a reminder's type) |
+| `reminders.update` / `delete` | V2 refuses (403: only the creator or owner may change it on V2); retried once on V1 |
+| `files.list` / `iter` / `get` | always (only V1 lists one entity's files; `files.list_v2`/`get_v2` are the V2 reads) |
+| `lists.get_size` | always (V2 has no list size) |
+
+The [API coverage](../reference/api-coverage.md) page lists every operation, the SDK call that
+sends it, and which V1 operations are kept and why.
 
 ### Eventual consistency caveat
 
-Because writes go to V1 and reads come from V2, there can be a brief delay (typically 100-500ms) before newly created entities appear in V2. A `get()` immediately after `create()` may return 404. See [V1→V2 eventual consistency](errors-and-retries.md#v1v2-eventual-consistency) for solutions.
+When a write goes to V1 and the next read comes from V2, there can be a brief delay (typically
+100-500ms) before the change shows up. A `get()` immediately after a V1 `create()` may return
+404. See [V1→V2 eventual consistency](errors-and-retries.md#v1v2-eventual-consistency).
+
+## API versions per operation
+
+Operations Affinity added after 2024-01-01 send the version they need (for example
+`2026-07-15` for webhooks, `2026-09-17` for adding to a list); other V2 calls use your API key's
+default version. A client pinned to an older version (`affinity_api_version=`, CLI
+`--api-version`) gets `ApiVersionTooOldError` for operations newer than the pin, before
+anything is sent. See [Affinity API versions](api-versions.md).
 
 ## Beta endpoints
 
-Some V2 endpoints are gated behind `enable_beta_endpoints=True`. If you call a beta endpoint without opt-in, the SDK raises `BetaEndpointDisabledError`.
+Affinity marks some V2 endpoints as beta (webhooks, reminder get/update/delete, person
+create/delete, opportunity rename/delete, adding to a list, file reads, the rate-limit endpoint,
+and others). The SDK calls them like any other endpoint; the
+[API coverage](../reference/api-coverage.md) page marks each one. Beta endpoints can change
+shape before Affinity makes them generally available.
 
 ## Version compatibility errors
 
