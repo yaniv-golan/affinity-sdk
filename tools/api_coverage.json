@@ -724,7 +724,8 @@
    "op": "DELETE /v2/transcripts/{transcriptId}",
    "api": "v2",
    "status": "planned",
-   "phase": "2.x-1",
+   "phase": "when-live",
+   "note": "documented in the V2 spec, but not served when checked (no route, 2026-10-12; may be gated per account)",
    "stability": "beta"
   },
   {

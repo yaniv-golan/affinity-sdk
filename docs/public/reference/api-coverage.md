@@ -112,7 +112,7 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/teams` | planned |  | beta; API 2026-09-17+; phase 2.x-1 |
 | `GET /v2/teams/{teamId}` | planned |  | beta; API 2026-09-17+; phase 2.x-1 |
 | `GET /v2/transcripts` | supported | `transcripts.list()` |  |
-| `DELETE /v2/transcripts/{transcriptId}` | planned |  | beta; API 2026-09-17+; phase 2.x-1 |
+| `DELETE /v2/transcripts/{transcriptId}` | planned |  | beta; API 2026-09-17+; phase when-live |
 | `GET /v2/transcripts/{transcriptId}` | supported | `transcripts.get(1)` |  |
 | `GET /v2/transcripts/{transcriptId}/fragments` | supported | `transcripts.fragments(1)` |  |
 | `GET /v2/users` | planned |  | beta; phase 2.x-1 |
