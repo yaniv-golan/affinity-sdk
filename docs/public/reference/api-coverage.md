@@ -125,7 +125,7 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V1 API
 
-43 supported, 16 equivalent
+42 supported, 17 equivalent
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -179,7 +179,7 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /rate-limit` | supported | `rate_limits.refresh()` |  |
 | `GET /relationships-strengths` | supported | `relationships.get(PersonId(1))` |  |
 | `GET /reminders` | equivalent |  | via v2 GET /v2/reminders |
-| `POST /reminders` | supported | `reminders.create(ReminderCreate(owner_id=UserId(1), type=ReminderType.ONE_TIME, due_date=datetime(2026, 1, 1, tzinfo=timezone.utc)))` | only for a reminder without a person, company or opportunity (V2 requires one) |
+| `POST /reminders` | equivalent |  | via v2 POST /v2/reminders |
 | `DELETE /reminders/{}` | supported | `reminders.delete(ReminderIdType(1))` | only as the retry when V2 refuses (V2: creator or owner only) |
 | `GET /reminders/{}` | equivalent |  | via v2 GET /v2/reminders/{reminderId} |
 | `PUT /reminders/{}` | supported | `reminders.update(ReminderIdType(1), ReminderUpdate(type=ReminderType.RECURRING, reset_type=ReminderResetType.EMAIL, reminder_days=30))` | to change a reminder's type (V2 can't), and as the retry when V2 refuses an update (V2: creator or owner only) |

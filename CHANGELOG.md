@@ -31,9 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ranges instead of `page_size`/`page_token`, and returns reminders soonest-due first.
   `update()` sends only the fields that are set (`clear_content=True` removes the content) and
   returns the reminder as read back. `list_batch()` is on the sync client too, and fetches up to
-  50 entities per request. Kept on V1 where V2 can't do it: creating a reminder without a
-  person, company or opportunity, changing a reminder's type, and updating or deleting a
-  reminder you didn't create and don't own (V2 refuses; the SDK retries through V1).
+  50 entities per request. Kept on V1 where V2 can't do it: changing a reminder's type, and updating or deleting a
+  reminder you didn't create and don't own (V2 refuses; the SDK retries through V1). A reminder
+  must be attached to one person, company or opportunity (both APIs require it; the SDK now
+  says so before sending).
 - **Note writes use the V2 API** (`notes.create`, `update`, `delete`; reads are unchanged).
   `create()` and `update()` return `NoteV2` (`content.html`, `creator`; `update()` reads the note
   back with its attachments, two requests). V2 stores notes as HTML: plain text (the default

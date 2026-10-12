@@ -326,8 +326,8 @@ class ReminderCreate(AffinityModel):
     """A reminder to create.
 
     One-time reminders need ``due_date``; recurring ones need ``reset_type`` and
-    ``reminder_days`` (1-3650; ``due_date`` optional). Attach at most one of ``person_id``,
-    ``company_id``, ``opportunity_id``; a reminder with none is created through the V1 API.
+    ``reminder_days`` (1-3650; ``due_date`` optional). Attach it to exactly one of
+    ``person_id``, ``company_id``, ``opportunity_id``.
     """
 
     owner_id: UserId

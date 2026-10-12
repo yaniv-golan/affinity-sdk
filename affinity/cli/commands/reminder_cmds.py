@@ -344,8 +344,8 @@ def reminder_create(
     Create a reminder.
 
     One-time reminders require --due-date. Recurring reminders require
-    --reset-type and --reminder-days (1-3650). Attach it to one of --person-id, --company-id or
-    --opportunity-id; a reminder attached to none is created through the V1 API.
+    --reset-type and --reminder-days (1-3650). Attach it to exactly one of --person-id,
+    --company-id or --opportunity-id.
 
     Due date formats:
 

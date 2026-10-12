@@ -2,9 +2,9 @@
 Reminder service (V2 API: ``/v2/reminders``).
 
 Listing and creating are GA; ``get`` and ``delete`` need Affinity API 2026-07-15 and ``update``
-2026-09-17 (both beta). Two things V2 can't do still go through V1 (documented exceptions):
-creating a reminder that isn't attached to a person, company or opportunity, and changing a
-reminder's type. Both return the same V2-shaped :class:`~affinity.models.Reminder`.
+2026-09-17 (both beta). Changing a reminder's type, which V2 can't do, goes through V1 and
+returns the same V2-shaped :class:`~affinity.models.Reminder`. Every reminder is attached to
+exactly one person, company or opportunity (both APIs require it).
 
 On V2 only a reminder's creator or owner may update or delete it. When V2 refuses (403), the
 update or delete is retried once through V1, whose docs state no such rule; if V1 refuses too,
@@ -67,6 +67,11 @@ def _entity(data: ReminderCreate) -> dict[str, Any] | None:
 
 
 def _check_create(data: ReminderCreate) -> None:
+    if _entity(data) is None:
+        raise ValueError(
+            "A reminder must be attached to one person, company or opportunity "
+            "(person_id, company_id or opportunity_id)"
+        )
     if data.type == ReminderType.ONE_TIME and data.due_date is None:
         raise ValueError("A one-time reminder needs due_date")
     if data.type == ReminderType.RECURRING:
@@ -94,20 +99,6 @@ def create_body(data: ReminderCreate) -> dict[str, Any]:
         }
     if data.due_date is not None:
         body["dueDate"] = v2_body_datetime(data.due_date)
-    return body
-
-
-def v1_create_body(data: ReminderCreate) -> dict[str, Any]:
-    """V1 ``POST /reminders`` body, for a reminder without an entity."""
-    body: dict[str, Any] = {"owner_id": int(data.owner_id), "type": _V1_TYPE[data.type]}
-    if data.content is not None:
-        body["content"] = data.content
-    if data.due_date is not None:
-        body["due_date"] = v2_body_datetime(data.due_date)
-    if data.reset_type is not None:
-        body["reset_type"] = _V1_RESET[ReminderResetType(data.reset_type)]
-    if data.reminder_days is not None:
-        body["reminder_days"] = data.reminder_days
     return body
 
 
@@ -455,15 +446,9 @@ class ReminderService:
         )
 
     def create(self, data: ReminderCreate) -> Reminder:
-        """Create a reminder; the caller becomes its creator.
-
-        Without a person, company or opportunity it is created through the V1 API.
-        """
+        """Create a reminder attached to one person, company or opportunity; the caller becomes
+        its creator."""
         _check_create(data)
-        if _entity(data) is None:
-            return reminder_from_v1(
-                self._client.post("/reminders", json=v1_create_body(data), v1=True)
-            )
         return Reminder.model_validate(self._client.post("/reminders", json=create_body(data)))
 
     def update(self, reminder_id: ReminderIdType, data: ReminderUpdate) -> Reminder:
@@ -666,10 +651,6 @@ class AsyncReminderService:
     async def create(self, data: ReminderCreate) -> Reminder:
         """Create a reminder; see :meth:`ReminderService.create`."""
         _check_create(data)
-        if _entity(data) is None:
-            return reminder_from_v1(
-                await self._client.post("/reminders", json=v1_create_body(data), v1=True)
-            )
         return Reminder.model_validate(
             await self._client.post("/reminders", json=create_body(data))
         )

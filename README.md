@@ -491,7 +491,7 @@ those to V2 is planned.
 | Field Values (read) | ✅ | ✅ | V2 |
 | Field Values (write) | ✅ | ✅ | V2 (list entries), V1 (companies/persons) |
 | Notes | ✅ | ✅ | V1 |
-| Reminders | ✅ | ✅ | V2 (V1 for reminders without an entity, type changes, and when V2 refuses a non-owner) |
+| Reminders | ✅ | ✅ | V2 (V1 for type changes, and when V2 refuses a non-owner) |
 | Webhooks | ✅ | ✅ | V2 |
 | Interactions | Read-only | ✅ | V1 |
 | Entity Files | Read-only | ✅ | V1 |

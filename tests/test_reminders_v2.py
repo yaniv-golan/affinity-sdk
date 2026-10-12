@@ -1,6 +1,6 @@
 """SDK tests for reminders on the V2 API (`/v2/reminders`), with the documented V1 exceptions:
-a reminder without an entity is created through V1, and changing a reminder's type goes
-through V1. Both return the same V2-shaped `Reminder`."""
+changing a reminder's type, and retrying an update/delete V2 refuses (creator or owner only).
+Both return the same V2-shaped `Reminder`."""
 
 from __future__ import annotations
 
@@ -226,34 +226,20 @@ def test_create_checks_required_fields(kwargs: dict[str, Any], message: str) -> 
         )
 
 
-@respx.mock
-def test_create_without_entity_uses_v1_and_returns_the_v2_shape() -> None:
-    v1 = respx.post(f"{V1}/reminders").mock(return_value=Response(200, json=V1_REMINDER))
-    with Affinity(api_key="k", max_retries=0) as client:
-        created = client.reminders.create(
+def test_create_without_entity_is_refused_before_sending() -> None:
+    # Both APIs require exactly one person, company or opportunity (V1 answers 422)
+    with (
+        Affinity(api_key="k", max_retries=0) as client,
+        pytest.raises(ValueError, match="person, company or opportunity"),
+    ):
+        client.reminders.create(
             ReminderCreate(
                 owner_id=UserId(2),
                 type=ReminderType.RECURRING,
-                content="Quarterly check-in",
                 reset_type=ReminderResetType.EVENT,
                 reminder_days=90,
             )
         )
-    assert _body(v1) == {
-        "owner_id": 2,
-        "type": 1,
-        "content": "Quarterly check-in",
-        "reset_type": 2,
-        "reminder_days": 90,
-    }
-    assert created.id == 13
-    assert created.type == ReminderType.RECURRING
-    assert created.status == ReminderStatus.ACTIVE
-    assert created.reset_type == ReminderResetType.EVENT
-    assert created.reminder_days == 90
-    assert created.owner == PersonRef(id=PersonId(2))
-    assert created.person is None and created.company is None
-    assert created.due_date == datetime(2026, 12, 1, 9, tzinfo=timezone.utc)
 
 
 # --- get / update / delete ------------------------------------------------------------------------
@@ -445,7 +431,6 @@ async def test_async_service() -> None:
     create = respx.post(f"{V2}/reminders").mock(return_value=Response(201, json=ONE_TIME))
     update = respx.post(f"{V2}/reminders/11").mock(return_value=Response(204))
     respx.delete(f"{V2}/reminders/11").mock(return_value=Response(204))
-    v1 = respx.post(f"{V1}/reminders").mock(return_value=Response(200, json=V1_REMINDER))
     async with AsyncAffinity(api_key="k", max_retries=0) as client:
         page = await client.reminders.list(company_id=CompanyId(7))
         ids = [r.id async for r in client.reminders.iter()]
@@ -457,19 +442,12 @@ async def test_async_service() -> None:
                 person_id=PersonId(5),
             )
         )
-        no_entity = await client.reminders.create(
-            ReminderCreate(
-                owner_id=UserId(2),
-                type=ReminderType.ONE_TIME,
-                due_date=datetime(2026, 11, 1, tzinfo=timezone.utc),
-            )
-        )
         await client.reminders.update(ReminderIdType(11), ReminderUpdate(content="new"))
         assert await client.reminders.delete(ReminderIdType(11)) is True
         batch = await client.reminders.list_batch(company_ids=[CompanyId(7)])
     assert [r.id for r in page.data] == [11, 12]
     assert ids == [11, 12]
-    assert create.called and v1.called and no_entity.id == 13
+    assert create.called
     assert _body(update) == {"content": "new"}
     assert [r.id for r in batch[7]] == [12]
     assert listing.calls[0].request.url.params["filter"] == "company.id=7"

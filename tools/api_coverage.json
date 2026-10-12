@@ -1098,9 +1098,8 @@
   {
    "op": "POST /reminders",
    "api": "v1",
-   "status": "supported",
-   "call": "reminders.create(ReminderCreate(owner_id=UserId(1), type=ReminderType.ONE_TIME, due_date=datetime(2026, 1, 1, tzinfo=timezone.utc)))",
-   "note": "only for a reminder without a person, company or opportunity (V2 requires one)"
+   "status": "equivalent",
+   "via": "v2 POST /v2/reminders"
   },
   {
    "op": "DELETE /reminders/{}",

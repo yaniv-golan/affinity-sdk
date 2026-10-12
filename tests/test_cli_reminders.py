@@ -1,5 +1,4 @@
-"""CLI tests: `reminder ls/get/create/update/delete` on the V2 API (V1 for a reminder without
-an entity, and for a type change)."""
+"""CLI tests: `reminder ls/get/create/update/delete` on the V2 API (V1 for a type change)."""
 
 from __future__ import annotations
 
@@ -152,24 +151,7 @@ def test_create_on_v2(respx_mock: respx.MockRouter) -> None:
     assert out["data"]["reminder"]["id"] == 11
 
 
-def test_create_without_entity_uses_v1(respx_mock: respx.MockRouter) -> None:
-    v1 = respx_mock.post(f"{V1}/reminders").mock(
-        return_value=Response(
-            200,
-            json={
-                "id": 13,
-                "type": 1,
-                "status": 1,
-                "content": None,
-                "due_date": "2026-12-01T09:00:00Z",
-                "reset_type": 1,
-                "reminder_days": 30,
-                "creator": {"id": 1},
-                "owner": {"id": 2},
-                "created_at": "2026-10-01T09:00:00Z",
-            },
-        )
-    )
+def test_create_without_entity_is_a_usage_error() -> None:
     code, out = _run(
         [
             "reminder",
@@ -184,15 +166,8 @@ def test_create_without_entity_uses_v1(respx_mock: respx.MockRouter) -> None:
             "30",
         ]
     )
-    assert code == 0, out
-    assert json.loads(v1.calls[0].request.content) == {
-        "owner_id": 2,
-        "type": 1,
-        "reset_type": 1,
-        "reminder_days": 30,
-    }
-    assert out["data"]["reminder"]["resetType"] == "email"
-    assert out["data"]["reminder"]["personId"] is None
+    assert code == 2
+    assert "person, company or opportunity" in out["error"]["message"]
 
 
 def test_create_one_time_without_due_date_is_a_usage_error() -> None:

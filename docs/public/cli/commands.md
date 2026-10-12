@@ -945,8 +945,8 @@ xaffinity file-url 9192757   # download link for a hit
 ## Reminders
 
 Reminders use the V2 API. Only a reminder's creator or owner may change it there; when V2
-refuses, `update` and `delete` retry through the V1 API. A reminder attached to no person,
-company or opportunity is created through V1, and so is a type change.
+refuses, `update` and `delete` retry through the V1 API. A type change also goes through V1.
+Every reminder is attached to exactly one person, company or opportunity.
 
 ### `xaffinity reminder ls`
 
