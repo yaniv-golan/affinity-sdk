@@ -2468,6 +2468,7 @@ class HTTPClient:
         json: Any = None,
         v1: bool = False,
         read_only: bool = False,
+        params: Mapping[str, Any] | Sequence[tuple[str, Any]] | None = None,
         min_api_version: str | None = None,
     ) -> dict[str, Any]:
         """Make a POST request.
@@ -2481,6 +2482,33 @@ class HTTPClient:
             url,
             v1=v1,
             json=json,
+            params=_encode_query_params(params),
+            write_intent=not read_only,
+            idempotent=read_only,
+            min_api_version=min_api_version,
+        )
+
+    def post_url(
+        self,
+        url: str,
+        *,
+        json: Any = None,
+        read_only: bool = False,
+        min_api_version: str | None = None,
+    ) -> dict[str, Any]:
+        """Make a POST request to a full URL: the next page of a search, which takes the same
+        body again (the URL carries the cursor)."""
+        absolute, is_v1 = _safe_follow_url(
+            url,
+            v1_base_url=self._config.v1_base_url,
+            v2_base_url=self._config.v2_base_url,
+        )
+        return self._request_with_retry(
+            "POST",
+            absolute,
+            v1=is_v1,
+            json=json,
+            safe_follow=True,
             write_intent=not read_only,
             idempotent=read_only,
             min_api_version=min_api_version,
@@ -4012,6 +4040,7 @@ class AsyncHTTPClient:
         json: Any = None,
         v1: bool = False,
         read_only: bool = False,
+        params: Mapping[str, Any] | Sequence[tuple[str, Any]] | None = None,
         min_api_version: str | None = None,
     ) -> dict[str, Any]:
         url = self._build_url(path, v1=v1)
@@ -4020,6 +4049,31 @@ class AsyncHTTPClient:
             url,
             v1=v1,
             json=json,
+            params=_encode_query_params(params),
+            write_intent=not read_only,
+            idempotent=read_only,
+            min_api_version=min_api_version,
+        )
+
+    async def post_url(
+        self,
+        url: str,
+        *,
+        json: Any = None,
+        read_only: bool = False,
+        min_api_version: str | None = None,
+    ) -> dict[str, Any]:
+        absolute, is_v1 = _safe_follow_url(
+            url,
+            v1_base_url=self._config.v1_base_url,
+            v2_base_url=self._config.v2_base_url,
+        )
+        return await self._request_with_retry(
+            "POST",
+            absolute,
+            v1=is_v1,
+            json=json,
+            safe_follow=True,
             write_intent=not read_only,
             idempotent=read_only,
             min_api_version=min_api_version,

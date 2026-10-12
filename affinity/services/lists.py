@@ -70,6 +70,7 @@ from ._field_updates import (
     _field_value_payload,
 )
 from ._org_reads import check_cursor_alone, page_of_raw
+from ._search import SEARCH_INCLUDES, AsyncSearchMixin, SearchMixin
 from ._single_field import FIELD_VALUE_ITEMS_MIN_API_VERSION, items_params
 from .v1_only import _fvc_v2_page, _fvc_v2_params
 
@@ -701,7 +702,7 @@ _CLIENT_SIDE_FILTER_WARNING = (
 )
 
 
-class ListEntryService:
+class ListEntryService(SearchMixin[ListEntryWithEntity]):
     """
     Service for managing list entries (rows).
 
@@ -709,9 +710,17 @@ class ListEntryService:
     and hold list-specific field values.
     """
 
+    _search_model = ListEntryWithEntity
+
     def __init__(self, client: HTTPClient, list_id: ListId):
         self._client = client
         self._list_id = list_id
+
+    def _search_path(self) -> str:
+        return f"/lists/{self._list_id}/list-entries/search"
+
+    def _search_fields(self) -> builtins.list[FieldMetadata]:
+        return ListService(self._client).get_fields(self._list_id, includes=SEARCH_INCLUDES)
 
     def _all_entity_list_entries_v2(self, path: str) -> builtins.list[ListEntry]:
         """
@@ -1979,12 +1988,22 @@ class AsyncListService:
         return True
 
 
-class AsyncListEntryService:
+class AsyncListEntryService(AsyncSearchMixin[ListEntryWithEntity]):
     """Async list entry operations (TR-009)."""
+
+    _search_model = ListEntryWithEntity
 
     def __init__(self, client: AsyncHTTPClient, list_id: ListId):
         self._client = client
         self._list_id = list_id
+
+    def _search_path(self) -> str:
+        return f"/lists/{self._list_id}/list-entries/search"
+
+    async def _search_fields(self) -> builtins.list[FieldMetadata]:
+        return await AsyncListService(self._client).get_fields(
+            self._list_id, includes=SEARCH_INCLUDES
+        )
 
     async def _all_entity_list_entries_v2(self, path: str) -> builtins.list[ListEntry]:
         """

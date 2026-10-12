@@ -64,6 +64,7 @@ from ._org_reads import (
     page_of,
     relationship_params,
 )
+from ._search import SEARCH_INCLUDES, AsyncSearchMixin, SearchMixin
 from ._single_field import AsyncSingleFieldMixin, SingleFieldMixin
 
 if TYPE_CHECKING:
@@ -133,8 +134,16 @@ def _normalize_v1_person_response(data: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-class PersonService(PersonDiscoveryMixin, SingleFieldMixin):
+class PersonService(PersonDiscoveryMixin, SingleFieldMixin, SearchMixin[Person]):
     _entity_path = "/persons"
+
+    _search_model = Person
+
+    def _search_path(self) -> str:
+        return "/persons/search"
+
+    def _search_fields(self) -> builtins.list[FieldMetadata]:
+        return self.get_fields(includes=SEARCH_INCLUDES)
 
     """
     Service for managing persons (contacts).
@@ -1423,8 +1432,18 @@ class PersonService(PersonDiscoveryMixin, SingleFieldMixin):
         return PageIterator(fetch_page)
 
 
-class AsyncPersonService(AsyncPersonDiscoveryMixin, AsyncSingleFieldMixin):
+class AsyncPersonService(
+    AsyncPersonDiscoveryMixin, AsyncSingleFieldMixin, AsyncSearchMixin[Person]
+):
     _entity_path = "/persons"
+
+    _search_model = Person
+
+    def _search_path(self) -> str:
+        return "/persons/search"
+
+    async def _search_fields(self) -> builtins.list[FieldMetadata]:
+        return await self.get_fields(includes=SEARCH_INCLUDES)
 
     """Async version of PersonService."""
 

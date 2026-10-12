@@ -45,8 +45,8 @@
   {
    "op": "POST /v2/companies/search",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-3",
+   "status": "supported",
+   "call": "companies.find()",
    "stability": "beta"
   },
   {
@@ -291,8 +291,8 @@
   {
    "op": "POST /v2/lists/{listId}/list-entries/search",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-3",
+   "status": "supported",
+   "call": "lists.entries(ListId(1)).find()",
    "stability": "beta"
   },
   {
@@ -540,8 +540,8 @@
   {
    "op": "POST /v2/persons/search",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-3",
+   "status": "supported",
+   "call": "persons.find()",
    "stability": "beta"
   },
   {

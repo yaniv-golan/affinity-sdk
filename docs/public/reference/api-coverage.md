@@ -6,7 +6,7 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V2 API
 
-103 supported, 9 planned
+106 supported, 6 planned
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -16,7 +16,7 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/companies` | supported | `companies.list()` |  |
 | `GET /v2/companies/fields` | supported | `companies.get_fields()` |  |
 | `GET /v2/companies/fields/{fieldId}/dropdown-options` | supported | `companies.get_field_dropdown_options(FieldId(1))` |  |
-| `POST /v2/companies/search` | planned |  | beta; phase 2.x-3 |
+| `POST /v2/companies/search` | supported | `companies.find()` | beta |
 | `GET /v2/companies/{companyId}` | supported | `companies.get(CompanyId(1))` |  |
 | `GET /v2/companies/{companyId}/fields` | supported | `companies.get_field_values(CompanyId(1))` | beta |
 | `PATCH /v2/companies/{companyId}/fields` | supported | `companies.batch_update_fields(CompanyId(1), {"field-1": "x"})` |  |
@@ -51,7 +51,7 @@ against the pinned API specs and checks that each supported call requests its op
 | `POST /v2/lists/{listId}/fields/{fieldId}/dropdown-options/{dropdownOptionId}` | supported | `lists.update_field_dropdown_option(ListId(1), FieldId(1), 1, text="x")` |  |
 | `GET /v2/lists/{listId}/list-entries` | supported | `lists.entries(ListId(1)).list()` |  |
 | `POST /v2/lists/{listId}/list-entries` | planned |  | beta; API 2026-09-17+; phase when-live |
-| `POST /v2/lists/{listId}/list-entries/search` | planned |  | beta; phase 2.x-3 |
+| `POST /v2/lists/{listId}/list-entries/search` | supported | `lists.entries(ListId(1)).find()` | beta |
 | `GET /v2/lists/{listId}/list-entries/{listEntryId}` | supported | `lists.entries(ListId(1)).get(ListEntryId(1))` |  |
 | `GET /v2/lists/{listId}/list-entries/{listEntryId}/field-value-changes` | supported | `lists.entries(ListId(1)).list_field_changes(ListEntryId(1))` |  |
 | `GET /v2/lists/{listId}/list-entries/{listEntryId}/fields` | supported | `lists.entries(ListId(1)).get_field_values(ListEntryId(1))` |  |
@@ -86,7 +86,7 @@ against the pinned API specs and checks that each supported call requests its op
 | `POST /v2/persons` | planned |  | beta; API 2026-07-15+; phase when-live |
 | `GET /v2/persons/fields` | supported | `persons.get_fields()` |  |
 | `GET /v2/persons/fields/{fieldId}/dropdown-options` | supported | `persons.get_field_dropdown_options(FieldId(1))` |  |
-| `POST /v2/persons/search` | planned |  | beta; phase 2.x-3 |
+| `POST /v2/persons/search` | supported | `persons.find()` | beta |
 | `DELETE /v2/persons/{personId}` | planned |  | beta; API 2026-07-15+; phase when-live |
 | `GET /v2/persons/{personId}` | supported | `persons.get(PersonId(1))` |  |
 | `GET /v2/persons/{personId}/fields` | supported | `persons.get_field_values(PersonId(1))` | beta |

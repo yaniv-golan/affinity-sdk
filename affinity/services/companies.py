@@ -65,6 +65,7 @@ from ._org_reads import (
     page_of,
     relationship_params,
 )
+from ._search import SEARCH_INCLUDES, AsyncSearchMixin, SearchMixin
 from ._single_field import AsyncSingleFieldMixin, SingleFieldMixin
 from .search import AsyncCompanySemanticSearchMixin, CompanySemanticSearchMixin
 
@@ -72,8 +73,18 @@ if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
 
 
-class CompanyService(CompanySemanticSearchMixin, CompanyDiscoveryMixin, SingleFieldMixin):
+class CompanyService(
+    CompanySemanticSearchMixin, CompanyDiscoveryMixin, SingleFieldMixin, SearchMixin[Company]
+):
     _entity_path = "/companies"
+
+    _search_model = Company
+
+    def _search_path(self) -> str:
+        return "/companies/search"
+
+    def _search_fields(self) -> builtins.list[FieldMetadata]:
+        return self.get_fields(includes=SEARCH_INCLUDES)
 
     """
     Service for managing companies (organizations).
@@ -1348,9 +1359,20 @@ class CompanyService(CompanySemanticSearchMixin, CompanyDiscoveryMixin, SingleFi
 
 
 class AsyncCompanyService(
-    AsyncCompanySemanticSearchMixin, AsyncCompanyDiscoveryMixin, AsyncSingleFieldMixin
+    AsyncCompanySemanticSearchMixin,
+    AsyncCompanyDiscoveryMixin,
+    AsyncSingleFieldMixin,
+    AsyncSearchMixin[Company],
 ):
     _entity_path = "/companies"
+
+    _search_model = Company
+
+    def _search_path(self) -> str:
+        return "/companies/search"
+
+    async def _search_fields(self) -> builtins.list[FieldMetadata]:
+        return await self.get_fields(includes=SEARCH_INCLUDES)
 
     """
     Async version of CompanyService.

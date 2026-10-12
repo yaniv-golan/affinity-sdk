@@ -28,6 +28,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `lists.entries(list_id).list|iter_field_value_items(entry_id, field_id)` page through a
   multi-value field's items (API 2026-09-17+); `lists.entries(list_id).list|iter_field_changes(
   entry_id, ...)` give one entry's field change history, oldest first.
+- **Search on Affinity's side (V2, beta):** `companies.find`, `persons.find` and
+  `lists.entries(list_id).find` (plus `iter_find`, and `find_body` for a prebuilt request
+  body) filter, sort and keyword-search on the server, so only matching records are
+  downloaded. Build filters with `affinity.criteria`: `Condition(field_id, operator, value)`,
+  `all_of`, `any_of`, `Sort`. Value types are read from the fields metadata when omitted, and
+  each operator is checked against the field. Needs the "Export All Organizations directory"
+  permission (companies, persons) or "Export data from Lists" (list entries). Allowed under
+  read-only mode.
 - **CLI:** `team ls|get`, `user ls|get`, `meeting get`, `note attached`, `feedback send` (asks
   for confirmation: the text leaves your organization). The MCP registry has them; `feedback
   send` goes through the user-confirmation flow.
