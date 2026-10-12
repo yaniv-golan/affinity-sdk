@@ -1392,3 +1392,32 @@ leaves your organization.
 ```bash
 xaffinity feedback send --type api --subject "Note edits with mentions" --body "..."
 ```
+
+## Duplicates and warm intros
+
+### `xaffinity company duplicates` / `xaffinity person duplicates`
+
+Pairs Affinity thinks are duplicates, not yet merged or dismissed (V2, beta; API 2026-07-15+).
+
+```bash
+xaffinity company duplicates --match domain-match --max-results 20
+xaffinity person duplicates --term dana
+```
+
+Rows: `suggestionId`, `matchCriteria`, `primary` and `duplicate` (id, name, domain or email).
+Company criteria: `domain-match` (high confidence), `domain-redirect` (medium), `name` (low);
+person: `intelligent` (medium), `name` (low). Merge with `company merge` / `person merge`.
+
+### `xaffinity company connections <company>`
+
+Warm intros into a company: people working there today whom someone you know may know
+(V2, beta).
+
+```bash
+xaffinity company connections domain:wix.com
+xaffinity company connections 12345 --type investor-executive --all
+```
+
+`--type coworkers` (default; worked together before: `sharedEmployer`, `from`, `to`) or
+`investor-executive` (an investor you know backed a company the target ran: `investorFirm`,
+`round`, `roundDate`). One row per target (name, title, LinkedIn), strongest first, with `via`.

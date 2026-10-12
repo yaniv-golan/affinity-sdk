@@ -11,6 +11,8 @@ Works with CLI 2.0.1: `note get` content is now the stored HTML (same keys).
 
 ### Added
 
+- `company duplicates`, `person duplicates`, `company connections` (reads: duplicate
+  suggestions to review before a merge, and warm intros into a company).
 - `team ls|get`, `user ls|get`, `meeting get`, `note attached` (reads) and `feedback send`
   (needs the user's confirmation: the text goes to Affinity's product team) in the registry.
 

@@ -718,6 +718,18 @@
     "feedback send": {
       "whenToUse": "Send feedback to Affinity's product team about the API, the MCP server, or something else. Only when the user asks to send feedback; confirm the exact subject and text with them first.",
       "relatedCommands": []
+    },
+    "company duplicates": {
+      "whenToUse": "Find company pairs Affinity thinks are duplicates (not yet merged or dismissed): primary and duplicate with id, name, domain, and the match criterion (domain-match high confidence, domain-redirect medium, name low). Review with the user, then 'company merge <primary> <duplicate>'.",
+      "relatedCommands": ["company merge", "company get"]
+    },
+    "person duplicates": {
+      "whenToUse": "Find person pairs Affinity thinks are duplicates (match: intelligent = email matching across sources, name = similar names). Review with the user, then 'person merge <primary> <duplicate>'.",
+      "relatedCommands": ["person merge", "person get"]
+    },
+    "company connections": {
+      "whenToUse": "Warm intros into a company: people working there today whom someone you know may know. --type coworkers (worked together before; shared employer and dates) or investor-executive (an investor you know backed a company the target ran). Targets aren't in Affinity; 'via' lists the people you know.",
+      "relatedCommands": ["company relationships", "person relationships"]
     }
   }
 }

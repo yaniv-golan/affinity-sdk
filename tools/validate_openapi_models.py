@@ -117,6 +117,12 @@ MODEL_MAPPINGS: dict[str, tuple[str, ...]] = {
     "Team": ("Team",),
     "TeamMember": ("TeamMember",),
     "UserAccount": ("UserData",),
+    # /v2/duplicates/*-suggestions
+    "CompanyDuplicateSuggestion": ("CompanyDuplicateSuggestion",),
+    "PersonDuplicateSuggestion": ("PersonDuplicateSuggestion",),
+    "DuplicateCompanyProfile": ("CompanyDuplicateSuggestionProfile",),
+    "ConnectionTarget": ("InferredConnectionTarget",),
+    "ConnectionCompany": ("InferredConnectionCompanyRef",),
 }
 
 # Models whose schemas first appear in a later API version: checked from that version on, and
@@ -126,6 +132,9 @@ MODEL_SINCE: dict[str, str] = {
     "FileV2": "2026-09-17",
     "Team": "2026-09-17",
     "TeamMember": "2026-09-17",
+    "CompanyDuplicateSuggestion": "2026-07-15",
+    "PersonDuplicateSuggestion": "2026-07-15",
+    "DuplicateCompanyProfile": "2026-07-15",
 }
 
 # SDK models deliberately not checked, with the reason.
@@ -581,6 +590,13 @@ def get_sdk_models() -> dict[str, type]:
     if str(REPO_ROOT) not in sys.path:
         sys.path.insert(0, str(REPO_ROOT))  # this checkout's `affinity`, not an installed one
 
+    from affinity.models.discovery import (
+        CompanyDuplicateSuggestion,
+        ConnectionCompany,
+        ConnectionTarget,
+        DuplicateCompanyProfile,
+        PersonDuplicateSuggestion,
+    )
     from affinity.models.entities import (
         AffinityList,
         Company,
@@ -680,6 +696,11 @@ def get_sdk_models() -> dict[str, type]:
         "Team": Team,
         "TeamMember": TeamMember,
         "UserAccount": UserAccount,
+        "CompanyDuplicateSuggestion": CompanyDuplicateSuggestion,
+        "PersonDuplicateSuggestion": PersonDuplicateSuggestion,
+        "DuplicateCompanyProfile": DuplicateCompanyProfile,
+        "ConnectionTarget": ConnectionTarget,
+        "ConnectionCompany": ConnectionCompany,
         "PersonRef": PersonRef,
         "CompanyRef": CompanyRef,
         "OpportunityRef": OpportunityRef,

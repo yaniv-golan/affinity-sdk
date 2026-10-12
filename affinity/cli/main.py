@@ -470,6 +470,7 @@ cli.add_command(_file_group)
 cli.add_command(_transcript_group)
 
 # Org-wide V2 reads attach commands to the interaction/company/person/task groups
+from .commands import discovery_cmds as _discovery_cmds  # noqa: F401
 from .commands import org_read_cmds as _org_read_cmds  # noqa: F401
 
 cli.add_command(_file_url_cmd)

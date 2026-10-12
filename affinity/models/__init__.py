@@ -9,6 +9,20 @@ Tip:
 
 from __future__ import annotations
 
+from .discovery import (
+    CompanyDuplicateSuggestion,
+    ConnectionCompany,
+    ConnectionTarget,
+    CoworkerConnection,
+    CoworkerConnectionGroup,
+    DealRole,
+    DuplicateCompanyProfile,
+    FundingRound,
+    InvestorExecutiveConnection,
+    InvestorExecutiveConnectionGroup,
+    PersonDuplicateSuggestion,
+)
+
 # Core entities
 from .entities import (
     # List
@@ -119,6 +133,18 @@ from .secondary import (
 from .transcripts import Transcript, TranscriptFragment
 
 __all__ = [
+    # Duplicate suggestions and inferred connections (V2)
+    "CompanyDuplicateSuggestion",
+    "PersonDuplicateSuggestion",
+    "DuplicateCompanyProfile",
+    "CoworkerConnectionGroup",
+    "CoworkerConnection",
+    "InvestorExecutiveConnectionGroup",
+    "InvestorExecutiveConnection",
+    "ConnectionTarget",
+    "ConnectionCompany",
+    "DealRole",
+    "FundingRound",
     # Teams and users (V2)
     "Team",
     "TeamMember",

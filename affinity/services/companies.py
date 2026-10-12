@@ -48,6 +48,7 @@ from ..models.types import (
     PersonId,
     validate_entity_field_types,
 )
+from ._discovery import AsyncCompanyDiscoveryMixin, CompanyDiscoveryMixin
 from ._dropdown_options import (
     DROPDOWN_OPTION_WRITES_MIN_API_VERSION,
     options_path,
@@ -70,7 +71,7 @@ if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
 
 
-class CompanyService(CompanySemanticSearchMixin):
+class CompanyService(CompanySemanticSearchMixin, CompanyDiscoveryMixin):
     """
     Service for managing companies (organizations).
 
@@ -1343,7 +1344,7 @@ class CompanyService(CompanySemanticSearchMixin):
         return PageIterator(fetch_page)
 
 
-class AsyncCompanyService(AsyncCompanySemanticSearchMixin):
+class AsyncCompanyService(AsyncCompanySemanticSearchMixin, AsyncCompanyDiscoveryMixin):
     """
     Async version of CompanyService.
 

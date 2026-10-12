@@ -143,15 +143,15 @@
   {
    "op": "GET /v2/duplicates/company-suggestions",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-2",
+   "status": "supported",
+   "call": "companies.list_duplicate_suggestions()",
    "stability": "beta"
   },
   {
    "op": "GET /v2/duplicates/person-suggestions",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-2",
+   "status": "supported",
+   "call": "persons.list_duplicate_suggestions()",
    "stability": "beta"
   },
   {
@@ -199,15 +199,15 @@
   {
    "op": "GET /v2/inferred-connections/coworkers",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-2",
+   "status": "supported",
+   "call": "companies.list_coworker_connections(CompanyId(1))",
    "stability": "beta"
   },
   {
    "op": "GET /v2/inferred-connections/investor-executive-connections",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-2",
+   "status": "supported",
+   "call": "companies.list_investor_executive_connections(CompanyId(1))",
    "stability": "beta"
   },
   {

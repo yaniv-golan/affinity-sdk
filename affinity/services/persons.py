@@ -48,6 +48,7 @@ from ..models.types import (
     PersonId,
     validate_entity_field_types,
 )
+from ._discovery import AsyncPersonDiscoveryMixin, PersonDiscoveryMixin
 from ._dropdown_options import (
     DROPDOWN_OPTION_WRITES_MIN_API_VERSION,
     options_path,
@@ -131,7 +132,7 @@ def _normalize_v1_person_response(data: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-class PersonService:
+class PersonService(PersonDiscoveryMixin):
     """
     Service for managing persons (contacts).
 
@@ -1419,7 +1420,7 @@ class PersonService:
         return PageIterator(fetch_page)
 
 
-class AsyncPersonService:
+class AsyncPersonService(AsyncPersonDiscoveryMixin):
     """Async version of PersonService."""
 
     def __init__(self, client: AsyncHTTPClient):

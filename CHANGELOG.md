@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`interactions.get_meeting(id)`** (V2, API 2026-07-15+) and
   **`notes.list/iter_attached_companies|persons|opportunities(note_id)`** (every entity a note
   is attached to, beyond `get()`'s preview).
+- **Duplicate suggestions and warm intros (V2, beta):**
+  `companies/persons.list|iter_duplicate_suggestions` (API 2026-07-15+; `term`,
+  `match_criteria`, `order_by`) and `companies.list|iter_coworker_connections(company_id)` /
+  `list|iter_investor_executive_connections(company_id)` (people at a company today whom someone
+  you know may know). CLI `company duplicates`, `person duplicates`, `company connections`.
 - **CLI:** `team ls|get`, `user ls|get`, `meeting get`, `note attached`, `feedback send` (asks
   for confirmation: the text leaves your organization). The MCP registry has them; `feedback
   send` goes through the user-confirmation flow.

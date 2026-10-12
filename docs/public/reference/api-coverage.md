@@ -6,7 +6,7 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V2 API
 
-91 supported, 21 planned
+95 supported, 17 planned
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -30,16 +30,16 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/company-merges` | supported | `companies.list_merges()` |  |
 | `POST /v2/company-merges` | supported | `companies.merge(CompanyId(1), CompanyId(2))` |  |
 | `GET /v2/company-merges/{mergeId}` | supported | `companies.get_merge_state(1)` |  |
-| `GET /v2/duplicates/company-suggestions` | planned |  | beta; API 2026-07-15+; phase 2.x-2 |
-| `GET /v2/duplicates/person-suggestions` | planned |  | beta; API 2026-07-15+; phase 2.x-2 |
+| `GET /v2/duplicates/company-suggestions` | supported | `companies.list_duplicate_suggestions()` | beta; API 2026-07-15+ |
+| `GET /v2/duplicates/person-suggestions` | supported | `persons.list_duplicate_suggestions()` | beta; API 2026-07-15+ |
 | `GET /v2/emails` | supported | `interactions.list_emails()` |  |
 | `POST /v2/feedback` | supported | `feedback.send("api", "s", "b")` |  |
 | `GET /v2/field-value-changes` | supported | `field_value_changes.list_global(field_id=FieldId(1))` |  |
 | `GET /v2/files` | supported | `files.feed()` | beta; API 2026-09-17+ |
 | `POST /v2/files/search` | supported | `files.search("prompt text")` |  |
 | `GET /v2/files/{fileId}` | supported | `files.get_download_url(FileId(1))` | beta; API 2026-09-17+ |
-| `GET /v2/inferred-connections/coworkers` | planned |  | beta; phase 2.x-2 |
-| `GET /v2/inferred-connections/investor-executive-connections` | planned |  | beta; phase 2.x-2 |
+| `GET /v2/inferred-connections/coworkers` | supported | `companies.list_coworker_connections(CompanyId(1))` | beta |
+| `GET /v2/inferred-connections/investor-executive-connections` | supported | `companies.list_investor_executive_connections(CompanyId(1))` | beta |
 | `GET /v2/lists` | supported | `lists.list()` |  |
 | `POST /v2/lists` | supported | `lists.create(ListCreate(name="x", type=ListType.PERSON, is_public=False))` |  |
 | `GET /v2/lists/{listId}` | supported | `lists.get(ListId(1))` |  |

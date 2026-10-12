@@ -9,6 +9,73 @@
   "cliVersion": "2.0.1",
   "commands": [
     {
+      "name": "company connections",
+      "description": "Warm intros into a company: people there today whom someone you know may know (V2, beta).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a nextCursor."
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        },
+        "--type": {
+          "type": "string",
+          "required": false,
+          "help": "coworkers: worked together before; investor-executive: an investor you know backed a company the target ran.",
+          "choices": [
+            "coworkers",
+            "investor-executive"
+          ]
+        }
+      },
+      "positionals": [
+        {
+          "name": "SELECTOR",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "whenToUse": "Warm intros into a company: people working there today whom someone you know may know. --type coworkers (worked together before; shared employer and dates) or investor-executive (an investor you know backed a company the target ran). Targets aren't in Affinity; 'via' lists the people you know.",
+      "relatedCommands": [
+        "company relationships",
+        "person relationships"
+      ],
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      }
+    },
+    {
       "name": "company create",
       "description": "Create a company.",
       "category": "write",
@@ -71,6 +138,84 @@
       "relatedCommands": [
         "company get"
       ]
+    },
+    {
+      "name": "company duplicates",
+      "description": "Company pairs Affinity thinks are duplicates, not yet acted on (V2, beta; API 2026-07-15+). Match criteria: domain-match (high), domain-redirect (medium), name (low). Merge one with `company merge <primary> <duplicate>`.",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a nextCursor."
+        },
+        "--match": {
+          "type": "string",
+          "required": false,
+          "help": "Match criterion.",
+          "choices": [
+            "domain-match",
+            "domain-redirect",
+            "name"
+          ]
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        },
+        "--sort": {
+          "type": "string",
+          "required": false,
+          "help": "Order ('-' for descending).",
+          "choices": [
+            "name",
+            "-name",
+            "createdAt",
+            "-createdAt"
+          ]
+        },
+        "--term": {
+          "type": "string",
+          "required": false,
+          "help": "Narrow by name (2+ characters)."
+        }
+      },
+      "positionals": [],
+      "whenToUse": "Find company pairs Affinity thinks are duplicates (not yet merged or dismissed): primary and duplicate with id, name, domain, and the match criterion (domain-match high confidence, domain-redirect medium, name low). Review with the user, then 'company merge <primary> <duplicate>'.",
+      "relatedCommands": [
+        "company merge",
+        "company get"
+      ],
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      }
     },
     {
       "name": "company field",
@@ -3640,6 +3785,83 @@
       ]
     },
     {
+      "name": "person duplicates",
+      "description": "Person pairs Affinity thinks are duplicates, not yet acted on (V2, beta; API 2026-07-15+). Match criteria: intelligent (medium: email matching across sources), name (low). Merge one with `person merge <primary> <duplicate>`.",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a nextCursor."
+        },
+        "--match": {
+          "type": "string",
+          "required": false,
+          "help": "Match criterion.",
+          "choices": [
+            "intelligent",
+            "name"
+          ]
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        },
+        "--sort": {
+          "type": "string",
+          "required": false,
+          "help": "Order ('-' for descending).",
+          "choices": [
+            "name",
+            "-name",
+            "createdAt",
+            "-createdAt"
+          ]
+        },
+        "--term": {
+          "type": "string",
+          "required": false,
+          "help": "Narrow by name (2+ characters)."
+        }
+      },
+      "positionals": [],
+      "whenToUse": "Find person pairs Affinity thinks are duplicates (match: intelligent = email matching across sources, name = similar names). Review with the user, then 'person merge <primary> <duplicate>'.",
+      "relatedCommands": [
+        "person merge",
+        "person get"
+      ],
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      }
+    },
+    {
       "name": "person field",
       "description": "Manage person field values.",
       "category": "write",
@@ -5735,5 +5957,5 @@
       ]
     }
   ],
-  "total": 98
+  "total": 101
 }
