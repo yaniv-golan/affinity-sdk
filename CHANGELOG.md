@@ -36,9 +36,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   each operator is checked against the field. Needs the "Export All Organizations directory"
   permission (companies, persons) or "Export data from Lists" (list entries). Allowed under
   read-only mode.
+- **`query` on list entries filters on Affinity's side:** conditions on list fields that
+  Affinity's search answers (dropdown and ranked-dropdown values, `!=` on dropdowns, numbers,
+  dates, text `contains`/`eq`/`starts_with`/`ends_with`, `is_not_null` on single-value fields)
+  go to the server, so only matching entries are downloaded; the full `where` still runs
+  locally on what comes back, so results are unchanged. Everything else (related records,
+  `entityName`, `is_null`, Affinity's enriched fields, field names two fields share) is
+  filtered locally, as before. If the search is refused (for example, no "Export data from
+  Lists" permission) the query reads the whole list instead, with a warning.
+  `--include-meta` shows `meta.serverFilter` (what went to the server, and why the rest
+  didn't); `--dry-run` names the candidate fields. `XAFFINITY_QUERY_SERVER_FILTER=0` turns it
+  off.
 - **CLI:** `team ls|get`, `user ls|get`, `meeting get`, `note attached`, `feedback send` (asks
   for confirmation: the text leaves your organization). The MCP registry has them; `feedback
   send` goes through the user-confirmation flow.
+
+### Fixed
+
+- **`query --dry-run`** no longer claims a "server-side filter" for list entries that was never
+  applied.
 
 ## [2.0.1] - 2026-10-12
 

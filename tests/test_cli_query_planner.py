@@ -601,8 +601,8 @@ class TestFilterPushdown:
         assert fetch_step.pushdown_filter is not None
 
     @pytest.mark.req("QUERY-OPT-002")
-    def test_generates_pushdown_filter_string(self, planner: QueryPlanner) -> None:
-        """Generates correct pushdown filter string."""
+    def test_pushdown_names_the_candidate_fields(self, planner: QueryPlanner) -> None:
+        """The plan names the list fields Affinity may filter (decided at run time)."""
         result = parse_query(
             {
                 "from": "listEntries",
@@ -617,7 +617,9 @@ class TestFilterPushdown:
         plan = planner.plan(result.query)
 
         fetch_step = plan.steps[0]
-        assert fetch_step.pushdown_filter == "Status=Active"
+        assert fetch_step.pushdown_filter is not None
+        assert "fields.Status" in fetch_step.pushdown_filter
+        assert "when the query runs" in fetch_step.pushdown_filter
 
     @pytest.mark.req("QUERY-OPT-003")
     def test_warns_when_no_pushdown_available(self, planner: QueryPlanner) -> None:
@@ -635,8 +637,8 @@ class TestFilterPushdown:
         )
         plan = planner.plan(result.query)
 
-        # Should have warning about no server-side filtering
-        assert any("server-side" in w.lower() for w in plan.warnings)
+        # Should say Affinity can't filter this (only list fields)
+        assert any("filters it locally" in w for w in plan.warnings)
 
     def test_no_pushdown_for_non_list_entries(self, planner: QueryPlanner) -> None:
         """No pushdown optimization for non-listEntries entities."""
@@ -654,8 +656,8 @@ class TestFilterPushdown:
         fetch_step = plan.steps[0]
         assert fetch_step.filter_pushdown is False
 
-    def test_no_pushdown_for_complex_operators(self, planner: QueryPlanner) -> None:
-        """No pushdown for complex operators like contains."""
+    def test_contains_on_a_field_is_a_pushdown_candidate(self, planner: QueryPlanner) -> None:
+        """contains on a list field is a candidate too (dropdown text, text contains)."""
         result = parse_query(
             {
                 "from": "listEntries",
@@ -670,7 +672,7 @@ class TestFilterPushdown:
         plan = planner.plan(result.query)
 
         fetch_step = plan.steps[0]
-        assert fetch_step.filter_pushdown is False
+        assert fetch_step.filter_pushdown is True
 
     def test_no_pushdown_when_path_is_none(self, planner: QueryPlanner) -> None:
         """No pushdown when WHERE condition has no path (e.g., expression)."""

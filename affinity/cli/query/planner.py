@@ -130,6 +130,18 @@ def _strip_parent_filter(where: WhereClause | None, parent_field: str | None) ->
     return where
 
 
+def _field_paths(where: WhereClause) -> set[str]:
+    """The fields.<name> paths a WHERE clause tests (outside quantifiers)."""
+    paths: set[str] = set()
+    if where.path and where.path.startswith("fields."):
+        paths.add(where.path)
+    for child in [*(where.and_ or []), *(where.or_ or [])]:
+        paths |= _field_paths(child)
+    if where.not_ is not None:
+        paths |= _field_paths(where.not_)
+    return paths
+
+
 # =============================================================================
 # Query Planner
 # =============================================================================
@@ -247,17 +259,21 @@ class QueryPlanner:
         ):
             client_side_where = _strip_parent_filter(query.where, entity_schema.parent_filter_field)
 
-        # Check for filter pushdown opportunities (only if there are client-side filters)
+        # Affinity's search can answer conditions on list fields; which ones is decided when the
+        # query runs (it needs the list's field metadata). The full WHERE still runs locally.
         if query.from_ == "listEntries" and client_side_where is not None:
-            pushdown = self._analyze_filter_pushdown(client_side_where)
-            if pushdown:
+            candidates = sorted(_field_paths(client_side_where))
+            if candidates:
                 fetch_step.filter_pushdown = True
-                fetch_step.pushdown_filter = pushdown
-                fetch_step.description += " with server-side filter"
+                fetch_step.pushdown_filter = (
+                    f"Affinity filters what it can of: {', '.join(candidates)} "
+                    "(decided when the query runs)"
+                )
+                fetch_step.description += " (filtered by Affinity where possible)"
             else:
                 warnings.append(
-                    "No server-side filtering available for this query. "
-                    "Consider using Status, Owner, or other dropdown fields for better performance."
+                    "Affinity can only filter list fields (fields.<name>); this query reads the "
+                    "whole list and filters it locally."
                 )
 
         steps.append(fetch_step)
@@ -667,41 +683,6 @@ class QueryPlanner:
         # Each record requires one relationship fetch per required relationship
         estimated_calls = self.max_records * len(required_rels)
         return (estimated_calls, warnings, False)
-
-    def _analyze_filter_pushdown(self, where: WhereClause) -> str | None:
-        """Analyze if filter can be pushed to server-side.
-
-        Currently only supports listEntries with simple eq/neq on dropdown fields.
-        Also traverses AND conditions to find pushdown candidates.
-
-        Returns:
-            Filter string for server-side, or None if not pushable
-        """
-        # Handle AND conditions - traverse to find pushdown candidates
-        if where.and_ is not None:
-            for clause in where.and_:
-                result = self._analyze_filter_pushdown(clause)
-                if result is not None:
-                    return result
-            return None
-
-        # Simple condition - check if pushable
-        if where.op not in ("eq", "neq"):
-            return None
-
-        if where.path is None:
-            return None
-
-        # Only fields.* can be pushed down for list entries
-        if not where.path.startswith("fields."):
-            return None
-
-        # Build filter string
-        field_name = where.path.removeprefix("fields.")
-        op_str = "=" if where.op == "eq" else "!="
-        value_str = str(where.value)
-
-        return f"{field_name}{op_str}{value_str}"
 
 
 def create_planner(

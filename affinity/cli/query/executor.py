@@ -18,7 +18,13 @@ from typing import TYPE_CHECKING, Any, Protocol
 import httpx
 import pydantic
 
-from ...exceptions import AuthenticationError, AuthorizationError, NotFoundError
+from ...exceptions import (
+    AuthenticationError,
+    AuthorizationError,
+    NotFoundError,
+    UnsupportedOperationError,
+    ValidationError,
+)
 from ..interaction_utils import resolve_interaction_names_async, transform_interaction_data
 from .aggregates import apply_having, compute_aggregates, group_and_aggregate
 from .exceptions import (
@@ -385,6 +391,8 @@ class ExecutionContext:
     last_api_cursor: str | None = None  # API cursor at pagination stop (for streaming resumption)
     # (record label, raw fields) for list entries whose multi-value fields Affinity cut off
     truncated_fields: list[tuple[str, Any]] = field(default_factory=list)
+    # What Affinity's search filtered and what stayed local ({"pushed", "local", "fallback"})
+    server_filter: dict[str, Any] | None = None
 
     def check_timeout(self, timeout: float) -> None:
         """Check if execution has exceeded timeout."""
@@ -449,6 +457,8 @@ class ExecutionContext:
         }
         if self.early_terminated:
             meta["earlyTerminated"] = True
+        if self.server_filter is not None:
+            meta["serverFilter"] = self.server_filter
 
         return QueryResult(
             data=data,
@@ -720,6 +730,15 @@ def can_use_streaming(query: Query, *, max_records_explicit: bool = False) -> bo
 # =============================================================================
 
 
+def _parent_is_conjunct(where: WhereClause) -> bool:
+    """True when the list filter (listId / listName) is the whole WHERE or one branch of its
+    top-level AND: only then does every record have to pass the rest of the clause."""
+    parent = {"listId", "listName"}
+    if where.path in parent:
+        return True
+    return where.and_ is not None and any(c.path in parent for c in where.and_)
+
+
 class QueryExecutor:
     """Executes query plans using SDK services.
 
@@ -739,6 +758,7 @@ class QueryExecutor:
         allow_partial: bool = False,
         rate_limiter: RateLimitedExecutor | None = None,
         resume_api_cursor: str | None = None,
+        server_filter: bool | None = None,
     ) -> None:
         """Initialize the executor.
 
@@ -756,8 +776,16 @@ class QueryExecutor:
             resume_api_cursor: API cursor for O(1) streaming resumption. When provided,
                                pagination starts from this cursor instead of from the beginning,
                                avoiding re-fetching records that were already returned.
+            server_filter: Let Affinity's search apply the conditions it can answer (list
+                           entries); the full WHERE clause still runs locally afterwards.
+                           Defaults to on; XAFFINITY_QUERY_SERVER_FILTER=0 turns it off.
         """
         self.client = client
+        self.server_filter = (
+            os.environ.get("XAFFINITY_QUERY_SERVER_FILTER", "1") != "0"
+            if server_filter is None
+            else server_filter
+        )
         self.progress = progress or NullProgressCallback()
         # Use explicit value, env var, or default
         if concurrency is None:
@@ -1244,8 +1272,19 @@ class QueryExecutor:
 
         # For single parent ID, use simple sequential fetch
         if len(parent_ids) == 1:
+            search_body: dict[str, Any] | None = None
+            if step.entity == "listEntries":
+                raw_id = (
+                    parent_ids[0].value if hasattr(parent_ids[0], "value") else int(parent_ids[0])
+                )
+                search_body = await self._list_entry_search_body(ctx, raw_id)
             await self._fetch_from_single_parent(
-                step, ctx, nested_method, parent_ids[0], field_ids=field_ids
+                step,
+                ctx,
+                nested_method,
+                parent_ids[0],
+                field_ids=field_ids,
+                search_body=search_body,
             )
             return
 
@@ -1298,6 +1337,7 @@ class QueryExecutor:
         parent_id: Any,
         *,
         field_ids: list[str] | None = None,
+        search_body: dict[str, Any] | None = None,
     ) -> None:
         """Fetch from a single parent with progress reporting.
 
@@ -1313,6 +1353,11 @@ class QueryExecutor:
         """
         nested_service = nested_method(parent_id)
         items_fetched = 0
+
+        if search_body is not None and await self._fetch_by_search(
+            step, ctx, nested_service, search_body, field_ids=field_ids
+        ):
+            return
 
         def on_progress(p: PaginationProgress) -> None:
             nonlocal items_fetched
@@ -1411,6 +1456,93 @@ class QueryExecutor:
 
                 if self._should_stop(ctx):
                     return
+
+    async def _list_entry_search_body(
+        self, ctx: ExecutionContext, list_id: int
+    ) -> dict[str, Any] | None:
+        """The search body for the conditions Affinity can answer, or ``None`` (all local).
+
+        Records ``ctx.server_filter`` (what went to the server and why the rest stayed local).
+        """
+        from affinity.criteria import SearchCriteria
+        from affinity.services._search import SEARCH_INCLUDES
+        from affinity.types import ListId
+
+        from .planner import _strip_parent_filter
+        from .pushdown import fields_index, split_where
+
+        where = ctx.query.where
+        if not self.server_filter or where is None or not _parent_is_conjunct(where):
+            return None
+        local_where = _strip_parent_filter(where, "listId")
+        if local_where is None:
+            return None
+        try:
+            fields = await self.client.lists.get_fields(
+                ListId(list_id), includes=list(SEARCH_INCLUDES)
+            )
+            index = fields_index(fields)
+            names: set[str] = set()
+            self._collect_field_refs_from_where(
+                local_where.model_dump(mode="json", by_alias=True), names
+            )
+            options: dict[str, list[Any]] = {}
+            for name in names:
+                meta = index.get(name) or index.get(name.lower())
+                value_type = str(getattr(meta.value_type, "value", "")) if meta else ""
+                if meta is not None and value_type in ("dropdown", "ranked-dropdown"):
+                    options[str(meta.id)] = await self.client.lists.get_field_dropdown_options(
+                        ListId(list_id), meta.id
+                    )
+        except (AuthorizationError, NotFoundError, ValidationError) as e:
+            ctx.warnings.append(f"Filtering locally: could not read the list's fields ({e}).")
+            return None
+        split = split_where(local_where, fields, lambda m: options.get(str(m.id), []))
+        ctx.server_filter = {"pushed": split.pushed, "local": split.local}
+        if split.where is None:
+            return None
+        return SearchCriteria(where=split.where).to_body()
+
+    async def _fetch_by_search(
+        self,
+        step: PlanStep,
+        ctx: ExecutionContext,
+        nested_service: Any,
+        body: dict[str, Any],
+        *,
+        field_ids: list[str] | None,
+    ) -> bool:
+        """Fetch list entries through Affinity's search. False when search is refused before
+        any record arrived (the caller then reads the whole list, as without search)."""
+        resume = self.resume_api_cursor
+        try:
+            if resume and "/search" in resume:
+                page = await nested_service.find_body(body, cursor=resume)
+            else:
+                page = await nested_service.find_body(body, field_ids=field_ids, limit=100)
+        except (AuthorizationError, ValidationError, NotFoundError, UnsupportedOperationError) as e:
+            reason = getattr(e, "message", None) or str(e)
+            ctx.warnings.append(
+                f"Affinity's search refused the filter, filtering locally: {reason}"
+            )
+            if ctx.server_filter is not None:
+                ctx.server_filter["fallback"] = reason
+            return False
+        fetched = 0
+        while True:
+            for record in page.data:
+                record_dict = _normalize_list_entry_fields(
+                    record.model_dump(mode="json", by_alias=True), ctx.truncated_fields
+                )
+                ctx.records.append(record_dict)
+                fetched += 1
+                if self._should_stop(ctx):
+                    ctx.last_api_cursor = page.next_cursor
+                    return True
+            self.progress.on_step_progress(step, fetched, None)
+            if not page.next_cursor:
+                return True
+            page = await nested_service.find_body(body, cursor=page.next_cursor)
 
     def _should_stop(self, ctx: ExecutionContext) -> bool:
         """Check if we should stop fetching.
