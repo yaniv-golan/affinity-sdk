@@ -59,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`entries(list_id).add_opportunity()` is removed.** Opportunities can't be added to a list
   as entries: create them on their list with `opportunities.create(OpportunityCreate(list_id=...))`.
 - Person create/delete, opportunity rename/delete and adding to a list stay on V1: the V2 spec
-  documents them, but Affinity doesn't serve them yet.
+  documents them, but Affinity didn't serve them when tested (2026-10-12).
 
 ### Added
 

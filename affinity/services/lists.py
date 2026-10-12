@@ -1240,7 +1240,8 @@ class ListEntryService:
 
         The entity type must match the list type. Opportunities can't be added this way:
         create them on their list with ``opportunities.create(OpportunityCreate(list_id=...))``.
-        (V2 documents ``POST /v2/lists/{id}/list-entries``, but Affinity doesn't serve it yet.)
+        (V2 documents ``POST /v2/lists/{id}/list-entries``, but Affinity didn't serve it when
+        tested, 2026-10-12.)
         """
         payload: dict[str, Any] = {"entity_id": entity_id}
         if creator_id:
@@ -2345,7 +2346,8 @@ class AsyncListEntryService:
 
         The entity type must match the list type. Opportunities can't be added this way:
         create them on their list with ``opportunities.create(OpportunityCreate(list_id=...))``.
-        (V2 documents ``POST /v2/lists/{id}/list-entries``, but Affinity doesn't serve it yet.)
+        (V2 documents ``POST /v2/lists/{id}/list-entries``, but Affinity didn't serve it when
+        tested, 2026-10-12.)
         """
         payload: dict[str, Any] = {"entity_id": entity_id}
         if creator_id:

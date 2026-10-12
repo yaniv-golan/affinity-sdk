@@ -285,7 +285,7 @@
    "api": "v2",
    "status": "planned",
    "phase": "when-live",
-   "note": "documented in the V2 spec, but Affinity doesn't serve it yet (no route, checked 2026-10-12)",
+   "note": "documented in the V2 spec, but not served when checked (no route, 2026-10-12; may be gated per account)",
    "stability": "beta"
   },
   {
@@ -462,7 +462,7 @@
    "api": "v2",
    "status": "planned",
    "phase": "when-live",
-   "note": "documented in the V2 spec, but Affinity doesn't serve it yet (no route, checked 2026-10-12)",
+   "note": "documented in the V2 spec, but not served when checked (no route, 2026-10-12; may be gated per account)",
    "stability": "beta"
   },
   {
@@ -477,7 +477,7 @@
    "api": "v2",
    "status": "planned",
    "phase": "when-live",
-   "note": "documented in the V2 spec, but Affinity doesn't serve it yet (no route, checked 2026-10-12)",
+   "note": "documented in the V2 spec, but not served when checked (no route, 2026-10-12; may be gated per account)",
    "stability": "beta"
   },
   {
@@ -520,7 +520,7 @@
    "api": "v2",
    "status": "planned",
    "phase": "when-live",
-   "note": "documented in the V2 spec, but Affinity doesn't serve it yet (no route, checked 2026-10-12)",
+   "note": "documented in the V2 spec, but not served when checked (no route, 2026-10-12; may be gated per account)",
    "stability": "beta"
   },
   {
@@ -549,7 +549,7 @@
    "api": "v2",
    "status": "planned",
    "phase": "when-live",
-   "note": "documented in the V2 spec, but Affinity doesn't serve it yet (no route, checked 2026-10-12)",
+   "note": "documented in the V2 spec, but not served when checked (no route, 2026-10-12; may be gated per account)",
    "stability": "beta"
   },
   {

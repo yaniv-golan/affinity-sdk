@@ -71,7 +71,7 @@ markdown-like form. Changing the text of a note that @mentions people is refused
 | `entries(list_id).add_opportunity()` | removed: create the opportunity on its list (`opportunities.create(OpportunityCreate(list_id=…))`) |
 
 Person create/delete, opportunity rename/delete and adding people or companies to a list are
-unchanged (V1): Affinity's V2 spec documents them, but the API doesn't serve them yet.
+unchanged (V1): Affinity's V2 spec documents them, but the API didn't serve them when tested (2026-10-12).
 `Person.company_ids` and `Opportunity.company_ids` are now filled from V1 responses.
 
 ## Files and rate limits

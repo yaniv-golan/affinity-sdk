@@ -17,7 +17,7 @@ The SDK uses V2 endpoints wherever V2 can do the job, and V1 where it can't.
   writes V2 doesn't offer: company create/update, person create/update/delete, opportunity
   create/update/delete, adding to a list, interactions, entity files, and field values on
   companies and persons. (Affinity's V2 spec also documents person create/delete, opportunity
-  rename/delete and adding to a list, but the API doesn't serve them yet.)
+  rename/delete and adding to a list, but the API didn't serve them when tested, 2026-10-12.)
 
 ### Documented V1 exceptions
 
