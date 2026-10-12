@@ -932,6 +932,10 @@ xaffinity file-url 9192757   # download link for a hit
 
 ## Reminders
 
+Reminders use the V2 API. Only a reminder's creator or owner may change it there; when V2
+refuses, `update` and `delete` retry through the V1 API. A reminder attached to no person,
+company or opportunity is created through V1, and so is a type change.
+
 ### `xaffinity reminder ls`
 
 The `--due-after` and `--due-before` options accept the same date formats as `--due-date`:
@@ -944,6 +948,11 @@ xaffinity reminder ls
 xaffinity reminder ls --owner-id 42 --status active --json
 xaffinity reminder ls --due-after today --due-before +7d
 ```
+
+Results come soonest-due first, up to 100 per page (`--page-size`); `--all` fetches every page.
+Rows: `id`, `type`, `status`, `content`, `dueDate`, `resetType` (`interaction`, `email` or
+`event`), `reminderDays`, `ownerId`, `creatorId`, `completerId`, `personId`, `companyId`,
+`opportunityId`, `createdAt`, `updatedAt`, `completedAt`.
 
 ### `xaffinity reminder get <reminderId>`
 
@@ -965,12 +974,21 @@ xaffinity reminder create --owner-id 42 --type one-time --due-date 2025-01-15T09
 xaffinity reminder create --owner-id 42 --type recurring --reset-type interaction --reminder-days 3 --company-id 456
 ```
 
+`--reset-type` is `interaction`, `email` or `event` (`meeting` is accepted for `event`);
+`--reminder-days` is 1-3650.
+
 ### `xaffinity reminder update <reminderId>`
+
+Only the options you pass change.
 
 ```bash
 xaffinity reminder update 12345 --content "Follow up after demo"
 xaffinity reminder update 12345 --completed
+xaffinity reminder update 12345 --clear-content
 ```
+
+`--completed` on a recurring reminder moves it to its next due date; `--not-completed` reopens a
+one-time reminder.
 
 ### `xaffinity reminder delete <reminderId>`
 

@@ -1,184 +1,136 @@
 """
-Tests for AsyncReminderService.list_batch().
+Tests for ReminderService.list_batch() / AsyncReminderService.list_batch() (V2: one OR-filter
+request per chunk of ids).
 """
 
 from __future__ import annotations
+
+from typing import Any
 
 import httpx
 import pytest
 
 from affinity import AsyncAffinity
 from affinity.exceptions import AffinityError
+from affinity.services.reminders import BATCH_CHUNK
 from affinity.types import CompanyId, PersonId, ReminderStatus
 
 
+def _reminder(rid: int, **entity: Any) -> dict[str, Any]:
+    return {
+        "id": rid,
+        "type": "one-time",
+        "status": "active",
+        "content": None,
+        "dueDate": "2026-11-01T09:00:00Z",
+        "recurrence": None,
+        "creator": {"id": 1},
+        "owner": {"id": 1},
+        "completer": None,
+        "person": None,
+        "company": None,
+        "opportunity": None,
+        "createdAt": "2026-10-01T09:00:00Z",
+        "updatedAt": None,
+        "completedAt": None,
+        **{k: {"id": v} for k, v in entity.items()},
+    }
+
+
+def _page(items: list[dict[str, Any]]) -> dict[str, Any]:
+    return {"data": items, "pagination": {"nextUrl": None, "prevUrl": None}}
+
+
 @pytest.mark.req("SDK-REMINDER-LIST-BATCH")
-@pytest.mark.asyncio
 async def test_list_batch_fetches_for_all_companies() -> None:
-    """list_batch() should fetch reminders for all given company IDs."""
+    """Every company id is a key; reminders are grouped by their company."""
+    seen: list[str] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
-        url = str(request.url)
-        # Note: ReminderService.list() maps company_id -> "organization_id" in the V1 API
-        # query string (see v1_only.py ~line 309). We match on the wire format here.
-        if "organization_id=1" in url:
-            return httpx.Response(
-                200,
-                json={
-                    "reminders": [
-                        {
-                            "id": 10,
-                            "type": 0,
-                            "status": 0,
-                            "reset_type": 0,
-                            "dueDate": "2026-03-01T00:00:00Z",
-                            "createdAt": "2026-01-01T00:00:00Z",
-                        }
-                    ]
-                },
-            )
-        if "organization_id=2" in url:
-            return httpx.Response(
-                200,
-                json={
-                    "reminders": [
-                        {
-                            "id": 20,
-                            "type": 0,
-                            "status": 0,
-                            "reset_type": 0,
-                            "dueDate": "2026-03-01T00:00:00Z",
-                            "createdAt": "2026-01-01T00:00:00Z",
-                        },
-                        {
-                            "id": 21,
-                            "type": 0,
-                            "status": 0,
-                            "reset_type": 0,
-                            "dueDate": "2026-03-01T00:00:00Z",
-                            "createdAt": "2026-01-01T00:00:00Z",
-                        },
-                    ]
-                },
-            )
-        return httpx.Response(200, json={"reminders": []})
+        seen.append(request.url.params["filter"])
+        return httpx.Response(200, json=_page([_reminder(10, company=1), _reminder(11, company=1)]))
 
-    async_transport = httpx.MockTransport(handler)
     async with AsyncAffinity(
-        api_key="test", max_retries=0, async_transport=async_transport
+        api_key="test", max_retries=0, async_transport=httpx.MockTransport(handler)
     ) as client:
-        results = await client.reminders.list_batch(
-            company_ids=[CompanyId(1), CompanyId(2), CompanyId(3)],
-            max_concurrent=2,
-        )
+        results = await client.reminders.list_batch(company_ids=[CompanyId(1), CompanyId(2)])
 
-    assert len(results) == 3
-    assert len(results[1]) == 1
-    assert len(results[2]) == 2
-    assert len(results[3]) == 0  # empty list, not omitted
+    assert {k: [r.id for r in v] for k, v in results.items()} == {1: [10, 11], 2: []}
+    assert seen == ["(company.id=1 | company.id=2)"]
 
 
 @pytest.mark.req("SDK-REMINDER-LIST-BATCH")
-@pytest.mark.asyncio
 async def test_list_batch_empty_input() -> None:
-    """list_batch() with empty IDs should return empty dict."""
-
-    def handler(_request: httpx.Request) -> httpx.Response:
-        pytest.fail("Unexpected API call")
-
-    async_transport = httpx.MockTransport(handler)
-    async with AsyncAffinity(
-        api_key="test", max_retries=0, async_transport=async_transport
-    ) as client:
-        results = await client.reminders.list_batch(company_ids=[])
-    assert results == {}
+    async with AsyncAffinity(api_key="test", max_retries=0) as client:
+        assert await client.reminders.list_batch(person_ids=[]) == {}
 
 
 @pytest.mark.req("SDK-REMINDER-LIST-BATCH")
-@pytest.mark.asyncio
 async def test_list_batch_requires_exactly_one_entity_type() -> None:
-    """list_batch() should reject ambiguous or missing entity type."""
-    async_transport = httpx.MockTransport(lambda _r: httpx.Response(200, json={}))
-    async with AsyncAffinity(
-        api_key="test", max_retries=0, async_transport=async_transport
-    ) as client:
-        # No entity type
+    async with AsyncAffinity(api_key="test", max_retries=0) as client:
         with pytest.raises(ValueError, match="Exactly one"):
             await client.reminders.list_batch()
-
-        # Multiple entity types
         with pytest.raises(ValueError, match="Exactly one"):
-            await client.reminders.list_batch(person_ids=[PersonId(1)], company_ids=[CompanyId(2)])
+            await client.reminders.list_batch(person_ids=[PersonId(1)], company_ids=[CompanyId(1)])
 
 
 @pytest.mark.req("SDK-REMINDER-LIST-BATCH")
-@pytest.mark.asyncio
 async def test_list_batch_passes_filters() -> None:
-    """list_batch() should pass common filters to each iter() call."""
-    captured_urls: list[str] = []
+    seen: list[str] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
-        captured_urls.append(str(request.url))
-        return httpx.Response(200, json={"reminders": []})
+        seen.append(request.url.params["filter"])
+        return httpx.Response(200, json=_page([]))
 
-    async_transport = httpx.MockTransport(handler)
     async with AsyncAffinity(
-        api_key="test", max_retries=0, async_transport=async_transport
+        api_key="test", max_retries=0, async_transport=httpx.MockTransport(handler)
     ) as client:
-        await client.reminders.list_batch(
-            person_ids=[PersonId(1)],
-            status=ReminderStatus.ACTIVE,
-        )
-
-    assert len(captured_urls) == 1
-    assert "person_id=1" in captured_urls[0]
-    assert "status=1" in captured_urls[0]  # ReminderStatus.ACTIVE == 1
+        await client.reminders.list_batch(person_ids=[PersonId(1)], status=ReminderStatus.ACTIVE)
+    assert seen == ["person.id=1 & status=active"]
 
 
 @pytest.mark.req("SDK-REMINDER-LIST-BATCH")
-@pytest.mark.asyncio
+async def test_list_batch_chunks_ids() -> None:
+    seen: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request.url.params["filter"])
+        return httpx.Response(200, json=_page([]))
+
+    ids = [PersonId(i) for i in range(1, BATCH_CHUNK + 2)]
+    async with AsyncAffinity(
+        api_key="test", max_retries=0, async_transport=httpx.MockTransport(handler)
+    ) as client:
+        results = await client.reminders.list_batch(person_ids=ids)
+    assert len(seen) == 2
+    assert len(results) == BATCH_CHUNK + 1
+
+
+@pytest.mark.req("SDK-REMINDER-LIST-BATCH")
 async def test_list_batch_on_error_skip() -> None:
-    """list_batch(on_error='skip') should skip failed entities."""
+    """A failed chunk is skipped: its ids keep empty lists."""
 
     def handler(request: httpx.Request) -> httpx.Response:
-        url = str(request.url)
-        if "person_id=2" in url:
+        if "person.id=1" in request.url.params["filter"]:
             return httpx.Response(500, json={"error": "Server error"})
-        return httpx.Response(200, json={"reminders": []})
+        return httpx.Response(200, json=_page([_reminder(30, person=BATCH_CHUNK + 1)]))
 
-    async_transport = httpx.MockTransport(handler)
+    ids = [PersonId(i) for i in range(1, BATCH_CHUNK + 2)]
     async with AsyncAffinity(
-        api_key="test", max_retries=0, async_transport=async_transport
+        api_key="test", max_retries=0, async_transport=httpx.MockTransport(handler)
     ) as client:
-        results = await client.reminders.list_batch(
-            person_ids=[PersonId(1), PersonId(2), PersonId(3)],
-            on_error="skip",
-        )
-
-    # All entities are in results; person 2 failed on first page so has empty list
-    assert 1 in results
-    assert 2 in results
-    assert results[2] == []  # error on first page -> no reminders collected
-    assert 3 in results
+        results = await client.reminders.list_batch(person_ids=ids, on_error="skip")
+    assert results[1] == []
+    assert [r.id for r in results[BATCH_CHUNK + 1]] == [30]
 
 
 @pytest.mark.req("SDK-REMINDER-LIST-BATCH")
-@pytest.mark.asyncio
 async def test_list_batch_on_error_raise() -> None:
-    """list_batch(on_error='raise') should raise and cancel remaining tasks."""
+    def handler(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(500, json={"error": "Server error"})
 
-    def handler(request: httpx.Request) -> httpx.Response:
-        url = str(request.url)
-        if "person_id=2" in url:
-            return httpx.Response(500, json={"error": "Server error"})
-        return httpx.Response(200, json={"reminders": []})
-
-    async_transport = httpx.MockTransport(handler)
     async with AsyncAffinity(
-        api_key="test", max_retries=0, async_transport=async_transport
+        api_key="test", max_retries=0, async_transport=httpx.MockTransport(handler)
     ) as client:
         with pytest.raises(AffinityError):
-            await client.reminders.list_batch(
-                person_ids=[PersonId(1), PersonId(2)],
-                on_error="raise",
-            )
+            await client.reminders.list_batch(person_ids=[PersonId(1), PersonId(2)])

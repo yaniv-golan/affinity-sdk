@@ -14,14 +14,14 @@ Most list endpoints support both:
 | `opportunities` | `all()`, `iter()` | `pages()` | V2 |
 | `lists` | `all()`, `iter()` | `pages()` | V2 |
 | `notes` | `iter()` | use `list()` | V1 |
-| `reminders` | `iter()` | use `list()` | V1 |
+| `reminders` | `iter()` | `list(cursor=…)` | V2 |
 | `interactions` | `iter()` | use `list()` | V1 |
 | `files` | `all()`, `iter()` | use `list()` | V1 |
 
 !!! note "V1 vs V2 method availability"
-    **V2 services** (persons, companies, opportunities, lists) have `all()` and `iter()` as aliases, plus a dedicated `pages()` method for page-by-page iteration with progress callbacks.
+    **V2 services** (persons, companies, opportunities, lists) have `all()` and `iter()` as aliases, plus a dedicated `pages()` method for page-by-page iteration with progress callbacks. Reminders and webhooks have `iter()`, and `list()` returns one page: pass its `pagination.next_cursor` as `list(cursor=…)` for the next.
 
-    **V1 services** (notes, reminders, interactions, files) have `iter()` for auto-pagination. For manual page-by-page control, use `list()` with `page_token` parameter directly.
+    **V1 services** (notes, interactions, files) have `iter()` for auto-pagination. For manual page-by-page control, use `list()` with `page_token` parameter directly.
 
 Example:
 

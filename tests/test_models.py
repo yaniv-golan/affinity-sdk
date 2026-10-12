@@ -28,12 +28,12 @@ from affinity.models import (
 from affinity.services.companies import CompanyService
 from affinity.services.lists import AsyncListEntryService, ListEntryService, ListService
 from affinity.services.persons import PersonService
+from affinity.services.reminders import ReminderService
 from affinity.services.v1_only import (
     EntityFileService,
     FieldValueService,
     InteractionService,
     NoteService,
-    ReminderService,
 )
 from affinity.types import (
     CompanyId,

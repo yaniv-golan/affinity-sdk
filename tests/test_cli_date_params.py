@@ -83,28 +83,30 @@ def test_interaction_ls_date_params(respx_mock: respx.MockRouter) -> None:
 
 def test_reminder_ls_date_params(respx_mock: respx.MockRouter) -> None:
     """Verify --due-after/--due-before work for reminder ls."""
-    respx_mock.get("https://api.affinity.co/reminders").mock(
+    route = respx_mock.get("https://api.affinity.co/v2/reminders").mock(
         return_value=Response(
             200,
             json={
-                "reminders": [
+                "data": [
                     {
                         "id": 200,
-                        "type": 0,
-                        "status": 1,
+                        "type": "one-time",
+                        "status": "active",
                         "content": "Follow up",
-                        "due_date": "2024-06-15T00:00:00Z",
-                        "created_at": "2024-06-01T00:00:00Z",
-                        "owner": {
-                            "id": 1,
-                            "firstName": "Test",
-                            "lastName": "User",
-                            "primaryEmailAddress": "test@example.com",
-                            "type": "internal",
-                        },
+                        "dueDate": "2024-06-15T00:00:00Z",
+                        "recurrence": None,
+                        "creator": {"id": 1},
+                        "owner": {"id": 1},
+                        "completer": None,
+                        "person": None,
+                        "company": None,
+                        "opportunity": None,
+                        "createdAt": "2024-06-01T00:00:00Z",
+                        "updatedAt": None,
+                        "completedAt": None,
                     }
                 ],
-                "next_page_token": None,
+                "pagination": {"nextUrl": None, "prevUrl": None},
             },
         )
     )
@@ -130,6 +132,7 @@ def test_reminder_ls_date_params(respx_mock: respx.MockRouter) -> None:
     cmd = payload["command"]
     assert cmd["modifiers"]["dueAfter"] == "2024-06-01"
     assert cmd["modifiers"]["dueBefore"] == "2024-06-30"
+    assert "dueDate>=" in route.calls[0].request.url.params["filter"]
 
 
 def test_interaction_ls_type_required() -> None:

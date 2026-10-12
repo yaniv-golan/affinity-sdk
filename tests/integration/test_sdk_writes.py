@@ -62,6 +62,7 @@ from affinity.types import (
     OpportunityId,
     PersonId,
     ReminderResetType,
+    ReminderStatus,
     ReminderType,
     UserId,
     WebhookEvent,
@@ -833,6 +834,13 @@ def verify_one_time_reminder_crud(
     assert "Updated" in updated.content
     print("    Updated reminder")
 
+    # COMPLETE, then reopen (V2: completedAt)
+    completed = client.reminders.update(reminder.id, ReminderUpdate(is_completed=True))
+    assert completed.status == ReminderStatus.COMPLETED
+    reopened = client.reminders.update(reminder.id, ReminderUpdate(is_completed=False))
+    assert reopened.completed_at is None
+    print("    Completed and reopened reminder")
+
     # DELETE
     success = client.reminders.delete(reminder.id)
     assert success is True
@@ -1395,16 +1403,10 @@ def find_orphan_test_data(client: Affinity, max_entities: int = 1000) -> dict[st
         if not page_token:
             break
 
-    # Check reminders (uses list() with manual pagination - no iter() method)
-    page_token = None
-    while True:
-        response = client.reminders.list(page_size=100, page_token=page_token)
-        for reminder in response.data:
-            if reminder.content and TEST_PREFIX in reminder.content:
-                orphans["reminders"].append(reminder.id)
-        page_token = response.next_page_token
-        if not page_token:
-            break
+    # Check reminders
+    for reminder in client.reminders.iter(limit=100):
+        if reminder.content and TEST_PREFIX in reminder.content:
+            orphans["reminders"].append(reminder.id)
 
     # Check interactions (by type, uses list() with manual pagination)
     # We only check MEETING type - this is what the test suite creates.

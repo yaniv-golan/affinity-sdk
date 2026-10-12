@@ -7,6 +7,7 @@ from .lists import ListEntryService, ListService
 from .opportunities import OpportunityService
 from .persons import PersonService
 from .rate_limits import RateLimitService
+from .reminders import ReminderService
 from .v1_only import (
     AuthService,
     EntityFileService,
@@ -16,7 +17,6 @@ from .v1_only import (
     InteractionService,
     NoteService,
     RelationshipStrengthService,
-    ReminderService,
 )
 from .webhooks import WebhookService
 
@@ -28,10 +28,10 @@ __all__ = [
     "ListEntryService",
     "OpportunityService",
     "RateLimitService",
+    "ReminderService",
     "WebhookService",
     # V1-only services
     "NoteService",
-    "ReminderService",
     "InteractionService",
     "FieldService",
     "FieldValueService",

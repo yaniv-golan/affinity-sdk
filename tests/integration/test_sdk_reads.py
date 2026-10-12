@@ -399,12 +399,12 @@ class TestInteractions:
 
 
 # =============================================================================
-# Group 9: Reminders (V1 API)
+# Group 9: Reminders (V2 API)
 # =============================================================================
 
 
 class TestReminders:
-    """Test reminder read operations (V1 API)."""
+    """Test reminder read operations (V2 API)."""
 
     def test_list(self, sandbox_client: Affinity) -> None:
         """Verify reminders.list() returns paginated reminders."""

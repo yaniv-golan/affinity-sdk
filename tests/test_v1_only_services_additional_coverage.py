@@ -16,8 +16,6 @@ from affinity.models.secondary import (
     InteractionUpdate,
     NoteCreate,
     NoteUpdate,
-    ReminderCreate,
-    ReminderUpdate,
 )
 from affinity.models.types import (
     CompanyId,
@@ -33,9 +31,6 @@ from affinity.models.types import (
     ListId,
     NoteId,
     PersonId,
-    ReminderIdType,
-    ReminderStatus,
-    ReminderType,
     UserId,
 )
 from affinity.services.rate_limits import RateLimitService
@@ -50,7 +45,6 @@ from affinity.services.v1_only import (
     InteractionService,
     NoteService,
     RelationshipStrengthService,
-    ReminderService,
 )
 
 
@@ -380,28 +374,6 @@ def test_v1_only_services_end_to_end_smoke_and_branch_coverage(tmp_path: Path) -
         assert notes.delete(NoteId(2)) is True
         assert seen["note_create"]["created_at"] == iso
         assert seen["note_update"] == {"content": "u"}
-
-        reminders = ReminderService(http)
-        assert reminders.list(person_id=PersonId(1), status=ReminderStatus.ACTIVE).data[
-            0
-        ].id == ReminderIdType(1)
-        assert reminders.get(ReminderIdType(1)).status == ReminderStatus.ACTIVE
-        created_r = reminders.create(
-            ReminderCreate(
-                owner_id=UserId(1),
-                type=ReminderType.ONE_TIME,
-                content="c",
-                due_date=now,
-                person_id=PersonId(1),
-            )
-        )
-        assert created_r.id == ReminderIdType(2)
-        _ = reminders.update(
-            ReminderIdType(2), ReminderUpdate(owner_id=UserId(2), is_completed=True)
-        )
-        assert reminders.delete(ReminderIdType(2)) is True
-        assert seen["reminder_create"]["owner_id"] == 1
-        assert seen["reminder_update"]["is_completed"] is True
 
         interactions = InteractionService(http)
         _st = datetime(2024, 1, 1, tzinfo=timezone.utc)

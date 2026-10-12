@@ -506,27 +506,63 @@ class InteractionLoggingType(OpenIntEnum):
     MANUAL = 1
 
 
-class ReminderType(OpenIntEnum):
-    """Types of reminders."""
+def _legacy_reminder_value(
+    cls: type[OpenStrEnum], value: object, ints: dict[int, str], names: dict[str, str] | None = None
+) -> OpenStrEnum:
+    """Map SDK 1.x (V1) integer codes, and renamed values, to the V2 strings.
 
-    ONE_TIME = 0
-    RECURRING = 1
+    Any other integer is an error rather than an unknown string ("0" would silently mean
+    something else); unknown strings stay open, as for every ``OpenStrEnum``.
+    """
+    if isinstance(value, int) and not isinstance(value, bool):
+        if value in ints:
+            return cls(ints[value])
+        raise ValueError(f"{value!r} is not a valid {cls.__name__}")
+    if names and isinstance(value, str) and value in names:
+        return cls(names[value])
+    return OpenStrEnum._missing_.__func__(cls, value)  # type: ignore[attr-defined,no-any-return]
 
 
-class ReminderResetType(OpenIntEnum):
-    """How recurring reminders get reset."""
+class ReminderType(OpenStrEnum):
+    """Types of reminders (V2 values; the 1.x integers 0 and 1 are still accepted)."""
 
-    INTERACTION = 0  # Email or meeting
-    EMAIL = 1
-    MEETING = 2
+    ONE_TIME = "one-time"
+    RECURRING = "recurring"
+
+    @classmethod
+    def _missing_(cls, value: object) -> OpenStrEnum:
+        return _legacy_reminder_value(cls, value, {0: "one-time", 1: "recurring"})
 
 
-class ReminderStatus(OpenIntEnum):
-    """Current status of a reminder."""
+class ReminderResetType(OpenStrEnum):
+    """What resets a recurring reminder (V2 ``resetTrigger``).
 
-    COMPLETED = 0
-    ACTIVE = 1
-    OVERDUE = 2
+    ``MEETING`` is a deprecated alias of ``EVENT`` (V2's name for a meeting or other calendar
+    event); ``"meeting"`` and the 1.x integers 0/1/2 are still accepted.
+    """
+
+    INTERACTION = "interaction"  # an email or an event
+    EMAIL = "email"
+    EVENT = "event"
+    MEETING = "event"
+
+    @classmethod
+    def _missing_(cls, value: object) -> OpenStrEnum:
+        return _legacy_reminder_value(
+            cls, value, {0: "interaction", 1: "email", 2: "event"}, {"meeting": "event"}
+        )
+
+
+class ReminderStatus(OpenStrEnum):
+    """Current status of a reminder (V2 values; the 1.x integers 0/1/2 are still accepted)."""
+
+    COMPLETED = "completed"
+    ACTIVE = "active"
+    OVERDUE = "overdue"
+
+    @classmethod
+    def _missing_(cls, value: object) -> OpenStrEnum:
+        return _legacy_reminder_value(cls, value, {0: "completed", 1: "active", 2: "overdue"})
 
 
 class NoteType(OpenIntEnum):

@@ -17,6 +17,11 @@ this ships.
   create/update the confirmation says the webhook sends CRM events to an outside URL instead of
   "cannot be undone".
 
+### Changed
+
+- `reminder` commands use the V2 API: `reminder update --clear-content`, `--reset-type event`
+  (`meeting` still accepted), `reminder ls --page-size` at most 100, rows include `updatedAt`.
+
 ## [1.32.2] - 2026-10-11
 
 ### Fixed

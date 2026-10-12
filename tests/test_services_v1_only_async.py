@@ -12,8 +12,6 @@ from affinity.models.secondary import (
     InteractionUpdate,
     NoteCreate,
     NoteUpdate,
-    ReminderCreate,
-    ReminderUpdate,
 )
 from affinity.services.rate_limits import AsyncRateLimitService
 from affinity.services.v1_only import (
@@ -23,7 +21,6 @@ from affinity.services.v1_only import (
     AsyncInteractionService,
     AsyncNoteService,
     AsyncRelationshipStrengthService,
-    AsyncReminderService,
 )
 from affinity.types import (
     EntityType,
@@ -35,9 +32,6 @@ from affinity.types import (
     NoteId,
     NoteType,
     PersonId,
-    ReminderIdType,
-    ReminderStatus,
-    ReminderType,
     UserId,
 )
 
@@ -142,61 +136,6 @@ async def test_async_note_service_crud() -> None:
         updated = await svc.update(NoteId(1), NoteUpdate(content="Updated"))
         assert updated.content == "Updated"
         assert await svc.delete(NoteId(1)) is True
-
-
-@pytest.mark.asyncio
-async def test_async_reminder_service_crud() -> None:
-    def handler(request: httpx.Request) -> httpx.Response:
-        url = request.url
-        reminder = {
-            "id": 9,
-            "type": int(ReminderType.ONE_TIME),
-            "status": int(ReminderStatus.ACTIVE),
-            "content": "Follow up",
-            "dueDate": "2024-02-01T00:00:00Z",
-            "createdAt": "2024-01-01T00:00:00Z",
-        }
-        if request.method == "GET" and url == httpx.URL("https://v1.example/reminders"):
-            return httpx.Response(
-                200,
-                json={"reminders": [reminder], "next_page_token": "next"},
-                request=request,
-            )
-        if request.method == "GET" and url == httpx.URL("https://v1.example/reminders/9"):
-            return httpx.Response(200, json=reminder, request=request)
-        if request.method == "POST" and url == httpx.URL("https://v1.example/reminders"):
-            return httpx.Response(200, json=reminder, request=request)
-        if request.method == "PUT" and url == httpx.URL("https://v1.example/reminders/9"):
-            updated = dict(reminder)
-            updated["content"] = "Updated"
-            return httpx.Response(200, json=updated, request=request)
-        if request.method == "DELETE" and url == httpx.URL("https://v1.example/reminders/9"):
-            return httpx.Response(200, json={"success": True}, request=request)
-        return httpx.Response(404, json={"message": "not found"}, request=request)
-
-    client = _async_client(httpx.MockTransport(handler))
-    async with client:
-        svc = AsyncReminderService(client)
-        page = await svc.list()
-        assert page.data[0].id == ReminderIdType(9)
-        assert page.next_page_token == "next"
-        reminder = await svc.get(ReminderIdType(9))
-        assert reminder.content == "Follow up"
-        created = await svc.create(
-            ReminderCreate(
-                owner_id=UserId(7),
-                type=ReminderType.ONE_TIME,
-                content="Follow up",
-                due_date=datetime(2024, 2, 1, tzinfo=timezone.utc),
-            )
-        )
-        assert created.id == ReminderIdType(9)
-        updated = await svc.update(
-            ReminderIdType(9),
-            ReminderUpdate(content="Updated"),
-        )
-        assert updated.content == "Updated"
-        assert await svc.delete(ReminderIdType(9)) is True
 
 
 @pytest.mark.asyncio

@@ -640,41 +640,36 @@
   {
    "op": "GET /v2/reminders",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.0.0",
-   "note": "today via V1 reminders.list",
+   "status": "supported",
+   "call": "reminders.list()",
    "stability": "ga"
   },
   {
    "op": "POST /v2/reminders",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.0.0",
-   "note": "today via V1 reminders.create",
+   "status": "supported",
+   "call": "reminders.create(ReminderCreate(owner_id=UserId(1), type=ReminderType.ONE_TIME, due_date=datetime(2026, 1, 1, tzinfo=timezone.utc), person_id=PersonId(1)))",
    "stability": "ga"
   },
   {
    "op": "DELETE /v2/reminders/{reminderId}",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.0.0",
-   "note": "today via V1 reminders.delete",
+   "status": "supported",
+   "call": "reminders.delete(ReminderIdType(1))",
    "stability": "beta"
   },
   {
    "op": "GET /v2/reminders/{reminderId}",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.0.0",
-   "note": "today via V1 reminders.get",
+   "status": "supported",
+   "call": "reminders.get(ReminderIdType(1))",
    "stability": "beta"
   },
   {
    "op": "POST /v2/reminders/{reminderId}",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.0.0",
-   "note": "today via V1 reminders.update",
+   "status": "supported",
+   "call": "reminders.update(ReminderIdType(1), ReminderUpdate(content=\"x\"))",
    "stability": "beta"
   },
   {
@@ -1100,32 +1095,36 @@
   {
    "op": "GET /reminders",
    "api": "v1",
-   "status": "supported",
-   "call": "reminders.list()"
+   "status": "equivalent",
+   "via": "v2 GET /v2/reminders"
   },
   {
    "op": "POST /reminders",
    "api": "v1",
    "status": "supported",
-   "call": "reminders.create(ReminderCreate(owner_id=UserId(1), type=ReminderType.ONE_TIME, content=\"x\", due_date=\"2024-01-01T00:00:00Z\", person_id=PersonId(1)))"
+   "call": "reminders.create(ReminderCreate(owner_id=UserId(1), type=ReminderType.ONE_TIME, due_date=datetime(2026, 1, 1, tzinfo=timezone.utc)))",
+   "note": "only for a reminder without a person, company or opportunity (V2 requires one)"
   },
   {
    "op": "DELETE /reminders/{}",
    "api": "v1",
    "status": "supported",
-   "call": "reminders.delete(ReminderIdType(1))"
+   "call": "reminders.delete(ReminderIdType(1))",
+   "note": "only as the retry when V2 refuses (V2: creator or owner only)",
+   "when": "v2-forbidden"
   },
   {
    "op": "GET /reminders/{}",
    "api": "v1",
-   "status": "supported",
-   "call": "reminders.get(ReminderIdType(1))"
+   "status": "equivalent",
+   "via": "v2 GET /v2/reminders/{reminderId}"
   },
   {
    "op": "PUT /reminders/{}",
    "api": "v1",
    "status": "supported",
-   "call": "reminders.update(ReminderIdType(1), ReminderUpdate(content=\"x\"))"
+   "call": "reminders.update(ReminderIdType(1), ReminderUpdate(type=ReminderType.RECURRING, reset_type=ReminderResetType.EMAIL, reminder_days=30))",
+   "note": "to change a reminder's type (V2 can't), and as the retry when V2 refuses an update (V2: creator or owner only)"
   },
   {
    "op": "GET /webhook",

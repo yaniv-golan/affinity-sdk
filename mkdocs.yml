@@ -81,11 +81,11 @@ nav:
           - Persons: reference/services/persons.md
           - Lists: reference/services/lists.md
           - Opportunities: reference/services/opportunities.md
+          - Reminders: reference/services/reminders.md
           - Tasks: reference/services/tasks.md
           - Webhooks: reference/services/webhooks.md
           - V1 endpoints:
               - Notes: reference/services/v1/notes.md
-              - Reminders: reference/services/v1/reminders.md
               - Interactions: reference/services/v1/interactions.md
               - Fields: reference/services/v1/fields.md
               - Field values: reference/services/v1/field-values.md

@@ -20,6 +20,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ignored. Without permission to manage all webhooks, the API lists, reads and changes only the
   caller's own webhooks. A client pinned to API version 2024-01-01 gets
   `ApiVersionTooOldError`.
+- **Reminders use the V2 API** (`/v2/reminders`; `get`/`delete` need API 2026-07-15, `update`
+  2026-09-17). `Reminder` has the V2 shape: `creator`, `owner`, `completer`, `person` are
+  `PersonRef` (id only; look names up separately), `company`/`opportunity` are
+  `CompanyRef`/`OpportunityRef`, recurrence is `recurrence` (`period_days`, `reset_type`; the
+  read-only `reset_type`/`reminder_days` properties still work), plus `updated_at`.
+  `ReminderType`, `ReminderResetType` and `ReminderStatus` are string enums with the V2 values
+  (member names unchanged; the 1.x integers are still accepted); `ReminderResetType.MEETING` is
+  now an alias of `EVENT`. `list()` takes `limit` (1-100), `cursor`, `ids` and created/updated
+  ranges instead of `page_size`/`page_token`, and returns reminders soonest-due first.
+  `update()` sends only the fields that are set (`clear_content=True` removes the content) and
+  returns the reminder as read back. `list_batch()` is on the sync client too, and fetches up to
+  50 entities per request. Kept on V1 where V2 can't do it: creating a reminder without a
+  person, company or opportunity, changing a reminder's type, and updating or deleting a
+  reminder you didn't create and don't own (V2 refuses; the SDK retries through V1).
 
 ### Added
 
@@ -27,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (repeatable) or `--all-events`; `update` takes `--url`, `--event`/`--all-events`, `--status
   active|disabled`. `create`, `update` and `delete` ask for confirmation (`--yes` in scripts),
   since a webhook sends CRM events to an outside URL. Rows include `allEvents`.
+- **CLI `reminder update --clear-content`**; `reminder ls --page-size` is now at most 100, and
+  rows include `updatedAt`; `--reset-type event` (`meeting` still accepted, printed as `event`).
 - **MCP:** the webhook commands are in the command registry; `webhook create`/`update`/`delete`
   go through the same user confirmation as deletes, and the confirmation says why (events sent
   to an outside URL).

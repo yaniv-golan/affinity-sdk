@@ -76,6 +76,7 @@ from .search import (
 from .secondary import (
     # File
     CompanyMergeState,
+    CompanyRef,
     EntityFile,
     # Field value change (V2)
     FieldValueChangeEntity,
@@ -91,6 +92,7 @@ from .secondary import (
     Note,
     NoteCreate,
     NoteUpdate,
+    OpportunityRef,
     PersonMergeState,
     PersonRef,
     RateLimitInfo,
@@ -100,6 +102,7 @@ from .secondary import (
     # Reminder
     Reminder,
     ReminderCreate,
+    ReminderRecurrence,
     ReminderUpdate,
     Tenant,
     # Webhook
@@ -167,12 +170,15 @@ __all__ = [
     # Reminder
     "Reminder",
     "ReminderCreate",
+    "ReminderRecurrence",
     "ReminderUpdate",
     # Webhook
     "Webhook",
     "WebhookCreate",
     "WebhookUpdate",
     "PersonRef",
+    "CompanyRef",
+    "OpportunityRef",
     # Interaction
     "Interaction",
     "InteractionCreate",

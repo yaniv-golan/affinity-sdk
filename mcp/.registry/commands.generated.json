@@ -4544,9 +4544,10 @@
         "--reset-type": {
           "type": "string",
           "required": false,
-          "help": "Reset type for recurring reminders.",
+          "help": "What resets a recurring reminder: interaction, email or event (meeting = event).",
           "choices": [
             "email",
+            "event",
             "interaction",
             "meeting"
           ]
@@ -4653,7 +4654,7 @@
         "--cursor": {
           "type": "string",
           "required": false,
-          "help": "Resume from cursor (incompatible with --page-size)."
+          "help": "Resume from a nextCursor (no other filters)."
         },
         "--due-after": {
           "type": "string",
@@ -4687,7 +4688,7 @@
         "--page-size": {
           "type": "int",
           "required": false,
-          "help": "Page size (max 500).",
+          "help": "Page size (max 100).",
           "aliases": [
             "-s"
           ]
@@ -4700,9 +4701,10 @@
         "--reset-type": {
           "type": "string",
           "required": false,
-          "help": "Reset type for recurring reminders.",
+          "help": "What resets a recurring reminder: interaction, email or event (meeting = event).",
           "choices": [
             "email",
+            "event",
             "interaction",
             "meeting"
           ]
@@ -4763,15 +4765,20 @@
     },
     {
       "name": "reminder update",
-      "description": "Update a reminder.",
+      "description": "Update a reminder: only the options you pass change.",
       "category": "write",
       "destructive": false,
       "progressCapable": false,
       "parameters": {
+        "--clear-content": {
+          "type": "flag",
+          "required": false,
+          "help": "Remove the reminder's content."
+        },
         "--completed": {
           "type": "flag",
           "required": false,
-          "help": "Set completion status."
+          "help": "Complete it (a recurring one moves to its next due date), or reopen a one-time one."
         },
         "--content": {
           "type": "string",
@@ -4796,9 +4803,10 @@
         "--reset-type": {
           "type": "string",
           "required": false,
-          "help": "Reset type for recurring reminders.",
+          "help": "What resets a recurring reminder: interaction, email or event (meeting = event).",
           "choices": [
             "email",
+            "event",
             "interaction",
             "meeting"
           ]

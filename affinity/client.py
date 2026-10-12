@@ -30,6 +30,7 @@ from .services.lists import AsyncListService, ListService
 from .services.opportunities import AsyncOpportunityService, OpportunityService
 from .services.persons import AsyncPersonService, PersonService
 from .services.rate_limits import AsyncRateLimitService, RateLimitService
+from .services.reminders import AsyncReminderService, ReminderService
 from .services.tasks import AsyncTaskService, TaskService
 from .services.transcripts import AsyncTranscriptService, TranscriptService
 from .services.v1_only import (
@@ -41,7 +42,6 @@ from .services.v1_only import (
     AsyncInteractionService,
     AsyncNoteService,
     AsyncRelationshipStrengthService,
-    AsyncReminderService,
     AuthService,
     EntityFileService,
     FieldService,
@@ -50,7 +50,6 @@ from .services.v1_only import (
     InteractionService,
     NoteService,
     RelationshipStrengthService,
-    ReminderService,
 )
 from .services.webhooks import AsyncWebhookService, WebhookService
 

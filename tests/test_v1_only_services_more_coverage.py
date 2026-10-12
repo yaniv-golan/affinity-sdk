@@ -14,8 +14,6 @@ from affinity.models.secondary import (
     InteractionCreate,
     InteractionUpdate,
     NoteCreate,
-    ReminderCreate,
-    ReminderUpdate,
 )
 from affinity.models.types import (
     CompanyId,
@@ -27,7 +25,6 @@ from affinity.models.types import (
     NoteId,
     OpportunityId,
     PersonId,
-    ReminderIdType,
     ReminderResetType,
     ReminderStatus,
     ReminderType,
@@ -40,7 +37,6 @@ from affinity.services.v1_only import (
     InteractionService,
     NoteService,
     RelationshipStrengthService,
-    ReminderService,
 )
 
 
@@ -363,51 +359,6 @@ def test_v1_only_services_cover_optional_params_and_fallback_shapes(tmp_path: Pa
         _ = notes.create(NoteCreate(content="n", company_ids=[CompanyId(2)], creator_id=UserId(4)))
         assert seen["note_create"][0]["parent_id"] == 1
         assert "person_ids" not in seen["note_create"][1]
-
-        reminders = ReminderService(http)
-        assert reminders.list(
-            person_id=PersonId(1),
-            company_id=CompanyId(2),
-            opportunity_id=OpportunityId(3),
-            creator_id=UserId(4),
-            owner_id=UserId(5),
-            completer_id=UserId(6),
-            type=ReminderType.ONE_TIME,
-            reset_type=ReminderResetType.EMAIL,
-            status=ReminderStatus.ACTIVE,
-            due_before=now + timedelta(days=1),
-            due_after=now - timedelta(days=1),
-            page_size=5,
-            page_token="t",
-        ).data[0].id == ReminderIdType(1)
-        assert reminders.list().data == []
-        created_r = reminders.create(
-            ReminderCreate(
-                owner_id=UserId(1),
-                type=ReminderType.ONE_TIME,
-                reset_type=ReminderResetType.EMAIL,
-                reminder_days=7,
-                company_id=CompanyId(2),
-                opportunity_id=OpportunityId(3),
-            )
-        )
-        assert created_r.id == ReminderIdType(2)
-        _ = reminders.update(
-            ReminderIdType(2),
-            ReminderUpdate(
-                owner_id=UserId(2),
-                type=ReminderType.ONE_TIME,
-                content="c",
-                due_date=now,
-                reset_type=ReminderResetType.EMAIL,
-                reminder_days=1,
-                is_completed=True,
-            ),
-        )
-        _ = reminders.update(ReminderIdType(2), ReminderUpdate(content="x"))
-        assert "due_date" in seen["reminder_update"][0]
-        assert "owner_id" not in seen["reminder_update"][1]
-        assert "is_completed" not in seen["reminder_update"][1]
 
         interactions = InteractionService(http)
         assert (

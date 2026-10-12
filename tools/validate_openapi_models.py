@@ -107,6 +107,10 @@ MODEL_MAPPINGS: dict[str, tuple[str, ...]] = {
     # /v2/webhooks
     "Webhook": ("webhooks.Webhook",),
     "PersonRef": ("PersonReference",),
+    "CompanyRef": ("CompanyReference",),
+    "OpportunityRef": ("OpportunityReference",),
+    # /v2/reminders (one-time and recurring variants share BaseReminder)
+    "Reminder": ("reminders.OneTimeReminder", "reminders.RecurringReminder"),
 }
 
 # Models whose schemas first appear in a later API version: checked from that version on, and
@@ -119,7 +123,6 @@ MODEL_SINCE: dict[str, str] = {
 SKIPPED_MODELS: dict[str, str] = {
     "Note": "V1 note payload (V2 notes are NoteV2)",
     "Interaction": "V1 interaction payload (integer type codes); V2 lists are CallV2 etc.",
-    "Reminder": "V1 reminder payload; V2 reminders.* not modelled",
     "EntityFile": "V1 file payload; V2 files.File not modelled",
     "FieldValueChange": "V1 field-value-change payload (V2 is FieldValueChangeV2)",
     "FieldValue": "V1 field-value row; V2 FieldValue is the nested value union (other concept)",
@@ -604,6 +607,7 @@ def get_sdk_models() -> dict[str, type]:
     )
     from affinity.models.secondary import (
         CompanyMergeState,
+        CompanyRef,
         EntityFile,
         FieldValueChangeEntity,
         FieldValueChangeField,
@@ -613,6 +617,7 @@ def get_sdk_models() -> dict[str, type]:
         MergeTask,
         Note,
         NoteV2,
+        OpportunityRef,
         PersonMergeState,
         PersonRef,
         Reminder,
@@ -661,6 +666,8 @@ def get_sdk_models() -> dict[str, type]:
         "Reminder": Reminder,
         "Webhook": Webhook,
         "PersonRef": PersonRef,
+        "CompanyRef": CompanyRef,
+        "OpportunityRef": OpportunityRef,
         "EntityFile": EntityFile,
         # Merge tasks
         "MergeTask": MergeTask,

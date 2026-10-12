@@ -225,75 +225,132 @@ class InteractionUpdate(AffinityModel):
 
 
 # =============================================================================
-# Reminder Models (V1 only)
+# Bare references (V2: webhooks, reminders, files)
 # =============================================================================
 
 
+class PersonRef(AffinityModel):
+    """A bare person reference (``{"id": …}``)."""
+
+    id: PersonId
+
+
+class CompanyRef(AffinityModel):
+    """A bare company reference (``{"id": …}``)."""
+
+    id: CompanyId
+
+
+class OpportunityRef(AffinityModel):
+    """A bare opportunity reference (``{"id": …}``)."""
+
+    id: OpportunityId
+
+
+# =============================================================================
+# Reminder Models (V2 API)
+# =============================================================================
+
+
+class ReminderRecurrence(AffinityModel):
+    """How a recurring reminder repeats: every ``period_days`` days, reset by ``reset_type``."""
+
+    period_days: int = Field(alias="periodDays")
+    reset_type: ReminderResetType = Field(alias="resetTrigger")
+
+
 class Reminder(AffinityModel):
-    """A reminder attached to an entity."""
+    """A reminder (V2 shape). At most one of ``person``, ``company``, ``opportunity`` is set."""
 
     id: ReminderIdType
     type: ReminderType
+    # active / overdue / completed (a recurring reminder is never completed: completing it
+    # moves due_date forward)
     status: ReminderStatus
     content: str | None = None
-
-    # Due date and recurrence
     due_date: ISODatetime = Field(alias="dueDate")
-    reset_type: ReminderResetType | None = Field(None, alias="resetType")
-    reminder_days: int | None = Field(None, alias="reminderDays")
+    # None for one-time reminders
+    recurrence: ReminderRecurrence | None = None
 
-    # Persons involved
-    creator: PersonSummary | None = None
-    owner: PersonSummary | None = None
-    completer: PersonSummary | None = None
+    creator: PersonRef | None = None
+    owner: PersonRef | None = None
+    completer: PersonRef | None = None
 
-    # Associated entity (one of these)
-    person: PersonSummary | None = None
-    company: dict[str, Any] | None = Field(None, alias="organization")
-    opportunity: dict[str, Any] | None = None
+    person: PersonRef | None = None
+    company: CompanyRef | None = None
+    opportunity: OpportunityRef | None = None
 
-    # Timestamps
     created_at: ISODatetime = Field(alias="createdAt")
+    updated_at: ISODatetime | None = Field(None, alias="updatedAt")
     completed_at: ISODatetime | None = Field(None, alias="completedAt")
+
+    @property
+    def reset_type(self) -> ReminderResetType | None:
+        """``recurrence.reset_type`` (None for one-time reminders)."""
+        return self.recurrence.reset_type if self.recurrence else None
+
+    @property
+    def reminder_days(self) -> int | None:
+        """``recurrence.period_days`` (None for one-time reminders)."""
+        return self.recurrence.period_days if self.recurrence else None
 
 
 class ReminderCreate(AffinityModel):
-    """Data for creating a reminder (V1 API)."""
+    """A reminder to create.
+
+    One-time reminders need ``due_date``; recurring ones need ``reset_type`` and
+    ``reminder_days`` (1-3650; ``due_date`` optional). Attach at most one of ``person_id``,
+    ``company_id``, ``opportunity_id``; a reminder with none is created through the V1 API.
+    """
 
     owner_id: UserId
     type: ReminderType
     content: str | None = None
-    due_date: ISODatetime | None = None  # Required for one-time
-    reset_type: ReminderResetType | None = None  # Required for recurring
-    reminder_days: int | None = None  # Required for recurring
+    due_date: ISODatetime | None = None
+    reset_type: ReminderResetType | None = None
+    reminder_days: int | None = None
 
-    # Associate with one entity
     person_id: PersonId | None = None
-    company_id: CompanyId | None = Field(None, alias="organization_id")
+    company_id: CompanyId | None = Field(
+        None, validation_alias=AliasChoices("company_id", "organization_id")
+    )
     opportunity_id: OpportunityId | None = None
+
+    @model_validator(mode="after")
+    def _one_entity(self) -> ReminderCreate:
+        given = [x for x in (self.person_id, self.company_id, self.opportunity_id) if x is not None]
+        if len(given) > 1:
+            raise ValueError("A reminder can be attached to one entity only")
+        return self
 
 
 class ReminderUpdate(AffinityModel):
-    """Data for updating a reminder (V1 API)."""
+    """Changes to a reminder: fields left as ``None`` are not changed.
+
+    ``clear_content=True`` removes the content. ``is_completed=True`` completes the reminder
+    (a recurring one moves to its next due date); ``False`` reopens a one-time reminder.
+    Setting ``type`` sends the whole update through the V1 API (V2 can't change the type).
+    """
 
     owner_id: UserId | None = None
     type: ReminderType | None = None
     content: str | None = None
+    clear_content: bool = False
     due_date: ISODatetime | None = None
     reset_type: ReminderResetType | None = None
     reminder_days: int | None = None
     is_completed: bool | None = None
 
+    @model_validator(mode="after")
+    def _content_or_clear(self) -> ReminderUpdate:
+        if self.clear_content and self.content is not None:
+            raise ValueError("Pass content or clear_content=True, not both")
+        return self
+
 
 # =============================================================================
 # Webhook Models (V2 API)
 # =============================================================================
-
-
-class PersonRef(AffinityModel):
-    """A bare person reference (``{"id": …}``), as V2 webhooks, reminders and files return it."""
-
-    id: PersonId
 
 
 def _reject_v1_fields(data: Any, renamed: dict[str, str]) -> Any:

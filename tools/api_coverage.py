@@ -11,6 +11,8 @@ The ledger (``tools/api_coverage.json``) has one row per Affinity API operation:
   says when), or ``unsupported`` (``reason`` says why; only by decision)
 - ``call``: a Python expression on the client, e.g. ``"companies.get(CompanyId(1))"``;
   ``async_call`` overrides it for ``AsyncAffinity`` (``null``: no async form)
+- ``when``: ``"v2-forbidden"`` for a V1 row used only as the retry after V2 answers 403 (the
+  test refuses the first request and checks the retry)
 - ``stability``: ``"beta"`` or ``"ga"`` (V2 ``x-stability-level``); ``min_api_version`` is the
   first V2 snapshot that has the operation (computed, not stored)
 
@@ -179,6 +181,8 @@ def markdown(rows: list[dict[str, Any]]) -> str:
                 notes.append(f"phase {r['phase']}")
             if r.get("reason"):
                 notes.append(r["reason"])
+            if r.get("note") and r["status"] in ("supported", "equivalent"):
+                notes.append(r["note"])
             sdk = f"`{r['call']}`" if r.get("call") else ""
             lines.append(f"| `{r['op']}` | {r['status']} | {sdk} | {'; '.join(notes)} |")
         lines.append("")

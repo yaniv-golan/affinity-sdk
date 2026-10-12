@@ -6,7 +6,7 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V2 API
 
-69 supported, 43 planned
+74 supported, 38 planned
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -99,11 +99,11 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/persons/{personId}/notes` | supported | `persons.list_notes(PersonId(1))` |  |
 | `GET /v2/persons/{personId}/relationships` | supported | `persons.list_relationships(PersonId(1))` |  |
 | `GET /v2/rate-limit` | planned |  | beta; API 2026-07-15+; phase 2.0.0 |
-| `GET /v2/reminders` | planned |  | phase 2.0.0 |
-| `POST /v2/reminders` | planned |  | phase 2.0.0 |
-| `DELETE /v2/reminders/{reminderId}` | planned |  | beta; API 2026-07-15+; phase 2.0.0 |
-| `GET /v2/reminders/{reminderId}` | planned |  | beta; API 2026-07-15+; phase 2.0.0 |
-| `POST /v2/reminders/{reminderId}` | planned |  | beta; API 2026-09-17+; phase 2.0.0 |
+| `GET /v2/reminders` | supported | `reminders.list()` |  |
+| `POST /v2/reminders` | supported | `reminders.create(ReminderCreate(owner_id=UserId(1), type=ReminderType.ONE_TIME, due_date=datetime(2026, 1, 1, tzinfo=timezone.utc), person_id=PersonId(1)))` |  |
+| `DELETE /v2/reminders/{reminderId}` | supported | `reminders.delete(ReminderIdType(1))` | beta; API 2026-07-15+ |
+| `GET /v2/reminders/{reminderId}` | supported | `reminders.get(ReminderIdType(1))` | beta; API 2026-07-15+ |
+| `POST /v2/reminders/{reminderId}` | supported | `reminders.update(ReminderIdType(1), ReminderUpdate(content="x"))` | beta; API 2026-09-17+ |
 | `POST /v2/semantic-search` | supported | `companies.semantic_search("prompt text")` |  |
 | `GET /v2/tasks/company-merges` | supported | `tasks.list_merge_tasks("company")` |  |
 | `GET /v2/tasks/company-merges/{taskId}` | supported | `companies.get_merge_status("t1")` |  |
@@ -125,7 +125,7 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V1 API
 
-48 supported, 11 equivalent
+46 supported, 13 equivalent
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -178,11 +178,11 @@ against the pinned API specs and checks that each supported call requests its op
 | `PUT /persons/{}` | supported | `persons.update(PersonId(1), PersonUpdate(first_name="a"))` |  |
 | `GET /rate-limit` | supported | `rate_limits.refresh()` |  |
 | `GET /relationships-strengths` | supported | `relationships.get(PersonId(1))` |  |
-| `GET /reminders` | supported | `reminders.list()` |  |
-| `POST /reminders` | supported | `reminders.create(ReminderCreate(owner_id=UserId(1), type=ReminderType.ONE_TIME, content="x", due_date="2024-01-01T00:00:00Z", person_id=PersonId(1)))` |  |
-| `DELETE /reminders/{}` | supported | `reminders.delete(ReminderIdType(1))` |  |
-| `GET /reminders/{}` | supported | `reminders.get(ReminderIdType(1))` |  |
-| `PUT /reminders/{}` | supported | `reminders.update(ReminderIdType(1), ReminderUpdate(content="x"))` |  |
+| `GET /reminders` | equivalent |  | via v2 GET /v2/reminders |
+| `POST /reminders` | supported | `reminders.create(ReminderCreate(owner_id=UserId(1), type=ReminderType.ONE_TIME, due_date=datetime(2026, 1, 1, tzinfo=timezone.utc)))` | only for a reminder without a person, company or opportunity (V2 requires one) |
+| `DELETE /reminders/{}` | supported | `reminders.delete(ReminderIdType(1))` | only as the retry when V2 refuses (V2: creator or owner only) |
+| `GET /reminders/{}` | equivalent |  | via v2 GET /v2/reminders/{reminderId} |
+| `PUT /reminders/{}` | supported | `reminders.update(ReminderIdType(1), ReminderUpdate(type=ReminderType.RECURRING, reset_type=ReminderResetType.EMAIL, reminder_days=30))` | to change a reminder's type (V2 can't), and as the retry when V2 refuses an update (V2: creator or owner only) |
 | `GET /webhook` | equivalent |  | via v2 GET /v2/webhooks |
 | `POST /webhook/subscribe` | equivalent |  | via v2 POST /v2/webhooks |
 | `DELETE /webhook/{}` | equivalent |  | via v2 DELETE /v2/webhooks/{webhookId} |

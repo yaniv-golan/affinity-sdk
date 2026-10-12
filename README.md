@@ -312,8 +312,8 @@ with Affinity(api_key="your-key") as client:
 ```python
 from datetime import datetime, timedelta
 from affinity import Affinity
-from affinity.models import ReminderCreate
-from affinity.types import PersonId, ReminderResetType, ReminderType, UserId
+from affinity.models import ReminderCreate, ReminderUpdate
+from affinity.types import PersonId, ReminderResetType, ReminderStatus, ReminderType, UserId
 
 with Affinity(api_key="your-key") as client:
     # Get current user
@@ -340,6 +340,14 @@ with Affinity(api_key="your-key") as client:
             content="Monthly check-in",
             person_id=PersonId(123),
         )
+    )
+
+    # Complete it (a recurring reminder moves to its next due date)
+    client.reminders.update(recurring.id, ReminderUpdate(is_completed=True))
+
+    # Overdue reminders for many people, one request per 50 people
+    overdue = client.reminders.list_batch(
+        person_ids=[PersonId(123), PersonId(456)], status=ReminderStatus.OVERDUE
     )
 ```
 
@@ -483,8 +491,8 @@ those to V2 is planned.
 | Field Values (read) | ✅ | ✅ | V2 |
 | Field Values (write) | ✅ | ✅ | V2 (list entries), V1 (companies/persons) |
 | Notes | ✅ | ✅ | V1 |
-| Reminders | ✅ | ✅ | V1 |
-| Webhooks | ✅ | ✅ | V1 |
+| Reminders | ✅ | ✅ | V2 (V1 for reminders without an entity, type changes, and when V2 refuses a non-owner) |
+| Webhooks | ✅ | ✅ | V2 |
 | Interactions | Read-only | ✅ | V1 |
 | Entity Files | Read-only | ✅ | V1 |
 | Relationship Strengths | ✅ | ✅ | V1 |
@@ -634,7 +642,7 @@ async def main():
 asyncio.run(main())
 ```
 
-Async support mirrors the sync client surface area (including V1-only services like notes/reminders/webhooks/files).
+Async support mirrors the sync client surface area (including the V1 services like notes and files).
 
 See `docs/public/guides/sync-vs-async.md` for more details.
 

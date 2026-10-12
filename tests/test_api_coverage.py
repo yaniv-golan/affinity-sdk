@@ -20,6 +20,7 @@ import pytest
 
 from affinity import Affinity, AsyncAffinity
 from affinity.clients.http import AsyncHTTPClient, HTTPClient
+from affinity.exceptions import AuthorizationError
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
@@ -49,18 +50,26 @@ class _Stop(Exception):
     """Raised by the recorder after the first request, before anything is sent."""
 
 
-def _record(calls: list[tuple[str, str, str]], name: str, path: str, v1: bool) -> None:
+class _Calls(list[tuple[str, str, str]]):
+    # Requests to refuse with 403 before stopping (rows with `when: v2-forbidden`)
+    forbid = 0
+
+
+def _record(calls: _Calls, name: str, path: str, v1: bool) -> None:
     if path.startswith("http"):
         parts = urlsplit(path)
         path, v1 = parts.path, not parts.path.startswith("/v2")
     if path.startswith("/v2/"):
         path = path[3:]
     calls.append((_VERBS[name], path.split("?")[0], "v1" if v1 else "v2"))
+    if calls.forbid:
+        calls.forbid -= 1
+        raise AuthorizationError("forbidden", status_code=403)
 
 
 @pytest.fixture
-def recorder(monkeypatch: pytest.MonkeyPatch) -> list[tuple[str, str, str]]:
-    calls: list[tuple[str, str, str]] = []
+def recorder(monkeypatch: pytest.MonkeyPatch) -> _Calls:
+    calls = _Calls()
     for name in _VERBS:
         for cls in (HTTPClient, AsyncHTTPClient):
 
@@ -123,17 +132,21 @@ SUPPORTED = [r for r in LEDGER if r["status"] == "supported"]
 @pytest.mark.parametrize("row", SUPPORTED, ids=[f"{r['api']} {r['op']}" for r in SUPPORTED])
 @pytest.mark.parametrize("flavor", ["sync", "async"])
 def test_sdk_call_requests_the_operation(
-    row: dict[str, Any], flavor: str, recorder: list[tuple[str, str, str]]
+    row: dict[str, Any], flavor: str, recorder: _Calls
 ) -> None:
     call = row.get("async_call", row["call"]) if flavor == "async" else row["call"]
     if call is None:
         pytest.skip("no async form")
     cls = AsyncAffinity if flavor == "async" else Affinity
     client = cls(api_key="coverage-test-key")
+    # A fallback row: the V2 request is refused (403) and the retry is the row's operation
+    retry = row.get("when") == "v2-forbidden"
+    recorder.forbid = 1 if retry else 0
     _invoke(client, call)
-    assert recorder, f"{call} sent no request"
+    assert len(recorder) > int(retry), f"{call} sent no request"
+    got = recorder[int(retry)]
     want = _expected(row["op"], row["api"])
-    assert _matches(recorder[0], want), f"{call} requested {recorder[0]}, ledger says {want}"
+    assert _matches(got, want), f"{call} requested {got}, ledger says {want}"
 
 
 def test_ledger_matches_the_pinned_specs() -> None:
