@@ -250,20 +250,18 @@ class TestRateLimitServiceRefreshFallback:
                 return httpx.Response(
                     200,
                     json={
-                        "rate": {
-                            "api_key_per_minute": {
-                                "limit": 500,
-                                "remaining": 400,
-                                "reset": 60,
-                                "used": 100,
-                            },
-                            "org_monthly": {
-                                "limit": 50000,
-                                "remaining": 49000,
-                                "reset": 86400,
-                                "used": 1000,
-                            },
-                        }
+                        "callerPerMinute": {
+                            "limit": 500,
+                            "remaining": 400,
+                            "reset": 60,
+                            "used": 100,
+                        },
+                        "orgPerMonth": {
+                            "limit": 50000,
+                            "remaining": 49000,
+                            "reset": 86400,
+                            "used": 1000,
+                        },
                     },
                     request=request,
                 )
@@ -289,8 +287,7 @@ class TestRateLimitServiceRefreshFallback:
     def test_refresh_without_org_monthly_bucket(self) -> None:
         """Plans with no monthly cap omit the org bucket; refresh must not raise.
 
-        v2 `/v2/rate-limit` documents `orgPerMonth` as absent when no monthly quota applies, and
-        v1 and v2 share one request pool, so v1's `org_monthly` is treated as optional too.
+        `/v2/rate-limit` documents `orgPerMonth` as absent when no monthly quota applies.
         """
 
         def handler(request: httpx.Request) -> httpx.Response:
@@ -298,13 +295,11 @@ class TestRateLimitServiceRefreshFallback:
                 return httpx.Response(
                     200,
                     json={
-                        "rate": {
-                            "api_key_per_minute": {
-                                "limit": 900,
-                                "remaining": 899,
-                                "reset": 42,
-                                "used": 1,
-                            }
+                        "callerPerMinute": {
+                            "limit": 900,
+                            "remaining": 899,
+                            "reset": 42,
+                            "used": 1,
                         }
                     },
                     request=request,

@@ -11,9 +11,11 @@ import time
 from datetime import datetime, timezone
 
 from ..clients.http import AsyncHTTPClient, HTTPClient, RateLimitState
-from ..exceptions import AuthorizationError, NotFoundError
+from ..exceptions import ApiVersionTooOldError, AuthorizationError, NotFoundError
 from ..models.rate_limit_snapshot import RateLimitBucket, RateLimitSnapshot
 from ..models.secondary import RateLimits
+
+RATE_LIMIT_MIN_API_VERSION = "2026-07-15"
 
 
 def _bucket_from_headers(
@@ -135,16 +137,17 @@ class RateLimitService:
         Fetch/observe the best available rate limit snapshot now.
 
         Strategy:
-        1) Try the dedicated endpoint (`GET /rate-limit`, internal v1 today).
-        2) If unavailable (403/404), fall back to `GET /auth/whoami` to observe headers.
+        1) Try the dedicated endpoint (`GET /v2/rate-limit`, Affinity API 2026-07-15+).
+        2) If unavailable (403/404, or the client is pinned to an older API version), fall back
+           to `GET /auth/whoami` to observe the rate-limit headers.
         """
         observed_at = datetime.now(tz=timezone.utc)
         try:
-            data = self._client.get("/rate-limit", v1=True)
-            limits = RateLimits.model_validate(data.get("rate", {}))
+            data = self._client.get("/rate-limit", min_api_version=RATE_LIMIT_MIN_API_VERSION)
+            limits = RateLimits.model_validate(data)
             request_id = self._client.rate_limit_state.snapshot().get("last_request_id")
             return _snapshot_from_endpoint(limits, observed_at=observed_at, request_id=request_id)
-        except (AuthorizationError, NotFoundError):
+        except (AuthorizationError, NotFoundError, ApiVersionTooOldError):
             # Fallback: make a lightweight request and return header-derived snapshot.
             _ = self._client.get("/auth/whoami")
             return self.snapshot()
@@ -168,10 +171,10 @@ class AsyncRateLimitService:
         """
         observed_at = datetime.now(tz=timezone.utc)
         try:
-            data = await self._client.get("/rate-limit", v1=True)
-            limits = RateLimits.model_validate(data.get("rate", {}))
+            data = await self._client.get("/rate-limit", min_api_version=RATE_LIMIT_MIN_API_VERSION)
+            limits = RateLimits.model_validate(data)
             request_id = self._client.rate_limit_state.snapshot().get("last_request_id")
             return _snapshot_from_endpoint(limits, observed_at=observed_at, request_id=request_id)
-        except (AuthorizationError, NotFoundError):
+        except (AuthorizationError, NotFoundError, ApiVersionTooOldError):
             _ = await self._client.get("/auth/whoami")
             return self.snapshot()

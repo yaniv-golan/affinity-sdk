@@ -325,14 +325,12 @@ def test_v1_only_services_end_to_end_smoke_and_branch_coverage(tmp_path: Path) -
                 },
                 request=request,
             )
-        if request.method == "GET" and path == "/rate-limit":
+        if request.method == "GET" and path == "/v2/rate-limit":
             return httpx.Response(
                 200,
                 json={
-                    "rate": {
-                        "orgMonthly": {"limit": 1, "remaining": 1, "reset": 1, "used": 0},
-                        "apiKeyPerMinute": {"limit": 1, "remaining": 1, "reset": 1, "used": 0},
-                    }
+                    "orgPerMonth": {"limit": 1, "remaining": 1, "reset": 1, "used": 0},
+                    "callerPerMinute": {"limit": 1, "remaining": 1, "reset": 1, "used": 0},
                 },
                 request=request,
             )

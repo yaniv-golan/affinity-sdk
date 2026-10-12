@@ -38,6 +38,7 @@ from ..models.pagination import AsyncPageIterator, PageIterator, PaginatedRespon
 from ..models.secondary import (
     EntityFile,
     FieldValueChangeV2,
+    FileV2,
     Interaction,
     InteractionCreate,
     InteractionUpdate,
@@ -146,6 +147,37 @@ def _coerce_isoformat(payload: dict[str, Any], keys: tuple[str, ...]) -> None:
         value = payload.get(key)
         if isinstance(value, datetime):
             payload[key] = value.isoformat()
+
+
+FILES_V2_MIN_API_VERSION = "2026-09-17"
+
+
+def _file_params(
+    *,
+    created_after: datetime | None,
+    created_before: datetime | None,
+    creator_id: int | None,
+    limit: int | None,
+    total_count: bool,
+) -> list[tuple[str, Any]]:
+    """Query for ``GET /v2/files`` (whole seconds, rounded outward)."""
+    if limit is not None and not 1 <= limit <= 100:
+        raise ValueError("'limit' must be between 1 and 100")
+    clauses = []
+    if created_after is not None:
+        clauses.append(f"createdAt>={v2_filter_datetime(created_after, round_up=False)}")
+    if created_before is not None:
+        clauses.append(f"createdAt<{v2_filter_datetime(created_before, round_up=True)}")
+    if creator_id is not None:
+        clauses.append(f"creator.id={int(creator_id)}")
+    params: list[tuple[str, Any]] = []
+    if clauses:
+        params.append(("filter", " & ".join(clauses)))
+    if limit is not None:
+        params.append(("limit", limit))
+    if total_count:
+        params.append(("totalCount", "true"))
+    return params
 
 
 logger = logging.getLogger("affinity_sdk")
@@ -1823,6 +1855,67 @@ class EntityFileService(FileSearchMixin):
         """Get file metadata."""
         data = self._client.get(f"/entity-files/{file_id}", v1=True)
         return EntityFile.model_validate(data)
+
+    def get_v2(self, file_id: FileId) -> FileV2:
+        """One file's metadata from V2 (Affinity API 2026-09-17+), with a download URL that
+        expires 60 seconds later. :meth:`get` (V1) is unchanged."""
+        return FileV2.model_validate(
+            self._client.get(f"/files/{int(file_id)}", min_api_version=FILES_V2_MIN_API_VERSION)
+        )
+
+    def list_v2(
+        self,
+        *,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+        creator_id: UserId | None = None,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[FileV2]:
+        """One page of the files visible to the caller across the organization, newest first
+        (V2, Affinity API 2026-09-17+). V2 can't filter by person, company or opportunity: use
+        :meth:`list` for one entity's files. ``limit`` is 1-100."""
+        check_cursor_alone(cursor, created_after, created_before, creator_id, limit, total_count)
+        if cursor is not None:
+            return page_of(
+                FileV2, self._client.get_url(cursor, min_api_version=FILES_V2_MIN_API_VERSION)
+            )
+        params = _file_params(
+            created_after=created_after,
+            created_before=created_before,
+            creator_id=creator_id,
+            limit=limit,
+            total_count=total_count,
+        )
+        return page_of(
+            FileV2,
+            self._client.get(
+                "/files", params=params or None, min_api_version=FILES_V2_MIN_API_VERSION
+            ),
+        )
+
+    def iter_v2(
+        self,
+        *,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+        creator_id: UserId | None = None,
+        limit: int | None = None,
+    ) -> Iterator[FileV2]:
+        """All files matching the filters (every page); see :meth:`list_v2`."""
+
+        def fetch_page(next_url: str | None) -> PaginatedResponse[FileV2]:
+            if next_url:
+                return self.list_v2(cursor=next_url)
+            return self.list_v2(
+                created_after=created_after,
+                created_before=created_before,
+                creator_id=creator_id,
+                limit=limit,
+            )
+
+        return PageIterator(fetch_page)
 
     def download(
         self,
@@ -3644,6 +3737,70 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
     async def get(self, file_id: FileId) -> EntityFile:
         data = await self._client.get(f"/entity-files/{file_id}", v1=True)
         return EntityFile.model_validate(data)
+
+    async def get_v2(self, file_id: FileId) -> FileV2:
+        """One file's metadata from V2 (Affinity API 2026-09-17+), with a download URL that
+        expires 60 seconds later. :meth:`get` (V1) is unchanged."""
+        return FileV2.model_validate(
+            await self._client.get(
+                f"/files/{int(file_id)}", min_api_version=FILES_V2_MIN_API_VERSION
+            )
+        )
+
+    async def list_v2(
+        self,
+        *,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+        creator_id: UserId | None = None,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[FileV2]:
+        """One page of the files visible to the caller across the organization, newest first
+        (V2, Affinity API 2026-09-17+). V2 can't filter by person, company or opportunity: use
+        :meth:`list` for one entity's files. ``limit`` is 1-100."""
+        check_cursor_alone(cursor, created_after, created_before, creator_id, limit, total_count)
+        if cursor is not None:
+            return page_of(
+                FileV2,
+                await self._client.get_url(cursor, min_api_version=FILES_V2_MIN_API_VERSION),
+            )
+        params = _file_params(
+            created_after=created_after,
+            created_before=created_before,
+            creator_id=creator_id,
+            limit=limit,
+            total_count=total_count,
+        )
+        return page_of(
+            FileV2,
+            await self._client.get(
+                "/files", params=params or None, min_api_version=FILES_V2_MIN_API_VERSION
+            ),
+        )
+
+    def iter_v2(
+        self,
+        *,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+        creator_id: UserId | None = None,
+        limit: int | None = None,
+    ) -> AsyncIterator[FileV2]:
+        """All files matching the filters (every page); see :meth:`list_v2`."""
+
+        async def fetch_page(next_url: str | None) -> PaginatedResponse[FileV2]:
+            if next_url:
+                return await self.list_v2(cursor=next_url)
+            return await self.list_v2(
+                created_after=created_after,
+                created_before=created_before,
+                creator_id=creator_id,
+                limit=limit,
+            )
+
+        return AsyncPageIterator(fetch_page)
 
     async def batch_get(
         self,

@@ -56,6 +56,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `person_ids`/`company_ids` are always empty (use `get_details()` for them). Changing people or
   companies still goes through V1 in one request, as before. An empty `OpportunityUpdate` raises
   `ValueError`.
+- **`rate_limits.refresh()` reads `GET /v2/rate-limit`** (API 2026-07-15+), falling back to
+  response headers as before (now also when the client is pinned to an older API version).
+  `RateLimitSnapshot` is unchanged; `RateLimits` also reads the V2 names (`callerPerMinute`,
+  `orgPerMonth`).
 - **Lists: `get()` and `create()` use the V2 API.** `get()` no longer fills `fields` (use
   `get_fields()`) or `additional_permissions`; it sets `created_at`. `get_size()` still reads
   the size from V1 (V2 has none). `create()` makes the caller the owner; a public list needs the
@@ -69,6 +73,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`files.get_v2()`, `files.list_v2()`, `files.iter_v2()`** (V2, Affinity API 2026-09-17+):
+  a file's metadata with a download URL that expires after 60 seconds, and every file visible to
+  you across the organization, newest first (filter by created date and uploader). `FileV2`
+  model. `files.get/list/iter` stay on V1: only V1 lists one entity's files.
 - **CLI `webhook ls|get|create|update|delete`.** `create` takes `--url` and `--event`
   (repeatable) or `--all-events`; `update` takes `--url`, `--event`/`--all-events`, `--status
   active|disabled`. `create`, `update` and `delete` ask for confirmation (`--yes` in scripts),

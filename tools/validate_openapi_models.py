@@ -111,12 +111,15 @@ MODEL_MAPPINGS: dict[str, tuple[str, ...]] = {
     "OpportunityRef": ("OpportunityReference",),
     # /v2/reminders (one-time and recurring variants share BaseReminder)
     "Reminder": ("reminders.OneTimeReminder", "reminders.RecurringReminder"),
+    # /v2/files (list items lack downloadUrl)
+    "FileV2": ("files.File",),
 }
 
 # Models whose schemas first appear in a later API version: checked from that version on, and
 # expected to be absent before it (present earlier is an error: lower the version here).
 MODEL_SINCE: dict[str, str] = {
     "Webhook": "2026-07-15",
+    "FileV2": "2026-09-17",
 }
 
 # SDK models deliberately not checked, with the reason.
@@ -613,6 +616,7 @@ def get_sdk_models() -> dict[str, type]:
         FieldValueChangeField,
         FieldValueChangeListEntry,
         FieldValueChangeV2,
+        FileV2,
         Interaction,
         MergeTask,
         Note,
@@ -665,6 +669,7 @@ def get_sdk_models() -> dict[str, type]:
         "Interaction": Interaction,
         "Reminder": Reminder,
         "Webhook": Webhook,
+        "FileV2": FileV2,
         "PersonRef": PersonRef,
         "CompanyRef": CompanyRef,
         "OpportunityRef": OpportunityRef,

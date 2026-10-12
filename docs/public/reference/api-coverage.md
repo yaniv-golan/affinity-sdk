@@ -6,7 +6,7 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V2 API
 
-84 supported, 28 planned
+87 supported, 25 planned
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -35,9 +35,9 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/emails` | supported | `interactions.list_emails()` |  |
 | `POST /v2/feedback` | planned |  | phase 2.x-1 |
 | `GET /v2/field-value-changes` | supported | `field_value_changes.list_global(field_id=FieldId(1))` |  |
-| `GET /v2/files` | planned |  | beta; API 2026-09-17+; phase 2.0.0 |
+| `GET /v2/files` | supported | `files.list_v2()` | beta; API 2026-09-17+ |
 | `POST /v2/files/search` | supported | `files.search("prompt text")` |  |
-| `GET /v2/files/{fileId}` | planned |  | beta; API 2026-09-17+; phase 2.0.0 |
+| `GET /v2/files/{fileId}` | supported | `files.get_v2(FileId(1))` | beta; API 2026-09-17+ |
 | `GET /v2/inferred-connections/coworkers` | planned |  | beta; phase 2.x-2 |
 | `GET /v2/inferred-connections/investor-executive-connections` | planned |  | beta; phase 2.x-2 |
 | `GET /v2/lists` | supported | `lists.list()` |  |
@@ -98,7 +98,7 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/persons/{personId}/lists` | supported | `persons.get_lists(PersonId(1))` |  |
 | `GET /v2/persons/{personId}/notes` | supported | `persons.list_notes(PersonId(1))` |  |
 | `GET /v2/persons/{personId}/relationships` | supported | `persons.list_relationships(PersonId(1))` |  |
-| `GET /v2/rate-limit` | planned |  | beta; API 2026-07-15+; phase 2.0.0 |
+| `GET /v2/rate-limit` | supported | `rate_limits.refresh()` | beta; API 2026-07-15+ |
 | `GET /v2/reminders` | supported | `reminders.list()` |  |
 | `POST /v2/reminders` | supported | `reminders.create(ReminderCreate(owner_id=UserId(1), type=ReminderType.ONE_TIME, due_date=datetime(2026, 1, 1, tzinfo=timezone.utc), person_id=PersonId(1)))` |  |
 | `DELETE /v2/reminders/{reminderId}` | supported | `reminders.delete(ReminderIdType(1))` | beta; API 2026-07-15+ |
@@ -125,15 +125,15 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V1 API
 
-39 supported, 20 equivalent
+38 supported, 21 equivalent
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
 | `GET /auth/whoami` | equivalent |  | via v2 GET /v2/auth/whoami |
-| `GET /entity-files` | supported | `files.list(company_id=CompanyId(1))` |  |
+| `GET /entity-files` | supported | `files.list(company_id=CompanyId(1))` | one person's, company's or opportunity's files (V2 lists only org-wide: files.list_v2) |
 | `POST /entity-files` | supported | `files.upload_bytes(b"x", "a.txt", company_id=CompanyId(1))` |  |
 | `GET /entity-files/download/{}` | supported | `files.download(FileId(1))` |  |
-| `GET /entity-files/{}` | supported | `files.get(FileId(1))` |  |
+| `GET /entity-files/{}` | supported | `files.get(FileId(1))` | works under any API version pin; files.get_v2 adds a download URL (API 2026-09-17+) |
 | `GET /field-value-changes` | supported | `field_value_changes.list(FieldId(1), company_id=CompanyId(1))` |  |
 | `GET /field-values` | supported | `field_values.list(company_id=CompanyId(1))` |  |
 | `POST /field-values` | supported | `field_values.create(FieldValueCreate(field_id=FieldId(1), entity_id=1, value="x"))` |  |
@@ -176,7 +176,7 @@ against the pinned API specs and checks that each supported call requests its op
 | `DELETE /persons/{}` | equivalent |  | via v2 DELETE /v2/persons/{personId} |
 | `GET /persons/{}` | supported | `persons.get_associated_company_ids(PersonId(1))` |  |
 | `PUT /persons/{}` | supported | `persons.update(PersonId(1), PersonUpdate(first_name="a"))` |  |
-| `GET /rate-limit` | supported | `rate_limits.refresh()` |  |
+| `GET /rate-limit` | equivalent |  | via v2 GET /v2/rate-limit |
 | `GET /relationships-strengths` | supported | `relationships.get(PersonId(1))` |  |
 | `GET /reminders` | equivalent |  | via v2 GET /v2/reminders |
 | `POST /reminders` | equivalent |  | via v2 POST /v2/reminders |

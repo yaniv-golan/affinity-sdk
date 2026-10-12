@@ -275,6 +275,30 @@ class OpportunityRef(AffinityModel):
 
 
 # =============================================================================
+# File Models (V2 API)
+# =============================================================================
+
+
+class FileV2(AffinityModel):
+    """A file's metadata from V2 (``files.get_v2``, ``files.list_v2``).
+
+    V2 files carry no person/company/opportunity; ``download_url`` (``get_v2`` only) is a signed
+    URL that expires 60 seconds after the response.
+    """
+
+    id: FileId
+    name: str
+    size: int
+    # MIME type; None when Affinity didn't record it
+    content_type: str | None = Field(None, alias="type")
+    # None when the uploader isn't recorded
+    creator: PersonRef | None = None
+    created_at: ISODatetime = Field(alias="createdAt")
+    updated_at: ISODatetime | None = Field(None, alias="updatedAt")
+    download_url: str | None = Field(None, alias="downloadUrl")
+
+
+# =============================================================================
 # Reminder Models (V2 API)
 # =============================================================================
 
@@ -606,8 +630,16 @@ class RateLimits(AffinityModel):
 
     # Absent when no monthly quota applies (documented for v2 `orgPerMonth`; v1 and v2 share
     # one request pool, so v1's `org_monthly` is treated the same way).
-    org_monthly: RateLimitInfo | None = Field(None, alias="orgMonthly")
-    api_key_per_minute: RateLimitInfo = Field(alias="apiKeyPerMinute")
+    org_monthly: RateLimitInfo | None = Field(
+        None,
+        alias="orgMonthly",
+        validation_alias=AliasChoices("orgPerMonth", "orgMonthly", "org_monthly"),
+    )
+    # V2 `callerPerMinute`, V1 `api_key_per_minute`
+    api_key_per_minute: RateLimitInfo = Field(
+        alias="apiKeyPerMinute",
+        validation_alias=AliasChoices("callerPerMinute", "apiKeyPerMinute", "api_key_per_minute"),
+    )
 
 
 # =============================================================================

@@ -328,14 +328,12 @@ async def test_async_auth_service_whoami() -> None:
 @pytest.mark.asyncio
 async def test_async_rate_limit_service_refresh() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
-        if request.method == "GET" and request.url == httpx.URL("https://v1.example/rate-limit"):
+        if request.method == "GET" and request.url == httpx.URL("https://v2.example/v2/rate-limit"):
             return httpx.Response(
                 200,
                 json={
-                    "rate": {
-                        "orgMonthly": {"limit": 100, "remaining": 50, "reset": 10, "used": 50},
-                        "apiKeyPerMinute": {"limit": 10, "remaining": 5, "reset": 5, "used": 5},
-                    }
+                    "orgPerMonth": {"limit": 100, "remaining": 50, "reset": 10, "used": 50},
+                    "callerPerMinute": {"limit": 10, "remaining": 5, "reset": 5, "used": 5},
                 },
                 request=request,
             )

@@ -83,6 +83,7 @@ from .secondary import (
     FieldValueChangeField,
     FieldValueChangeListEntry,
     FieldValueChangeV2,
+    FileV2,
     Grant,
     # Interaction
     Interaction,
@@ -189,6 +190,7 @@ __all__ = [
     "InteractionUpdate",
     # File
     "EntityFile",
+    "FileV2",
     # Search (V2)
     "NoteRef",
     "NoteSearchResult",
