@@ -24,6 +24,14 @@ def page_of(model: type[T], data: dict[str, Any]) -> PaginatedResponse[T]:
     )
 
 
+def page_of_raw(data: dict[str, Any]) -> PaginatedResponse[Any]:
+    """A page whose items are kept as the API sent them."""
+    return PaginatedResponse[Any](
+        data=list(data.get("data", [])),
+        pagination=PaginationInfoWithTotal.model_validate(data.get("pagination", {})),
+    )
+
+
 def check_cursor_alone(cursor: str | None, *others: Any) -> None:
     if cursor is not None and any(o not in (None, False) for o in others):
         raise ValueError(

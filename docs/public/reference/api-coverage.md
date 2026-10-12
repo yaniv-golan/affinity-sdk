@@ -6,7 +6,7 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V2 API
 
-95 supported, 17 planned
+103 supported, 9 planned
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -20,9 +20,9 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/companies/{companyId}` | supported | `companies.get(CompanyId(1))` |  |
 | `GET /v2/companies/{companyId}/fields` | supported | `companies.get_field_values(CompanyId(1))` | beta |
 | `PATCH /v2/companies/{companyId}/fields` | supported | `companies.batch_update_fields(CompanyId(1), {"field-1": "x"})` |  |
-| `GET /v2/companies/{companyId}/fields/{fieldId}` | planned |  | beta; phase 2.x-4 |
-| `POST /v2/companies/{companyId}/fields/{fieldId}` | planned |  | phase 2.x-4 |
-| `GET /v2/companies/{companyId}/fields/{fieldId}/values` | planned |  | beta; API 2026-09-17+; phase 2.x-4 |
+| `GET /v2/companies/{companyId}/fields/{fieldId}` | supported | `companies.get_field_value(CompanyId(1), "field-1")` | beta |
+| `POST /v2/companies/{companyId}/fields/{fieldId}` | supported | `companies.update_field_value(CompanyId(1), "field-1", "x")` |  |
+| `GET /v2/companies/{companyId}/fields/{fieldId}/values` | supported | `companies.list_field_value_items(CompanyId(1), "field-1")` | beta; API 2026-09-17+ |
 | `GET /v2/companies/{companyId}/list-entries` | supported | `companies.get_list_entries(CompanyId(1))` |  |
 | `GET /v2/companies/{companyId}/lists` | supported | `companies.get_lists(CompanyId(1))` |  |
 | `GET /v2/companies/{companyId}/notes` | supported | `companies.list_notes(CompanyId(1))` |  |
@@ -53,12 +53,12 @@ against the pinned API specs and checks that each supported call requests its op
 | `POST /v2/lists/{listId}/list-entries` | planned |  | beta; API 2026-09-17+; phase when-live |
 | `POST /v2/lists/{listId}/list-entries/search` | planned |  | beta; phase 2.x-3 |
 | `GET /v2/lists/{listId}/list-entries/{listEntryId}` | supported | `lists.entries(ListId(1)).get(ListEntryId(1))` |  |
-| `GET /v2/lists/{listId}/list-entries/{listEntryId}/field-value-changes` | planned |  | phase 2.x-4 |
+| `GET /v2/lists/{listId}/list-entries/{listEntryId}/field-value-changes` | supported | `lists.entries(ListId(1)).list_field_changes(ListEntryId(1))` |  |
 | `GET /v2/lists/{listId}/list-entries/{listEntryId}/fields` | supported | `lists.entries(ListId(1)).get_field_values(ListEntryId(1))` |  |
 | `PATCH /v2/lists/{listId}/list-entries/{listEntryId}/fields` | supported | `lists.entries(ListId(1)).batch_update_fields(ListEntryId(1), {"field-1": "x"})` |  |
 | `GET /v2/lists/{listId}/list-entries/{listEntryId}/fields/{fieldId}` | supported | `lists.entries(ListId(1)).get_field_value(ListEntryId(1), FieldId(1))` |  |
 | `POST /v2/lists/{listId}/list-entries/{listEntryId}/fields/{fieldId}` | supported | `lists.entries(ListId(1)).update_field_value(ListEntryId(1), FieldId(1), "x")` |  |
-| `GET /v2/lists/{listId}/list-entries/{listEntryId}/fields/{fieldId}/values` | planned |  | beta; API 2026-09-17+; phase 2.x-4 |
+| `GET /v2/lists/{listId}/list-entries/{listEntryId}/fields/{fieldId}/values` | supported | `lists.entries(ListId(1)).list_field_value_items(ListEntryId(1), "field-1")` | beta; API 2026-09-17+ |
 | `GET /v2/lists/{listId}/saved-views` | supported | `lists.get_saved_views(ListId(1))` |  |
 | `GET /v2/lists/{listId}/saved-views/{viewId}` | supported | `lists.get_saved_view(ListId(1), SavedViewId(1))` |  |
 | `GET /v2/lists/{listId}/saved-views/{viewId}/list-entries` | supported | `lists.entries(ListId(1)).from_saved_view(SavedViewId(1))` |  |
@@ -91,9 +91,9 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/persons/{personId}` | supported | `persons.get(PersonId(1))` |  |
 | `GET /v2/persons/{personId}/fields` | supported | `persons.get_field_values(PersonId(1))` | beta |
 | `PATCH /v2/persons/{personId}/fields` | supported | `persons.batch_update_fields(PersonId(1), {"field-1": "x"})` |  |
-| `GET /v2/persons/{personId}/fields/{fieldId}` | planned |  | beta; phase 2.x-4 |
-| `POST /v2/persons/{personId}/fields/{fieldId}` | planned |  | phase 2.x-4 |
-| `GET /v2/persons/{personId}/fields/{fieldId}/values` | planned |  | beta; API 2026-09-17+; phase 2.x-4 |
+| `GET /v2/persons/{personId}/fields/{fieldId}` | supported | `persons.get_field_value(PersonId(1), "field-1")` | beta |
+| `POST /v2/persons/{personId}/fields/{fieldId}` | supported | `persons.update_field_value(PersonId(1), "field-1", "x")` |  |
+| `GET /v2/persons/{personId}/fields/{fieldId}/values` | supported | `persons.list_field_value_items(PersonId(1), "field-1")` | beta; API 2026-09-17+ |
 | `GET /v2/persons/{personId}/list-entries` | supported | `persons.get_list_entries(PersonId(1))` |  |
 | `GET /v2/persons/{personId}/lists` | supported | `persons.get_lists(PersonId(1))` |  |
 | `GET /v2/persons/{personId}/notes` | supported | `persons.list_notes(PersonId(1))` |  |

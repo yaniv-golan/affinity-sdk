@@ -64,6 +64,7 @@ from ._org_reads import (
     page_of,
     relationship_params,
 )
+from ._single_field import AsyncSingleFieldMixin, SingleFieldMixin
 
 if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
@@ -132,7 +133,9 @@ def _normalize_v1_person_response(data: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-class PersonService(PersonDiscoveryMixin):
+class PersonService(PersonDiscoveryMixin, SingleFieldMixin):
+    _entity_path = "/persons"
+
     """
     Service for managing persons (contacts).
 
@@ -1420,7 +1423,9 @@ class PersonService(PersonDiscoveryMixin):
         return PageIterator(fetch_page)
 
 
-class AsyncPersonService(AsyncPersonDiscoveryMixin):
+class AsyncPersonService(AsyncPersonDiscoveryMixin, AsyncSingleFieldMixin):
+    _entity_path = "/persons"
+
     """Async version of PersonService."""
 
     def __init__(self, client: AsyncHTTPClient):

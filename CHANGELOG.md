@@ -22,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `match_criteria`, `order_by`) and `companies.list|iter_coworker_connections(company_id)` /
   `list|iter_investor_executive_connections(company_id)` (people at a company today whom someone
   you know may know). CLI `company duplicates`, `person duplicates`, `company connections`.
+- **One field at a time (V2):** `companies/persons.get_field_value(id, field_id)` (the value,
+  unwrapped) and `update_field_value(id, field_id, value, value_type=None)`;
+  `companies/persons.list|iter_field_value_items(id, field_id)` and
+  `lists.entries(list_id).list|iter_field_value_items(entry_id, field_id)` page through a
+  multi-value field's items (API 2026-09-17+); `lists.entries(list_id).list|iter_field_changes(
+  entry_id, ...)` give one entry's field change history, oldest first.
 - **CLI:** `team ls|get`, `user ls|get`, `meeting get`, `note attached`, `feedback send` (asks
   for confirmation: the text leaves your organization). The MCP registry has them; `feedback
   send` goes through the user-confirmation flow.

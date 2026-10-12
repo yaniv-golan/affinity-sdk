@@ -73,22 +73,22 @@
   {
    "op": "GET /v2/companies/{companyId}/fields/{fieldId}",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-4",
+   "status": "supported",
+   "call": "companies.get_field_value(CompanyId(1), \"field-1\")",
    "stability": "beta"
   },
   {
    "op": "POST /v2/companies/{companyId}/fields/{fieldId}",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-4",
+   "status": "supported",
+   "call": "companies.update_field_value(CompanyId(1), \"field-1\", \"x\")",
    "stability": "ga"
   },
   {
    "op": "GET /v2/companies/{companyId}/fields/{fieldId}/values",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-4",
+   "status": "supported",
+   "call": "companies.list_field_value_items(CompanyId(1), \"field-1\")",
    "stability": "beta"
   },
   {
@@ -305,8 +305,8 @@
   {
    "op": "GET /v2/lists/{listId}/list-entries/{listEntryId}/field-value-changes",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-4",
+   "status": "supported",
+   "call": "lists.entries(ListId(1)).list_field_changes(ListEntryId(1))",
    "stability": "ga"
   },
   {
@@ -340,8 +340,8 @@
   {
    "op": "GET /v2/lists/{listId}/list-entries/{listEntryId}/fields/{fieldId}/values",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-4",
+   "status": "supported",
+   "call": "lists.entries(ListId(1)).list_field_value_items(ListEntryId(1), \"field-1\")",
    "stability": "beta"
   },
   {
@@ -576,22 +576,22 @@
   {
    "op": "GET /v2/persons/{personId}/fields/{fieldId}",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-4",
+   "status": "supported",
+   "call": "persons.get_field_value(PersonId(1), \"field-1\")",
    "stability": "beta"
   },
   {
    "op": "POST /v2/persons/{personId}/fields/{fieldId}",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-4",
+   "status": "supported",
+   "call": "persons.update_field_value(PersonId(1), \"field-1\", \"x\")",
    "stability": "ga"
   },
   {
    "op": "GET /v2/persons/{personId}/fields/{fieldId}/values",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.x-4",
+   "status": "supported",
+   "call": "persons.list_field_value_items(PersonId(1), \"field-1\")",
    "stability": "beta"
   },
   {

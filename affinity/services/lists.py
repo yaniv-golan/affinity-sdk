@@ -11,7 +11,8 @@ import re
 import time
 import warnings
 from collections.abc import AsyncIterator, Callable, Iterable, Iterator, Mapping, Sequence
-from typing import TYPE_CHECKING, Any, TypeVar
+from datetime import datetime
+from typing import TYPE_CHECKING, Any, Literal, TypeVar
 from urllib.parse import urlsplit
 
 from pydantic import BaseModel
@@ -39,6 +40,7 @@ from ..models.pagination import (
     PaginatedResponse,
     PaginationInfo,
 )
+from ..models.secondary import FieldValueChangeV2
 from ..models.types import (
     AnyFieldId,
     CompanyId,
@@ -67,6 +69,9 @@ from ._field_updates import (
     _check_multi_value_size,
     _field_value_payload,
 )
+from ._org_reads import check_cursor_alone, page_of_raw
+from ._single_field import FIELD_VALUE_ITEMS_MIN_API_VERSION, items_params
+from .v1_only import _fvc_v2_page, _fvc_v2_params
 
 if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
@@ -1367,6 +1372,107 @@ class ListEntryService:
         )
         return _safe_model_validate(FieldValues, result)
 
+    def list_field_value_items(
+        self,
+        entry_id: ListEntryId,
+        field_id: AnyFieldId | str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[Any]:
+        """One page of the items in a field's value on this entry (V2, beta; API 2026-09-17+),
+        for multi-value fields with many items. Items are raw. ``limit`` is 1-100."""
+        check_cursor_alone(cursor, limit)
+        if cursor is not None:
+            return page_of_raw(
+                self._client.get_url(cursor, min_api_version=FIELD_VALUE_ITEMS_MIN_API_VERSION)
+            )
+        return page_of_raw(
+            self._client.get(
+                f"/lists/{int(self._list_id)}/list-entries/{int(entry_id)}/fields/{field_id}/values",
+                params=items_params(limit),
+                min_api_version=FIELD_VALUE_ITEMS_MIN_API_VERSION,
+            )
+        )
+
+    def iter_field_value_items(
+        self, entry_id: ListEntryId, field_id: AnyFieldId | str
+    ) -> Iterator[Any]:
+        """Every item in a field's value on this entry (all pages)."""
+        return PageIterator(
+            lambda c: (
+                self.list_field_value_items(entry_id, field_id, cursor=c)
+                if c
+                else self.list_field_value_items(entry_id, field_id, limit=100)
+            )
+        )
+
+    def list_field_changes(
+        self,
+        entry_id: ListEntryId,
+        *,
+        field_id: AnyFieldId | Sequence[AnyFieldId] | None = None,
+        changer_id: int | None = None,
+        changed_after: datetime | None = None,
+        changed_before: datetime | None = None,
+        action_type: Literal["add", "update", "delete"] | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[FieldValueChangeV2]:
+        """One page of this entry's field value changes, oldest first (V2).
+
+        Covers the list's own fields. ``changed_after`` is inclusive and ``changed_before``
+        exclusive (whole seconds). ``limit`` is 1-100.
+        """
+        check_cursor_alone(
+            cursor, field_id, changer_id, changed_after, changed_before, action_type, limit
+        )
+        if cursor is not None:
+            return _fvc_v2_page(self._client.get_url(cursor))
+        params = _fvc_v2_params(
+            field_id=field_id,
+            list_entry_id=None,
+            changer_id=changer_id,
+            changed_after=changed_after,
+            changed_before=changed_before,
+            action_type=action_type,
+            order="asc",
+            limit=limit,
+        )
+        return _fvc_v2_page(
+            self._client.get(
+                f"/lists/{int(self._list_id)}/list-entries/{int(entry_id)}/field-value-changes",
+                params=params or None,
+            )
+        )
+
+    def iter_field_changes(
+        self,
+        entry_id: ListEntryId,
+        *,
+        field_id: AnyFieldId | Sequence[AnyFieldId] | None = None,
+        changer_id: int | None = None,
+        changed_after: datetime | None = None,
+        changed_before: datetime | None = None,
+        action_type: Literal["add", "update", "delete"] | None = None,
+    ) -> Iterator[FieldValueChangeV2]:
+        """Every field value change of this entry (all pages); see :meth:`list_field_changes`."""
+        return PageIterator(
+            lambda c: (
+                self.list_field_changes(entry_id, cursor=c)
+                if c
+                else self.list_field_changes(
+                    entry_id,
+                    field_id=field_id,
+                    changer_id=changer_id,
+                    changed_after=changed_after,
+                    changed_before=changed_before,
+                    action_type=action_type,
+                    limit=100,
+                )
+            )
+        )
+
     def batch_update_fields(
         self,
         entry_id: ListEntryId,
@@ -2474,6 +2580,109 @@ class AsyncListEntryService:
             json={"value": payload},
         )
         return _safe_model_validate(FieldValues, result)
+
+    async def list_field_value_items(
+        self,
+        entry_id: ListEntryId,
+        field_id: AnyFieldId | str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[Any]:
+        """One page of the items in a field's value on this entry (V2, beta; API 2026-09-17+),
+        for multi-value fields with many items. Items are raw. ``limit`` is 1-100."""
+        check_cursor_alone(cursor, limit)
+        if cursor is not None:
+            return page_of_raw(
+                await self._client.get_url(
+                    cursor, min_api_version=FIELD_VALUE_ITEMS_MIN_API_VERSION
+                )
+            )
+        return page_of_raw(
+            await self._client.get(
+                f"/lists/{int(self._list_id)}/list-entries/{int(entry_id)}/fields/{field_id}/values",
+                params=items_params(limit),
+                min_api_version=FIELD_VALUE_ITEMS_MIN_API_VERSION,
+            )
+        )
+
+    def iter_field_value_items(
+        self, entry_id: ListEntryId, field_id: AnyFieldId | str
+    ) -> AsyncIterator[Any]:
+        """Every item in a field's value on this entry (all pages)."""
+
+        async def fetch(c: str | None) -> PaginatedResponse[Any]:
+            if c:
+                return await self.list_field_value_items(entry_id, field_id, cursor=c)
+            return await self.list_field_value_items(entry_id, field_id, limit=100)
+
+        return AsyncPageIterator(fetch)
+
+    async def list_field_changes(
+        self,
+        entry_id: ListEntryId,
+        *,
+        field_id: AnyFieldId | Sequence[AnyFieldId] | None = None,
+        changer_id: int | None = None,
+        changed_after: datetime | None = None,
+        changed_before: datetime | None = None,
+        action_type: Literal["add", "update", "delete"] | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[FieldValueChangeV2]:
+        """One page of this entry's field value changes, oldest first (V2).
+
+        Covers the list's own fields. ``changed_after`` is inclusive and ``changed_before``
+        exclusive (whole seconds). ``limit`` is 1-100.
+        """
+        check_cursor_alone(
+            cursor, field_id, changer_id, changed_after, changed_before, action_type, limit
+        )
+        if cursor is not None:
+            return _fvc_v2_page(await self._client.get_url(cursor))
+        params = _fvc_v2_params(
+            field_id=field_id,
+            list_entry_id=None,
+            changer_id=changer_id,
+            changed_after=changed_after,
+            changed_before=changed_before,
+            action_type=action_type,
+            order="asc",
+            limit=limit,
+        )
+        return _fvc_v2_page(
+            await self._client.get(
+                f"/lists/{int(self._list_id)}/list-entries/{int(entry_id)}/field-value-changes",
+                params=params or None,
+            )
+        )
+
+    def iter_field_changes(
+        self,
+        entry_id: ListEntryId,
+        *,
+        field_id: AnyFieldId | Sequence[AnyFieldId] | None = None,
+        changer_id: int | None = None,
+        changed_after: datetime | None = None,
+        changed_before: datetime | None = None,
+        action_type: Literal["add", "update", "delete"] | None = None,
+    ) -> AsyncIterator[FieldValueChangeV2]:
+        """Every field value change of this entry (all pages)."""
+
+        async def fetch(c: str | None) -> PaginatedResponse[FieldValueChangeV2]:
+            if c:
+                return await self.list_field_changes(entry_id, cursor=c)
+            return await self.list_field_changes(
+                entry_id,
+                field_id=field_id,
+                changer_id=changer_id,
+                changed_after=changed_after,
+                changed_before=changed_before,
+                action_type=action_type,
+                limit=100,
+            )
+
+        return AsyncPageIterator(fetch)
 
     async def batch_update_fields(
         self,

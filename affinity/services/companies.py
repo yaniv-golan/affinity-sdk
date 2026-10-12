@@ -65,13 +65,16 @@ from ._org_reads import (
     page_of,
     relationship_params,
 )
+from ._single_field import AsyncSingleFieldMixin, SingleFieldMixin
 from .search import AsyncCompanySemanticSearchMixin, CompanySemanticSearchMixin
 
 if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
 
 
-class CompanyService(CompanySemanticSearchMixin, CompanyDiscoveryMixin):
+class CompanyService(CompanySemanticSearchMixin, CompanyDiscoveryMixin, SingleFieldMixin):
+    _entity_path = "/companies"
+
     """
     Service for managing companies (organizations).
 
@@ -1344,7 +1347,11 @@ class CompanyService(CompanySemanticSearchMixin, CompanyDiscoveryMixin):
         return PageIterator(fetch_page)
 
 
-class AsyncCompanyService(AsyncCompanySemanticSearchMixin, AsyncCompanyDiscoveryMixin):
+class AsyncCompanyService(
+    AsyncCompanySemanticSearchMixin, AsyncCompanyDiscoveryMixin, AsyncSingleFieldMixin
+):
+    _entity_path = "/companies"
+
     """
     Async version of CompanyService.
 
