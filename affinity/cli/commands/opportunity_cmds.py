@@ -658,9 +658,7 @@ def opportunity_update(
     company_ids: tuple[int, ...],
 ) -> None:
     """
-    Rename an opportunity, or replace its people/companies (--person-id/--company-id replace
-    the existing lists; pass the full lists). A rename alone doesn't print people/company ids;
-    use `opportunity get <id> --expand persons` for them.
+    Update an opportunity (replaces association arrays when provided).
 
     Examples:
     - `xaffinity opportunity update 123 --name "Series A (Closed)"`
@@ -685,11 +683,6 @@ def opportunity_update(
         )
         updated = client.opportunities.update(OpportunityId(opportunity_id), data)
         payload = serialize_model_for_cli(updated)
-        if not person_ids and not company_ids:
-            # A rename reads the opportunity back from V2, whose association arrays are always
-            # empty: leave them out rather than report "no people/companies"
-            payload.pop("personIds", None)
-            payload.pop("organizationIds", None)
 
         resolved = ResolvedEntity(
             input=str(opportunity_id),

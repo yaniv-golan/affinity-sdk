@@ -8,14 +8,13 @@ page shows every operation.
 ## Before you upgrade
 
 - **API version pins.** Many moved operations need a newer Affinity API version (webhooks,
-  reminder get/delete and person create/delete need `2026-07-15`; reminder update, opportunity
-  rename/delete, adding to a list and V2 file reads need `2026-09-17`). The SDK sends the version
+  reminder get/delete and the rate-limit endpoint need `2026-07-15`; reminder update and the V2
+  file reads need `2026-09-17`). The SDK sends the version
   each operation needs, unless you pinned one (`affinity_api_version=`, CLI `--api-version`,
   `AFFINITY_API_VERSION`, the MCP bundle's "Affinity API Version" setting). A pin older than the
   operation needs raises `ApiVersionTooOldError` before anything is sent: raise or remove it.
 - **Permissions.** On V2, only a reminder's creator or owner may change it (the SDK retries
-  through V1 when V2 refuses), opportunity rename/delete needs "Export data from Lists" and
-  manage access, and a public list needs "Share accessible Lists globally".
+  through V1 when V2 refuses), and a public list needs "Share accessible Lists globally".
 
 ## Webhooks
 
@@ -63,17 +62,17 @@ ls|get|create|update|delete`; create, update and delete ask for confirmation.
 `note get`/`note ls` and `notes.list/get` still use V1, which shows notes stored as HTML in a
 markdown-like form. Changing the text of a note that @mentions people is refused by the API.
 
-## Persons, opportunities, lists
+## Lists
 
 | 1.x | 2.0 |
 |---|---|
-| `persons.create()` | V2 (first email is primary; `last_name` accepts `None`); with `company_ids`, V1 as before (needs a last name) |
-| `opportunities.update(name=…)` | V2; the result's `person_ids`/`company_ids` are empty (use `get_details()`) |
-| `opportunities.update(person_ids=/company_ids=)` | V1, unchanged |
-| `OpportunityUpdate()` with nothing set | `ValueError` |
 | `lists.get().fields` | `None`: use `lists.get_fields()` |
 | `lists.create()` | V2 (you become the owner); with `owner_id`/`additional_permissions`, V1 |
 | `entries(list_id).add_opportunity()` | removed: create the opportunity on its list (`opportunities.create(OpportunityCreate(list_id=…))`) |
+
+Person create/delete, opportunity rename/delete and adding people or companies to a list are
+unchanged (V1): Affinity's V2 spec documents them, but the API doesn't serve them yet.
+`Person.company_ids` and `Opportunity.company_ids` are now filled from V1 responses.
 
 ## Files and rate limits
 
@@ -86,7 +85,6 @@ first). `rate_limits.refresh()` reads the V2 endpoint; `RateLimitSnapshot` is un
 - `reminder ls --page-size` is at most 100; `reminder update --clear-content`; `--reset-type
   event` (`meeting` still accepted).
 - `note create --type` is `plain-text` or `html`; `note update --type`.
-- `opportunity update --name` alone no longer prints `personIds`/`organizationIds`.
 - `list get <id>` no longer has `.data.list.fields` (use `.data.fields`).
 - The MCP server needs CLI 2.0; it adds the webhook commands, and `webhook create`/`update`/`delete`
   need the user's confirmation.

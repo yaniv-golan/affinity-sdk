@@ -42,7 +42,6 @@ from ..models.pagination import (
 from ..models.types import (
     AnyFieldId,
     CompanyId,
-    EntityType,
     FieldType,
     FieldValueType,
     ListEntryId,
@@ -136,13 +135,11 @@ def _exact_name_matches(
     ]
 
 
-LIST_ENTRY_ADD_MIN_API_VERSION = "2026-09-17"
 _LIST_TYPE_NAMES = {
     ListType.PERSON: "person",
     ListType.COMPANY: "company",
     ListType.OPPORTUNITY: "opportunity",
 }
-_ENTRY_TYPES = {"person": EntityType.PERSON, "company": EntityType.ORGANIZATION}
 
 
 def _uses_v1_create(data: ListCreate) -> bool:
@@ -163,42 +160,6 @@ def _v1_list_create_payload(data: ListCreate) -> dict[str, Any]:
     if not data.additional_permissions:
         payload.pop("additional_permissions", None)
     return payload
-
-
-def _entry_body(entity_id: int, creator_id: int | None) -> dict[str, Any]:
-    body: dict[str, Any] = {"entity": {"id": entity_id}}
-    if creator_id:
-        body["creatorId"] = creator_id
-    return body
-
-
-def _entry_from_v2(result: dict[str, Any]) -> ListEntry:
-    """The V2 201 body (``ListEntryWithEntity``) as the ``ListEntry`` the SDK always returned."""
-    entity = result.get("entity") or {}
-    return _safe_model_validate(
-        ListEntry,
-        {
-            "id": result.get("id"),
-            "listId": result.get("listId"),
-            "creatorId": result.get("creatorId"),
-            "createdAt": result.get("createdAt"),
-            "entityId": entity.get("id"),
-            "entityType": _ENTRY_TYPES.get(str(result.get("type"))),
-            "entity": entity or None,
-        },
-    )
-
-
-def _entry_error(e: ValidationError, entity_id: int, list_id: ListId) -> ValidationError:
-    return ValidationError(
-        f"Cannot add entity {entity_id} to list {list_id}: {e.message}. The entity must exist "
-        "and match the list's type (a person for a person list, a company for a company list), "
-        "and a list with a required field can't be added to through the API.",
-        param=e.param,
-        status_code=e.status_code,
-        response_body=e.response_body,
-        diagnostics=e.diagnostics,
-    )
 
 
 class ListService:
@@ -1275,24 +1236,37 @@ class ListEntryService:
         entity_id: int,
         creator_id: int | None = None,
     ) -> ListEntry:
-        """Add a person or company to this list (V2, Affinity API 2026-09-17+).
+        """Add a person or company to this list (V1).
 
-        The entity must match the list type. Opportunities can't be added this way: create
-        them with ``opportunities.create(OpportunityCreate(list_id=...))``. A list with a
-        required field can't be added to through the API.
+        The entity type must match the list type. Opportunities can't be added this way:
+        create them on their list with ``opportunities.create(OpportunityCreate(list_id=...))``.
+        (V2 documents ``POST /v2/lists/{id}/list-entries``, but Affinity doesn't serve it yet.)
         """
+        payload: dict[str, Any] = {"entity_id": entity_id}
+        if creator_id:
+            payload["creator_id"] = creator_id
+
         try:
             result = self._client.post(
-                f"/lists/{int(self._list_id)}/list-entries",
-                json=_entry_body(entity_id, creator_id),
-                min_api_version=LIST_ENTRY_ADD_MIN_API_VERSION,
+                f"/lists/{self._list_id}/list-entries",
+                json=payload,
+                v1=True,
             )
         except ValidationError as e:
-            # Only the API's own 400; subclasses (API-version errors, merged entities) pass through
-            if type(e) is not ValidationError or e.status_code != 400:
-                raise
-            raise _entry_error(e, entity_id, self._list_id) from e
-        return _entry_from_v2(result)
+            # 422 + param=entity_id means entity type doesn't match list type
+            if e.status_code == 422 and e.param == "entity_id":
+                raise ValidationError(
+                    f"Cannot add entity {entity_id} to list {self._list_id}. "
+                    f"The entity type must match the list type "
+                    f"(person lists accept persons, company lists accept companies).",
+                    param=e.param,
+                    status_code=e.status_code,
+                    response_body=e.response_body,
+                    diagnostics=e.diagnostics,
+                ) from e
+            raise
+
+        return _safe_model_validate(ListEntry, result)
 
     def delete(self, entry_id: ListEntryId) -> bool:
         """
@@ -2367,24 +2341,37 @@ class AsyncListEntryService:
         entity_id: int,
         creator_id: int | None = None,
     ) -> ListEntry:
-        """Add a person or company to this list (V2, Affinity API 2026-09-17+).
+        """Add a person or company to this list (V1).
 
-        The entity must match the list type. Opportunities can't be added this way: create
-        them with ``opportunities.create(OpportunityCreate(list_id=...))``. A list with a
-        required field can't be added to through the API.
+        The entity type must match the list type. Opportunities can't be added this way:
+        create them on their list with ``opportunities.create(OpportunityCreate(list_id=...))``.
+        (V2 documents ``POST /v2/lists/{id}/list-entries``, but Affinity doesn't serve it yet.)
         """
+        payload: dict[str, Any] = {"entity_id": entity_id}
+        if creator_id:
+            payload["creator_id"] = creator_id
+
         try:
             result = await self._client.post(
-                f"/lists/{int(self._list_id)}/list-entries",
-                json=_entry_body(entity_id, creator_id),
-                min_api_version=LIST_ENTRY_ADD_MIN_API_VERSION,
+                f"/lists/{self._list_id}/list-entries",
+                json=payload,
+                v1=True,
             )
         except ValidationError as e:
-            # Only the API's own 400; subclasses (API-version errors, merged entities) pass through
-            if type(e) is not ValidationError or e.status_code != 400:
-                raise
-            raise _entry_error(e, entity_id, self._list_id) from e
-        return _entry_from_v2(result)
+            # 422 + param=entity_id means entity type doesn't match list type
+            if e.status_code == 422 and e.param == "entity_id":
+                raise ValidationError(
+                    f"Cannot add entity {entity_id} to list {self._list_id}. "
+                    f"The entity type must match the list type "
+                    f"(person lists accept persons, company lists accept companies).",
+                    param=e.param,
+                    status_code=e.status_code,
+                    response_body=e.response_body,
+                    diagnostics=e.diagnostics,
+                ) from e
+            raise
+
+        return _safe_model_validate(ListEntry, result)
 
     async def delete(self, entry_id: ListEntryId) -> bool:
         """

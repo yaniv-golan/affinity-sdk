@@ -185,19 +185,13 @@ def test_list_service_list_all_get_fields_and_create_entry_helpers() -> None:
             )
 
         if request.method == "POST" and url == httpx.URL(
-            "https://v2.example/v2/lists/10/list-entries"
+            "https://v1.example/lists/10/list-entries"
         ):
             payload = json.loads(request.content.decode("utf-8"))
-            assert payload in ({"entity": {"id": 1}}, {"entity": {"id": 1}, "creatorId": 123})
+            assert payload in ({"entity_id": 1}, {"entity_id": 1, "creator_id": 123})
             return httpx.Response(
                 200,
-                json={
-                    "id": 5,
-                    "listId": 10,
-                    "createdAt": created_at,
-                    "entity": {"id": 1},
-                    "fields": {},
-                },
+                json={"id": 5, "listId": 10, "createdAt": created_at, "entityId": 1, "fields": {}},
                 request=request,
             )
 
@@ -593,17 +587,11 @@ def test_list_service_create_saved_views_and_list_entry_params() -> None:
             )
 
         if request.method == "POST" and url == httpx.URL(
-            "https://v2.example/v2/lists/11/list-entries"
+            "https://v1.example/lists/11/list-entries"
         ):
             return httpx.Response(
                 200,
-                json={
-                    "id": 99,
-                    "listId": 11,
-                    "createdAt": created_at,
-                    "entity": {"id": 3},
-                    "fields": {},
-                },
+                json={"id": 99, "listId": 11, "createdAt": created_at, "entityId": 3, "fields": {}},
                 request=request,
             )
 
@@ -945,29 +933,29 @@ async def test_async_list_service_create_fields_and_entry_write_ops() -> None:
             )
 
         if request.method == "POST" and url == httpx.URL(
-            "https://v2.example/v2/lists/11/list-entries"
+            "https://v1.example/lists/11/list-entries"
         ):
             payload = json.loads(request.content.decode("utf-8"))
-            if payload["entity"]["id"] == 2:
+            if payload["entity_id"] == 2:
                 return httpx.Response(
                     200,
                     json={
                         "id": 99,
                         "listId": 11,
                         "createdAt": created_at,
-                        "entity": {"id": 2},
+                        "entityId": 2,
                         "fields": {},
                     },
                     request=request,
                 )
-            if payload["entity"]["id"] == 3:
+            if payload["entity_id"] == 3:
                 return httpx.Response(
                     200,
                     json={
                         "id": 100,
                         "listId": 11,
                         "createdAt": created_at,
-                        "entity": {"id": 3},
+                        "entityId": 3,
                         "fields": {},
                     },
                     request=request,

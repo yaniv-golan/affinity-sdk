@@ -30,8 +30,6 @@ from affinity.models import (
     ListCreate,
     NoteCreate,
     NoteUpdate,
-    OpportunityUpdate,
-    PersonCreate,
     ReminderCreate,
     ReminderUpdate,
     WebhookCreate,
@@ -39,7 +37,6 @@ from affinity.models import (
 )
 from affinity.types import (
     CompanyId,
-    ListId,
     ListType,
     NoteId,
     NoteType,
@@ -223,34 +220,9 @@ CASES: list[tuple[str, str, Callable[[Affinity], Any]]] = [
         ),
     ),
     (
-        "POST /v2/persons",
-        "/persons",
-        lambda c: c.persons.create(
-            PersonCreate(first_name="A", last_name=None, emails=["a@x.co", "b@x.co"]),
-            if_not_exists=False,
-        ),
-    ),
-    (
-        "POST /v2/persons",
-        "/persons",
-        lambda c: c.persons.create(
-            PersonCreate(first_name="A", last_name="B"), if_not_exists=False
-        ),
-    ),
-    (
-        "POST /v2/opportunities/{opportunityId}",
-        "/opportunities/41",
-        lambda c: c.opportunities.update(OpportunityId(41), OpportunityUpdate(name="N")),
-    ),
-    (
         "POST /v2/lists",
         "/lists",
         lambda c: c.lists.create(ListCreate(name="L", type=ListType.OPPORTUNITY, is_public=True)),
-    ),
-    (
-        "POST /v2/lists/{listId}/list-entries",
-        "/lists/9/list-entries",
-        lambda c: c.lists.entries(ListId(9)).add_company(CompanyId(7), creator_id=4),
     ),
 ]
 

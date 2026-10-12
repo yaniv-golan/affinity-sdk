@@ -3444,7 +3444,7 @@
     },
     {
       "name": "opportunity update",
-      "description": "Rename an opportunity, or replace its people/companies (--person-id/--company-id replace",
+      "description": "Update an opportunity (replaces association arrays when provided).",
       "category": "write",
       "destructive": false,
       "progressCapable": false,

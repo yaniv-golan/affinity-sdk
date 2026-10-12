@@ -23,7 +23,7 @@ if respx is None:  # pragma: no cover
 
 
 def test_person_crud_and_merge(respx_mock: respx.MockRouter) -> None:
-    respx_mock.post("https://api.affinity.co/v2/persons").mock(
+    respx_mock.post("https://api.affinity.co/persons").mock(
         return_value=Response(
             200,
             json={
@@ -45,7 +45,7 @@ def test_person_crud_and_merge(respx_mock: respx.MockRouter) -> None:
             },
         )
     )
-    respx_mock.delete("https://api.affinity.co/v2/persons/1").mock(
+    respx_mock.delete("https://api.affinity.co/persons/1").mock(
         return_value=Response(200, json={"success": True})
     )
     respx_mock.post("https://api.affinity.co/v2/person-merges").mock(
@@ -205,16 +205,15 @@ def test_list_create_and_entry_ops(respx_mock: respx.MockRouter) -> None:
             },
         )
     )
-    respx_mock.post("https://api.affinity.co/v2/lists/123/list-entries").mock(
+    respx_mock.post("https://api.affinity.co/lists/123/list-entries").mock(
         return_value=Response(
-            201,
+            200,
             json={
                 "id": 98765,
-                "type": "company",
                 "listId": 123,
-                "creatorId": 1,
-                "createdAt": "2024-01-15T10:00:00Z",
-                "entity": {"id": 1, "name": "Co", "domain": None},
+                "entityId": 224925494,
+                "entityType": 1,
+                "createdAt": "2024-01-01T00:00:00Z",
             },
         )
     )
@@ -488,7 +487,7 @@ def test_merge_is_marked_destructive_in_json_help(entity: str) -> None:
 
 @pytest.mark.parametrize("answer", ["y\n", "yes\n"])
 def test_piped_yes_still_confirms_a_delete(respx_mock: respx.MockRouter, answer: str) -> None:
-    respx_mock.delete("https://api.affinity.co/v2/persons/1").mock(
+    respx_mock.delete("https://api.affinity.co/persons/1").mock(
         return_value=Response(200, json={"success": True})
     )
     result = CliRunner().invoke(

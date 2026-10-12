@@ -6,7 +6,7 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V2 API
 
-87 supported, 25 planned
+82 supported, 30 planned
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -50,7 +50,7 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/lists/{listId}/fields/{fieldId}/dropdown-options/{dropdownOptionId}` | supported | `lists.get_field_dropdown_option(ListId(1), FieldId(1), 1)` |  |
 | `POST /v2/lists/{listId}/fields/{fieldId}/dropdown-options/{dropdownOptionId}` | supported | `lists.update_field_dropdown_option(ListId(1), FieldId(1), 1, text="x")` |  |
 | `GET /v2/lists/{listId}/list-entries` | supported | `lists.entries(ListId(1)).list()` |  |
-| `POST /v2/lists/{listId}/list-entries` | supported | `lists.entries(ListId(1)).add_person(PersonId(1))` | beta; API 2026-09-17+ |
+| `POST /v2/lists/{listId}/list-entries` | planned |  | beta; API 2026-09-17+; phase when-live |
 | `POST /v2/lists/{listId}/list-entries/search` | planned |  | beta; phase 2.x-3 |
 | `GET /v2/lists/{listId}/list-entries/{listEntryId}` | supported | `lists.entries(ListId(1)).get(ListEntryId(1))` |  |
 | `GET /v2/lists/{listId}/list-entries/{listEntryId}/field-value-changes` | planned |  | phase 2.x-4 |
@@ -75,19 +75,19 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/notes/{noteId}/attached-persons` | planned |  | phase 2.x-1 |
 | `GET /v2/notes/{noteId}/replies` | supported | `notes.list_replies(NoteId(1))` |  |
 | `GET /v2/opportunities` | supported | `opportunities.list()` |  |
-| `DELETE /v2/opportunities/{opportunityId}` | supported | `opportunities.delete(OpportunityId(1))` | beta; API 2026-09-17+ |
+| `DELETE /v2/opportunities/{opportunityId}` | planned |  | beta; API 2026-09-17+; phase when-live |
 | `GET /v2/opportunities/{opportunityId}` | supported | `opportunities.get(OpportunityId(1))` |  |
-| `POST /v2/opportunities/{opportunityId}` | supported | `opportunities.update(OpportunityId(1), OpportunityUpdate(name="x"))` | beta; API 2026-09-17+ |
+| `POST /v2/opportunities/{opportunityId}` | planned |  | beta; API 2026-09-17+; phase when-live |
 | `GET /v2/opportunities/{opportunityId}/notes` | supported | `opportunities.list_notes(OpportunityId(1))` |  |
 | `GET /v2/person-merges` | supported | `persons.list_merges()` |  |
 | `POST /v2/person-merges` | supported | `persons.merge(PersonId(1), PersonId(2))` |  |
 | `GET /v2/person-merges/{mergeId}` | supported | `persons.get_merge_state(1)` |  |
 | `GET /v2/persons` | supported | `persons.list()` |  |
-| `POST /v2/persons` | supported | `persons.create(PersonCreate(first_name="a", last_name="b"), if_not_exists=False)` | beta; API 2026-07-15+ |
+| `POST /v2/persons` | planned |  | beta; API 2026-07-15+; phase when-live |
 | `GET /v2/persons/fields` | supported | `persons.get_fields()` |  |
 | `GET /v2/persons/fields/{fieldId}/dropdown-options` | supported | `persons.get_field_dropdown_options(FieldId(1))` |  |
 | `POST /v2/persons/search` | planned |  | beta; phase 2.x-3 |
-| `DELETE /v2/persons/{personId}` | supported | `persons.delete(PersonId(1))` | beta; API 2026-07-15+ |
+| `DELETE /v2/persons/{personId}` | planned |  | beta; API 2026-07-15+; phase when-live |
 | `GET /v2/persons/{personId}` | supported | `persons.get(PersonId(1))` |  |
 | `GET /v2/persons/{personId}/fields` | supported | `persons.get_field_values(PersonId(1))` | beta |
 | `PATCH /v2/persons/{personId}/fields` | supported | `persons.batch_update_fields(PersonId(1), {"field-1": "x"})` |  |
@@ -125,7 +125,7 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V1 API
 
-38 supported, 21 equivalent
+41 supported, 18 equivalent
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -151,7 +151,7 @@ against the pinned API specs and checks that each supported call requests its op
 | `POST /lists` | supported | `lists.create(ListCreate(name="x", type=ListType.PERSON, is_public=False, owner_id=UserId(1)))` | only for a list created with an owner or extra permissions (V2 can't set them) |
 | `GET /lists/{}` | supported | `lists.get_size(ListId(1), force=True)` | for the list size only (V2 has none); the list itself is read from V2 |
 | `GET /lists/{}/list-entries` | equivalent |  | via v2 GET /v2/lists/{listId}/list-entries |
-| `POST /lists/{}/list-entries` | equivalent |  | via v2 POST /v2/lists/{listId}/list-entries |
+| `POST /lists/{}/list-entries` | supported | `lists.entries(ListId(1)).add_person(PersonId(1))` |  |
 | `DELETE /lists/{}/list-entries/{}` | supported | `lists.entries(ListId(1)).delete(ListEntryId(1))` |  |
 | `GET /lists/{}/list-entries/{}` | equivalent |  | via v2 GET /v2/lists/{listId}/list-entries/{listEntryId} |
 | `GET /notes` | supported | `notes.list()` |  |
@@ -161,9 +161,9 @@ against the pinned API specs and checks that each supported call requests its op
 | `PUT /notes/{}` | equivalent |  | via v2 POST /v2/notes/{noteId} |
 | `GET /opportunities` | supported | `opportunities.search("x")` |  |
 | `POST /opportunities` | supported | `opportunities.create(OpportunityCreate(name="x", list_id=ListId(1)))` |  |
-| `DELETE /opportunities/{}` | equivalent |  | via v2 DELETE /v2/opportunities/{opportunityId} |
+| `DELETE /opportunities/{}` | supported | `opportunities.delete(OpportunityId(1))` |  |
 | `GET /opportunities/{}` | supported | `opportunities.get_details(OpportunityId(1))` |  |
-| `PUT /opportunities/{}` | supported | `opportunities.update(OpportunityId(1), OpportunityUpdate(person_ids=[PersonId(1)]))` | to change an opportunity's persons or companies (V2 can only rename) |
+| `PUT /opportunities/{}` | supported | `opportunities.update(OpportunityId(1), OpportunityUpdate(name="x"))` |  |
 | `GET /organizations` | supported | `companies.search("x")` |  |
 | `POST /organizations` | supported | `companies.create(CompanyCreate(name="x"), if_not_exists=False)` |  |
 | `GET /organizations/fields` | equivalent |  | via v2 GET /v2/companies/fields |
@@ -171,9 +171,9 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /organizations/{}` | supported | `companies.get_associated_person_ids(CompanyId(1))` |  |
 | `PUT /organizations/{}` | supported | `companies.update(CompanyId(1), CompanyUpdate(name="x"))` |  |
 | `GET /persons` | supported | `persons.search("x")` |  |
-| `POST /persons` | supported | `persons.create(PersonCreate(first_name="a", last_name="b", company_ids=[CompanyId(1)]), if_not_exists=False)` | only for a person created with companies (V2 create can't link them) |
+| `POST /persons` | supported | `persons.create(PersonCreate(first_name="a", last_name="b"), if_not_exists=False)` |  |
 | `GET /persons/fields` | equivalent |  | via v2 GET /v2/persons/fields |
-| `DELETE /persons/{}` | equivalent |  | via v2 DELETE /v2/persons/{personId} |
+| `DELETE /persons/{}` | supported | `persons.delete(PersonId(1))` |  |
 | `GET /persons/{}` | supported | `persons.get_associated_company_ids(PersonId(1))` |  |
 | `PUT /persons/{}` | supported | `persons.update(PersonId(1), PersonUpdate(first_name="a"))` |  |
 | `GET /rate-limit` | equivalent |  | via v2 GET /v2/rate-limit |

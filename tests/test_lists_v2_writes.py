@@ -1,5 +1,6 @@
-"""SDK tests: list get/create and list-entry add on the V2 API, with the documented V1 parts:
-`get_size` (V2 has no list size) and a list created with an owner or permissions."""
+"""SDK tests: list get/create on the V2 API, with the documented V1 parts: `get_size` (V2 has
+no list size), a list created with an owner or permissions, and adding to a list (V2 documents
+it, but Affinity doesn't serve it yet)."""
 
 from __future__ import annotations
 
@@ -16,9 +17,8 @@ except ModuleNotFoundError:  # pragma: no cover
 from httpx import Response
 
 from affinity import Affinity, AsyncAffinity
-from affinity.exceptions import ValidationError
 from affinity.models import ListCreate
-from affinity.types import CompanyId, EntityType, ListId, ListType, PersonId, UserId
+from affinity.types import CompanyId, ListId, ListType, UserId
 
 if respx is None:  # pragma: no cover
     pytest.skip("respx is not installed", allow_module_level=True)
@@ -42,14 +42,6 @@ LIST_V1 = {
     "owner_id": 4,
     "creator_id": 4,
     "list_size": 42,
-}
-ENTRY_V2 = {
-    "id": 501,
-    "type": "company",
-    "listId": 9,
-    "creatorId": 4,
-    "createdAt": "2026-10-12T09:00:00Z",
-    "entity": {"id": 7, "name": "Acme", "domain": "acme.com"},
 }
 
 
@@ -98,64 +90,31 @@ def test_create_with_owner_or_permissions_stays_on_v1() -> None:
     assert _body(v1)["owner_id"] == 5
 
 
-@respx.mock
-def test_add_company_on_v2_returns_a_list_entry() -> None:
-    route = respx.post(f"{V2}/lists/9/list-entries").mock(return_value=Response(201, json=ENTRY_V2))
+def test_add_opportunity_is_gone() -> None:
     with Affinity(api_key="k", max_retries=0) as client:
-        entry = client.lists.entries(ListId(9)).add_company(CompanyId(7), creator_id=4)
-    assert _body(route) == {"entity": {"id": 7}, "creatorId": 4}
-    assert route.calls[0].request.headers["x-affinity-api-version"] == "2026-09-17"
-    assert entry.id == 501
-    assert entry.list_id == 9
-    assert entry.entity_id == 7
-    assert entry.entity_type == EntityType.ORGANIZATION
-    assert entry.entity is not None and entry.entity.name == "Acme"  # type: ignore[union-attr]
+        assert not hasattr(client.lists.entries(ListId(9)), "add_opportunity")
 
 
 @respx.mock
-def test_add_person_on_v2() -> None:
-    route = respx.post(f"{V2}/lists/9/list-entries").mock(
+def test_add_company_uses_v1() -> None:
+    route = respx.post(f"{V1}/lists/9/list-entries").mock(
         return_value=Response(
-            201,
+            200,
             json={
-                **ENTRY_V2,
-                "type": "person",
-                "entity": {
-                    "id": 3,
-                    "firstName": "Dana",
-                    "lastName": "Levi",
-                    "primaryEmailAddress": "d@a.co",
-                    "type": "external",
-                },
+                "id": 501,
+                "list_id": 9,
+                "creator_id": 4,
+                "entity_id": 7,
+                "entity_type": 1,
+                "created_at": "2026-10-12T09:00:00Z",
+                "entity": {"id": 7, "name": "Acme", "domain": "acme.com"},
             },
         )
     )
     with Affinity(api_key="k", max_retries=0) as client:
-        entry = client.lists.entries(ListId(9)).add_person(PersonId(3))
-    assert _body(route) == {"entity": {"id": 3}}
-    assert entry.entity_type == EntityType.PERSON
-    assert entry.entity_id == 3
-
-
-@respx.mock
-def test_add_rejected_explains() -> None:
-    respx.post(f"{V2}/lists/9/list-entries").mock(
-        return_value=Response(
-            400, json={"errors": [{"code": "bad-request", "message": "entity not found"}]}
-        )
-    )
-    with (
-        Affinity(api_key="k", max_retries=0) as client,
-        pytest.raises(ValidationError, match="list 9") as exc,
-    ):
-        client.lists.entries(ListId(9)).add_company(CompanyId(7))
-    assert "required field" in str(exc.value)
-    assert "entity not found" in str(exc.value)
-
-
-def test_add_opportunity_is_gone() -> None:
-    with Affinity(api_key="k", max_retries=0) as client:
-        assert not hasattr(client.lists.entries(ListId(9)), "add_opportunity")
+        entry = client.lists.entries(ListId(9)).add_company(CompanyId(7), creator_id=4)
+    assert _body(route) == {"entity_id": 7, "creator_id": 4}
+    assert entry.id == 501 and entry.entity_id == 7
 
 
 @respx.mock
@@ -163,7 +122,18 @@ async def test_async_lists_and_entries() -> None:
     respx.get(f"{V2}/lists/9").mock(return_value=Response(200, json=LIST_V2))
     respx.get(f"{V1}/lists/9").mock(return_value=Response(200, json=LIST_V1))
     create = respx.post(f"{V2}/lists").mock(return_value=Response(201, json=LIST_V2))
-    add = respx.post(f"{V2}/lists/9/list-entries").mock(return_value=Response(201, json=ENTRY_V2))
+    add = respx.post(f"{V1}/lists/9/list-entries").mock(
+        return_value=Response(
+            200,
+            json={
+                "id": 501,
+                "list_id": 9,
+                "entity_id": 7,
+                "entity_type": 1,
+                "created_at": "2026-10-12T09:00:00Z",
+            },
+        )
+    )
     async with AsyncAffinity(api_key="k", max_retries=0) as client:
         assert (await client.lists.get(ListId(9))).name == "Dealflow"
         assert await client.lists.get_size(ListId(9)) == 42
@@ -172,13 +142,3 @@ async def test_async_lists_and_entries() -> None:
         assert not hasattr(client.lists.entries(ListId(9)), "add_opportunity")
     assert _body(create) == {"name": "X", "type": "person", "isPublic": True}
     assert add.called and entry.entity_id == 7
-
-
-def test_add_with_an_old_pin_raises_the_version_error_unchanged() -> None:
-    from affinity.exceptions import ApiVersionTooOldError
-
-    with (
-        Affinity(api_key="k", max_retries=0, affinity_api_version="2024-01-01") as client,
-        pytest.raises(ApiVersionTooOldError),
-    ):
-        client.lists.entries(ListId(9)).add_person(PersonId(2))

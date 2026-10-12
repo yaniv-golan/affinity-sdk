@@ -342,8 +342,12 @@ class Person(AffinityModel):
     def _coerce_person_type(cls, value: Any) -> Any:
         return _normalize_person_type(value)
 
-    # Associations (V1 uses organizationIds)
-    company_ids: list[CompanyId] = Field(default_factory=list, alias="organizationIds")
+    # Associations (V1 sends organization_ids, some payloads organizationIds)
+    company_ids: list[CompanyId] = Field(
+        default_factory=list,
+        alias="organizationIds",
+        validation_alias=AliasChoices("organizationIds", "organization_ids", "company_ids"),
+    )
     opportunity_ids: list[OpportunityId] = Field(default_factory=list, alias="opportunityIds")
 
     # V1: only returned when `with_current_organizations=true`
@@ -409,11 +413,8 @@ class PersonCreate(AffinityModel):
     """
 
     first_name: str
-    # V2 allows a person without a last name
-    last_name: str | None
-    # The first email is the primary one
+    last_name: str
     emails: list[str] = Field(default_factory=list)
-    # Only V1 can link companies at create: with company_ids the person is created through V1
     company_ids: list[CompanyId] = Field(default_factory=list, alias="organization_ids")
 
 

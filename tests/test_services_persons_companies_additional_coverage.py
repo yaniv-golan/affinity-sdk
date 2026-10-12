@@ -188,10 +188,7 @@ def test_person_service_v2_read_v1_write_resolve_merge_and_cache_invalidation() 
                 request=request,
             )
 
-        if request.method == "POST" and url in (
-            httpx.URL("https://v2.example/v2/persons"),
-            httpx.URL("https://v1.example/persons"),
-        ):
+        if request.method == "POST" and url == httpx.URL("https://v1.example/persons"):
             payload = json.loads(request.content.decode("utf-8"))
             assert payload in (
                 {"first_name": "A", "last_name": "B", "emails": ["a@example.com"]},
@@ -239,7 +236,7 @@ def test_person_service_v2_read_v1_write_resolve_merge_and_cache_invalidation() 
                 request=request,
             )
 
-        if request.method == "DELETE" and url == httpx.URL("https://v2.example/v2/persons/1"):
+        if request.method == "DELETE" and url == httpx.URL("https://v1.example/persons/1"):
             return httpx.Response(200, json={"success": True}, request=request)
 
         return httpx.Response(404, json={"message": "not found"}, request=request)
@@ -996,10 +993,7 @@ def test_company_service_v2_read_v1_write_resolve_merge_and_cache_invalidation()
 def test_person_and_company_write_ops_skip_cache_invalidation_when_cache_disabled() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         url = request.url
-        if request.method == "POST" and url in (
-            httpx.URL("https://v2.example/v2/persons"),
-            httpx.URL("https://v1.example/persons"),
-        ):
+        if request.method == "POST" and url == httpx.URL("https://v1.example/persons"):
             return httpx.Response(
                 200,
                 json={
@@ -1027,7 +1021,7 @@ def test_person_and_company_write_ops_skip_cache_invalidation_when_cache_disable
                 },
                 request=request,
             )
-        if request.method == "DELETE" and url == httpx.URL("https://v2.example/v2/persons/1"):
+        if request.method == "DELETE" and url == httpx.URL("https://v1.example/persons/1"):
             return httpx.Response(200, json={"success": True}, request=request)
 
         if request.method == "POST" and url == httpx.URL("https://v1.example/organizations"):
@@ -1440,12 +1434,9 @@ async def test_async_person_service_v1_write_search_resolve_merge_and_helpers() 
                 },
                 request=request,
             )
-        if request.method == "POST" and url in (
-            httpx.URL("https://v2.example/v2/persons"),
-            httpx.URL("https://v1.example/persons"),
-        ):
+        if request.method == "POST" and url == httpx.URL("https://v1.example/persons"):
             payload = json.loads(request.content.decode())
-            assert payload["firstName"] == "Alice"
+            assert payload["first_name"] == "Alice"
             return httpx.Response(
                 200,
                 json={
@@ -1473,7 +1464,7 @@ async def test_async_person_service_v1_write_search_resolve_merge_and_helpers() 
                 },
                 request=request,
             )
-        if request.method == "DELETE" and url == httpx.URL("https://v2.example/v2/persons/2"):
+        if request.method == "DELETE" and url == httpx.URL("https://v1.example/persons/2"):
             return httpx.Response(200, json={"success": True}, request=request)
         if request.method == "POST" and url == httpx.URL("https://v2.example/v2/person-merges"):
             return httpx.Response(200, json={"taskUrl": "tasks/person-merges/abc"}, request=request)

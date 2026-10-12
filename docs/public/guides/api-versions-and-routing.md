@@ -13,10 +13,11 @@ The SDK uses V2 endpoints wherever V2 can do the job, and V1 where it can't.
 
 - **Reads** (list/get/search) use **V2**, except notes `list`/`get`, interactions per entity,
   files per entity, field values on companies and persons, and list sizes.
-- **Writes** use **V2** for webhooks, reminders, notes, person create/delete, opportunity
-  rename/delete, list create, and adding people or companies to a list. **V1** remains for
-  writes V2 doesn't offer: company create/update, person update, opportunity create, interactions,
-  entity files, and field values on companies and persons.
+- **Writes** use **V2** for webhooks, reminders, notes and list create. **V1** remains for
+  writes V2 doesn't offer: company create/update, person create/update/delete, opportunity
+  create/update/delete, adding to a list, interactions, entity files, and field values on
+  companies and persons. (Affinity's V2 spec also documents person create/delete, opportunity
+  rename/delete and adding to a list, but the API doesn't serve them yet.)
 
 ### Documented V1 exceptions
 
@@ -24,8 +25,6 @@ Where V2 has the operation but can't do one part of it, that case goes through V
 
 | Operation | Goes through V1 when… |
 |---|---|
-| `persons.create` | `company_ids` is set (V2 can't link companies at create) |
-| `opportunities.update` | `person_ids` or `company_ids` is set (V2 can only rename) |
 | `lists.create` | `owner_id` or `additional_permissions` is set |
 | `reminders.update` | `type` is set (V2 can't change a reminder's type) |
 | `reminders.update` / `delete` | V2 refuses (403: only the creator or owner may change it on V2); retried once on V1 |
@@ -44,16 +43,15 @@ When a write goes to V1 and the next read comes from V2, there can be a brief de
 ## API versions per operation
 
 Operations Affinity added after 2024-01-01 send the version they need (for example
-`2026-07-15` for webhooks, `2026-09-17` for adding to a list); other V2 calls use your API key's
+`2026-07-15` for webhooks, `2026-09-17` for reminder updates); other V2 calls use your API key's
 default version. A client pinned to an older version (`affinity_api_version=`, CLI
 `--api-version`) gets `ApiVersionTooOldError` for operations newer than the pin, before
 anything is sent. See [Affinity API versions](api-versions.md).
 
 ## Beta endpoints
 
-Affinity marks some V2 endpoints as beta (webhooks, reminder get/update/delete, person
-create/delete, opportunity rename/delete, adding to a list, file reads, the rate-limit endpoint,
-and others). The SDK calls them like any other endpoint; the
+Affinity marks some V2 endpoints as beta (webhooks, reminder get/update/delete, file reads,
+the rate-limit endpoint, and others). The SDK calls them like any other endpoint; the
 [API coverage](../reference/api-coverage.md) page marks each one. Beta endpoints can change
 shape before Affinity makes them generally available.
 

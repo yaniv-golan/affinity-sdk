@@ -47,15 +47,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   persons, companies and opportunities (`[]` clears). Changing the text of a note that
   @mentions people is refused by the API; the error now says so. `NoteV2` and `NoteContent`
   are exported from `affinity.models`.
-- **Person create and delete use the V2 API** (Affinity API 2026-07-15+). The first email is
-  the primary one; `PersonCreate.last_name` accepts `None` (still a required argument). A person
-  created with `company_ids` still goes through V1, which can link companies (V2 can't) and needs
-  a last name (`ValueError` without one). Internal people can't be deleted (403).
-- **Opportunity rename and delete use the V2 API** (Affinity API 2026-09-17+; need "Export data
-  from Lists" and manage access). A rename returns the opportunity as read back from V2, whose
-  `person_ids`/`company_ids` are always empty (use `get_details()` for them). Changing people or
-  companies still goes through V1 in one request, as before. An empty `OpportunityUpdate` raises
-  `ValueError`.
 - **`rate_limits.refresh()` reads `GET /v2/rate-limit`** (API 2026-07-15+), falling back to
   response headers as before (now also when the client is pinned to an older API version).
   `RateLimitSnapshot` is unchanged; `RateLimits` also reads the V2 names (`callerPerMinute`,
@@ -65,12 +56,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the size from V1 (V2 has none). `create()` makes the caller the owner; a public list needs the
   "Share accessible Lists globally" permission. A list created with `owner_id` or
   `additional_permissions` still goes through V1.
-- **Adding to a list uses the V2 API** (`entries(list_id).add_person/add_company`,
-  `ensure_person/ensure_company`; Affinity API 2026-09-17+) and still returns a `ListEntry`. A
-  list with a required field can't be added to through the API. **`add_opportunity()` is
-  removed**: neither API can add an opportunity to a list; create it on its list with
-  `opportunities.create(OpportunityCreate(list_id=...))`. A pinned API version older than
-  2026-09-17 raises `ApiVersionTooOldError`, not a list error.
+- **`entries(list_id).add_opportunity()` is removed.** Opportunities can't be added to a list
+  as entries: create them on their list with `opportunities.create(OpportunityCreate(list_id=...))`.
+- Person create/delete, opportunity rename/delete and adding to a list stay on V1: the V2 spec
+  documents them, but Affinity doesn't serve them yet.
 
 ### Added
 
@@ -85,13 +74,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CLI `list get <id>`** no longer prints `.data.list.fields` (the fields are in `.data.fields`
   as before), `additionalPermissions` is always `[]`, and `createdAt` is added; `list create
   --owner-id` creates the list through V1.
-- **CLI `list entry add`**: `.data.listEntry.entity` is now V2's person/company shape, and
-  `creatorId` may be null.
 - **CLI `reminder create/update --reminder-days`** help now says what it is: the days between a
   recurring reminder's due dates.
-- **CLI `opportunity update --name` alone** no longer prints `personIds`/`organizationIds`
-  (V2 doesn't return them; they were always empty). With `--person-id`/`--company-id` they are
-  printed as before.
 - **CLI `note update --type plain-text|html`**; `note create --type` is now plain-text or html
   (Affinity creates the other kinds itself). `note create`/`update` output keeps the `note get`
   keys (`type` is `html`; content is the stored HTML). The duplicate-note warning still finds
@@ -104,8 +88,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `Opportunity.company_ids` is now read from V1 responses (`organization_ids`), e.g. from
-  `opportunities.update()` with associations and `get_details()`; it was always empty.
+- `Person.company_ids` and `Opportunity.company_ids` are now read from V1 responses
+  (`organization_ids`), e.g. from `persons.create()` with companies, `persons.update()`,
+  `opportunities.update()` and `get_details()`; they were always empty.
 
 ### Docs
 

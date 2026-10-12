@@ -492,22 +492,16 @@ class TestListEntryAdd:
             )
         )
         # Mock add entry (V1 endpoint)
-        respx_mock.post("https://api.affinity.co/v2/lists/100/list-entries").mock(
+        respx_mock.post("https://api.affinity.co/lists/100/list-entries").mock(
             return_value=Response(
-                201,
+                200,
                 json={
                     "id": 1001,
-                    "type": "person",
-                    "listId": 100,
-                    "creatorId": 1,
-                    "createdAt": "2024-01-15T10:00:00Z",
-                    "entity": {
-                        "id": 500,
-                        "firstName": "A",
-                        "lastName": "B",
-                        "primaryEmailAddress": None,
-                        "type": "external",
-                    },
+                    "list_id": 100,
+                    "entity_id": 500,
+                    "entity_type": 0,
+                    "creator_id": 1,
+                    "created_at": "2024-01-15T10:00:00Z",
                 },
             )
         )
@@ -530,16 +524,16 @@ class TestListEntryAdd:
             )
         )
         # Mock add entry (V1 endpoint)
-        respx_mock.post("https://api.affinity.co/v2/lists/200/list-entries").mock(
+        respx_mock.post("https://api.affinity.co/lists/200/list-entries").mock(
             return_value=Response(
-                201,
+                200,
                 json={
                     "id": 2001,
-                    "type": "company",
-                    "listId": 200,
-                    "creatorId": 1,
-                    "createdAt": "2024-01-15T10:00:00Z",
-                    "entity": {"id": 600, "name": "Co", "domain": None},
+                    "list_id": 200,
+                    "entity_id": 600,
+                    "entity_type": 1,
+                    "creator_id": 1,
+                    "created_at": "2024-01-15T10:00:00Z",
                 },
             )
         )

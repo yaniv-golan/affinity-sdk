@@ -23,10 +23,6 @@ this ships.
   escaped), `note update --type plain-text|html`, `note create --type` is plain-text or html.
 - `list get <id>` no longer has `.data.list.fields` (use `.data.fields`); `additionalPermissions`
   is always `[]`; adds `createdAt`.
-- `list entry add`: `.data.listEntry.entity` is V2's person/company shape; `creatorId` may be
-  null.
-- `opportunity update --name` alone omits `personIds`/`organizationIds` from its output (they
-  were always empty after a rename).
 - `reminder` commands use the V2 API: `reminder update --clear-content`, `--reset-type event`
   (`meeting` still accepted), `reminder ls --page-size` at most 100, rows include `updatedAt`.
 

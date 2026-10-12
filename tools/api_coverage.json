@@ -283,8 +283,9 @@
   {
    "op": "POST /v2/lists/{listId}/list-entries",
    "api": "v2",
-   "status": "supported",
-   "call": "lists.entries(ListId(1)).add_person(PersonId(1))",
+   "status": "planned",
+   "phase": "when-live",
+   "note": "documented in the V2 spec, but Affinity doesn't serve it yet (no route, checked 2026-10-12)",
    "stability": "beta"
   },
   {
@@ -459,8 +460,9 @@
   {
    "op": "DELETE /v2/opportunities/{opportunityId}",
    "api": "v2",
-   "status": "supported",
-   "call": "opportunities.delete(OpportunityId(1))",
+   "status": "planned",
+   "phase": "when-live",
+   "note": "documented in the V2 spec, but Affinity doesn't serve it yet (no route, checked 2026-10-12)",
    "stability": "beta"
   },
   {
@@ -473,8 +475,9 @@
   {
    "op": "POST /v2/opportunities/{opportunityId}",
    "api": "v2",
-   "status": "supported",
-   "call": "opportunities.update(OpportunityId(1), OpportunityUpdate(name=\"x\"))",
+   "status": "planned",
+   "phase": "when-live",
+   "note": "documented in the V2 spec, but Affinity doesn't serve it yet (no route, checked 2026-10-12)",
    "stability": "beta"
   },
   {
@@ -515,8 +518,9 @@
   {
    "op": "POST /v2/persons",
    "api": "v2",
-   "status": "supported",
-   "call": "persons.create(PersonCreate(first_name=\"a\", last_name=\"b\"), if_not_exists=False)",
+   "status": "planned",
+   "phase": "when-live",
+   "note": "documented in the V2 spec, but Affinity doesn't serve it yet (no route, checked 2026-10-12)",
    "stability": "beta"
   },
   {
@@ -543,8 +547,9 @@
   {
    "op": "DELETE /v2/persons/{personId}",
    "api": "v2",
-   "status": "supported",
-   "call": "persons.delete(PersonId(1))",
+   "status": "planned",
+   "phase": "when-live",
+   "note": "documented in the V2 spec, but Affinity doesn't serve it yet (no route, checked 2026-10-12)",
    "stability": "beta"
   },
   {
@@ -924,8 +929,8 @@
   {
    "op": "POST /lists/{}/list-entries",
    "api": "v1",
-   "status": "equivalent",
-   "via": "v2 POST /v2/lists/{listId}/list-entries"
+   "status": "supported",
+   "call": "lists.entries(ListId(1)).add_person(PersonId(1))"
   },
   {
    "op": "DELETE /lists/{}/list-entries/{}",
@@ -984,8 +989,8 @@
   {
    "op": "DELETE /opportunities/{}",
    "api": "v1",
-   "status": "equivalent",
-   "via": "v2 DELETE /v2/opportunities/{opportunityId}"
+   "status": "supported",
+   "call": "opportunities.delete(OpportunityId(1))"
   },
   {
    "op": "GET /opportunities/{}",
@@ -997,8 +1002,7 @@
    "op": "PUT /opportunities/{}",
    "api": "v1",
    "status": "supported",
-   "call": "opportunities.update(OpportunityId(1), OpportunityUpdate(person_ids=[PersonId(1)]))",
-   "note": "to change an opportunity's persons or companies (V2 can only rename)"
+   "call": "opportunities.update(OpportunityId(1), OpportunityUpdate(name=\"x\"))"
   },
   {
    "op": "GET /organizations",
@@ -1046,8 +1050,7 @@
    "op": "POST /persons",
    "api": "v1",
    "status": "supported",
-   "call": "persons.create(PersonCreate(first_name=\"a\", last_name=\"b\", company_ids=[CompanyId(1)]), if_not_exists=False)",
-   "note": "only for a person created with companies (V2 create can't link them)"
+   "call": "persons.create(PersonCreate(first_name=\"a\", last_name=\"b\"), if_not_exists=False)"
   },
   {
    "op": "GET /persons/fields",
@@ -1058,8 +1061,8 @@
   {
    "op": "DELETE /persons/{}",
    "api": "v1",
-   "status": "equivalent",
-   "via": "v2 DELETE /v2/persons/{personId}"
+   "status": "supported",
+   "call": "persons.delete(PersonId(1))"
   },
   {
    "op": "GET /persons/{}",
