@@ -78,9 +78,9 @@ unchanged (V1): Affinity's V2 spec documents them, but the API didn't serve them
 
 ## Files and rate limits
 
-`files.list/iter` are unchanged (V1, one entity's files). `files.get()` now reads V2 and
-returns `FileV2` (with a download URL that expires after 60 seconds; no person, company or
-opportunity ids). New: `files.feed()`/`iter_feed()` (every file you can see, newest first). `rate_limits.refresh()` reads the V2 endpoint; `RateLimitSnapshot` is unchanged.
+`files.get/list/iter` are unchanged (V1). `files.get_download_url()` uses V2 when it can (one
+request for the details and a URL valid 60 seconds) and V1 otherwise. New:
+`files.feed()`/`iter_feed()` (every file you can see, newest first, as `FileV2`). `rate_limits.refresh()` reads the V2 endpoint; `RateLimitSnapshot` is unchanged.
 
 ## CLI and MCP
 

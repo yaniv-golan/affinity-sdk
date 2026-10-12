@@ -24,7 +24,12 @@ import httpx
 from pydantic import AliasChoices, TypeAdapter, ValidationError
 
 from ..downloads import AsyncDownloadedFile, DownloadedFile
-from ..exceptions import AffinityError
+from ..exceptions import (
+    AffinityError,
+    ApiVersionTooOldError,
+    AuthorizationError,
+    NotFoundError,
+)
 from ..exceptions import ValidationError as AffinityValidationError
 from ..models.entities import (
     FieldCreate,
@@ -115,6 +120,26 @@ class PresignedUrl:
     content_type: str | None
     expires_in: int
     expires_at: datetime
+
+
+def _presigned(
+    url: str, file_id: int, name: str, size: int, content_type: str | None
+) -> PresignedUrl:
+    """A ``PresignedUrl``; its lifetime comes from ``X-Amz-Expires`` (60 seconds if absent)."""
+    expires_in = 60
+    qs = parse_qs(urlparse(url).query)
+    if "X-Amz-Expires" in qs:
+        with contextlib.suppress(ValueError, IndexError):
+            expires_in = int(qs["X-Amz-Expires"][0])
+    return PresignedUrl(
+        url=url,
+        file_id=int(file_id),
+        name=name,
+        size=size,
+        content_type=content_type,
+        expires_in=expires_in,
+        expires_at=datetime.now(timezone.utc) + timedelta(seconds=expires_in),
+    )
 
 
 _MAX_INTERACTION_RANGE_DAYS = 365
@@ -1846,16 +1871,11 @@ class EntityFileService(FileSearchMixin):
             next_page_token=data.get("next_page_token") or data.get("nextPageToken"),
         )
 
-    def _get_v1(self, file_id: FileId) -> EntityFile:
+    def get(self, file_id: FileId) -> EntityFile:
+        """A file's details, including the person, company or opportunity it belongs to (V1;
+        works under any API version). :meth:`get_download_url` adds a download link."""
         data = self._client.get(f"/entity-files/{file_id}", v1=True)
         return EntityFile.model_validate(data)
-
-    def get(self, file_id: FileId) -> FileV2:
-        """One file's metadata (V2, Affinity API 2026-09-17+), with a download URL that expires
-        60 seconds later. V2 files carry no person/company/opportunity: :meth:`list` gives those."""
-        return FileV2.model_validate(
-            self._client.get(f"/files/{int(file_id)}", min_api_version=FILES_V2_MIN_API_VERSION)
-        )
 
     def feed(
         self,
@@ -1948,8 +1968,17 @@ class EntityFileService(FileSearchMixin):
         Raises:
             AffinityError: If the API doesn't return a redirect URL
         """
-        # Fetch file metadata first
-        file_meta = self._get_v1(file_id)
+        # V2 answers with the details and a signed URL in one request (API 2026-09-17+, beta);
+        # a client pinned older, or a V2 refusal, uses V1's details and redirect instead
+        try:
+            v2 = FileV2.model_validate(
+                self._client.get(f"/files/{int(file_id)}", min_api_version=FILES_V2_MIN_API_VERSION)
+            )
+            if v2.download_url:
+                return _presigned(v2.download_url, v2.id, v2.name, v2.size, v2.content_type)
+        except (ApiVersionTooOldError, AuthorizationError, NotFoundError):
+            pass
+        file_meta = self.get(file_id)
 
         url = self._client.get_redirect_url(
             f"/entity-files/download/{file_id}",
@@ -1961,27 +1990,7 @@ class EntityFileService(FileSearchMixin):
                 f"Failed to get presigned URL for file {file_id}: no redirect returned"
             )
 
-        # Parse X-Amz-Expires from the presigned URL to determine TTL
-        # Default to 60 seconds if not found (Affinity's typical TTL)
-        parsed = urlparse(url)
-        qs = parse_qs(parsed.query)
-        expires_in = 60  # default
-        if "X-Amz-Expires" in qs:
-            with contextlib.suppress(ValueError, IndexError):
-                expires_in = int(qs["X-Amz-Expires"][0])
-
-        now = datetime.now(timezone.utc)
-        expires_at = now + timedelta(seconds=expires_in)
-
-        return PresignedUrl(
-            url=url,
-            file_id=int(file_id),
-            name=file_meta.name,
-            size=file_meta.size,
-            content_type=file_meta.content_type,
-            expires_in=expires_in,
-            expires_at=expires_at,
-        )
+        return _presigned(url, file_id, file_meta.name, file_meta.size, file_meta.content_type)
 
     def download_stream(
         self,
@@ -3722,18 +3731,10 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
             next_page_token=data.get("next_page_token") or data.get("nextPageToken"),
         )
 
-    async def _get_v1(self, file_id: FileId) -> EntityFile:
+    async def get(self, file_id: FileId) -> EntityFile:
+        """A file's details (V1); see :meth:`EntityFileService.get`."""
         data = await self._client.get(f"/entity-files/{file_id}", v1=True)
         return EntityFile.model_validate(data)
-
-    async def get(self, file_id: FileId) -> FileV2:
-        """One file's metadata (V2, Affinity API 2026-09-17+), with a download URL that expires
-        60 seconds later. V2 files carry no person/company/opportunity: :meth:`list` gives those."""
-        return FileV2.model_validate(
-            await self._client.get(
-                f"/files/{int(file_id)}", min_api_version=FILES_V2_MIN_API_VERSION
-            )
-        )
 
     async def feed(
         self,
@@ -3796,7 +3797,7 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
         *,
         max_concurrent: int = 10,
         on_error: Literal["raise", "skip"] = "raise",
-    ) -> dict[FileId, FileV2]:
+    ) -> dict[FileId, EntityFile]:
         """
         Fetch metadata for multiple files with controlled concurrency.
 
@@ -3810,7 +3811,7 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
                 - "skip": Skip failed IDs, return partial results
 
         Returns:
-            Dict mapping file_id -> FileV2 for successfully fetched files.
+            Dict mapping file_id -> EntityFile for successfully fetched files.
 
         Raises:
             AffinityError: If on_error="raise" and any fetch fails.
@@ -3821,9 +3822,9 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
             raise ValueError("max_concurrent must be at least 1")
 
         unique_ids = list(dict.fromkeys(file_ids))
-        results: dict[FileId, FileV2] = {}
+        results: dict[FileId, EntityFile] = {}
 
-        async def fetch_one(fid: FileId) -> tuple[FileId, FileV2 | None]:
+        async def fetch_one(fid: FileId) -> tuple[FileId, EntityFile | None]:
             try:
                 entity_file = await self.get(fid)
                 return (fid, entity_file)
@@ -3980,8 +3981,19 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
         Raises:
             AffinityError: If the API doesn't return a redirect URL
         """
-        # Fetch file metadata first
-        file_meta = await self._get_v1(file_id)
+        # V2 answers with the details and a signed URL in one request (API 2026-09-17+, beta);
+        # a client pinned older, or a V2 refusal, uses V1's details and redirect instead
+        try:
+            v2 = FileV2.model_validate(
+                await self._client.get(
+                    f"/files/{int(file_id)}", min_api_version=FILES_V2_MIN_API_VERSION
+                )
+            )
+            if v2.download_url:
+                return _presigned(v2.download_url, v2.id, v2.name, v2.size, v2.content_type)
+        except (ApiVersionTooOldError, AuthorizationError, NotFoundError):
+            pass
+        file_meta = await self.get(file_id)
 
         url = await self._client.get_redirect_url(
             f"/entity-files/download/{file_id}",
@@ -3993,27 +4005,7 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
                 f"Failed to get presigned URL for file {file_id}: no redirect returned"
             )
 
-        # Parse X-Amz-Expires from the presigned URL to determine TTL
-        # Default to 60 seconds if not found (Affinity's typical TTL)
-        parsed = urlparse(url)
-        qs = parse_qs(parsed.query)
-        expires_in = 60  # default
-        if "X-Amz-Expires" in qs:
-            with contextlib.suppress(ValueError, IndexError):
-                expires_in = int(qs["X-Amz-Expires"][0])
-
-        now = datetime.now(timezone.utc)
-        expires_at = now + timedelta(seconds=expires_in)
-
-        return PresignedUrl(
-            url=url,
-            file_id=int(file_id),
-            name=file_meta.name,
-            size=file_meta.size,
-            content_type=file_meta.content_type,
-            expires_in=expires_in,
-            expires_at=expires_at,
-        )
+        return _presigned(url, file_id, file_meta.name, file_meta.size, file_meta.content_type)
 
     def download_stream(
         self,

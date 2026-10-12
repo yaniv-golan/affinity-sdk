@@ -1,5 +1,9 @@
-"""SDK tests: V2 file reads (`files.get`, `files.feed`, `files.iter_feed`; API 2026-09-17+).
-`files.list/iter` (V1, one entity's files) are unchanged."""
+"""SDK tests for file reads.
+
+`files.get` and `files.list/iter` use V1 (one stable shape, any API version pin, with the
+file's person/company/opportunity). `files.feed/iter_feed` list every file through V2.
+`files.get_download_url` uses V2 (one request: details and a signed URL) when the client allows
+Affinity API 2026-09-17+, and V1 (details, then a redirect) otherwise."""
 
 from __future__ import annotations
 
@@ -47,13 +51,67 @@ def test_model() -> None:
     assert FileV2.model_validate({**SUMMARY, "creator": None, "type": None}).download_url is None
 
 
+V1 = "https://api.affinity.co"
+ENTITY_FILE = {
+    "id": 61,
+    "name": "deck.pdf",
+    "size": 245760,
+    "content_type": "application/pdf",
+    "person_id": None,
+    "organization_id": 7,
+    "opportunity_id": None,
+    "uploader_id": 4,
+    "created_at": "2026-10-01T09:00:00Z",
+}
+
+
 @respx.mock
-def test_get() -> None:
-    route = respx.get(f"{V2}/files/61").mock(return_value=Response(200, json=DETAIL))
+def test_get_is_v1_with_the_files_record() -> None:
+    route = respx.get(f"{V1}/entity-files/61").mock(return_value=Response(200, json=ENTITY_FILE))
     with Affinity(api_key="k", max_retries=0) as client:
         f = client.files.get(FileId(61))
-    assert f.name == "deck.pdf" and f.download_url
-    assert route.calls[0].request.headers["x-affinity-api-version"] == "2026-09-17"
+    assert f.company_id == 7 and f.name == "deck.pdf"
+    assert route.called
+
+
+@respx.mock
+def test_download_url_uses_v2_in_one_request() -> None:
+    v2 = respx.get(f"{V2}/files/61").mock(return_value=Response(200, json=DETAIL))
+    v1 = respx.get(url__regex=r"^https://api\.affinity\.co/entity-files/").mock(
+        return_value=Response(500)
+    )
+    with Affinity(api_key="k", max_retries=0) as client:
+        url = client.files.get_download_url(FileId(61))
+    assert url.url == DETAIL["downloadUrl"]
+    assert (url.name, url.size, url.content_type) == ("deck.pdf", 245760, "application/pdf")
+    assert url.expires_in == 60
+    assert v2.calls[0].request.headers["x-affinity-api-version"] == "2026-09-17"
+    assert not v1.called
+
+
+@respx.mock
+def test_download_url_falls_back_to_v1_when_pinned_older() -> None:
+    meta = respx.get(f"{V1}/entity-files/61").mock(return_value=Response(200, json=ENTITY_FILE))
+    redirect = respx.get(f"{V1}/entity-files/download/61").mock(
+        return_value=Response(307, headers={"Location": "https://s3.example/f?X-Amz-Expires=30"})
+    )
+    with Affinity(api_key="k", max_retries=0, affinity_api_version="2024-01-01") as client:
+        url = client.files.get_download_url(FileId(61))
+    assert url.url.startswith("https://s3.example/") and url.expires_in == 30
+    assert meta.called and redirect.called
+
+
+@pytest.mark.parametrize("status", [403, 404])
+@respx.mock
+def test_download_url_falls_back_to_v1_when_v2_cant_answer(status: int) -> None:
+    respx.get(f"{V2}/files/61").mock(return_value=Response(status, json={"errors": []}))
+    respx.get(f"{V1}/entity-files/61").mock(return_value=Response(200, json=ENTITY_FILE))
+    redirect = respx.get(f"{V1}/entity-files/download/61").mock(
+        return_value=Response(307, headers={"Location": "https://s3.example/f"})
+    )
+    with Affinity(api_key="k", max_retries=0) as client:
+        url = client.files.get_download_url(FileId(61))
+    assert redirect.called and url.name == "deck.pdf"
 
 
 @respx.mock
@@ -104,8 +162,11 @@ async def test_async_v2_reads() -> None:
     )
     respx.get(url).mock(return_value=Response(200, json=_page([SUMMARY], f"{url}?cursor=p2")))
     respx.get(f"{V2}/files/61").mock(return_value=Response(200, json=DETAIL))
+    respx.get(f"{V1}/entity-files/61").mock(return_value=Response(200, json=ENTITY_FILE))
     async with AsyncAffinity(api_key="k", max_retries=0) as client:
         page = await client.files.feed(limit=1)
         ids = [f.id async for f in client.files.iter_feed()]
-        f = await client.files.get(FileId(61))
-    assert page.data[0].id == 61 and ids == [61, 62] and f.download_url
+        url = await client.files.get_download_url(FileId(61))
+        meta = await client.files.get(FileId(61))
+    assert page.data[0].id == 61 and ids == [61, 62]
+    assert url.url == DETAIL["downloadUrl"] and meta.company_id == 7

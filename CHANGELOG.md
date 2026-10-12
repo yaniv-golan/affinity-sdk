@@ -22,13 +22,16 @@ said which Affinity API they used instead of what they do.
   removed; `notes.list()` (one entity's notes, V1) is unchanged.
 - `files.list_v2()` / `iter_v2()` → **`files.feed()` / `iter_feed()`** (every file you can see,
   newest first).
-- `files.get_v2()` → **`files.get()`**, which now returns `FileV2` (with a download URL valid
-  for 60 seconds; Affinity API 2026-09-17+; no person/company/opportunity ids). Async
-  `files.batch_get()` returns `FileV2` too. `files.list()`/`iter()` (one entity's files, V1)
-  are unchanged.
+- `files.get_v2()` is removed. **`files.get_download_url()`** now asks V2 first: one request
+  for the details and a signed URL (valid 60 seconds) instead of V1's two. It falls back to
+  V1 when the client is pinned to an API version older than 2026-09-17, or when V2 refuses or
+  doesn't find the file; the result (`PresignedUrl`) is the same either way. `files.get()`
+  stays on V1 (`EntityFile`, with the file's person, company or opportunity) and works under
+  any version pin.
 - CLI `note get` reads the note from V2: same output keys, `content` is the stored HTML (as in
   `note create`/`update` output), and the attachment ids come from V2.
-- CLI `files read` downloads through V2's signed URL (two fewer requests per read).
+- CLI `files read` and `file-url` get the file's details and URL in one request where V2 can
+  answer (V1's path otherwise).
 
 ### Plugins
 

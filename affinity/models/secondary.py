@@ -280,10 +280,10 @@ class OpportunityRef(AffinityModel):
 
 
 class FileV2(AffinityModel):
-    """A file's metadata from V2 (``files.get``, ``files.feed``).
+    """A file's metadata from V2 (``files.feed``).
 
-    V2 files carry no person/company/opportunity; ``download_url`` (``files.get`` only) is a signed
-    URL that expires 60 seconds after the response.
+    V2 files carry no person/company/opportunity; ``download_url`` (single-file reads only) is
+    a signed URL that expires 60 seconds after the response.
     """
 
     id: FileId

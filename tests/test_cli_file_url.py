@@ -51,6 +51,10 @@ class TestFileUrlCLICommand:
 
     def test_file_url_returns_presigned_url(self, respx_mock: respx.MockRouter) -> None:
         """file-url command returns presigned URL with metadata."""
+        # V2 can't answer (404), so the V1 metadata + redirect path is used
+        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
+            return_value=Response(404, json={"errors": []})
+        )
         # Mock the file metadata endpoint
         respx_mock.get("https://api.affinity.co/entity-files/9192757").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
@@ -87,6 +91,9 @@ class TestFileUrlCLICommand:
     def test_file_url_with_null_content_type(self, respx_mock: respx.MockRouter) -> None:
         """file-url handles files with null content type."""
         file_meta = {**SAMPLE_FILE_METADATA, "content_type": None}
+        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
+            return_value=Response(404, json={"errors": []})
+        )
         respx_mock.get("https://api.affinity.co/entity-files/9192757").mock(
             return_value=Response(200, json=file_meta)
         )

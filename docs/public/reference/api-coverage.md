@@ -37,7 +37,7 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/field-value-changes` | supported | `field_value_changes.list_global(field_id=FieldId(1))` |  |
 | `GET /v2/files` | supported | `files.feed()` | beta; API 2026-09-17+ |
 | `POST /v2/files/search` | supported | `files.search("prompt text")` |  |
-| `GET /v2/files/{fileId}` | supported | `files.get(FileId(1))` | beta; API 2026-09-17+ |
+| `GET /v2/files/{fileId}` | supported | `files.get_download_url(FileId(1))` | beta; API 2026-09-17+ |
 | `GET /v2/inferred-connections/coworkers` | planned |  | beta; phase 2.x-2 |
 | `GET /v2/inferred-connections/investor-executive-connections` | planned |  | beta; phase 2.x-2 |
 | `GET /v2/lists` | supported | `lists.list()` |  |
@@ -133,7 +133,7 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /entity-files` | supported | `files.list(company_id=CompanyId(1))` | one person's, company's or opportunity's files (V2 lists only org-wide: files.feed) |
 | `POST /entity-files` | supported | `files.upload_bytes(b"x", "a.txt", company_id=CompanyId(1))` |  |
 | `GET /entity-files/download/{}` | supported | `files.download(FileId(1))` |  |
-| `GET /entity-files/{}` | supported | `files.get_download_url(FileId(1))` | file metadata for get_download_url (files.get reads V2) |
+| `GET /entity-files/{}` | supported | `files.get(FileId(1))` | the file's record, with its person/company/opportunity, under any API version pin; get_download_url uses V2 when it can |
 | `GET /field-value-changes` | supported | `field_value_changes.list(FieldId(1), company_id=CompanyId(1))` |  |
 | `GET /field-values` | supported | `field_values.list(company_id=CompanyId(1))` |  |
 | `POST /field-values` | supported | `field_values.create(FieldValueCreate(field_id=FieldId(1), entity_id=1, value="x"))` |  |
