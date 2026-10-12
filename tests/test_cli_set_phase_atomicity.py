@@ -555,18 +555,21 @@ def _setup_note_dedup_mocks(
     notes_list_route = respx_mock.get("https://api.affinity.co/notes").mock(
         return_value=Response(200, json=notes_list_payload)
     )
-    notes_create_route = respx_mock.post("https://api.affinity.co/notes").mock(
+    notes_create_route = respx_mock.post("https://api.affinity.co/v2/notes").mock(
         return_value=Response(
-            200,
+            201,
             json={
                 "id": 999,
-                "creator_id": user_id,
-                "content": "Hello",
-                "type": 0,
-                "person_ids": [3],
-                "organization_ids": [],
-                "opportunity_ids": [],
-                "created_at": "2024-01-01T00:00:00Z",
+                "type": "entities",
+                "content": {"html": "<p>Hello</p>"},
+                "creator": {
+                    "id": user_id,
+                    "firstName": "A",
+                    "lastName": "B",
+                    "primaryEmailAddress": None,
+                    "type": "internal",
+                },
+                "createdAt": "2024-01-01T00:00:00Z",
             },
         )
     )
@@ -717,3 +720,32 @@ def test_note_create_dedup_outside_window_does_not_warn(
     payload = json.loads(result.output.strip())
     warnings_list = payload.get("warnings", [])
     assert not any("Possible duplicate" in w for w in warnings_list)
+
+
+@pytest.mark.req("CLI-NOTE-DUPLICATE-WARN")
+def test_note_create_dedup_matches_a_copy_stored_as_html(respx_mock: respx.MockRouter) -> None:
+    """V2 stores notes as HTML: an earlier copy holding the converted text still counts."""
+    from datetime import datetime, timezone
+
+    routes = _setup_note_dedup_mocks(
+        respx_mock,
+        existing_note={
+            "id": 556,
+            "creator_id": 42,
+            "content": "<p>Hello &lt;world&gt;</p>",
+            "type": 2,
+            "personIds": [3],
+            "organizationIds": [],
+            "opportunityIds": [],
+            "createdAt": datetime.now(timezone.utc).isoformat(),
+        },
+    )
+    result = CliRunner().invoke(
+        cli,
+        ["--json", "note", "create", "--content", "Hello <world>", "--person-id", "3"],
+        env={"AFFINITY_API_KEY": "test-key"},
+    )
+    assert result.exit_code == 0, result.output
+    assert routes["notes_create"].called
+    warnings_list = json.loads(result.output.strip()).get("warnings", [])
+    assert any("556" in w for w in warnings_list), warnings_list

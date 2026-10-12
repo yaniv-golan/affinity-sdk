@@ -6,7 +6,7 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V2 API
 
-74 supported, 38 planned
+77 supported, 35 planned
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -65,11 +65,11 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/meetings` | supported | `interactions.list_meetings()` |  |
 | `GET /v2/meetings/{meetingId}` | planned |  | beta; API 2026-07-15+; phase 2.x-1 |
 | `GET /v2/notes` | supported | `notes.list_v2()` |  |
-| `POST /v2/notes` | planned |  | phase 2.0.0 |
+| `POST /v2/notes` | supported | `notes.create(NoteCreate(content="x", person_ids=[PersonId(1)]))` |  |
 | `POST /v2/notes/search` | supported | `notes.search("prompt text")` |  |
-| `DELETE /v2/notes/{noteId}` | planned |  | phase 2.0.0 |
+| `DELETE /v2/notes/{noteId}` | supported | `notes.delete(NoteId(1))` |  |
 | `GET /v2/notes/{noteId}` | supported | `notes.get_v2(NoteId(1))` |  |
-| `POST /v2/notes/{noteId}` | planned |  | phase 2.0.0 |
+| `POST /v2/notes/{noteId}` | supported | `notes.update(NoteId(1), NoteUpdate(content="x"))` |  |
 | `GET /v2/notes/{noteId}/attached-companies` | planned |  | phase 2.x-1 |
 | `GET /v2/notes/{noteId}/attached-opportunities` | planned |  | phase 2.x-1 |
 | `GET /v2/notes/{noteId}/attached-persons` | planned |  | phase 2.x-1 |
@@ -125,7 +125,7 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V1 API
 
-46 supported, 13 equivalent
+43 supported, 16 equivalent
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -155,10 +155,10 @@ against the pinned API specs and checks that each supported call requests its op
 | `DELETE /lists/{}/list-entries/{}` | supported | `lists.entries(ListId(1)).delete(ListEntryId(1))` |  |
 | `GET /lists/{}/list-entries/{}` | equivalent |  | via v2 GET /v2/lists/{listId}/list-entries/{listEntryId} |
 | `GET /notes` | supported | `notes.list()` |  |
-| `POST /notes` | supported | `notes.create(NoteCreate(content="x", person_ids=[PersonId(1)]))` |  |
-| `DELETE /notes/{}` | supported | `notes.delete(NoteId(1))` |  |
+| `POST /notes` | equivalent |  | via v2 POST /v2/notes |
+| `DELETE /notes/{}` | equivalent |  | via v2 DELETE /v2/notes/{noteId} |
 | `GET /notes/{}` | supported | `notes.get(NoteId(1))` |  |
-| `PUT /notes/{}` | supported | `notes.update(NoteId(1), NoteUpdate(content="x"))` |  |
+| `PUT /notes/{}` | equivalent |  | via v2 POST /v2/notes/{noteId} |
 | `GET /opportunities` | supported | `opportunities.search("x")` |  |
 | `POST /opportunities` | supported | `opportunities.create(OpportunityCreate(name="x", list_id=ListId(1)))` |  |
 | `DELETE /opportunities/{}` | supported | `opportunities.delete(OpportunityId(1))` |  |

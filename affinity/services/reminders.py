@@ -33,7 +33,7 @@ from ..models.types import (
     UserId,
 )
 from ._org_reads import check_cursor_alone, check_limit, page_of
-from ._v2_filters import v2_filter_datetime
+from ._v2_filters import v2_body_datetime, v2_filter_datetime
 
 if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
@@ -53,13 +53,6 @@ _V1_RESET = {
 
 
 # --- request bodies -----------------------------------------------------------------------------
-
-
-def body_datetime(value: datetime) -> str:
-    """A datetime for a V2 request body: whole seconds, UTC, ``Z`` (naive means UTC)."""
-    if value.tzinfo is None:
-        value = value.replace(tzinfo=timezone.utc)
-    return value.astimezone(timezone.utc).replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _entity(data: ReminderCreate) -> dict[str, Any] | None:
@@ -100,7 +93,7 @@ def create_body(data: ReminderCreate) -> dict[str, Any]:
             "resetTrigger": str(ReminderResetType(data.reset_type)),
         }
     if data.due_date is not None:
-        body["dueDate"] = body_datetime(data.due_date)
+        body["dueDate"] = v2_body_datetime(data.due_date)
     return body
 
 
@@ -110,7 +103,7 @@ def v1_create_body(data: ReminderCreate) -> dict[str, Any]:
     if data.content is not None:
         body["content"] = data.content
     if data.due_date is not None:
-        body["due_date"] = body_datetime(data.due_date)
+        body["due_date"] = v2_body_datetime(data.due_date)
     if data.reset_type is not None:
         body["reset_type"] = _V1_RESET[ReminderResetType(data.reset_type)]
     if data.reminder_days is not None:
@@ -128,7 +121,7 @@ def update_body(data: ReminderUpdate) -> dict[str, Any]:
     elif data.clear_content:
         body["content"] = None
     if data.due_date is not None:
-        body["dueDate"] = body_datetime(data.due_date)
+        body["dueDate"] = v2_body_datetime(data.due_date)
     recurrence: dict[str, Any] = {}
     if data.reminder_days is not None:
         if not 1 <= data.reminder_days <= MAX_PERIOD_DAYS:
@@ -139,7 +132,7 @@ def update_body(data: ReminderUpdate) -> dict[str, Any]:
     if recurrence:
         body["recurrence"] = recurrence
     if data.is_completed is True:
-        body["completedAt"] = body_datetime(datetime.now(timezone.utc))
+        body["completedAt"] = v2_body_datetime(datetime.now(timezone.utc))
     elif data.is_completed is False:
         body["completedAt"] = None
     if not body:
@@ -162,7 +155,7 @@ def v1_update_body(data: ReminderUpdate) -> dict[str, Any]:
     if data.content is not None:
         body["content"] = data.content
     if data.due_date is not None:
-        body["due_date"] = body_datetime(data.due_date)
+        body["due_date"] = v2_body_datetime(data.due_date)
     if data.reset_type is not None:
         body["reset_type"] = _V1_RESET[ReminderResetType(data.reset_type)]
     if data.reminder_days is not None:

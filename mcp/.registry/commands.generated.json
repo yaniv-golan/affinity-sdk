@@ -2621,10 +2621,8 @@
         "--type": {
           "type": "string",
           "required": false,
-          "help": "Note type (plain-text, html, ai-notetaker, email-derived).",
+          "help": "How --content is written: plain-text (default; stored as escaped HTML) or html.",
           "choices": [
-            "ai-notetaker",
-            "email-derived",
             "html",
             "plain",
             "plain-text"
@@ -2633,8 +2631,7 @@
       },
       "positionals": [],
       "examples": [
-        "note create --content \"Meeting notes\" --person-id 12345",
-        "note create --content \"<b>Summary</b>\" --type html --company-id 67890"
+        "note create --content \"Meeting notes\" --person-id 12345"
       ],
       "whenToUse": "Add a note to an entity. Simpler than interactions for quick notes.",
       "relatedCommands": [
@@ -2979,7 +2976,7 @@
     },
     {
       "name": "note update",
-      "description": "Update a note.",
+      "description": "Replace a note's content.",
       "category": "write",
       "destructive": false,
       "progressCapable": false,
@@ -2988,6 +2985,16 @@
           "type": "string",
           "required": true,
           "help": "Updated note content."
+        },
+        "--type": {
+          "type": "string",
+          "required": false,
+          "help": "How --content is written: plain-text (default) or html, whatever the note was before.",
+          "choices": [
+            "html",
+            "plain",
+            "plain-text"
+          ]
         }
       },
       "positionals": [

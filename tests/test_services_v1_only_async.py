@@ -10,8 +10,6 @@ from affinity.models.entities import FieldCreate, FieldValueCreate
 from affinity.models.secondary import (
     InteractionCreate,
     InteractionUpdate,
-    NoteCreate,
-    NoteUpdate,
 )
 from affinity.services.rate_limits import AsyncRateLimitService
 from affinity.services.v1_only import (
@@ -30,7 +28,6 @@ from affinity.types import (
     InteractionId,
     InteractionType,
     NoteId,
-    NoteType,
     PersonId,
     UserId,
 )
@@ -129,13 +126,6 @@ async def test_async_note_service_crud() -> None:
         assert page.next_page_token == "next"
         note = await svc.get(NoteId(1))
         assert note.content == "Hello"
-        created = await svc.create(
-            NoteCreate(content="Created", type=NoteType.PLAIN_TEXT, person_ids=[])
-        )
-        assert created.id == NoteId(2)
-        updated = await svc.update(NoteId(1), NoteUpdate(content="Updated"))
-        assert updated.content == "Updated"
-        assert await svc.delete(NoteId(1)) is True
 
 
 @pytest.mark.asyncio

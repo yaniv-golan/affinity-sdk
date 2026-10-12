@@ -25,6 +25,7 @@ from pydantic import AliasChoices, TypeAdapter, ValidationError
 
 from ..downloads import AsyncDownloadedFile, DownloadedFile
 from ..exceptions import AffinityError
+from ..exceptions import ValidationError as AffinityValidationError
 from ..models.entities import (
     FieldCreate,
     FieldMetadata,
@@ -68,6 +69,7 @@ from ..models.types import (
     to_v1_value_type_code,
 )
 from ..progress import ProgressCallback
+from ._note_html import has_mentions, mentions_error, note_create_body, note_update_body
 from ._org_reads import (
     check_cursor_alone,
     interaction_params,
@@ -316,39 +318,39 @@ class NoteService(NoteSearchMixin):
         data = self._client.get(f"/notes/{note_id}", v1=True)
         return Note.model_validate(data)
 
-    def create(self, data: NoteCreate) -> Note:
+    def create(self, data: NoteCreate) -> NoteV2:
+        """Create a note (V2) and return it.
+
+        Attach it to at least one person, company or opportunity, or reply to a note with
+        ``parent_id``. V2 stores notes as HTML: plain text (the default) is escaped and wrapped
+        in paragraphs; with ``type=NoteType.HTML`` the HTML is checked against what the API
+        accepts (``<b>``/``<i>`` become ``<strong>``/``<em>``).
         """
-        Create a new note.
+        return NoteV2.model_validate(self._client.post("/notes", json=note_create_body(data)))
 
-        Must be associated with at least one person, organization,
-        opportunity, or parent note (for replies).
+    def update(self, note_id: NoteId, data: NoteUpdate) -> NoteV2:
+        """Change a note's content and/or attachments (V2) and return it as read back.
+
+        Two requests: the update has no response body, so the note is read again with its
+        attachments (``includes``). ``data.type`` says whether ``content`` is plain text (the
+        default) or HTML. Notes with @mentions can't have their content changed (API 400).
         """
-        payload = data.model_dump(by_alias=True, mode="python", exclude_none=True)
-        _coerce_isoformat(payload, ("created_at",))
-        if not data.person_ids:
-            payload.pop("person_ids", None)
-        if not data.company_ids:
-            payload.pop("organization_ids", None)
-        if not data.opportunity_ids:
-            payload.pop("opportunity_ids", None)
-
-        result = self._client.post("/notes", json=payload, v1=True)
-        return Note.model_validate(result)
-
-    def update(self, note_id: NoteId, data: NoteUpdate) -> Note:
-        """Update a note's content."""
-        payload = data.model_dump(mode="json", exclude_unset=True, exclude_none=True)
-        result = self._client.put(
-            f"/notes/{note_id}",
-            json=payload,
-            v1=True,
-        )
-        return Note.model_validate(result)
+        try:
+            self._client.post(f"/notes/{int(note_id)}", json=note_update_body(data))
+        except AffinityValidationError as exc:
+            if data.content is not None:
+                note = None
+                with contextlib.suppress(AffinityError):
+                    note = self.get_v2(note_id)
+                if has_mentions(note):
+                    raise mentions_error(exc) from exc
+            raise
+        return self.get_v2(note_id, includes=True)
 
     def delete(self, note_id: NoteId) -> bool:
-        """Delete a note."""
-        result = self._client.delete(f"/notes/{note_id}", v1=True)
-        return bool(result.get("success", False))
+        """Delete a note you created (V2). Deleting a note also deletes its replies."""
+        self._client.delete(f"/notes/{int(note_id)}")
+        return True
 
     def iter(
         self,
@@ -2377,31 +2379,28 @@ class AsyncNoteService(AsyncNoteSearchMixin):
         data = await self._client.get(f"/notes/{note_id}", v1=True)
         return Note.model_validate(data)
 
-    async def create(self, data: NoteCreate) -> Note:
-        payload = data.model_dump(by_alias=True, mode="python", exclude_none=True)
-        _coerce_isoformat(payload, ("created_at",))
-        if not data.person_ids:
-            payload.pop("person_ids", None)
-        if not data.company_ids:
-            payload.pop("organization_ids", None)
-        if not data.opportunity_ids:
-            payload.pop("opportunity_ids", None)
+    async def create(self, data: NoteCreate) -> NoteV2:
+        """Create a note (V2); see :meth:`NoteService.create`."""
+        return NoteV2.model_validate(await self._client.post("/notes", json=note_create_body(data)))
 
-        result = await self._client.post("/notes", json=payload, v1=True)
-        return Note.model_validate(result)
-
-    async def update(self, note_id: NoteId, data: NoteUpdate) -> Note:
-        payload = data.model_dump(mode="json", exclude_unset=True, exclude_none=True)
-        result = await self._client.put(
-            f"/notes/{note_id}",
-            json=payload,
-            v1=True,
-        )
-        return Note.model_validate(result)
+    async def update(self, note_id: NoteId, data: NoteUpdate) -> NoteV2:
+        """Change a note and return it as read back; see :meth:`NoteService.update`."""
+        try:
+            await self._client.post(f"/notes/{int(note_id)}", json=note_update_body(data))
+        except AffinityValidationError as exc:
+            if data.content is not None:
+                note = None
+                with contextlib.suppress(AffinityError):
+                    note = await self.get_v2(note_id)
+                if has_mentions(note):
+                    raise mentions_error(exc) from exc
+            raise
+        return await self.get_v2(note_id, includes=True)
 
     async def delete(self, note_id: NoteId) -> bool:
-        result = await self._client.delete(f"/notes/{note_id}", v1=True)
-        return bool(result.get("success", False))
+        """Delete a note you created (V2); see :meth:`NoteService.delete`."""
+        await self._client.delete(f"/notes/{int(note_id)}")
+        return True
 
     def iter(
         self,

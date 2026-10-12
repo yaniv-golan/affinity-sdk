@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import sys
 from contextlib import ExitStack
 from datetime import datetime, timedelta, timezone
@@ -8,8 +9,9 @@ from typing import Any
 from rich.console import Console
 from rich.progress import BarColumn, Progress, TaskID, TextColumn, TimeElapsedColumn
 
-from affinity.models.secondary import Note, NoteCreate, NoteUpdate
+from affinity.models.secondary import Note, NoteCreate, NoteUpdate, NoteV2
 from affinity.models.types import InteractionType, NoteType
+from affinity.services._note_html import note_html
 from affinity.services.search import NOTE_SEARCH_DEFAULT_LIMIT, build_keyword_search_body
 from affinity.types import CompanyId, NoteId, OpportunityId, PersonId, UserId
 
@@ -42,8 +44,6 @@ _NOTE_TYPE_MAP = {
     "plain-text": NoteType.PLAIN_TEXT,
     "plain": NoteType.PLAIN_TEXT,
     "html": NoteType.HTML,
-    "ai-notetaker": NoteType.AI_NOTETAKER,
-    "email-derived": NoteType.EMAIL_DERIVED,
 }
 
 
@@ -77,6 +77,7 @@ def _maybe_warn_duplicate_note(
     opportunity_ids: tuple[int, ...],
     explicit_creator_id: int | None,
     window_seconds: int,
+    note_type: NoteType = NoteType.PLAIN_TEXT,
 ) -> None:
     """Append a stderr warning to ``warnings`` if a recent duplicate exists.
 
@@ -102,6 +103,10 @@ def _maybe_warn_duplicate_note(
     normalized_new = content.strip()
     if not normalized_new:
         return
+    # V2 stores notes as HTML: an earlier copy may hold the text as typed or its HTML form
+    same_content = {normalized_new}
+    with contextlib.suppress(ValueError):
+        same_content.add(note_html(content, note_type).strip())
 
     now = datetime.now(timezone.utc)
     window = timedelta(seconds=max(0, window_seconds))
@@ -120,7 +125,7 @@ def _maybe_warn_duplicate_note(
             return False
         for existing in getattr(page, "data", []) or []:
             existing_content = (existing.content or "").strip()
-            if existing_content != normalized_new:
+            if existing_content not in same_content:
                 continue
             created_at = getattr(existing, "created_at", None)
             if created_at is None:
@@ -180,6 +185,67 @@ def _note_payload(note: Note) -> dict[str, object]:
         "createdAt": note.created_at,
         "updatedAt": note.updated_at,
     }
+
+
+def _usage(exc: ValueError) -> CLIError:
+    errors = getattr(exc, "errors", None)
+    message = str(exc)
+    if callable(errors):  # pydantic ValidationError: keep only the messages
+        message = "; ".join(str(e.get("msg", "")).removeprefix("Value error, ") for e in errors())
+    return CLIError(message, error_type="usage_error", exit_code=2)
+
+
+def _ids(given: list[int] | None, preview: list[Any] | None) -> list[int]:
+    if given is not None:
+        return [int(i) for i in given]
+    return [int(item.id) for item in preview or []]
+
+
+def _note_v2_payload(
+    note: NoteV2,
+    *,
+    person_ids: list[int] | None = None,
+    company_ids: list[int] | None = None,
+    opportunity_ids: list[int] | None = None,
+) -> dict[str, object]:
+    """A note written through V2, with the same keys as `note get` (V2 stores HTML).
+
+    Attachment ids come from the request when given, else from the note as read back.
+    """
+    interaction = note.interaction or {}
+    persons = _ids(person_ids, note.persons)
+    mentioned = [
+        int(m["person"]["id"])
+        for m in note.mentions
+        if isinstance(m, dict) and isinstance(m.get("person"), dict) and m["person"].get("id")
+    ]
+    return {
+        "id": int(note.id),
+        "type": "html",
+        "creatorId": int(note.creator.id) if note.creator else None,
+        "content": note.content.html,
+        "personIds": persons,
+        "associatedPersonIds": persons,
+        "interactionPersonIds": [],
+        "mentionedPersonIds": mentioned,
+        "companyIds": _ids(company_ids, note.companies),
+        "opportunityIds": _ids(opportunity_ids, note.opportunities),
+        "interactionId": interaction.get("id"),
+        "interactionType": interaction.get("type"),
+        "isMeeting": interaction.get("type") == "meeting",
+        "parentId": int(note.parent["id"]) if note.parent and note.parent.get("id") else None,
+        "createdAt": note.created_at,
+        "updatedAt": note.updated_at,
+    }
+
+
+def _truncation_warnings(note: NoteV2, warnings: list[str]) -> None:
+    for key in ("persons", "companies", "opportunities"):
+        shown, total = getattr(note, key), getattr(note, f"{key}_total")
+        if shown is not None and total is not None and total > len(shown):
+            warnings.append(
+                f"The note has {total} attached {key}; the output lists the first {len(shown)}."
+            )
 
 
 @category("read")
@@ -488,7 +554,7 @@ def note_search(
     "note_type",
     type=click.Choice(sorted(_NOTE_TYPE_MAP.keys())),
     default=None,
-    help="Note type (plain-text, html, ai-notetaker, email-derived).",
+    help="How --content is written: plain-text (default; stored as escaped HTML) or html.",
 )
 @click.option("--person-id", "person_ids", multiple=True, type=int, help="Associate person id.")
 @click.option(
@@ -548,15 +614,16 @@ def note_create(
     """
     Create a note attached to an entity.
 
-    Note: The Affinity API escapes underscores in note content (e.g., "test_note"
-    becomes "test\\_note"). This is server-side markdown escaping and cannot be
-    prevented. If you need to search for or compare note content, account for
-    this transformation.
+    Affinity stores notes as HTML: plain text is escaped and wrapped in paragraphs (a blank
+    line starts a new one). With --type html, <b>/<i> become <strong>/<em>; tags Affinity
+    rejects (style/class attributes, img, pre, code, blockquote, ...) fail before anything is
+    sent. A reply (--parent-id) has no persons, companies or opportunities of its own.
 
     Examples:
 
     - `xaffinity note create --content "Meeting notes" --person-id 12345`
-    - `xaffinity note create --content "<b>Summary</b>" --type html --company-id 67890`
+    - `xaffinity note create --content "<p><strong>Summary</strong></p>" --type html \\
+      --company-id 67890`
     """
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
@@ -595,20 +662,24 @@ def note_create(
                 opportunity_ids=opportunity_ids,
                 explicit_creator_id=creator_id,
                 window_seconds=duplicate_window_seconds,
+                note_type=parsed_type or NoteType.PLAIN_TEXT,
             )
 
-        note = client.notes.create(
-            NoteCreate(
-                content=content,
-                type=parsed_type or NoteType.PLAIN_TEXT,
-                person_ids=[PersonId(pid) for pid in person_ids],
-                company_ids=[CompanyId(cid) for cid in company_ids],
-                opportunity_ids=[OpportunityId(oid) for oid in opportunity_ids],
-                parent_id=NoteId(parent_id) if parent_id else None,
-                creator_id=UserId(creator_id) if creator_id is not None else None,
-                created_at=created_at_value,
+        try:
+            note = client.notes.create(
+                NoteCreate(
+                    content=content,
+                    type=parsed_type or NoteType.PLAIN_TEXT,
+                    person_ids=[PersonId(pid) for pid in person_ids],
+                    company_ids=[CompanyId(cid) for cid in company_ids],
+                    opportunity_ids=[OpportunityId(oid) for oid in opportunity_ids],
+                    parent_id=NoteId(parent_id) if parent_id else None,
+                    creator_id=UserId(creator_id) if creator_id is not None else None,
+                    created_at=created_at_value,
+                )
             )
-        )
+        except ValueError as exc:
+            raise _usage(exc) from exc
 
         ctx_modifiers: dict[str, object] = {}
         if note_type:
@@ -633,7 +704,14 @@ def note_create(
         )
 
         return CommandOutput(
-            data={"note": _note_payload(note)},
+            data={
+                "note": _note_v2_payload(
+                    note,
+                    person_ids=list(person_ids),
+                    company_ids=list(company_ids),
+                    opportunity_ids=list(opportunity_ids),
+                )
+            },
             context=cmd_context,
             api_called=True,
         )
@@ -645,23 +723,45 @@ def note_create(
 @note_group.command(name="update", cls=RichCommand)
 @click.argument("note_id", type=int)
 @click.option("--content", type=str, required=True, help="Updated note content.")
+@click.option(
+    "--type",
+    "note_type",
+    type=click.Choice(sorted(_NOTE_TYPE_MAP.keys())),
+    default=None,
+    help="How --content is written: plain-text (default) or html, whatever the note was before.",
+)
 @output_options
 @click.pass_obj
-def note_update(ctx: CLIContext, note_id: int, *, content: str) -> None:
-    """Update a note."""
+def note_update(ctx: CLIContext, note_id: int, *, content: str, note_type: str | None) -> None:
+    """Replace a note's content.
+
+    The content is plain text unless you pass --type html (an HTML note updated with plain text
+    shows the text as typed). Notes with @mentions can't be changed through the API.
+    """
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
+        parsed_type = parse_choice(note_type, _NOTE_TYPE_MAP, label="note type")
         client = ctx.get_client(warnings=warnings)
-        note = client.notes.update(NoteId(note_id), NoteUpdate(content=content))
+        try:
+            note = client.notes.update(
+                NoteId(note_id),
+                NoteUpdate(content=content, type=parsed_type or NoteType.PLAIN_TEXT),
+            )
+        except ValueError as exc:
+            raise _usage(exc) from exc
+        _truncation_warnings(note, warnings)
 
+        modifiers: dict[str, object] = {"content": content}
+        if note_type:
+            modifiers["type"] = note_type
         cmd_context = CommandContext(
             name="note update",
             inputs={"noteId": note_id},
-            modifiers={"content": content},
+            modifiers=modifiers,
         )
 
         return CommandOutput(
-            data={"note": _note_payload(note)},
+            data={"note": _note_v2_payload(note)},
             context=cmd_context,
             api_called=True,
         )

@@ -90,8 +90,10 @@ from .secondary import (
     InteractionUpdate,
     # Note
     Note,
+    NoteContent,
     NoteCreate,
     NoteUpdate,
+    NoteV2,
     OpportunityRef,
     PersonMergeState,
     PersonRef,
@@ -167,6 +169,8 @@ __all__ = [
     "Note",
     "NoteCreate",
     "NoteUpdate",
+    "NoteV2",
+    "NoteContent",
     # Reminder
     "Reminder",
     "ReminderCreate",

@@ -76,8 +76,8 @@ def test_v2_first_plus_v1_fallback_routing_and_stable_shapes() -> None:
                 200,
                 json={
                     "id": 1,
-                    "creatorId": 1,
-                    "content": "hello",
+                    "type": "entities",
+                    "content": {"html": "<p>hello</p>"},
                     "createdAt": created_at,
                 },
                 request=request,
@@ -110,7 +110,8 @@ def test_v2_first_plus_v1_fallback_routing_and_stable_shapes() -> None:
 
     assert called_urls[0].startswith("https://v2.example/v2/")
     assert called_urls[1].startswith("https://v1.example/")
-    assert called_urls[2].startswith("https://v1.example/")
+    # Note writes are V2 since SDK 2.0
+    assert called_urls[2].startswith("https://v2.example/v2/")
 
 
 @pytest.mark.req("NFR-001a")

@@ -14,8 +14,6 @@ from affinity.models.entities import FieldCreate, FieldValueCreate
 from affinity.models.secondary import (
     InteractionCreate,
     InteractionUpdate,
-    NoteCreate,
-    NoteUpdate,
 )
 from affinity.models.types import (
     CompanyId,
@@ -360,20 +358,6 @@ def test_v1_only_services_end_to_end_smoke_and_branch_coverage(tmp_path: Path) -
         notes = NoteService(http)
         assert notes.list(person_id=PersonId(1)).data[0].id == NoteId(1)
         assert notes.get(NoteId(1)).content == "x"
-        created = notes.create(
-            NoteCreate(
-                content="n",
-                person_ids=[PersonId(1)],
-                creator_id=UserId(1),
-                created_at=now,
-            )
-        )
-        assert created.id == NoteId(2)
-        updated = notes.update(NoteId(2), NoteUpdate(content="u"))
-        assert updated.content == "u"
-        assert notes.delete(NoteId(2)) is True
-        assert seen["note_create"]["created_at"] == iso
-        assert seen["note_update"] == {"content": "u"}
 
         interactions = InteractionService(http)
         _st = datetime(2024, 1, 1, tzinfo=timezone.utc)

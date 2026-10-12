@@ -710,7 +710,7 @@ def verify_note_on_person_crud(
             content=f"{config.marker} Updated note on person",
         ),
     )
-    assert "Updated" in updated.content
+    assert "Updated" in (updated.content.html or "")
     print("    Updated note")
 
     # DELETE
@@ -749,7 +749,7 @@ def verify_note_on_company_crud(
             content=f"{config.marker} Updated note on company",
         ),
     )
-    assert "Updated" in updated.content
+    assert "Updated" in (updated.content.html or "")
     print("    Updated note")
 
     # DELETE
@@ -788,7 +788,7 @@ def verify_note_on_opportunity_crud(
             content=f"{config.marker} Updated note on opportunity",
         ),
     )
-    assert "Updated" in updated.content
+    assert "Updated" in (updated.content.html or "")
     print("    Updated note")
 
     # DELETE
@@ -831,7 +831,7 @@ def verify_one_time_reminder_crud(
             content=f"{config.marker} Updated one-time follow up",
         ),
     )
-    assert "Updated" in updated.content
+    assert "Updated" in (updated.content or "")
     print("    Updated reminder")
 
     # COMPLETE, then reopen (V2: completedAt)

@@ -13,7 +13,6 @@ from affinity.models.entities import FieldCreate, FieldValueCreate
 from affinity.models.secondary import (
     InteractionCreate,
     InteractionUpdate,
-    NoteCreate,
 )
 from affinity.models.types import (
     CompanyId,
@@ -345,20 +344,6 @@ def test_v1_only_services_cover_optional_params_and_fallback_shapes(tmp_path: Pa
             page_token="t",
         ).data[0].id == NoteId(1)
         assert notes.list().data == []
-        _ = notes.create(
-            NoteCreate(
-                content="n",
-                person_ids=[PersonId(1)],
-                company_ids=[CompanyId(2)],
-                opportunity_ids=[OpportunityId(3)],
-                parent_id=NoteId(1),
-                creator_id=UserId(4),
-                created_at=now,
-            )
-        )
-        _ = notes.create(NoteCreate(content="n", company_ids=[CompanyId(2)], creator_id=UserId(4)))
-        assert seen["note_create"][0]["parent_id"] == 1
-        assert "person_ids" not in seen["note_create"][1]
 
         interactions = InteractionService(http)
         assert (

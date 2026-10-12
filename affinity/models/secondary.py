@@ -78,22 +78,49 @@ class Note(AffinityModel):
 
 
 class NoteCreate(AffinityModel):
-    """Data for creating a new note (V1 API)."""
+    """A note to create (V2 API).
+
+    Attach it to at least one person, company or opportunity, or make it a reply with
+    ``parent_id`` (a reply has no attachments of its own). ``type`` says how ``content`` is
+    written: ``PLAIN_TEXT`` (default; escaped and wrapped in paragraphs) or ``HTML``.
+    """
 
     content: str
     type: NoteType = NoteType.PLAIN_TEXT
     person_ids: list[PersonId] = Field(default_factory=list)
-    company_ids: list[CompanyId] = Field(default_factory=list, alias="organization_ids")
+    company_ids: list[CompanyId] = Field(
+        default_factory=list, validation_alias=AliasChoices("company_ids", "organization_ids")
+    )
     opportunity_ids: list[OpportunityId] = Field(default_factory=list)
     parent_id: NoteId | None = None  # For reply notes
     creator_id: UserId | None = None
     created_at: ISODatetime | None = None
 
+    @model_validator(mode="after")
+    def _reply_has_no_entities(self) -> NoteCreate:
+        if self.parent_id is not None and (
+            self.person_ids or self.company_ids or self.opportunity_ids
+        ):
+            raise ValueError(
+                "A reply (parent_id) can't have its own persons, companies or opportunities"
+            )
+        return self
+
 
 class NoteUpdate(AffinityModel):
-    """Data for updating a note (V1 API)."""
+    """Changes to a note: only what is set is sent.
 
-    content: str
+    ``type`` says how ``content`` is written (``PLAIN_TEXT`` by default, or ``HTML``), whatever
+    the note was before; V2 stores both as HTML. ``person_ids``/``company_ids``/
+    ``opportunity_ids`` replace the note's attachments of that kind (``[]`` clears them; root
+    notes only).
+    """
+
+    content: str | None = None
+    type: NoteType = NoteType.PLAIN_TEXT
+    person_ids: list[PersonId] | None = None
+    company_ids: list[CompanyId] | None = None
+    opportunity_ids: list[OpportunityId] | None = None
 
 
 # V2 Note response format

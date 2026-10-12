@@ -9,6 +9,7 @@ import pytest
 
 from affinity import Affinity, AsyncAffinity, Policies, WriteNotAllowedError
 from affinity.models import NoteCreate
+from affinity.types import PersonId
 
 
 @pytest.mark.req("SDK-READONLY-FACTORY")
@@ -23,7 +24,7 @@ def test_read_only_factory_blocks_writes() -> None:
         Affinity.read_only(api_key="test-key", max_retries=0, transport=transport) as client,
         pytest.raises(WriteNotAllowedError),
     ):
-        client.notes.create(NoteCreate(content="x"))
+        client.notes.create(NoteCreate(content="x", person_ids=[PersonId(1)]))
 
 
 @pytest.mark.req("SDK-READONLY-FACTORY")
@@ -70,7 +71,7 @@ async def test_async_read_only_factory() -> None:
         async_transport=async_transport,
     ) as client:
         with pytest.raises(WriteNotAllowedError):
-            await client.notes.create(NoteCreate(content="x"))
+            await client.notes.create(NoteCreate(content="x", person_ids=[PersonId(1)]))
 
 
 @pytest.mark.req("SDK-READONLY-FACTORY")

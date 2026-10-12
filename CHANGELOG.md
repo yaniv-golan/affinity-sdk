@@ -34,6 +34,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   50 entities per request. Kept on V1 where V2 can't do it: creating a reminder without a
   person, company or opportunity, changing a reminder's type, and updating or deleting a
   reminder you didn't create and don't own (V2 refuses; the SDK retries through V1).
+- **Note writes use the V2 API** (`notes.create`, `update`, `delete`; reads are unchanged).
+  `create()` and `update()` return `NoteV2` (`content.html`, `creator`; `update()` reads the note
+  back with its attachments, two requests). V2 stores notes as HTML: plain text (the default
+  `type`) is escaped and wrapped in paragraphs, and `NoteUpdate` takes `type` too (plain text
+  unless set to `HTML`, whatever the note was before). With `type=NoteType.HTML`, `<b>`/`<i>`
+  become `<strong>`/`<em>`, and what the API rejects (style/class attributes, img, pre, code,
+  blockquote, mention spans, non-http(s)/mailto links) raises `ValueError` naming the allowed
+  tags. A reply (`parent_id`) with persons/companies/opportunities raises instead of ignoring
+  them; `AI_NOTETAKER`/`EMAIL_DERIVED` can't be created. `NoteUpdate` can replace a note's
+  persons, companies and opportunities (`[]` clears). Changing the text of a note that
+  @mentions people is refused by the API; the error now says so. `NoteV2` and `NoteContent`
+  are exported from `affinity.models`.
 
 ### Added
 
@@ -41,6 +53,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (repeatable) or `--all-events`; `update` takes `--url`, `--event`/`--all-events`, `--status
   active|disabled`. `create`, `update` and `delete` ask for confirmation (`--yes` in scripts),
   since a webhook sends CRM events to an outside URL. Rows include `allEvents`.
+- **CLI `note update --type plain-text|html`**; `note create --type` is now plain-text or html
+  (Affinity creates the other kinds itself). `note create`/`update` output keeps the `note get`
+  keys (`type` is `html`; content is the stored HTML). The duplicate-note warning also matches
+  an earlier copy stored as HTML.
 - **CLI `reminder update --clear-content`**; `reminder ls --page-size` is now at most 100, and
   rows include `updatedAt`; `--reset-type event` (`meeting` still accepted, printed as `event`).
 - **MCP:** the webhook commands are in the command registry; `webhook create`/`update`/`delete`

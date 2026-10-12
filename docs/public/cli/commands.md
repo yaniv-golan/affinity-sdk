@@ -891,13 +891,25 @@ The replies to a note: `id`, `type`, `creator`, `content`, `parentId`, `createdA
 ```bash
 xaffinity note create --content "Met with the team" --person-id 123
 xaffinity note create --content "<p>Meeting notes</p>" --type html --company-id 456
+xaffinity note create --content "Agreed" --parent-id 9876
 ```
+
+Affinity stores notes as HTML. Plain text (the default) is escaped and wrapped in paragraphs: a
+blank line starts a new paragraph. With `--type html`, `<b>`/`<i>` become `<strong>`/`<em>`, and
+what Affinity rejects (`style`/`class` attributes, `img`, `pre`, `code`, `blockquote`, links
+other than http, https or mailto, ...) fails before anything is sent, naming the allowed tags.
+A reply (`--parent-id`) has no persons, companies or opportunities of its own. The output has
+the same keys as `note get`.
 
 ### `xaffinity note update <noteId>`
 
 ```bash
 xaffinity note update 9876 --content "Updated note content"
+xaffinity note update 9876 --content "<p><strong>Decision:</strong> go</p>" --type html
 ```
+
+The content is plain text unless you pass `--type html`, whatever the note was before. The text of
+a note that @mentions people can't be changed through the API.
 
 ### `xaffinity note delete <noteId>`
 

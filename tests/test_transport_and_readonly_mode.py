@@ -6,6 +6,7 @@ import pytest
 from affinity import Affinity, AsyncAffinity, WriteNotAllowedError
 from affinity.models.secondary import NoteCreate
 from affinity.policies import Policies, WritePolicy
+from affinity.types import PersonId
 
 
 def test_transport_injection_is_used_by_affinity_client() -> None:
@@ -50,7 +51,7 @@ def test_write_policy_denies_writes_and_blocks_before_network() -> None:
         assert calls == [("GET", "/v2/lists")]
 
         with pytest.raises(WriteNotAllowedError):
-            _ = client.notes.create(NoteCreate(content="x"))
+            _ = client.notes.create(NoteCreate(content="x", person_ids=[PersonId(1)]))
 
         # No additional network calls should be made for the blocked write.
         assert calls == [("GET", "/v2/lists")]
@@ -82,7 +83,7 @@ def test_write_policy_denied_write_emits_on_error_hook() -> None:
     )
     try:
         with pytest.raises(WriteNotAllowedError):
-            _ = client.notes.create(NoteCreate(content="x"))
+            _ = client.notes.create(NoteCreate(content="x", person_ids=[PersonId(1)]))
         assert events == ["request", "error"]
     finally:
         client.close()

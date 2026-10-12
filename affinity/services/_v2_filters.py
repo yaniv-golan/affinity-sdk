@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from ..models.types import _normalize_to_utc
 
@@ -17,3 +17,10 @@ def v2_filter_datetime(value: datetime, *, round_up: bool) -> str:
     if utc.microsecond:
         utc = utc.replace(microsecond=0) + (timedelta(seconds=1) if round_up else timedelta())
     return utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def v2_body_datetime(value: datetime) -> str:
+    """A datetime for a V2 request body: whole seconds, UTC, ``Z`` (naive means UTC)."""
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc).replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")

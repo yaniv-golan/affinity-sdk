@@ -19,6 +19,8 @@ this ships.
 
 ### Changed
 
+- `note create`/`note update` use the V2 API: content is stored as HTML (plain text is
+  escaped), `note update --type plain-text|html`, `note create --type` is plain-text or html.
 - `reminder` commands use the V2 API: `reminder update --clear-content`, `--reset-type event`
   (`meeting` still accepted), `reminder ls --page-size` at most 100, rows include `updatedAt`.
 
