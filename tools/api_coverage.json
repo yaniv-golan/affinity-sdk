@@ -771,41 +771,36 @@
   {
    "op": "GET /v2/webhooks",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.0.0",
-   "note": "today via V1 webhooks.list",
+   "status": "supported",
+   "call": "webhooks.list()",
    "stability": "beta"
   },
   {
    "op": "POST /v2/webhooks",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.0.0",
-   "note": "today via V1 webhooks.create",
+   "status": "supported",
+   "call": "webhooks.create(WebhookCreate(url=\"https://example.com/h\", subscriptions=[]))",
    "stability": "beta"
   },
   {
    "op": "DELETE /v2/webhooks/{webhookId}",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.0.0",
-   "note": "today via V1 webhooks.delete",
+   "status": "supported",
+   "call": "webhooks.delete(WebhookId(1))",
    "stability": "beta"
   },
   {
    "op": "GET /v2/webhooks/{webhookId}",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.0.0",
-   "note": "today via V1 webhooks.get",
+   "status": "supported",
+   "call": "webhooks.get(WebhookId(1))",
    "stability": "beta"
   },
   {
    "op": "POST /v2/webhooks/{webhookId}",
    "api": "v2",
-   "status": "planned",
-   "phase": "2.0.0",
-   "note": "today via V1 webhooks.update",
+   "status": "supported",
+   "call": "webhooks.update(WebhookId(1), WebhookUpdate(status=\"disabled\"))",
    "stability": "beta"
   },
   {
@@ -1135,32 +1130,32 @@
   {
    "op": "GET /webhook",
    "api": "v1",
-   "status": "supported",
-   "call": "webhooks.list()"
+   "status": "equivalent",
+   "via": "v2 GET /v2/webhooks"
   },
   {
    "op": "POST /webhook/subscribe",
    "api": "v1",
-   "status": "supported",
-   "call": "webhooks.create(WebhookCreate(webhook_url=\"https://example.com/h\"))"
+   "status": "equivalent",
+   "via": "v2 POST /v2/webhooks"
   },
   {
    "op": "DELETE /webhook/{}",
    "api": "v1",
-   "status": "supported",
-   "call": "webhooks.delete(WebhookId(1))"
+   "status": "equivalent",
+   "via": "v2 DELETE /v2/webhooks/{webhookId}"
   },
   {
    "op": "GET /webhook/{}",
    "api": "v1",
-   "status": "supported",
-   "call": "webhooks.get(WebhookId(1))"
+   "status": "equivalent",
+   "via": "v2 GET /v2/webhooks/{webhookId}"
   },
   {
    "op": "PUT /webhook/{}",
    "api": "v1",
-   "status": "supported",
-   "call": "webhooks.update(WebhookId(1), WebhookUpdate(disabled=True))"
+   "status": "equivalent",
+   "via": "v2 POST /v2/webhooks/{webhookId}"
   }
  ]
 }

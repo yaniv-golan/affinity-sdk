@@ -256,3 +256,23 @@ def test_unwritable_token_storage_does_not_block(tmp_path: Path) -> None:
     result = _run(tmp_path, DELETE, _min_version(), home=home)
     assert result.get("isError") is not True, result
     assert _ran(tmp_path, "person delete 42")
+
+
+WEBHOOK_CREATE = (
+    "execute-write-command",
+    '{"command": "webhook create", "argv": ["--url", "https://h.example.org", "--all-events"]}',
+)
+
+
+def test_webhook_create_needs_confirmation_and_says_why(tmp_path: Path) -> None:
+    result = _run(tmp_path, WEBHOOK_CREATE, _min_version())
+    assert result["structuredContent"]["error"]["type"] == "confirmation_required"
+    text = result["content"][0]["text"]
+    assert "sends CRM events to an outside URL" in text
+    assert "cannot be undone" not in text
+    assert not _ran(tmp_path, "webhook create")
+
+
+def test_delete_confirmation_still_says_it_cannot_be_undone(tmp_path: Path) -> None:
+    result = _run(tmp_path, DELETE_NO_CONFIRM, _min_version())
+    assert "cannot be undone" in result["content"][0]["text"]

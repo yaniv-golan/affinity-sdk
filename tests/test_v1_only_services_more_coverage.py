@@ -16,8 +16,6 @@ from affinity.models.secondary import (
     NoteCreate,
     ReminderCreate,
     ReminderUpdate,
-    WebhookCreate,
-    WebhookUpdate,
 )
 from affinity.models.types import (
     CompanyId,
@@ -34,8 +32,6 @@ from affinity.models.types import (
     ReminderStatus,
     ReminderType,
     UserId,
-    WebhookEvent,
-    WebhookId,
 )
 from affinity.services.v1_only import (
     EntityFileService,
@@ -45,7 +41,6 @@ from affinity.services.v1_only import (
     NoteService,
     RelationshipStrengthService,
     ReminderService,
-    WebhookService,
 )
 
 
@@ -551,69 +546,5 @@ def test_field_service_cache_invalidation_branches_when_cache_disabled() -> None
             FieldCreate(name="F", entity_type=EntityType.PERSON, value_type=FieldValueType.TEXT)
         ).id == FieldId("field-1")
         assert fields.delete(FieldId("field-1")) is True
-    finally:
-        http.close()
-
-
-def test_webhook_service_includes_subscriptions_and_update_fields() -> None:
-    seen: dict[str, Any] = {}
-
-    def handler(request: httpx.Request) -> httpx.Response:
-        if request.method == "POST" and request.url.path == "/webhook/subscribe":
-            seen["create"] = json.loads(request.content.decode("utf-8"))
-            return httpx.Response(
-                200,
-                json={
-                    "id": 1,
-                    "webhookUrl": "https://x",
-                    "createdBy": 1,
-                    "subscriptions": [WebhookEvent.LIST_CREATED],
-                },
-                request=request,
-            )
-        if request.method == "PUT" and request.url.path == "/webhook/1":
-            seen.setdefault("update", []).append(json.loads(request.content.decode("utf-8")))
-            return httpx.Response(
-                200,
-                json={
-                    "id": 1,
-                    "webhookUrl": "https://y",
-                    "createdBy": 1,
-                    "subscriptions": [WebhookEvent.LIST_CREATED],
-                    "disabled": True,
-                },
-                request=request,
-            )
-        return httpx.Response(404, json={"message": "not found"}, request=request)
-
-    http = HTTPClient(
-        ClientConfig(
-            api_key="k",
-            v1_base_url="https://v1.example",
-            v2_base_url="https://v2.example/v2",
-            max_retries=0,
-            transport=httpx.MockTransport(handler),
-        )
-    )
-    try:
-        webhooks = WebhookService(http)
-        created = webhooks.create(
-            WebhookCreate(webhook_url="https://x", subscriptions=[WebhookEvent.LIST_CREATED])
-        )
-        assert created.id == WebhookId(1)
-        assert seen["create"]["subscriptions"] == [WebhookEvent.LIST_CREATED]
-
-        updated = webhooks.update(
-            WebhookId(1),
-            WebhookUpdate(
-                webhook_url="https://y", subscriptions=[WebhookEvent.LIST_CREATED], disabled=True
-            ),
-        )
-        assert updated.webhook_url == "https://y"
-        assert seen["update"][0]["webhook_url"] == "https://y"
-        assert seen["update"][0]["disabled"] is True
-
-        _ = webhooks.update(WebhookId(1), WebhookUpdate(webhook_url="https://y"))
-        assert "disabled" not in seen["update"][1]
     finally:
         http.close()

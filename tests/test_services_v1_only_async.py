@@ -14,8 +14,6 @@ from affinity.models.secondary import (
     NoteUpdate,
     ReminderCreate,
     ReminderUpdate,
-    WebhookCreate,
-    WebhookUpdate,
 )
 from affinity.services.rate_limits import AsyncRateLimitService
 from affinity.services.v1_only import (
@@ -26,7 +24,6 @@ from affinity.services.v1_only import (
     AsyncNoteService,
     AsyncRelationshipStrengthService,
     AsyncReminderService,
-    AsyncWebhookService,
 )
 from affinity.types import (
     EntityType,
@@ -42,7 +39,6 @@ from affinity.types import (
     ReminderStatus,
     ReminderType,
     UserId,
-    WebhookId,
 )
 
 
@@ -201,45 +197,6 @@ async def test_async_reminder_service_crud() -> None:
         )
         assert updated.content == "Updated"
         assert await svc.delete(ReminderIdType(9)) is True
-
-
-@pytest.mark.asyncio
-async def test_async_webhook_service_crud() -> None:
-    def handler(request: httpx.Request) -> httpx.Response:
-        url = request.url
-        webhook = {
-            "id": 5,
-            "webhookUrl": "https://example.com/hooks",
-            "subscriptions": ["person.created"],
-            "disabled": False,
-            "createdBy": 2,
-        }
-        if request.method == "GET" and url == httpx.URL("https://v1.example/webhook"):
-            return httpx.Response(200, json={"data": [webhook]}, request=request)
-        if request.method == "GET" and url == httpx.URL("https://v1.example/webhook/5"):
-            return httpx.Response(200, json=webhook, request=request)
-        if request.method == "POST" and url == httpx.URL("https://v1.example/webhook/subscribe"):
-            return httpx.Response(200, json=webhook, request=request)
-        if request.method == "PUT" and url == httpx.URL("https://v1.example/webhook/5"):
-            return httpx.Response(200, json=webhook, request=request)
-        if request.method == "DELETE" and url == httpx.URL("https://v1.example/webhook/5"):
-            return httpx.Response(200, json={"success": True}, request=request)
-        return httpx.Response(404, json={"message": "not found"}, request=request)
-
-    client = _async_client(httpx.MockTransport(handler))
-    async with client:
-        svc = AsyncWebhookService(client)
-        items = await svc.list()
-        assert items[0].id == WebhookId(5)
-        item = await svc.get(WebhookId(5))
-        assert item.webhook_url == "https://example.com/hooks"
-        created = await svc.create(
-            WebhookCreate(webhook_url="https://example.com/hooks", subscriptions=[])
-        )
-        assert created.id == WebhookId(5)
-        updated = await svc.update(WebhookId(5), WebhookUpdate(disabled=False))
-        assert updated.id == WebhookId(5)
-        assert await svc.delete(WebhookId(5)) is True
 
 
 @pytest.mark.asyncio

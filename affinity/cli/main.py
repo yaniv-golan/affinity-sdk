@@ -455,6 +455,7 @@ from .commands.session_cmds import session_group as _session_group
 from .commands.task_cmds import task_group as _task_group
 from .commands.transcript_cmds import transcript_group as _transcript_group
 from .commands.version_cmd import version_cmd as _version_cmd
+from .commands.webhook_cmds import webhook_group as _webhook_group
 from .commands.whoami_cmd import whoami_cmd as _whoami_cmd
 
 cli.add_command(_completion_cmd)
@@ -481,4 +482,5 @@ cli.add_command(_field_group)
 cli.add_command(_relationship_strength_group)
 cli.add_command(_session_group)
 cli.add_command(_task_group)
+cli.add_command(_webhook_group)
 cli.add_command(_query_cmd)

@@ -92,6 +92,7 @@ from .secondary import (
     NoteCreate,
     NoteUpdate,
     PersonMergeState,
+    PersonRef,
     RateLimitInfo,
     RateLimits,
     # Relationship
@@ -101,9 +102,9 @@ from .secondary import (
     ReminderCreate,
     ReminderUpdate,
     Tenant,
-    WebhookCreate,
     # Webhook
-    WebhookSubscription,
+    Webhook,
+    WebhookCreate,
     WebhookUpdate,
     # Auth
     WhoAmI,
@@ -168,9 +169,10 @@ __all__ = [
     "ReminderCreate",
     "ReminderUpdate",
     # Webhook
-    "WebhookSubscription",
+    "Webhook",
     "WebhookCreate",
     "WebhookUpdate",
+    "PersonRef",
     # Interaction
     "Interaction",
     "InteractionCreate",

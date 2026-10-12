@@ -18,8 +18,6 @@ from affinity.models.secondary import (
     NoteUpdate,
     ReminderCreate,
     ReminderUpdate,
-    WebhookCreate,
-    WebhookUpdate,
 )
 from affinity.models.types import (
     CompanyId,
@@ -39,7 +37,6 @@ from affinity.models.types import (
     ReminderStatus,
     ReminderType,
     UserId,
-    WebhookId,
 )
 from affinity.services.rate_limits import RateLimitService
 from affinity.services.v1_only import (
@@ -54,7 +51,6 @@ from affinity.services.v1_only import (
     NoteService,
     RelationshipStrengthService,
     ReminderService,
-    WebhookService,
 )
 
 
@@ -406,16 +402,6 @@ def test_v1_only_services_end_to_end_smoke_and_branch_coverage(tmp_path: Path) -
         assert reminders.delete(ReminderIdType(2)) is True
         assert seen["reminder_create"]["owner_id"] == 1
         assert seen["reminder_update"]["is_completed"] is True
-
-        webhooks = WebhookService(http)
-        assert webhooks.list()[0].id == WebhookId(1)
-        assert webhooks.get(WebhookId(1)).webhook_url == "https://x"
-        created_w = webhooks.create(WebhookCreate(webhook_url="https://y"))
-        assert created_w.id == WebhookId(2)
-        _ = webhooks.update(WebhookId(2), WebhookUpdate(disabled=True))
-        assert webhooks.delete(WebhookId(2)) is True
-        assert seen["webhook_create"] == {"webhook_url": "https://y"}
-        assert seen["webhook_update"]["disabled"] is True
 
         interactions = InteractionService(http)
         _st = datetime(2024, 1, 1, tzinfo=timezone.utc)

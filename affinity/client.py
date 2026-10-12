@@ -42,7 +42,6 @@ from .services.v1_only import (
     AsyncNoteService,
     AsyncRelationshipStrengthService,
     AsyncReminderService,
-    AsyncWebhookService,
     AuthService,
     EntityFileService,
     FieldService,
@@ -52,8 +51,8 @@ from .services.v1_only import (
     NoteService,
     RelationshipStrengthService,
     ReminderService,
-    WebhookService,
 )
+from .services.webhooks import AsyncWebhookService, WebhookService
 
 _DEFAULT_API_KEY_ENV_VAR = "AFFINITY_API_KEY"
 

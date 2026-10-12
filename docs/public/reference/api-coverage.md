@@ -6,7 +6,7 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V2 API
 
-64 supported, 48 planned
+69 supported, 43 planned
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -117,15 +117,15 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/transcripts/{transcriptId}/fragments` | supported | `transcripts.fragments(1)` |  |
 | `GET /v2/users` | planned |  | beta; phase 2.x-1 |
 | `GET /v2/users/{userId}` | planned |  | beta; phase 2.x-1 |
-| `GET /v2/webhooks` | planned |  | beta; API 2026-07-15+; phase 2.0.0 |
-| `POST /v2/webhooks` | planned |  | beta; API 2026-07-15+; phase 2.0.0 |
-| `DELETE /v2/webhooks/{webhookId}` | planned |  | beta; API 2026-07-15+; phase 2.0.0 |
-| `GET /v2/webhooks/{webhookId}` | planned |  | beta; API 2026-07-15+; phase 2.0.0 |
-| `POST /v2/webhooks/{webhookId}` | planned |  | beta; API 2026-07-15+; phase 2.0.0 |
+| `GET /v2/webhooks` | supported | `webhooks.list()` | beta; API 2026-07-15+ |
+| `POST /v2/webhooks` | supported | `webhooks.create(WebhookCreate(url="https://example.com/h", subscriptions=[]))` | beta; API 2026-07-15+ |
+| `DELETE /v2/webhooks/{webhookId}` | supported | `webhooks.delete(WebhookId(1))` | beta; API 2026-07-15+ |
+| `GET /v2/webhooks/{webhookId}` | supported | `webhooks.get(WebhookId(1))` | beta; API 2026-07-15+ |
+| `POST /v2/webhooks/{webhookId}` | supported | `webhooks.update(WebhookId(1), WebhookUpdate(status="disabled"))` | beta; API 2026-07-15+ |
 
 ## V1 API
 
-53 supported, 6 equivalent
+48 supported, 11 equivalent
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -183,8 +183,8 @@ against the pinned API specs and checks that each supported call requests its op
 | `DELETE /reminders/{}` | supported | `reminders.delete(ReminderIdType(1))` |  |
 | `GET /reminders/{}` | supported | `reminders.get(ReminderIdType(1))` |  |
 | `PUT /reminders/{}` | supported | `reminders.update(ReminderIdType(1), ReminderUpdate(content="x"))` |  |
-| `GET /webhook` | supported | `webhooks.list()` |  |
-| `POST /webhook/subscribe` | supported | `webhooks.create(WebhookCreate(webhook_url="https://example.com/h"))` |  |
-| `DELETE /webhook/{}` | supported | `webhooks.delete(WebhookId(1))` |  |
-| `GET /webhook/{}` | supported | `webhooks.get(WebhookId(1))` |  |
-| `PUT /webhook/{}` | supported | `webhooks.update(WebhookId(1), WebhookUpdate(disabled=True))` |  |
+| `GET /webhook` | equivalent |  | via v2 GET /v2/webhooks |
+| `POST /webhook/subscribe` | equivalent |  | via v2 POST /v2/webhooks |
+| `DELETE /webhook/{}` | equivalent |  | via v2 DELETE /v2/webhooks/{webhookId} |
+| `GET /webhook/{}` | equivalent |  | via v2 GET /v2/webhooks/{webhookId} |
+| `PUT /webhook/{}` | equivalent |  | via v2 POST /v2/webhooks/{webhookId} |

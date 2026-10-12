@@ -1,6 +1,9 @@
 # Webhooks
 
-The SDK supports managing webhook subscriptions via the V1 API (`client.webhooks`). Receiving webhooks is handled by **your** web server/app.
+The SDK manages webhooks through the V2 API (`client.webhooks`; Affinity API version 2026-07-15 or later, beta). Receiving webhooks is handled by **your** web server/app. The CLI has the same operations: `xaffinity webhook ls|get|create|update|delete`.
+
+!!! note "Who sees which webhooks"
+    Users allowed to manage all webhooks see every webhook in the organization. Everyone else lists, reads, changes and deletes only the webhooks they created.
 
 ## Supported Webhook Events
 
@@ -42,7 +45,7 @@ The SDK defines all webhook events in `WebhookEvent`. You can subscribe to any c
 !!! tip "Forward Compatibility"
     `WebhookEvent` extends `OpenStrEnum`, meaning unknown event types from Affinity are preserved as strings rather than causing errors. This ensures the SDK gracefully handles any new events Affinity may add in the future.
 
-## Create a subscription
+## Create a webhook
 
 ```python
 from affinity import Affinity
@@ -52,24 +55,58 @@ from affinity.types import WebhookEvent
 with Affinity.from_env() as client:
     webhook = client.webhooks.create(
         WebhookCreate(
-            webhook_url="https://example.com/webhooks/affinity/<random-secret>",
+            url="https://example.com/webhooks/affinity/<random-secret>",
             subscriptions=[
                 WebhookEvent.FIELD_VALUE_UPDATED,
                 WebhookEvent.LIST_ENTRY_CREATED,
             ],
         )
     )
-    print(webhook.id, webhook.webhook_url)
+    print(webhook.id, webhook.url, webhook.status)
 ```
 
-!!! note "Notes"
-    - Affinity limits webhook subscriptions (see `WebhookService` docs).
-    - Affinity may attempt to contact your `webhook_url` during creation/updates; ensure your endpoint is reachable and responds quickly.
+`subscriptions` is required. **An empty list subscribes the webhook to every event type**, so
+every change in the organization is sent to the URL; name the events you need.
+
+!!! note "Test delivery"
+    Affinity sends a test delivery to the URL before creating the webhook (and before changing
+    its URL or re-activating it). A URL that is unreachable, contains credentials, or is already
+    used by another webhook in the organization is rejected with `ValidationError`, as is a
+    create once the organization reaches its webhook limit.
+
+## List, change and delete
+
+```python
+from affinity.models import WebhookUpdate
+from affinity.types import WebhookStatus
+
+# One page (up to 100), or every webhook
+page = client.webhooks.list(limit=50)
+for webhook in client.webhooks.iter():
+    print(webhook.id, webhook.url, webhook.status, webhook.subscriptions or "all events")
+
+# Pause delivery; only the fields you set change. Returns the webhook as read back
+# (two requests: the update itself has no response body).
+webhook = client.webhooks.update(webhook.id, WebhookUpdate(status=WebhookStatus.DISABLED))
+
+client.webhooks.delete(webhook.id)  # returns None
+```
+
+`list()`/`iter()` filter by `ids`, `created_after`/`created_before` and
+`updated_after`/`updated_before`. `Webhook` has `id`, `url`, `subscriptions` (`[]` = all
+events), `status` (`active`/`disabled`), `creator` (`PersonRef` or `None`), `created_at` and
+`updated_at`.
+
+!!! info "From SDK 1.x"
+    1.x used the V1 API: `WebhookSubscription` is now `Webhook`, `webhook_url` is `url`,
+    `disabled=True` is `status=WebhookStatus.DISABLED`, `created_by` is `creator.id`,
+    `list()` returns a page (use `iter()` for all), `delete()` returns `None`, and
+    `subscriptions` must be given on create. Old field names raise `ValidationError`.
 
 ## Securing your webhook endpoint
 
 !!! warning "No signature verification available"
-    Affinity's V1 API does not provide cryptographic signature verification for webhook requests. There is no HMAC header, signing secret, or other mechanism to verify that requests originate from Affinity. You must rely on defense-in-depth practices to secure your endpoint.
+    Affinity does not provide cryptographic signature verification for webhook requests. There is no HMAC header, signing secret, or other mechanism to verify that requests originate from Affinity. You must rely on defense-in-depth practices to secure your endpoint.
 
 Since webhook authenticity cannot be cryptographically verified, treat your webhook endpoint as a semi-public entry point and apply multiple layers of protection:
 

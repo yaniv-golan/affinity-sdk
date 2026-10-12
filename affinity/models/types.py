@@ -565,6 +565,13 @@ class FieldValueChangeAction(OpenIntEnum):
     UPDATE = 2
 
 
+class WebhookStatus(OpenStrEnum):
+    """Whether a webhook delivers events (V2 ``status``)."""
+
+    ACTIVE = "active"
+    DISABLED = "disabled"
+
+
 class WebhookEvent(OpenStrEnum):
     """
     Supported webhook events (30 total).

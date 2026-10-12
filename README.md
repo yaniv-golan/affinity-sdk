@@ -395,13 +395,13 @@ with Affinity(api_key="your-key") as client:
 ```python
 from affinity import Affinity
 from affinity.models import WebhookCreate, WebhookUpdate
-from affinity.types import WebhookEvent
+from affinity.types import WebhookEvent, WebhookStatus
 
 with Affinity(api_key="your-key") as client:
-    # Create a webhook subscription
+    # Create a webhook (subscriptions is required; [] means every event type)
     webhook = client.webhooks.create(
         WebhookCreate(
-            webhook_url="https://your-server.com/webhook",
+            url="https://your-server.com/webhook",
             subscriptions=[
                 WebhookEvent.LIST_ENTRY_CREATED,
                 WebhookEvent.LIST_ENTRY_DELETED,
@@ -410,14 +410,12 @@ with Affinity(api_key="your-key") as client:
         )
     )
 
-    # List all webhooks (max 3 per instance)
-    webhooks = client.webhooks.list()
+    # All webhooks you can see (all of them if you may manage all webhooks)
+    for hook in client.webhooks.iter():
+        print(hook.id, hook.url, hook.status)
 
-    # Disable a webhook
-    client.webhooks.update(
-        webhook.id,
-        WebhookUpdate(disabled=True)
-    )
+    # Pause a webhook (returns it as read back)
+    client.webhooks.update(webhook.id, WebhookUpdate(status=WebhookStatus.DISABLED))
 ```
 
 ### Rate Limits

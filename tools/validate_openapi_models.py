@@ -104,6 +104,15 @@ MODEL_MAPPINGS: dict[str, tuple[str, ...]] = {
     "MeetingV2": ("interactions.Meeting",),
     "EmailV2": ("interactions.Email",),
     "ChatMessageV2": ("interactions.ChatMessage",),
+    # /v2/webhooks
+    "Webhook": ("webhooks.Webhook",),
+    "PersonRef": ("PersonReference",),
+}
+
+# Models whose schemas first appear in a later API version: checked from that version on, and
+# expected to be absent before it (present earlier is an error: lower the version here).
+MODEL_SINCE: dict[str, str] = {
+    "Webhook": "2026-07-15",
 }
 
 # SDK models deliberately not checked, with the reason.
@@ -111,7 +120,6 @@ SKIPPED_MODELS: dict[str, str] = {
     "Note": "V1 note payload (V2 notes are NoteV2)",
     "Interaction": "V1 interaction payload (integer type codes); V2 lists are CallV2 etc.",
     "Reminder": "V1 reminder payload; V2 reminders.* not modelled",
-    "WebhookSubscription": "V1 webhook payload; V2 webhooks.Webhook not modelled",
     "EntityFile": "V1 file payload; V2 files.File not modelled",
     "FieldValueChange": "V1 field-value-change payload (V2 is FieldValueChangeV2)",
     "FieldValue": "V1 field-value row; V2 FieldValue is the nested value union (other concept)",
@@ -606,8 +614,9 @@ def get_sdk_models() -> dict[str, type]:
         Note,
         NoteV2,
         PersonMergeState,
+        PersonRef,
         Reminder,
-        WebhookSubscription,
+        Webhook,
         WhoAmI,
     )
     from affinity.models.transcripts import Transcript, TranscriptFragment
@@ -650,7 +659,8 @@ def get_sdk_models() -> dict[str, type]:
         "NoteV2": NoteV2,
         "Interaction": Interaction,
         "Reminder": Reminder,
-        "WebhookSubscription": WebhookSubscription,
+        "Webhook": Webhook,
+        "PersonRef": PersonRef,
         "EntityFile": EntityFile,
         # Merge tasks
         "MergeTask": MergeTask,
@@ -1130,12 +1140,23 @@ def validate_all_models(
 ) -> list[ValidationResult]:
     """Validate all SDK models against the OpenAPI schema."""
     config = config or default_config()
+    version = declared_api_version(schema)
     results: list[ValidationResult] = []
     for model_name, model in config.models.items():
         if model_name in config.skipped:
             result = ValidationResult(model_name=model_name, schema_name="-")
             result.is_skipped = True
             result.skip_reason = config.skipped[model_name]
+        elif (since := MODEL_SINCE.get(model_name)) and (version or "9999") < since:
+            result = ValidationResult(model_name=model_name, schema_name="-")
+            mapped = config.mappings.get(model_name, (model_name,))
+            if any(get_schema_properties(schema, name) is not None for name in mapped):
+                result.errors.append(
+                    f"schema present in {version}, before its MODEL_SINCE {since} - lower it"
+                )
+            else:
+                result.is_skipped = True
+                result.skip_reason = f"not in the API before {since}"
         else:
             result = validate_model(
                 schema,

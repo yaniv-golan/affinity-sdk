@@ -17,8 +17,8 @@ from .v1_only import (
     NoteService,
     RelationshipStrengthService,
     ReminderService,
-    WebhookService,
 )
+from .webhooks import WebhookService
 
 __all__ = [
     # V2+V1 hybrid services
@@ -28,10 +28,10 @@ __all__ = [
     "ListEntryService",
     "OpportunityService",
     "RateLimitService",
+    "WebhookService",
     # V1-only services
     "NoteService",
     "ReminderService",
-    "WebhookService",
     "InteractionService",
     "FieldService",
     "FieldValueService",

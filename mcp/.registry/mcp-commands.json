@@ -662,6 +662,34 @@
     "config path": {
       "whenToUse": "Show the path to the configuration file. Useful for debugging.",
       "relatedCommands": ["config check-key"]
+    },
+    "webhook ls": {
+      "whenToUse": "List webhooks (event deliveries to outside URLs): id, url, status active|disabled, subscriptions, allEvents (true = every event type), creatorId. Without permission to manage all webhooks, only the key user's own webhooks are listed. Filter with --id, --created-after/--created-before, --updated-after/--updated-before.",
+      "relatedCommands": ["webhook get", "webhook create"],
+      "mcpBehavior": {
+        "limitEnforced": true,
+        "allFlagBlocked": true,
+        "defaultLimit": 1000,
+        "maxLimit": 10000
+      }
+    },
+    "webhook get": {
+      "whenToUse": "Show one webhook by id (not found when it belongs to someone else and the key user can't manage all webhooks).",
+      "relatedCommands": ["webhook ls", "webhook update"]
+    },
+    "webhook create": {
+      "whenToUse": "Create a webhook that sends CRM events to a URL. It keeps sending until deleted, so confirm the exact URL and events with the user first. Name events with --event (repeatable, e.g. list_entry.created); --all-events sends every change in the organization. Affinity test-delivers to the URL first and rejects unreachable or duplicate URLs.",
+      "examples": ["webhook create --url https://hooks.example.com/affinity --event list_entry.created"],
+      "relatedCommands": ["webhook ls", "webhook update", "webhook delete"]
+    },
+    "webhook update": {
+      "whenToUse": "Change a webhook's --url, events (--event replaces the list; --all-events = every event) or --status disabled|active (pause or resume). Only what is passed changes. Confirm the change with the user first.",
+      "examples": ["webhook update 12 --status disabled"],
+      "relatedCommands": ["webhook get", "webhook delete"]
+    },
+    "webhook delete": {
+      "whenToUse": "Delete a webhook. Confirm the webhook (id and url from 'webhook ls') with the user first.",
+      "relatedCommands": ["webhook ls", "webhook update"]
     }
   }
 }

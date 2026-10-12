@@ -120,6 +120,18 @@ if is_destructive "$command"; then
         exit 0
     fi
 
+    # Why confirmation is needed: webhook writes are not irreversible, but they send data out
+    case "$command" in
+    "webhook create" | "webhook update")
+        why="sends CRM events to an outside URL"
+        why_sentence="This webhook sends CRM events to an outside URL until it is deleted."
+        ;;
+    *)
+        why="cannot be undone"
+        why_sentence="This action cannot be undone."
+        ;;
+    esac
+
     # confirm: true counts only after this server asked for confirmation of this exact action
     confirmed=false
     if [[ "$confirm" == "true" ]] \
@@ -130,7 +142,7 @@ if is_destructive "$command"; then
     if [[ "$confirmed" == "true" ]]; then
         argv+=("--yes")
     elif [[ "${MCP_ELICIT_SUPPORTED:-0}" == "1" ]]; then
-        response=$(mcp_elicit_confirm "Confirm: $command $(printf '%q ' ${argv[@]+"${argv[@]}"})- This action cannot be undone.")
+        response=$(mcp_elicit_confirm "Confirm: $command $(printf '%q ' ${argv[@]+"${argv[@]}"})- ${why_sentence}")
         # Accept counts only with the box ticked; an unticked accept is a "no".
         action=$(printf '%s' "$response" | jq_tool -r '
             (.action // "error") as $a
@@ -159,7 +171,7 @@ if is_destructive "$command"; then
         xaffinity_confirm_request "$command" ${argv[@]+"${argv[@]}"} || true
         early=""
         [[ "$confirm" == "true" ]] && early=" confirm: true was set before the user was asked, so it was not used."
-        mcp_error "confirmation_required" "$command cannot be undone and needs the user's confirmation; nothing was changed.${early} Ask the user to confirm this exact action in the conversation; only after they explicitly agree, call again with confirm: true. Never set confirm on your own." \
+        mcp_error "confirmation_required" "$command ${why} and needs the user's confirmation; nothing was changed.${early} Ask the user to confirm this exact action in the conversation; only after they explicitly agree, call again with confirm: true. Never set confirm on your own." \
             --hint 'Ask the user to confirm this exact action (command and target) in the conversation; only after they explicitly agree, call again with "confirm": true. Never set confirm on your own.' \
             --data "$(jq_tool -n --arg cmd "$command" --argjson argv "$argv_json" '{requiresUserConfirmation: true, command: $cmd, argv: $argv}')"
         exit 0

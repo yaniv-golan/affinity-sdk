@@ -46,6 +46,7 @@ from .models.types import (
     UserId,
     WebhookEvent,
     WebhookId,
+    WebhookStatus,
     field_id_to_v1_numeric,
 )
 
@@ -89,5 +90,6 @@ __all__ = [
     "ReminderStatus",
     "ResolveMode",
     "WebhookEvent",
+    "WebhookStatus",
     "field_id_to_v1_numeric",
 ]

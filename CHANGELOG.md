@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (breaking)
+
+- **Webhooks use the V2 API** (`/v2/webhooks`, Affinity API 2026-07-15 or later, beta).
+  `WebhookSubscription` is now `Webhook`: `webhook_url` → `url`, `disabled` →
+  `status` (`WebhookStatus.ACTIVE`/`DISABLED`), `created_by` → `creator` (`PersonRef`), plus
+  `created_at`/`updated_at`. `WebhookCreate(url=…, subscriptions=[…])` requires `subscriptions`
+  (`[]` = every event type). `WebhookUpdate` takes `url`, `subscriptions`, `status` and sends
+  only what is set. `list()` returns one page (`ids`, created/updated ranges, `limit`,
+  `cursor`); `iter()` returns every webhook. `update()` returns the webhook as read back (two
+  requests); `delete()` returns `None`. 1.x field names raise `ValidationError` instead of being
+  ignored. Without permission to manage all webhooks, the API lists, reads and changes only the
+  caller's own webhooks. A client pinned to API version 2024-01-01 gets
+  `ApiVersionTooOldError`.
+
+### Added
+
+- **CLI `webhook ls|get|create|update|delete`.** `create` takes `--url` and `--event`
+  (repeatable) or `--all-events`; `update` takes `--url`, `--event`/`--all-events`, `--status
+  active|disabled`. `create`, `update` and `delete` ask for confirmation (`--yes` in scripts),
+  since a webhook sends CRM events to an outside URL. Rows include `allEvents`.
+- **MCP:** the webhook commands are in the command registry; `webhook create`/`update`/`delete`
+  go through the same user confirmation as deletes, and the confirmation says why (events sent
+  to an outside URL).
+
 ### Docs
 
 - New **API coverage** reference page: every Affinity API operation (V2 and V1) and how the SDK

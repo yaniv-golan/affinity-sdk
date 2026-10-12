@@ -419,21 +419,19 @@ class TestReminders:
 
 
 # =============================================================================
-# Group 10: Webhooks (V1 API)
+# Group 10: Webhooks (V2 API)
 # =============================================================================
 
 
 class TestWebhooks:
-    """Test webhook read operations (V1 API)."""
+    """Test webhook read operations (V2 API; non-admins see only their own webhooks)."""
 
     def test_list(self, sandbox_client: Affinity) -> None:
-        """Verify webhooks.list() returns webhooks."""
-        webhooks = sandbox_client.webhooks.list()
+        """Verify webhooks.list() returns a page and every webhook can be read back."""
+        page = sandbox_client.webhooks.list(limit=5)
 
-        assert isinstance(webhooks, list)
-
-        for webhook in webhooks[:5]:  # Check first 5
-            assert webhook.id is not None
+        for webhook in page.data:
+            assert sandbox_client.webhooks.get(webhook.id).id == webhook.id
 
 
 # =============================================================================

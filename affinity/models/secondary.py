@@ -34,6 +34,7 @@ from .types import (
     UserId,
     WebhookEvent,
     WebhookId,
+    WebhookStatus,
 )
 
 # =============================================================================
@@ -285,33 +286,72 @@ class ReminderUpdate(AffinityModel):
 
 
 # =============================================================================
-# Webhook Models (V1 only)
+# Webhook Models (V2 API)
 # =============================================================================
 
 
-class WebhookSubscription(AffinityModel):
-    """A webhook subscription for real-time events."""
+class PersonRef(AffinityModel):
+    """A bare person reference (``{"id": …}``), as V2 webhooks, reminders and files return it."""
+
+    id: PersonId
+
+
+def _reject_v1_fields(data: Any, renamed: dict[str, str]) -> Any:
+    """Fail on 1.x field names instead of silently ignoring them (models ignore extra keys)."""
+    if isinstance(data, dict):
+        for old, new in renamed.items():
+            if old in data:
+                raise ValueError(f"'{old}' was removed in SDK 2.0 (V2 webhooks): use {new}")
+    return data
+
+
+class Webhook(AffinityModel):
+    """A webhook: event notifications delivered to an external URL (V2 ``webhooks.Webhook``)."""
 
     id: WebhookId
-    webhook_url: str = Field(alias="webhookUrl")
+    url: str
+    # An empty list means the webhook receives every event type.
     subscriptions: list[WebhookEvent] = Field(default_factory=list)
-    disabled: bool = False
-    created_by: UserId = Field(alias="createdBy")
+    status: WebhookStatus
+    # None when Affinity has no record of the creator.
+    creator: PersonRef | None = None
+    created_at: ISODatetime = Field(alias="createdAt")
+    # None until the webhook is first updated.
+    updated_at: ISODatetime | None = Field(None, alias="updatedAt")
 
 
 class WebhookCreate(AffinityModel):
-    """Data for creating a webhook subscription (V1 API)."""
+    """A webhook to create.
 
-    webhook_url: str
-    subscriptions: list[WebhookEvent] = Field(default_factory=list)
+    ``subscriptions`` is required. **An empty list subscribes the webhook to every event type**,
+    so every change in the organization is sent to ``url``; name the events you need.
+    """
+
+    url: str
+    subscriptions: list[WebhookEvent]
+
+    @model_validator(mode="before")
+    @classmethod
+    def _no_v1_fields(cls, data: Any) -> Any:
+        return _reject_v1_fields(data, {"webhook_url": "url="})
 
 
 class WebhookUpdate(AffinityModel):
-    """Data for updating a webhook subscription (V1 API)."""
+    """Changes to a webhook: only the fields you set are sent.
 
-    webhook_url: str | None = None
+    ``subscriptions=[]`` subscribes the webhook to every event type.
+    """
+
+    url: str | None = None
     subscriptions: list[WebhookEvent] | None = None
-    disabled: bool | None = None
+    status: WebhookStatus | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _no_v1_fields(cls, data: Any) -> Any:
+        return _reject_v1_fields(
+            data, {"webhook_url": "url=", "disabled": "status=WebhookStatus.DISABLED (or ACTIVE)"}
+        )
 
 
 # =============================================================================

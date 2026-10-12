@@ -5130,6 +5130,303 @@
       }
     },
     {
+      "name": "webhook create",
+      "description": "Create a webhook that sends the chosen events to URL. Asks for confirmation.",
+      "category": "write",
+      "destructive": true,
+      "progressCapable": false,
+      "parameters": {
+        "--all-events": {
+          "type": "flag",
+          "required": false,
+          "help": "Receive every event type in the organization."
+        },
+        "--event": {
+          "type": "string",
+          "required": false,
+          "help": "An event to receive (repeatable), e.g. list_entry.created.",
+          "choices": [
+            "list.created",
+            "list.updated",
+            "list.deleted",
+            "list_entry.created",
+            "list_entry.deleted",
+            "note.created",
+            "note.updated",
+            "note.deleted",
+            "field.created",
+            "field.updated",
+            "field.deleted",
+            "field_value.created",
+            "field_value.updated",
+            "field_value.deleted",
+            "person.created",
+            "person.updated",
+            "person.deleted",
+            "organization.created",
+            "organization.updated",
+            "organization.deleted",
+            "organization.merged",
+            "opportunity.created",
+            "opportunity.updated",
+            "opportunity.deleted",
+            "file.created",
+            "file.deleted",
+            "smart_interaction_value.updated",
+            "reminder.created",
+            "reminder.updated",
+            "reminder.deleted"
+          ],
+          "multiple": true
+        },
+        "--url": {
+          "type": "string",
+          "required": true,
+          "help": "Where events are delivered (unique in the org)."
+        },
+        "--yes": {
+          "type": "flag",
+          "required": false,
+          "help": "Skip confirmation prompt.",
+          "aliases": [
+            "-y"
+          ]
+        }
+      },
+      "positionals": [],
+      "whenToUse": "Create a webhook that sends CRM events to a URL. It keeps sending until deleted, so confirm the exact URL and events with the user first. Name events with --event (repeatable, e.g. list_entry.created); --all-events sends every change in the organization. Affinity test-delivers to the URL first and rejects unreachable or duplicate URLs.",
+      "examples": [
+        "webhook create --url https://hooks.example.com/affinity --event list_entry.created"
+      ],
+      "relatedCommands": [
+        "webhook ls",
+        "webhook update",
+        "webhook delete"
+      ]
+    },
+    {
+      "name": "webhook delete",
+      "description": "Delete a webhook (yours, or any if you can manage all webhooks). Asks for confirmation.",
+      "category": "write",
+      "destructive": true,
+      "progressCapable": false,
+      "parameters": {
+        "--yes": {
+          "type": "flag",
+          "required": false,
+          "help": "Skip confirmation prompt.",
+          "aliases": [
+            "-y"
+          ]
+        }
+      },
+      "positionals": [
+        {
+          "name": "WEBHOOK_ID",
+          "type": "int",
+          "required": true
+        }
+      ],
+      "whenToUse": "Delete a webhook. Confirm the webhook (id and url from 'webhook ls') with the user first.",
+      "relatedCommands": [
+        "webhook ls",
+        "webhook update"
+      ]
+    },
+    {
+      "name": "webhook get",
+      "description": "Show one webhook (not found when it is someone else's and you can't manage all).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {},
+      "positionals": [
+        {
+          "name": "WEBHOOK_ID",
+          "type": "int",
+          "required": true
+        }
+      ],
+      "whenToUse": "Show one webhook by id (not found when it belongs to someone else and the key user can't manage all webhooks).",
+      "relatedCommands": [
+        "webhook ls",
+        "webhook update"
+      ]
+    },
+    {
+      "name": "webhook ls",
+      "description": "List webhooks, ordered by id (url, status, subscriptions, allEvents, creatorId).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--created-after": {
+          "type": "string",
+          "required": false,
+          "help": "Created at or after."
+        },
+        "--created-before": {
+          "type": "string",
+          "required": false,
+          "help": "Created before."
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a nextCursor."
+        },
+        "--id": {
+          "type": "int",
+          "required": false,
+          "help": "Only these webhook ids (repeatable).",
+          "multiple": true
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        },
+        "--updated-after": {
+          "type": "string",
+          "required": false,
+          "help": "Changed at or after."
+        },
+        "--updated-before": {
+          "type": "string",
+          "required": false,
+          "help": "Changed before."
+        }
+      },
+      "positionals": [],
+      "whenToUse": "List webhooks (event deliveries to outside URLs): id, url, status active|disabled, subscriptions, allEvents (true = every event type), creatorId. Without permission to manage all webhooks, only the key user's own webhooks are listed. Filter with --id, --created-after/--created-before, --updated-after/--updated-before.",
+      "relatedCommands": [
+        "webhook get",
+        "webhook create"
+      ],
+      "mcpBehavior": {
+        "limitEnforced": true,
+        "allFlagBlocked": true,
+        "defaultLimit": 1000,
+        "maxLimit": 10000
+      },
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      }
+    },
+    {
+      "name": "webhook update",
+      "description": "Change a webhook's URL, events or status; only what you pass. Asks for confirmation.",
+      "category": "write",
+      "destructive": true,
+      "progressCapable": false,
+      "parameters": {
+        "--all-events": {
+          "type": "flag",
+          "required": false,
+          "help": "Receive every event type in the organization."
+        },
+        "--event": {
+          "type": "string",
+          "required": false,
+          "help": "An event to receive (repeatable), e.g. list_entry.created.",
+          "choices": [
+            "list.created",
+            "list.updated",
+            "list.deleted",
+            "list_entry.created",
+            "list_entry.deleted",
+            "note.created",
+            "note.updated",
+            "note.deleted",
+            "field.created",
+            "field.updated",
+            "field.deleted",
+            "field_value.created",
+            "field_value.updated",
+            "field_value.deleted",
+            "person.created",
+            "person.updated",
+            "person.deleted",
+            "organization.created",
+            "organization.updated",
+            "organization.deleted",
+            "organization.merged",
+            "opportunity.created",
+            "opportunity.updated",
+            "opportunity.deleted",
+            "file.created",
+            "file.deleted",
+            "smart_interaction_value.updated",
+            "reminder.created",
+            "reminder.updated",
+            "reminder.deleted"
+          ],
+          "multiple": true
+        },
+        "--status": {
+          "type": "string",
+          "required": false,
+          "help": "disabled pauses delivery; active resumes it.",
+          "choices": [
+            "active",
+            "disabled"
+          ]
+        },
+        "--url": {
+          "type": "string",
+          "required": false,
+          "help": "New delivery URL."
+        },
+        "--yes": {
+          "type": "flag",
+          "required": false,
+          "help": "Skip confirmation prompt.",
+          "aliases": [
+            "-y"
+          ]
+        }
+      },
+      "positionals": [
+        {
+          "name": "WEBHOOK_ID",
+          "type": "int",
+          "required": true
+        }
+      ],
+      "whenToUse": "Change a webhook's --url, events (--event replaces the list; --all-events = every event) or --status disabled|active (pause or resume). Only what is passed changes. Confirm the change with the user first.",
+      "examples": [
+        "webhook update 12 --status disabled"
+      ],
+      "relatedCommands": [
+        "webhook get",
+        "webhook delete"
+      ]
+    },
+    {
       "name": "whoami",
       "description": "Show current authenticated user information.",
       "category": "read",
@@ -5143,5 +5440,5 @@
       ]
     }
   ],
-  "total": 86
+  "total": 91
 }

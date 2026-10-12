@@ -20,6 +20,7 @@ Safety:
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 import tempfile
 import time
@@ -63,6 +64,8 @@ from affinity.types import (
     ReminderResetType,
     ReminderType,
     UserId,
+    WebhookEvent,
+    WebhookStatus,
 )
 
 # =============================================================================
@@ -1040,51 +1043,35 @@ def verify_file_verification(
 # =============================================================================
 
 
-def verify_webhook_crud(client: Affinity, config: RunConfig) -> bool:
+def verify_webhook_crud(client: Affinity) -> bool:
     """
-    Test webhook create, update, delete.
+    Test webhook create, get, update, delete (V2).
 
-    Note: Affinity limits webhooks to 3 per instance (not per API key).
-    This test should be run with caution on instances that may have existing webhooks.
+    Opt-in only: set AFFINITY_TEST_WEBHOOK_URL to an endpoint you control (Affinity sends a test
+    delivery to it, and a webhook sends CRM events there while it exists). One narrow event,
+    deleted in ``finally``. Without the variable the group is skipped.
     """
-    # Check existing webhook count
-    existing = client.webhooks.list()
-    if len(existing) >= 3:
-        print(f"    Skipping webhook test: instance already has {len(existing)}/3 webhooks")
+    url = os.environ.get("AFFINITY_TEST_WEBHOOK_URL", "").strip()
+    if not url:
+        print("    Skipping webhook test: AFFINITY_TEST_WEBHOOK_URL is not set (opt-in)")
         return True
 
-    # CREATE
-    # Use config.marker in URL for orphan detection to work.
-    # Using example.com avoids external dependency - webhook won't actually be called.
     webhook = client.webhooks.create(
-        WebhookCreate(
-            webhook_url=f"https://example.com/webhook/{config.marker}",
-            subscriptions=[],  # Empty for minimal test
-        )
+        WebhookCreate(url=url, subscriptions=[WebhookEvent.LIST_DELETED])
     )
-    assert webhook.id is not None
     print(f"    Created webhook: {webhook.id}")
+    try:
+        assert webhook.subscriptions == [WebhookEvent.LIST_DELETED]
+        fetched = client.webhooks.get(webhook.id)
+        assert fetched.id == webhook.id
+        print(f"    Read webhook: {fetched.id}")
 
-    # READ
-    fetched = client.webhooks.get(webhook.id)
-    assert fetched.id == webhook.id
-    print(f"    Read webhook: {fetched.id}")
-
-    # UPDATE
-    updated = client.webhooks.update(
-        webhook.id,
-        WebhookUpdate(
-            disabled=True,
-        ),
-    )
-    assert updated.disabled is True
-    print("    Updated webhook (disabled)")
-
-    # DELETE
-    success = client.webhooks.delete(webhook.id)
-    assert success is True
-    print(f"    Deleted webhook: {webhook.id}")
-
+        updated = client.webhooks.update(webhook.id, WebhookUpdate(status=WebhookStatus.DISABLED))
+        assert updated.status == WebhookStatus.DISABLED
+        print("    Updated webhook (disabled)")
+    finally:
+        client.webhooks.delete(webhook.id)
+        print(f"    Deleted webhook: {webhook.id}")
     return True
 
 
@@ -1343,7 +1330,6 @@ def find_orphan_test_data(client: Affinity, max_entities: int = 1000) -> dict[st
         "reminders": [],
         "interactions": [],  # Includes type metadata for deletion
         "list_entries": [],  # Includes list_id metadata for deletion
-        "webhooks": [],
         "lists": [],  # Note: Can't delete, but useful to know about
     }
 
@@ -1453,11 +1439,6 @@ def find_orphan_test_data(client: Affinity, max_entities: int = 1000) -> dict[st
         except Exception:
             pass  # May fail if person doesn't exist anymore
 
-    # Check webhooks
-    for webhook in client.webhooks.list():
-        if webhook.webhook_url and TEST_PREFIX in webhook.webhook_url:
-            orphans["webhooks"].append(webhook.id)
-
     result = {k: v for k, v in orphans.items() if v}  # Only return non-empty
     if result:
         print(f"  Found orphans: {', '.join(f'{k}={len(v)}' for k, v in result.items())}")
@@ -1471,7 +1452,7 @@ def cleanup_orphan_data(client: Affinity, orphans: dict[str, list[Any]]) -> None
     Delete orphan test data in dependency order.
 
     Order: interactions -> notes -> reminders -> list_entries -> fields ->
-           opportunities -> companies -> persons -> webhooks
+           opportunities -> companies -> persons
     Lists cannot be deleted via API.
     """
     # Interactions first (attached to persons)
@@ -1537,14 +1518,6 @@ def cleanup_orphan_data(client: Affinity, orphans: dict[str, list[Any]]) -> None
             print(f"    Deleted orphan person: {person_id}")
         except Exception as e:
             print(f"    Failed to delete person {person_id}: {e}")
-
-    # Webhooks (independent)
-    for webhook_id in orphans.get("webhooks", []):
-        try:
-            client.webhooks.delete(webhook_id)
-            print(f"    Deleted orphan webhook: {webhook_id}")
-        except Exception as e:
-            print(f"    Failed to delete webhook {webhook_id}: {e}")
 
     # Lists (informational only)
     if orphans.get("lists"):
@@ -1743,7 +1716,7 @@ def main():
             print("\n" + "=" * 50)
             print("Group 8: Webhooks")
             print("=" * 50)
-            results["verify_webhook_crud"] = verify_webhook_crud(client, config)
+            results["verify_webhook_crud"] = verify_webhook_crud(client)
 
             # Group 9: Beta Features (optional)
             print("\n" + "=" * 50)

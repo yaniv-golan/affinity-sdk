@@ -1,7 +1,7 @@
 """
 Inbound webhook parsing helpers.
 
-The SDK manages webhook subscriptions via the V1 API (`client.webhooks`). This module
+The SDK manages webhooks via the V2 API (`client.webhooks`). This module
 provides optional, framework-agnostic helpers for parsing inbound webhook payloads
 sent by Affinity to your webhook URL.
 """

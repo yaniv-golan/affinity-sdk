@@ -1,4 +1,5 @@
-"""Confirmation for commands that cannot be undone (delete, merge)."""
+"""Confirmation for commands that cannot be undone (delete, merge) or that send data out
+(webhook create/update)."""
 
 from __future__ import annotations
 
@@ -11,14 +12,21 @@ from .runner import CommandFn, CommandOutput, run_command
 
 
 def run_destructive(
-    ctx: CLIContext, *, command: str, yes: bool, prompt: str, fn: CommandFn
+    ctx: CLIContext,
+    *,
+    command: str,
+    yes: bool,
+    prompt: str,
+    fn: CommandFn,
+    why: str = "cannot be undone",
 ) -> None:
     """Run ``fn`` after confirmation: ``--yes``, or "y" to the prompt (typed or piped).
 
     The prompt goes to stderr so stdout stays clean. With no answer at all (end of input, e.g. a
     script or an MCP server without a terminal), fail with a usage error (exit 2) in the normal
     output envelope instead of aborting silently. "n" aborts as before. The API is never called
-    without confirmation.
+    without confirmation. ``why`` completes the refusal: "<command> <why> and needs
+    confirmation".
     """
     if not yes:
         if sys.stdin.isatty():
@@ -34,7 +42,7 @@ def run_destructive(
 
                 def refuse(_ctx: CLIContext, _warnings: list[str]) -> CommandOutput:
                     raise CLIError(
-                        f"{command} cannot be undone and needs confirmation; nothing was changed.",
+                        f"{command} {why} and needs confirmation; nothing was changed.",
                         exit_code=2,
                         error_type="usage_error",
                         hint="Re-run with --yes once the action is confirmed.",

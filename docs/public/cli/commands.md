@@ -1243,3 +1243,51 @@ xaffinity task get https://api.affinity.co/tasks/person-merges/123
 ```bash
 xaffinity task wait https://api.affinity.co/tasks/person-merges/123 --timeout 120
 ```
+
+## Webhooks
+
+Webhooks send CRM events to a URL (V2 API, beta; Affinity API version 2026-07-15 or later).
+Without permission to manage all webhooks, you see and change only the webhooks you created.
+`create`, `update` and `delete` ask for confirmation; scripts pass `--yes`.
+
+### `xaffinity webhook ls`
+
+```bash
+xaffinity webhook ls --all
+xaffinity webhook ls --created-after 2026-01-01 --id 12 --id 13
+```
+
+Rows: `id`, `url`, `status` (`active`/`disabled`), `subscriptions`, `allEvents` (true when the
+webhook receives every event type), `creatorId`, `createdAt`, `updatedAt`.
+
+### `xaffinity webhook get <webhookId>`
+
+```bash
+xaffinity webhook get 12
+```
+
+### `xaffinity webhook create`
+
+```bash
+xaffinity webhook create --url https://hooks.example.com/affinity --event list_entry.created --event field_value.updated
+```
+
+Name the events with `--event` (repeatable); `--all-events` sends every change in the
+organization. Affinity sends a test delivery to the URL first and rejects an unreachable or
+duplicate URL.
+
+### `xaffinity webhook update <webhookId>`
+
+```bash
+xaffinity webhook update 12 --status disabled
+xaffinity webhook update 12 --event note.created
+```
+
+Only what you pass changes; `--event` replaces the whole event list. Prints the webhook as read
+back.
+
+### `xaffinity webhook delete <webhookId>`
+
+```bash
+xaffinity webhook delete 12
+```

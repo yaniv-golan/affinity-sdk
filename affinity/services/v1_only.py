@@ -1,5 +1,5 @@
 """
-V1-only services: Notes, Reminders, Webhooks, Interactions, Fields, and more.
+V1-only services: Notes, Reminders, Interactions, Fields, and more.
 
 These services wrap V1 API endpoints that don't have V2 equivalents.
 """
@@ -48,9 +48,6 @@ from ..models.secondary import (
     Reminder,
     ReminderCreate,
     ReminderUpdate,
-    WebhookCreate,
-    WebhookSubscription,
-    WebhookUpdate,
     WhoAmI,
 )
 from ..models.types import (
@@ -73,7 +70,6 @@ from ..models.types import (
     ReminderStatus,
     ReminderType,
     UserId,
-    WebhookId,
     _normalize_to_utc,
     field_id_to_v1_numeric,
     to_v1_value_type_code,
@@ -691,63 +687,6 @@ class ReminderService:
             )
 
         return PageIterator(fetch_page)
-
-
-# =============================================================================
-# Webhook Service (V1 API)
-# =============================================================================
-
-
-class WebhookService:
-    """
-    Service for managing webhook subscriptions.
-
-    Note: Limited to 3 subscriptions per Affinity instance.
-    """
-
-    def __init__(self, client: HTTPClient):
-        self._client = client
-
-    def list(self) -> builtins.list[WebhookSubscription]:
-        """Get all webhook subscriptions."""
-        data = self._client.get("/webhook", v1=True)
-        return [WebhookSubscription.model_validate(w) for w in data.get("data", [])]
-
-    def get(self, webhook_id: WebhookId) -> WebhookSubscription:
-        """Get a single webhook subscription."""
-        data = self._client.get(f"/webhook/{webhook_id}", v1=True)
-        return WebhookSubscription.model_validate(data)
-
-    def create(self, data: WebhookCreate) -> WebhookSubscription:
-        """
-        Create a webhook subscription.
-
-        The webhook URL will receive a validation request.
-        """
-        payload = data.model_dump(by_alias=True, mode="python", exclude_none=True)
-        _coerce_isoformat(payload, ("date",))
-        if not data.subscriptions:
-            payload.pop("subscriptions", None)
-
-        result = self._client.post("/webhook/subscribe", json=payload, v1=True)
-        return WebhookSubscription.model_validate(result)
-
-    def update(self, webhook_id: WebhookId, data: WebhookUpdate) -> WebhookSubscription:
-        """Update a webhook subscription."""
-        payload = data.model_dump(
-            by_alias=True,
-            mode="json",
-            exclude_unset=True,
-            exclude_none=True,
-        )
-
-        result = self._client.put(f"/webhook/{webhook_id}", json=payload, v1=True)
-        return WebhookSubscription.model_validate(result)
-
-    def delete(self, webhook_id: WebhookId) -> bool:
-        """Delete a webhook subscription."""
-        result = self._client.delete(f"/webhook/{webhook_id}", v1=True)
-        return bool(result.get("success", False))
 
 
 # =============================================================================
@@ -3070,45 +3009,6 @@ class AsyncReminderService:
                 raise
 
         return results
-
-
-class AsyncWebhookService:
-    """Async service for managing webhook subscriptions (V1 API)."""
-
-    def __init__(self, client: AsyncHTTPClient):
-        self._client = client
-
-    async def list(self) -> builtins.list[WebhookSubscription]:
-        data = await self._client.get("/webhook", v1=True)
-        items = data.get("data", [])
-        if not isinstance(items, list):
-            items = []
-        return [WebhookSubscription.model_validate(w) for w in items]
-
-    async def get(self, webhook_id: WebhookId) -> WebhookSubscription:
-        data = await self._client.get(f"/webhook/{webhook_id}", v1=True)
-        return WebhookSubscription.model_validate(data)
-
-    async def create(self, data: WebhookCreate) -> WebhookSubscription:
-        payload = data.model_dump(by_alias=True, mode="json", exclude_none=True)
-        if not data.subscriptions:
-            payload.pop("subscriptions", None)
-        result = await self._client.post("/webhook/subscribe", json=payload, v1=True)
-        return WebhookSubscription.model_validate(result)
-
-    async def update(self, webhook_id: WebhookId, data: WebhookUpdate) -> WebhookSubscription:
-        payload = data.model_dump(
-            by_alias=True,
-            mode="json",
-            exclude_unset=True,
-            exclude_none=True,
-        )
-        result = await self._client.put(f"/webhook/{webhook_id}", json=payload, v1=True)
-        return WebhookSubscription.model_validate(result)
-
-    async def delete(self, webhook_id: WebhookId) -> bool:
-        result = await self._client.delete(f"/webhook/{webhook_id}", v1=True)
-        return bool(result.get("success", False))
 
 
 class AsyncInteractionService:
