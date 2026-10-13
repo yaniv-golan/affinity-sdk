@@ -99,6 +99,9 @@ or a CLI exit code; each is marked **Behavior change**.
   than one list, or none, is a validation error (exit 2) asking for the list id; before, the last
   list with that name was used, or the scope was dropped. `min`/`max` over objects or lists is a
   validation error instead of a crash.
+- CLI `query`: with `orderBy` or `limit`, `include` (and an `expand` the sort doesn't read) runs
+  on the rows kept after sorting, limiting and `--max-records`, not on every match, so a top-N
+  query makes one call per kept row.
 - CLI `query`: an Affinity error exits with the CLI's documented code (3 auth, 4 not found, 5
   rate limit or server error) and its usual error envelope, instead of exit 1 with "Query
   execution failed".

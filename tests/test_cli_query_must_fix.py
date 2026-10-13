@@ -779,3 +779,39 @@ def test_query_api_error_keeps_documented_exit_code(status: int, exit_code: int)
             env={"AFFINITY_API_KEY": "test-key"},
         )
     assert result.exit_code == exit_code, result.output
+
+
+# --- include runs on the rows kept, not on every match ----------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("extra", "ops", "max_records", "kept"),
+    [
+        ({"limit": 3}, ("filter", "sort", "include", "limit"), 10_000, [30, 29, 28]),
+        ({}, ("filter", "sort", "include"), 5, [30, 29, 28, 27, 26]),
+    ],
+)
+def test_include_after_sort_fetches_only_kept_rows(
+    extra: dict[str, Any], ops: tuple[str, ...], max_records: int, kept: list[int]
+) -> None:
+    client = _client()
+    client.persons = MagicMock()
+    client.persons.all.return_value = _pages(_many(30))
+    client.persons.get_associated_company_ids = AsyncMock(return_value=[])
+    query = Query.model_validate(
+        {
+            "from": "persons",
+            "where": {"path": "score", "op": "gt", "value": 0},
+            "orderBy": [{"field": "score", "direction": "desc"}],
+            "include": ["companies"],
+            **extra,
+        }
+    )
+    result = asyncio.run(
+        QueryExecutor(client, max_records=max_records).execute(
+            _plan(query, *ops, relationship="companies")
+        )
+    )
+    assert [r["id"] for r in result.data] == kept
+    fetched = [c.args[0] for c in client.persons.get_associated_company_ids.await_args_list]
+    assert sorted(fetched) == sorted(kept)

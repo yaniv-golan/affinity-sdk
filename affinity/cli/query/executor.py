@@ -891,6 +891,34 @@ def _parent_is_conjunct(where: WhereClause) -> bool:
     return where.and_ is not None and any(c.path in parent for c in where.and_)
 
 
+def _steps_to_run_last(plan: ExecutionPlan) -> list[PlanStep]:
+    """Include and expand steps that can wait until sort and limit have trimmed the rows.
+
+    None when the query aggregates (the rows become aggregate results). An expansion stays in
+    place when an orderBy field reads it.
+    """
+    if any(step.operation == "aggregate" for step in plan.steps):
+        return []
+    if not any(step.operation in ("sort", "limit") for step in plan.steps):
+        return []
+    order_by = plan.query.order_by or []
+    sort_fields = [ob.field for ob in order_by if ob.field]
+    # An orderBy expression may read anything: keep expansions in place then.
+    sort_reads_any = len(sort_fields) < len(order_by)
+
+    def sort_reads(expansion: str | None) -> bool:
+        return sort_reads_any or any(
+            f == expansion or f.startswith(f"{expansion}.") for f in sort_fields
+        )
+
+    return [
+        step
+        for step in plan.steps
+        if step.operation == "include"
+        or (step.operation == "expand" and not sort_reads(step.expansion))
+    ]
+
+
 class QueryExecutor:
     """Executes query plans using SDK services.
 
@@ -1025,22 +1053,20 @@ class QueryExecutor:
                             await self._execute_expand(step, ctx)
                     return ctx.build_result()
 
-            # Execute steps in dependency order (normal path)
+            # Execute steps in dependency order (normal path). Includes, and expansions the sort
+            # doesn't read, cost one API call per record: run them after sort, limit and the
+            # --max-records cut, on the rows kept. With an aggregate the rows become aggregate
+            # results, so the order stays as planned.
+            deferred = _steps_to_run_last(plan)
             for step in plan.steps:
-                ctx.current_step = step.step_id
-                ctx.check_timeout(self.timeout)
-
-                self.progress.on_step_start(step)
-
-                try:
-                    await self._execute_step(step, ctx)
-                    self.progress.on_step_complete(step, len(ctx.records))
-                except Exception as e:
-                    self.progress.on_step_error(step, e)
-                    raise
+                if step in deferred:
+                    continue
+                await self._run_step(step, ctx)
 
             if ctx.defer_max_records and ctx.query.where is not None:
                 ctx.cap_max_records()
+            for step in deferred:
+                await self._run_step(step, ctx)
             return ctx.build_result()
 
         except (QueryError, CLIError):
@@ -1262,6 +1288,20 @@ class QueryExecutor:
                 await self._execute_expand(step, ctx)
 
         return ctx.build_result()
+
+    async def _run_step(self, step: PlanStep, ctx: ExecutionContext) -> None:
+        """Run one plan step with timeout checks and progress events."""
+        ctx.current_step = step.step_id
+        ctx.check_timeout(self.timeout)
+
+        self.progress.on_step_start(step)
+
+        try:
+            await self._execute_step(step, ctx)
+            self.progress.on_step_complete(step, len(ctx.records))
+        except Exception as e:
+            self.progress.on_step_error(step, e)
+            raise
 
     async def _execute_step(self, step: PlanStep, ctx: ExecutionContext) -> None:
         """Execute a single plan step."""
