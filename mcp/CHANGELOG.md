@@ -18,10 +18,11 @@ Works with CLI 2.0.1: `note get` content is now the stored HTML (same keys).
 
 ### Changed
 
-- On mcp-bash 1.9.1 (was 1.8.0). A tool that times out returns the standard error result
+- On mcp-bash 1.9.2 (was 1.8.0). A tool that times out returns the standard error result
   (`_meta["mcpbash/error"]`, type `timeout`, with the tool's hint); resource reads, prompts and
   completions that time out now get an error instead of no answer; running tools are stopped
-  when the server exits abnormally.
+  when the server exits abnormally; a newly started server no longer serves an out-of-date tool
+  list for its first seconds.
 
 ## [2.0.0] - 2026-10-12
 
