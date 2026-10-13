@@ -402,6 +402,8 @@ class ExecutionContext:
     server_filter: dict[str, Any] | None = None
     # Affinity's search sorts (orderBy went to the server): pending until search pages arrive
     pending_server_sort: bool = False
+    # Quantifier query bounded by Affinity's search: check its count on the first search page
+    count_guard: bool = False
     server_sorted: bool = False
     # List fields keyed by id in normalized records (shared names, or named by id in the query)
     id_keyed_fields: set[str] = field(default_factory=set)
@@ -684,7 +686,9 @@ def validate_quantifier_query(
     query: Query,
     _max_records: int,
     max_records_explicit: bool,
-) -> None:
+    *,
+    count_check_possible: bool = False,
+) -> bool:
     """Validate that unbounded quantifier queries have explicit limits.
 
     Args:
@@ -692,16 +696,26 @@ def validate_quantifier_query(
         _max_records: Current max_records limit (unused, kept for API compatibility)
         max_records_explicit: True if --max-records was explicitly provided
 
+        count_check_possible: The WHERE tests company/person fields, so Affinity's search
+            bounds the records: instead of raising, return True ("check the count when
+            fetching").
+
+    Returns:
+        True when the count has to be checked on the first search page.
+
     Raises:
         QueryValidationError: If unbounded quantifier query without explicit limit
     """
     # Derive has_quantifier from requires_relationship_data() - don't pass as parameter
     required_rels = requires_relationship_data(query.where) if query.where else set()
     if not required_rels:
-        return  # No quantifier/relationship filter, no restriction
+        return False  # No quantifier/relationship filter, no restriction
 
     if query.from_ not in UNBOUNDED_ENTITIES:
-        return  # Bounded entity (listEntries), OK
+        return False  # Bounded entity (listEntries), OK
+
+    if not max_records_explicit and count_check_possible:
+        return True
 
     if not max_records_explicit:
         # User didn't explicitly set --max-records
@@ -713,6 +727,7 @@ def validate_quantifier_query(
             f"  2. Query listEntries instead (bounded by list size)\n"
             f"  3. Add --max-records {DEFAULT_MAX_RECORDS} to explicitly allow large scope"
         )
+    return False
 
 
 def can_use_streaming(query: Query, *, max_records_explicit: bool = False) -> bool:
@@ -794,6 +809,25 @@ def _typed_sort_value(
     if isinstance(value, dict):
         return (3, json.dumps(value, sort_keys=True, default=str))
     return (3, str(value))
+
+
+def _check_quantifier_count(entity: str, total: int | None) -> None:
+    """A quantifier query bounded by Affinity's search runs without --max-records only when
+    the search matches at most QUANTIFIER_SEARCH_LIMIT records."""
+    from .planner import QUANTIFIER_SEARCH_LIMIT
+
+    if total is not None and total <= QUANTIFIER_SEARCH_LIMIT:
+        return
+    found = (
+        f"matches {total} {entity}" if total is not None else f"didn't say how many {entity} match"
+    )
+    raise QueryValidationError(
+        f"Quantifier filters on '{entity}' make requests per record, and Affinity's search "
+        f"{found} (more than {QUANTIFIER_SEARCH_LIMIT} need an explicit --max-records).\n\n"
+        f"Options:\n"
+        f"  1. Narrow the where on {entity} fields\n"
+        f"  2. Add --max-records {total or SAFE_MAX_RECORDS} to allow that scope"
+    )
 
 
 def _order_field_names(query: Query) -> list[str] | None:
@@ -912,11 +946,17 @@ class QueryExecutor:
             QuerySafetyLimitError: If max_records exceeded
             QueryValidationError: If unbounded quantifier query without explicit --max-records
         """
-        # Safety guard: Block unbounded quantifier queries without explicit --max-records
-        validate_quantifier_query(
+        # Safety guard: Block unbounded quantifier queries without explicit --max-records,
+        # unless Affinity's search bounds them (checked on the first search page)
+        from .parser import _tests_a_field
+
+        count_guard = validate_quantifier_query(
             plan.query,
             self.max_records,
             self.max_records_explicit,
+            count_check_possible=plan.query.from_ in ("companies", "persons")
+            and plan.query.where is not None
+            and _tests_a_field(plan.query.where),
         )
 
         # Check if plan has steps that need ALL records before limiting (filter/aggregate/sort)
@@ -934,6 +974,7 @@ class QueryExecutor:
             query=plan.query,
             max_records=self.max_records,
             needs_full_fetch=needs_full_fetch,
+            count_guard=count_guard,
         )
 
         try:
@@ -1662,11 +1703,19 @@ class QueryExecutor:
         body = await self._entity_search_body(ctx, service, entity)
         resume = self.resume_api_cursor
         if body is not None:
+            resuming = bool(resume and "/search" in resume)
             page = await (
                 service.find_body(body, cursor=resume)
-                if resume and "/search" in resume
-                else service.find_body(body, field_ids=self._search_field_ids or None, limit=100)
+                if resuming
+                else service.find_body(
+                    body,
+                    field_ids=self._search_field_ids or None,
+                    limit=100,
+                    total_count=ctx.count_guard,
+                )
             )
+            if ctx.count_guard and not resuming:
+                _check_quantifier_count(entity, page.total_count)
             ctx.server_sorted = ctx.pending_server_sort
             while True:
                 yield page
@@ -3599,7 +3648,7 @@ class QueryExecutor:
             ctx.records = accumulated[:limit] if len(accumulated) > limit else accumulated
             self.progress.on_step_complete(fetch_step, len(ctx.records))
 
-        except QueryExecutionError:
+        except (QueryExecutionError, QueryValidationError):
             raise
         except Exception as e:
             raise QueryExecutionError(

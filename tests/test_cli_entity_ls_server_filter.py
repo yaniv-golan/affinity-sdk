@@ -211,3 +211,68 @@ def test_local_sort_on_companies_hides_its_raw_values(respx_mock: respx.MockRout
     assert code == 0, out
     assert [c["id"] for c in out["data"]] == [2, 3, 1]
     assert all("_raw_fields" not in c for c in out["data"])
+
+
+def _json_in(stdout: str) -> Any:
+    """The JSON document in stdout (after any [warning] lines), one-line or pretty-printed."""
+    lines = stdout.splitlines()
+    start = next(
+        i for i, line in enumerate(lines) if line.startswith("{") and not line.startswith('{"type"')
+    )
+    return json.loads("\n".join(lines[start:]) if lines[start] == "{" else lines[start])
+
+
+QUANTIFIER = {
+    "from": "companies",
+    "where": {
+        "and": [
+            {"path": "fields.Deals", "op": "gt", "value": 0},
+            {"exists": {"from": "interactions"}},
+        ]
+    },
+}
+
+
+def _with_total(items: list[Any], total: int | None) -> dict[str, Any]:
+    page = _page(items)
+    if total is not None:
+        page["pagination"]["totalCount"] = total
+    return page
+
+
+@pytest.mark.parametrize("total", [150, None])
+def test_quantifier_query_stops_when_search_matches_too_many(
+    respx_mock: respx.MockRouter, total: int | None
+) -> None:
+    respx_mock.get(f"{V2}/auth/whoami").mock(return_value=Response(200, json=WHOAMI))
+    respx_mock.get(f"{V2}/companies/fields").mock(return_value=Response(200, json=_page(FIELDS)))
+    route = respx_mock.post(SEARCH).mock(
+        return_value=Response(201, json=_with_total([_company(1, 3)], total))
+    )
+    result = CliRunner().invoke(
+        cli, ["--json", "query", "--query", json.dumps(QUANTIFIER)], env=ENV
+    )
+    assert result.exit_code == 2, result.stdout
+    error = _json_in(result.stdout)["error"]
+    assert error["type"] == "validation_error"
+    assert "--max-records" in error["message"]
+    assert (str(total) in error["message"]) if total else "didn't say" in error["message"]
+    assert route.calls[0].request.url.params["totalCount"] == "true"
+
+
+def test_quantifier_dry_run_counts_instead_of_unbounded() -> None:
+    args = ["--json", "query", "--dry-run", "--query", json.dumps(QUANTIFIER)]
+    out = _json_in(CliRunner().invoke(cli, args, env=ENV).stdout)
+    assert out["execution"]["requiresExplicitMaxRecords"] is False
+    assert isinstance(out["execution"]["estimatedApiCalls"], int)
+    explicit = CliRunner().invoke(cli, [*args, "--max-records", "50"], env=ENV).stdout
+    assert isinstance(_json_in(explicit)["execution"]["estimatedApiCalls"], int)
+
+
+def test_quantifier_guard_returns_count_check() -> None:
+    from affinity.cli.query.executor import validate_quantifier_query
+    from affinity.cli.query.parser import parse_query
+
+    query = parse_query(QUANTIFIER).query
+    assert validate_quantifier_query(query, 10000, False, count_check_possible=True) is True
+    assert validate_quantifier_query(query, 10000, True, count_check_possible=True) is False

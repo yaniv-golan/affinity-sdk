@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   "Zeta"); empty values stay last in both directions. Fields named only in `orderBy` are now
   fetched (a local sort used to see them empty). Grouped rows (`groupBy`) sort by their keys
   as before.
+- **Quantifier queries (`all`/`none`/`exists`) on companies and persons no longer always need
+  `--max-records`**: their `where` must test a field, which Affinity's search applies first;
+  when it matches at most 100 records the query runs, otherwise it stops and names the count.
+  `--dry-run` gives a number of API calls instead of "UNBOUNDED" (with `--max-records` too),
+  which also fixes the MCP query tool's timeout for these queries (it fell back to 120 s).
+  Validation errors found while the query runs exit 2 with `validation_error`, like those
+  found while planning.
 
 ### Added
 

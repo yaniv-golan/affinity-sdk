@@ -17,6 +17,7 @@ from .filters import (
     requires_relationship_data,
 )
 from .models import ExecutionPlan, PlanStep, Query, WhereClause
+from .parser import _tests_a_field
 from .schema import (
     EXPANSION_REGISTRY,
     UNBOUNDED_ENTITIES,
@@ -130,6 +131,12 @@ def _strip_parent_filter(where: WhereClause | None, parent_field: str | None) ->
     return where
 
 
+# Quantifier queries (one or more requests per record) on companies/persons run without
+# --max-records when Affinity's search matches at most this many (about 100 x relationships
+# requests stays within minutes); SAFE_MAX_RECORDS in the executor.
+QUANTIFIER_SEARCH_LIMIT = 100
+
+
 def _field_paths(where: WhereClause) -> set[str]:
     """The fields.<name> paths a WHERE clause tests (outside quantifiers)."""
     paths: set[str] = set()
@@ -150,15 +157,23 @@ def _field_paths(where: WhereClause) -> set[str]:
 class QueryPlanner:
     """Generates execution plans from parsed queries."""
 
-    def __init__(self, *, max_records: int = 10000, concurrency: int = 10) -> None:
+    def __init__(
+        self,
+        *,
+        max_records: int = 10000,
+        concurrency: int = 10,
+        max_records_explicit: bool = False,
+    ) -> None:
         """Initialize the planner.
 
         Args:
             max_records: Maximum records to fetch (safety limit)
             concurrency: Concurrency level for N+1 operations
+            max_records_explicit: True when --max-records was given (bounds quantifier queries)
         """
         self.max_records = max_records
         self.concurrency = concurrency
+        self.max_records_explicit = max_records_explicit
 
     def plan(self, query: Query) -> ExecutionPlan:
         """Generate an execution plan for a query.
@@ -678,6 +693,19 @@ class QueryPlanner:
         warnings: list[str] = []
 
         if query.from_ in UNBOUNDED_ENTITIES and required_rels:
+            if self.max_records_explicit:
+                return (self.max_records * len(required_rels), warnings, False)
+            if (
+                query.from_ in ("companies", "persons")
+                and query.where is not None
+                and _tests_a_field(query.where)
+            ):
+                warnings.append(
+                    f"Checked when the query runs: if Affinity's search matches at most "
+                    f"{QUANTIFIER_SEARCH_LIMIT} {query.from_}, the query runs without "
+                    f"--max-records; otherwise it stops and names the count."
+                )
+                return (QUANTIFIER_SEARCH_LIMIT * len(required_rels), warnings, False)
             # Don't fake an estimate - be honest
             warnings.append(
                 f"⚠️  UNBOUNDED: '{query.from_}' count unknown. "
@@ -696,6 +724,7 @@ def create_planner(
     *,
     max_records: int = 10000,
     concurrency: int = 10,
+    max_records_explicit: bool = False,
 ) -> QueryPlanner:
     """Create a query planner with configuration.
 
@@ -706,4 +735,8 @@ def create_planner(
     Returns:
         Configured QueryPlanner
     """
-    return QueryPlanner(max_records=max_records, concurrency=concurrency)
+    return QueryPlanner(
+        max_records=max_records,
+        concurrency=concurrency,
+        max_records_explicit=max_records_explicit,
+    )

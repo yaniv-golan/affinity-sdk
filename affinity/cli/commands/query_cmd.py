@@ -348,7 +348,7 @@ def _query_cmd_impl(
             click.echo(f"[warning] {warning}", err=True)
 
     # Create execution plan
-    planner = create_planner(max_records=max_records)
+    planner = create_planner(max_records=max_records, max_records_explicit=max_records_explicit)
     try:
         plan = planner.plan(query)
     except QueryValidationError as e:
@@ -513,8 +513,9 @@ def _query_cmd_impl(
         try:
             result = asyncio.run(run_query())
         except QueryValidationError as e:
-            # Unbounded quantifier query without explicit --max-records
-            raise CLIError(str(e)) from None
+            # Found while running (a quantifier query's count, a field the where can't use):
+            # the same usage error as one found while planning
+            raise CLIError(str(e), exit_code=2, error_type="validation_error") from None
         except QueryTimeoutError as e:
             raise CLIError(f"Query timed out after {e.elapsed_seconds:.1f}s: {e}") from None
         except QuerySafetyLimitError as e:
