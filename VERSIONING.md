@@ -141,6 +141,16 @@ This approach is robust regardless of how many commits are pushed together, squa
 
 SDK releases include MCPB bundles (built from the same commit) for convenience, so users don't need to find separate MCP releases.
 
+**CLI pin in the CLI plugin.** The xaffinity-cli plugin installs an exact CLI version
+(`affinity-sdk[cli]==X.Y.Z` in `hooks/session-setup.sh`, `hooks/pre-xaffinity.sh` and the skill's
+install lines). It always equals `pyproject.toml`'s version, and
+`tests/test_cli_session_setup_hook.py` fails until it does. So the version bump in step 1 also
+updates the pin. That is a plugin content change, so it bumps the CLI plugin's patch version.
+Plugin users get the new pin as soon as `main` is pushed, while PyPI gets the version only when
+the release workflow finishes. In between, a fresh install asks pip for a version that doesn't
+exist yet and fails. Machines with the CLI already installed are not affected. Don't push
+anything else on top of a version bump until the release workflow is green.
+
 ### MCP Release
 
 1. Update `mcp/VERSION`
@@ -261,7 +271,7 @@ the release notes lack context.
 ## Release Checklist
 
 ### SDK Release
-- [ ] Version bumped in `pyproject.toml`
+- [ ] Version bumped in `pyproject.toml`, and the CLI plugin's install pin with it (bump the CLI plugin patch version)
 - [ ] If plugin content also changed: plugin versions bumped in their `plugin.json` files
 - [ ] Pre-commit ran
 - [ ] `CHANGELOG.md` updated with `### Highlights` and categorized changes

@@ -23,7 +23,7 @@ xaffinity config check-key --json
 ```
 
 - **`command not found`** (exit 127; e.g. a Claude Cowork VM) — install it once per task:
-  `pip install --user -q --no-warn-script-location "affinity-sdk[cli]"` (about 10s), then
+  `pip install --user -q --no-warn-script-location "affinity-sdk[cli]==2.0.3"` (about 10s), then
   start every later bash call with `export PATH="$HOME/.local/bin:$PATH";` (each call is a
   fresh shell) and run check-key again. Details and the no-network case: `references/setup.md` (Claude Cowork).
 - **`"configured": true`** — use the `pattern` field from the output for ALL subsequent commands:
@@ -79,7 +79,7 @@ Details: `references/filtering.md`.
 company, with its list field values. Zero rows + the emitted warning is the "not on list" signal.
 
 **4. Check `meta.truncated` on every JSON response.** If `true`, the answer is incomplete;
-`meta.truncationReason` names the cause (currently `firstPageOnly`). Separately, Affinity returns at
+`meta.truncationReason` names the cause (`firstPageOnly`, or `partialFailure` from `field history-bulk`). Separately, Affinity returns at
 most 100 values per multi-value field: a `warnings` entry like "Field 'X' … shows 100 of 250 values"
 means that field's list is partial, so don't count or dedupe from it.
 
@@ -319,6 +319,6 @@ reference (JSON structure, operators, aggregation, examples): `references/query-
 | Get command help | `xaffinity <command> --help` (USE THIS — don't guess flags) |
 
 **Remember:** prefix all commands with `xaffinity --readonly` (and `--dotenv` if `check-key` says
-so). Install: `pip install "affinity-sdk[cli]"` (`--user` plus the PATH line above when
-`xaffinity` isn't found); if a command or flag shown here is missing,
-upgrade with `pip install -U "affinity-sdk[cli]"`. Docs: https://yaniv-golan.github.io/affinity-sdk/latest/
+so). Install: `pip install "affinity-sdk[cli]==2.0.3"`, the version this skill is written for
+(`--user` plus the PATH line above when `xaffinity` isn't found); if a command or flag shown
+here is missing, the installed CLI is older: install that version. Docs: https://yaniv-golan.github.io/affinity-sdk/latest/

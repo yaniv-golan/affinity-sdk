@@ -69,6 +69,11 @@ set -euo pipefail
 # On first invocation, installs affinity-sdk[cli] via pip, then exec's
 # the real xaffinity binary with the original arguments.
 
+# The CLI version this plugin release is written for. Kept equal to pyproject.toml's version
+# (tests/test_cli_session_setup_hook.py checks it). Set XAFFINITY_CLI_SPEC to install another,
+# e.g. XAFFINITY_CLI_SPEC="affinity-sdk[cli]" for the newest release.
+cli_spec="${XAFFINITY_CLI_SPEC:-affinity-sdk[cli]==2.0.3}"
+
 # --- Recursion guard ---
 # Prevents infinite loop if pip install somehow triggers this wrapper again.
 if [ -n "${_XAFFINITY_BOOTSTRAP:-}" ]; then
@@ -89,8 +94,8 @@ if mkdir "$lockdir" 2>/dev/null; then
   # We own the lock — clean up on exit
   trap 'rmdir "$lockdir" 2>/dev/null || true' EXIT
 
-  echo "Installing xaffinity CLI (first use)..." >&2
-  if pip install --user "affinity-sdk[cli]" >&2; then
+  echo "Installing xaffinity CLI (first use): $cli_spec" >&2
+  if pip install --user "$cli_spec" >&2; then
     echo "INSTALLED" > "$marker"
     echo "xaffinity installed successfully." >&2
   else

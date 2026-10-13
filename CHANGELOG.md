@@ -119,7 +119,9 @@ or a CLI exit code; each is marked **Behavior change**.
 ### Plugins
 
 - **CLI plugin**: 2.0.2 → 2.0.3 — skill: the API-key resolution order (key flags first) and
-  where `config setup-key` stores the key.
+  where `config setup-key` stores the key. Installs pin the CLI version the plugin was written
+  for (`XAFFINITY_CLI_SPEC` overrides it); the Read hook also guards the CLI's `config.toml`;
+  the skill names the `partialFailure` truncation reason.
 - **SDK plugin**: 2.0.3 → 2.0.4 — skill: the duplicate-company example uses a placeholder name.
 
 ## [2.0.3] - 2026-10-13

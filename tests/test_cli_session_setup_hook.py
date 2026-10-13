@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import stat
 import subprocess
@@ -191,3 +192,61 @@ def test_creates_wrapper_inside_cowork_vm(tmp_path: Path):
 
     assert result.returncode == 0
     assert (tmp_path / "bin" / "xaffinity").exists()
+
+
+_REPO = Path(__file__).parent.parent
+_PINNED_FILES = [
+    "plugins/xaffinity-cli/hooks/session-setup.sh",
+    "plugins/xaffinity-cli/hooks/pre-xaffinity.sh",
+    "plugins/xaffinity-cli/skills/xaffinity-cli-usage/SKILL.md",
+    "plugins/xaffinity-cli/skills/xaffinity-cli-usage/references/setup.md",
+]
+
+
+def _package_version() -> str:
+    match = re.search(r'^version = "([^"]+)"', (_REPO / "pyproject.toml").read_text(), re.M)
+    assert match, "pyproject.toml has no version"
+    return match.group(1)
+
+
+def test_cli_install_pin_matches_package_version():
+    """Every install line in the CLI plugin pins the CLI version from the same commit."""
+    expected = f"affinity-sdk[cli]=={_package_version()}"
+    for rel in _PINNED_FILES:
+        text = (_REPO / rel).read_text()
+        specs = re.findall(r"affinity-sdk\[cli\]==[0-9][0-9A-Za-z.\-]*", text)
+        assert specs, f"{rel} has no pinned install spec"
+        assert set(specs) == {expected}, f"{rel} pins {sorted(set(specs))}, expected {expected}"
+
+
+def _run_wrapper_with_fake_pip(tmp_path: Path, extra_env: dict[str, str]) -> str:
+    """Create the wrapper, run it against a fake pip, and return the args pip received."""
+    _make_mock_python3(tmp_path)
+    env = _env_without_xaffinity(tmp_path)
+    assert _run_hook(env_override=env).returncode == 0
+
+    log = tmp_path / "pip-args"
+    fake_pip = tmp_path / "pip"  # tmp_path is first on the restricted PATH
+    fake_pip.write_text(f'#!/bin/sh\necho "$@" > "{log}"\nexit 1\n')
+    fake_pip.chmod(0o755)
+    home = tmp_path / "home"
+    home.mkdir()
+    subprocess.run(
+        [_BASH, str(tmp_path / "bin" / "xaffinity"), "--version"],
+        capture_output=True,
+        text=True,
+        env={**os.environ, **env, "HOME": str(home), **extra_env},
+        timeout=15,
+        check=False,
+    )
+    return log.read_text().strip()
+
+
+def test_wrapper_installs_pinned_version(tmp_path: Path):
+    args = _run_wrapper_with_fake_pip(tmp_path, {})
+    assert args == f"install --user affinity-sdk[cli]=={_package_version()}"
+
+
+def test_wrapper_install_spec_can_be_overridden(tmp_path: Path):
+    args = _run_wrapper_with_fake_pip(tmp_path, {"XAFFINITY_CLI_SPEC": "affinity-sdk[cli]"})
+    assert args == "install --user affinity-sdk[cli]"
