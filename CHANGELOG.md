@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`Team` reads `updatedAt`** (`updated_at`), and accepts the `membersPreview` /
+  `accessibleListsPreview` blocks under their own names too.
+
 ## [2.0.2] - 2026-10-13
 
 ### Changed (breaking)

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import Field, model_validator
+from pydantic import AliasChoices, Field, model_validator
 
 from .entities import AffinityModel, ListSummary
 from .secondary import User
@@ -63,11 +63,17 @@ class Team(AffinityModel):
     id: int
     name: str
     created_at: ISODatetime | None = Field(None, alias="createdAt")
+    updated_at: ISODatetime | None = Field(None, alias="updatedAt")
     privacy_type: str | None = Field(None, alias="privacyType")
 
-    members: list[TeamMember] | None = None
+    # Read from membersPreview / accessibleListsPreview ({data, totalCount}), flattened below
+    members: list[TeamMember] | None = Field(
+        None, validation_alias=AliasChoices("members", "membersPreview")
+    )
     members_total: int | None = None
-    accessible_lists: list[ListSummary] | None = None
+    accessible_lists: list[ListSummary] | None = Field(
+        None, validation_alias=AliasChoices("accessible_lists", "accessibleListsPreview")
+    )
     accessible_lists_total: int | None = None
 
     @model_validator(mode="before")
