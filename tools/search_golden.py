@@ -31,8 +31,10 @@ from affinity.cli.query.executor import _normalize_list_entry_fields
 from affinity.cli.query.filters import compile_filter
 from affinity.cli.query.models import WhereClause
 from affinity.criteria import SearchCriteria, filter_value_type
+from affinity.filters import FieldComparison, FilterExpression, RawToken
 from affinity.models.entities import DropdownOption, FieldMetadata
 from affinity.policies import Policies, WritePolicy
+from affinity.services.lists import _entry_to_filter_dict
 from affinity.types import ListId
 
 
@@ -94,6 +96,35 @@ def _cases(meta: FieldMetadata, vt: str, values: list[Any]) -> list[WhereClause]
     return cases
 
 
+_TEXT_OPS = {
+    "eq": "=",
+    "neq": "!=",
+    "contains": "=~",
+    "starts_with": "=^",
+    "ends_with": "=$",
+    "gt": ">",
+    "gte": ">=",
+    "lt": "<",
+    "lte": "<=",
+}
+
+
+def _as_text_filter(where: WhereClause) -> FilterExpression | None:
+    """The same condition as an ``affinity.filters`` expression (fields by id), or ``None``."""
+    if not where.path or not where.path.startswith("fields."):
+        return None
+    name = where.path.removeprefix("fields.")
+    if where.op == "is_null":
+        return FieldComparison(name, "!=", RawToken("*"))
+    if where.op == "is_not_null":
+        return FieldComparison(name, "=", RawToken("*"))
+    if where.op in _TEXT_OPS:
+        return FieldComparison(name, _TEXT_OPS[where.op], where.value)
+    if where.op in ("in", "between", "has_any", "has_all", "starts_word"):
+        return FieldComparison(name, where.op, where.value)
+    return None
+
+
 def run_list(
     client: Affinity, list_id: int, *, enriched_or_empty: bool = False
 ) -> dict[tuple[str, str], list[tuple[int, int, int]]]:
@@ -109,10 +140,13 @@ def run_list(
     entries = lists.entries(ListId(list_id))
     # Key every field by id (as query does for fields.<id>): names can collide
     by_id = {str(f.id) for f in filterable}
+    raw_entries = list(entries.iter(field_ids=[f.id for f in filterable]))
     records = [
         _normalize_list_entry_fields(e.model_dump(mode="json", by_alias=True), None, by_id)
-        for e in entries.iter(field_ids=[f.id for f in filterable])
+        for e in raw_entries
     ]
+    # What the SDK / --filter text matcher sees (a different code path from query's)
+    sdk_dicts = {int(e.id): _entry_to_filter_dict(e) for e in raw_entries}
     print(f"list {list_id}: {len(records)} entries, {len(filterable)} filterable fields")
     options: dict[str, list[DropdownOption]] = {}
 
@@ -149,6 +183,10 @@ def run_list(
             server = {int(e.id) for e in _all(entries, body)}
             keep = compile_filter(where)
             local = {int(r["id"]) for r in records if keep(r)}
+            # Also the SDK's text matcher: what list(filter=...) / --filter keep locally
+            text = _as_text_filter(where)
+            if text is not None:
+                local |= {i for i, d in sdk_dicts.items() if text.matches(d)}
             results[mapping].append((len(local), len(server), len(local - server)))
     return results
 

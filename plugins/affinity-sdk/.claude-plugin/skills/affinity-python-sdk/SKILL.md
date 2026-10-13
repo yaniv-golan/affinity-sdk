@@ -179,7 +179,7 @@ for company in client.companies.all(on_progress=log_progress):
 
 ## Searching and Filtering
 
-**Note:** Global-entity lists (`companies.list()`, `persons.list()`, `opportunities.list()`) do NOT accept `filter=`: the SDK raises `ValueError` to prevent silently-unfiltered results. To filter companies, persons or list entries on field values, use `find()` (Affinity's search, below). Use `search_pages()` for name/domain/email fuzzy search. `filter=` on **list entries** is matched locally after fetching.
+**Note:** Global-entity lists (`companies.list()`, `persons.list()`, `opportunities.list()`) do NOT accept `filter=`: the SDK raises `ValueError` to prevent silently-unfiltered results. To filter companies, persons or list entries on field values, use `find()` (Affinity's search, below). Use `search_pages()` for name/domain/email fuzzy search. `filter=` on **list entries** goes through Affinity's search where it can and is checked locally (`ClientSideFilterWarning` when every entry has to be read).
 
 ### Filtering on Affinity's side: `find()` and `affinity.criteria`
 
@@ -244,10 +244,13 @@ for hit in client.notes.search("pricing", company_id=CompanyId(456), limit=20):
 for hit in client.files.search("pitch deck", limit=20):
     print(hit.file.id, hit.page_number, hit.preview)
 
-# For list-specific field filters, use list entries (client-side, warned)
-entries = client.lists.entries(ListId(123)).list(
+# List-entry filters go through Affinity's search where they can (checked locally too).
+# list() returns the matches of ONE page read (maybe fewer than limit, maybe none):
+# follow next_cursor, or use iter() for every match.
+for entry in client.lists.entries(ListId(123)).iter(
     filter=F.field("Department").equals("Sales")
-)
+):
+    print(entry.id)
 
 # For filters on large lists, prefer saved views (server-side efficient)
 entries = client.lists.entries(ListId(123)).list(saved_view_id=SavedViewId(456))

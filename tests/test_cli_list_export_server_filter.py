@@ -140,8 +140,8 @@ def test_a_filter_affinity_answers_needs_no_scope_flag(router: respx.MockRouter)
     assert not plain.called
     # The next-page cursor carries the search: it resumes on its own
     cursor = out["meta"]["pagination"]["rows"]["nextCursor"]
-    decoded = decode_cursor(cursor)
-    assert decoded is not None and decoded[0] == f"{SEARCH}?cursor=p2"
+    decoded = decode_cursor(cursor, path_suffixes=["/lists/9/list-entries/search"])
+    assert decoded is not None and decoded.url == f"{SEARCH}?cursor=p2"
     code, out = _export("--cursor", cursor)
     assert code == 0, out
     assert _ids(out) == [3]  # the whole filter still runs locally

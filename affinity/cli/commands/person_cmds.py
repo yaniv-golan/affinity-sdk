@@ -25,7 +25,7 @@ from ..csv_utils import write_csv_to_stdout
 from ..decorators import category, destructive, progress_capable
 from ..entity_search import PERSON_KEYS, filtered_ls
 from ..errors import CLIError
-from ..list_search import SEARCH_CURSOR_PREFIX
+from ..list_search import is_filter_cursor
 from ..mcp_limits import apply_mcp_limits
 from ..options import csv_output_options, csv_suboption_callback, output_options
 from ..progress import ProgressManager, ProgressSettings
@@ -305,7 +305,7 @@ def person_ls(
         )
 
         # --filter (or a cursor from a filtered run): Affinity's search filters on its side
-        if filter_expr is not None or (cursor or "").startswith(SEARCH_CURSOR_PREFIX):
+        if filter_expr is not None or is_filter_cursor(cursor):
             found, next_token = filtered_ls(
                 client.persons,
                 entity="person",

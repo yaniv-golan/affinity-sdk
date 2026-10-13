@@ -12,7 +12,7 @@ from typing import Any, Literal, cast
 from rich.console import Console
 from rich.progress import BarColumn, Progress, TaskID, TextColumn, TimeElapsedColumn
 
-from affinity.exceptions import AuthorizationError, NotFoundError
+from affinity.exceptions import AuthorizationError, ClientSideFilterWarning, NotFoundError
 from affinity.exceptions import ValidationError as SDKValidationError
 from affinity.filters import FilterExpression
 from affinity.filters import parse as parse_filter
@@ -2086,12 +2086,8 @@ def _iterate_list_entries(
             fetch during filtered queries. Useful for real-time progress updates
             while scanning many rows with few matches.
     """
-    # Suppress SDK's client-side filtering warning (CLI handles this warning itself)
-    stdlib_warnings.filterwarnings(
-        "ignore",
-        message=".*does not support server-side filtering.*",
-        category=UserWarning,
-    )
+    # The CLI reports local filtering itself (it plans the search before reading)
+    stdlib_warnings.filterwarnings("ignore", category=ClientSideFilterWarning)
 
     fetched = 0
     # The filter's fields are fetched too (the local re-check reads them), even when --field
@@ -2148,15 +2144,23 @@ def _iterate_list_entries(
                     return
         return
 
-    decoded = decode_cursor(cursor) if cursor is not None else None
+    decoded = (
+        decode_cursor(
+            cursor,
+            path_suffixes=[f"/lists/{list_id}/list-entries/search"],
+        )
+        if cursor is not None
+        else None
+    )
     if decoded is not None or (search is not None and filter_expr):
         try:
             if decoded is not None:
-                url, body, filter_text = decoded
-                first = entries.find_body(body, cursor=url)
+                assert decoded.body is not None
+                body, local_filter = decoded.body, decoded.filter
+                first = entries.find_body(body, cursor=decoded.url)
             else:
                 assert search is not None and filter_expr
-                body, filter_text = search, filter_expr
+                body, local_filter = search, parse_filter(filter_expr)
                 first = entries.find_body(body, field_ids=fetch_ids, limit=page_size)
         except (AuthorizationError, NotFoundError, SDKValidationError) as e:
             if decoded is not None:
@@ -2170,7 +2174,7 @@ def _iterate_list_entries(
                 entries,
                 first,
                 body=body,
-                filter_text=filter_text,
+                local_filter=local_filter,
                 selected_field_ids=selected_field_ids,
                 field_by_id=field_by_id,
                 key_mode=key_mode,
@@ -2187,6 +2191,7 @@ def _iterate_list_entries(
         else entries.pages(
             field_ids=fetch_ids,
             filter=filter_expr,
+            server_filter=False,  # the CLI already tried (or decided against) the search
             limit=page_size,
             progress_callback=filter_progress_callback,
         )
@@ -2269,7 +2274,7 @@ def _search_rows(
     page: Any,
     *,
     body: dict[str, Any],
-    filter_text: str,
+    local_filter: FilterExpression,
     selected_field_ids: list[str],
     field_by_id: dict[str, FieldMetadata],
     key_mode: Literal["names", "ids"],
@@ -2279,12 +2284,11 @@ def _search_rows(
     filter_progress_callback: Callable[[FilterStats], None] | None,
 ) -> Any:
     """Rows from list entry search pages, re-checked against the whole ``--filter``."""
-    local = parse_filter(filter_text)
     stats = FilterStats()
     fetched = 0
     while True:
-        token = encode_cursor(page.next_cursor, body, filter_text) if page.next_cursor else None
-        matching = [e for e in page.data if local.matches(_entry_to_filter_dict(e))]
+        token = encode_cursor(page.next_cursor, body, local_filter) if page.next_cursor else None
+        matching = [e for e in page.data if local_filter.matches(_entry_to_filter_dict(e))]
         stats.scanned += len(page.data)
         stats.matched += len(matching)
         if state is not None:

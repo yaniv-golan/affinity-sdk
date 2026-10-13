@@ -82,6 +82,9 @@ def test_list_entry_get_first_paginates_for_client_side_filter() -> None:
 
     def handler(request: httpx.Request) -> httpx.Response:
         url = str(request.url)
+        if request.url.path.endswith("/fields"):
+            # The list's fields can't be read: the filter runs locally, page by page
+            return httpx.Response(404, json={"errors": [{"code": "not-found", "message": "x"}]})
         if "cursor=" not in url:
             # Page 1: no matching entry (Status=No)
             return httpx.Response(
@@ -116,6 +119,9 @@ async def test_async_list_entry_get_first_paginates() -> None:
 
     def handler(request: httpx.Request) -> httpx.Response:
         url = str(request.url)
+        if request.url.path.endswith("/fields"):
+            # The list's fields can't be read: the filter runs locally, page by page
+            return httpx.Response(404, json={"errors": [{"code": "not-found", "message": "x"}]})
         if "cursor=" not in url:
             return httpx.Response(
                 200,

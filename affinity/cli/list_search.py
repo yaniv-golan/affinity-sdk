@@ -5,27 +5,26 @@ the same split as ``query`` (:mod:`.query.pushdown`): the part Affinity's search
 sent, and the whole filter still runs locally on what comes back.
 
 A search's next page needs the same request body, so the cursor this command prints carries
-it: ``xsearch1:`` + base64 of ``{"u": next page URL, "b": body, "f": filter text}``. Passing
-that cursor back resumes the filtered export on its own.
+it and the filter (``xsearch2:``, see :mod:`affinity._filtering.search`; 2.0.2's ``xsearch1:``
+cursors still work). Passing that cursor back resumes the filtered read on its own.
 """
 
 from __future__ import annotations
 
-import base64
-import json
 from dataclasses import dataclass, field
 from typing import Any
 
-from affinity.criteria import SearchCriteria
+from affinity._filtering.search import CURSOR_PREFIXES, SearchCursor, dropdown_fields, plan_filter
+from affinity._filtering.search import decode_cursor as sdk_decode_cursor
+from affinity._filtering.search import encode_cursor as sdk_encode_cursor
+from affinity._filtering.search import is_filter_cursor as sdk_is_filter_cursor
+from affinity.filters import FilterExpression
 from affinity.filters import parse as parse_filter
-from affinity.services._search import SEARCH_INCLUDES
 from affinity.types import ListId
 
 from .errors import CLIError
-from .query.filter_text import where_from_filter
-from .query.pushdown import split_where
 
-SEARCH_CURSOR_PREFIX = "xsearch1:"
+SEARCH_CURSOR_PREFIXES = CURSOR_PREFIXES
 
 
 @dataclass
@@ -43,50 +42,49 @@ class ListSearch:
 
 
 def plan_list_search(client: Any, list_id: ListId, filter_text: str) -> ListSearch:
-    """Split ``filter_text`` for the list's fields. Raises ``CLIError`` for a filter the query
-    language refuses (e.g. ``contains`` on a person field)."""
-    where = where_from_filter(parse_filter(filter_text))
-    fields = client.lists.get_fields(list_id, includes=list(SEARCH_INCLUDES))
-    options: dict[str, list[Any]] = {}
-
-    def options_for(meta: Any) -> list[Any]:
-        key = str(meta.id)
-        if key not in options:
-            options[key] = list(client.lists.get_field_dropdown_options(list_id, meta.id))
-        return options[key]
-
-    split = split_where(where, fields, options_for)
-    if split.errors:
+    """Split ``filter_text`` for the list's fields (cached per client, shared with the SDK).
+    Raises ``CLIError`` for a filter the query language refuses (e.g. ``contains`` on a person
+    field)."""
+    expr = parse_filter(filter_text)
+    entries = client.lists.entries(list_id)
+    fields = entries._search_fields()
+    options = {str(m.id): entries._options(m) for m in dropdown_fields(expr, fields)}
+    plan = plan_filter(expr, fields, lambda m: options.get(str(m.id), []))
+    if plan.errors:
         raise CLIError(
-            "; ".join(split.errors),
+            "; ".join(plan.errors),
             exit_code=2,
             error_type="usage_error",
             details={"rejected_filter": filter_text},
         )
-    body = (
-        SearchCriteria(where=split.where, term=split.term, term_fields=split.term_fields).to_body()
-        if split.server_side
-        else None
-    )
-    return ListSearch(body=body, pushed=split.pushed, local=split.local)
+    return ListSearch(body=plan.body, pushed=plan.pushed, local=plan.local)
 
 
-def encode_cursor(next_url: str, body: dict[str, Any], filter_text: str) -> str:
-    raw = json.dumps({"u": next_url, "b": body, "f": filter_text}, separators=(",", ":"))
-    return SEARCH_CURSOR_PREFIX + base64.urlsafe_b64encode(raw.encode()).decode().rstrip("=")
+def is_filter_cursor(cursor: str | None) -> bool:
+    """True for a filtered-read cursor (``xsearch2:`` / ``xsearch1:``)."""
+    return sdk_is_filter_cursor(cursor)
 
 
-def decode_cursor(cursor: str) -> tuple[str, dict[str, Any], str] | None:
-    """``(next page URL, body, filter text)`` for a search cursor; ``None`` for other cursors."""
-    if not cursor.startswith(SEARCH_CURSOR_PREFIX):
-        return None
-    payload = cursor.removeprefix(SEARCH_CURSOR_PREFIX)
+def encode_cursor(next_url: str, body: dict[str, Any], expr: FilterExpression) -> str:
+    """A cursor for the next search page (carries the body and the filter)."""
+    return sdk_encode_cursor("search", next_url, body, expr)
+
+
+def decode_cursor(cursor: str, *, path_suffixes: list[str]) -> SearchCursor | None:
+    """The search cursor in ``cursor`` (``xsearch2:`` or 2.0.2's ``xsearch1:``), or ``None``
+    for a plain page cursor. A damaged cursor, one for other records, or one from an SDK read
+    that filtered locally raises ``CLIError``."""
     try:
-        data = json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4)))
-        return str(data["u"]), dict(data["b"]), str(data["f"])
-    except (ValueError, KeyError, TypeError) as e:
+        decoded = sdk_decode_cursor(cursor, path_suffixes=path_suffixes)
+    except ValueError as e:
         raise CLIError(
-            "This --cursor is damaged: run the export again without it.",
+            f"This --cursor can't be used here: {e}", exit_code=2, error_type="usage_error"
+        ) from e
+    if decoded is not None and decoded.kind != "search":
+        raise CLIError(
+            "This --cursor comes from an SDK read that filtered locally; run the command "
+            "again without it.",
             exit_code=2,
             error_type="usage_error",
-        ) from e
+        )
+    return decoded

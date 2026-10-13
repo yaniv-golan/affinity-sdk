@@ -47,6 +47,7 @@ from .exceptions import (
     ApiVersionTooOldError,
     AuthenticationError,
     AuthorizationError,
+    ClientSideFilterWarning,
     CompanyMergedError,
     CompanyNotFoundError,
     ConfigurationError,
@@ -108,6 +109,7 @@ __all__ = [
     "AsyncAffinity",
     # Exceptions
     "AffinityError",
+    "ClientSideFilterWarning",
     "AuthenticationError",
     "AuthorizationError",
     "NotFoundError",

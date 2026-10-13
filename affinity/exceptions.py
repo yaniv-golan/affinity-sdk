@@ -595,6 +595,15 @@ class ApiVersionTooOldError(UnsupportedApiVersionError):
         self.required_version = required_version
 
 
+class ClientSideFilterWarning(UserWarning):
+    """A list-entry filter runs on your machine: every entry is downloaded and checked, because
+    no part of the filter could go to Affinity's search (or the search was refused).
+
+    Filter by this category to silence it: ``warnings.simplefilter("ignore",
+    ClientSideFilterWarning)``.
+    """
+
+
 class DeprecationWarning(AffinityError):
     """
     Feature is deprecated and may be removed.

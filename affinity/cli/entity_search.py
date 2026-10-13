@@ -17,6 +17,7 @@ from typing import Any
 
 from affinity.compare import normalize_value
 from affinity.criteria import SearchCriteria
+from affinity.filters import FilterExpression
 from affinity.services._search import SEARCH_INCLUDES
 
 from .query.models import WhereClause
@@ -95,11 +96,16 @@ def entity_filter_dict(entity: Any) -> dict[str, Any]:
     """What a ``--filter`` on companies or persons sees: field values by name (dropdowns as
     text, persons and companies as names) plus the record's own attributes."""
     result: dict[str, Any] = {}
+    by_id: dict[str, Any] = {}
     for item in getattr(entity, "fields_raw", None) or []:
-        if isinstance(item, dict) and item.get("name"):
+        if isinstance(item, dict):
             value = item.get("value")
-            data = value.get("data") if isinstance(value, dict) else value
-            result[str(item["name"])] = normalize_value(data)
+            data = normalize_value(value.get("data") if isinstance(value, dict) else value)
+            if item.get("name"):
+                result[str(item["name"])] = data
+            if item.get("id") is not None:
+                by_id[str(item["id"])] = data
+    result.update(by_id)  # fields by id too (written after names)
     result["id"] = int(entity.id)
     if hasattr(entity, "domain"):
         result["name"] = entity.name
@@ -118,7 +124,7 @@ def entity_filter_dict(entity: Any) -> dict[str, Any]:
 def search_rows(
     service: Any,
     body: dict[str, Any],
-    filter_text: str,
+    local: FilterExpression,
     *,
     row: Any,
     field_ids: list[str],
@@ -127,16 +133,13 @@ def search_rows(
     max_results: int | None,
     all_pages: bool,
 ) -> tuple[list[dict[str, Any]], str | None, bool]:
-    """Rows (``row(record)``) from search pages that pass the whole ``filter_text``.
+    """Rows (``row(record)``) from search pages that pass the whole filter ``local``.
 
     Returns ``(rows, next cursor, stopped mid-page)``; the next cursor carries the search
     (see :func:`affinity.cli.list_search.encode_cursor`).
     """
-    from affinity.filters import parse as parse_filter
-
     from .list_search import encode_cursor
 
-    local = parse_filter(filter_text)
     page = (
         service.find_body(body, cursor=cursor_url)
         if cursor_url is not None
@@ -144,7 +147,7 @@ def search_rows(
     )
     rows: list[dict[str, Any]] = []
     while True:
-        token = encode_cursor(page.next_cursor, body, filter_text) if page.next_cursor else None
+        token = encode_cursor(page.next_cursor, body, local) if page.next_cursor else None
         matching = [r for r in page.data if local.matches(entity_filter_dict(r))]
         for idx, record in enumerate(matching):
             rows.append(row(record))
@@ -178,13 +181,15 @@ def filtered_ls(
     from .list_search import decode_cursor
     from .query.filter_text import where_from_filter
 
-    decoded = decode_cursor(cursor) if cursor else None
+    suffix = "/companies/search" if entity == "company" else "/persons/search"
+    decoded = decode_cursor(cursor, path_suffixes=[suffix]) if cursor else None
     if decoded is not None:
-        url, body, filter_text = decoded
+        url, body = decoded.url, decoded.body
+        assert body is not None
         rows, token, mid = search_rows(
             service,
             body,
-            filter_text,
+            decoded.filter,
             row=row,
             field_ids=[],
             page_size=None,
@@ -245,7 +250,7 @@ def filtered_ls(
     rows, token, mid = search_rows(
         service,
         plan.body,
-        filter_expr,
+        parse_filter(filter_expr),
         row=row,
         field_ids=sorted({*plan.field_ids, *field_ids}),
         page_size=page_size,

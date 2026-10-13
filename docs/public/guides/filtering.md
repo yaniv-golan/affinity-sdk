@@ -19,19 +19,24 @@ Affinity returns.
 
 ## Recommended: Use the Filter Builder
 
-Use `affinity.F` to build type-safe filter expressions. In the SDK, `filter=` on
-list entries is matched locally after the entries are fetched; to filter on
-Affinity's side from Python, use [`find`](#sdk-filtering-on-affinitys-side-with-find).
+Use `affinity.F` to build type-safe filter expressions. In the SDK, `filter=` on list
+entries goes through Affinity's search where it can (only matching entries are read) and
+the whole filter is checked locally; when no part of it can go there, every entry is read and
+a `ClientSideFilterWarning` says so. `list(filter=...)` returns the matches of **one page
+read**, possibly fewer than `limit`: follow `next_cursor` (it carries the filter) or use
+`iter()` for every match. `server_filter=False` filters locally only. For Affinity's own
+filter language, use [`find`](#sdk-filtering-on-affinitys-side-with-find).
 
 ```python
 from affinity import Affinity, F
 from affinity.types import ListId
 
 with Affinity(api_key="your-api-key") as client:
-    # Recommended: Type-safe filter builder
-    entries = client.lists.entries(ListId(123)).list(
+    # Recommended: Type-safe filter builder; iter() follows every page
+    for entry in client.lists.entries(ListId(123)).iter(
         filter=F.field("Industry").equals("Software")
-    )
+    ):
+        print(entry.id)
 ```
 
 `client.companies.list()`, `client.persons.list()` and `client.opportunities.list()`

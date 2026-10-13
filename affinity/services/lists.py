@@ -10,16 +10,43 @@ import builtins
 import re
 import time
 import warnings
-from collections.abc import AsyncIterator, Callable, Iterable, Iterator, Mapping, Sequence
+from collections.abc import (
+    AsyncGenerator,
+    AsyncIterator,
+    Callable,
+    Iterable,
+    Iterator,
+    Mapping,
+    Sequence,
+)
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Literal, TypeVar
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 from urllib.parse import urlsplit
 
 from pydantic import BaseModel
 from pydantic import ValidationError as PydanticValidationError
 
+from .._filtering.search import (
+    CursorKind,
+    FilterPlan,
+    SearchCache,
+    SearchCursor,
+    decode_cursor,
+    dropdown_fields,
+    encode_cursor,
+    plan_filter,
+    reject_raw_filters,
+)
 from ..compare import normalize_value
-from ..exceptions import AffinityError, FilterParseError, NotFoundError, ValidationError
+from ..exceptions import (
+    AffinityError,
+    AuthorizationError,
+    ClientSideFilterWarning,
+    FilterParseError,
+    NotFoundError,
+    UnsupportedOperationError,
+    ValidationError,
+)
 from ..filters import FilterExpression
 from ..filters import parse as parse_filter
 from ..models.entities import (
@@ -179,6 +206,8 @@ class ListService:
         self._client = client
         self._resolve_cache: dict[tuple[str, ListType | None], AffinityList | None] = {}
         self._size_cache: dict[ListId, tuple[float, int]] = {}  # (timestamp, size)
+        # Fields, dropdown options and refused searches for filtered reads, per list
+        self._search_cache = SearchCache()
 
     def entries(self, list_id: ListId) -> ListEntryService:
         """
@@ -186,7 +215,7 @@ class ListService:
 
         This is the explicit path for retrieving "full row" data via list entries.
         """
-        return ListEntryService(self._client, list_id)
+        return ListEntryService(self._client, list_id, self._search_cache)
 
     # =========================================================================
     # List Operations (V2 for read, V1 for write)
@@ -652,21 +681,26 @@ def _entry_to_filter_dict(entry: ListEntryWithEntity) -> dict[str, Any]:
     """
     result: dict[str, Any] = {}
 
-    # Extract field values from entity.fields_raw (V2 API format)
+    # Extract field values from entity.fields_raw (V2 API format), by name and by field id
+    # (ids written after names: a field literally named like another field's id loses)
     if entry.entity is not None:
         fields_raw = getattr(entry.entity, "fields_raw", None)
         if isinstance(fields_raw, builtins.list):
+            by_id: dict[str, Any] = {}
             for field_obj in fields_raw:
                 if isinstance(field_obj, dict):
                     field_name = field_obj.get("name")
+                    value_wrapper = field_obj.get("value")
+                    if isinstance(value_wrapper, dict):
+                        # Use normalize_value() to extract text from dropdowns/multi-select
+                        value = normalize_value(value_wrapper.get("data"))
+                    else:
+                        value = value_wrapper
                     if field_name:
-                        value_wrapper = field_obj.get("value")
-                        if isinstance(value_wrapper, dict):
-                            data = value_wrapper.get("data")
-                            # Use normalize_value() to extract text from dropdowns/multi-select
-                            result[field_name] = normalize_value(data)
-                        else:
-                            result[field_name] = value_wrapper
+                        result[field_name] = value
+                    if field_obj.get("id") is not None:
+                        by_id[str(field_obj["id"])] = value
+            result.update(by_id)
 
     # Also add basic entity properties for filtering
     if entry.entity is not None:
@@ -694,12 +728,67 @@ def _entry_to_filter_dict(entry: ListEntryWithEntity) -> dict[str, Any]:
     return result
 
 
-# Warning message for client-side filtering
-_CLIENT_SIDE_FILTER_WARNING = (
-    "The Affinity V2 API does not support server-side filtering on list entries. "
-    "Filtering is being applied client-side after fetching data. "
-    "For large lists, consider using saved views instead (--saved-view)."
-)
+def _fetch_field_ids(
+    field_ids: Sequence[AnyFieldId] | None, plan: FilterPlan | None
+) -> builtins.list[AnyFieldId] | None:
+    """The requested fields plus the ones the filter tests (its local re-check reads them)."""
+    ids: builtins.list[AnyFieldId] = [*(field_ids or [])]
+    for fid in plan.field_ids if plan is not None else []:
+        if fid not in [str(i) for i in ids]:
+            ids.append(cast(AnyFieldId, fid))
+    return ids or None
+
+
+def _note_refusal(cache: SearchCache, scope: str, error: Exception) -> str:
+    """Remember a refused search (403, 404, unsupported) for a while; a 400 is usually about
+    this filter (or stale cached fields), so it only drops the cached fields."""
+    if isinstance(error, ValidationError):
+        cache.drop_scope(scope)
+    else:
+        cache.put(("refused", scope), True)
+    return f"Affinity's search refused the filter ({error})"
+
+
+def _warn_client_side(reason: str) -> None:
+    warnings.warn(
+        f"Filtering list entries locally: every entry is read and checked ({reason}).",
+        ClientSideFilterWarning,
+        stacklevel=4,
+    )
+
+
+def _filtered_page(
+    page: PaginatedResponse[ListEntryWithEntity],
+    expr: FilterExpression,
+    kind: CursorKind,
+    body: dict[str, Any] | None,
+) -> tuple[builtins.list[ListEntryWithEntity], int, str | None]:
+    matched = [e for e in page.data if expr.matches(_entry_to_filter_dict(e))]
+    token = encode_cursor(kind, page.next_cursor, body, expr) if page.next_cursor else None
+    return matched, len(page.data), token
+
+
+def _page_with_cursor(
+    entries: builtins.list[ListEntryWithEntity], token: str | None
+) -> PaginatedResponse[ListEntryWithEntity]:
+    return PaginatedResponse[ListEntryWithEntity](
+        data=entries, pagination=PaginationInfo(next_cursor=token, prev_cursor=None)
+    )
+
+
+def _parse_entry_filter(filter: str | FilterExpression | None) -> FilterExpression | None:
+    """The filter to apply (``None`` for no filter or a blank string); RawFilter refused."""
+    if filter is None:
+        return None
+    if isinstance(filter, str):
+        stripped = filter.strip()
+        if not stripped:
+            return None
+        expr = _parse_filter_with_hint(stripped)
+    else:
+        expr = filter
+    reject_raw_filters(expr)
+    return expr
 
 
 class ListEntryService(SearchMixin[ListEntryWithEntity]):
@@ -712,15 +801,95 @@ class ListEntryService(SearchMixin[ListEntryWithEntity]):
 
     _search_model = ListEntryWithEntity
 
-    def __init__(self, client: HTTPClient, list_id: ListId):
+    def __init__(
+        self, client: HTTPClient, list_id: ListId, cache: SearchCache | None = None
+    ) -> None:
         self._client = client
         self._list_id = list_id
+        self._cache = cache if cache is not None else SearchCache()
 
     def _search_path(self) -> str:
         return f"/lists/{self._list_id}/list-entries/search"
 
     def _search_fields(self) -> builtins.list[FieldMetadata]:
-        return ListService(self._client).get_fields(self._list_id, includes=SEARCH_INCLUDES)
+        key = ("fields", str(self._list_id))
+        cached = self._cache.get(key)
+        if cached is None:
+            cached = ListService(self._client).get_fields(self._list_id, includes=SEARCH_INCLUDES)
+            self._cache.put(key, cached)
+        return list(cached)
+
+    def _options(self, meta: FieldMetadata) -> builtins.list[DropdownOption]:
+        key = ("options", str(self._list_id), str(meta.id))
+        cached = self._cache.get(key)
+        if cached is None:
+            cached = ListService(self._client).get_field_dropdown_options(self._list_id, meta.id)
+            self._cache.put(key, cached)
+        return list(cached)
+
+    def _plan(self, expr: FilterExpression) -> FilterPlan | None:
+        """The split of ``expr`` for this list; ``None`` when the fields can't be read (the
+        filter then runs locally, as before)."""
+        try:
+            fields = self._search_fields()
+            options = {str(m.id): self._options(m) for m in dropdown_fields(expr, fields)}
+        except (AuthorizationError, NotFoundError, ValidationError):
+            return None
+        return plan_filter(expr, fields, lambda m: options.get(str(m.id), []))
+
+    def _filter_pages(
+        self,
+        expr: FilterExpression,
+        *,
+        field_ids: Sequence[AnyFieldId] | None,
+        field_types: Sequence[FieldType] | None,
+        limit: int | None,
+        server_filter: bool,
+    ) -> Iterator[tuple[builtins.list[ListEntryWithEntity], int, str | None]]:
+        """``(matching entries, entries read, cursor to the next page)`` per page read:
+        through Affinity's search when part of ``expr`` can go there, else every entry."""
+        plan = self._plan(expr)
+        fetch_ids = _fetch_field_ids(field_ids, plan)
+        refused = self._cache.get(("refused", str(self._list_id)))
+        reason = "no part of the filter can go to Affinity's search"
+        if server_filter and plan is not None and plan.body is not None and not refused:
+            try:
+                page = self.find_body(
+                    plan.body,
+                    field_ids=fetch_ids,
+                    field_types=field_types,
+                    limit=min(limit or 100, 100),
+                )
+            except (AuthorizationError, NotFoundError, ValidationError,
+                    UnsupportedOperationError) as e:  # fmt: skip
+                reason = _note_refusal(self._cache, str(self._list_id), e)
+            else:
+                while True:
+                    yield _filtered_page(page, expr, "search", plan.body)
+                    if not page.next_cursor:
+                        return
+                    page = self.find_body(plan.body, cursor=page.next_cursor)
+        elif refused:
+            reason = "Affinity's search was refused for this list"
+        elif not server_filter:
+            reason = "server_filter=False"
+        _warn_client_side(reason)
+        page = self.list(field_ids=fetch_ids, field_types=field_types, limit=limit)
+        while True:
+            yield _filtered_page(page, expr, "local", None)
+            if not page.has_next or not page.next_cursor:
+                return
+            page = self.list(cursor=page.next_cursor)
+
+    def _resume(self, cursor: SearchCursor) -> PaginatedResponse[ListEntryWithEntity]:
+        """One page of a filtered read, from its cursor."""
+        if cursor.kind == "search":
+            assert cursor.body is not None
+            page = self.find_body(cursor.body, cursor=cursor.url)
+        else:
+            page = self.list(cursor=cursor.url)
+        matched, _, token = _filtered_page(page, cursor.filter, cursor.kind, cursor.body)
+        return _page_with_cursor(matched, token)
 
     def _all_entity_list_entries_v2(self, path: str) -> builtins.list[ListEntry]:
         """
@@ -764,74 +933,79 @@ class ListEntryService(SearchMixin[ListEntryWithEntity]):
         filter: str | FilterExpression | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        server_filter: bool = True,
     ) -> PaginatedResponse[ListEntryWithEntity]:
         """
-        Get list entries with entity data and field values.
+        One page of list entries with entity data and field values.
 
         Args:
             field_ids: Specific field IDs to include
             field_types: Field types to include
-            filter: Filter expression (applied client-side; API doesn't support it)
-            limit: Maximum results per page
-            cursor: Cursor to resume pagination (opaque; obtained from prior responses).
+            filter: Only entries matching this filter. The part Affinity's search can answer is
+                applied on its side; the whole filter is then checked locally. The page holds
+                the matches of **one page read** (up to ``limit`` entries read): it can have
+                fewer than ``limit`` matches, or none, while more pages exist. Follow
+                ``next_cursor`` (it carries the filter), or use :meth:`iter` for every match.
+            limit: Maximum entries per page read (filtered reads through the search: 1-100)
+            cursor: Cursor from a prior page (a plain page URL, or a filtered-read cursor)
+            server_filter: Let Affinity's search apply what it can of ``filter`` (default);
+                ``False`` reads every entry and filters locally.
 
         Returns:
-            Paginated list entries with entity data
-
-        Note:
-            The Affinity V2 API does not support server-side filtering on list entries.
-            When a filter is provided, it is applied client-side after fetching data.
-            For large lists, consider using saved views for server-side filtering.
+            One page of list entries
         """
-        # Parse filter expression if provided
-        filter_expr: FilterExpression | None = None
-        if filter is not None:
-            if isinstance(filter, str):
-                # Treat whitespace-only strings as no filter
-                stripped = filter.strip()
-                if stripped:
-                    filter_expr = _parse_filter_with_hint(stripped)
-            else:
-                filter_expr = filter
-            # Emit warning about client-side filtering
-            warnings.warn(_CLIENT_SIDE_FILTER_WARNING, UserWarning, stacklevel=2)
-
+        expr = _parse_entry_filter(filter)
         if cursor is not None:
-            if field_ids or field_types or filter_expr is not None or limit is not None:
+            if field_ids or field_types or expr is not None or limit is not None:
                 raise ValueError(
                     "Cannot combine 'cursor' with other parameters; cursor encodes all query "
                     "context. Start a new pagination sequence without a cursor to change "
                     "parameters."
                 )
+            resumed = decode_cursor(cursor, path_suffixes=self._cursor_paths())
+            if resumed is not None:
+                return self._resume(resumed)
             data = self._client.get_url(cursor)
-        else:
-            if limit is not None and limit <= 0:
-                raise ValueError("'limit' must be > 0")
-            params: dict[str, Any] = {}
-            if field_ids:
-                params["fieldIds"] = [str(field_id) for field_id in field_ids]
-            if field_types:
-                params["fieldTypes"] = [field_type.value for field_type in field_types]
-            # NOTE: filter is NOT sent to API - it doesn't support filtering
-            if limit is not None:
-                params["limit"] = limit
-
-            data = self._client.get(
-                f"/lists/{self._list_id}/list-entries",
-                params=params or None,
+            entries = [_safe_model_validate(ListEntryWithEntity, e) for e in data.get("data", [])]
+            return PaginatedResponse[ListEntryWithEntity](
+                data=entries,
+                pagination=_safe_model_validate(PaginationInfo, data.get("pagination", {})),
             )
-
-        # Parse entries
+        if limit is not None and limit <= 0:
+            raise ValueError("'limit' must be > 0")
+        if expr is not None:
+            matched, _, token = next(
+                self._filter_pages(
+                    expr,
+                    field_ids=field_ids,
+                    field_types=field_types,
+                    limit=limit,
+                    server_filter=server_filter,
+                )
+            )
+            return _page_with_cursor(matched, token)
+        params: dict[str, Any] = {}
+        if field_ids:
+            params["fieldIds"] = [str(field_id) for field_id in field_ids]
+        if field_types:
+            params["fieldTypes"] = [field_type.value for field_type in field_types]
+        if limit is not None:
+            params["limit"] = limit
+        data = self._client.get(
+            f"/lists/{self._list_id}/list-entries",
+            params=params or None,
+        )
         entries = [_safe_model_validate(ListEntryWithEntity, e) for e in data.get("data", [])]
-
-        # Apply client-side filtering if filter was provided
-        if filter_expr is not None:
-            entries = [e for e in entries if filter_expr.matches(_entry_to_filter_dict(e))]
-
         return PaginatedResponse[ListEntryWithEntity](
             data=entries,
             pagination=_safe_model_validate(PaginationInfo, data.get("pagination", {})),
         )
+
+    def _cursor_paths(self) -> builtins.list[str]:
+        return [
+            f"/lists/{self._list_id}/list-entries",
+            f"/lists/{self._list_id}/list-entries/search",
+        ]
 
     def get_first(
         self,
@@ -839,21 +1013,23 @@ class ListEntryService(SearchMixin[ListEntryWithEntity]):
         filter: str | FilterExpression | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
+        server_filter: bool = True,
     ) -> ListEntryWithEntity | None:
         """
         Get the first list entry matching the filter, or None.
 
-        WARNING: List entry filtering is applied client-side (the V2 API
-        silently ignores filter parameters). This means the method may
-        fetch multiple pages before finding a match. If no entry matches,
-        **every page in the list is fetched** before returning None.
-        On large lists (25K+ entries), this can result in hundreds of
-        API calls. A UserWarning is emitted when filter is used.
-
-        For efficient server-side filtering, use saved views via CLI.
+        The part of the filter Affinity's search can answer is applied on its side. When none
+        can (or ``server_filter=False``), entries are read page by page until one matches: if
+        none does, **every page is read**. With several matches, which one comes first can
+        differ between Affinity's search and a plain read.
         """
         return next(
-            self.iter(filter=filter, field_ids=field_ids, field_types=field_types),
+            self.iter(
+                filter=filter,
+                field_ids=field_ids,
+                field_types=field_types,
+                server_filter=server_filter,
+            ),
             None,
         )
 
@@ -866,6 +1042,7 @@ class ListEntryService(SearchMixin[ListEntryWithEntity]):
         limit: int | None = None,
         cursor: str | None = None,
         progress_callback: Callable[[FilterStats], None] | None = None,
+        server_filter: bool = True,
     ) -> Iterator[PaginatedResponse[ListEntryWithEntity]]:
         """Iterate list-entry pages, yielding `PaginatedResponse[ListEntryWithEntity]`.
 
@@ -879,11 +1056,11 @@ class ListEntryService(SearchMixin[ListEntryWithEntity]):
                 scanned/matched counts for real-time progress updates.
 
         Note:
-            Filtering is applied client-side (Affinity V2 API does not support
-            server-side filtering on list entries). When a filter is provided,
-            pages are "virtualized" - the method fetches physical pages internally
-            and accumulates filtered results until a full virtual page is ready.
-            This ensures consistent page sizes and fast time-to-first-results.
+            With a filter, the part Affinity's search can answer is applied on its side (only
+            matching entries are read); the whole filter is checked locally. Pages are
+            "virtual": filtered results are buffered until a full page of ``limit`` matches
+            is ready (``next_cursor`` is ``None``; use :meth:`list` for cursor paging).
+            ``server_filter=False`` reads every entry and filters locally.
         """
         if cursor is not None and (
             field_ids
@@ -897,15 +1074,7 @@ class ListEntryService(SearchMixin[ListEntryWithEntity]):
                 "Start a new pagination sequence without a cursor to change parameters."
             )
 
-        # Parse filter once for all pages (since list() with cursor can't accept filter)
-        filter_expr: FilterExpression | None = None
-        if filter is not None:
-            if isinstance(filter, str):
-                stripped = filter.strip()
-                if stripped:
-                    filter_expr = _parse_filter_with_hint(stripped)
-            else:
-                filter_expr = filter
+        filter_expr = _parse_entry_filter(filter)
 
         # No filter: use simple pagination (original behavior)
         if filter_expr is None:
@@ -926,81 +1095,54 @@ class ListEntryService(SearchMixin[ListEntryWithEntity]):
                 page = self.list(cursor=next_cursor)
             return
 
-        # With filter: use virtualized pagination for consistent page sizes
-        # and fast time-to-first-results
+        # With filter: virtual pages of `limit` matches over the filtered page reads
         virtual_page_size = limit if limit is not None else 100
+        source = self._filter_pages(
+            filter_expr,
+            field_ids=field_ids,
+            field_types=field_types,
+            limit=limit,
+            server_filter=server_filter,
+        )
         buffer: list[ListEntryWithEntity] = []
-        physical_cursor: str | None = None
+        stats = FilterStats()
         has_more_physical = True
 
-        # Track filter stats for progress reporting
-        total_scanned = 0
-        total_matched = 0
+        def read_more() -> None:
+            nonlocal has_more_physical
+            try:
+                matched, scanned, token = next(source)
+            except StopIteration:
+                has_more_physical = False
+                return
+            stats.scanned += scanned
+            stats.matched += len(matched)
+            buffer.extend(matched)
+            has_more_physical = token is not None
+            if progress_callback is not None:
+                progress_callback(FilterStats(scanned=stats.scanned, matched=stats.matched))
 
-        # Fetch first physical page WITHOUT filter so we can track accurate counts
-        first_page = self.list(field_ids=field_ids, field_types=field_types, limit=limit)
-        # Track scanned count (before filtering)
-        total_scanned += len(first_page.data)
-        # Apply filter manually to first page (same as subsequent pages)
-        filtered_first = [
-            e for e in first_page.data if filter_expr.matches(_entry_to_filter_dict(e))
-        ]
-        total_matched += len(filtered_first)
-        buffer.extend(filtered_first)
-        physical_cursor = first_page.next_cursor
-        has_more_physical = first_page.has_next and physical_cursor is not None
-
-        # Report initial progress after first page fetch
-        if progress_callback is not None:
-            progress_callback(FilterStats(scanned=total_scanned, matched=total_matched))
-
+        read_more()
         while True:
-            # Yield virtual page when buffer is full or no more data
             if len(buffer) >= virtual_page_size or not has_more_physical:
                 if not buffer and not has_more_physical:
-                    return  # No more data
-                # Slice off one virtual page
+                    return
                 page_data = buffer[:virtual_page_size]
                 buffer = buffer[virtual_page_size:]
-                # has_next is true if we have more buffered or more physical pages
                 has_next = len(buffer) > 0 or has_more_physical
                 virtual_page = PaginatedResponse[ListEntryWithEntity](
                     data=page_data,
-                    pagination=PaginationInfo(
-                        next_cursor=None,  # Virtual pages don't support cursor resumption
-                        prev_cursor=None,
-                    ),
+                    pagination=PaginationInfo(next_cursor=None, prev_cursor=None),
                 )
-                # Override has_next since we know better than the pagination info
                 virtual_page._has_next_override = has_next
-                # Add filter stats for progress tracking
                 virtual_page._filter_stats = FilterStats(
-                    scanned=total_scanned, matched=total_matched
+                    scanned=stats.scanned, matched=stats.matched
                 )
                 yield virtual_page
                 if not has_next:
                     return
                 continue
-
-            # Need more data - fetch next physical page
-            if not has_more_physical:
-                continue  # Will yield remaining buffer above
-
-            physical_page = self.list(cursor=physical_cursor)
-            # Track scanned count (before filtering)
-            total_scanned += len(physical_page.data)
-            # Apply filter manually to subsequent pages
-            filtered_data = [
-                e for e in physical_page.data if filter_expr.matches(_entry_to_filter_dict(e))
-            ]
-            total_matched += len(filtered_data)
-            buffer.extend(filtered_data)
-            physical_cursor = physical_page.next_cursor
-            has_more_physical = physical_page.has_next and physical_cursor is not None
-
-            # Report progress after each physical page fetch
-            if progress_callback is not None:
-                progress_callback(FilterStats(scanned=total_scanned, matched=total_matched))
+            read_more()
 
     def all(
         self,
@@ -1008,48 +1150,33 @@ class ListEntryService(SearchMixin[ListEntryWithEntity]):
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
         filter: str | FilterExpression | None = None,
+        server_filter: bool = True,
     ) -> Iterator[ListEntryWithEntity]:
         """
         Iterate through all list entries with automatic pagination.
 
         Note:
-            The Affinity V2 API does not support server-side filtering on list entries.
-            When a filter is provided, it is applied client-side after fetching all data.
-            For large lists, consider using saved views for server-side filtering.
+            With a filter, the part Affinity's search can answer is applied on its side; the
+            whole filter is checked locally. ``server_filter=False`` reads every entry.
         """
-        # Parse filter once for all pages
-        filter_expr: FilterExpression | None = None
-        if filter is not None:
-            if isinstance(filter, str):
-                # Treat whitespace-only strings as no filter
-                stripped = filter.strip()
-                if stripped:
-                    filter_expr = _parse_filter_with_hint(stripped)
-            else:
-                filter_expr = filter
-            # Emit warning once for the entire iteration
-            warnings.warn(_CLIENT_SIDE_FILTER_WARNING, UserWarning, stacklevel=2)
+        filter_expr = _parse_entry_filter(filter)
+        if filter_expr is not None:
+            for matched, _, _ in self._filter_pages(
+                filter_expr,
+                field_ids=field_ids,
+                field_types=field_types,
+                limit=None,
+                server_filter=server_filter,
+            ):
+                yield from matched
+            return
 
         def fetch_page(next_url: str | None) -> PaginatedResponse[ListEntryWithEntity]:
             if next_url:
-                data = self._client.get_url(next_url)
-                entries = [
-                    _safe_model_validate(ListEntryWithEntity, e) for e in data.get("data", [])
-                ]
-                return PaginatedResponse[ListEntryWithEntity](
-                    data=entries,
-                    pagination=_safe_model_validate(PaginationInfo, data.get("pagination", {})),
-                )
-            # First page - don't pass filter to list() to avoid duplicate warnings
-            return self.list(
-                field_ids=field_ids,
-                field_types=field_types,
-            )
+                return self.list(cursor=next_url)
+            return self.list(field_ids=field_ids, field_types=field_types)
 
-        # Iterate through all pages, applying filter if provided
-        for entry in PageIterator(fetch_page):
-            if filter_expr is None or filter_expr.matches(_entry_to_filter_dict(entry)):
-                yield entry
+        yield from PageIterator(fetch_page)
 
     def iter(
         self,
@@ -1057,13 +1184,16 @@ class ListEntryService(SearchMixin[ListEntryWithEntity]):
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
         filter: str | FilterExpression | None = None,
+        server_filter: bool = True,
     ) -> Iterator[ListEntryWithEntity]:
         """
         Auto-paginate all list entries.
 
         Alias for `all()` (FR-006 public contract).
         """
-        return self.all(field_ids=field_ids, field_types=field_types, filter=filter)
+        return self.all(
+            field_ids=field_ids, field_types=field_types, filter=filter, server_filter=server_filter
+        )
 
     def get(
         self,
@@ -1524,6 +1654,8 @@ class AsyncListService:
         self._client = client
         self._resolve_cache: dict[tuple[str, ListType | None], AffinityList | None] = {}
         self._size_cache: dict[ListId, tuple[float, int]] = {}  # (timestamp, size)
+        # Fields, dropdown options and refused searches for filtered reads, per list
+        self._search_cache = SearchCache()
 
     def entries(self, list_id: ListId) -> AsyncListEntryService:
         """
@@ -1531,7 +1663,7 @@ class AsyncListService:
 
         This is the explicit path for retrieving "full row" data via list entries.
         """
-        return AsyncListEntryService(self._client, list_id)
+        return AsyncListEntryService(self._client, list_id, self._search_cache)
 
     async def list(
         self,
@@ -1993,17 +2125,102 @@ class AsyncListEntryService(AsyncSearchMixin[ListEntryWithEntity]):
 
     _search_model = ListEntryWithEntity
 
-    def __init__(self, client: AsyncHTTPClient, list_id: ListId):
+    def __init__(
+        self, client: AsyncHTTPClient, list_id: ListId, cache: SearchCache | None = None
+    ) -> None:
         self._client = client
         self._list_id = list_id
+        self._cache = cache if cache is not None else SearchCache()
 
     def _search_path(self) -> str:
         return f"/lists/{self._list_id}/list-entries/search"
 
+    def _cursor_paths(self) -> builtins.list[str]:
+        return [
+            f"/lists/{self._list_id}/list-entries",
+            f"/lists/{self._list_id}/list-entries/search",
+        ]
+
     async def _search_fields(self) -> builtins.list[FieldMetadata]:
-        return await AsyncListService(self._client).get_fields(
-            self._list_id, includes=SEARCH_INCLUDES
-        )
+        key = ("fields", str(self._list_id))
+        cached = self._cache.get(key)
+        if cached is None:
+            cached = await AsyncListService(self._client).get_fields(
+                self._list_id, includes=SEARCH_INCLUDES
+            )
+            self._cache.put(key, cached)
+        return list(cached)
+
+    async def _options(self, meta: FieldMetadata) -> builtins.list[DropdownOption]:
+        key = ("options", str(self._list_id), str(meta.id))
+        cached = self._cache.get(key)
+        if cached is None:
+            cached = await AsyncListService(self._client).get_field_dropdown_options(
+                self._list_id, meta.id
+            )
+            self._cache.put(key, cached)
+        return list(cached)
+
+    async def _plan(self, expr: FilterExpression) -> FilterPlan | None:
+        """See :meth:`ListEntryService._plan`."""
+        try:
+            fields = await self._search_fields()
+            options = {str(m.id): await self._options(m) for m in dropdown_fields(expr, fields)}
+        except (AuthorizationError, NotFoundError, ValidationError):
+            return None
+        return plan_filter(expr, fields, lambda m: options.get(str(m.id), []))
+
+    async def _filter_pages(
+        self,
+        expr: FilterExpression,
+        *,
+        field_ids: Sequence[AnyFieldId] | None,
+        field_types: Sequence[FieldType] | None,
+        limit: int | None,
+        server_filter: bool,
+    ) -> AsyncGenerator[tuple[builtins.list[ListEntryWithEntity], int, str | None], None]:
+        """See :meth:`ListEntryService._filter_pages`."""
+        plan = await self._plan(expr)
+        fetch_ids = _fetch_field_ids(field_ids, plan)
+        refused = self._cache.get(("refused", str(self._list_id)))
+        reason = "no part of the filter can go to Affinity's search"
+        if server_filter and plan is not None and plan.body is not None and not refused:
+            try:
+                page = await self.find_body(
+                    plan.body,
+                    field_ids=fetch_ids,
+                    field_types=field_types,
+                    limit=min(limit or 100, 100),
+                )
+            except (AuthorizationError, NotFoundError, ValidationError,
+                    UnsupportedOperationError) as e:  # fmt: skip
+                reason = _note_refusal(self._cache, str(self._list_id), e)
+            else:
+                while True:
+                    yield _filtered_page(page, expr, "search", plan.body)
+                    if not page.next_cursor:
+                        return
+                    page = await self.find_body(plan.body, cursor=page.next_cursor)
+        elif refused:
+            reason = "Affinity's search was refused for this list"
+        elif not server_filter:
+            reason = "server_filter=False"
+        _warn_client_side(reason)
+        page = await self.list(field_ids=fetch_ids, field_types=field_types, limit=limit)
+        while True:
+            yield _filtered_page(page, expr, "local", None)
+            if not page.has_next or not page.next_cursor:
+                return
+            page = await self.list(cursor=page.next_cursor)
+
+    async def _resume(self, cursor: SearchCursor) -> PaginatedResponse[ListEntryWithEntity]:
+        if cursor.kind == "search":
+            assert cursor.body is not None
+            page = await self.find_body(cursor.body, cursor=cursor.url)
+        else:
+            page = await self.list(cursor=cursor.url)
+        matched, _, token = _filtered_page(page, cursor.filter, cursor.kind, cursor.body)
+        return _page_with_cursor(matched, token)
 
     async def _all_entity_list_entries_v2(self, path: str) -> builtins.list[ListEntry]:
         """
@@ -2031,70 +2248,51 @@ class AsyncListEntryService(AsyncSearchMixin[ListEntryWithEntity]):
         filter: str | FilterExpression | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        server_filter: bool = True,
     ) -> PaginatedResponse[ListEntryWithEntity]:
-        """
-        Get list entries with entity data and field values.
-
-        Args:
-            field_ids: Specific field IDs to include
-            field_types: Field types to include
-            filter: Filter expression (applied client-side; API doesn't support it)
-            limit: Maximum results per page
-            cursor: Cursor to resume pagination (opaque; obtained from prior responses).
-
-        Returns:
-            Paginated list entries with entity data
-
-        Note:
-            The Affinity V2 API does not support server-side filtering on list entries.
-            When a filter is provided, it is applied client-side after fetching data.
-            For large lists, consider using saved views for server-side filtering.
-        """
-        # Parse filter expression if provided
-        filter_expr: FilterExpression | None = None
-        if filter is not None:
-            if isinstance(filter, str):
-                # Treat whitespace-only strings as no filter
-                stripped = filter.strip()
-                if stripped:
-                    filter_expr = _parse_filter_with_hint(stripped)
-            else:
-                filter_expr = filter
-            # Emit warning about client-side filtering
-            warnings.warn(_CLIENT_SIDE_FILTER_WARNING, UserWarning, stacklevel=2)
-
+        """One page of list entries; see :meth:`ListEntryService.list`."""
+        expr = _parse_entry_filter(filter)
         if cursor is not None:
-            if field_ids or field_types or filter_expr is not None or limit is not None:
+            if field_ids or field_types or expr is not None or limit is not None:
                 raise ValueError(
                     "Cannot combine 'cursor' with other parameters; cursor encodes all query "
                     "context. Start a new pagination sequence without a cursor to change "
                     "parameters."
                 )
+            resumed = decode_cursor(cursor, path_suffixes=self._cursor_paths())
+            if resumed is not None:
+                return await self._resume(resumed)
             data = await self._client.get_url(cursor)
-        else:
-            if limit is not None and limit <= 0:
-                raise ValueError("'limit' must be > 0")
-            params: dict[str, Any] = {}
-            if field_ids:
-                params["fieldIds"] = [str(field_id) for field_id in field_ids]
-            if field_types:
-                params["fieldTypes"] = [field_type.value for field_type in field_types]
-            # NOTE: filter is NOT sent to API - it doesn't support filtering
-            if limit is not None:
-                params["limit"] = limit
-
-            data = await self._client.get(
-                f"/lists/{self._list_id}/list-entries",
-                params=params or None,
+            entries = [_safe_model_validate(ListEntryWithEntity, e) for e in data.get("data", [])]
+            return PaginatedResponse[ListEntryWithEntity](
+                data=entries,
+                pagination=_safe_model_validate(PaginationInfo, data.get("pagination", {})),
             )
-
-        # Parse entries
+        if limit is not None and limit <= 0:
+            raise ValueError("'limit' must be > 0")
+        if expr is not None:
+            source = self._filter_pages(
+                expr,
+                field_ids=field_ids,
+                field_types=field_types,
+                limit=limit,
+                server_filter=server_filter,
+            )
+            matched, _, token = await source.__anext__()
+            await source.aclose()
+            return _page_with_cursor(matched, token)
+        params: dict[str, Any] = {}
+        if field_ids:
+            params["fieldIds"] = [str(field_id) for field_id in field_ids]
+        if field_types:
+            params["fieldTypes"] = [field_type.value for field_type in field_types]
+        if limit is not None:
+            params["limit"] = limit
+        data = await self._client.get(
+            f"/lists/{self._list_id}/list-entries",
+            params=params or None,
+        )
         entries = [_safe_model_validate(ListEntryWithEntity, e) for e in data.get("data", [])]
-
-        # Apply client-side filtering if filter was provided
-        if filter_expr is not None:
-            entries = [e for e in entries if filter_expr.matches(_entry_to_filter_dict(e))]
-
         return PaginatedResponse[ListEntryWithEntity](
             data=entries,
             pagination=_safe_model_validate(PaginationInfo, data.get("pagination", {})),
@@ -2106,14 +2304,13 @@ class AsyncListEntryService(AsyncSearchMixin[ListEntryWithEntity]):
         filter: str | FilterExpression | None = None,
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
+        server_filter: bool = True,
     ) -> ListEntryWithEntity | None:
-        """
-        Get the first list entry matching the filter, or None.
-
-        See ListEntryService.get_first() for details and caveats about
-        client-side filtering on list entries.
-        """
-        async for entry in self.iter(filter=filter, field_ids=field_ids, field_types=field_types):
+        """The first list entry matching the filter, or None; see
+        :meth:`ListEntryService.get_first`."""
+        async for entry in self.iter(
+            filter=filter, field_ids=field_ids, field_types=field_types, server_filter=server_filter
+        ):
             return entry
         return None
 
@@ -2126,6 +2323,7 @@ class AsyncListEntryService(AsyncSearchMixin[ListEntryWithEntity]):
         limit: int | None = None,
         cursor: str | None = None,
         progress_callback: Callable[[FilterStats], None] | None = None,
+        server_filter: bool = True,
     ) -> AsyncIterator[PaginatedResponse[ListEntryWithEntity]]:
         """Iterate list-entry pages, yielding `PaginatedResponse[ListEntryWithEntity]`.
 
@@ -2139,11 +2337,8 @@ class AsyncListEntryService(AsyncSearchMixin[ListEntryWithEntity]):
                 scanned/matched counts for real-time progress updates.
 
         Note:
-            Filtering is applied client-side (Affinity V2 API does not support
-            server-side filtering on list entries). When a filter is provided,
-            pages are "virtualized" - the method fetches physical pages internally
-            and accumulates filtered results until a full virtual page is ready.
-            This ensures consistent page sizes and fast time-to-first-results.
+            See :meth:`ListEntryService.pages` (filters go to Affinity's search where they
+            can; virtual pages; ``server_filter=False`` reads every entry).
         """
         if cursor is not None and (
             field_ids
@@ -2157,15 +2352,7 @@ class AsyncListEntryService(AsyncSearchMixin[ListEntryWithEntity]):
                 "Start a new pagination sequence without a cursor to change parameters."
             )
 
-        # Parse filter once for all pages (since list() with cursor can't accept filter)
-        filter_expr: FilterExpression | None = None
-        if filter is not None:
-            if isinstance(filter, str):
-                stripped = filter.strip()
-                if stripped:
-                    filter_expr = _parse_filter_with_hint(stripped)
-            else:
-                filter_expr = filter
+        filter_expr = _parse_entry_filter(filter)
 
         # No filter: use simple pagination (original behavior)
         if filter_expr is None:
@@ -2186,81 +2373,54 @@ class AsyncListEntryService(AsyncSearchMixin[ListEntryWithEntity]):
                 page = await self.list(cursor=next_cursor)
             return
 
-        # With filter: use virtualized pagination for consistent page sizes
-        # and fast time-to-first-results
+        # With filter: virtual pages of `limit` matches over the filtered page reads
         virtual_page_size = limit if limit is not None else 100
+        source = self._filter_pages(
+            filter_expr,
+            field_ids=field_ids,
+            field_types=field_types,
+            limit=limit,
+            server_filter=server_filter,
+        )
         buffer: list[ListEntryWithEntity] = []
-        physical_cursor: str | None = None
+        stats = FilterStats()
         has_more_physical = True
 
-        # Track filter stats for progress reporting
-        total_scanned = 0
-        total_matched = 0
+        async def read_more() -> None:
+            nonlocal has_more_physical
+            try:
+                matched, scanned, token = await source.__anext__()
+            except StopAsyncIteration:
+                has_more_physical = False
+                return
+            stats.scanned += scanned
+            stats.matched += len(matched)
+            buffer.extend(matched)
+            has_more_physical = token is not None
+            if progress_callback is not None:
+                progress_callback(FilterStats(scanned=stats.scanned, matched=stats.matched))
 
-        # Fetch first physical page WITHOUT filter so we can track accurate counts
-        first_page = await self.list(field_ids=field_ids, field_types=field_types, limit=limit)
-        # Track scanned count (before filtering)
-        total_scanned += len(first_page.data)
-        # Apply filter manually to first page (same as subsequent pages)
-        filtered_first = [
-            e for e in first_page.data if filter_expr.matches(_entry_to_filter_dict(e))
-        ]
-        total_matched += len(filtered_first)
-        buffer.extend(filtered_first)
-        physical_cursor = first_page.next_cursor
-        has_more_physical = first_page.has_next and physical_cursor is not None
-
-        # Report initial progress after first page fetch
-        if progress_callback is not None:
-            progress_callback(FilterStats(scanned=total_scanned, matched=total_matched))
-
+        await read_more()
         while True:
-            # Yield virtual page when buffer is full or no more data
             if len(buffer) >= virtual_page_size or not has_more_physical:
                 if not buffer and not has_more_physical:
-                    return  # No more data
-                # Slice off one virtual page
+                    return
                 page_data = buffer[:virtual_page_size]
                 buffer = buffer[virtual_page_size:]
-                # has_next is true if we have more buffered or more physical pages
                 has_next = len(buffer) > 0 or has_more_physical
                 virtual_page = PaginatedResponse[ListEntryWithEntity](
                     data=page_data,
-                    pagination=PaginationInfo(
-                        next_cursor=None,  # Virtual pages don't support cursor resumption
-                        prev_cursor=None,
-                    ),
+                    pagination=PaginationInfo(next_cursor=None, prev_cursor=None),
                 )
-                # Override has_next since we know better than the pagination info
                 virtual_page._has_next_override = has_next
-                # Add filter stats for progress tracking
                 virtual_page._filter_stats = FilterStats(
-                    scanned=total_scanned, matched=total_matched
+                    scanned=stats.scanned, matched=stats.matched
                 )
                 yield virtual_page
                 if not has_next:
                     return
                 continue
-
-            # Need more data - fetch next physical page
-            if not has_more_physical:
-                continue  # Will yield remaining buffer above
-
-            physical_page = await self.list(cursor=physical_cursor)
-            # Track scanned count (before filtering)
-            total_scanned += len(physical_page.data)
-            # Apply filter manually to subsequent pages
-            filtered_data = [
-                e for e in physical_page.data if filter_expr.matches(_entry_to_filter_dict(e))
-            ]
-            total_matched += len(filtered_data)
-            buffer.extend(filtered_data)
-            physical_cursor = physical_page.next_cursor
-            has_more_physical = physical_page.has_next and physical_cursor is not None
-
-            # Report progress after each physical page fetch
-            if progress_callback is not None:
-                progress_callback(FilterStats(scanned=total_scanned, matched=total_matched))
+            await read_more()
 
     async def all(
         self,
@@ -2268,48 +2428,29 @@ class AsyncListEntryService(AsyncSearchMixin[ListEntryWithEntity]):
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
         filter: str | FilterExpression | None = None,
+        server_filter: bool = True,
     ) -> AsyncIterator[ListEntryWithEntity]:
-        """
-        Iterate through all list entries with automatic pagination.
-
-        Note:
-            The Affinity V2 API does not support server-side filtering on list entries.
-            When a filter is provided, it is applied client-side after fetching all data.
-            For large lists, consider using saved views for server-side filtering.
-        """
-        # Parse filter once for all pages
-        filter_expr: FilterExpression | None = None
-        if filter is not None:
-            if isinstance(filter, str):
-                # Treat whitespace-only strings as no filter
-                stripped = filter.strip()
-                if stripped:
-                    filter_expr = _parse_filter_with_hint(stripped)
-            else:
-                filter_expr = filter
-            # Emit warning once for the entire iteration
-            warnings.warn(_CLIENT_SIDE_FILTER_WARNING, UserWarning, stacklevel=2)
+        """Every list entry (matching ``filter``); see :meth:`ListEntryService.all`."""
+        filter_expr = _parse_entry_filter(filter)
+        if filter_expr is not None:
+            async for matched, _, _ in self._filter_pages(
+                filter_expr,
+                field_ids=field_ids,
+                field_types=field_types,
+                limit=None,
+                server_filter=server_filter,
+            ):
+                for entry in matched:
+                    yield entry
+            return
 
         async def fetch_page(next_url: str | None) -> PaginatedResponse[ListEntryWithEntity]:
             if next_url:
-                data = await self._client.get_url(next_url)
-                entries = [
-                    _safe_model_validate(ListEntryWithEntity, e) for e in data.get("data", [])
-                ]
-                return PaginatedResponse[ListEntryWithEntity](
-                    data=entries,
-                    pagination=_safe_model_validate(PaginationInfo, data.get("pagination", {})),
-                )
-            # First page - don't pass filter to list() to avoid duplicate warnings
-            return await self.list(
-                field_ids=field_ids,
-                field_types=field_types,
-            )
+                return await self.list(cursor=next_url)
+            return await self.list(field_ids=field_ids, field_types=field_types)
 
-        # Iterate through all pages, applying filter if provided
         async for entry in AsyncPageIterator(fetch_page):
-            if filter_expr is None or filter_expr.matches(_entry_to_filter_dict(entry)):
-                yield entry
+            yield entry
 
     async def iter(
         self,
@@ -2317,13 +2458,16 @@ class AsyncListEntryService(AsyncSearchMixin[ListEntryWithEntity]):
         field_ids: Sequence[AnyFieldId] | None = None,
         field_types: Sequence[FieldType] | None = None,
         filter: str | FilterExpression | None = None,
+        server_filter: bool = True,
     ) -> AsyncIterator[ListEntryWithEntity]:
         """
         Auto-paginate all list entries.
 
         Alias for `all()` (FR-006 public contract).
         """
-        async for entry in self.all(field_ids=field_ids, field_types=field_types, filter=filter):
+        async for entry in self.all(
+            field_ids=field_ids, field_types=field_types, filter=filter, server_filter=server_filter
+        ):
             yield entry
 
     async def get(

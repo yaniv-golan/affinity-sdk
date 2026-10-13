@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **SDK list-entry filters go through Affinity's search:**
+  `lists.entries(id).list/pages/all/iter/get_first(filter=...)` send the part of the filter
+  Affinity's search can answer and check the whole filter locally, as `list export --filter`
+  does. Only when no part can go there (or the search is refused) is every entry read; that
+  case emits the new `ClientSideFilterWarning` (a `UserWarning`).
+- **`list(filter=...)` returns the matches of one page read**, possibly fewer than `limit` (or
+  none), with a `next_cursor` that carries the filter: follow it, or use `iter()` for every
+  match. Before, it filtered only the first page and had no way to continue.
+- **Filtered-read cursors are `xsearch2:`** (the filter travels as data, so multi-word field
+  names and dates round-trip) in the SDK, `list export`, and `company ls` / `person ls`;
+  2.0.2's `xsearch1:` cursors still work.
+- **Field values can be named by id in text filters** (`F.field("field-123")`,
+  `--filter 'field-123 = …'`), as `query` allows `fields.<id>`.
 - **`query`'s local sort follows Affinity's order** (when Affinity can't sort, e.g. an
   unsortable field or a refused search): ranked dropdowns sort by rank (not by text),
   multi-value fields by their first item, and text case-insensitively ("apple" before
@@ -25,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`server_filter=False`** on the list-entry `list/pages/all/iter/get_first` reads every entry
+  and filters locally (to compare or debug), and **`affinity.ClientSideFilterWarning`**.
 - **More filters go to Affinity's search** (verified live): `starts_word` on single-company
   fields, and `is_not_null` / `is_null` on location fields.
 
