@@ -87,13 +87,29 @@ def _find_existing_key(ctx: CLIContext) -> tuple[bool, str | None]:
     """
     Check all sources for an existing API key.
 
-    Returns ``(found, source)`` where source is one of ``"environment"``,
+    Returns ``(found, source)`` where source is one of ``"flag"``, ``"environment"``,
     ``"dotenv"``, ``"file"``, ``"command"``, ``"config"``, or ``None``.
 
     Order mirrors :meth:`affinity.cli.context.CLIContext.resolve_api_key`'s
     resolution chain so check-key's verdict matches what the auth layer
     will actually use at runtime.
     """
+    # --api-key-file / --api-key-stdin win over every other source. stdin is never read here
+    # (it would consume the key); a key file must exist and be non-empty, as the resolver
+    # fails on it otherwise instead of falling back to another source.
+    if ctx.api_key_stdin or ctx.api_key_file == "-":
+        return True, "flag"
+    if ctx.api_key_file is not None:
+        try:
+            flag_path = Path(ctx.api_key_file).expanduser()
+            if flag_path.exists() and stat.S_ISFIFO(flag_path.stat().st_mode):
+                return True, "flag"
+            if flag_path.is_file() and flag_path.read_text(encoding="utf-8").strip():
+                return True, "flag"
+        except OSError:
+            pass
+        return False, None
+
     # Check environment variable
     env_key = os.getenv("AFFINITY_API_KEY", "").strip()
     if env_key:
@@ -223,13 +239,21 @@ def check_key(ctx: CLIContext) -> None:
                         f"xaffinity --dotenv --env-file {shlex.quote(str(env_file))} "
                         "--readonly <command> --json"
                     )
+            elif source == "flag" and ctx.api_key_file not in (None, "-"):
+                pattern = (
+                    f"xaffinity --api-key-file {shlex.quote(str(ctx.api_key_file))} "
+                    "--readonly <command> --json"
+                )
+            elif source == "flag":
+                pattern = "xaffinity --api-key-stdin --readonly <command> --json"
             else:
                 pattern = "xaffinity --readonly <command> --json"
 
         return CommandOutput(
             data={
                 "configured": key_found,
-                "source": source,  # "environment" | "dotenv" | "file" | "command" | "config" | None
+                # "flag" | "environment" | "dotenv" | "file" | "command" | "config" | None
+                "source": source,
                 "pattern": pattern,  # Recommended command pattern to use
                 # The key's default Affinity V2 API version (best-effort; None if unknown)
                 "keyDefaultApiVersion": (
@@ -263,8 +287,9 @@ def _probe_key_default_api_version(ctx: CLIContext, source: str | None) -> str |
     """
     if (
         source == "command"
-        # resolve_api_key() would run the command even when check-key found another source.
-        or os.getenv("AFFINITY_API_KEY_COMMAND", "").strip()
+        # Without a key flag, resolve_api_key() could run the command even when check-key
+        # found another source (a key flag wins, so the command is then never run).
+        or (source != "flag" and os.getenv("AFFINITY_API_KEY_COMMAND", "").strip())
         or ctx.api_key_stdin
         or ctx.api_key_file == "-"
         or _is_fifo(os.getenv("AFFINITY_API_KEY_FILE", "").strip())

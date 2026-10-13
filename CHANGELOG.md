@@ -23,6 +23,9 @@ the CLI uses changes when a key flag and a key environment variable are both set
 
 ### Fixed
 
+- `config check-key` reports `source: "flag"` (and a `pattern` repeating the flag) when
+  `--api-key-file` or `--api-key-stdin` is given, as commands now use that key first. It
+  doesn't read stdin; a missing or empty key file counts as not configured.
 - The missing-API-key error no longer says `config setup-key` saves to the system keychain: it
   writes a config file, or a `.env` file with `--scope project`.
 - Docs: one API-key resolution order across the README, guides, CLI page, MCP README and CLI

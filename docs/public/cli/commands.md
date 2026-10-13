@@ -35,22 +35,27 @@ xaffinity config init --force  # Overwrite existing
 Check if an API key is configured. Returns exit code 0 if key found, 1 if not found.
 
 This command checks (in order):
-1. `AFFINITY_API_KEY` environment variable
-2. `.env` file in current directory (found even without `--dotenv`; commands still need
+1. `--api-key-file` / `--api-key-stdin` passed to this command (stdin is not read; a key file
+   must exist and be non-empty, or the key counts as not configured)
+2. `AFFINITY_API_KEY` environment variable
+3. `.env` file in current directory (found even without `--dotenv`; commands still need
    `--dotenv` to use it)
-3. `AFFINITY_API_KEY_FILE`
-4. `AFFINITY_API_KEY_COMMAND` (not run; its presence counts)
-5. User config file (`config.toml`)
+4. `AFFINITY_API_KEY_FILE`
+5. `AFFINITY_API_KEY_COMMAND` (not run; its presence counts)
+6. User config file (`config.toml`)
 
 ```bash
 xaffinity config check-key
 xaffinity config check-key --json
 xaffinity config check-key && echo "Key exists"
+xaffinity --api-key-file ./key.txt config check-key --json
 ```
 
 The `--json` output includes:
 - `configured`: boolean indicating if a key was found
-- `source`: where the key was found (`"environment"`, `"dotenv"`, `"file"`, `"command"`, `"config"`, or `null`)
+- `source`: where the key was found (`"flag"`, `"environment"`, `"dotenv"`, `"file"`, `"command"`, `"config"`, or `null`)
+- `pattern`: the command pattern to use with that key (it repeats `--api-key-file <path>` or
+  `--api-key-stdin` when the key came from a flag)
 
 ### `xaffinity config setup-key`
 

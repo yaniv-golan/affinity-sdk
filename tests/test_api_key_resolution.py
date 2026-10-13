@@ -377,6 +377,7 @@ def test_cli_honors_command(monkeypatch: pytest.MonkeyPatch) -> None:
 def _find_existing_key_with_isolated_paths(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    **ctx_overrides: Any,
 ) -> tuple[bool, str | None]:
     """Call _find_existing_key with paths pointed at empty tmp dirs so a
     real ~/.config/xaffinity profile or a project-local .env can't shadow
@@ -396,7 +397,7 @@ def _find_existing_key_with_isolated_paths(
     from affinity.cli.commands.config_cmds import _find_existing_key
 
     # env_file points at a non-existent path so the .env branch skips
-    ctx = _make_cli_context(env_file=tmp_path / ".env-does-not-exist")
+    ctx = _make_cli_context(env_file=tmp_path / ".env-does-not-exist", **ctx_overrides)
     return _find_existing_key(ctx)
 
 
@@ -480,6 +481,50 @@ def test_check_key_precedence_matches_resolver(
     found, source = _find_existing_key_with_isolated_paths(tmp_path, monkeypatch)
     assert found is True
     assert source == "file"
+
+
+@pytest.mark.req("REQ-AUTH-RESOLVE-025")
+def test_check_key_reports_flag_source_over_env(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """check-key reports source='flag' for --api-key-file even when AFFINITY_API_KEY is set,
+    matching the resolver (key flags first)."""
+    flag_file = _make_key_file(tmp_path, "key-from-cli-flag", name="flag_file.txt")
+    monkeypatch.setenv("AFFINITY_API_KEY", "key-from-env")
+
+    found, source = _find_existing_key_with_isolated_paths(
+        tmp_path, monkeypatch, api_key_file=str(flag_file)
+    )
+    assert (found, source) == (True, "flag")
+
+
+@pytest.mark.req("REQ-AUTH-RESOLVE-025")
+def test_check_key_stdin_flag_is_not_read(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """--api-key-stdin counts as configured without consuming stdin."""
+    import io
+
+    stdin = io.StringIO("key-from-stdin")
+    monkeypatch.setattr("sys.stdin", stdin)
+
+    found, source = _find_existing_key_with_isolated_paths(
+        tmp_path, monkeypatch, api_key_stdin=True
+    )
+    assert (found, source) == (True, "flag")
+    assert stdin.tell() == 0
+
+
+@pytest.mark.req("REQ-AUTH-RESOLVE-025")
+def test_check_key_missing_flag_file_is_not_configured(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A missing --api-key-file is not configured, even with AFFINITY_API_KEY set: the
+    resolver fails on the flag instead of falling back to the environment."""
+    monkeypatch.setenv("AFFINITY_API_KEY", "key-from-env")
+
+    found, source = _find_existing_key_with_isolated_paths(
+        tmp_path, monkeypatch, api_key_file=str(tmp_path / "missing.txt")
+    )
+    assert (found, source) == (False, None)
 
 
 @pytest.mark.req("REQ-AUTH-RESOLVE-021")
