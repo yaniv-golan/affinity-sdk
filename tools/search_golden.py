@@ -37,7 +37,7 @@ from affinity.types import ListId
 
 
 def _cases(meta: FieldMetadata, vt: str, values: list[Any]) -> list[WhereClause]:
-    path = f"fields.{meta.name}"
+    path = f"fields.{meta.id}"  # by id: two fields can share a name
     present = [v for v in values if v not in (None, "", [])]
     cases = [WhereClause(path=path, op="is_not_null"), WhereClause(path=path, op="is_null")]
     if not present:
@@ -107,8 +107,10 @@ def run_list(
         and filter_value_type(str(getattr(f.value_type, "value", f.value_type)))
     ]
     entries = lists.entries(ListId(list_id))
+    # Key every field by id (as query does for fields.<id>): names can collide
+    by_id = {str(f.id) for f in filterable}
     records = [
-        _normalize_list_entry_fields(e.model_dump(mode="json", by_alias=True))
+        _normalize_list_entry_fields(e.model_dump(mode="json", by_alias=True), None, by_id)
         for e in entries.iter(field_ids=[f.id for f in filterable])
     ]
     print(f"list {list_id}: {len(records)} entries, {len(filterable)} filterable fields")
@@ -125,7 +127,7 @@ def run_list(
         if enriched_or_empty and meta.type != "enriched":
             continue
         vt = filter_value_type(str(getattr(meta.value_type, "value", meta.value_type))) or ""
-        values = [r["fields"].get(meta.name) for r in records]
+        values = [r["fields"].get(str(meta.id)) for r in records]
         for where in _cases(meta, vt, values):
             split = split_where(
                 where,
