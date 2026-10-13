@@ -223,7 +223,12 @@ class QueryPlanner:
                 # Heuristic: assume 50% selectivity, double the limit for expected scan size
                 scan_estimate = min(base_entity_count, (query.limit or base_entity_count) * 2)
             fetch_api_calls = self._estimate_pages(scan_estimate)
-            fetch_description = f"Fetch {query.from_} (paginated, client-side filter)"
+            fetch_description = (
+                f"Fetch {query.from_} through Affinity's search (filtered by Affinity where "
+                f"possible, the rest locally)"
+                if query.from_ in ("companies", "persons") and _field_paths(query.where)
+                else f"Fetch {query.from_} (paginated, client-side filter)"
+            )
             fetch_operation = "fetch_streaming"
         # No filter
         elif query.order_by is not None:

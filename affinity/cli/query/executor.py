@@ -11,7 +11,7 @@ import contextlib
 import logging
 import os
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import AsyncIterator, Callable, Mapping
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol
 
@@ -789,6 +789,7 @@ class QueryExecutor:
                            Defaults to on; XAFFINITY_QUERY_SERVER_FILTER=0 turns it off.
         """
         self.client = client
+        self._search_field_ids: list[str] = []
         self.server_filter = (
             os.environ.get("XAFFINITY_QUERY_SERVER_FILTER", "1") != "0"
             if server_filter is None
@@ -1166,46 +1167,14 @@ class QueryExecutor:
         starts from the cursor instead of from the beginning.
         """
         service = getattr(self.client, schema.service_attr)
-
-        def on_progress(p: PaginationProgress) -> None:
-            self.progress.on_step_progress(step, p.items_so_far, None)
-
-        # O(1) streaming resumption: start from stored API cursor instead of beginning
-        if self.resume_api_cursor:
-            # Resume from cursor - no need to re-fetch earlier pages
-            current_cursor: str | None = self.resume_api_cursor
-            items_so_far = 0
-
-            while current_cursor:
-                # Fetch page starting from cursor
-                page = await service.list(cursor=current_cursor)
-                for record in page.data:
-                    record_dict = record.model_dump(mode="json", by_alias=True)
-                    ctx.records.append(record_dict)
-                    items_so_far += 1
-
-                    if self._should_stop(ctx):
-                        # Capture API cursor for potential next resumption
-                        ctx.last_api_cursor = page.next_cursor
-                        return
-
-                # Progress update after each page
-                self.progress.on_step_progress(step, items_so_far, None)
-
-                # Move to next page
-                current_cursor = page.next_cursor
-            return
-
-        # Standard path: iterate from beginning
-        async for page in service.all().pages(on_progress=on_progress):
+        async for page in self._global_pages(ctx, service, step.entity or ""):
             for record in page.data:
-                record_dict = record.model_dump(mode="json", by_alias=True)
-                ctx.records.append(record_dict)
-
+                ctx.records.append(self._global_record(record))
                 if self._should_stop(ctx):
                     # Capture API cursor for potential streaming resumption
                     ctx.last_api_cursor = page.next_cursor
                     return
+            self.progress.on_step_progress(step, len(ctx.records), None)
 
     async def _fetch_with_parent(
         self,
@@ -1573,6 +1542,89 @@ class QueryExecutor:
             if not page.next_cursor:
                 return True
             page = await nested_service.find_body(body, cursor=page.next_cursor)
+
+    async def _global_pages(
+        self, ctx: ExecutionContext, service: Any, entity: str
+    ) -> AsyncIterator[Any]:
+        """Pages of a global entity: from Affinity's search when the WHERE has conditions it
+        can answer (companies, persons), else every record (``service.all()``). Resumes from
+        ``resume_api_cursor``."""
+        body = await self._entity_search_body(ctx, service, entity)
+        resume = self.resume_api_cursor
+        if body is not None:
+            page = await (
+                service.find_body(body, cursor=resume)
+                if resume and "/search" in resume
+                else service.find_body(body, field_ids=self._search_field_ids or None, limit=100)
+            )
+            while True:
+                yield page
+                if not page.next_cursor:
+                    return
+                page = await service.find_body(body, cursor=page.next_cursor)
+        if resume:
+            cursor: str | None = resume
+            while cursor:
+                page = await service.list(cursor=cursor)
+                yield page
+                cursor = page.next_cursor
+            return
+        async for page in service.all().pages():
+            yield page
+
+    def _global_record(self, record: Any) -> dict[str, Any]:
+        """A global entity record for filtering: field values (when requested) by name under
+        ``fields``, as for list entries."""
+        record_dict: dict[str, Any] = record.model_dump(mode="json", by_alias=True)
+        if self._search_field_ids:
+            wrapped = _normalize_list_entry_fields({"entity": record_dict})
+            record_dict["fields"] = wrapped["fields"]
+        return record_dict
+
+    async def _entity_search_body(
+        self, ctx: ExecutionContext, service: Any, entity: str
+    ) -> dict[str, Any] | None:
+        """The search body for a company or person query whose WHERE tests fields, or
+        ``None``. A field filter Affinity can't apply at all is refused: without search it
+        would mean reading Affinity's whole directory."""
+        from affinity.criteria import SearchCriteria
+        from affinity.services._search import SEARCH_INCLUDES
+
+        from .pushdown import fields_index, split_where
+
+        where = ctx.query.where
+        if entity not in ("companies", "persons") or where is None:
+            return None
+        names: set[str] = set()
+        self._collect_field_refs_from_where(where.model_dump(mode="json", by_alias=True), names)
+        if not names:
+            return None
+        fields = await service.get_fields(includes=list(SEARCH_INCLUDES))
+        index = fields_index(fields)
+        options: dict[str, list[Any]] = {}
+        field_ids: set[str] = set()
+        for name in names:
+            meta = index.get(name) or index.get(name.lower())
+            if meta is None:
+                continue
+            field_ids.add(str(meta.id))
+            if str(getattr(meta.value_type, "value", "")) in ("dropdown", "ranked-dropdown"):
+                options[str(meta.id)] = await service.get_field_dropdown_options(meta.id)
+        self._search_field_ids = sorted(field_ids)
+        split = split_where(where, fields, lambda m: options.get(str(m.id), []), enriched="as-is")
+        if split.errors:
+            raise QueryValidationError("; ".join(split.errors), field="where")
+        if not split.server_side:
+            raise QueryValidationError(
+                f"Affinity's search can't apply any part of this where clause, and reading "
+                f"every {entity[:-1]} isn't practical: " + "; ".join(split.local),
+                field="where",
+            )
+        ctx.server_filter = {"pushed": split.pushed, "local": split.local}
+        ctx.warnings.extend(split.caveats)
+        return SearchCriteria(
+            where=split.where, term=split.term, term_fields=split.term_fields
+        ).to_body()
 
     def _should_stop(self, ctx: ExecutionContext) -> bool:
         """Check if we should stop fetching.
@@ -3336,72 +3388,9 @@ class QueryExecutor:
 
         pages_processed = 0
         try:
-            # O(1) streaming resumption: use cursor-based pagination if resuming
-            if self.resume_api_cursor:
-                # Manual cursor-based iteration for resumption
-                current_cursor: str | None = self.resume_api_cursor
-                while current_cursor:
-                    page = await service.list(cursor=current_cursor)
-                    pages_processed += 1
-                    page_records = [r.model_dump(mode="json", by_alias=True) for r in page.data]
-
-                    # Phase 1: Apply cheap filter (no API calls)
-                    if cheap_fn is not None:
-                        page_records = [r for r in page_records if cheap_fn(r)]
-
-                    # Phase 2: Handle expensive filter
-                    if expensive_filter_clause is not None and page_records:
-                        if required_rels:
-                            page_ctx = ExecutionContext(
-                                query=query,
-                                records=page_records,
-                                max_records=self.max_records,
-                            )
-                            await self._execute_pre_include(page_ctx, required_rels, schema)
-                            id_field = schema.id_field or "id"
-                            filter_ctx = FilterContext(
-                                relationship_data=page_ctx.relationship_data,
-                                relationship_counts=page_ctx.relationship_counts,
-                                schema=schema,
-                                id_field=id_field,
-                            )
-                            expensive_fn_ctx = compile_filter_with_context(
-                                expensive_filter_clause, filter_ctx
-                            )
-                            page_records = [r for r in page_records if expensive_fn_ctx(r)]
-                        elif expensive_fn is not None:
-                            page_records = [r for r in page_records if expensive_fn(r)]
-
-                    # Accumulate matches
-                    accumulated.extend(page_records)
-                    self.progress.on_step_progress(fetch_step, len(accumulated), None)
-
-                    # Early termination check
-                    if len(accumulated) >= limit:
-                        ctx.records = accumulated[:limit]
-                        ctx.early_terminated = True
-                        ctx.last_api_cursor = page.next_cursor
-                        self.progress.on_step_complete(fetch_step, len(ctx.records))
-                        return
-
-                    # Safety check
-                    if len(accumulated) >= ctx.max_records:
-                        ctx.records = accumulated[: ctx.max_records]
-                        ctx.last_api_cursor = page.next_cursor
-                        self.progress.on_step_complete(fetch_step, len(ctx.records))
-                        return
-
-                    current_cursor = page.next_cursor
-
-                # Exhausted all pages via cursor resumption
-                ctx.records = accumulated
-                self.progress.on_step_complete(fetch_step, len(ctx.records))
-                return
-
-            # Standard path: iterate from beginning
-            async for page in service.all().pages():
+            async for page in self._global_pages(ctx, service, query.from_):
                 pages_processed += 1
-                page_records = [r.model_dump(mode="json", by_alias=True) for r in page.data]
+                page_records = [self._global_record(r) for r in page.data]
 
                 # Phase 1: Apply cheap filter (no API calls)
                 if cheap_fn is not None:

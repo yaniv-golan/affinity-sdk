@@ -268,8 +268,8 @@ def _ends_with(a: Any, b: Any) -> bool:
 
 def _starts_word(a: Any, b: Any) -> bool:
     """Starts-word operator: the text appears at the start of a word (case-insensitive), the
-    way Affinity's search matches names: "Jan" matches "Jane Doe" and "Mary-Jane", "ane"
-    doesn't. For array fields: any element."""
+    way Affinity's search matches names: "Jan" matches "Jane Doe" and "Mary-Jane" (a hyphen
+    starts a word there too), "ane" doesn't. For array fields: any element."""
     if a is None or b is None or str(b) == "":
         return False
     pattern = re.compile(r"(?<!\w)" + re.escape(str(b)), re.IGNORECASE)

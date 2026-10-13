@@ -389,13 +389,31 @@ def validate_entity_queryable(query: Query) -> None:
 
     # Global entities with empty filterable_fields (companies/persons/opportunities)
     # accept NO server-side filters. Fail fast with a helpful hint.
-    if not schema.filterable_fields and query.where is not None:
-        singular = query.from_[:-1] if query.from_.endswith("s") else query.from_
+    # Companies and persons are filtered by Affinity's search, which answers conditions on
+    # their fields (fields.<name>); a WHERE without one would mean reading the whole directory.
+    searchable = query.from_ in ("companies", "persons")
+    if (
+        not schema.filterable_fields
+        and query.where is not None
+        and not (searchable and _tests_a_field(query.where))
+    ):
+        singular = {"companies": "company", "persons": "person"}.get(
+            query.from_, query.from_.removesuffix("s")
+        )
+        if searchable:
+            message = (
+                f"Affinity's server-side filtering for {query.from_} works on their fields: "
+                f"add a condition on a field (path 'fields.<name>'); the rest of the where "
+                f"clause then runs on what Affinity's search returns. For a name/email "
+                f"search, use: xaffinity {singular} ls --query TERM."
+            )
+        else:
+            message = (
+                f"The {query.from_!r} endpoint does not support server-side filtering. "
+                f"For list-specific filters, query listEntries with a listId filter instead."
+            )
         raise QueryValidationError(
-            f"The {query.from_!r} endpoint does not support server-side filtering. "
-            f"Previous versions silently returned unfiltered results. "
-            f"For name/email fuzzy search, use: xaffinity {singular} ls --query TERM. "
-            f"For list-specific filters, query listEntries with a listId filter instead.",
+            message,
             field="where",
         )
 
@@ -670,3 +688,13 @@ def parse_query_from_file(
         raise QueryParseError(f"Failed to read query file: {e}") from None
 
     return parse_query(content, version_override=version_override)
+
+
+def _tests_a_field(where: WhereClause) -> bool:
+    """True when the WHERE tests a field (``fields.<name>``) outside quantifiers."""
+    if where.path and where.path.startswith("fields."):
+        return True
+    children = [*(where.and_ or []), *(where.or_ or [])]
+    if where.not_ is not None:
+        children.append(where.not_)
+    return any(_tests_a_field(c) for c in children)

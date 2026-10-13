@@ -147,3 +147,49 @@ def test_person_ls_filter(respx_mock: respx.MockRouter) -> None:
     code, out = _run("person", "ls", "--filter", 'Deals > 5 & lastName = "Levi"', "--all")
     assert code == 0, out
     assert [p["id"] for p in out["data"]["persons"]] == [5]
+
+
+WHOAMI = {
+    "tenant": {"id": 1, "name": "Test", "subdomain": "test"},
+    "user": {"id": 100, "firstName": "T", "lastName": "U", "emailAddress": "t@example.com"},
+    "grant": {"type": "api_key", "scopes": ["all"], "createdAt": "2024-01-01T00:00:00Z"},
+}
+
+
+def _query(query: dict[str, Any]) -> tuple[int, Any]:
+    args = ["--json", "query", "--include-meta", "--query", json.dumps(query)]
+    result = CliRunner().invoke(cli, args, env=ENV)
+    line = next(x for x in result.stdout.splitlines() if x.startswith('{"data"'))
+    return result.exit_code, json.loads(line)
+
+
+def test_query_companies_by_field(respx_mock: respx.MockRouter) -> None:
+    respx_mock.get(f"{V2}/auth/whoami").mock(return_value=Response(200, json=WHOAMI))
+    respx_mock.get(f"{V2}/companies/fields").mock(return_value=Response(200, json=_page(FIELDS)))
+    route = respx_mock.post(SEARCH).mock(
+        return_value=Response(201, json=_page([_company(1, 7), _company(2, 3)]))
+    )
+    code, out = _query(
+        {
+            "from": "companies",
+            "where": {
+                "and": [
+                    {"path": "fields.Deals", "op": "gt", "value": 5},
+                    {"path": "name", "op": "contains", "value": "Co"},
+                ]
+            },
+            "select": ["id", "fields.Deals"],
+        }
+    )
+    assert code == 0, out
+    assert out["data"] == [{"id": 1, "fields": {"Deals": 7}}]
+    assert route.calls[0].request.url.params.get_list("fieldIds") == ["field-1"]
+    assert out["meta"]["serverFilter"]["local"]  # name contains stays local
+
+
+def test_query_companies_without_a_field_condition_is_refused() -> None:
+    query = {"from": "companies", "where": {"path": "name", "op": "contains", "value": "Acme"}}
+    result = CliRunner().invoke(cli, ["--json", "query", "--query", json.dumps(query)], env=ENV)
+    assert result.exit_code != 0
+    message = json.loads(result.stdout)["error"]["message"]
+    assert "fields.<name>" in message and "xaffinity company ls" in message

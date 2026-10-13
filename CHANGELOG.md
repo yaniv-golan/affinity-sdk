@@ -81,6 +81,14 @@ gives the same answer whether Affinity or the CLI applies it.
   company isn't practical: use `--query`). Conditions on Affinity's enriched fields are sent
   as they are, with a warning that Affinity's search can miss a few records' enriched values.
   The cursor carries the search (`xsearch1:...`).
+- **`query` on companies and persons can filter on their fields** (`fields.<name>`): Affinity's
+  search applies what it can, the rest of the `where` (e.g. `name contains`) runs on what comes
+  back. A `where` with no field condition is still refused (it would mean reading Affinity's
+  whole directory). `meta.serverFilter` with `--include-meta`; enriched-field conditions carry
+  a warning that a few records' enriched values can be missed.
+- **More of `query` goes to Affinity** (list entries too): `is_null` / `is_not_null` on every
+  verified field type, multi-value fields included, and `starts_word` on a person or company
+  field (one per query, at the top level of the `where`, plain text of 3+ letters).
 - **CLI:** `team ls|get`, `user ls|get`, `meeting get`, `note attached`, `feedback send` (asks
   for confirmation: the text leaves your organization). The MCP registry has them; `feedback
   send` goes through the user-confirmation flow.

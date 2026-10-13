@@ -15,6 +15,7 @@ This module is CLI-only and NOT part of the public SDK API.
 from __future__ import annotations
 
 import math
+import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
@@ -51,6 +52,27 @@ VERIFIED: frozenset[tuple[str, str]] = frozenset(
         ("ranked-dropdown", "is-not-empty"),
         ("text", "contains"),
         ("text", "is-not-empty"),
+        # Second run (empty lists count as empty; name search with plain terms), 2026-10-13
+        *(
+            (vt, "is-empty")
+            for vt in (
+                "company-multi",
+                "date",
+                "dropdown",
+                "dropdown-multi",
+                "number",
+                "person",
+                "person-multi",
+                "ranked-dropdown",
+                "text",
+            )
+        ),
+        ("company-multi", "is-not-empty"),
+        ("dropdown-multi", "is-not-empty"),
+        ("person-multi", "is-not-empty"),
+        ("person", "term"),
+        ("person-multi", "term"),
+        ("company-multi", "term"),
     }
 )
 
@@ -191,11 +213,22 @@ def split_where(
     return result
 
 
+def _plain_term(value: Any) -> bool:
+    """A name search term Affinity's search matches like ``starts_word``: letters, digits and
+    spaces, 3+ characters (a term with punctuation, e.g. a placeholder name "- -", can match
+    differently; golden test, 2026-10-13)."""
+    return (
+        isinstance(value, str)
+        and re.fullmatch(r"[^\W_]+(?: [^\W_]+)*", value.strip()) is not None
+        and len(value.strip()) >= 3
+    )
+
+
 def _claim_term(where: WhereClause, ctx: _Ctx, result: Pushdown) -> None:
     """Send the first top-level ``starts_word`` on a person or company field as the search
     term (a search takes one term; it ANDs with the filters)."""
     for w in [where] if where.and_ is None else where.and_:
-        if w.op != "starts_word" or not isinstance(w.value, str) or len(w.value.strip()) < 3:
+        if w.op != "starts_word" or not _plain_term(w.value):
             continue
         trial = _Ctx(ctx.fields, ctx.options_for, ctx.verified, [], [], ctx.enriched)
         found = _field(w, trial)

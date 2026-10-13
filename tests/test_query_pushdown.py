@@ -302,3 +302,16 @@ def test_starts_word_on_text_and_dropdowns() -> None:
     )
     lost = _only(_named({"path": "fields.Status", "op": "starts_word", "value": "lo"}))
     assert lost["value"] == [{"dropdownOptionId": 14}]
+
+
+@pytest.mark.parametrize("term", ["- -", "Jean-Luc", "O'Brien", "Ja"])
+def test_only_plain_name_terms_go_to_the_server(term: str) -> None:
+    split = _named({"path": "fields.Owners", "op": "starts_word", "value": term})
+    assert split.term is None
+
+
+def test_verified_name_search_and_empty_checks() -> None:
+    from affinity.cli.query.pushdown import VERIFIED
+
+    assert {("person-multi", "term"), ("person-multi", "is-not-empty")} <= VERIFIED
+    assert ("location", "is-empty") not in VERIFIED  # never exercised live

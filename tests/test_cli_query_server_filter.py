@@ -167,7 +167,7 @@ def test_conditions_affinity_cant_answer_read_the_list(respx_mock: respx.MockRou
         {
             "and": [
                 {"path": "listId", "op": "eq", "value": 9},
-                {"path": "fields.Status", "op": "is_null"},
+                {"path": "entityName", "op": "contains", "value": "2"},
             ]
         }
     )
