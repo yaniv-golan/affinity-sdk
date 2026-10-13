@@ -305,6 +305,10 @@ def test_affinity_sorts_and_the_limit_stops_the_fetch(respx_mock: respx.MockRout
         {"fieldId": "field-1", "direction": "desc"}
     ]
     assert not second.called  # the limit was reached on page one
+    meta_args = ["--json", "query", "--include-meta", "--query", json.dumps(query)]
+    meta_out = CliRunner().invoke(cli, meta_args, env=ENV).stdout
+    meta = json.loads(next(x for x in meta_out.splitlines() if x.startswith('{"data"')))["meta"]
+    assert meta["earlyTerminated"] is True
 
 
 def test_a_sort_affinity_cant_do_stays_local_with_ties_by_id(

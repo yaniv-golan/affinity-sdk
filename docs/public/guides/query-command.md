@@ -532,7 +532,7 @@ Conditions on fields that Affinity's search can answer are sent to Affinity, so 
 - **Stays local**: related-record quantifiers (`all`, `none`, `exists`, `_count`), `entityName` / `entityId` / `entityType` / `createdAt` and other non-field paths, `expr`, `contains_any` / `contains_all`, and an OR with any branch that can't go.
 - **Enriched fields** (`affinity-data-*`: funding, headcount, ...): on `listEntries` they're sent as "condition OR field is empty", because Affinity's search reads a few records' enriched values as empty; results stay exact. On `companies` / `persons` they're sent as they are, and the result carries a warning that a few records may be missed.
 - **Fallback**: if Affinity refuses the search on `listEntries` (e.g. the API key lacks the "Export data from Lists" permission), the query reads the whole list and filters locally, with a warning.
-- `XAFFINITY_QUERY_SERVER_FILTER=0` turns server filtering off for `query` and `list export` (to compare results or debug).
+- `XAFFINITY_QUERY_SERVER_FILTER=0` turns server filtering off for list entries (`listEntries` queries and `list export`), to compare results or debug. Company and person filters always go through Affinity's search.
 
 `--include-meta` shows what happened in `meta.serverFilter`: `pushed` (conditions sent to Affinity), `local` (conditions checked locally, each with the reason), `sort` (when Affinity sorted) and `fallback` (why the search was refused, when it was). `--dry-run` lists the list fields Affinity may filter ("decided when the query runs").
 

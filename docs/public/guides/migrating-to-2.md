@@ -90,3 +90,22 @@ request for the details and a URL valid 60 seconds) and V1 otherwise. New:
 - `list get <id>` no longer has `.data.list.fields` (use `.data.fields`).
 - The MCP server needs CLI 2.0; it adds the webhook commands, and `webhook create`/`update`/`delete`
   need the user's confirmation.
+
+## Filters in 2.0.2
+
+From 2.0.2, filters mean what Affinity's own search means, so a filter gives the same answer
+whether Affinity or the CLI applies it. This applies to `query`, every `--filter`, and Python
+code that uses `affinity.filters` (`F`, filter strings, `lists.entries(...).list(filter=...)`).
+
+- **Empty multi-value fields count as empty.** `is_null` (`field != *`) now matches a field with
+  no items, and `is_not_null` (`field = *`) no longer does.
+- **Person and company values compare by name** ("Jane Doe", "Acme") in `--filter` and
+  `affinity.filters`, as they already did in `query`.
+- **`contains` on person and company fields is refused** in `query`: use `starts_word`, which
+  matches a word in the name that starts with the text ("Jan" finds "Jane Doe").
+- **`query`: a field name two list fields share is refused.** Name the field by id instead,
+  for example `fields.affinity-data-year-founded`.
+
+These now work where they were refused before: `company ls --filter` and `person ls --filter`
+(on company and person fields), and `query` on companies and persons with a condition on their
+fields. See [Filtering](filtering.md) for what goes to Affinity's search.

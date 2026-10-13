@@ -1210,6 +1210,7 @@ class QueryExecutor:
                 if self._should_stop(ctx) or (matches is not None and matches(record_dict)):
                     # Capture API cursor for potential streaming resumption
                     ctx.last_api_cursor = page.next_cursor
+                    ctx.early_terminated = ctx.early_terminated or matches is not None
                     return
             self.progress.on_step_progress(step, len(ctx.records), None)
 
@@ -1586,6 +1587,7 @@ class QueryExecutor:
                 fetched += 1
                 if self._should_stop(ctx) or (matches is not None and matches(record_dict)):
                     ctx.last_api_cursor = page.next_cursor
+                    ctx.early_terminated = ctx.early_terminated or matches is not None
                     return True
             self.progress.on_step_progress(step, fetched, None)
             if not page.next_cursor:

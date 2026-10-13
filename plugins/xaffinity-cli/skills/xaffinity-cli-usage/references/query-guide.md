@@ -93,7 +93,7 @@ comes back, so results are the same as a local filter.
 - If Affinity refuses the search on `listEntries` (key without "Export data from Lists"), the
   query reads the whole list and filters locally, with a warning.
 - `--include-meta` shows `meta.serverFilter`: `pushed`, `local` (with reasons), `sort`.
-  `XAFFINITY_QUERY_SERVER_FILTER=0` turns server filtering off.
+  `XAFFINITY_QUERY_SERVER_FILTER=0` turns server filtering off for list entries.
 - When two list fields share a name (e.g. Affinity's and Dealroom's "Year Founded"),
   `fields.<name>` is refused with the ids; use `fields.<field id>`. Such fields come back keyed
   by id.

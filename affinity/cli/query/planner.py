@@ -266,7 +266,8 @@ class QueryPlanner:
 
         # Affinity's search can answer conditions on list fields; which ones is decided when the
         # query runs (it needs the list's field metadata). The full WHERE still runs locally.
-        if query.from_ == "listEntries" and client_side_where is not None:
+        searchable = query.from_ in ("listEntries", "companies", "persons")
+        if searchable and client_side_where is not None:
             candidates = sorted(_field_paths(client_side_where))
             if candidates:
                 fetch_step.filter_pushdown = True
@@ -274,8 +275,9 @@ class QueryPlanner:
                     f"Affinity filters what it can of: {', '.join(candidates)} "
                     "(decided when the query runs)"
                 )
-                fetch_step.description += " (filtered by Affinity where possible)"
-            else:
+                if query.from_ == "listEntries":
+                    fetch_step.description += " (filtered by Affinity where possible)"
+            elif query.from_ == "listEntries":
                 warnings.append(
                     "Affinity can only filter list fields (fields.<name>); this query reads the "
                     "whole list and filters it locally."

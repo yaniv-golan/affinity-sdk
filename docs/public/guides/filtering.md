@@ -296,8 +296,9 @@ missed.
 - If Affinity refuses the search on `list export` or a `listEntries` query (e.g. the API key
   lacks the "Export data from Lists" permission), the command reads the whole list and filters
   locally, with a warning.
-- `XAFFINITY_QUERY_SERVER_FILTER=0` turns this off for `query` and `list export` (to compare
-  results or debug).
+- `XAFFINITY_QUERY_SERVER_FILTER=0` turns this off for list entries (`listEntries` queries and
+  `list export`), to compare results or debug. Company and person filters always go through
+  Affinity's search.
 
 ## SDK: filtering on Affinity's side with `find`
 
