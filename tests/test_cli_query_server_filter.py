@@ -332,3 +332,93 @@ def test_a_sort_affinity_cant_do_stays_local_with_ties_by_id(
     assert result.exit_code == 0, out
     assert [row["id"] for row in out["data"]] == [3, 5, 7]  # equal keys: id order
     assert not search.called
+
+
+def _ranked(
+    entry_id: int, text: str | None, rank: int | None, tags: list[str] | None = None
+) -> Any:
+    entry = _entry(entry_id, None)
+    value = (
+        None
+        if text is None
+        else {
+            "type": "ranked-dropdown",
+            "data": {"dropdownOptionId": rank, "text": text, "rank": rank},
+        }
+    )
+    fields = [{"id": "field-1", "name": "Status", "type": "list", "value": value}]
+    if tags is not None:
+        fields.append(
+            {
+                "id": "field-3",
+                "name": "Tags",
+                "type": "list",
+                "value": {
+                    "type": "dropdown-multi",
+                    "data": [{"dropdownOptionId": i, "text": t} for i, t in enumerate(tags)],
+                },
+            }
+        )
+    entry["entity"]["fields"] = fields
+    return entry
+
+
+def _local_sort(
+    respx_mock: respx.MockRouter, entries: list[Any], order: list[dict[str, str]]
+) -> Any:
+    _mock_metadata(respx_mock)
+    listing = respx_mock.get(f"{V2}/lists/9/list-entries").mock(
+        return_value=Response(200, json=_page(entries))
+    )
+    query = {
+        "from": "listEntries",
+        "where": {"path": "listId", "op": "eq", "value": 9},
+        "orderBy": order,
+        "select": ["id"],
+    }
+    result = CliRunner().invoke(
+        cli,
+        ["--json", "query", "--query", json.dumps(query)],
+        env={**ENV, "XAFFINITY_QUERY_SERVER_FILTER": "0"},
+    )
+    out = json.loads(result.stdout.strip().splitlines()[-1])
+    assert result.exit_code == 0, out
+    return [row["id"] for row in out["data"]], listing
+
+
+def test_local_sort_ranked_dropdowns_by_rank(respx_mock: respx.MockRouter) -> None:
+    entries = [
+        _ranked(1, "Alpha", 3),
+        _ranked(2, None, None),
+        _ranked(3, "Zeta", 1),
+        _ranked(4, "Mid", 2),
+    ]
+    ids, listing = _local_sort(
+        respx_mock, entries, [{"field": "fields.Status", "direction": "asc"}]
+    )
+    assert ids == [3, 4, 1, 2]  # by rank, empty last
+    # the sort field was requested even though nothing else names it
+    assert listing.calls[0].request.url.params.get_list("fieldIds") == ["field-1"]
+
+
+def test_local_sort_descending_keeps_empties_last(respx_mock: respx.MockRouter) -> None:
+    entries = [_ranked(1, "Alpha", 3), _ranked(2, None, None), _ranked(3, "Zeta", 1)]
+    ids, _ = _local_sort(respx_mock, entries, [{"field": "fields.Status", "direction": "desc"}])
+    assert ids == [1, 3, 2]
+
+
+def test_local_sort_multi_value_by_first_item_case_insensitive(
+    respx_mock: respx.MockRouter,
+) -> None:
+    tags = {**FIELDS[0], "id": "field-3", "name": "Tags", "valueType": "dropdown-multi"}
+    entries = [
+        _ranked(1, "A", 1, ["beta", "Aardvark"]),
+        _ranked(2, "A", 1, ["Alpha"]),
+        _ranked(3, "A", 1, []),
+        _ranked(4, "A", 1, ["alpha"]),
+    ]
+    respx_mock.get(f"{V2}/lists/9/fields").mock(
+        return_value=Response(200, json=_page([*FIELDS, tags]))
+    )
+    ids, _ = _local_sort(respx_mock, entries, [{"field": "fields.Tags", "direction": "asc"}])
+    assert ids == [2, 4, 1, 3]  # first item, case-insensitive, ties by id, empty last

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import json
 import logging
 import os
 import time
@@ -434,6 +435,10 @@ class ExecutionContext:
         """
         from ..results import ResultSummary
 
+        # Raw field values kept for a local sort aren't output
+        for record in self.records:
+            record.pop("_raw_fields", None)
+
         # Apply select projection if specified
         data = self.records
         if self.query.select:
@@ -741,6 +746,56 @@ def can_use_streaming(query: Query, *, max_records_explicit: bool = False) -> bo
 # =============================================================================
 
 
+def _raw_field_value(record: dict[str, Any], key: str, id_keyed: set[str] | frozenset[str]) -> Any:
+    """The raw API value (``{"type", "data"}``) of field ``key`` (name, or id when the record
+    keys it by id): list entries keep it under ``entity.fields``, companies and persons under
+    ``_raw_fields`` (kept only for a local sort)."""
+    container = record.get("_raw_fields") or (record.get("entity") or {}).get("fields")
+    data = container.get("data") if isinstance(container, dict) else None
+    if not isinstance(data, dict):
+        return None
+    if key in data and (
+        key in id_keyed
+        or not any(isinstance(o, dict) and o.get("name") == key for o in data.values())
+    ):
+        obj = data[key]
+        return obj.get("value") if isinstance(obj, dict) else None
+    for obj in data.values():
+        if isinstance(obj, dict) and obj.get("name") == key:
+            return obj.get("value")
+    return None
+
+
+def _typed_sort_value(
+    record: dict[str, Any], path: str | None, id_keyed: set[str] | frozenset[str]
+) -> tuple[Any, ...] | None:
+    """A sort key that orders values the way Affinity's search does, or ``None`` for an empty
+    value: ranked dropdowns by rank, multi-value fields by their first item, text
+    case-insensitively; kinds (rank < number < text < other) never compare with each other."""
+    if path is None:
+        return None
+    if path.startswith("fields."):
+        raw = _raw_field_value(record, path.removeprefix("fields."), id_keyed)
+        if isinstance(raw, dict) and raw.get("type") == "ranked-dropdown":
+            data = raw.get("data")
+            if isinstance(data, dict) and isinstance(data.get("rank"), int):
+                return (0, data["rank"])
+    value = resolve_field_path(record, path)
+    if isinstance(value, list):
+        value = value[0] if value else None
+    if value is None or value == "":
+        return None
+    if isinstance(value, bool):
+        return (2, str(value).casefold())
+    if isinstance(value, (int, float)):
+        return (1, value)
+    if isinstance(value, str):
+        return (2, value.casefold())
+    if isinstance(value, dict):
+        return (3, json.dumps(value, sort_keys=True, default=str))
+    return (3, str(value))
+
+
 def _order_field_names(query: Query) -> list[str] | None:
     """The field names an orderBy sorts by, when every key is a field (fields.<name>)."""
     if not query.order_by:
@@ -823,6 +878,7 @@ class QueryExecutor:
         """
         self.client = client
         self._search_field_ids: list[str] = []
+        self._keep_raw_fields = False  # set per query: a local sort by fields.* needs ranks
         self.server_filter = (
             os.environ.get("XAFFINITY_QUERY_SERVER_FILTER", "1") != "0"
             if server_filter is None
@@ -869,6 +925,9 @@ class QueryExecutor:
         # - Sort: must see all records to find actual top N (not random N sorted)
         needs_full_fetch = any(
             step.operation in ("filter", "aggregate", "sort") for step in plan.steps
+        )
+        self._keep_raw_fields = any(
+            o.field is not None and o.field.startswith("fields.") for o in plan.query.order_by or []
         )
 
         ctx = ExecutionContext(
@@ -1629,6 +1688,8 @@ class QueryExecutor:
         ``fields``, as for list entries."""
         record_dict: dict[str, Any] = record.model_dump(mode="json", by_alias=True)
         if self._search_field_ids:
+            if self._keep_raw_fields:
+                record_dict["_raw_fields"] = record_dict.get("fields")
             wrapped = _normalize_list_entry_fields({"entity": record_dict})
             record_dict["fields"] = wrapped["fields"]
         return record_dict
@@ -1662,6 +1723,12 @@ class QueryExecutor:
             field_ids.add(str(meta.id))
             if str(getattr(meta.value_type, "value", "")) in ("dropdown", "ranked-dropdown"):
                 options[str(meta.id)] = await service.get_field_dropdown_options(meta.id)
+        for order in ctx.query.order_by or []:
+            if order.field is not None and order.field.startswith("fields."):
+                key = order.field.removeprefix("fields.")
+                meta = index.get(key) or index.get(key.lower())
+                if meta is not None:
+                    field_ids.add(str(meta.id))
         self._search_field_ids = sorted(field_ids)
         split = split_where(where, fields, lambda m: options.get(str(m.id), []), enriched="as-is")
         if split.errors:
@@ -1849,6 +1916,11 @@ class QueryExecutor:
                         return {"*"}
                     if pct_field.startswith("fields."):
                         field_names.add(pct_field[7:])
+
+        # Collect from orderBy (a local sort needs the values)
+        for order in query.order_by or []:
+            if order.field is not None and order.field.startswith("fields."):
+                field_names.add(order.field[7:])
 
         # Collect from where clause (recursive)
         if query.where:
@@ -3374,33 +3446,17 @@ class QueryExecutor:
         def sort_key(record: dict[str, Any]) -> tuple[Any, ...]:
             keys: list[Any] = []
             for order in order_by:
-                value = resolve_field_path(record, order.field) if order.field else None
-
-                if order.direction == "asc":
-                    # Ascending: None sorts to end via tuple ordering
-                    if value is None:
-                        keys.append((1, None))
-                    else:
-                        keys.append((0, value))
+                typed = _typed_sort_value(record, order.field, ctx.id_keyed_fields)
+                if typed is None:
+                    keys.append((1, None))  # empty values last, in both directions
+                elif order.direction == "asc":
+                    keys.append((0, typed))
                 else:
-                    # Descending: wrap ALL values in _Descending for consistent comparison
-                    keys.append((0, _Descending(value)))
-
+                    keys.append((0, _Descending(typed)))
             return tuple(keys)
 
-        # Sort with stable algorithm
-        try:
-            ctx.records.sort(key=sort_key)
-        except TypeError:
-            # Mixed types - fall back to string comparison
-            for order in reversed(order_by):
-                reverse = order.direction == "desc"
-                field = order.field or ""
-
-                def make_key(f: str) -> Callable[[dict[str, Any]], str]:
-                    return lambda r: str(resolve_field_path(r, f) or "")
-
-                ctx.records.sort(key=make_key(field), reverse=reverse)
+        # Stable sort; typed keys never compare across kinds, so no TypeError
+        ctx.records.sort(key=sort_key)
 
     def _execute_limit(self, _step: PlanStep, ctx: ExecutionContext) -> None:
         """Execute limit step."""

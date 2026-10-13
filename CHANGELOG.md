@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`query`'s local sort follows Affinity's order** (when Affinity can't sort, e.g. an
+  unsortable field or a refused search): ranked dropdowns sort by rank (not by text),
+  multi-value fields by their first item, and text case-insensitively ("apple" before
+  "Zeta"); empty values stay last in both directions. Fields named only in `orderBy` are now
+  fetched (a local sort used to see them empty). Grouped rows (`groupBy`) sort by their keys
+  as before.
+
 ### Added
 
 - **More filters go to Affinity's search** (verified live): `starts_word` on single-company

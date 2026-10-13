@@ -193,3 +193,21 @@ def test_query_companies_without_a_field_condition_is_refused() -> None:
     assert result.exit_code != 0
     message = json.loads(result.stdout)["error"]["message"]
     assert "fields.<name>" in message and "xaffinity company ls" in message
+
+
+def test_local_sort_on_companies_hides_its_raw_values(respx_mock: respx.MockRouter) -> None:
+    respx_mock.get(f"{V2}/auth/whoami").mock(return_value=Response(200, json=WHOAMI))
+    respx_mock.get(f"{V2}/companies/fields").mock(return_value=Response(200, json=_page(FIELDS)))
+    respx_mock.post(SEARCH).mock(
+        return_value=Response(201, json=_page([_company(1, 3), _company(2, 9), _company(3, 7)]))
+    )
+    code, out = _query(
+        {
+            "from": "companies",
+            "where": {"path": "fields.Deals", "op": "gt", "value": 0},
+            "orderBy": [{"field": "fields.Deals", "direction": "desc"}],
+        }
+    )
+    assert code == 0, out
+    assert [c["id"] for c in out["data"]] == [2, 3, 1]
+    assert all("_raw_fields" not in c for c in out["data"])
