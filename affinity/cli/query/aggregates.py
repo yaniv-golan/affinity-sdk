@@ -11,6 +11,7 @@ import statistics
 from collections import defaultdict
 from typing import Any
 
+from .exceptions import QueryValidationError
 from .filters import resolve_field_path
 from .models import AggregateFunc, HavingClause
 
@@ -44,14 +45,37 @@ def compute_avg(records: list[dict[str, Any]], field: str) -> float | None:
     return sum(values) / len(values)
 
 
-def compute_min(records: list[dict[str, Any]], field: str) -> Any:
-    """Compute minimum value of a field across records."""
-    values: list[Any] = []
+def _comparable_values(records: list[dict[str, Any]], field: str, func: str) -> list[Any]:
+    """The values of ``field`` that min/max compare: numbers when there are any, else text
+    (ISO dates compare as text). Values of different kinds never compare with each other."""
+    numbers: list[Any] = []
+    texts: list[str] = []
+    other = False
     for record in records:
         value = resolve_field_path(record, field)
-        if value is not None:
-            values.append(value)
+        if value is None:
+            continue
+        if isinstance(value, (int, float)):
+            numbers.append(value)
+        elif isinstance(value, str):
+            texts.append(value)
+        else:
+            other = True
+    if numbers:
+        return numbers
+    if texts:
+        return texts
+    if other:
+        raise QueryValidationError(
+            f"{func} needs numbers, dates or text, and '{field}' holds objects or lists",
+            field="aggregate",
+        )
+    return []
 
+
+def compute_min(records: list[dict[str, Any]], field: str) -> Any:
+    """Compute minimum value of a field across records."""
+    values = _comparable_values(records, field, "min")
     if not values:
         return None
     return min(values)
@@ -59,12 +83,7 @@ def compute_min(records: list[dict[str, Any]], field: str) -> Any:
 
 def compute_max(records: list[dict[str, Any]], field: str) -> Any:
     """Compute maximum value of a field across records."""
-    values: list[Any] = []
-    for record in records:
-        value = resolve_field_path(record, field)
-        if value is not None:
-            values.append(value)
-
+    values = _comparable_values(records, field, "max")
     if not values:
         return None
     return max(values)
@@ -272,25 +291,37 @@ def group_and_aggregate(
         List of result dicts, one per group, sorted with null values at end
     """
     groups: dict[Any, list[dict[str, Any]]] = defaultdict(list)
+    # Group keys made from objects (a location, a multi-select of objects) show the value
+    objects: dict[Any, Any] = {}
 
     def make_hashable(value: Any) -> Any:
-        """Convert unhashable types (lists) to hashable types (tuples).
+        """Convert unhashable types (lists, dicts) to hashable types (tuples).
 
         For multi-select fields, we sort the values so that different orderings
         (e.g., ["Team", "Market"] vs ["Market", "Team"]) are treated as the same group.
         """
+        if isinstance(value, dict):
+            return (
+                "__object__",
+                tuple(sorted((str(k), make_hashable(v)) for k, v in value.items())),
+            )
         if isinstance(value, list):
+            items = [make_hashable(v) for v in value]
             try:
-                return tuple(sorted(value))
+                return tuple(sorted(items))
             except TypeError:
-                # If values aren't sortable, fall back to original order
-                return tuple(value)
+                # Mixed kinds or objects: a stable order that doesn't compare them
+                return tuple(sorted(items, key=repr))
         return value
 
     for record in records:
         key = resolve_field_path(record, group_by)
         hashable_key = make_hashable(key)
         groups[hashable_key].append(record)
+        if isinstance(key, dict) or (
+            isinstance(key, list) and any(isinstance(v, (dict, list)) for v in key)
+        ):
+            objects.setdefault(hashable_key, key)
 
     results: list[dict[str, Any]] = []
     null_result: dict[str, Any] | None = None
@@ -302,6 +333,8 @@ def group_and_aggregate(
         display_key: Any
         if key is None:
             display_key = "(no value)"
+        elif key in objects:
+            display_key = objects[key]
         elif isinstance(key, tuple):
             display_key = list(key)
         else:

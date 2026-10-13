@@ -17,6 +17,9 @@ from ..decorators import category, progress_capable
 from ..errors import CLIError
 from ..options import csv_output_options, csv_suboption_callback
 
+# Shell convention for a run stopped by SIGINT (128 + 2)
+EXIT_INTERRUPTED = 130
+
 # =============================================================================
 # CLI Command
 # =============================================================================
@@ -358,11 +361,6 @@ def _query_cmd_impl(
             exit_code=2,
         ) from None
 
-    # Determine execution mode: full-fetch if orderBy/aggregate/groupBy
-    is_full_fetch_mode = (
-        query.order_by is not None or query.aggregate is not None or query.group_by is not None
-    )
-
     # Try cache resumption for full-fetch mode cursors
     cached_data: list[dict[str, Any]] | None = None
     cache_file_path: str | None = None
@@ -423,6 +421,10 @@ def _query_cmd_impl(
             data=cached_data,
             meta={"fromCache": True},
             pagination={"total": len(cached_data)},
+            # Same columns as the first page (fields.* / expand flattening)
+            source_entity=query.from_,
+            explicit_select=query.select,
+            explicit_expand=query.expand,
         )
     else:
         # Normal execution path
@@ -468,12 +470,6 @@ def _query_cmd_impl(
                         force_ndjson=ctx.output == "json",
                     )
 
-                # O(1) streaming resumption: use stored API cursor if available
-                # This avoids re-fetching pages that were already returned
-                resume_api_cursor: str | None = None
-                if cursor and cursor.mode == "streaming" and cursor.api_cursor:
-                    resume_api_cursor = cursor.api_cursor
-
                 # Use context manager for Rich progress
                 if isinstance(progress, RichQueryProgress):
                     with progress:
@@ -485,7 +481,6 @@ def _query_cmd_impl(
                             timeout=timeout,
                             allow_partial=True,
                             rate_limiter=rate_limiter,
-                            resume_api_cursor=resume_api_cursor,
                         )
                         exec_result = await executor.execute(plan)
                 else:
@@ -497,7 +492,6 @@ def _query_cmd_impl(
                         timeout=timeout,
                         allow_partial=True,
                         rate_limiter=rate_limiter,
-                        resume_api_cursor=resume_api_cursor,
                     )
                     exec_result = await executor.execute(plan)
 
@@ -512,6 +506,12 @@ def _query_cmd_impl(
 
         try:
             result = asyncio.run(run_query())
+        except KeyboardInterrupt:
+            # Interrupted before any row arrived (rows that did arrive come back as a result
+            # with meta.interrupted)
+            raise CLIError(
+                "Query interrupted.", error_type="interrupted", exit_code=EXIT_INTERRUPTED
+            ) from None
         except QueryValidationError as e:
             # Found while running (a quantifier query's count, a field the where can't use):
             # the same usage error as one found while planning
@@ -522,31 +522,24 @@ def _query_cmd_impl(
             raise CLIError(f"Query exceeded safety limit: {e}") from None
         except QueryInterruptedError as e:
             if e.partial_results:
-                click.echo(
-                    f"[interrupted] Returning {len(e.partial_results)} partial results",
-                    err=True,
-                )
                 from affinity.cli.query.models import QueryResult
 
                 result = QueryResult(data=e.partial_results, meta={"interrupted": True})
             else:
-                raise CLIError(f"Query interrupted: {e}") from None
+                raise CLIError(
+                    f"Query interrupted: {e}", error_type="interrupted", exit_code=EXIT_INTERRUPTED
+                ) from None
         except QueryExecutionError as e:
             raise CLIError(f"Query execution failed: {e}") from None
 
     # Apply cursor skip position if resuming
-    # This must happen BEFORE formatting so we only format remaining records
-    # NOTE: Skip this for O(1) api_cursor resumption - we already started at the right position
+    # This must happen BEFORE formatting so we only format remaining records.
+    # The rows come from the cache or from running the query again; either way the
+    # cursor's lastId/skip position them. (A cursor's apiCursor isn't used: resuming the API
+    # after the stopping page lost the rows fetched but not shown.)
     resume_position = 0
     all_data_for_cache = result.data  # Keep original for cache writing
-    used_api_cursor_resumption = (
-        cursor is not None
-        and cursor.mode == "streaming"
-        and cursor.api_cursor is not None
-        and cached_data is None  # Not from cache
-    )
-    if cursor is not None and result.data and not used_api_cursor_resumption:
-        # Skip-based resumption (fallback when api_cursor not available)
+    if cursor is not None and result.data:
         resume_position, resume_warnings = find_resume_position(result.data, cursor)
         for warning in resume_warnings:
             if not quiet:
@@ -555,8 +548,16 @@ def _query_cmd_impl(
         result.data = result.data[resume_position:]
         if not quiet and resume_position > 0:
             click.echo(f"[info] Resuming from position {resume_position}", err=True)
-    elif used_api_cursor_resumption and not quiet:
-        click.echo("[info] Resumed via API cursor (O(1) resumption)", err=True)
+
+    # A run stopped by Ctrl+C: print the rows that arrived, then exit 130 (no cursor: the rows
+    # are not the whole result)
+    interrupted = bool(result.meta and result.meta.get("interrupted"))
+    exit_code = EXIT_INTERRUPTED if interrupted else 0
+    if interrupted:
+        click.echo(
+            f"[interrupted] Query stopped early; {len(result.data or [])} partial results",
+            err=True,
+        )
 
     # Format and output results
     was_truncated = False
@@ -564,12 +565,12 @@ def _query_cmd_impl(
     # Track pre-truncation count for JSON format (see cursor logic below)
     json_pre_truncation_count: int = 0
 
-    if csv_flag:
+    if csv_flag and not max_output_bytes:
         from ..csv_utils import write_csv_to_stdout
 
         if not result.data:
             click.echo("No results.", err=True)
-            sys.exit(0)
+            sys.exit(exit_code)
 
         # Collect all unique field names from data
         all_keys: set[str] = set()
@@ -578,7 +579,7 @@ def _query_cmd_impl(
         fieldnames = sorted(all_keys)
 
         write_csv_to_stdout(rows=result.data, fieldnames=fieldnames, bom=csv_bom)
-        sys.exit(0)
+        sys.exit(exit_code)
     elif ctx.output == "json":
         # Truncate at object level BEFORE serialization to avoid precision loss
         # Save count before truncation for cursor logic (line ~593)
@@ -635,7 +636,7 @@ def _query_cmd_impl(
     cursor_encoded: str | None = None
     cursor_mode: str | None = None
 
-    if was_truncated:
+    if was_truncated and not interrupted:
         rows_shown = _count_rows_in_output(output, output_format)
         total_records = len(all_data_for_cache) if all_data_for_cache else 0
         # For JSON, use pre-truncation count since truncate_json_result modifies result.data
@@ -659,8 +660,11 @@ def _query_cmd_impl(
                 else None
             )
 
-            if is_full_fetch_mode:
-                # Full-fetch mode: write/reuse cache and create full-fetch cursor
+            # Every row of the result is in hand (a fetch stops only at the query's limit or
+            # --max-records), so the rest is served from a cache of the rows. With 'include'
+            # the cache would lose the included records: run the query again and skip instead.
+            new_cursor: CursorPayload | None = None
+            if not query.include:
                 if cache_file_path is None or cache_content_hash is None:
                     # First truncation - write cache
                     try:
@@ -674,7 +678,7 @@ def _query_cmd_impl(
                                 err=True,
                             )
                     except Exception as e:
-                        # Cache write failed - fall back to streaming cursor
+                        # Cache write failed (or too large) - fall back to re-running
                         if not quiet:
                             click.echo(f"[warning] Cache write failed: {e}", err=True)
                         cache_file_path = None
@@ -690,25 +694,14 @@ def _query_cmd_impl(
                         last_id=last_id,
                         total=total_records,
                     )
-                else:
-                    # Fall back to streaming cursor if cache failed
-                    new_cursor = create_streaming_cursor(
-                        query=query,
-                        output_format=output_format,
-                        skip=new_skip,
-                        last_id=last_id,
-                        total=total_records,
-                        api_cursor=result.api_cursor,
-                    )
-            else:
-                # Streaming mode: create streaming cursor with API cursor for O(1) resumption
+            if new_cursor is None:
+                # No cache: resuming runs the query again and skips the rows shown
                 new_cursor = create_streaming_cursor(
                     query=query,
                     output_format=output_format,
                     skip=new_skip,
                     last_id=last_id,
                     total=total_records,
-                    api_cursor=result.api_cursor,
                 )
 
             cursor_encoded = encode_cursor(new_cursor)
@@ -726,6 +719,9 @@ def _query_cmd_impl(
 
     # Output the formatted result
     click.echo(output)
+
+    if interrupted:
+        sys.exit(exit_code)
 
     # Signal truncation via exit code and emit cursor to stderr for MCP extraction
     if was_truncated:
@@ -781,14 +777,20 @@ def _count_rows_in_output(output: str, format: str) -> int:
         return max(0, len(lines) - 2)  # Subtract header and separator rows
 
     elif format == "jsonl":
-        # JSONL: count non-empty lines (excluding truncation marker)
-        lines = [line for line in output.strip().split("\n") if line and '"truncated"' not in line]
+        # JSONL: count non-empty lines; only a final line that is exactly the truncation
+        # marker isn't a data row
+        lines = [line for line in output.strip().split("\n") if line]
+        if lines and lines[-1] == '{"truncated":true}':
+            lines.pop()
         return len(lines)
 
     elif format == "csv":
-        # CSV: count lines minus header
-        lines = [line for line in output.strip().split("\n") if line]
-        return max(0, len(lines) - 1)
+        # CSV: count records minus header (a quoted field can hold a newline)
+        import csv
+        import io
+
+        records = [row for row in csv.reader(io.StringIO(output, newline="")) if row]
+        return max(0, len(records) - 1)
 
     elif format == "json":
         # JSON: count items in data array

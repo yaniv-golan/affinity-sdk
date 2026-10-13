@@ -26,9 +26,11 @@ from ...exceptions import (
     UnsupportedOperationError,
     ValidationError,
 )
+from ..errors import CLIError
 from ..interaction_utils import resolve_interaction_names_async, transform_interaction_data
 from .aggregates import apply_having, compute_aggregates, group_and_aggregate
 from .exceptions import (
+    QueryError,
     QueryExecutionError,
     QueryInterruptedError,
     QuerySafetyLimitError,
@@ -223,8 +225,11 @@ def _normalize_list_entry_fields(
 
                     if isinstance(value_wrapper, dict):
                         data = value_wrapper.get("data")
+                        # Formula field: {"calculatedValue": <number|null>}
+                        if isinstance(data, dict) and "calculatedValue" in data:
+                            normalized_fields[field_name] = data["calculatedValue"]
                         # Handle dropdown/ranked-dropdown with text value
-                        if isinstance(data, dict) and "text" in data:
+                        elif isinstance(data, dict) and "text" in data:
                             normalized_fields[field_name] = data["text"]
                         # Handle multi-select (array of values)
                         elif isinstance(data, list):
@@ -407,6 +412,9 @@ class ExecutionContext:
     server_sorted: bool = False
     # List fields keyed by id in normalized records (shared names, or named by id in the query)
     id_keyed_fields: set[str] = field(default_factory=set)
+    # Cap filtered rows at max_records only after aggregate/sort (they need every row)
+    defer_max_records: bool = False
+    max_records_cut: bool = False  # Rows were dropped at max_records
 
     def check_timeout(self, timeout: float) -> None:
         """Check if execution has exceeded timeout."""
@@ -428,6 +436,18 @@ class ExecutionContext:
                 limit_value=self.max_records,
                 estimated_value=len(self.records),
             )
+
+    def cap_max_records(self) -> None:
+        """Keep the first max_records rows, with a warning when rows are dropped."""
+        if len(self.records) <= self.max_records:
+            return
+        matched = len(self.records)
+        self.records = self.records[: self.max_records]
+        self.max_records_cut = True
+        self.warnings.append(
+            f"Results cut to the first {self.max_records} of {matched} rows (--max-records); "
+            "raise --max-records to get them all."
+        )
 
     def build_result(self) -> QueryResult:
         """Build final query result.
@@ -475,6 +495,8 @@ class ExecutionContext:
         }
         if self.early_terminated:
             meta["earlyTerminated"] = True
+        if self.max_records_cut:
+            meta["truncated"] = True
         if self.server_filter is not None:
             meta["serverFilter"] = self.server_filter
 
@@ -975,6 +997,7 @@ class QueryExecutor:
             max_records=self.max_records,
             needs_full_fetch=needs_full_fetch,
             count_guard=count_guard,
+            defer_max_records=any(step.operation in ("aggregate", "sort") for step in plan.steps),
         )
 
         try:
@@ -1016,12 +1039,23 @@ class QueryExecutor:
                     self.progress.on_step_error(step, e)
                     raise
 
+            if ctx.defer_max_records and ctx.query.where is not None:
+                ctx.cap_max_records()
             return ctx.build_result()
 
-        except KeyboardInterrupt:
+        except (QueryError, CLIError):
+            raise
+        except Exception as e:
+            # An error outside a fetch step (include, expand, relationship data for a filter):
+            # fail the query with its message
+            raise QueryExecutionError(str(e), cause=e, partial_results=ctx.records) from None
+        except (KeyboardInterrupt, asyncio.CancelledError) as e:
+            # Under asyncio.run, Ctrl+C arrives as CancelledError in this coroutine
             ctx.interrupted = True
             if self.allow_partial and ctx.records:
                 return ctx.build_result()
+            if isinstance(e, asyncio.CancelledError):
+                raise  # asyncio.run turns it back into KeyboardInterrupt
             raise QueryInterruptedError(
                 f"Query interrupted at step {ctx.current_step}. "
                 f"{len(ctx.records)} records fetched before interruption.",
@@ -1110,29 +1144,26 @@ class QueryExecutor:
                 record = await service.get(OpportunityId(single_id))
             else:
                 return None  # Shouldn't reach here
-
-            # Convert to dict
-            ctx.records = [record.model_dump(mode="json", by_alias=True)]
-            self.progress.on_step_complete(fetch_step, 1)
-
-            # Handle includes and expands if present
-            for step in plan.steps:
-                if step.operation == "include":
-                    await self._execute_include(step, ctx)
-                elif step.operation == "expand":
-                    await self._execute_expand(step, ctx)
-
-            return ctx.build_result()
-
         except NotFoundError:
             # Record doesn't exist - return empty result
             ctx.records = []
             self.progress.on_step_complete(fetch_step, 0)
             return ctx.build_result()
-        except Exception as e:
-            # Other error - fall through to normal execution
-            logger.debug("Single-ID lookup failed, falling back to streaming: %s", e)
-            return None
+        # Any other error (rate limit, server, auth) fails the query: a scan would only
+        # repeat the work, and could stop before reaching the record
+
+        # Convert to dict
+        ctx.records = [record.model_dump(mode="json", by_alias=True)]
+        self.progress.on_step_complete(fetch_step, 1)
+
+        # Handle includes and expands if present
+        for step in plan.steps:
+            if step.operation == "include":
+                await self._execute_include(step, ctx)
+            elif step.operation == "expand":
+                await self._execute_expand(step, ctx)
+
+        return ctx.build_result()
 
     async def _try_parent_entity_id_lookup(
         self, plan: ExecutionPlan, ctx: ExecutionContext, schema: EntitySchema
@@ -1209,32 +1240,28 @@ class QueryExecutor:
             if field_ids is not None:
                 get_kwargs["field_ids"] = field_ids
             record = await child_service.get(ListEntryId(entity_id), **get_kwargs)
-
-            # Convert to dict, normalized for query-friendly access (fields.X, entityName)
-            record_dict = record.model_dump(mode="json", by_alias=True)
-            ctx.records = [
-                _normalize_list_entry_fields(record_dict, ctx.truncated_fields, ctx.id_keyed_fields)
-            ]
-            self.progress.on_step_complete(fetch_step, 1)
-
-            # Handle includes and expands if present
-            for step in plan.steps:
-                if step.operation == "include":
-                    await self._execute_include(step, ctx)
-                elif step.operation == "expand":
-                    await self._execute_expand(step, ctx)
-
-            return ctx.build_result()
-
         except NotFoundError:
             # Record doesn't exist - return empty result
             ctx.records = []
             self.progress.on_step_complete(fetch_step, 0)
             return ctx.build_result()
-        except Exception as e:
-            # Other error - fall through to normal execution
-            logger.debug("Single-ID lookup failed for %s, falling back: %s", query.from_, e)
-            return None
+        # Any other error (rate limit, server, auth) fails the query
+
+        # Convert to dict, normalized for query-friendly access (fields.X, entityName)
+        record_dict = record.model_dump(mode="json", by_alias=True)
+        ctx.records = [
+            _normalize_list_entry_fields(record_dict, ctx.truncated_fields, ctx.id_keyed_fields)
+        ]
+        self.progress.on_step_complete(fetch_step, 1)
+
+        # Handle includes and expands if present
+        for step in plan.steps:
+            if step.operation == "include":
+                await self._execute_include(step, ctx)
+            elif step.operation == "expand":
+                await self._execute_expand(step, ctx)
+
+        return ctx.build_result()
 
     async def _execute_step(self, step: PlanStep, ctx: ExecutionContext) -> None:
         """Execute a single plan step."""
@@ -2150,26 +2177,29 @@ class QueryExecutor:
             names = where.get("value")
             op = where.get("op")
 
-            # Fetch all lists once and cache
+            # Fetch all lists once and cache (Affinity allows two lists with one name)
             if not hasattr(self, "_list_name_cache"):
-                self._list_name_cache: dict[str, int] = {}
+                self._list_name_cache: dict[str, list[int]] = {}
                 async for list_obj in self.client.lists.all():
-                    self._list_name_cache[list_obj.name] = list_obj.id
+                    self._list_name_cache.setdefault(list_obj.name, []).append(int(list_obj.id))
+
+            def list_id_for(name: str) -> int:
+                ids = self._list_name_cache.get(name)
+                if not ids:
+                    raise QueryExecutionError(f"List not found: '{name}'")
+                if len(ids) > 1:
+                    raise QueryValidationError(
+                        f'Ambiguous list name: "{name}" ({len(ids)} matches: '
+                        f"{', '.join(str(i) for i in ids[:20])}). Use listId instead.",
+                        field="where",
+                    )
+                return ids[0]
 
             if op == "eq" and isinstance(names, str):
-                list_id = self._list_name_cache.get(names)
-                if list_id is None:
-                    raise QueryExecutionError(f"List not found: '{names}'")
-                return {"path": "listId", "op": "eq", "value": list_id}
+                return {"path": "listId", "op": "eq", "value": list_id_for(names)}
 
             if op == "in" and isinstance(names, list):
-                list_ids = []
-                for name in names:
-                    list_id = self._list_name_cache.get(name)
-                    if list_id is None:
-                        raise QueryExecutionError(f"List not found: '{name}'")
-                    list_ids.append(list_id)
-                return {"path": "listId", "op": "in", "value": list_ids}
+                return {"path": "listId", "op": "in", "value": [list_id_for(n) for n in names]}
 
         # Recursively process compound conditions
         result = dict(where)
@@ -2326,10 +2356,10 @@ class QueryExecutor:
                 filter_fn = compile_filter(expensive_filter)
                 ctx.records = [r for r in ctx.records if filter_fn(r)]
 
-        # Apply max_records limit after filtering (not during fetch)
-        # This ensures we find matching records even if they're beyond position max_records
-        if len(ctx.records) > ctx.max_records:
-            ctx.records = ctx.records[: ctx.max_records]
+        # Apply max_records limit after filtering (not during fetch), so matches beyond
+        # position max_records are found; after aggregate/sort when the query has them
+        if not ctx.defer_max_records:
+            ctx.cap_max_records()
 
     def _execute_filter(self, _step: PlanStep, ctx: ExecutionContext) -> None:
         """Execute a client-side filter step.
@@ -2352,10 +2382,10 @@ class QueryExecutor:
         filter_func = compile_filter(where)
         ctx.records = [r for r in ctx.records if filter_func(r)]
 
-        # Apply max_records limit after filtering (not during fetch)
-        # This ensures we find matching records even if they're beyond position max_records
-        if len(ctx.records) > ctx.max_records:
-            ctx.records = ctx.records[: ctx.max_records]
+        # Apply max_records limit after filtering (not during fetch), so matches beyond
+        # position max_records are found; after aggregate/sort when the query has them
+        if not ctx.defer_max_records:
+            ctx.cap_max_records()
 
     async def _execute_include(self, step: PlanStep, ctx: ExecutionContext) -> None:
         """Execute an include step with batch fetch optimization.
@@ -2400,7 +2430,9 @@ class QueryExecutor:
                     try:
                         ids = await method(entity_id)
                         return entity_id, list(ids) if ids else []
-                    except Exception:
+                    except NotFoundError:
+                        # The record is gone: nothing related. Other errors (rate limit,
+                        # server, auth) fail the query rather than pass as "none related"
                         return entity_id, []
 
             # Execute ID fetches in parallel with bounded concurrency
@@ -2491,7 +2523,7 @@ class QueryExecutor:
                             ent_records.append(record)
                             included_records.append(record)
                         parent_mapping[ent_id] = ent_records
-                    except Exception:
+                    except NotFoundError:
                         parent_mapping[ent_id] = []
                         continue
 
@@ -2911,11 +2943,10 @@ class QueryExecutor:
                                 else r
                                 for r in result
                             ]
-                    except (AuthenticationError, AuthorizationError):
-                        # Let auth errors propagate - these indicate real problems
-                        raise
-                    except Exception as e:
-                        # Graceful degradation: treat failed fetch as "no relationships"
+                    except NotFoundError as e:
+                        # The record is gone: no relationships. Any other error (rate limit,
+                        # server, auth) fails the query: an empty list would satisfy
+                        # all/none/_count = 0
                         logger.debug(f"Failed to fetch {rel_name} for record {record_id}: {e}")
                         return []
 
@@ -2939,11 +2970,10 @@ class QueryExecutor:
                                 item.model_dump(mode="json", by_alias=True)
                                 for item in response.data
                             ]
-                    except (AuthenticationError, AuthorizationError):
-                        # Let auth errors propagate - these indicate real problems
-                        raise
-                    except Exception as e:
-                        # Graceful degradation: treat failed fetch as "no relationships"
+                    except NotFoundError as e:
+                        # The record is gone: no relationships. Any other error (rate limit,
+                        # server, auth) fails the query: an empty list would satisfy
+                        # all/none/_count = 0
                         logger.debug(f"Failed to fetch {rel_name} for record {record_id}: {e}")
                         return []
 
@@ -3059,16 +3089,14 @@ class QueryExecutor:
         """Resolve a list selector (name or ID) to a list ID."""
         if isinstance(selector, int):
             return selector
-        try:
-            from ..resolve import async_resolve_list_selector
+        from ..resolve import async_resolve_list_selector
 
-            resolved = await async_resolve_list_selector(
-                client=self.client,
-                selector=str(selector),
-            )
-            return int(resolved.list.id)
-        except Exception:
-            return None
+        # An unknown or ambiguous name raises (CLIError): None would drop the list scope
+        resolved = await async_resolve_list_selector(
+            client=self.client,
+            selector=str(selector),
+        )
+        return int(resolved.list.id)
 
     async def _fetch_list_entry_indirect(
         self,
@@ -3161,8 +3189,8 @@ class QueryExecutor:
                                 OpportunityId(entity_id)
                             )
                         )
-                except Exception:
-                    pass  # Return empty list on error
+                except NotFoundError:
+                    pass  # The entity is gone: no associations (other errors fail the query)
 
             return (entry_id, ids)
 
@@ -3232,8 +3260,8 @@ class QueryExecutor:
                                 OpportunityId(entity_id)
                             )
                         )
-                except Exception:
-                    pass  # Return empty list on error
+                except NotFoundError:
+                    pass  # The entity is gone: no associations (other errors fail the query)
 
             return (entry_id, ids)
 
@@ -3308,8 +3336,8 @@ class QueryExecutor:
                                 CompanyId(entity_id)
                             )
                         )
-                except Exception:
-                    pass  # Return empty list on error
+                except NotFoundError:
+                    pass  # The entity is gone: no associations (other errors fail the query)
 
             return (entry_id, ids)
 

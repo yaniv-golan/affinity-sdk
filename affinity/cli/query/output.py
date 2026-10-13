@@ -14,6 +14,8 @@ Supported output formats:
 
 from __future__ import annotations
 
+import csv
+import io
 import json
 import logging
 import re
@@ -973,8 +975,30 @@ def truncate_jsonl_output(content: str, max_bytes: int) -> tuple[str, bool]:
     return "\n".join(kept_lines) + "\n" + truncation_line, True
 
 
+def csv_records(content: str) -> list[str]:
+    """Split CSV text into the raw text of each record (terminator included).
+
+    A quoted field can hold a newline, so records are found with the ``csv`` module, not by
+    splitting lines.
+    """
+    lines = io.StringIO(content, newline="").readlines()
+    reader = csv.reader(lines)
+    records: list[str] = []
+    consumed = 0
+    try:
+        for _row in reader:
+            records.append("".join(lines[consumed : reader.line_num]))
+            consumed = reader.line_num
+    except csv.Error:
+        # Unbalanced quote: keep the rest as one record
+        pass
+    if consumed < len(lines):
+        records.append("".join(lines[consumed:]))
+    return records
+
+
 def truncate_csv_output(content: str, max_bytes: int) -> tuple[str, bool]:
-    """Truncate CSV output, keeping header row.
+    """Truncate CSV output on whole records, keeping the header row.
 
     CSV format cannot include a truncation notice without breaking the format
     (any extra row would be parsed as data). Truncation is signaled only via
@@ -983,40 +1007,46 @@ def truncate_csv_output(content: str, max_bytes: int) -> tuple[str, bool]:
     if len(content.encode()) <= max_bytes:
         return content, False
 
-    lines = content.split("\n")
+    records = csv_records(content)
 
-    # Defensive: handle empty or single-line content
-    if not lines:
+    # Defensive: handle empty or single-record content
+    if not records:
         logger.warning("CSV truncation: empty content")
         return content, True
-    if len(lines) == 1:
+    if len(records) == 1:
         # Only header, no data rows to truncate
         return content[:max_bytes], True
 
     # Defensive: verify header looks like CSV (contains comma)
-    header = lines[0]
+    header = records[0]
     if "," not in header:
         logger.warning("CSV truncation: header doesn't contain comma, may not be valid CSV")
 
-    header_size = len(header.encode()) + 1
+    header_size = len(header.encode())
 
     # Defensive: if header alone exceeds max, truncate header
     if header_size > max_bytes:
         logger.warning("CSV truncation: header exceeds max_bytes, truncating header")
-        return header[:max_bytes], True
+        return header.rstrip("\r\n")[:max_bytes], True
 
     kept_rows = []
     current_size = header_size
-    for line in lines[1:]:
-        if not line:  # Skip empty lines
+    for record in records[1:]:
+        if not record.strip("\r\n"):  # Skip empty lines
             continue
-        line_size = len(line.encode()) + 1
-        if current_size + line_size > max_bytes:
+        record_size = len(record.encode())
+        if current_size + record_size > max_bytes:
             break
-        kept_rows.append(line)
-        current_size += line_size
+        kept_rows.append(record)
+        current_size += record_size
 
-    return "\n".join([header, *kept_rows]), True
+    # Drop the last record's terminator (the caller's echo ends the output)
+    output = "".join([header, *kept_rows])
+    if output.endswith("\r\n"):
+        return output[:-2], True
+    if output.endswith(("\n", "\r")):
+        return output[:-1], True
+    return output, True
 
 
 def truncate_json_result(

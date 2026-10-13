@@ -29,6 +29,7 @@ from affinity.cli.query.models import (
     Query,
     WhereClause,
 )
+from affinity.exceptions import NotFoundError
 
 # =============================================================================
 # Fixtures
@@ -2962,13 +2963,13 @@ class TestExecuteInclude:
 
     @pytest.mark.asyncio
     async def test_include_entity_method_handles_errors(self, mock_client: AsyncMock) -> None:
-        """Test include gracefully handles errors in entity method calls."""
+        """Test include treats a record that is gone (404) as having no related records."""
         persons_service = MagicMock()
         records = [{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}]
         persons_service.all.return_value = create_mock_page_iterator(records)
-        # First call succeeds, second raises error
+        # First call succeeds, second finds the record gone
         persons_service.get_associated_company_ids = AsyncMock(
-            side_effect=[[100], Exception("API Error")]
+            side_effect=[[100], NotFoundError("gone")]
         )
         mock_client.persons = persons_service
 

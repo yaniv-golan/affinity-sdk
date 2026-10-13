@@ -80,6 +80,30 @@ or a CLI exit code; each is marked **Behavior change**.
   process. `FieldValues.get` accepts bare-digit ids (`123`, `"123"`). Person and opportunity
   company ids also read `companyIds` and `current_organization_ids`; `Location` reads
   `streetAddress`; V2 list entries pick the entity model from `type`.
+- **CLI `query`: resuming a cut-off result no longer skips rows.** The resume cursor jumped to
+  the next API page, losing the rest of the current page and every fetched row that didn't fit in
+  `--max-output-bytes`. A cut-off result is now cached and the cursor resumes from it (a query
+  with `include` re-runs and skips the rows already shown). Cursors from earlier versions still
+  resume.
+- **Behavior change. CLI `query`: errors are no longer read as "no data".** A rate-limit, server or
+  auth error while fetching related records (for `include`, relationship filters, or an id lookup)
+  fails the query (exit 1). Before, the record silently had no related records, so `none`, `all`
+  and `_count eq 0` filters could match wrongly. Only a 404 counts as empty.
+- **Behavior change. CLI `query`: `--max-records`.** When filtered matches exceed it, the extra
+  rows are dropped with a warning and `meta.truncated`; with `orderBy` or an aggregate the cut
+  comes after sorting and aggregating, so counts, sums, groups and top-N use every match. Before,
+  they were computed silently on the first 10,000.
+- **Behavior change. CLI `query`: Ctrl+C exits 130**, printing the rows collected so far (exit 0
+  before); with no rows the error type is `interrupted`.
+- **Behavior change. CLI `query`:** a `listName` (or an include's `list:` name) that matches more
+  than one list, or none, is a validation error (exit 2) asking for the list id; before, the last
+  list with that name was used, or the scope was dropped. `min`/`max` over objects or lists is a
+  validation error instead of a crash.
+- CLI `query`: CSV output with `--max-output-bytes` cuts on whole records (a note with a line
+  break could be split) and can be resumed; JSONL resume no longer skips rows whose data contains
+  `"truncated"`.
+- CLI `query`: `groupBy` on object values (such as a location) works; formula fields filter and
+  sort as numbers.
 
 ### Plugins
 
