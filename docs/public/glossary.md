@@ -10,10 +10,10 @@
 
 ## API Generations (V1 vs V2)
 
-- **V1 API**: Legacy Affinity endpoints at `https://api.affinity.co`. Used for writes and some read operations.
-- **V2 API**: Newer Affinity endpoints at `https://api.affinity.co/v2`. Used for most reads with better performance.
+- **V1 API**: Legacy Affinity endpoints at `https://api.affinity.co`. Used for operations V2 doesn't offer, such as company and person create/update and adding to a list.
+- **V2 API**: Newer Affinity endpoints at `https://api.affinity.co/v2`. Used for reads and for most writes V2 offers (notes, reminders, webhooks, field values).
 
-The SDK automatically routes requests to the appropriate API version.
+The SDK routes each operation to V2 where V2 can do the job, and to V1 otherwise. See [API versions & SDK routing](guides/api-versions-and-routing.md).
 
 ## V2 API Version
 
@@ -21,7 +21,7 @@ V2 has dated versions (for example `2024-01-01`). In the Affinity dashboard, you
 
 ## Beta Endpoints
 
-Some V2 endpoints are opt-in and require `enable_beta_endpoints=True` in the SDK. None currently do: company and person merges were beta but became generally available in 2026 and no longer need it.
+Affinity marks some V2 endpoints as beta. The SDK calls them without an opt-in; the [API coverage](reference/api-coverage.md) page marks each one. `enable_beta_endpoints=True` is reserved for a beta endpoint that needs an opt-in; none does.
 
 ## Typed IDs
 
@@ -89,11 +89,11 @@ The SDK raises specific exception types for different error conditions:
 
 - **AffinityError**: Base class for all SDK errors
 - **AuthenticationError**: Invalid or missing API key (401)
-- **PermissionError**: Insufficient permissions for the operation (403)
+- **AuthorizationError**: Insufficient permissions for the operation (403)
 - **NotFoundError**: Requested resource does not exist (404)
 - **RateLimitError**: API rate limit exceeded (429); includes `retry_after` attribute
 - **ValidationError**: Invalid input data or request parameters
-- **BetaEndpointDisabledError**: Beta endpoint used without `enable_beta_endpoints=True`
+- **BetaEndpointDisabledError**: Reserved for a beta endpoint that needs `enable_beta_endpoints=True` (none does)
 - **VersionCompatibilityError**: API version mismatch between client and server
 
 See [Errors & retries](./guides/errors-and-retries.md) for handling strategies.

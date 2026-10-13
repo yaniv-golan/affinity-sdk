@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   writes a config file, or a `.env` file with `--scope project`.
 - Docs: one API-key resolution order across the README, guides, CLI page, MCP README and CLI
   skill (there is no `--api-key` CLI flag; `AFFINITY_API_KEY` wins over `--api-key-file`).
+- Docs: the README coverage table, routing guide, glossary and errors guide describe 2.0's
+  routing (company and person field values, `notes.get`, transcripts, teams, semantic search
+  and connections are V2); `api-versions.md` lists every call that sends a minimum version;
+  beta endpoints need no opt-in.
 
 ### Plugins
 

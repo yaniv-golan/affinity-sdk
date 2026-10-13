@@ -45,7 +45,7 @@ For a detailed comparison, see [Affinity SDK vs. Official MCP](https://yaniv-gol
 
 ## Features
 
-- **Complete API coverage** - Full V1 + V2 support with smart routing
+- **Broad API coverage** - V1 and V2, routed per operation (6 V2 operations still planned)
 - **CLI included** - Scriptable command-line interface for automation
 - **Strong typing** - Full Pydantic V2 models with typed ID classes
 - **No magic numbers** - Comprehensive enums for all API constants
@@ -478,34 +478,31 @@ from affinity.types import (
 
 ## API Coverage
 
-Which Affinity API version offers each feature, and which one the SDK uses. Affinity has been
-adding V2 endpoints through 2026; the SDK still uses V1 where V1 was the only option, and moving
-those to V2 is planned.
+Which Affinity API the SDK uses for each feature. The SDK uses V2 wherever V2 can do the job and
+V1 where it can't. The [API coverage](https://yaniv-golan.github.io/affinity-sdk/latest/reference/api-coverage/)
+page lists every operation and the SDK call that sends it.
 
-| Feature | V2 | V1 | SDK uses |
-|---------|:--:|:--:|:---:|
-| Companies (read) | ✅ | ✅ | V2 |
-| Companies (write) | Fields only (no create/delete) | ✅ | V1 |
-| Persons (read) | ✅ | ✅ | V2 |
-| Persons (write) | Create, delete, fields | ✅ | V1 |
-| Company/person merges | ✅ | ❌ | V2 |
-| Opportunities (read) | ✅ | ✅ | V2 |
-| Opportunities (write) | Update/delete | ✅ | V1 |
-| Lists (read) | ✅ | ✅ | V2 |
-| Lists (write) | Create | ✅ | V1 |
-| List Entries (read) | ✅ | ✅ | V2 |
-| List Entries (write) | Create | ✅ | V1 |
-| Field Values (read) | ✅ | ✅ | V2 |
-| Field Values (write) | ✅ | ✅ | V2 (list entries), V1 (companies/persons) |
-| Notes | ✅ | ✅ | V1 reads; V2 writes |
-| Reminders | ✅ | ✅ | V2 (V1 for type changes, and when V2 refuses a non-owner) |
-| Webhooks | ✅ | ✅ | V2 |
-| Interactions | Read-only | ✅ | V1 |
-| Entity Files | Read-only | ✅ | V1 |
-| Relationship Strengths | ✅ | ✅ | V1 |
+| Feature | SDK uses |
+|---------|:---:|
+| Companies, persons, opportunities (read, search) | V2 |
+| Companies, persons (create, update, delete) | V1 (V2 has no create/update; person create/delete are planned) |
+| Opportunities (create, update, delete) | V1 (V2 update/delete are planned) |
+| Company/person merges | V2 |
+| Lists, list entries (read) | V2 |
+| Lists (create) | V2 (V1 when `owner_id` or `additional_permissions` is set) |
+| List entries (add, delete) | V1 (V2 add is planned) |
+| Field values (read and write, on companies, persons and list entries) | V2 |
+| Fields (create, delete); the `field_values` service | V1 |
+| Notes | V2, except `notes.list()` for one entity (V1) |
+| Reminders | V2 (V1 for type changes, and when V2 refuses a non-owner) |
+| Webhooks | V2 |
+| Interactions | V2 reads by type (emails, meetings, calls, chat messages); V1 `list`/`get` and writes |
+| Entity files | V1 list, get and upload; V2 feed and download URL |
+| Relationship strengths | V1 `relationships.get`; V2 `list_relationships` on companies/persons |
+| Transcripts, teams, users, semantic search, duplicate suggestions, coworker/investor connections | V2 |
 
-V2-only features the SDK does not wrap yet include semantic search, transcripts, duplicate
-suggestions, coworker/investor connections and teams.
+Still planned (Affinity documents them, but the API didn't serve them when tested): V2 person
+create/delete, opportunity update/delete, list-entry create, and transcript delete.
 
 ## Authentication
 
@@ -596,7 +593,7 @@ client = Affinity(
     # Affinity V2 API version (default: your API key's default version)
     # affinity_api_version="2026-09-17",   # or "current"; CLI: --api-version / AFFINITY_API_VERSION
 
-    # Hooks (DX-008)
+    # Hooks
     # on_event=lambda event: print(event.type),
     # on_request=lambda req: print(req.method, req.url),
     # on_response=lambda resp: print(resp.status_code, resp.request.url),
@@ -657,7 +654,7 @@ asyncio.run(main())
 
 Async support mirrors the sync client surface area (including the V1 services like notes and files).
 
-See `docs/public/guides/sync-vs-async.md` for more details.
+See [Sync vs async](https://yaniv-golan.github.io/affinity-sdk/latest/guides/sync-vs-async/) for more details.
 
 If you don't use `async with`, make sure to `await client.close()` (e.g., in a `finally`) to avoid leaking connections.
 
@@ -687,7 +684,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Contributing
 
-Contributions welcome! Please read our contributing guidelines first.
+Contributions welcome! Please read the [contributing guidelines](https://github.com/yaniv-golan/affinity-sdk/blob/main/CONTRIBUTING.md) first.
 
 ## Links
 

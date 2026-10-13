@@ -5,18 +5,23 @@
     - **V2 API**: newer endpoints at `https://api.affinity.co/v2`
     - **V2 API version**: dated versions like `2024-01-01` within V2 (configured in Affinity)
     - **Default API Version**: your Affinity setting that selects the V2 version
-    - **Beta endpoints**: newer V2 endpoints that require opt-in
+    - **Beta endpoints**: V2 endpoints Affinity marks as beta; the SDK calls them without an opt-in
 
-The SDK uses V2 endpoints wherever V2 can do the job, and V1 where it can't.
+The SDK uses V2 endpoints wherever V2 can do the job, and V1 where it can't. This page covers
+which calls go where; dated V2 versions and pinning are in
+[Affinity API versions](api-versions.md), and every operation is listed in
+[API coverage](../reference/api-coverage.md).
 
 ## What this means in practice
 
-- **Reads** (list/get/search) use **V2**, except notes `list`/`get`, interactions per entity,
-  files per entity, field values on companies and persons, and list sizes.
-- **Writes** use **V2** for webhooks, reminders, notes and list create. **V1** remains for
-  writes V2 doesn't offer: company create/update, person create/update/delete, opportunity
-  create/update/delete, adding to a list, interactions, entity files, and field values on
-  companies and persons. (Affinity's V2 spec also documents person create/delete, opportunity
+- **Reads** (list/get/search) use **V2**, except `notes.list()` (one entity's notes),
+  `interactions.list()` / `get()`, files per entity, the `field_values` service, and list sizes.
+  Field values on companies, persons and list entries are read through V2.
+- **Writes** use **V2** for webhooks, reminders, notes, list create, and field values on
+  companies, persons and list entries. **V1** remains for writes V2 doesn't offer: company
+  create/update/delete, person create/update/delete, opportunity create/update/delete, adding
+  to or removing from a list, interactions, entity file uploads, fields, and the `field_values`
+  service. (Affinity's V2 spec also documents person create/delete, opportunity
   rename/delete and adding to a list, but the API didn't serve them when tested, 2026-10-12.)
 
 ### Documented V1 exceptions

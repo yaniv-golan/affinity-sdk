@@ -154,7 +154,7 @@ except MergedEntityError as e:
 
 ## V1→V2 eventual consistency
 
-Some writes still go through the V1 API (company create and update, person create and update, opportunity create, interactions, field values on companies and persons, and the documented exceptions listed in [API versions & SDK routing](api-versions-and-routing.md)), while reads use V2. Due to eventual consistency between the V1 and V2 backends, a `get()` call **immediately after** such a `create()` may return a 404 `NotFoundError` even though the entity was successfully created. Writes that use V2 (notes, reminders, webhooks) don't have this delay before a V2 read.
+Some writes still go through the V1 API (company create and update, person create and update, opportunity create, adding to a list, interactions, the `field_values` service, and the documented exceptions listed in [API versions & SDK routing](api-versions-and-routing.md)), while reads use V2. Due to eventual consistency between the V1 and V2 backends, a `get()` call **immediately after** such a `create()` may return a 404 `NotFoundError` even though the entity was successfully created. Writes that use V2 (notes, reminders, webhooks, field values on companies, persons and list entries) don't have this delay before a V2 read.
 
 This typically resolves within 100-500ms, but under load the delay can be longer.
 

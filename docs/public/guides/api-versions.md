@@ -1,5 +1,9 @@
 # Affinity API versions
 
+This page is about Affinity's dated V2 versions and pinning one. Which calls go to V1 or V2 is
+in [API versions & SDK routing](api-versions-and-routing.md); what changed between SDK 1.x and
+2.0 is in [Migrating to 2.0](migrating-to-2.md).
+
 Affinity versions its **V2** API by date. Three versions exist today:
 
 | Version | Notes |
@@ -17,10 +21,11 @@ reports the version that answered. V1 endpoints are not versioned.
 ## What the SDK and CLI do by default
 
 Nothing changes unless you ask: the SDK sends **no** version header, so your API key's default
-version applies — exactly as before. To find out what that default is:
+version applies — except for the few calls that need a newer version (see
+[Calls that need a newer version](#calls-that-need-a-newer-version)). To find out what that default is:
 
 ```bash
-xaffinity whoami            # "Key default API version: 2024-01-01" (with -v)
+xaffinity -v whoami         # "Key default API version: 2024-01-01"
 xaffinity --json whoami     # data.keyDefaultApiVersion
 xaffinity --json config check-key   # data.keyDefaultApiVersion (best-effort)
 ```
@@ -112,9 +117,17 @@ sends a minimum version for that one request:
 
 Versions that answered such calls are listed in `client.affinity_api_versions_per_operation`
 (a subset of `affinity_api_versions_seen`) and in the CLI's `meta.affinityApiVersionPerOperation`.
-They don't trigger the "more than one version" warning. Today the only such calls are company
-and person field writes; `meta.affinityApiVersionPerOperation` covers the CLI's main client, which
-is the one those commands use.
+They don't trigger the "more than one version" warning. `meta.affinityApiVersionPerOperation`
+covers the CLI's main client.
+
+The calls that send a minimum version today:
+
+| Minimum version | Calls |
+|---|---|
+| `2026-07-15` | webhooks; reminder get and delete; company and person field writes (`update_field_value`, `batch_update_fields`); company notes; company and person relationships; duplicate suggestions; meeting get; the rate-limit endpoint; dropdown-option writes, and dropdown-option reads with status types |
+| `2026-09-17` | reminder update; teams; V2 file feed and download URL; field-value item lists (`list_field_value_items`) |
+
+The [API coverage](../reference/api-coverage.md) page shows the minimum for each operation.
 
 ## Caching
 

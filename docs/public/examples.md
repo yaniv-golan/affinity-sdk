@@ -94,7 +94,7 @@ with Affinity.from_env() as client:
         print(note.created_at, note.type)
 ```
 
-`client.notes.list()` / `get()` (V1 `Note`) are unchanged. Company notes need Affinity API
+`client.notes.get()` returns a V2 `NoteV2`; `client.notes.list()` (one entity's notes, V1) returns `Note`. Company notes need Affinity API
 version 2026-07-15 or newer; Affinity may refuse opportunity notes (`AuthorizationError`).
 
 ## Org-wide activity, merge history and relationships

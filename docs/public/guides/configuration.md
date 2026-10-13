@@ -227,18 +227,20 @@ client = Affinity(
 
 ## Beta endpoints and the Affinity API version
 
-Opt into beta endpoints, and pin the Affinity V2 API version (sent as `X-Affinity-Api-Version`
-on every V2 request; default: your API key's default version):
+Pin the Affinity V2 API version (sent as `X-Affinity-Api-Version` on every V2 request; default:
+your API key's default version):
 
 ```python
 from affinity import Affinity
 
 client = Affinity(
     api_key="your-api-key",
-    enable_beta_endpoints=True,
     affinity_api_version="2026-09-17",
 )
 ```
+
+Beta V2 endpoints need no opt-in: the SDK calls them like any other endpoint.
+`enable_beta_endpoints=True` is reserved for a beta endpoint that needs one; none does.
 
 See also:
 
