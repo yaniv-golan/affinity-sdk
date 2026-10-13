@@ -14,6 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   config file). The server passes no key flag, so a Claude Desktop key still wins over the
   other environment variables and the config file; Python 3.10+ is required.
 - Data-model resource: file examples use placeholder ids.
+- **A key in the project's `.env` works.** Read and write tools ran the CLI without the `.env`,
+  or looked for it in the plugin directory, so a project-scoped key failed auth. The launcher now
+  passes the `.env` path it found (`XAFFINITY_ENV_FILE`) to every CLI call.
+- Every read tool runs the CLI with `--readonly` (execute-read-command, query, the dossier,
+  get-file-url, resources and completions).
+- `get-file-url` is allowed under the Claude Code launcher; its tool list now comes from the
+  server's policy. In read-only mode `execute-write-command` answers "Writes are off" itself.
+- `execute-read-command` no longer offers `config setup-key` (it prompts for the key).
+- Flag aliases such as `-t` satisfy required flags and count as their flag for duplicates.
+- A write `dryRun` no longer asks for confirmation or uses one up, and shows no `--yes`.
+- The `query` tool passes the cursor as one argument.
+- The session cache gets hits on Linux.
+- Data-model resource: truncation reasons and query cursor resume.
 
 ## [2.0.3] - 2026-10-13
 

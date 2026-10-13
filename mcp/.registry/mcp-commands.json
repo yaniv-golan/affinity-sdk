@@ -654,13 +654,9 @@
       "whenToUse": "Show current authenticated user and tenant information.",
       "relatedCommands": ["config check-key"]
     },
-    "config setup-key": {
-      "whenToUse": "Securely configure the Affinity API key. Use when key is not set up.",
-      "relatedCommands": ["config check-key", "whoami"]
-    },
     "config check-key": {
       "whenToUse": "Check if an API key is configured. Useful for troubleshooting authentication issues.",
-      "relatedCommands": ["config setup-key", "whoami"]
+      "relatedCommands": ["whoami"]
     },
     "config path": {
       "whenToUse": "Show the path to the configuration file. Useful for debugging.",

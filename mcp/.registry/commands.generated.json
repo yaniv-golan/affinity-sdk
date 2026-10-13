@@ -965,7 +965,6 @@
       "positionals": [],
       "whenToUse": "Check if an API key is configured. Useful for troubleshooting authentication issues.",
       "relatedCommands": [
-        "config setup-key",
         "whoami"
       ]
     },
@@ -980,40 +979,6 @@
       "whenToUse": "Show the path to the configuration file. Useful for debugging.",
       "relatedCommands": [
         "config check-key"
-      ]
-    },
-    {
-      "name": "config setup-key",
-      "description": "Securely configure your Affinity API key.",
-      "category": "local",
-      "destructive": false,
-      "progressCapable": false,
-      "parameters": {
-        "--force": {
-          "type": "flag",
-          "required": false,
-          "help": "Overwrite existing API key without prompting."
-        },
-        "--scope": {
-          "type": "string",
-          "required": false,
-          "help": "Where to store: 'project' (.env) or 'user' (config.toml). Interactive if omitted.",
-          "choices": [
-            "project",
-            "user"
-          ]
-        },
-        "--validate": {
-          "type": "flag",
-          "required": false,
-          "help": "Test the key against the API after storing (default: validate)."
-        }
-      },
-      "positionals": [],
-      "whenToUse": "Securely configure the Affinity API key. Use when key is not set up.",
-      "relatedCommands": [
-        "config check-key",
-        "whoami"
       ]
     },
     {
@@ -6079,5 +6044,5 @@
       ]
     }
   ],
-  "total": 103
+  "total": 102
 }

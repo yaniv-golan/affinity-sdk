@@ -165,6 +165,11 @@ fi
 #   "xaffinity --readonly <command> --json"           (keychain mode)
 # Export for tool scripts to use when invoking xaffinity
 export XAFFINITY_CLI_PATTERN=$(echo "$check_key_output" | _json -r '.data.pattern')
+# A key in .env: check-key looked at ./.env here, but tools run in the server directory, where
+# a bare --dotenv finds nothing. Pass the absolute path (lib/common.sh adds --dotenv --env-file).
+if [[ "$(echo "$check_key_output" | _json -r '.data.source // empty')" == "dotenv" ]]; then
+    export XAFFINITY_ENV_FILE="${PWD}/.env"
+fi
 # Export CLI version for progress capability checks
 export XAFFINITY_CLI_VERSION="$CLI_VERSION"
 
@@ -176,14 +181,14 @@ if [[ -z "$FRAMEWORK" ]]; then
     exit 1
 fi
 
-# Tool allowlist (read-only vs full access)
-# CLI Gateway tools provide dynamic command discovery and execution
-AFFINITY_MCP_TOOLS_CLI_GATEWAY="discover-commands execute-read-command"
-AFFINITY_MCP_TOOLS_READONLY="get-entity-dossier read-xaffinity-resource query ${AFFINITY_MCP_TOOLS_CLI_GATEWAY}"
-AFFINITY_MCP_TOOLS_ALL="${AFFINITY_MCP_TOOLS_READONLY} execute-write-command"
+# Tool allowlist (read-only vs full access), from the lists in server.d/policy.sh (one source).
+# Read-only mode keeps the write tools that refuse by themselves: their refusal says why, the
+# framework's policy denial doesn't.
+# shellcheck source=server.d/policy.sh
+source "${SCRIPT_DIR}/server.d/policy.sh"
 
 if [[ "${AFFINITY_MCP_READ_ONLY:-}" == "1" ]]; then
-    export MCPBASH_TOOL_ALLOWLIST="${AFFINITY_MCP_TOOLS_READONLY}"
+    export MCPBASH_TOOL_ALLOWLIST="${AFFINITY_MCP_TOOLS_READONLY} ${AFFINITY_MCP_TOOLS_SELF_READONLY}"
 else
     export MCPBASH_TOOL_ALLOWLIST="${AFFINITY_MCP_TOOLS_ALL}"
 fi

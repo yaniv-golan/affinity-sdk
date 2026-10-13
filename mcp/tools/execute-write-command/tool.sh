@@ -96,7 +96,7 @@ fi
 # Writes need a CLI at least as new as this server requires
 xaffinity_require_cli_version || exit 0
 
-# Handle destructive operations with layered confirmation
+# --yes comes only from confirmation (checked before the dry run, which would show it)
 if is_destructive "$command"; then
     # Check if --yes already in argv (user shouldn't provide it directly)
     # Note: ${argv[@]+...} syntax for Bash 3.2 compatibility with empty arrays
@@ -109,7 +109,41 @@ if is_destructive "$command"; then
             --hint 'Remove --yes from argv. Ask the user to confirm this exact action in the conversation; only after they explicitly agree, call again with "confirm": true.'
         exit 0
     fi
+fi
 
+# Check for cancellation before execution
+if mcp_is_cancelled; then
+    mcp_error "cancelled" "Operation cancelled by client"
+    exit 0
+fi
+
+# Build command array safely (built again below once --yes is added)
+# Note: --session-cache is a global option that must come BEFORE the subcommand
+# cmd_tail follows the base arguments (CLI path, API key location: XAFFINITY_CLI_BASE in common.sh).
+# No --readonly: this tool writes.
+_build_cmd() {
+    cmd_tail=()
+    [[ -n "${AFFINITY_SESSION_CACHE:-}" ]] && cmd_tail+=("--session-cache" "${AFFINITY_SESSION_CACHE}")
+    read -ra parts <<< "$command"
+    cmd_tail+=("${parts[@]}")
+    # Note: ${argv[@]+...} syntax for Bash 3.2 compatibility with empty arrays
+    cmd_tail+=(${argv[@]+"${argv[@]}"})
+    cmd_tail+=("--json")
+    cmd_args=("${XAFFINITY_CLI_BASE[@]}" "${cmd_tail[@]}")
+}
+declare -a cmd_tail=() cmd_args=()
+_build_cmd
+
+# Dry run: return what would be executed, before any confirmation (it runs nothing, so it
+# neither asks nor uses up a confirmation; the command is shown without --yes)
+if [[ "$dry_run" == "true" ]]; then
+    mcp_result_success "$(jq_tool -n --args '$ARGS.positional' -- "${cmd_args[@]}" | \
+        jq_tool '{result: null, dryRun: true, command: .}')"
+    exit 0
+fi
+
+# Handle destructive operations with layered confirmation
+if is_destructive "$command"; then
     # Verify command supports --yes flag before we try to append it
     supports_yes=$(jq_tool -r --arg cmd "$command" \
         '.commands[] | select(.name == $cmd) | .parameters["--yes"] // empty' \
@@ -186,27 +220,12 @@ if is_destructive "$command"; then
     fi
 fi
 
-# Build command array safely
-# Note: --session-cache is a global option that must come BEFORE the subcommand
-# Use XAFFINITY_CLI for full path (set by common.sh for Cowork compatibility)
-declare -a cmd_args=("${XAFFINITY_CLI:-xaffinity}")
-[[ -n "${AFFINITY_SESSION_CACHE:-}" ]] && cmd_args+=("--session-cache" "${AFFINITY_SESSION_CACHE}")
-read -ra parts <<< "$command"
-cmd_args+=("${parts[@]}")
-# Note: ${argv[@]+...} syntax for Bash 3.2 compatibility with empty arrays
-cmd_args+=(${argv[@]+"${argv[@]}"})
-cmd_args+=("--json")
+# With --yes, if confirmation added it
+_build_cmd
 
-# Check for cancellation before execution
+# Check for cancellation before execution (a confirmation dialog can take a while)
 if mcp_is_cancelled; then
     mcp_error "cancelled" "Operation cancelled by client"
-    exit 0
-fi
-
-# Dry run: return what would be executed
-if [[ "$dry_run" == "true" ]]; then
-    mcp_result_success "$(jq_tool -n --args '$ARGS.positional' -- "${cmd_args[@]}" | \
-        jq_tool '{result: null, dryRun: true, command: .}')"
     exit 0
 fi
 
@@ -231,7 +250,7 @@ fi
 set +e
 if [[ "$supports_progress" == "true" ]]; then
     # Use progress-aware execution with --stderr-file to capture CLI errors (mcp-bash 0.9.11+)
-    run_xaffinity_with_progress --stderr-file "$stderr_file" "${cmd_args[@]:1}" >"$stdout_file"
+    run_xaffinity_with_progress --stderr-file "$stderr_file" "${cmd_tail[@]}" >"$stdout_file"
     exit_code=$?
 else
     # Standard execution

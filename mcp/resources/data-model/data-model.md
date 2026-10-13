@@ -331,7 +331,7 @@ unambiguous from one call.
 - Never redirect stderr to `/dev/null` — truncation, unknown-option, and filtering warnings all go there.
 - `list export --filter`: when Affinity's search applies the whole filter, no scope flag is needed. When part of it runs locally, pass `--max-results` or `--first-page-only` (`--all` is blocked here); otherwise it exits 2 and `details.local` names the conditions that stay local.
 - For duplicate checks, use `list export --company-id <id>` / `--person-id <id>` instead of `--filter`. Entity-scoped, cheap, unambiguous.
-- Check `meta.truncated` on every JSON response; `meta.truncationReason` names the cause (currently `firstPageOnly`).
+- Check `meta.truncated` on every JSON response; `meta.truncationReason` names the cause (`firstPageOnly`, or `partialFailure` from `field history-bulk`).
 - A plain `company get` / `person get` / `opportunity get` fetches no field values or list entries. `fields: {"requested": false}` or a missing `listEntries` means *not fetched*, not *empty*; `meta.notRequested` lists what was skipped and the flag that fetches it (e.g. `--expand list-entries`, read from `data.listEntries`).
 
 ### Output Format Recommendations
@@ -610,4 +610,4 @@ The `query` tool's `nextCursor` is for **output size truncation**, not record li
 
 - Expire after 1 hour
 - Pass back unchanged - never fabricate or modify (cryptographically validated)
-- Mode-specific: streaming (simple queries) vs full-fetch (orderBy/aggregate)
+- Resume serves the remaining rows from the first run's cached result; queries with `include` re-run and skip the rows already shown

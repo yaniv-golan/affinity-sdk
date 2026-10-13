@@ -92,6 +92,16 @@ def get_cli_commands() -> dict[str, dict]:
     return {cmd["name"]: cmd for cmd in commands}
 
 
+# Commands that must never be exposed, even if listed in mcp-commands.json: the gateway's
+# execute-read-command runs every read and local command, also in read-only mode.
+NEVER_EXPOSED: dict[str, str] = {
+    "config setup-key": (
+        "interactive (reads the key from a hidden prompt) and writes the key to .env or "
+        "config.toml; the user runs it themselves"
+    ),
+}
+
+
 def load_mcp_config(config_path: Path) -> dict[str, dict]:
     """Load MCP commands config (whitelist + metadata).
 
@@ -216,6 +226,16 @@ def generate_registry(config_path: Path, output_path: Path) -> None:
         sys.exit(1)
     except json.JSONDecodeError as e:
         print(f"Error: Invalid JSON in {config_path}: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    denied = sorted(name for name in mcp_config if name in NEVER_EXPOSED)
+    if denied:
+        for name in denied:
+            print(
+                f"Error: {name} is listed in {config_path.name} but must not be exposed: "
+                f"{NEVER_EXPOSED[name]}",
+                file=sys.stderr,
+            )
         sys.exit(1)
 
     # Get all CLI commands

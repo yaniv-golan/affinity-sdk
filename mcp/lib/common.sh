@@ -362,39 +362,30 @@ log_metric() {
     echo "[METRIC] ${metric}=${value}${tags}" >&2
 }
 
-# Build CLI base arguments from XAFFINITY_CLI_PATTERN
-# The pattern from check-key looks like: "xaffinity --dotenv --readonly <command> --json"
-# We extract flags before <command> and after <command>
-build_cli_base_args() {
-    local pattern="${XAFFINITY_CLI_PATTERN:-xaffinity --readonly <command> --json}"
+# ==============================================================================
+# CLI base arguments (API key location)
+# ==============================================================================
+# Every CLI call starts with XAFFINITY_CLI_BASE: the CLI path (XAFFINITY_CLI, a full path for
+# Cowork) plus the flags that let it find the API key. Built once per tool process, here.
+# Tools run with cwd = the server directory (mcp-bash cds there), so a bare --dotenv (the
+# check-key pattern) would look for .env there, not in the user's project, and fail:
+# xaffinity-mcp.sh exports XAFFINITY_ENV_FILE, the absolute path of the project .env that
+# check-key found, and it is passed with --env-file.
+# --readonly is not part of the base: read paths add it, write paths must not.
+XAFFINITY_CLI_BASE=("${XAFFINITY_CLI:-xaffinity}")
+if [[ -n "${XAFFINITY_ENV_FILE:-}" ]]; then
+    XAFFINITY_CLI_BASE+=(--dotenv --env-file "${XAFFINITY_ENV_FILE}")
+fi
 
-    # Extract pre-command flags (everything between "xaffinity" and "<command>")
-    local pre_flags=$(echo "$pattern" | sed -E 's/^xaffinity\s+(.*)--readonly\s+<command>.*$/\1--readonly/' | tr -s ' ')
-
-    # Extract post-command flags (everything after "<command>")
-    local post_flags=$(echo "$pattern" | sed -E 's/.*<command>\s*(.*)$/\1/' | tr -s ' ')
-
-    # Return the pre-flags (we'll append command-specific flags)
-    # Post-flags like --json are typically added per-tool
-    echo "$pre_flags"
-}
-
-# Run xaffinity with correct flags from check-key pattern
+# Run xaffinity with the base arguments (no --readonly)
 # Usage: run_xaffinity <subcommand> [args...]
 # Example: run_xaffinity person ls --query "John"
 # Note: --quiet is a global option, so we detect and move it to the right position
 # One call, no retry: the SDK already retries transient HTTP failures (429/5xx), and a retry
 # wrapper would rerun permanent ones (exit 3 auth, 4 not found) and concatenate their JSON.
 run_xaffinity() {
-    local pattern="${XAFFINITY_CLI_PATTERN:-xaffinity --readonly <command> --json}"
-    local needs_dotenv=false
     local needs_quiet=false
     local session_cache=""
-
-    # Check if pattern includes --dotenv
-    if [[ "$pattern" == *"--dotenv"* ]]; then
-        needs_dotenv=true
-    fi
 
     # Check for global options in arguments and filter them out
     # These must be placed before the subcommand
@@ -417,9 +408,7 @@ run_xaffinity() {
     done
 
     # Build command with global options first
-    # Use XAFFINITY_CLI for full path (set by env.sh for Cowork compatibility)
-    local cmd=("${XAFFINITY_CLI:-xaffinity}")
-    [[ "$needs_dotenv" == "true" ]] && cmd+=(--dotenv)
+    local cmd=("${XAFFINITY_CLI_BASE[@]}")
     [[ "$needs_quiet" == "true" ]] && cmd+=(--quiet)
     [[ -n "$session_cache" ]] && cmd+=(--session-cache "$session_cache")
     # Note: ${arr[@]+...} syntax for Bash 3.2 compatibility with empty arrays
@@ -434,15 +423,9 @@ run_xaffinity() {
 # Logs command execution in debug mode (args are not logged for security)
 # One call, no retry (see run_xaffinity).
 run_xaffinity_readonly() {
-    local pattern="${XAFFINITY_CLI_PATTERN:-xaffinity --readonly <command> --json}"
-    local needs_dotenv=false
     local needs_quiet=false
     local session_cache=""
     local subcommand="${1:-unknown}"
-
-    if [[ "$pattern" == *"--dotenv"* ]]; then
-        needs_dotenv=true
-    fi
 
     # Check for global options in arguments and filter them out
     # These must be placed before the subcommand
@@ -465,10 +448,7 @@ run_xaffinity_readonly() {
     done
 
     # Build command with global options first
-    # Use XAFFINITY_CLI for full path (set by env.sh for Cowork compatibility)
-    local cmd=("${XAFFINITY_CLI:-xaffinity}")
-    [[ "$needs_dotenv" == "true" ]] && cmd+=(--dotenv)
-    cmd+=(--readonly)
+    local cmd=("${XAFFINITY_CLI_BASE[@]}" --readonly)
     [[ "$needs_quiet" == "true" ]] && cmd+=(--quiet)
     [[ -n "$session_cache" ]] && cmd+=(--session-cache "$session_cache")
     # Note: ${arr[@]+...} syntax for Bash 3.2 compatibility with empty arrays
@@ -498,9 +478,10 @@ run_xaffinity_readonly() {
 # 1. Parse CLI JSON progress from stderr (for timeout extension)
 # 2. Forward progress to MCP clients (when MCP_PROGRESS_STREAM is set)
 #
-# Usage: run_xaffinity_with_progress [--stdin] [--stderr-file FILE] <command> [args...]
+# Usage: run_xaffinity_with_progress [--stdin] [--stderr-file FILE] [global options] <command> [args...]
 # Example: run_xaffinity_with_progress person files-upload 12345 --file /path/to/file
-# Example: run_xaffinity_with_progress --stdin --stderr-file /tmp/err query --json
+# Example: run_xaffinity_with_progress --stdin --stderr-file /tmp/err --readonly query --json
+# The base arguments (XAFFINITY_CLI_BASE) are added here; reads pass --readonly themselves.
 #
 # Options:
 #   --stdin         Read input from stdin and pipe to command (for query tool)
@@ -541,19 +522,9 @@ run_xaffinity_with_progress() {
         esac
     done
 
-    local pattern="${XAFFINITY_CLI_PATTERN:-xaffinity --readonly <command> --json}"
-    local needs_dotenv=false
-
-    # Check if pattern includes --dotenv
-    if [[ "$pattern" == *"--dotenv"* ]]; then
-        needs_dotenv=true
-    fi
-
-    # Build command array
-    # Use XAFFINITY_CLI for full path (set by env.sh for Cowork compatibility)
-    local -a cmd=("${XAFFINITY_CLI:-xaffinity}")
-    [[ "$needs_dotenv" == "true" ]] && cmd+=(--dotenv)
-    cmd+=("$@")
+    # Build command array: base arguments (CLI path, API key location), then the caller's
+    # arguments (which carry --readonly for reads)
+    local -a cmd=("${XAFFINITY_CLI_BASE[@]}" "$@")
 
     # ALWAYS use mcp_run_with_progress when available for timeout extension.
     # This enables progressExtendsTimeout even when client doesn't send progressToken.

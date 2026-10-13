@@ -166,15 +166,16 @@ argv=("${new_argv[@]+"${new_argv[@]}"}")
 xaffinity_note_cli_version
 
 # Build command array safely
-# Note: --session-cache is a global option that must come BEFORE the subcommand
-# Use XAFFINITY_CLI for full path (set by common.sh for Cowork compatibility)
-declare -a cmd_args=("${XAFFINITY_CLI:-xaffinity}")
-[[ -n "${AFFINITY_SESSION_CACHE:-}" ]] && cmd_args+=("--session-cache" "${AFFINITY_SESSION_CACHE}")
+# Note: --readonly and --session-cache are global options that must come BEFORE the subcommand
+# cmd_tail follows the base arguments (CLI path, API key location: XAFFINITY_CLI_BASE in common.sh)
+declare -a cmd_tail=("--readonly")
+[[ -n "${AFFINITY_SESSION_CACHE:-}" ]] && cmd_tail+=("--session-cache" "${AFFINITY_SESSION_CACHE}")
 read -ra parts <<< "$command"
-cmd_args+=("${parts[@]}")
+cmd_tail+=("${parts[@]}")
 # Note: ${argv[@]+...} syntax for Bash 3.2 compatibility with empty arrays
-cmd_args+=(${argv[@]+"${argv[@]}"})
-cmd_args+=("--json")
+cmd_tail+=(${argv[@]+"${argv[@]}"})
+cmd_tail+=("--json")
+declare -a cmd_args=("${XAFFINITY_CLI_BASE[@]}" "${cmd_tail[@]}")
 
 # Check for cancellation before execution
 if mcp_is_cancelled; then
@@ -210,7 +211,7 @@ fi
 set +e
 if [[ "$supports_progress" == "true" ]]; then
     # Use progress-aware execution with --stderr-file to capture CLI errors (mcp-bash 0.9.11+)
-    run_xaffinity_with_progress --stderr-file "$stderr_file" "${cmd_args[@]:1}" >"$stdout_file"
+    run_xaffinity_with_progress --stderr-file "$stderr_file" "${cmd_tail[@]}" >"$stdout_file"
     exit_code=$?
 else
     # One call: the SDK retries transient HTTP failures itself; rerunning a permanent failure

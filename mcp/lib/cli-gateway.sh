@@ -346,17 +346,18 @@ validate_argv() {
                 fi
             fi
 
-            # Check for duplicate flags (using string contains for Bash 3.2 compatibility)
-            if [[ " $provided_flags " == *" $flag_name "* ]]; then
+            # Check for duplicate flags (using string contains for Bash 3.2 compatibility).
+            # Tracked by primary name, so an alias and its primary (-t, --type) are one flag.
+            if [[ " $provided_flags " == *" $primary_flag "* ]]; then
                 local allows_multiple
-                allows_multiple=$(printf '%s' "$cmd_schema" | jq_tool -r --arg f "$flag_name" '.parameters[$f].multiple // false')
+                allows_multiple=$(printf '%s' "$cmd_schema" | jq_tool -r --arg f "$primary_flag" '.parameters[$f].multiple // false')
                 if [[ "$allows_multiple" != "true" ]]; then
                     mcp_error "validation_error" "Flag $flag_name cannot be specified multiple times" \
                         --hint "Remove duplicate $flag_name from argv"
                     return 1
                 fi
             fi
-            provided_flags="$provided_flags $flag_name"
+            provided_flags="$provided_flags $primary_flag"
 
         else
             # --- Positional argument ---
@@ -394,7 +395,8 @@ validate_argv() {
         return 1
     fi
 
-    # Check required flags (using string contains for Bash 3.2 compatibility)
+    # Check required flags (using string contains for Bash 3.2 compatibility; provided_flags
+    # holds primary names, so an alias satisfies its flag)
     local required_flags
     required_flags=$(printf '%s' "$cmd_schema" | jq_tool -r '.parameters // {} | to_entries[] | select(.key | startswith("-")) | select(.value.required == true) | .key' 2>/dev/null || printf '')
     for req_flag in $required_flags; do

@@ -77,9 +77,10 @@ calc_dynamic_timeout() {
 
     # Quick dry-run to get estimate (suppress warnings, stderr)
     local dry_output
-    local session_cache_opt=""
-    [[ -n "${AFFINITY_SESSION_CACHE:-}" ]] && session_cache_opt="--session-cache ${AFFINITY_SESSION_CACHE}"
-    dry_output=$("${XAFFINITY_CLI:-xaffinity}" query --file "$query_file" --dry-run --max-records "$max_records" --output json $session_cache_opt 2>/dev/null) || return 1
+    local -a dry_args=("${XAFFINITY_CLI_BASE[@]}" --readonly)
+    [[ -n "${AFFINITY_SESSION_CACHE:-}" ]] && dry_args+=(--session-cache "${AFFINITY_SESSION_CACHE}")
+    dry_args+=(query --file "$query_file" --dry-run --max-records "$max_records" --output json)
+    dry_output=$("${dry_args[@]}" 2>/dev/null) || return 1
 
     # Parse estimatedApiCalls from dry-run output
     local estimated_calls
@@ -142,13 +143,15 @@ fi
 # - --stderr-file captures non-progress stderr for error reporting (mcp-bash 0.9.11+)
 # - --max-output-bytes for all formats (CLI handles truncation, returns exit code 100 if truncated)
 # - --session-cache enables cross-invocation reuse of list/field metadata (must come before subcommand)
+# - Arguments are an array: the cursor comes from the caller and must stay one argument
+declare -a query_args=(--readonly)
+[[ -n "${AFFINITY_SESSION_CACHE:-}" ]] && query_args+=(--session-cache "${AFFINITY_SESSION_CACHE}")
+query_args+=(query --file "$query_file" --max-records "$max_records" --timeout "$timeout_secs" --output "$format")
+[[ "$dry_run" == "true" ]] && query_args+=(--dry-run)
+query_args+=(--max-output-bytes "$max_output_bytes")
+[[ -n "$cursor" ]] && query_args+=("--cursor=$cursor")
 set +e
-run_xaffinity_with_progress --stderr-file "$stderr_file" \
-    $([[ -n "${AFFINITY_SESSION_CACHE:-}" ]] && echo "--session-cache" "${AFFINITY_SESSION_CACHE}") \
-    query --file "$query_file" --max-records "$max_records" --timeout "$timeout_secs" --output "$format" \
-    $([[ "$dry_run" == "true" ]] && echo "--dry-run") \
-    --max-output-bytes "$max_output_bytes" \
-    $([[ -n "$cursor" ]] && echo "--cursor" "$cursor") >"$stdout_file"
+run_xaffinity_with_progress --stderr-file "$stderr_file" "${query_args[@]}" >"$stdout_file"
 exit_code=$?
 set -e
 
