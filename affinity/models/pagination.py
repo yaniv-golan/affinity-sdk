@@ -9,7 +9,7 @@ from __future__ import annotations
 import warnings
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
 from dataclasses import dataclass
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
@@ -159,6 +159,40 @@ class PaginatedResponse(AffinityModel, Generic[T]):
 # Auto-paginating Iterator
 # =============================================================================
 
+# Empty pages in a row that a page iterator follows before it gives up. Generous: sparse
+# ranges (e.g. redacted rows) can legitimately return many empty pages with a next cursor.
+_MAX_EMPTY_PAGES = 1000
+
+
+class _CursorGuard:
+    """Decides when paging can't progress: no next page, a cursor already followed (a loop,
+    or ``None``, which would restart from page 1), or a long run of empty pages."""
+
+    def __init__(self, initial_cursor: str | None) -> None:
+        self._seen: set[str | None] = {initial_cursor}
+        self._empty_run = 0
+
+    def last_page(self, requested: str | None, response: PaginatedResponse[Any]) -> bool:
+        if not response.has_next:
+            return True
+        next_cursor = response.next_cursor
+        if next_cursor is None or next_cursor == requested or next_cursor in self._seen:
+            return True
+        self._seen.add(next_cursor)
+        if response.data:
+            self._empty_run = 0
+            return False
+        self._empty_run += 1
+        if self._empty_run >= _MAX_EMPTY_PAGES:
+            warnings.warn(
+                f"Stopped paging after {_MAX_EMPTY_PAGES} empty pages in a row; the server "
+                "kept returning a next cursor without data",
+                RuntimeWarning,
+                stacklevel=4,
+            )
+            return True
+        return False
+
 
 class PageIterator(Generic[T]):
     """
@@ -179,6 +213,7 @@ class PageIterator(Generic[T]):
         self._current_page: list[T] = []
         self._index = 0
         self._exhausted = False
+        self._guard = _CursorGuard(initial_cursor)
 
     def __iter__(self) -> Iterator[T]:
         return self
@@ -201,20 +236,16 @@ class PageIterator(Generic[T]):
             self._next_cursor = response.next_cursor
             self._index = 0
 
-            # Guard against pagination loops (no cursor progress).
-            if response.has_next and response.next_cursor == requested_url:
+            # Stop at the last page, or when paging can't progress (see _CursorGuard).
+            if self._guard.last_page(requested_url, response):
                 self._exhausted = True
 
             # Empty pages can still legitimately include nextUrl; keep paging
             # until we get data or the cursor is exhausted.
             if not self._current_page:
-                if response.has_next and not self._exhausted:
+                if not self._exhausted:
                     continue
-                self._exhausted = True
                 raise StopIteration
-
-            if not response.has_next:
-                self._exhausted = True
 
     def pages(
         self,
@@ -243,6 +274,7 @@ class PageIterator(Generic[T]):
         """
         page_number = 0
         items_so_far = 0
+        guard = _CursorGuard(self._next_cursor)
 
         while True:
             requested_url = self._next_cursor
@@ -252,20 +284,8 @@ class PageIterator(Generic[T]):
             items_in_page = len(response.data)
             items_so_far += items_in_page
 
-            # Guard against pagination loops
-            if response.has_next and response.next_cursor == requested_url:
-                if response.data:
-                    if on_progress:
-                        on_progress(
-                            PaginationProgress(
-                                page_number=page_number,
-                                items_in_page=items_in_page,
-                                items_so_far=items_so_far,
-                                has_next=False,  # Loop detected, no more pages
-                            )
-                        )
-                    yield response
-                break
+            # Stop at the last page, or when paging can't progress (see _CursorGuard).
+            last = guard.last_page(requested_url, response)
 
             if response.data:
                 if on_progress:
@@ -274,12 +294,12 @@ class PageIterator(Generic[T]):
                             page_number=page_number,
                             items_in_page=items_in_page,
                             items_so_far=items_so_far,
-                            has_next=response.has_next,
+                            has_next=not last,
                         )
                     )
                 yield response
 
-            if not response.has_next:
+            if last:
                 break
 
     def all(self, *, limit: int | None = _DEFAULT_LIMIT) -> list[T]:
@@ -346,6 +366,7 @@ class AsyncPageIterator(Generic[T]):
         self._current_page: list[T] = []
         self._index = 0
         self._exhausted = False
+        self._guard = _CursorGuard(initial_cursor)
 
     def __aiter__(self) -> AsyncIterator[T]:
         return self
@@ -368,20 +389,16 @@ class AsyncPageIterator(Generic[T]):
             self._next_cursor = response.next_cursor
             self._index = 0
 
-            # Guard against pagination loops (no cursor progress).
-            if response.has_next and response.next_cursor == requested_url:
+            # Stop at the last page, or when paging can't progress (see _CursorGuard).
+            if self._guard.last_page(requested_url, response):
                 self._exhausted = True
 
             # Empty pages can still legitimately include nextUrl; keep paging
             # until we get data or the cursor is exhausted.
             if not self._current_page:
-                if response.has_next and not self._exhausted:
+                if not self._exhausted:
                     continue
-                self._exhausted = True
                 raise StopAsyncIteration
-
-            if not response.has_next:
-                self._exhausted = True
 
     async def pages(
         self,
@@ -410,6 +427,7 @@ class AsyncPageIterator(Generic[T]):
         """
         page_number = 0
         items_so_far = 0
+        guard = _CursorGuard(self._next_cursor)
 
         while True:
             requested_url = self._next_cursor
@@ -419,20 +437,8 @@ class AsyncPageIterator(Generic[T]):
             items_in_page = len(response.data)
             items_so_far += items_in_page
 
-            # Guard against pagination loops
-            if response.has_next and response.next_cursor == requested_url:
-                if response.data:
-                    if on_progress:
-                        on_progress(
-                            PaginationProgress(
-                                page_number=page_number,
-                                items_in_page=items_in_page,
-                                items_so_far=items_so_far,
-                                has_next=False,  # Loop detected, no more pages
-                            )
-                        )
-                    yield response
-                break
+            # Stop at the last page, or when paging can't progress (see _CursorGuard).
+            last = guard.last_page(requested_url, response)
 
             if response.data:
                 if on_progress:
@@ -441,12 +447,12 @@ class AsyncPageIterator(Generic[T]):
                             page_number=page_number,
                             items_in_page=items_in_page,
                             items_so_far=items_so_far,
-                            has_next=response.has_next,
+                            has_next=not last,
                         )
                     )
                 yield response
 
-            if not response.has_next:
+            if last:
                 break
 
     async def all(self, *, limit: int | None = _DEFAULT_LIMIT) -> list[T]:

@@ -34,7 +34,7 @@ from ..models.types import (
     ReminderType,
     UserId,
 )
-from ._org_reads import check_cursor_alone, check_limit, page_of
+from ._org_reads import check_cursor_alone, check_limit, empty_page, no_ids, page_of
 from ._v2_filters import v2_body_datetime, v2_filter_datetime
 
 if TYPE_CHECKING:
@@ -375,6 +375,8 @@ class ReminderService:
         if cursor is not None:
             return page_of(Reminder, self._client.get_url(cursor))
         params = reminder_params(**filters, limit=limit, total_count=total_count)
+        if no_ids(ids):
+            return empty_page(Reminder, total_count=total_count)
         return page_of(Reminder, self._client.get("/reminders", params=params or None))
 
     def iter(
@@ -566,6 +568,8 @@ class AsyncReminderService:
         if cursor is not None:
             return page_of(Reminder, await self._client.get_url(cursor))
         params = reminder_params(**filters, limit=limit, total_count=total_count)
+        if no_ids(ids):
+            return empty_page(Reminder, total_count=total_count)
         return page_of(Reminder, await self._client.get("/reminders", params=params or None))
 
     def iter(

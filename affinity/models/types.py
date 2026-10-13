@@ -79,6 +79,8 @@ class FieldId(StrId):
         """Normalize value to 'field-xxx' format at construction time."""
         if isinstance(value, cls):
             return value
+        if isinstance(value, bool):  # an int subclass: would build 'field-True'
+            raise ValueError("FieldId must be an int, digits, or 'field-<digits>'")
         if isinstance(value, int):
             return str.__new__(cls, f"field-{value}")
         if isinstance(value, str):
@@ -229,11 +231,19 @@ def field_id_to_v1_numeric(field_id: AnyFieldId) -> int:
 class OpenIntEnum(IntEnum):
     @classmethod
     def _missing_(cls, value: object) -> OpenIntEnum:
+        # An unknown int (or digit string) becomes an ``UNKNOWN_<n>`` member. A bool or a
+        # fractional float is not an id: int() would truncate it onto another value.
+        # (``ListType(True)`` itself never gets here: stdlib lookup finds 1 first.)
+        if isinstance(value, bool) or (isinstance(value, float) and not value.is_integer()):
+            raise ValueError(f"{value!r} is not a valid {cls.__qualname__}")
         try:
             int_value = int(cast(SupportsInt | str | bytes | bytearray, value))
-        except (TypeError, ValueError) as e:
+        except (TypeError, ValueError, OverflowError) as e:
             raise ValueError(value) from e
 
+        existing = cls._value2member_map_.get(int_value)
+        if existing is not None:  # e.g. "1" -> the real member, never a pseudo-member over it
+            return cast(OpenIntEnum, existing)
         obj = int.__new__(cls, int_value)
         obj._value_ = int_value
         obj._name_ = f"UNKNOWN_{int_value}"
@@ -344,6 +354,8 @@ class FieldValueType(OpenStrEnum):
         #   3 = Number, 4 = Date, 5 = Location,
         #   6 = Text (long text block), 7 = Ranked Dropdown (with colors),
         #   10 = Filterable Text
+        if isinstance(value, bool):  # an int subclass: True would read as 1 (company)
+            raise ValueError(f"{value!r} is not a valid {cls.__qualname__}")
         if isinstance(value, int):
             mapping: dict[int, FieldValueType] = {
                 0: cls.PERSON,

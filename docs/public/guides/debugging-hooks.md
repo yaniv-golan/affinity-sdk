@@ -16,6 +16,9 @@ with Affinity(api_key="your-api-key", on_event=on_event) as client:
     client.companies.list()
 ```
 
+The sync `Affinity` client never awaits a hook: an `async def` hook raises
+`ConfigurationError` when the client is created. Use `AsyncAffinity` for async hooks.
+
 ## Common event types
 
 - Requests: `request_started`, `request_retrying`, `request_succeeded`, `request_failed`

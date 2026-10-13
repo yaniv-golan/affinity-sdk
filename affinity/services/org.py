@@ -15,7 +15,7 @@ from ..models.entities import ListSummary
 from ..models.org import Team, TeamMember, UserAccount, UserStatus
 from ..models.pagination import AsyncPageIterator, PageIterator, PaginatedResponse
 from ..models.types import UserId
-from ._org_reads import check_cursor_alone, check_limit, page_of
+from ._org_reads import check_cursor_alone, check_limit, empty_page, no_ids, page_of
 
 if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
@@ -167,6 +167,8 @@ class TeamService:
             limit=limit,
             total_count=total_count,
         )
+        if no_ids(ids):
+            return empty_page(Team, total_count=total_count)
         return page_of(
             Team,
             self._client.get(
@@ -322,6 +324,8 @@ class AsyncTeamService:
             limit=limit,
             total_count=total_count,
         )
+        if no_ids(ids):
+            return empty_page(Team, total_count=total_count)
         return page_of(
             Team,
             await self._client.get(
@@ -469,6 +473,8 @@ class UserService:
         if cursor is not None:
             return page_of(UserAccount, self._client.get_url(cursor))
         params = user_params(term=term, ids=ids, status=status, limit=limit)
+        if no_ids(ids):
+            return empty_page(UserAccount)
         return page_of(UserAccount, self._client.get("/users", params=params or None))
 
     def iter(
@@ -513,6 +519,8 @@ class AsyncUserService:
         if cursor is not None:
             return page_of(UserAccount, await self._client.get_url(cursor))
         params = user_params(term=term, ids=ids, status=status, limit=limit)
+        if no_ids(ids):
+            return empty_page(UserAccount)
         return page_of(UserAccount, await self._client.get("/users", params=params or None))
 
     def iter(

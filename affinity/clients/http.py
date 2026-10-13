@@ -357,7 +357,8 @@ def _safe_follow_url(
     v1_host, v1_port = _host_port(v1_base)
     host, port = _host_port(absolute)
 
-    if host not in {v1_host, v2_host} or port not in {v1_port, v2_port}:
+    # Exact (host, port) pairs: a V1 host on the V2 port (or the reverse) is not a base.
+    if (host, port) not in {(v1_host, v1_port), (v2_host, v2_port)}:
         raise UnsafeUrlError("Refusing URL with unexpected host", url=absolute)
 
     v2_prefix = (v2_parts.path or "").rstrip("/") + "/"
@@ -1107,6 +1108,15 @@ def _header_value(headers: Sequence[tuple[str, str]], name: str) -> str | None:
 _UNSET: Any = object()
 
 
+def _request_cache_key(cache_key: str, suffix: str, context: Mapping[str, Any]) -> str:
+    """Cache key for a request: a per-operation API version (``min_api_version``) is part of it,
+    so a response for one version is never replayed for a request that sent another."""
+    version = context.get("affinity_api_version", _UNSET)
+    if version is _UNSET:
+        return f"{cache_key}{suffix}"
+    return f"{cache_key}{suffix}|sent={version or 'default'}"
+
+
 def _url_path(url: str) -> str:
     return httpx.URL(url).path
 
@@ -1330,6 +1340,9 @@ class HTTPClient:
                         raise ConfigurationError(
                             "Sync clients require a synchronous `on_event` handler"
                         )
+                except ConfigurationError:
+                    # A misconfigured client, not a hook failure: never swallowed.
+                    raise
                 except Exception:
                     if config.hook_error_policy == "raise":
                         raise
@@ -1664,7 +1677,8 @@ class HTTPClient:
         ) -> SDKResponse:
             cache_key = req.context.get("cache_key")
             if cache_key and self._cache:
-                cached_entry = self._cache.get_entry(f"{cache_key}{self._cache_suffix}")
+                full_key = _request_cache_key(cache_key, self._cache_suffix, req.context)
+                cached_entry = self._cache.get_entry(full_key)
                 if cached_entry is not None:
                     return SDKResponse(
                         status_code=200,
@@ -1684,7 +1698,7 @@ class HTTPClient:
             resp = next(req)
             if cache_key and self._cache and isinstance(resp.json, dict):
                 self._cache.set(
-                    f"{cache_key}{self._cache_suffix}",
+                    _request_cache_key(cache_key, self._cache_suffix, req.context),
                     cast(dict[str, Any], resp.json),
                     req.context.get("cache_ttl"),
                     api_version=_header_value(resp.headers, AFFINITY_API_VERSION_HEADER),
@@ -2416,7 +2430,8 @@ class HTTPClient:
         Returns ``{"data": [...all items...], "pagination": {"nextUrl": None, ...}}``.
         Page 1 goes through the normal (cache-aware) ``get``; when more pages follow, the
         merged result replaces the cached first page so later calls do not refetch.
-        Stops after ``max_pages`` pages as a guard against a server that never ends paging.
+        Raises ``AffinityError`` when ``nextUrl`` is still set after ``max_pages`` pages (a guard
+        against a server that never ends paging) rather than return part of the collection.
         """
         data = self.get(
             path,
@@ -2435,10 +2450,22 @@ class HTTPClient:
             items.extend(page.get("data", []))
             next_url = (page.get("pagination") or {}).get("nextUrl")
             pages += 1
+        if next_url:
+            # Returning (and caching) the pages read so far would pass a cut-off collection
+            # off as the whole one.
+            raise AffinityError(
+                f"GET {path} still had more pages after {max_pages}; stopped without a "
+                "complete result"
+            )
         merged: dict[str, Any] = {"data": items, "pagination": {"nextUrl": None, "prevUrl": None}}
         if cache_key and self._cache:
+            context: Mapping[str, Any] = (
+                self._api_versions.per_operation_context(min_api_version, f"GET {_url_path(path)}")
+                if min_api_version is not None
+                else {}
+            )
             self._cache.set(
-                f"{cache_key}{self._cache_suffix}",
+                _request_cache_key(cache_key, self._cache_suffix, context),
                 merged,
                 cache_ttl,
                 api_version=self._api_versions.last(),
@@ -3239,7 +3266,8 @@ class AsyncHTTPClient:
         ) -> SDKResponse:
             cache_key = req.context.get("cache_key")
             if cache_key and self._cache:
-                cached_entry = self._cache.get_entry(f"{cache_key}{self._cache_suffix}")
+                full_key = _request_cache_key(cache_key, self._cache_suffix, req.context)
+                cached_entry = self._cache.get_entry(full_key)
                 if cached_entry is not None:
                     return SDKResponse(
                         status_code=200,
@@ -3259,7 +3287,7 @@ class AsyncHTTPClient:
             resp = await next(req)
             if cache_key and self._cache and isinstance(resp.json, dict):
                 self._cache.set(
-                    f"{cache_key}{self._cache_suffix}",
+                    _request_cache_key(cache_key, self._cache_suffix, req.context),
                     cast(dict[str, Any], resp.json),
                     req.context.get("cache_ttl"),
                     api_version=_header_value(resp.headers, AFFINITY_API_VERSION_HEADER),
@@ -3990,7 +4018,8 @@ class AsyncHTTPClient:
         Returns ``{"data": [...all items...], "pagination": {"nextUrl": None, ...}}``.
         Page 1 goes through the normal (cache-aware) ``get``; when more pages follow, the
         merged result replaces the cached first page so later calls do not refetch.
-        Stops after ``max_pages`` pages as a guard against a server that never ends paging.
+        Raises ``AffinityError`` when ``nextUrl`` is still set after ``max_pages`` pages (a guard
+        against a server that never ends paging) rather than return part of the collection.
         """
         data = await self.get(
             path,
@@ -4009,10 +4038,22 @@ class AsyncHTTPClient:
             items.extend(page.get("data", []))
             next_url = (page.get("pagination") or {}).get("nextUrl")
             pages += 1
+        if next_url:
+            # Returning (and caching) the pages read so far would pass a cut-off collection
+            # off as the whole one.
+            raise AffinityError(
+                f"GET {path} still had more pages after {max_pages}; stopped without a "
+                "complete result"
+            )
         merged: dict[str, Any] = {"data": items, "pagination": {"nextUrl": None, "prevUrl": None}}
         if cache_key and self._cache:
+            context: Mapping[str, Any] = (
+                self._api_versions.per_operation_context(min_api_version, f"GET {_url_path(path)}")
+                if min_api_version is not None
+                else {}
+            )
             self._cache.set(
-                f"{cache_key}{self._cache_suffix}",
+                _request_cache_key(cache_key, self._cache_suffix, context),
                 merged,
                 cache_ttl,
                 api_version=self._api_versions.last(),

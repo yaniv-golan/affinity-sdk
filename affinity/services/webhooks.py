@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any
 from ..models.pagination import AsyncPageIterator, PageIterator, PaginatedResponse
 from ..models.secondary import Webhook, WebhookCreate, WebhookUpdate
 from ..models.types import WebhookId
-from ._org_reads import check_cursor_alone, check_limit, page_of
+from ._org_reads import check_cursor_alone, check_limit, empty_page, no_ids, page_of
 from ._v2_filters import v2_filter_datetime
 
 if TYPE_CHECKING:
@@ -118,6 +118,8 @@ class WebhookService:
             limit=limit,
             total_count=total_count,
         )
+        if no_ids(ids):
+            return empty_page(Webhook, total_count=total_count)
         return page_of(
             Webhook,
             self._client.get(
@@ -238,6 +240,8 @@ class AsyncWebhookService:
             limit=limit,
             total_count=total_count,
         )
+        if no_ids(ids):
+            return empty_page(Webhook, total_count=total_count)
         return page_of(
             Webhook,
             await self._client.get(

@@ -7,6 +7,7 @@ from typing import Any, TypeVar
 
 from pydantic import BaseModel
 
+from ..exceptions import AffinityError
 from ..models.pagination import PaginatedResponse, PaginationInfoWithTotal
 from ._v2_filters import v2_filter_datetime
 
@@ -24,6 +25,28 @@ def page_of(model: type[T], data: dict[str, Any]) -> PaginatedResponse[T]:
     )
 
 
+def empty_page(model: type[T], *, total_count: bool = False) -> PaginatedResponse[T]:
+    """The page an empty ``ids`` filter returns, without a request (no id matches nothing)."""
+    return page_of(model, {"pagination": {"totalCount": 0}} if total_count else {})
+
+
+def no_ids(ids: Any) -> bool:
+    """True for an explicit empty id sequence (``ids=[]``), as opposed to ``None`` (no filter)."""
+    return ids is not None and len(ids) == 0
+
+
+def merge_task_url(result: dict[str, Any], kind: str) -> str:
+    """The ``taskUrl`` of a merge response; raises when Affinity didn't send one."""
+    task_url = result.get("taskUrl")
+    if not isinstance(task_url, str) or not task_url:
+        raise AffinityError(
+            f"The {kind} merge response has no taskUrl, so its status can't be followed. "
+            "The merge may still have been accepted: check tasks.list_merge_tasks().",
+            response_body=result,
+        )
+    return task_url
+
+
 def page_of_raw(data: dict[str, Any]) -> PaginatedResponse[Any]:
     """A page whose items are kept as the API sent them."""
     return PaginatedResponse[Any](
@@ -37,6 +60,12 @@ def check_cursor_alone(cursor: str | None, *others: Any) -> None:
         raise ValueError(
             "Cannot combine 'cursor' with other parameters; cursor encodes all query context."
         )
+
+
+def check_positive_limit(limit: int | None) -> None:
+    """For endpoints without a documented maximum: ``limit`` must still be at least 1."""
+    if limit is not None and limit < 1:
+        raise ValueError("'limit' must be at least 1")
 
 
 def check_limit(limit: int | None) -> None:

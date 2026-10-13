@@ -395,8 +395,8 @@ def test_list_service_resolve_and_resolve_all_case_insensitive_and_cache() -> No
         assert terms == ["missing", None]
         not_found_again = svc.resolve(name="missing")
         assert not_found_again is None
-        # Cached negative result should also avoid further calls.
-        assert terms == ["missing", None]
+        # A miss is not cached: a list created since then must be found.
+        assert terms == ["missing", None, "missing", None]
 
         # Blank and non-ASCII names skip the prefilter.
         terms.clear()
@@ -1234,9 +1234,9 @@ def test_field_writes_infer_datetime_type_and_serialize_iso() -> None:
     finally:
         http.close()
 
-    assert bodies[0] == {"value": {"type": "datetime", "data": "2024-04-01T15:30:00+00:00"}}
+    assert bodies[0] == {"value": {"type": "datetime", "data": "2024-04-01T15:30:00Z"}}
     assert bodies[1]["updates"] == [
-        {"id": "field-1", "value": {"type": "datetime", "data": "2024-04-01T15:30:00+00:00"}},
+        {"id": "field-1", "value": {"type": "datetime", "data": "2024-04-01T15:30:00Z"}},
         {"id": "field-2", "value": {"type": "number", "data": 3}},
         {"id": "field-3", "value": {"type": "text", "data": "x"}},
     ]
@@ -1264,9 +1264,9 @@ async def test_async_field_writes_infer_datetime_type_and_serialize_iso() -> Non
     finally:
         await http.close()
 
-    assert bodies[0] == {"value": {"type": "datetime", "data": "2024-04-01T15:30:00+00:00"}}
+    assert bodies[0] == {"value": {"type": "datetime", "data": "2024-04-01T15:30:00Z"}}
     assert bodies[1]["updates"] == [
-        {"id": "field-1", "value": {"type": "datetime", "data": "2024-04-01T15:30:00+00:00"}}
+        {"id": "field-1", "value": {"type": "datetime", "data": "2024-04-01T15:30:00Z"}}
     ]
 
 

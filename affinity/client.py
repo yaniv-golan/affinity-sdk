@@ -9,6 +9,7 @@ from __future__ import annotations
 import contextlib
 import importlib
 import importlib.util
+import inspect
 import os
 import pathlib
 import warnings
@@ -21,6 +22,7 @@ from .clients.http import (
     ClientConfig,
     HTTPClient,
 )
+from .exceptions import ConfigurationError
 from .hooks import AnyEventHook, ErrorHook, RequestHook, ResponseHook
 from .models.secondary import WhoAmI
 from .models.types import V1_BASE_URL, V2_BASE_URL
@@ -131,6 +133,20 @@ def _api_key_from_env(
         f"Missing API key: set `{env_var}`, `AFFINITY_API_KEY_FILE`, "
         f"`AFFINITY_API_KEY_COMMAND`, or initialize the client with `api_key=...`."
     )
+
+
+def _reject_async_hooks(**hooks: Any) -> None:
+    """A sync client never awaits a hook: an ``async def`` hook would silently never run."""
+    for name, hook in hooks.items():
+        if hook is None:
+            continue
+        # An ``async def`` function, or an object with ``async def __call__``
+        call = None if inspect.isroutine(hook) or not callable(hook) else type(hook).__call__
+        if inspect.iscoroutinefunction(hook) or inspect.iscoroutinefunction(call):
+            raise ConfigurationError(
+                f"Affinity (sync) requires a synchronous `{name}` hook; "
+                "use AsyncAffinity for async hooks"
+            )
 
 
 class Affinity:
@@ -254,7 +270,13 @@ class Affinity:
             on_event: Event hook called for request/response lifecycle events (DX-008)
             hook_error_policy: What to do if hooks raise ("swallow" or "raise")
             policies: Client policies (e.g., disable writes)
+
+        Raises:
+            ConfigurationError: A hook is an ``async def`` function (use ``AsyncAffinity``).
         """
+        _reject_async_hooks(
+            on_request=on_request, on_response=on_response, on_error=on_error, on_event=on_event
+        )
         config = ClientConfig(
             api_key=api_key,
             v1_base_url=v1_base_url,

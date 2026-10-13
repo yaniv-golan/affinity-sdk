@@ -133,6 +133,9 @@ with Affinity(api_key="your-api-key") as client:
         page = client.companies.list(limit=100, cursor=page.next_cursor)
 ```
 
+`ids=[]` (an empty id list) returns an empty page without calling the API; `ids=None` means no
+id filter. A `limit` below 1 raises `ValueError`.
+
 !!! tip "Use `next_cursor`, not `pagination.next_cursor`"
     Always use the `next_cursor` property on `PaginatedResponse`. This works consistently
     across all services regardless of the underlying API version.

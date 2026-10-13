@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Exception to semantic versioning** (the maintainer's call, as 2.0.2 and 2.0.3): which API key
 the CLI uses changes when a key flag and a key environment variable are both set. The
-`### Changed` entry says how.
+`### Changed` entry says how. Some fixes below also change what a call returns or raises,
+or a CLI exit code; each is marked **Behavior change**.
 
 ### Changed
 
@@ -47,6 +48,38 @@ the CLI uses changes when a key flag and a key environment variable are both set
   the sync/async table list every service; the field-values guide starts with the V2
   company/person/list-entry methods; the plugins page covers all three plugins.
 - Docs and `file-url` help: examples use placeholder ids and names.
+- **Behavior change. SDK: an empty id list returns an empty page.** `list(ids=[])` on companies,
+  persons, opportunities, webhooks, teams, users and reminders used to omit the filter and return
+  the whole collection; it now returns no rows without calling the API. `limit=0` (or less) raises
+  `ValueError` where it used to be dropped silently (companies, persons, opportunities, a
+  company's lists and list entries, saved-view entries).
+- **Behavior change. SDK: field writes.** A `bool` value raises `TypeError` (Affinity has no
+  boolean field type; it was sent as malformed text). Datetimes are sent as whole-second UTC with
+  `Z`, like every other write; a naive datetime is taken as UTC.
+- **Behavior change. SDK: delete results.** A delete whose response has no `success` key (an empty
+  body) returns `True`; only an explicit `"success": false` returns `False`.
+- SDK: `get_all_pages` raises `AffinityError` when it stops at `max_pages` with pages left,
+  instead of returning (and caching) a cut-off result.
+- SDK: company and person merges raise `AffinityError` when the response has no `taskUrl`,
+  instead of returning an empty URL.
+- SDK: the sync client rejects an `async` hook with `ConfigurationError` at construction; under
+  `hook_error_policy="swallow"` it was logged and never ran.
+- SDK: followed pagination URLs must match the exact host and port of the V1 or V2 base URL.
+- SDK: the response cache key includes the per-call API version sent.
+- SDK: `tasks.wait` no longer sleeps past its `timeout`.
+- SDK: `lists.resolve` no longer remembers a name it didn't find, so a list created later is found.
+- SDK: `lists.get_size` is shared by every list service on a client and dropped when an entry is
+  added or removed or an opportunity is created.
+- SDK: page iterators stop when a cursor repeats, when a page says more follow but gives no
+  cursor, or after 1,000 empty pages in a row (with a `RuntimeWarning`), instead of looping.
+- SDK: association paging tolerates `"pagination": null`.
+- SDK filters: `in`, `has_any` and `has_all` compare values the way `=` does, so `score in [5, 6]`
+  matches the number 5.
+- SDK models: `FieldId(True)`, `FieldValueType(True)` and fractional floats for open enums raise
+  `ValueError`; a fractional float no longer replaces a known enum member for the rest of the
+  process. `FieldValues.get` accepts bare-digit ids (`123`, `"123"`). Person and opportunity
+  company ids also read `companyIds` and `current_organization_ids`; `Location` reads
+  `streetAddress`; V2 list entries pick the entity model from `type`.
 
 ### Plugins
 

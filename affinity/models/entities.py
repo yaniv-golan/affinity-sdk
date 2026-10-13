@@ -8,6 +8,7 @@ Opportunities, Lists, and List Entries. Uses V2 terminology throughout.
 from __future__ import annotations
 
 import logging
+import re
 from collections.abc import Mapping, Sequence
 from typing import Any
 
@@ -17,6 +18,7 @@ from pydantic import (
     ConfigDict,
     Field,
     PrivateAttr,
+    ValidationError,
     field_validator,
     model_validator,
 )
@@ -45,6 +47,8 @@ from .types import (
 
 # Use the library logger; affinity/__init__.py installs a NullHandler by default.
 _logger = logging.getLogger("affinity_sdk")
+
+_FIELD_KEY_RE = re.compile(r"^field-(\d+)$")
 
 # =============================================================================
 # Base configuration for all models
@@ -93,7 +97,16 @@ class FieldValues(AffinityModel):
             ...     print(field_data["value"])
         """
         fid = str(field_id)
-        return self.data.get(fid)
+        found = self.data.get(fid)
+        if found is None and not isinstance(field_id, bool):
+            # One id, two spellings: 123 / "123" find "field-123", and the reverse
+            text = fid.strip()
+            match = _FIELD_KEY_RE.match(text)
+            if text.isdigit():
+                found = self.data.get(f"field-{text}")
+            elif match is not None:
+                found = self.data.get(match.group(1))
+        return found
 
     def get_value(self, field_id: str | AnyFieldId) -> Any:
         """
@@ -273,7 +286,9 @@ def _normalize_person_type(value: Any) -> Any:
 class Location(AffinityModel):
     """Geographic location value."""
 
-    street_address: str | None = None
+    street_address: str | None = Field(
+        None, validation_alias=AliasChoices("streetAddress", "street_address")
+    )
     city: str | None = None
     state: str | None = None
     country: str | None = None
@@ -346,13 +361,22 @@ class Person(AffinityModel):
     company_ids: list[CompanyId] = Field(
         default_factory=list,
         alias="organizationIds",
-        validation_alias=AliasChoices("organizationIds", "organization_ids", "company_ids"),
+        validation_alias=AliasChoices(
+            "organizationIds", "organization_ids", "companyIds", "company_ids"
+        ),
     )
     opportunity_ids: list[OpportunityId] = Field(default_factory=list, alias="opportunityIds")
 
     # V1: only returned when `with_current_organizations=true`
     current_company_ids: list[CompanyId] = Field(
-        default_factory=list, alias="currentOrganizationIds"
+        default_factory=list,
+        alias="currentOrganizationIds",
+        validation_alias=AliasChoices(
+            "currentOrganizationIds",
+            "current_organization_ids",
+            "currentCompanyIds",
+            "current_company_ids",
+        ),
     )
 
     # Field values (requested-vs-not-requested preserved)
@@ -546,7 +570,9 @@ class Opportunity(AffinityModel):
     company_ids: list[CompanyId] = Field(
         default_factory=list,
         alias="organizationIds",
-        validation_alias=AliasChoices("organizationIds", "organization_ids", "company_ids"),
+        validation_alias=AliasChoices(
+            "organizationIds", "organization_ids", "companyIds", "company_ids"
+        ),
     )
 
     # Field values (requested-vs-not-requested preserved)
@@ -813,7 +839,36 @@ class ListEntryWithEntity(AffinityModel):
     @model_validator(mode="before")
     @classmethod
     def _preserve_fields_raw_before(cls, value: Any) -> Any:
-        return _preserve_fields_raw(value)
+        value = _preserve_fields_raw(value)
+        return cls._coerce_entity_by_type(value)
+
+    @staticmethod
+    def _coerce_entity_by_type(value: Any) -> Any:
+        """Parse ``entity`` as the model ``type`` names. A minimal opportunity (``{id, name}``)
+        also fits ``Company``, so the union alone can pick the wrong model (as for V1
+        ``ListEntry``, which discriminates on ``entity_type``)."""
+        if not isinstance(value, Mapping):
+            return value
+        entity = value.get("entity")
+        raw_type = value.get("type")
+        if not isinstance(entity, Mapping) or not isinstance(raw_type, str):
+            return value
+        models: dict[str, type[AffinityModel]] = {
+            "person": Person,
+            "company": Company,
+            "organization": Company,
+            "opportunity": Opportunity,
+        }
+        model = models.get(raw_type.lower())
+        if model is None:
+            return value
+        data: dict[str, Any] = dict(value)
+        try:
+            data["entity"] = model.model_validate(entity)
+        except ValidationError as e:
+            _logger.debug("Failed to validate %s entity, using the raw data: %s", raw_type, e)
+            return value
+        return data
 
     @model_validator(mode="after")
     def _mark_fields_not_requested_when_omitted(self) -> ListEntryWithEntity:

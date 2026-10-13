@@ -164,6 +164,8 @@ Affinity's V2 API returns and accepts at most **100 values per multi-value field
   `continent` (`null` allowed). `update_field_value(..., value_type="location")` fills in the
   missing ones (and accepts `street_address`); the CLI takes a JSON object such as
   `{"city": "Paris", "country": "France"}`.
+- Affinity has no boolean field type: the SDK raises `TypeError` for `True`/`False`. Write a
+  text value (e.g. `"Yes"`), a number or a dropdown option instead.
 
 ## Writing dates
 
@@ -172,7 +174,8 @@ back as e.g. `2024-04-01T07:00:00Z` (PDT) or `2024-01-15T08:00:00Z` (PST).
 
 - **SDK:** pass a `datetime.date` or `datetime.datetime` to `update_field_value()` /
   `batch_update_fields()`. A `date` is sent as noon UTC, which falls on the same calendar day in
-  Pacific Time, so it is stored on the date you passed.
+  Pacific Time, so it is stored on the date you passed. A `datetime` is sent in UTC with whole
+  seconds and a `Z` suffix; a naive `datetime` is taken as UTC.
 - **CLI:** `--set <field> 2024-04-01` works the same way; a full date-time is converted to UTC,
   and anything unparseable is rejected before any write.
 - Setting the date a field already holds is a no-op: the CLI compares calendar dates, not exact

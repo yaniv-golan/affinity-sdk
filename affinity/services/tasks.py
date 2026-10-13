@@ -137,13 +137,14 @@ class TaskService:
                 return task
 
             # Check timeout
-            elapsed = time.monotonic() - start_time
-            if elapsed >= timeout:
+            remaining = timeout - (time.monotonic() - start_time)
+            if remaining <= 0:
                 raise AffinityTimeoutError(f"Task did not complete within {timeout}s: {task_url}")
 
-            # Wait with jitter before next poll
+            # Wait with jitter before next poll, never past the deadline (the poll after that
+            # last sleep is the final one)
             jitter = random.uniform(0, current_interval * 0.1)
-            time.sleep(current_interval + jitter)
+            time.sleep(min(current_interval + jitter, remaining))
 
             # Exponential backoff, capped at max
             current_interval = min(current_interval * 1.5, max_poll_interval)
@@ -252,13 +253,14 @@ class AsyncTaskService:
                 return task
 
             # Check timeout
-            elapsed = time.monotonic() - start_time
-            if elapsed >= timeout:
+            remaining = timeout - (time.monotonic() - start_time)
+            if remaining <= 0:
                 raise AffinityTimeoutError(f"Task did not complete within {timeout}s: {task_url}")
 
-            # Wait with jitter before next poll
+            # Wait with jitter before next poll, never past the deadline (the poll after that
+            # last sleep is the final one)
             jitter = random.uniform(0, current_interval * 0.1)
-            await asyncio.sleep(current_interval + jitter)
+            await asyncio.sleep(min(current_interval + jitter, remaining))
 
             # Exponential backoff, capped at max
             current_interval = min(current_interval * 1.5, max_poll_interval)

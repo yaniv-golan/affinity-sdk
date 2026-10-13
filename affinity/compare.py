@@ -171,7 +171,16 @@ def _eq(a: Any, b: Any) -> bool:
                     return sorted(a) == sorted(b)
                 except TypeError:
                     return a == b  # Last resort: order-sensitive equality
-        return b in a
+        return any(_scalar_eq(item, b) for item in a)
+
+    return _scalar_eq(a, b)
+
+
+def _scalar_eq(a: Any, b: Any) -> bool:
+    """Scalar equality as ``eq`` uses it, and ``in`` / ``has_any`` / ``has_all`` per element:
+    direct, then ``"true"``/``"false"`` against a bool, then by string (``5`` matches ``"5"``)."""
+    if a is None or b is None:
+        return a is b
 
     # Try direct comparison first
     if a == b:
@@ -203,7 +212,7 @@ def _neq(a: Any, b: Any) -> bool:
                     return sorted(a) != sorted(b)
                 except TypeError:
                     return a != b
-        return b not in a
+        return not any(_scalar_eq(item, b) for item in a)
 
     # Use _eq for consistency (handles string coercion)
     return not _eq(a, b)
@@ -374,11 +383,12 @@ def _in(a: Any, b: Any) -> bool:
     if not isinstance(b, list):
         return False
 
-    # If a is a list, check if ANY element of a is in b
+    # If a is a list, check if ANY element of a is in b. Elements compare as ``eq`` does,
+    # so ``score in [5, 6]`` (parsed as strings) matches 5 just as ``score = 5`` does.
     if isinstance(a, list):
-        return any(item in b for item in a)
+        return any(_scalar_eq(item, x) for item in a for x in b)
 
-    return a in b
+    return any(_scalar_eq(a, x) for x in b)
 
 
 def _between(a: Any, b: Any) -> bool:
@@ -421,7 +431,7 @@ def _has_any(a: Any, b: Any) -> bool:
         return False
     if not b:  # Empty filter list = no match
         return False
-    return any(elem in a for elem in b)
+    return any(_scalar_eq(item, elem) for elem in b for item in a)
 
 
 def _has_all(a: Any, b: Any) -> bool:
@@ -434,7 +444,7 @@ def _has_all(a: Any, b: Any) -> bool:
         return False
     if not b:  # Empty filter list = no match (avoid vacuous truth)
         return False
-    return all(elem in a for elem in b)
+    return all(any(_scalar_eq(item, elem) for item in a) for elem in b)
 
 
 def _contains_any(a: Any, b: Any) -> bool:

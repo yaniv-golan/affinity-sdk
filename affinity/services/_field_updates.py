@@ -11,6 +11,7 @@ from datetime import date, datetime
 from typing import Any
 
 from ..models.types import FieldId, FieldValueType
+from ._v2_filters import v2_body_datetime
 
 # Company / person field writes (PATCH /v2/{companies,persons}/{id}/fields) are beta on
 # 2024-01-01 and generally available from this version on.
@@ -35,13 +36,20 @@ def _field_value_payload(
     """Build the V2 ``{"type", "data"}`` value for a field write.
 
     Without an explicit ``value_type``: str -> text, int/float -> number, datetime/date ->
-    datetime (ISO 8601), anything else -> text. Multi-value fields (lists) cannot be inferred
-    (a list could be persons, companies or dropdown options); pass ``value_type`` for them.
+    datetime (whole seconds, UTC, ``Z``; a naive datetime is UTC), anything else -> text.
+    A ``bool`` raises ``TypeError``: Affinity has no boolean field type. Multi-value fields
+    (lists) cannot be inferred (a list could be persons, companies or dropdown options); pass
+    ``value_type`` for them.
     Locations are completed to the five keys the API requires.
     """
+    if isinstance(value, bool):  # before int: bool is an int subclass
+        raise TypeError(
+            "Affinity has no boolean field type: write a text value (e.g. 'Yes'), a number or a "
+            "dropdown option instead"
+        )
     if value_type is not None:
         type_str = value_type.value if isinstance(value_type, FieldValueType) else value_type
-    elif isinstance(value, (str, bool)):  # bool before int: bool is an int subclass
+    elif isinstance(value, str):
         type_str = "text"
     elif isinstance(value, (int, float)):
         type_str = "number"
@@ -55,7 +63,7 @@ def _field_value_payload(
     elif type_str == "location-multi" and isinstance(value, (list, tuple)):
         data = [_location_payload(v) if isinstance(v, Mapping) else v for v in value]
     elif isinstance(value, datetime):
-        data = value.isoformat()
+        data = v2_body_datetime(value)
     elif isinstance(value, date):
         # The API keeps the UTC calendar date of a date-time (stored as midnight Pacific of
         # that date); noon UTC is the given date in UTC and in Pacific time alike.

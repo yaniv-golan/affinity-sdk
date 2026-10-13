@@ -10,6 +10,7 @@ import builtins
 import re
 import time
 import warnings
+import weakref
 from collections.abc import (
     AsyncGenerator,
     AsyncIterator,
@@ -96,7 +97,7 @@ from ._field_updates import (
     _check_multi_value_size,
     _field_value_payload,
 )
-from ._org_reads import check_cursor_alone, page_of_raw
+from ._org_reads import check_cursor_alone, check_positive_limit, page_of_raw
 from ._search import SEARCH_INCLUDES, AsyncSearchMixin, SearchMixin
 from ._single_field import FIELD_VALUE_ITEMS_MIN_API_VERSION, items_params
 from .v1_only import _fvc_v2_page, _fvc_v2_params
@@ -108,6 +109,30 @@ if TYPE_CHECKING:
 _LIST_SAVED_VIEWS_CURSOR_RE = re.compile(r"/lists/(?P<list_id>\d+)/saved-views(?:/|$)")
 
 _SIZE_CACHE_TTL = 300  # 5 minutes
+
+# get_size() results per HTTP client, so entry writes made through any service on that client
+# (list entries, opportunities.create) can drop the list's cached size.
+_SIZE_CACHES: weakref.WeakKeyDictionary[Any, dict[int, tuple[float, int]]] = (
+    weakref.WeakKeyDictionary()
+)
+
+
+def _size_cache_for(client: Any) -> dict[int, tuple[float, int]]:
+    try:
+        return _SIZE_CACHES.setdefault(client, {})
+    except TypeError:  # not weak-referenceable: a private cache, as before
+        return {}
+
+
+def invalidate_list_size(client: Any, list_id: int) -> None:
+    """Forget the cached ``get_size`` of a list after a row was added to or removed from it."""
+    try:
+        cache = _SIZE_CACHES.get(client)
+    except TypeError:
+        return
+    if cache:
+        cache.pop(int(list_id), None)
+
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -205,7 +230,8 @@ class ListService:
     def __init__(self, client: HTTPClient):
         self._client = client
         self._resolve_cache: dict[tuple[str, ListType | None], AffinityList | None] = {}
-        self._size_cache: dict[ListId, tuple[float, int]] = {}  # (timestamp, size)
+        # (timestamp, size), shared by every list service on this client
+        self._size_cache: dict[int, tuple[float, int]] = _size_cache_for(client)
         # Fields, dropdown options and refused searches for filtered reads, per list
         self._search_cache = SearchCache()
 
@@ -341,6 +367,10 @@ class ListService:
         """
         Get accurate list size. Uses V1 API, cached for 5 minutes.
 
+        Adding or removing a row through this client (``entries(list_id).add_*`` / ``delete``,
+        ``opportunities.create``) drops the cached size; changes made elsewhere show after the
+        cache expires, or with ``force=True``.
+
         Args:
             list_id: The list ID.
             force: If True, bypass cache and fetch fresh value from API.
@@ -371,8 +401,9 @@ class ListService:
         Notes:
         - Affinity narrows the lists by name first (``term``); the exact comparison is made
           here. If that finds nothing, every list is checked (see `resolve_all()`).
-        - Results are cached in-memory on this service instance. If you call this frequently,
-          reuse the client, or persist the resolved `ListId` in your own configuration.
+        - Matches are cached in-memory on this service instance (a miss is not). If you call
+          this frequently, reuse the client, or persist the resolved `ListId` in your own
+          configuration.
 
         If multiple matches exist, returns the first match in server-provided order.
         """
@@ -382,7 +413,8 @@ class ListService:
 
         matches = self.resolve_all(name=name, list_type=list_type)
         found = matches[0] if matches else None
-        self._resolve_cache[key] = found
+        if found is not None:  # a miss isn't cached: the list may be created later
+            self._resolve_cache[key] = found
         return found
 
     def resolve_all(
@@ -1249,12 +1281,13 @@ class ListEntryService(SearchMixin[ListEntryWithEntity]):
             The saved view's filters are applied server-side.
             Field values are returned in entity.fields_raw as an array.
         """
+        check_positive_limit(limit)
         params: dict[str, Any] = {}
         if field_ids:
             params["fieldIds"] = [str(field_id) for field_id in field_ids]
         if field_types:
             params["fieldTypes"] = [field_type.value for field_type in field_types]
-        if limit:
+        if limit is not None:
             params["limit"] = limit
 
         data = self._client.get(
@@ -1411,6 +1444,7 @@ class ListEntryService(SearchMixin[ListEntryWithEntity]):
                 ) from e
             raise
 
+        invalidate_list_size(self._client, self._list_id)
         return _safe_model_validate(ListEntry, result)
 
     def delete(self, entry_id: ListEntryId) -> bool:
@@ -1423,7 +1457,8 @@ class ListEntryService(SearchMixin[ListEntryWithEntity]):
             f"/lists/{self._list_id}/list-entries/{entry_id}",
             v1=True,
         )
-        return bool(result.get("success", False))
+        invalidate_list_size(self._client, self._list_id)
+        return bool(result.get("success", True))
 
     # =========================================================================
     # Field Value Operations (V2 API)
@@ -1653,7 +1688,8 @@ class AsyncListService:
     def __init__(self, client: AsyncHTTPClient):
         self._client = client
         self._resolve_cache: dict[tuple[str, ListType | None], AffinityList | None] = {}
-        self._size_cache: dict[ListId, tuple[float, int]] = {}  # (timestamp, size)
+        # (timestamp, size), shared by every list service on this client
+        self._size_cache: dict[int, tuple[float, int]] = _size_cache_for(client)
         # Fields, dropdown options and refused searches for filtered reads, per list
         self._search_cache = SearchCache()
 
@@ -1874,6 +1910,10 @@ class AsyncListService:
         """
         Get accurate list size. Uses V1 API, cached for 5 minutes.
 
+        Adding or removing a row through this client (``entries(list_id).add_*`` / ``delete``,
+        ``opportunities.create``) drops the cached size; changes made elsewhere show after the
+        cache expires, or with ``force=True``.
+
         Args:
             list_id: The list ID.
             force: If True, bypass cache and fetch fresh value from API.
@@ -1904,8 +1944,9 @@ class AsyncListService:
         Notes:
         - Affinity narrows the lists by name first (``term``); the exact comparison is made
           here. If that finds nothing, every list is checked (see `resolve_all()`).
-        - Results are cached in-memory on this service instance. If you call this frequently,
-          reuse the client, or persist the resolved `ListId` in your own configuration.
+        - Matches are cached in-memory on this service instance (a miss is not). If you call
+          this frequently, reuse the client, or persist the resolved `ListId` in your own
+          configuration.
 
         If multiple matches exist, returns the first match in server-provided order.
         """
@@ -1915,7 +1956,8 @@ class AsyncListService:
 
         matches = await self.resolve_all(name=name, list_type=list_type)
         found = matches[0] if matches else None
-        self._resolve_cache[key] = found
+        if found is not None:  # a miss isn't cached: the list may be created later
+            self._resolve_cache[key] = found
         return found
 
     async def resolve_all(
@@ -2642,6 +2684,7 @@ class AsyncListEntryService(AsyncSearchMixin[ListEntryWithEntity]):
                 ) from e
             raise
 
+        invalidate_list_size(self._client, self._list_id)
         return _safe_model_validate(ListEntry, result)
 
     async def delete(self, entry_id: ListEntryId) -> bool:
@@ -2654,7 +2697,8 @@ class AsyncListEntryService(AsyncSearchMixin[ListEntryWithEntity]):
             f"/lists/{self._list_id}/list-entries/{entry_id}",
             v1=True,
         )
-        return bool(result.get("success", False))
+        invalidate_list_size(self._client, self._list_id)
+        return bool(result.get("success", True))
 
     # =========================================================================
     # Field Value Operations (V2 API)

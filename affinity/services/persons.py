@@ -59,7 +59,10 @@ from ._field_updates import FIELD_WRITES_MIN_API_VERSION, _batch_update_items
 from ._org_reads import (
     RELATIONSHIPS_MIN_API_VERSION,
     check_cursor_alone,
+    check_positive_limit,
     merge_params,
+    merge_task_url,
+    no_ids,
     note_params,
     page_of,
     relationship_params,
@@ -208,6 +211,9 @@ class PersonService(PersonDiscoveryMixin, SingleFieldMixin, SearchMixin[Person])
                 )
             data = self._client.get_url(cursor)
         else:
+            check_positive_limit(limit)
+            if no_ids(ids):
+                return PaginatedResponse[Person]()
             params: dict[str, Any] = {}
             if ids:
                 params["ids"] = [int(id_) for id_ in ids]
@@ -215,7 +221,7 @@ class PersonService(PersonDiscoveryMixin, SingleFieldMixin, SearchMixin[Person])
                 params["fieldIds"] = [str(field_id) for field_id in field_ids]
             if field_types:
                 params["fieldTypes"] = [field_type.value for field_type in field_types]
-            if limit:
+            if limit is not None:
                 params["limit"] = limit
             data = self._client.get("/persons", params=params or None)
 
@@ -1236,7 +1242,7 @@ class PersonService(PersonDiscoveryMixin, SingleFieldMixin, SearchMixin[Person])
         if self._client.cache:
             self._client.cache.invalidate_prefix("person")
 
-        return bool(result.get("success", False))
+        return bool(result.get("success", True))
 
     # =========================================================================
     # Merge Operations (V2 BETA)
@@ -1259,7 +1265,7 @@ class PersonService(PersonDiscoveryMixin, SingleFieldMixin, SearchMixin[Person])
                 "duplicatePersonId": int(duplicate_id),
             },
         )
-        return str(result.get("taskUrl", ""))
+        return merge_task_url(result, "person")
 
     def get_merge_status(self, task_id: str) -> MergeTask:
         """Check the status of a merge operation."""
@@ -1499,6 +1505,9 @@ class AsyncPersonService(
                 )
             data = await self._client.get_url(cursor)
         else:
+            check_positive_limit(limit)
+            if no_ids(ids):
+                return PaginatedResponse[Person]()
             params: dict[str, Any] = {}
             if ids:
                 params["ids"] = [int(id_) for id_ in ids]
@@ -1506,7 +1515,7 @@ class AsyncPersonService(
                 params["fieldIds"] = [str(field_id) for field_id in field_ids]
             if field_types:
                 params["fieldTypes"] = [field_type.value for field_type in field_types]
-            if limit:
+            if limit is not None:
                 params["limit"] = limit
             data = await self._client.get("/persons", params=params or None)
 
@@ -2579,7 +2588,7 @@ class AsyncPersonService(
         if self._client.cache:
             self._client.cache.invalidate_prefix("person")
 
-        return bool(result.get("success", False))
+        return bool(result.get("success", True))
 
     # =========================================================================
     # Merge Operations (V2 BETA)
@@ -2602,7 +2611,7 @@ class AsyncPersonService(
                 "duplicatePersonId": int(duplicate_id),
             },
         )
-        return str(result.get("taskUrl", ""))
+        return merge_task_url(result, "person")
 
     async def get_merge_status(self, task_id: str) -> MergeTask:
         """Check the status of a merge operation."""

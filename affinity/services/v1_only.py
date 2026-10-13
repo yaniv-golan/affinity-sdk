@@ -803,7 +803,7 @@ class InteractionService:
             params={"type": int(type)},
             v1=True,
         )
-        return bool(result.get("success", False))
+        return bool(result.get("success", True))
 
     def iter(
         self,
@@ -1215,7 +1215,7 @@ class FieldService:
             self._client.cache.invalidate_prefix("person_fields")
             self._client.cache.invalidate_prefix("company_fields")
 
-        return bool(result.get("success", False))
+        return bool(result.get("success", True))
 
     def exists(self, field_id: AnyFieldId) -> bool:
         """
@@ -1367,7 +1367,7 @@ class FieldValueService:
     def delete(self, field_value_id: FieldValueId) -> bool:
         """Delete a field value."""
         result = self._client.delete(f"/field-values/{field_value_id}", v1=True)
-        return bool(result.get("success", False))
+        return bool(result.get("success", True))
 
     def get_for_entity(
         self,
@@ -2949,7 +2949,7 @@ class AsyncInteractionService:
             params={"type": int(type)},
             v1=True,
         )
-        return bool(result.get("success", False))
+        return bool(result.get("success", True))
 
     def iter(
         self,
@@ -3349,7 +3349,7 @@ class AsyncFieldService:
             self._client.cache.invalidate_prefix("person_fields")
             self._client.cache.invalidate_prefix("company_fields")
 
-        return bool(result.get("success", False))
+        return bool(result.get("success", True))
 
     async def exists(self, field_id: AnyFieldId) -> bool:
         """
@@ -3480,7 +3480,7 @@ class AsyncFieldValueService:
 
     async def delete(self, field_value_id: FieldValueId) -> bool:
         result = await self._client.delete(f"/field-values/{field_value_id}", v1=True)
-        return bool(result.get("success", False))
+        return bool(result.get("success", True))
 
     async def get_for_entity(
         self,

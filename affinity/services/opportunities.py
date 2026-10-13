@@ -30,8 +30,14 @@ from ..models.pagination import (
 )
 from ..models.secondary import NoteV2
 from ..models.types import CompanyId, ListId, OpportunityId, PersonId
-from ._org_reads import check_cursor_alone, note_params, page_of
-from .lists import AsyncListEntryService, ListEntryService
+from ._org_reads import (
+    check_cursor_alone,
+    check_positive_limit,
+    no_ids,
+    note_params,
+    page_of,
+)
+from .lists import AsyncListEntryService, ListEntryService, invalidate_list_size
 
 if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
@@ -139,6 +145,9 @@ class OpportunityService:
                 )
             data = self._client.get_url(cursor)
         else:
+            check_positive_limit(limit)
+            if no_ids(ids):
+                return PaginatedResponse[Opportunity]()
             params: dict[str, Any] = {}
             if ids:
                 params["ids"] = [int(id_) for id_ in ids]
@@ -401,6 +410,7 @@ class OpportunityService:
             payload.pop("organization_ids", None)
 
         result = self._client.post("/opportunities", json=payload, v1=True)
+        invalidate_list_size(self._client, data.list_id)
         return Opportunity.model_validate(result)
 
     def update(self, opportunity_id: OpportunityId, data: OpportunityUpdate) -> Opportunity:
@@ -434,7 +444,7 @@ class OpportunityService:
             True if successful
         """
         result = self._client.delete(f"/opportunities/{opportunity_id}", v1=True)
-        return bool(result.get("success", False))
+        return bool(result.get("success", True))
 
     # =========================================================================
     # Association Methods (V1 API)
@@ -514,13 +524,13 @@ class OpportunityService:
 
         # Handle pagination if needed (>100 persons)
         # Note: max_results check is defensive - person_ids was already truncated above
-        pagination = data.get("pagination", {})
+        pagination = data.get("pagination") or {}
         next_url = pagination.get("nextUrl")
         while next_url and (max_results is None or len(people) < max_results):
             data = self._client.get_url(next_url)
             for item in data.get("data", []):
                 people.append(Person.model_validate(item))
-            next_url = data.get("pagination", {}).get("nextUrl")
+            next_url = (data.get("pagination") or {}).get("nextUrl")
 
         if max_results:
             return people[:max_results]
@@ -600,13 +610,13 @@ class OpportunityService:
 
         # Handle pagination if needed (>100 companies)
         # Note: max_results check is defensive - company_ids was already truncated above
-        pagination = data.get("pagination", {})
+        pagination = data.get("pagination") or {}
         next_url = pagination.get("nextUrl")
         while next_url and (max_results is None or len(companies) < max_results):
             data = self._client.get_url(next_url)
             for item in data.get("data", []):
                 companies.append(Company.model_validate(item))
-            next_url = data.get("pagination", {}).get("nextUrl")
+            next_url = (data.get("pagination") or {}).get("nextUrl")
 
         if max_results:
             return companies[:max_results]
@@ -903,6 +913,9 @@ class AsyncOpportunityService:
                 )
             data = await self._client.get_url(cursor)
         else:
+            check_positive_limit(limit)
+            if no_ids(ids):
+                return PaginatedResponse[Opportunity]()
             params: dict[str, Any] = {}
             if ids:
                 params["ids"] = [int(id_) for id_ in ids]
@@ -1227,6 +1240,7 @@ class AsyncOpportunityService:
             payload.pop("organization_ids", None)
 
         result = await self._client.post("/opportunities", json=payload, v1=True)
+        invalidate_list_size(self._client, data.list_id)
         return Opportunity.model_validate(result)
 
     async def update(self, opportunity_id: OpportunityId, data: OpportunityUpdate) -> Opportunity:
@@ -1260,7 +1274,7 @@ class AsyncOpportunityService:
             True if successful
         """
         result = await self._client.delete(f"/opportunities/{opportunity_id}", v1=True)
-        return bool(result.get("success", False))
+        return bool(result.get("success", True))
 
     # =========================================================================
     # Association Methods (V1 API)
@@ -1339,13 +1353,13 @@ class AsyncOpportunityService:
 
         # Handle pagination if needed (>100 persons)
         # Note: max_results check is defensive - person_ids was already truncated above
-        pagination = data.get("pagination", {})
+        pagination = data.get("pagination") or {}
         next_url = pagination.get("nextUrl")
         while next_url and (max_results is None or len(people) < max_results):
             data = await self._client.get_url(next_url)
             for item in data.get("data", []):
                 people.append(Person.model_validate(item))
-            next_url = data.get("pagination", {}).get("nextUrl")
+            next_url = (data.get("pagination") or {}).get("nextUrl")
 
         if max_results:
             return people[:max_results]
@@ -1424,13 +1438,13 @@ class AsyncOpportunityService:
 
         # Handle pagination if needed (>100 companies)
         # Note: max_results check is defensive - company_ids was already truncated above
-        pagination = data.get("pagination", {})
+        pagination = data.get("pagination") or {}
         next_url = pagination.get("nextUrl")
         while next_url and (max_results is None or len(companies) < max_results):
             data = await self._client.get_url(next_url)
             for item in data.get("data", []):
                 companies.append(Company.model_validate(item))
-            next_url = data.get("pagination", {}).get("nextUrl")
+            next_url = (data.get("pagination") or {}).get("nextUrl")
 
         if max_results:
             return companies[:max_results]

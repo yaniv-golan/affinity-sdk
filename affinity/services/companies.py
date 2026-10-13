@@ -60,7 +60,10 @@ from ._org_reads import (
     COMPANY_NOTES_MIN_API_VERSION,
     RELATIONSHIPS_MIN_API_VERSION,
     check_cursor_alone,
+    check_positive_limit,
     merge_params,
+    merge_task_url,
+    no_ids,
     note_params,
     page_of,
     relationship_params,
@@ -149,6 +152,9 @@ class CompanyService(
                 )
             data = self._client.get_url(cursor)
         else:
+            check_positive_limit(limit)
+            if no_ids(ids):
+                return PaginatedResponse[Company]()
             params: dict[str, Any] = {}
             if ids:
                 params["ids"] = [int(id_) for id_ in ids]
@@ -156,7 +162,7 @@ class CompanyService(
                 params["fieldIds"] = [str(field_id) for field_id in field_ids]
             if field_types:
                 params["fieldTypes"] = [field_type.value for field_type in field_types]
-            if limit:
+            if limit is not None:
                 params["limit"] = limit
             data = self._client.get("/companies", params=params or None)
 
@@ -570,13 +576,13 @@ class CompanyService(
 
         # Handle pagination if needed (>100 persons)
         # Note: max_results check is defensive - person_ids was already truncated above
-        pagination = data.get("pagination", {})
+        pagination = data.get("pagination") or {}
         next_url = pagination.get("nextUrl")
         while next_url and (max_results is None or len(people) < max_results):
             data = self._client.get_url(next_url)
             for item in data.get("data", []):
                 people.append(Person.model_validate(item))
-            next_url = data.get("pagination", {}).get("nextUrl")
+            next_url = (data.get("pagination") or {}).get("nextUrl")
 
         if max_results:
             return people[:max_results]
@@ -676,7 +682,8 @@ class CompanyService(
             data = self._client.get_url(cursor)
         else:
             params: dict[str, Any] = {}
-            if limit:
+            check_positive_limit(limit)
+            if limit is not None:
                 params["limit"] = limit
             data = self._client.get(
                 f"/companies/{company_id}/list-entries",
@@ -706,7 +713,8 @@ class CompanyService(
             data = self._client.get_url(cursor)
         else:
             params: dict[str, Any] = {}
-            if limit:
+            check_positive_limit(limit)
+            if limit is not None:
                 params["limit"] = limit
             data = self._client.get(
                 f"/companies/{company_id}/lists",
@@ -1153,7 +1161,7 @@ class CompanyService(
         if self._client.cache:
             self._client.cache.invalidate_prefix("company")
 
-        return bool(result.get("success", False))
+        return bool(result.get("success", True))
 
     # =========================================================================
     # Merge Operations (V2 BETA)
@@ -1176,7 +1184,7 @@ class CompanyService(
                 "duplicateCompanyId": int(duplicate_id),
             },
         )
-        return str(result.get("taskUrl", ""))
+        return merge_task_url(result, "company")
 
     def get_merge_status(self, task_id: str) -> MergeTask:
         """Check the status of a merge operation."""
@@ -1432,6 +1440,9 @@ class AsyncCompanyService(
                 )
             data = await self._client.get_url(cursor)
         else:
+            check_positive_limit(limit)
+            if no_ids(ids):
+                return PaginatedResponse[Company]()
             params: dict[str, Any] = {}
             if ids:
                 params["ids"] = [int(id_) for id_ in ids]
@@ -1439,7 +1450,7 @@ class AsyncCompanyService(
                 params["fieldIds"] = [str(field_id) for field_id in field_ids]
             if field_types:
                 params["fieldTypes"] = [field_type.value for field_type in field_types]
-            if limit:
+            if limit is not None:
                 params["limit"] = limit
             data = await self._client.get("/companies", params=params or None)
 
@@ -1871,7 +1882,8 @@ class AsyncCompanyService(
             data = await self._client.get_url(cursor)
         else:
             params: dict[str, Any] = {}
-            if limit:
+            check_positive_limit(limit)
+            if limit is not None:
                 params["limit"] = limit
             data = await self._client.get(
                 f"/companies/{company_id}/list-entries",
@@ -1901,7 +1913,8 @@ class AsyncCompanyService(
             data = await self._client.get_url(cursor)
         else:
             params: dict[str, Any] = {}
-            if limit:
+            check_positive_limit(limit)
+            if limit is not None:
                 params["limit"] = limit
             data = await self._client.get(
                 f"/companies/{company_id}/lists",
@@ -2253,13 +2266,13 @@ class AsyncCompanyService(
 
         # Handle pagination if needed (>100 persons)
         # Note: max_results check is defensive - person_ids was already truncated above
-        pagination = data.get("pagination", {})
+        pagination = data.get("pagination") or {}
         next_url = pagination.get("nextUrl")
         while next_url and (max_results is None or len(people) < max_results):
             data = await self._client.get_url(next_url)
             for item in data.get("data", []):
                 people.append(Person.model_validate(item))
-            next_url = data.get("pagination", {}).get("nextUrl")
+            next_url = (data.get("pagination") or {}).get("nextUrl")
 
         if max_results:
             return people[:max_results]
@@ -2495,7 +2508,7 @@ class AsyncCompanyService(
         if self._client.cache:
             self._client.cache.invalidate_prefix("company")
 
-        return bool(result.get("success", False))
+        return bool(result.get("success", True))
 
     # =========================================================================
     # Merge Operations (V2 BETA)
@@ -2518,7 +2531,7 @@ class AsyncCompanyService(
                 "duplicateCompanyId": int(duplicate_id),
             },
         )
-        return str(result.get("taskUrl", ""))
+        return merge_task_url(result, "company")
 
     async def get_merge_status(self, task_id: str) -> MergeTask:
         """Check the status of a merge operation."""
