@@ -23,7 +23,7 @@ the right tool — or use both.
 |---|---|
 | **Python SDK** | Strongly-typed client (Pydantic V2, typed IDs, sync + async, auto-pagination, rate-limit handling, caching) |
 | **CLI (`xaffinity`)** | Command-line tool with structured queries, filtering, aggregations, multiple output formats (table, JSON, JSONL, CSV, markdown, TOON), and scripting support |
-| **MCP Server (`xaffinity-mcp`)** | Local stdio MCP server with 7 tools that expose the whole CLI (50+ commands), 8 guided workflow prompts, and read-only/write modes |
+| **MCP Server (`xaffinity-mcp`)** | Local stdio MCP server with 7 tools that expose the whole CLI (100+ commands), 8 guided workflow prompts, and read-only/write modes |
 | **Claude Code Plugins** | Three plugins — SDK skills, CLI skills with hooks, and MCP workflow/query skills — that teach Claude to use Affinity correctly |
 
 ## Comparison
@@ -35,7 +35,7 @@ the right tool — or use both.
 | **Sign-in** | Affinity API key | OAuth (hosted), or an API key |
 | **Plan requirement** | A plan with Affinity API access | Affinity Scale, Advanced or Enterprise |
 | **MCP tools** | 7 lean tools that run any CLI command, kept small to save context | About 75 dedicated tools, plus built-in skills (meeting prep, warm intro, market map, data migration, event setup) |
-| **Reads** | Companies, persons, opportunities, lists, list entries, saved views, field values and history, notes, reminders, interactions, files, relationship strengths, webhooks, rate limits, merge tasks; note and file keyword search, semantic company search | Companies, persons, opportunities, lists, list entries, saved views, fields and field-value history, notes, files, meetings, transcripts, relationship strengths, coworker and investor connections, reminders, users, semantic company search |
+| **Reads** | Companies, persons, opportunities, lists, list entries, saved views, field values and history, notes, reminders, interactions, meetings, transcripts, files, relationship strengths, coworker and investor connections, duplicate suggestions, teams, users, webhooks, rate limits, merge tasks; note and file keyword search, semantic company search | Companies, persons, opportunities, lists, list entries, saved views, fields and field-value history, notes, files, meetings, transcripts, relationship strengths, coworker and investor connections, reminders, users, semantic company search |
 | **Writes** | Create/update/delete entities, field values, list entries, notes, reminders, webhooks, interactions; file upload; merges | Create/update/delete persons, companies, opportunities, notes, reminders; merges; lists, list entries, fields and dropdown options; field-value upserts; interactions; file upload |
 | **Bulk work and export** | CLI and SDK: CSV/JSONL export, scripted bulk updates, structured queries with aggregations | One conversation at a time |
 | **Webhooks** | Yes | No |
@@ -59,7 +59,6 @@ the right tool — or use both.
 
 - You want to work with Affinity **conversationally** in Claude, ChatGPT, Copilot, Notion or Gemini
 - You want an **officially supported**, hosted server with OAuth sign-in and no local install
-- You want transcripts, or relationship and connection lookups in chat
 - You want Affinity's built-in skills (meeting prep, warm intros, market maps)
 
 ## Using them together

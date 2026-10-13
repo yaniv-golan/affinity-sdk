@@ -1,6 +1,6 @@
 # Versioning Policy
 
-This document defines how versions are managed across the affinity-api-x repository.
+This document defines how versions are managed across the affinity-sdk repository.
 
 ## Overview
 
@@ -81,15 +81,16 @@ have valid JSON but does not enforce version sync.
 - Plugin cache invalidation is based on git commit hash, not version number,
   so version bumps are for human traceability, not distribution mechanics
 
-## Since 1.0 (Current State)
+## Current State (2.x)
 
-**The SDK has been at 1.x since 1.0.0**, so the rules above apply: a breaking change to the
-public SDK or CLI means a MAJOR bump, and PATCH releases stay backwards-compatible.
+The SDK and CLI are at 2.x. The rules above are the default: a breaking change to the public
+SDK or CLI means a MAJOR bump.
 
-- An exception (a breaking change shipped in a MINOR) is a deliberate decision, never a default.
-  The CHANGELOG entry must say it is an exception and why, and the release's Highlights must
-  carry a **Breaking:** line with a migration hint. Example: 1.20 removes
-  `get_fields(field_types=)`, which the API never supported.
+- **Exceptions in 2.x:** the maintainer may ship a breaking change in a 2.0.x PATCH instead of a
+  new MAJOR (2.0.1, 2.0.2 and 2.0.3 did). This is the maintainer's decision for each release,
+  never a default. The CHANGELOG entry must open with **Exception to semantic versioning**,
+  say why, and list exactly what changes and how to migrate.
+- MCP and the plugins whose content changed are bumped to the same version in that release.
 - MCP must track CLI minor version for compatibility
 
 ## CLI Changes That Affect MCP
@@ -117,7 +118,7 @@ The release detection workflow compares the current version in version files aga
 1. **After CI passes** on `main`, the release detection workflow runs
 2. It reads the SDK version from `pyproject.toml` and MCP version from `mcp/VERSION`
 3. It checks if release tags exist:
-   - SDK: checks for `v{version}` tag (e.g., `v0.9.2`)
+   - SDK: checks for `v{version}` tag (e.g., `v2.0.3`)
    - MCP: checks for `mcp-v{version}` tag (e.g., `mcp-v1.7.6`)
 4. If no tag exists for the current version, it triggers the release workflow via `workflow_dispatch` API
 

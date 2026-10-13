@@ -33,7 +33,7 @@ The `.mcpb` bundle is self-contained — it includes the MCP Bash Framework and 
 
 | Requirement | How to Install | Verify |
 |-------------|----------------|--------|
-| Python 3.9+ | [python.org](https://python.org) or your package manager | `python --version` |
+| Python 3.10+ | [python.org](https://python.org) or your package manager | `python --version` |
 | xaffinity CLI | `pipx install "affinity-sdk[cli]"` | `xaffinity --version` |
 | Affinity API key | `xaffinity config setup-key` (or let Claude Desktop prompt) | `xaffinity config check-key` |
 
@@ -52,7 +52,7 @@ Manual installation requires additional dependencies:
 | Requirement | How to Install | Verify |
 |-------------|----------------|--------|
 | Bash 3.2+ | Included on macOS/Linux; Windows: use WSL or Git Bash | `bash --version` |
-| Python 3.9+ | [python.org](https://python.org) or your package manager | `python --version` |
+| Python 3.10+ | [python.org](https://python.org) or your package manager | `python --version` |
 | jq or gojq | See [Installing jq/gojq](#installing-jqgojq) below | `jq --version` or `gojq --version` |
 | xaffinity CLI | `pipx install "affinity-sdk[cli]"` | `xaffinity --version` |
 | Affinity API key | `xaffinity config setup-key` | `xaffinity config check-key` |
