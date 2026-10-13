@@ -12,7 +12,12 @@ from typing import Any, Literal, cast
 from rich.console import Console
 from rich.progress import BarColumn, Progress, TaskID, TextColumn, TimeElapsedColumn
 
-from affinity.exceptions import AuthorizationError, ClientSideFilterWarning, NotFoundError
+from affinity.exceptions import (
+    AuthenticationError,
+    AuthorizationError,
+    ClientSideFilterWarning,
+    NotFoundError,
+)
 from affinity.exceptions import ValidationError as SDKValidationError
 from affinity.filters import FilterExpression
 from affinity.filters import parse as parse_filter
@@ -260,6 +265,14 @@ def list_ls(
                         )
 
                 if first_page and not all_pages and max_results is None:
+                    # --type filters each page after it is fetched: an empty first page
+                    # doesn't mean no list of that type exists.
+                    if lt is not None and not rows and page.pagination.next_cursor:
+                        warnings.append(
+                            f"No {ListType(lt).name.lower()} lists on the first page; more "
+                            "may be on later pages. Use --all, --max-results N, or --cursor "
+                            "to read them."
+                        )
                     return CommandOutput(
                         data={"lists": rows},
                         context=cmd_context,
@@ -2550,6 +2563,8 @@ def _fetch_opportunity_associations(
                 )
                 companies = [_company_to_expand_dict(c) for c in fetched_companies]
 
+    except (AuthenticationError, AuthorizationError):
+        raise
     except Exception as e:
         if on_error == "skip":
             warnings.append(f"Skipped expansion for opportunity {int(opportunity_id)}: {e}")
@@ -2618,6 +2633,8 @@ def _fetch_company_associations(
                 )
                 persons = [_person_to_expand_dict(p) for p in fetched_persons]
 
+    except (AuthenticationError, AuthorizationError):
+        raise
     except Exception as e:
         if on_error == "skip":
             warnings.append(f"Skipped expansion for company {int(company_id)}: {e}")
@@ -2699,6 +2716,8 @@ def _fetch_person_associations(
                         }
                     )
 
+    except (AuthenticationError, AuthorizationError):
+        raise
     except Exception as e:
         if on_error == "skip":
             warnings.append(f"Skipped expansion for person {int(person_id)}: {e}")
@@ -2714,6 +2733,8 @@ def _fetch_interaction_dates(
     entity_type: str,
     entity_id: int,
     *,
+    on_error: str,
+    warnings: list[str],
     person_name_cache: dict[int, str] | None = None,
 ) -> dict[str, Any] | None:
     """Fetch interaction date summaries for an entity.
@@ -2722,11 +2743,14 @@ def _fetch_interaction_dates(
         client: Affinity client
         entity_type: "company" or "person" (opportunity not supported)
         entity_id: The entity ID
+        on_error: "raise" re-raises a failed fetch; "skip" records a warning and returns None.
+            Auth errors are always re-raised.
+        warnings: Collects the warning for a skipped fetch.
         person_name_cache: Optional cache for person name resolution.
             Will be mutated to store resolved names.
 
     Returns:
-        Transformed interaction data dict, or None if no data/error.
+        Transformed interaction data dict, or None if no data or the fetch was skipped.
     """
     from affinity.cli.interaction_utils import transform_interaction_data
 
@@ -2758,8 +2782,13 @@ def _fetch_interaction_dates(
         else:
             # Opportunities don't support interaction dates in the same way
             return None
-    except Exception:
-        return None
+    except (AuthenticationError, AuthorizationError):
+        raise
+    except Exception as e:
+        if on_error == "skip":
+            warnings.append(f"Skipped interaction dates for {entity_type} {entity_id}: {e}")
+            return None
+        raise
 
 
 def _fetch_associations(
@@ -2909,6 +2938,8 @@ def _fetch_associations(
                 client=client,
                 entity_type=entity_type,
                 entity_id=entity_id,
+                on_error=on_error,
+                warnings=warnings,
                 person_name_cache=person_name_cache,
             )
 
@@ -2939,6 +2970,8 @@ def _fetch_associations(
 
         return persons, companies, opportunities, interactions, unreplied
 
+    except (AuthenticationError, AuthorizationError):
+        raise
     except Exception as e:
         if on_error == "skip":
             warnings.append(f"Skipped expansion for entity {entity_id}: {e}")
@@ -3024,6 +3057,8 @@ def _fetch_entity_opportunities(
                 if max_results is not None and len(opportunities) >= max_results:
                     break
 
+    except (AuthenticationError, AuthorizationError):
+        raise
     except Exception as e:
         if on_error == "skip":
             warnings.append(f"Error fetching opportunities for {entity_type} {int(entity_id)}: {e}")

@@ -1419,7 +1419,7 @@ def field_history_bulk(
             and (ctx.progress == "always" or sys.stderr.isatty())
         )
 
-        async def _run() -> tuple[list[dict[str, object]], list[str]]:
+        async def _run() -> tuple[list[dict[str, object]], list[str], int, int]:
             from affinity import AsyncAffinity
             from affinity.hooks import ResponseInfo
 
@@ -1486,6 +1486,9 @@ def field_history_bulk(
                             rows.append(payload)
                         succeeded += 1
                         return rows
+                    except (AuthenticationError, AuthorizationError):
+                        # Every other entry would fail the same way: stop, don't warn per entry
+                        raise
                     except Exception as exc:
                         failed += 1
                         async_warnings.append(f"Entry {eid}: {exc}")
@@ -1504,9 +1507,15 @@ def field_history_bulk(
                     work = [(eid, None) for eid in entry_ids]
                     unit = "entries"
                 tasks = [asyncio.create_task(fetch_one(eid, ent)) for eid, ent in work]
-                for task in asyncio.as_completed(tasks):
-                    batch = await task
-                    results.extend(batch)
+                try:
+                    for task in asyncio.as_completed(tasks):
+                        batch = await task
+                        results.extend(batch)
+                except BaseException:
+                    for t in tasks:
+                        t.cancel()
+                    await asyncio.gather(*tasks, return_exceptions=True)
+                    raise
 
                 # Clear progress line
                 if show_progress and work:
@@ -1517,7 +1526,7 @@ def field_history_bulk(
                     async_warnings.append(
                         f"{succeeded} of {len(work)} {unit} succeeded, {failed} failed"
                     )
-                return results, async_warnings
+                return results, async_warnings, failed, len(work)
 
         def _field_wide() -> list[dict[str, object]]:
             on_list = set(entry_ids)
@@ -1613,9 +1622,19 @@ def field_history_bulk(
                     ) from exc
                 warnings.append(f"Field-wide fetch failed ({exc}); fetching per entry instead.")
                 chosen = "entries"
+        partial = False
         if chosen == "entries":
-            all_changes, async_warnings = asyncio.run(_run())
+            all_changes, async_warnings, failed_count, work_count = asyncio.run(_run())
             warnings.extend(async_warnings)
+            if work_count and failed_count == work_count:
+                raise CLIError(
+                    f"All {work_count} history fetches failed; first error: "
+                    f"{async_warnings[0] if async_warnings else 'unknown'}",
+                    error_type="api_error",
+                    exit_code=1,
+                    hint="Retry; the warnings list each failed entry.",
+                )
+            partial = failed_count > 0
             if list_entry_ids is not None and not all_changes and not async_warnings:
                 _refuse_if_global(ctx, warnings, field_id, "--list-entry-ids")
         all_changes.sort(
@@ -1648,6 +1667,9 @@ def field_history_bulk(
             context=cmd_context,
             api_called=True,
             warnings=warnings,
+            # Some entries failed: rows are missing, the warnings say which
+            truncated=True if partial else None,
+            truncation_reason="partialFailure" if partial else None,
         )
 
     run_command(ctx, command="field history-bulk", fn=fn)

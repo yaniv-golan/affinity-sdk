@@ -251,7 +251,7 @@ xaffinity query --file query.json
 - `--file <path>`: Read query from JSON file
 - `--dry-run`: Show execution plan without running (estimated API calls)
 - `--dry-run-verbose`: Detailed plan with step breakdown
-- `--max-records <n>`: Safety limit (default: 10000)
+- `--max-records <n>`: Safety limit (default: 10000). Matches past it are dropped with a warning and `meta.truncated`; with `orderBy` or an aggregate, the cut comes after sorting and aggregating
 - `--timeout <secs>`: Query timeout (default: 300)
 - `--csv` / `--json`: Output format
 - `--include-meta`: include execution metadata; `meta.serverFilter` shows which conditions Affinity's search applied (`pushed`), which ran locally and why (`local`), and whether Affinity sorted (`sort`)
@@ -804,6 +804,9 @@ xaffinity list ls --all --json
 ```
 
 `--query` keeps lists whose name contains the text (case-insensitive; matched by Affinity).
+`--type` filters each page after it is read, so without `--all` or `--max-results` only the
+first page is checked; when that page has none of the type but more pages exist, a warning says
+so.
 
 ### `xaffinity list create`
 
@@ -839,14 +842,14 @@ Options:
 - `--first-page-only`: fetch a single page of results; output includes `meta.truncated=true` and `meta.truncationReason="firstPageOnly"` when there are more pages
 - `--expand <type>` (repeatable): expand associated entities or interaction data
   - `persons`, `companies`, `opportunities`: Expand related entities
-  - `interactions`: Add interaction date summaries (last/next meeting, email dates)
+  - `interactions`: Add interaction date summaries (last/next meeting, email dates). A failed fetch follows `--expand-on-error` (`raise` fails the export; `skip` leaves the summary empty with a warning); auth errors always fail it
 - `--check-unreplied`: Check for unreplied incoming messages (email/chat) for each list entry
 - `--unreplied-types <types>`: Comma-separated types to check: email, chat, all (default: email,chat)
 - `--unreplied-lookback-days <days>`: Lookback period for unreplied message detection (default: 30)
 
 **`--filter` and Affinity's search.** Conditions on list fields that Affinity's search can answer are applied on its side, so only matching entries are downloaded; the whole filter still runs locally on what comes back. When Affinity applies the whole filter, `--all`, `--max-results` and `--first-page-only` are not required (page one is the first page of matches). When part of the filter runs locally, one of them is required, otherwise the command exits with code 2 and the error's `details.local` names the conditions that stay local. The next-page cursor of a filtered export starts with `xsearch1:` and carries the search, so `--cursor` alone resumes it. If Affinity refuses the search (e.g. the API key lacks the "Export data from Lists" permission), the export reads the whole list and filters locally, with a warning. `XAFFINITY_QUERY_SERVER_FILTER=0` turns server filtering off for list entries (`query` on listEntries and `list export`); company and person filters always use it. `--saved-view` also filters on Affinity's side; for one known company or person use `--company-id` / `--person-id`. See [Filtering](../guides/filtering.md#filtering-on-affinitys-side) for which conditions Affinity applies.
 
-**Truncation envelope.** JSON output includes a `meta` object with `truncated` (boolean) and, when `truncated=true`, a `truncationReason` string naming the cause (currently: `firstPageOnly`). Always check this before treating a response as complete.
+**Truncation envelope.** JSON output includes a `meta` object with `truncated` (boolean) and, when `truncated=true`, a `truncationReason` string naming the cause (`firstPageOnly` here; `field history-bulk` uses `partialFailure`). Always check this before treating a response as complete.
 
 ```bash
 xaffinity list export 123 --csv > out.csv
@@ -1318,7 +1321,10 @@ With `--all` on a list of 100 or more entries, the history is read field-wide: o
 entry, 15 at a time. `--strategy field|entries` forces either (a forced `field` read that fails
 is an error; it never falls back to per-entry calls); the dry run shows `fieldKind`, the
 `strategy` and `estimatedApiCalls` (the per-entry worst case). Changes on entries no longer on
-the list are left out (a warning says how many). Rows are sorted by `changedAt`.
+the list are left out (a warning says how many). Rows are sorted by `changedAt`. When some
+per-entry fetches fail, the rest are returned with a warning per failure and
+`meta.truncated=true`, `meta.truncationReason="partialFailure"` (exit 0); when every fetch fails,
+or on an authentication or permission error, the command fails.
 
 **Global fields** (company or person fields, not the list's own): their changes belong to the
 company or person, not to a list entry. The CLI reads them per company/person (one call each)

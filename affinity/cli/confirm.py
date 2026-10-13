@@ -24,13 +24,15 @@ def run_destructive(
 
     The prompt goes to stderr so stdout stays clean. With no answer at all (end of input, e.g. a
     script or an MCP server without a terminal), fail with a usage error (exit 2) in the normal
-    output envelope instead of aborting silently. "n" aborts as before. The API is never called
-    without confirmation. ``why`` completes the refusal: "<command> <why> and needs
-    confirmation".
+    output envelope instead of aborting silently. "n" aborts with exit 1; under ``--json`` it
+    also prints the error envelope (type ``aborted``) so a refusal is not an empty stdout. The
+    API is never called without confirmation. A result of ``{"success": false}`` exits 1 as an
+    ``api_error``; a missing key counts as success. ``why`` completes the refusal: "<command> <why>
+    and needs confirmation".
     """
     if not yes:
         if sys.stdin.isatty():
-            click.confirm(prompt, abort=True, err=True)
+            confirmed = click.confirm(prompt, err=True)
         else:
             # Read the piped answer ourselves: click's prompt treats end of input differently
             # across versions (8.1 returns "", 8.2+ aborts), and end of input must not look
@@ -50,6 +52,30 @@ def run_destructive(
 
                 run_command(ctx, command=command, fn=refuse)
                 return
-            if answer.strip().lower() not in ("y", "yes"):
+            confirmed = answer.strip().lower() in ("y", "yes")
+        if not confirmed:
+            if ctx.output != "json":
                 raise click.Abort
-    run_command(ctx, command=command, fn=fn)
+
+            def declined(_ctx: CLIContext, _warnings: list[str]) -> CommandOutput:
+                raise CLIError(
+                    f"{command} was not confirmed; nothing was changed.",
+                    exit_code=1,
+                    error_type="aborted",
+                )
+
+            run_command(ctx, command=command, fn=declined)
+            return
+
+    def checked(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
+        out = fn(ctx, warnings)
+        # Affinity answers a delete it did not do with {"success": false}; don't exit 0 on it.
+        if isinstance(out.data, dict) and out.data.get("success") is False:
+            raise CLIError(
+                f"Affinity reported that {command} failed; nothing was changed.",
+                exit_code=1,
+                error_type="api_error",
+            )
+        return out
+
+    run_command(ctx, command=command, fn=checked)

@@ -104,6 +104,17 @@ or a CLI exit code; each is marked **Behavior change**.
   `"truncated"`.
 - CLI `query`: `groupBy` on object values (such as a location) works; formula fields filter and
   sort as numbers.
+- **Behavior change. CLI: a delete Affinity reports as failed exits 1** (`api_error`) instead of
+  printing `"success": false` with exit 0.
+- **Behavior change. CLI `field history-bulk`:** exits 1 when every entry fails and 3 on an auth
+  error (both exited 0). Partial failures still exit 0 with warnings and now set
+  `meta.truncated` with `truncationReason: "partialFailure"`.
+- **Behavior change. CLI `list export --expand interactions`:** a failed interaction lookup fails
+  the export under the default `--expand-on-error raise` (it left the dates empty silently), and
+  warns under `skip`. An auth error during any expansion fails the export.
+- CLI: answering "n" to a confirmation under `--json` prints an error envelope (type `aborted`),
+  still exit 1, instead of an empty stdout.
+- CLI `list ls --type`: warns when the first page has no list of that type but more pages exist.
 
 ### Plugins
 
