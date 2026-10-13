@@ -328,7 +328,8 @@ class CLIContext:
                 "  • AFFINITY_API_KEY_FILE (path to a file containing the key)\n"
                 "  • AFFINITY_API_KEY_COMMAND (a command whose stdout is the key)\n"
                 "  • --api-key-file <path> or --api-key-stdin\n"
-                "  • xaffinity config setup-key (saves to system keychain)"
+                "  • xaffinity config setup-key (saves to the config file;\n"
+                "    with --scope project, to .env, read with --dotenv)"
             ),
             exit_code=2,
             error_type="usage_error",

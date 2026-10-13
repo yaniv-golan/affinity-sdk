@@ -12,7 +12,11 @@ The CLI resolves the API key in this order:
    CLI waits up to 30 s for while 1Password asks the user to approve the read)
 3. `AFFINITY_API_KEY_COMMAND` env var (shell command whose stdout is the key — git-credential-helper style; works with `op` / `pass` / `vault` / macOS `security`)
 4. `--api-key-file <path>` or `--api-key-stdin` CLI flags
-5. `xaffinity config setup-key` config file (saved to system keychain on supported platforms)
+5. `api_key` in the user config file (`config.toml`, written by `xaffinity config setup-key --scope user`)
+
+`xaffinity config setup-key --scope project` writes `AFFINITY_API_KEY` to a `.env` file in the current
+directory instead. The CLI reads it only with `--dotenv` (it is then step 1), so commands need
+`xaffinity --dotenv …`.
 
 ## Helping the user set up
 

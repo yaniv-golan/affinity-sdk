@@ -12,14 +12,20 @@ with Affinity(api_key="your-api-key") as client:
 
 ## Resolution chain
 
-The SDK resolves the API key through the following chain (first non-empty value wins):
+The SDK and CLI resolve the API key through the following chain (first non-empty value wins):
 
-1. **Explicit constructor arg** — `Affinity(api_key="…")` or `--api-key` CLI flag
+1. **Explicit constructor arg** — `Affinity(api_key="…")` (SDK only)
 2. **`AFFINITY_API_KEY`** — standard environment variable
 3. **`AFFINITY_API_KEY_FILE`** — path to a file containing the key, or a `.env` file / named pipe with `AFFINITY_API_KEY=` (12-factor / Docker secrets / 1Password)
 4. **`AFFINITY_API_KEY_COMMAND`** — shell command whose stdout is the key (credential-helper)
-5. **`--api-key-file <path>`** or **`--api-key-stdin`** — CLI flags
-6. **`xaffinity config setup-key`** — saved to the system keychain
+5. **`--api-key-file <path>`** or **`--api-key-stdin`** — CLI flags (the CLI has no `--api-key` flag)
+6. **User config file** — `api_key` in `config.toml`, written by `xaffinity config setup-key --scope user`
+   (file mode `0600` on Unix; `xaffinity config path` prints the location). CLI only.
+
+The SDK uses steps 1–4; steps 5–6 are CLI only. With `load_dotenv=True` (SDK) or `--dotenv` (CLI),
+a `.env` file is loaded into the environment before step 2, so its `AFFINITY_API_KEY` counts as
+step 2. That is how a key saved by `xaffinity config setup-key --scope project` (a `.env` in the
+current directory) is used: run commands with `--dotenv`.
 
 Empty string is treated as unset at every step (safe against stale `export AFFINITY_API_KEY=` lines).
 
@@ -87,7 +93,8 @@ window.
 
 On Posix systems, a `UserWarning` is emitted if the file is group- or world-readable
 (mode `0644` or looser). Use `chmod 600` to silence it. The check is a no-op on Windows.
-An empty file or missing path raises `ConfigError`.
+An empty file or missing path raises `ValueError` in the SDK (`Affinity.from_env()`); the CLI
+reports it as a usage error (exit code 2).
 
 ### `AFFINITY_API_KEY_COMMAND` — command-based secrets
 
@@ -109,8 +116,8 @@ export AFFINITY_API_KEY_COMMAND="vault kv get -field=api_key secret/affinity"
 ```
 
 The default timeout is 30 seconds; override with `AFFINITY_API_KEY_COMMAND_TIMEOUT=<seconds>`.
-A non-zero exit code, empty stdout, or timeout raises `ConfigError` (stderr is included in the
-error message, capped at 500 chars).
+A non-zero exit code, empty stdout, or timeout raises `ValueError` in the SDK, or a usage error
+(exit code 2) in the CLI. stderr is included in the error message, capped at 500 chars.
 
 For defensive "no writes" usage (scripts, audits), disable writes via policy:
 

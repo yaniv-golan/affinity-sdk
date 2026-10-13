@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The missing-API-key error no longer says `config setup-key` saves to the system keychain: it
+  writes a config file, or a `.env` file with `--scope project`.
+- Docs: one API-key resolution order across the README, guides, CLI page, MCP README and CLI
+  skill (there is no `--api-key` CLI flag; `AFFINITY_API_KEY` wins over `--api-key-file`).
+
+### Plugins
+
+- **CLI plugin**: 2.0.2 → 2.0.3 — skill: the API-key resolution order and where
+  `config setup-key` stores the key.
+
 ## [2.0.3] - 2026-10-13
 
 **Exception to semantic versioning** (the maintainer's call, as 2.0.2): some results change

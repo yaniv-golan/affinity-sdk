@@ -509,14 +509,20 @@ suggestions, coworker/investor connections and teams.
 
 ## Authentication
 
-The SDK resolves the API key through the following chain (first non-empty value wins):
+The SDK and CLI resolve the API key through the following chain (first non-empty value wins):
 
-1. **Explicit constructor arg** — `Affinity(api_key="…")` or `--api-key` CLI flag
+1. **Explicit constructor arg** — `Affinity(api_key="…")` (SDK only)
 2. **`AFFINITY_API_KEY`** — standard environment variable
 3. **`AFFINITY_API_KEY_FILE`** — path to a file containing the key (12-factor / Docker secrets convention)
 4. **`AFFINITY_API_KEY_COMMAND`** — shell command whose stdout is the key (credential-helper convention)
-5. **`--api-key-file <path>`** or **`--api-key-stdin`** — CLI flags
-6. **`xaffinity config setup-key`** — saved to the system keychain
+5. **`--api-key-file <path>`** or **`--api-key-stdin`** — CLI flags (the CLI has no `--api-key` flag)
+6. **User config file** — `api_key` in `config.toml`, written by `xaffinity config setup-key --scope user`
+   (file mode `0600` on Unix; `xaffinity config path` prints the location). CLI only.
+
+The SDK uses steps 1–4; steps 5–6 are CLI only. With `load_dotenv=True` (SDK) or `--dotenv` (CLI),
+a `.env` file is loaded into the environment before step 2, so its `AFFINITY_API_KEY` counts as
+step 2. That is how a key saved by `xaffinity config setup-key --scope project` (a `.env` in the
+current directory) is used: run commands with `--dotenv`.
 
 Empty string is treated as unset at every step (safe against stale `export AFFINITY_API_KEY=` lines).
 
