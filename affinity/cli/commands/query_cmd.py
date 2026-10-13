@@ -11,8 +11,9 @@ import sys
 from pathlib import Path
 from typing import Any, cast
 
+from ...exceptions import AffinityError
 from ..click_compat import RichCommand, click
-from ..context import CLIContext
+from ..context import CLIContext, normalize_exception
 from ..decorators import category, progress_capable
 from ..errors import CLIError
 from ..options import csv_output_options, csv_suboption_callback
@@ -530,6 +531,9 @@ def _query_cmd_impl(
                     f"Query interrupted: {e}", error_type="interrupted", exit_code=EXIT_INTERRUPTED
                 ) from None
         except QueryExecutionError as e:
+            # An Affinity error keeps its exit code (3 auth, 4 not found, 5 rate limit or server)
+            if isinstance(e.cause, AffinityError):
+                raise normalize_exception(e.cause) from None
             raise CLIError(f"Query execution failed: {e}") from None
 
     # Apply cursor skip position if resuming

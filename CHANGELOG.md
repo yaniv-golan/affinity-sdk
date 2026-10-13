@@ -87,7 +87,7 @@ or a CLI exit code; each is marked **Behavior change**.
   resume.
 - **Behavior change. CLI `query`: errors are no longer read as "no data".** A rate-limit, server or
   auth error while fetching related records (for `include`, relationship filters, or an id lookup)
-  fails the query (exit 1). Before, the record silently had no related records, so `none`, `all`
+  fails the query. Before, the record silently had no related records, so `none`, `all`
   and `_count eq 0` filters could match wrongly. Only a 404 counts as empty.
 - **Behavior change. CLI `query`: `--max-records`.** When filtered matches exceed it, the extra
   rows are dropped with a warning and `meta.truncated`; with `orderBy` or an aggregate the cut
@@ -99,6 +99,9 @@ or a CLI exit code; each is marked **Behavior change**.
   than one list, or none, is a validation error (exit 2) asking for the list id; before, the last
   list with that name was used, or the scope was dropped. `min`/`max` over objects or lists is a
   validation error instead of a crash.
+- CLI `query`: an Affinity error exits with the CLI's documented code (3 auth, 4 not found, 5
+  rate limit or server error) and its usual error envelope, instead of exit 1 with "Query
+  execution failed".
 - CLI `query`: CSV output with `--max-output-bytes` cuts on whole records (a note with a line
   break could be split) and can be resumed; JSONL resume no longer skips rows whose data contains
   `"truncated"`.

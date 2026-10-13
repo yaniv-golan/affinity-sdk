@@ -742,3 +742,40 @@ def test_cursor_payload_round_trip_unchanged() -> None:
     raw = json.loads(base64.urlsafe_b64decode(encode_cursor(cursor)))
     assert raw["mode"] == "streaming" and "apiCursor" not in raw
     assert decode_cursor(encode_cursor(cursor)).skip == 3
+
+
+# --- An Affinity error keeps the CLI's documented exit code -----------------------------------
+
+
+@pytest.mark.parametrize(("status", "exit_code"), [(401, 3), (429, 5), (500, 5)])
+def test_query_api_error_keeps_documented_exit_code(status: int, exit_code: int) -> None:
+    whoami = {
+        "tenant": {"id": 1, "name": "Acme Corp", "subdomain": "acme"},
+        "user": {
+            "id": 1,
+            "firstName": "Jane",
+            "lastName": "Doe",
+            "emailAddress": "jane@example.com",
+        },
+        "grant": {"type": "api-key", "scope": "all", "createdAt": "2024-01-01T00:00:00Z"},
+    }
+    with respx.mock(assert_all_called=False) as mock:
+        mock.get("https://api.affinity.co/v2/auth/whoami").mock(
+            return_value=Response(200, json=whoami)
+        )
+        mock.route(host="api.affinity.co").mock(
+            return_value=Response(status, json={"errors": [{"code": "x", "message": "boom"}]})
+        )
+        result = CliRunner().invoke(
+            cli,
+            [
+                "--json",
+                "--max-retries",
+                "0",
+                "query",
+                "--query",
+                json.dumps({"$version": "1.0", "from": "persons", "limit": 5}),
+            ],
+            env={"AFFINITY_API_KEY": "test-key"},
+        )
+    assert result.exit_code == exit_code, result.output
