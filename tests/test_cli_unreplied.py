@@ -9,6 +9,8 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock
 
+import pytest
+
 from affinity.cli.interaction_utils import (
     UNREPLIED_CSV_COLUMNS,
     check_unreplied,
@@ -393,10 +395,12 @@ class TestCheckUnreplied:
 
         assert result is None
 
-    def test_handles_api_error_gracefully(self) -> None:
-        """Should return None and log warning on API error."""
+    def test_gone_entity_reads_as_nothing_unreplied(self) -> None:
+        """Should return None when the entity is gone."""
+        from affinity.exceptions import NotFoundError
+
         mock_client = MagicMock()
-        mock_client.interactions.iter.side_effect = Exception("API error")
+        mock_client.interactions.iter.side_effect = NotFoundError("Company not found")
 
         result = check_unreplied(
             client=mock_client,
@@ -406,6 +410,21 @@ class TestCheckUnreplied:
         )
 
         assert result is None
+
+    def test_other_api_errors_propagate(self) -> None:
+        """Any error but a gone entity propagates (None would read as "nothing unreplied")."""
+        from affinity.exceptions import ValidationError
+
+        mock_client = MagicMock()
+        mock_client.interactions.iter.side_effect = ValidationError("Bad request")
+
+        with pytest.raises(ValidationError):
+            check_unreplied(
+                client=mock_client,
+                entity_type="company",
+                entity_id=123,
+                lookback_days=30,
+            )
 
 
 class TestFlattenUnrepliedForCsv:

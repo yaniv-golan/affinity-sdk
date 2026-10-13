@@ -109,7 +109,7 @@ Or using list name (resolved automatically):
 }
 ```
 
-Field names are resolved case-insensitively. Any field can also be named by id (`fields.field-260415`, `fields.affinity-data-year-founded`). An unknown field name gives a warning listing the list's fields.
+Field names are resolved case-insensitively. Any field can also be named by id (`fields.field-260415`, `fields.affinity-data-year-founded`). An unknown field name gives a warning listing the list's fields. If the list's field definitions can't be read, the query fails (rather than reading every `fields.*` value as null).
 
 When two list fields share a name (e.g. Affinity's and Dealroom's "Year Founded"), `fields.<name>` is refused with an error listing the ids: name the one you want by id. Such fields come back keyed by id.
 
@@ -382,6 +382,9 @@ For `listEntries`, you can customize includes with parameters:
 
 In **table output**, included data appears as separate tables (e.g., "Included: companies").
 In **JSON output**, included data appears in a separate `included` section with deduplicated records.
+When `--max-output-bytes` splits the result into pages (JSON or TOON), each page's included records are those of its own rows.
+
+A record that is gone (deleted, or merged into another) has nothing related. Any other error while fetching related records fails the query.
 
 ## Expanding Computed Data
 
@@ -448,7 +451,7 @@ Output includes unreplied message info on each record:
 }
 ```
 
-Records without unreplied messages have `"unreplied": null`. For chat messages, `subject` is `null`.
+Records without unreplied messages have `"unreplied": null`, as do records that are gone (deleted, or merged into another); any other error from the check fails the query. For chat messages, `subject` is `null`.
 
 ### Expand vs Include
 

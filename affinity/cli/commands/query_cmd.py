@@ -308,7 +308,7 @@ def _query_cmd_impl(
         truncate_json_result,
         truncate_jsonl_output,
         truncate_markdown_output,
-        truncate_toon_output,
+        truncate_toon_result,
     )
     from affinity.cli.query.progress import (
         RichQueryProgress,
@@ -628,7 +628,8 @@ def _query_cmd_impl(
         if max_output_bytes and len(output.encode()) > max_output_bytes:
             original_total = result.pagination.get("total") if result.pagination else None
             if ctx.output == "toon":
-                output, was_truncated = truncate_toon_output(output, max_output_bytes)
+                # From the result, not the text: each page's included records are its rows'
+                output, was_truncated = truncate_toon_result(result, max_output_bytes)
             elif ctx.output == "markdown":
                 output, was_truncated = truncate_markdown_output(
                     output, max_output_bytes, original_total=original_total

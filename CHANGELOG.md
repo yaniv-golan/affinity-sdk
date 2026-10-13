@@ -84,11 +84,12 @@ or a CLI exit code; each is marked **Behavior change**.
   the next API page, losing the rest of the current page and every fetched row that didn't fit in
   `--max-output-bytes`. A cut-off result, with its included records, is now cached and the
   cursor resumes from it without API calls; each page's `included` holds only the records related
-  to that page's rows. A cursor needs the same `--max-records` as the first run. Cursors from
-  earlier versions still resume.
+  to that page's rows (TOON pages hold as many rows as fit, with matching counts). A cursor needs the same `--max-records` as the first run; a cursor from an
+  earlier version is refused as not matching the query (cursors expire after an hour).
 - **Behavior change. CLI `query`: errors are no longer read as "no data".** A rate-limit, server or
   auth error while fetching related records (for `include`, relationship filters, or an id
-  lookup) or an expansion (`interactionDates`, `unreplied`, person names) fails the query. Before,
+  lookup), an expansion (`interactionDates`, `unreplied`, person names) or a list's field
+  definitions fails the query. Before,
   the record silently had no related records, an id-only stub or an empty expansion, so `none`,
   `all` and `_count eq 0` filters could match wrongly. Only a deleted or merged record counts as
   empty.
@@ -126,10 +127,12 @@ or a CLI exit code; each is marked **Behavior change**.
   unreplied-message lookup fails the export under the default `--expand-on-error raise` (it was
   left empty silently), and warns under `skip`, keeping the entry's other expansions. An auth
   error during any expansion fails the export; a deleted opportunity is left out.
-- **Behavior change. CLI field writes:** `true`/`false` in `--set-json` is refused before any write
-  (exit 2, `validation_error`); Affinity has no boolean field type.
+- **Behavior change. CLI field writes:** `true`/`false` anywhere in a `--set-json` value (including
+  list items and object values) is refused before any write (exit 2, `validation_error`);
+  Affinity has no boolean field type. A text field no longer stores `true` as `"true"`.
 - CLI `list entry field --unset-value` exits 1 when Affinity reports the delete failed, instead of
-  reporting the value as deleted; `field delete` clears its caches only after a confirmed delete.
+  reporting the value as deleted. When an `--unset-value` or `--append` step fails after something
+  was already changed, the error is `partial_write` naming every field written and value removed; `field delete` clears its caches only after a confirmed delete.
 - CLI: answering "n" to a confirmation under `--json` prints an error envelope (type `aborted`),
   still exit 1, instead of an empty stdout.
 - CLI `list ls --type`: warns when the first page has no list of that type but more pages exist.

@@ -1403,10 +1403,13 @@ class QueryExecutor:
         async for page in self._global_pages(ctx, service, step.entity or ""):
             if matches is None and ctx.server_sorted:
                 matches = self._sorted_match_counter(ctx)
-            for record in page.data:
+            for index, record in enumerate(page.data):
                 record_dict = self._global_record(record)
                 ctx.records.append(record_dict)
-                if self._should_stop(ctx) or (matches is not None and matches(record_dict)):
+                more = index < len(page.data) - 1 or bool(page.next_cursor)
+                if self._should_stop(ctx, more=more) or (
+                    matches is not None and matches(record_dict)
+                ):
                     # Capture API cursor for potential streaming resumption
                     ctx.last_api_cursor = page.next_cursor
                     ctx.early_terminated = ctx.early_terminated or matches is not None
@@ -1538,10 +1541,11 @@ class QueryExecutor:
         all_results = await gather_or_raise(*[fetch_from_parent(pid) for pid in parent_ids])
 
         # Merge results, respecting limits
-        for results in all_results:
-            for record_dict in results:
+        for position, results in enumerate(all_results):
+            for index, record_dict in enumerate(results):
                 ctx.records.append(record_dict)
-                if self._should_stop(ctx):
+                more = index < len(results) - 1 or any(all_results[position + 1 :])
+                if self._should_stop(ctx, more=more):
                     return
 
             # Report progress after each parent completes
@@ -1599,7 +1603,7 @@ class QueryExecutor:
 
                 # Fetch page starting from cursor
                 page = await nested_service.list(**list_kwargs)
-                for record in page.data:
+                for index, record in enumerate(page.data):
                     record_dict = record.model_dump(mode="json", by_alias=True)
                     # Normalize list entry fields for query-friendly access
                     record_dict = _normalize_list_entry_fields(
@@ -1608,7 +1612,8 @@ class QueryExecutor:
                     ctx.records.append(record_dict)
                     items_fetched += 1
 
-                    if self._should_stop(ctx):
+                    more = index < len(page.data) - 1 or bool(page.next_cursor)
+                    if self._should_stop(ctx, more=more):
                         # Capture API cursor for potential next resumption
                         ctx.last_api_cursor = page.next_cursor
                         return
@@ -1629,7 +1634,7 @@ class QueryExecutor:
                 pages_kwargs["field_ids"] = field_ids
 
             async for page in nested_service.pages(**pages_kwargs):
-                for record in page.data:
+                for index, record in enumerate(page.data):
                     record_dict = record.model_dump(mode="json", by_alias=True)
                     # Normalize list entry fields for query-friendly access
                     record_dict = _normalize_list_entry_fields(
@@ -1637,7 +1642,8 @@ class QueryExecutor:
                     )
                     ctx.records.append(record_dict)
                     items_fetched += 1
-                    if self._should_stop(ctx):
+                    more = index < len(page.data) - 1 or bool(page.next_cursor)
+                    if self._should_stop(ctx, more=more):
                         # Capture API cursor for potential streaming resumption
                         ctx.last_api_cursor = page.next_cursor
                         return
@@ -1651,14 +1657,15 @@ class QueryExecutor:
                 pages_kwargs["field_ids"] = field_ids
 
             async for page in nested_service.all().pages(**pages_kwargs):
-                for record in page.data:
+                for index, record in enumerate(page.data):
                     record_dict = record.model_dump(mode="json", by_alias=True)
                     # Normalize list entry fields for query-friendly access
                     record_dict = _normalize_list_entry_fields(
                         record_dict, ctx.truncated_fields, ctx.id_keyed_fields
                     )
                     ctx.records.append(record_dict)
-                    if self._should_stop(ctx):
+                    more = index < len(page.data) - 1 or bool(page.next_cursor)
+                    if self._should_stop(ctx, more=more):
                         # Capture API cursor for potential streaming resumption
                         ctx.last_api_cursor = page.next_cursor
                         return
@@ -1668,7 +1675,14 @@ class QueryExecutor:
             if field_ids is not None:
                 all_kwargs["field_ids"] = field_ids
 
+            # No page to look ahead in: a stop at max_records is reported once a record
+            # past it arrives
+            stopped_at_max = False
             async for record in nested_service.all(**all_kwargs):
+                if stopped_at_max:
+                    if not ctx.max_records_cut:
+                        ctx.note_max_records_cut()
+                    return
                 record_dict = record.model_dump(mode="json", by_alias=True)
                 # Normalize list entry fields for query-friendly access
                 record_dict = _normalize_list_entry_fields(
@@ -1680,8 +1694,10 @@ class QueryExecutor:
                 if items_fetched % 100 == 0:
                     self.progress.on_step_progress(step, items_fetched, None)
 
-                if self._should_stop(ctx):
-                    return
+                if self._should_stop(ctx, more=False):
+                    if ctx.query.limit and len(ctx.records) >= ctx.query.limit:
+                        return
+                    stopped_at_max = True
 
     async def _list_entry_search_body(
         self, ctx: ExecutionContext, list_id: int
@@ -1776,7 +1792,7 @@ class QueryExecutor:
         ctx.server_sorted = ctx.pending_server_sort
         matches = self._sorted_match_counter(ctx)
         while True:
-            for record in page.data:
+            for index, record in enumerate(page.data):
                 record_dict = _normalize_list_entry_fields(
                     record.model_dump(mode="json", by_alias=True),
                     ctx.truncated_fields,
@@ -1784,7 +1800,10 @@ class QueryExecutor:
                 )
                 ctx.records.append(record_dict)
                 fetched += 1
-                if self._should_stop(ctx) or (matches is not None and matches(record_dict)):
+                more = index < len(page.data) - 1 or bool(page.next_cursor)
+                if self._should_stop(ctx, more=more) or (
+                    matches is not None and matches(record_dict)
+                ):
                     ctx.last_api_cursor = page.next_cursor
                     ctx.early_terminated = ctx.early_terminated or matches is not None
                     return True
@@ -1918,8 +1937,11 @@ class QueryExecutor:
 
         return reached
 
-    def _should_stop(self, ctx: ExecutionContext) -> bool:
+    def _should_stop(self, ctx: ExecutionContext, *, more: bool = True) -> bool:
         """Check if we should stop fetching.
+
+        ``more``: whether records may exist past the one just added (the rest of its page,
+        or a next page). A stop at max_records is reported as a cut only then.
 
         The limit and max_records are only applied during fetch when there's
         NO operation that needs all records first (filter, aggregate, sort).
@@ -1941,9 +1963,9 @@ class QueryExecutor:
         # Stop at query limit
         if ctx.query.limit and len(ctx.records) >= ctx.query.limit:
             return True
-        # Stop at max_records safety limit, and say so: more records may exist
+        # Stop at max_records safety limit, and say so when more records may exist
         if len(ctx.records) >= ctx.max_records:
-            if not ctx.max_records_cut:
+            if more and not ctx.max_records_cut:
                 ctx.note_max_records_cut()
             return True
         return False
@@ -2155,30 +2177,25 @@ class QueryExecutor:
         # Check if we need to fetch field metadata
         cache_key = f"list_{list_id}"
         if cache_key not in self._field_name_cache:
-            try:
-                fields = await self.client.lists.get_fields(ListId(list_id))
-                # Build a mapping of lowercase name -> field ID (and the names fields share)
-                field_map: dict[str, str] = {}
-                shared: dict[str, list[str]] = {}
-                all_field_ids: list[str] = []
-                for field in fields:
-                    if field.name:
-                        key = field.name.lower()
-                        if key in field_map:
-                            shared.setdefault(key, [field_map[key]]).append(str(field.id))
-                        field_map[key] = str(field.id)
-                    all_field_ids.append(str(field.id))
-                self._field_name_cache[cache_key] = {
-                    "by_name": field_map,
-                    "shared": shared,
-                    "all_ids": all_field_ids,
-                }
-            except Exception as exc:
-                logger.warning("Failed to fetch field metadata for list %s: %s", list_id, exc)
-                ctx.warnings.append(
-                    f"Could not fetch field metadata (fields.* values will be null): {exc}"
-                )
-                return None
+            # Any error fails the query: without the metadata, fields.* values would read as
+            # null and a where could match them
+            fields = await self.client.lists.get_fields(ListId(list_id))
+            # Build a mapping of lowercase name -> field ID (and the names fields share)
+            field_map: dict[str, str] = {}
+            shared: dict[str, list[str]] = {}
+            all_field_ids: list[str] = []
+            for field in fields:
+                if field.name:
+                    key = field.name.lower()
+                    if key in field_map:
+                        shared.setdefault(key, [field_map[key]]).append(str(field.id))
+                    field_map[key] = str(field.id)
+                all_field_ids.append(str(field.id))
+            self._field_name_cache[cache_key] = {
+                "by_name": field_map,
+                "shared": shared,
+                "all_ids": all_field_ids,
+            }
 
         cache = self._field_name_cache[cache_key]
         shared_names: dict[str, list[str]] = cache["shared"]
@@ -2315,22 +2332,17 @@ class QueryExecutor:
 
         # Build flat field name -> ID cache for all lists
         if not hasattr(self, "_field_name_to_id_cache"):
-            self._field_name_to_id_cache: dict[str, str] = {}
-
             from affinity.types import ListId
 
+            # Any error fails the query: an unresolved fields.* condition would read null values
+            name_to_id: dict[str, str] = {}
             for list_id in list_ids:
-                try:
-                    fields = await self.client.lists.get_fields(ListId(list_id))
-                    for field in fields:
-                        if field.name:
-                            # Map lowercase name to field ID
-                            self._field_name_to_id_cache[field.name.lower()] = str(field.id)
-                except Exception as exc:
-                    logger.warning("Failed to fetch field metadata for list %s: %s", list_id, exc)
-                    ctx.warnings.append(
-                        f"Could not fetch field metadata for where clause resolution: {exc}"
-                    )
+                fields = await self.client.lists.get_fields(ListId(list_id))
+                for field in fields:
+                    if field.name:
+                        # Map lowercase name to field ID
+                        name_to_id[field.name.lower()] = str(field.id)
+            self._field_name_to_id_cache: dict[str, str] = name_to_id
 
         # Check if this is a fields.* condition
         path = where.get("path", "")
@@ -2507,7 +2519,7 @@ class QueryExecutor:
                     try:
                         ids = await method(entity_id)
                         return entity_id, list(ids) if ids else []
-                    except NotFoundError:
+                    except _GONE_ERRORS:
                         # The record is gone: nothing related. Other errors (rate limit,
                         # server, auth) fail the query rather than pass as "none related"
                         return entity_id, []
@@ -2600,7 +2612,7 @@ class QueryExecutor:
                             ent_records.append(record)
                             included_records.append(record)
                         parent_mapping[ent_id] = ent_records
-                    except NotFoundError:
+                    except _GONE_ERRORS:
                         parent_mapping[ent_id] = []
                         continue
 
@@ -2761,8 +2773,7 @@ class QueryExecutor:
             # Rate limiter permit released here
 
             # PERF: Person resolution OUTSIDE rate limiter, with SHARED semaphore.
-            # A person that can't be found keeps its id as the name; auth, rate-limit and
-            # server errors fail the query.
+            # A person that is gone keeps its id as the name; other errors fail the query.
             if expansion_def.name == "interactionDates" and record.get("interactionDates"):
                 await resolve_interaction_names_async(
                     self.client,
@@ -2832,14 +2843,11 @@ class QueryExecutor:
             if expansion_def.name == "unreplied":
                 from ..interaction_utils import async_check_unreplied
 
+                # A gone record reads as "nothing unreplied" (None); other errors fail the query
                 async with self.rate_limiter:
-                    try:
-                        result = await async_check_unreplied(self.client, entity_type, raw_id)
-                        record["unreplied"] = result
-                    except _GONE_ERRORS as e:
-                        # Only a missing record reads as "nothing unreplied"
-                        logger.debug(f"Failed to check unreplied for {entity_type} {raw_id}: {e}")
-                        record["unreplied"] = None
+                    record["unreplied"] = await async_check_unreplied(
+                        self.client, entity_type, raw_id
+                    )
 
                 # Report progress
                 completed += 1
@@ -2891,8 +2899,7 @@ class QueryExecutor:
             # Rate limiter permit released here
 
             # PERF: Person resolution OUTSIDE rate limiter, with SHARED semaphore.
-            # A person that can't be found keeps its id as the name; auth, rate-limit and
-            # server errors fail the query.
+            # A person that is gone keeps its id as the name; other errors fail the query.
             if expansion_def.name == "interactionDates" and record.get("interactionDates"):
                 await resolve_interaction_names_async(
                     self.client,
@@ -3020,7 +3027,7 @@ class QueryExecutor:
                                 else r
                                 for r in result
                             ]
-                    except NotFoundError as e:
+                    except _GONE_ERRORS as e:
                         # The record is gone: no relationships. Any other error (rate limit,
                         # server, auth) fails the query: an empty list would satisfy
                         # all/none/_count = 0
@@ -3047,7 +3054,7 @@ class QueryExecutor:
                                 item.model_dump(mode="json", by_alias=True)
                                 for item in response.data
                             ]
-                    except NotFoundError as e:
+                    except _GONE_ERRORS as e:
                         # The record is gone: no relationships. Any other error (rate limit,
                         # server, auth) fails the query: an empty list would satisfy
                         # all/none/_count = 0
@@ -3268,7 +3275,7 @@ class QueryExecutor:
                                 OpportunityId(entity_id)
                             )
                         )
-                except NotFoundError:
+                except _GONE_ERRORS:
                     pass  # The entity is gone: no associations (other errors fail the query)
 
             return (entry_id, ids)
@@ -3339,7 +3346,7 @@ class QueryExecutor:
                                 OpportunityId(entity_id)
                             )
                         )
-                except NotFoundError:
+                except _GONE_ERRORS:
                     pass  # The entity is gone: no associations (other errors fail the query)
 
             return (entry_id, ids)
@@ -3415,7 +3422,7 @@ class QueryExecutor:
                                 CompanyId(entity_id)
                             )
                         )
-                except NotFoundError:
+                except _GONE_ERRORS:
                     pass  # The entity is gone: no associations (other errors fail the query)
 
             return (entry_id, ids)

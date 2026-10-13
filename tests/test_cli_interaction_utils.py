@@ -381,7 +381,7 @@ class TestResolvePersonNamesAsync:
             await asyncio.sleep(0.01)  # Small delay to allow overlap
             concurrent_calls -= 1
             person = MagicMock()
-            person.full_name = f"Person {person_id.value}"
+            person.full_name = f"Person {int(person_id)}"
             return person
 
         mock_client = AsyncMock()
@@ -412,7 +412,7 @@ class TestResolvePersonNamesAsync:
             await asyncio.sleep(0.01)
             concurrent_calls -= 1
             person = MagicMock()
-            person.full_name = f"Person {person_id.value}"
+            person.full_name = f"Person {int(person_id)}"
             return person
 
         mock_client = AsyncMock()
@@ -441,7 +441,7 @@ class TestResolvePersonNamesAsync:
             nonlocal call_count
             call_count += 1
             person = MagicMock()
-            person.full_name = f"Fetched {person_id.value}"
+            person.full_name = f"Fetched {int(person_id)}"
             return person
 
         mock_client = AsyncMock()
@@ -452,19 +452,21 @@ class TestResolvePersonNamesAsync:
 
         result = await _resolve_person_names_async(mock_client, [1, 2, 3, 4], cache=cache)
 
-        assert result == ["Cached Alice", "Person 2", "Cached Carol", "Person 4"]
+        assert result == ["Cached Alice", "Fetched 2", "Cached Carol", "Fetched 4"]
         assert call_count == 2, "Only uncached IDs should trigger API calls"
 
     @pytest.mark.asyncio
-    async def test_handles_api_errors_gracefully(self) -> None:
-        """API errors should result in fallback name, not propagate."""
+    async def test_gone_person_gets_fallback_name(self) -> None:
+        """A person that is gone gets the fallback name."""
         from unittest.mock import AsyncMock, MagicMock
 
+        from affinity.exceptions import NotFoundError
+
         async def mock_get(person_id):
-            if person_id.value == 2:
-                raise Exception("API Error")
+            if int(person_id) == 2:
+                raise NotFoundError("Person not found")
             person = MagicMock()
-            person.full_name = f"Person {person_id.value}"
+            person.full_name = f"Name {int(person_id)}"
             return person
 
         mock_client = AsyncMock()
@@ -472,7 +474,21 @@ class TestResolvePersonNamesAsync:
 
         result = await _resolve_person_names_async(mock_client, [1, 2, 3])
 
-        assert result == ["Person 1", "Person 2", "Person 3"]
+        assert result == ["Name 1", "Person 2", "Name 3"]
+
+    @pytest.mark.asyncio
+    async def test_other_errors_propagate(self) -> None:
+        """Any error but a gone person propagates (a fallback would hide it)."""
+        from unittest.mock import AsyncMock
+
+        async def mock_get(_person_id):
+            raise Exception("API Error")
+
+        mock_client = AsyncMock()
+        mock_client.persons.get = mock_get
+
+        with pytest.raises(Exception, match="API Error"):
+            await _resolve_person_names_async(mock_client, [1, 2, 3])
 
 
 class TestResolveInteractionNamesAsync:
@@ -488,7 +504,7 @@ class TestResolveInteractionNamesAsync:
             # Add delay to make parallel vs sequential observable
             await asyncio.sleep(0.02)
             person = MagicMock()
-            person.full_name = f"Person {person_id.value}"
+            person.full_name = f"Person {int(person_id)}"
             return person
 
         mock_client = AsyncMock()
@@ -531,7 +547,7 @@ class TestResolveInteractionNamesAsync:
             await asyncio.sleep(0.01)
             concurrent_calls -= 1
             person = MagicMock()
-            person.full_name = f"Person {person_id.value}"
+            person.full_name = f"Person {int(person_id)}"
             return person
 
         mock_client = AsyncMock()
@@ -569,7 +585,7 @@ class TestResolveInteractionNamesAsync:
 
         async def mock_get(person_id):
             person = MagicMock()
-            person.full_name = f"Person {person_id.value}"
+            person.full_name = f"Person {int(person_id)}"
             return person
 
         mock_client = AsyncMock()

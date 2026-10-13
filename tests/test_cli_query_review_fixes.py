@@ -50,11 +50,15 @@ from affinity.cli.query.output import (
     truncate_toon_output,
 )
 from affinity.exceptions import (
+    AffinityError,
     AuthenticationError,
     CompanyMergedError,
+    ConflictError,
     NotFoundError,
+    PersonMergedError,
     RateLimitError,
     ServerError,
+    ValidationError,
 )
 
 if respx is None:  # pragma: no cover
@@ -659,6 +663,7 @@ def test_unknown_list_name_exits_2(respx_mock: respx.MockRouter) -> None:
     ("count", "query_limit", "warned"),
     [
         (8, None, True),  # more rows than --max-records
+        (5, None, False),  # exactly --max-records rows exist
         (8, 3, False),  # the query's own limit stops it
     ],
 )
@@ -720,3 +725,277 @@ def test_gather_or_raise_cancels_the_rest_and_leaves_no_unretrieved_error(
         asyncio.run(main())
     assert finished == []
     assert "never retrieved" not in caplog.text
+
+
+# --- second review: TOON pages trim included to their rows ----------------------------------
+
+
+def _toon_sections(out: str) -> dict[str, list[list[str]]]:
+    """Each TOON tabular section's rows (cells split on commas), checking header counts."""
+    sections: dict[str, list[list[str]]] = {}
+    name: str | None = None
+    declared: dict[str, int] = {}
+    for line in out.splitlines():
+        if line.startswith("  ") and name is not None:
+            sections[name].append(line.strip().split(","))
+            continue
+        name = None
+        header = line.split("{", 1)[0]
+        if "[" in header and header.endswith("]") and line.endswith(":"):
+            name, count = header[:-1].split("[")
+            declared[name] = int(count)
+            sections[name] = []
+    for section, rows in sections.items():
+        assert declared[section] == len(rows), (section, out)
+    return sections
+
+
+def test_toon_pages_carry_their_rows_included_and_fill_the_budget(
+    respx_mock: respx.MockRouter,
+) -> None:
+    ids = list(range(3001, 3007))
+    _mock_person_pages(respx_mock, ids, size=4)
+    respx_mock.get(url__regex=rf"^{V1}/persons/\d+").mock(
+        side_effect=lambda req: Response(
+            200,
+            json={
+                "id": int(req.url.path.rsplit("/", 1)[-1]),
+                "organization_ids": [int(req.url.path.rsplit("/", 1)[-1]) + 4000],
+            },
+        )
+    )
+    _mock_companies(respx_mock)
+    query = {"from": "persons", "limit": 6, "select": ["id"], "include": ["companies"]}
+
+    outputs = _page_through(query, 400, output="toon")
+    seen: list[int] = []
+    page_sizes: list[int] = []
+    for out in outputs:
+        sections = _toon_sections(out)
+        page_ids = [int(row[0]) for row in sections["data"]]
+        seen.extend(page_ids)
+        page_sizes.append(len(page_ids))
+        # Each page carries the companies of its own rows, whole
+        company_ids = {int(row[0]) for row in sections.get("included_companies", [])}
+        assert company_ids == {pid + 4000 for pid in page_ids}, out
+        # Within the budget, apart from the cursor line added for humans
+        body = "\n".join(line for line in out.splitlines() if not line.startswith("  cursor:"))
+        assert len(body.encode()) <= 400 or len(page_ids) == 1, out
+    assert seen == ids
+    # Pages hold as many rows as fit, not one each
+    assert max(page_sizes) > 1
+    assert len(outputs) < len(ids)
+
+
+def test_toon_without_included_keeps_text_truncation() -> None:
+    from affinity.cli.query.output import truncate_toon_result
+
+    result = QueryResult(data=[{"id": i, "name": f"Acme Corp {i}"} for i in range(1, 30)])
+    out, cut = truncate_toon_result(result, 200)
+    assert cut
+    sections = _toon_sections(out.replace("truncation:", "truncation"))
+    assert 1 <= len(sections["data"]) < 29
+    assert len(result.data) == 29  # the result is not modified
+
+
+def test_toon_single_row_with_large_included_is_shown_whole() -> None:
+    from affinity.cli.query.output import truncate_toon_result
+
+    result = QueryResult(
+        data=[{"id": 1}, {"id": 2}],
+        included={"companies": [{"id": 10 + i, "name": "Acme Corp " * 5} for i in range(6)]},
+        included_by_parent={
+            "companies": {1: [{"id": 10 + i} for i in range(3)], 2: [{"id": 13}]},
+        },
+    )
+    out, cut = truncate_toon_result(result, 100)
+    assert cut
+    sections = _toon_sections(out)
+    assert [row[0] for row in sections["data"]] == ["1"]
+    assert [row[0] for row in sections["included_companies"]] == ["10", "11", "12"]
+    assert "rowsShown: 1" in out and "rowsOmitted: 1" in out
+
+
+def test_toon_one_row_with_large_included_is_shown_whole_and_not_cut() -> None:
+    from affinity.cli.query.output import truncate_toon_result
+
+    result = QueryResult(
+        data=[{"id": 1}],
+        included={"companies": [{"id": 10 + i, "name": "Acme Corp " * 5} for i in range(6)]},
+        included_by_parent={"companies": {1: [{"id": 10 + i} for i in range(6)]}},
+    )
+    out, cut = truncate_toon_result(result, 100)
+    assert not cut
+    sections = _toon_sections(out)
+    assert len(sections["included_companies"]) == 6
+
+
+# --- second review: --max-records is reported only when more rows may exist ------------------
+
+
+def test_plain_fetch_max_records_at_a_page_end_with_a_next_page_is_a_cut() -> None:
+    client = _client()
+
+    async def pages(**_kwargs: Any) -> Any:
+        yield _page([{"id": i} for i in range(1, 6)], next_cursor="more")
+        yield _page([{"id": 6}])  # pragma: no cover
+
+    client.persons = MagicMock()
+    client.persons.all.return_value = MagicMock(pages=pages)
+    query = Query.model_validate({"from": "persons"})
+    result = asyncio.run(QueryExecutor(client, max_records=5).execute(_plan(query)))
+    assert len(result.data) == 5
+    assert result.meta.get("truncated")
+    assert any("--max-records" in w for w in result.warnings)
+
+
+@pytest.mark.parametrize(("count", "warned"), [(5, False), (6, True)])
+def test_record_iterator_fetch_reports_a_cut_only_when_a_record_is_past_it(
+    count: int, warned: bool
+) -> None:
+    from affinity.cli.query.executor import ExecutionContext
+
+    class Records:
+        """A service with neither pages() nor all().pages(): records one by one."""
+
+        def all(self, **_kwargs: Any) -> Any:
+            async def records() -> Any:
+                for i in range(1, count + 1):
+                    yield MagicMock(model_dump=MagicMock(return_value={"id": i}))
+
+            return records()
+
+    query = Query.model_validate(
+        {"from": "listEntries", "where": {"path": "listId", "op": "eq", "value": 12345}}
+    )
+    ctx = ExecutionContext(query=query, max_records=5)
+    step = PlanStep(step_id=0, operation="fetch", entity="listEntries", description="Fetch")
+    asyncio.run(
+        QueryExecutor(_client(), max_records=5)._fetch_from_single_parent(
+            step, ctx, lambda _pid: Records(), 12345
+        )
+    )
+    assert [r["id"] for r in ctx.records] == [1, 2, 3, 4, 5]
+    assert ctx.max_records_cut is warned
+
+
+# --- second review: unreplied and name lookups fall back only for a gone record --------------
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        ValidationError("bad request"),
+        ConflictError("conflict"),
+        AffinityError("unmapped status"),
+        ValueError("unexpected payload"),
+    ],
+)
+def test_lookups_propagate_every_error_but_a_gone_record(error: Exception) -> None:
+    sync_client = MagicMock()
+    sync_client.interactions.iter.side_effect = error
+    with pytest.raises(type(error)):
+        check_unreplied(sync_client, "person", 5)
+    sync_client.persons.get.side_effect = error
+    with pytest.raises(type(error)):
+        _resolve_person_names(sync_client, [5])
+
+    async def failing(**_kwargs: Any) -> Any:
+        raise error
+        yield  # pragma: no cover
+
+    async_client = MagicMock()
+    async_client.interactions.iter = failing
+    with pytest.raises(type(error)):
+        asyncio.run(async_check_unreplied(async_client, "person", 5))
+    async_client.persons.get = AsyncMock(side_effect=error)
+    with pytest.raises(type(error)):
+        asyncio.run(_resolve_person_names_async(async_client, [5]))
+
+
+def test_lookups_read_a_merged_record_as_gone() -> None:
+    merged = PersonMergedError("5 merged into 6", source_id=5, target_id=6)
+    sync_client = MagicMock()
+    sync_client.interactions.iter.side_effect = merged
+    assert check_unreplied(sync_client, "person", 5) is None
+    sync_client.persons.get.side_effect = merged
+    assert _resolve_person_names(sync_client, [5]) == ["Person 5"]
+
+
+def test_query_unreplied_expansion_error_fails_the_query() -> None:
+    client = _client()
+    client.listEntries = MagicMock()
+
+    async def failing(**_kwargs: Any) -> Any:
+        raise ValidationError("bad request")
+        yield  # pragma: no cover
+
+    client.interactions = MagicMock()
+    client.interactions.iter = failing
+    ctx_records = [{"id": 1, "entityId": 5, "entityType": "person"}]
+    executor = QueryExecutor(client)
+    query = Query.model_validate(
+        {"from": "listEntries", "where": {"path": "listId", "op": "eq", "value": 12345}}
+    )
+    from affinity.cli.query.executor import ExecutionContext
+    from affinity.cli.query.schema import EXPANSION_REGISTRY
+
+    ctx = ExecutionContext(query=query, records=[dict(r) for r in ctx_records])
+    step = PlanStep(step_id=1, operation="expand", entity="listEntries", description="expand")
+    with pytest.raises(ValidationError):
+        asyncio.run(executor._expand_list_entries(step, ctx, EXPANSION_REGISTRY["unreplied"]))
+
+
+# --- second review: list field metadata failures fail the query ------------------------------
+
+
+def test_list_field_metadata_failure_fails_the_query(respx_mock: respx.MockRouter) -> None:
+    respx_mock.get(url__regex=rf"^{V2}/lists/12345/fields").mock(
+        return_value=Response(503, json={"errors": [{"code": "x", "message": "unavailable"}]})
+    )
+    query = {
+        "from": "listEntries",
+        "where": {
+            "and": [
+                {"path": "listId", "op": "eq", "value": 12345},
+                {"path": "fields.Status", "op": "is_null"},
+            ]
+        },
+    }
+    code, out, _ = _run(query)
+    assert code == 5, out
+    assert _envelope(out)["data"] is None
+
+
+# --- second review: a merged record reads as gone in include and pre-include -----------------
+
+
+def test_include_reads_a_merged_parent_as_nothing_related() -> None:
+    client = _client()
+    client.persons = MagicMock()
+    client.persons.all.return_value = MagicMock(pages=_single_page([{"id": 11}]))
+    client.persons.get_associated_company_ids = AsyncMock(
+        side_effect=PersonMergedError("11 merged into 12", source_id=11, target_id=12)
+    )
+    query = Query.model_validate({"from": "persons", "include": ["companies"]})
+    result = asyncio.run(
+        QueryExecutor(client).execute(_plan(query, "include", relationship="companies"))
+    )
+    assert result.data == [{"id": 11}]
+    assert not result.included.get("companies")
+
+
+def test_pre_include_reads_a_merged_record_as_no_relationships() -> None:
+    from affinity.cli.query.executor import ExecutionContext
+    from affinity.cli.query.schema import SCHEMA_REGISTRY
+
+    client = _client()
+    client.persons = MagicMock()
+    client.persons.get_associated_company_ids = AsyncMock(
+        side_effect=PersonMergedError("11 merged into 12", source_id=11, target_id=12)
+    )
+    query = Query.model_validate({"from": "persons"})
+    ctx = ExecutionContext(query=query, records=[{"id": 11}])
+    executor = QueryExecutor(client)
+    asyncio.run(executor._execute_pre_include(ctx, {"companies"}, SCHEMA_REGISTRY["persons"]))
+    assert ctx.relationship_data["companies"] == {11: []}

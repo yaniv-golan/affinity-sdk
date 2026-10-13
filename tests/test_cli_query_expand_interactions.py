@@ -892,7 +892,7 @@ class TestExpandConcurrencyOptimizations:
             await asyncio.sleep(0.01)  # Small delay to allow overlap
             concurrent_person_fetches -= 1
             person = MagicMock()
-            person.full_name = f"Person {_person_id.value}"
+            person.full_name = f"Person {int(_person_id)}"
             return person
 
         # Create mock async client
@@ -992,9 +992,11 @@ class TestExpandConcurrencyOptimizations:
 
         mock_client.companies.get = mock_company_get
 
-        # Person API always fails
+        # Every person is gone (a gone person keeps a fallback name; other errors fail)
         async def mock_person_get(_person_id, **_kwargs):
-            raise Exception("API Error - person service unavailable")
+            from affinity.exceptions import NotFoundError
+
+            raise NotFoundError("Person not found")
 
         mock_client.persons.get = mock_person_get
 

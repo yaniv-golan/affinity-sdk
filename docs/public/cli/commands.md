@@ -256,6 +256,8 @@ xaffinity query --file query.json
 - `--csv` / `--json`: Output format
 - `--include-meta`: include execution metadata; `meta.serverFilter` shows which conditions Affinity's search applied (`pushed`), which ran locally and why (`local`), and whether Affinity sorted (`sort`)
 
+A related record that is gone (deleted, or merged into another) reads as empty in `include` and `expand`; any other lookup error, or failing to read a list's field definitions, fails the query with that error's exit code.
+
 Conditions on fields go to Affinity's search where it can answer them; the full `where` still runs locally on what comes back. A `where` on `companies` or `persons` must include a condition on one of their fields (`fields.<name>`). `XAFFINITY_QUERY_SERVER_FILTER=0` turns server filtering off for list entries (`query` on listEntries and `list export`); company and person filters always use it.
 
 See [Query Language Reference](../reference/query-language.md) and [Query Guide](../guides/query-command.md) for full documentation.
@@ -843,7 +845,7 @@ Options:
 - `--expand <type>` (repeatable): expand associated entities or interaction data
   - `persons`, `companies`, `opportunities`: Expand related entities. A failed fetch follows `--expand-on-error` (`raise` fails the export; `skip` leaves the entry out, with a warning listing the skipped entries; for `opportunities`, a failed check of one opportunity leaves out only that opportunity, with a warning); auth errors always fail it, and an opportunity that is gone is left out
   - `interactions`: Add interaction date summaries (last/next meeting, email dates). A failed fetch follows `--expand-on-error` (`raise` fails the export; `skip` leaves the summary empty with a warning); auth errors always fail it
-- `--check-unreplied`: Check for unreplied incoming messages (email/chat) for each list entry. A failed check follows `--expand-on-error` (`raise` fails the export; `skip` leaves it empty with a warning); auth errors always fail it
+- `--check-unreplied`: Check for unreplied incoming messages (email/chat) for each list entry. An entity that is gone (deleted or merged) has nothing unreplied; any other failed check follows `--expand-on-error` (`raise` fails the export; `skip` leaves it empty with a warning), and auth errors always fail it
 - `--unreplied-types <types>`: Comma-separated types to check: email, chat, all (default: email,chat)
 - `--unreplied-lookback-days <days>`: Lookback period for unreplied message detection (default: 30)
 
@@ -954,8 +956,9 @@ xaffinity list entry field "Portfolio" 123 --append Tags "NewTag" --unset-value 
   `--unset`; `deleted` counts values removed by `--unset-value`
 - `opportunity field` works the same way (an opportunity's fields are its list entry's fields)
 - Numbers are sent as numbers (`--set Amount 5`); anything else is refused before any write
-- `true`/`false` in `--set-json` is refused before any write (exit 2, `validation_error`):
-  Affinity has no boolean field type; write text, a number or a dropdown option
+- `true`/`false` anywhere in a `--set-json` value (including inside a list or object, e.g.
+  `{"Tags": [true]}`) is refused before any write (exit 2, `validation_error`): Affinity has no
+  boolean field type; write text (`"true"`), a number or a dropdown option
 - Locations are JSON objects with any of `streetAddress` (or `street_address`), `city`, `state`,
   `country`, `continent`: `--set HQ '{"city": "Paris", "country": "France"}'`
 - Multi-value company, person and location fields hold at most 100 values per write; a request
@@ -963,8 +966,11 @@ xaffinity list entry field "Portfolio" 123 --append Tags "NewTag" --unset-value 
 - `--get` is exclusive with write operations
 - `--get` returns resolved objects for person/company reference fields (with `firstName`, `lastName`, `primaryEmailAddress`, etc.) and full dropdown option data (with `text`, `color`). Output format matches `list export`.
 - Operation order: one request for `--set`/`--set-json`/`--unset` → `--append` → `--unset-value`
-- If Affinity answers an `--unset-value` delete with `success: false`, the command stops with
-  exit 1 (`api_error`, or `partial_write` when `--set`/`--unset` fields were already written)
+- If an `--append` or `--unset-value` step fails (including Affinity answering a delete with
+  `success: false`, exit 1 `api_error`), the command stops. If this command already changed
+  something, the error is `partial_write` (exit 1), whose message and `details` name it:
+  `written` lists fields set, unset or appended; `removed` lists `{field, value}` for each value
+  an earlier `--unset-value` deleted
 
 ## Notes
 

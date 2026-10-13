@@ -85,12 +85,14 @@ MOCK_COMPANY_WITH_INTERACTIONS = {
     },
 }
 
-MOCK_PERSON = {
+# Team member names are read with persons.get (V2)
+MOCK_PERSON_V2 = {
     "id": 101,
-    "first_name": "Alice",
-    "last_name": "Smith",
-    "primary_email": "alice@example.com",
-    "emails": ["alice@example.com"],
+    "firstName": "Alice",
+    "lastName": "Smith",
+    "primaryEmailAddress": "alice@example.com",
+    "emailAddresses": ["alice@example.com"],
+    "type": "external",
 }
 
 MOCK_LIST_FIELDS = {
@@ -132,11 +134,11 @@ def test_list_export_expand_interactions_json(respx_mock: respx.MockRouter) -> N
     )
 
     # Mock person lookups for team member resolution
-    respx_mock.get("https://api.affinity.co/persons/101").mock(
-        return_value=Response(200, json=MOCK_PERSON)
+    respx_mock.get("https://api.affinity.co/v2/persons/101").mock(
+        return_value=Response(200, json=MOCK_PERSON_V2)
     )
-    respx_mock.get("https://api.affinity.co/persons/102").mock(
-        return_value=Response(200, json={**MOCK_PERSON, "id": 102, "first_name": "Bob"})
+    respx_mock.get("https://api.affinity.co/v2/persons/102").mock(
+        return_value=Response(200, json={**MOCK_PERSON_V2, "id": 102, "firstName": "Bob"})
     )
 
     runner = CliRunner()
@@ -182,11 +184,11 @@ def test_list_export_expand_interactions_with_persons(respx_mock: respx.MockRout
         return_value=Response(200, json=MOCK_COMPANY_WITH_INTERACTIONS)
     )
     # Mock person lookups
-    respx_mock.get("https://api.affinity.co/persons/101").mock(
-        return_value=Response(200, json=MOCK_PERSON)
+    respx_mock.get("https://api.affinity.co/v2/persons/101").mock(
+        return_value=Response(200, json=MOCK_PERSON_V2)
     )
-    respx_mock.get("https://api.affinity.co/persons/102").mock(
-        return_value=Response(200, json={**MOCK_PERSON, "id": 102, "first_name": "Bob"})
+    respx_mock.get("https://api.affinity.co/v2/persons/102").mock(
+        return_value=Response(200, json={**MOCK_PERSON_V2, "id": 102, "firstName": "Bob"})
     )
     # Mock company associated persons
     respx_mock.get("https://api.affinity.co/companies/789/persons").mock(
@@ -226,11 +228,11 @@ def test_list_export_expand_interactions_csv(respx_mock: respx.MockRouter) -> No
     respx_mock.get("https://api.affinity.co/organizations/789").mock(
         return_value=Response(200, json=MOCK_COMPANY_WITH_INTERACTIONS)
     )
-    respx_mock.get("https://api.affinity.co/persons/101").mock(
-        return_value=Response(200, json=MOCK_PERSON)
+    respx_mock.get("https://api.affinity.co/v2/persons/101").mock(
+        return_value=Response(200, json=MOCK_PERSON_V2)
     )
-    respx_mock.get("https://api.affinity.co/persons/102").mock(
-        return_value=Response(200, json={**MOCK_PERSON, "id": 102, "first_name": "Bob"})
+    respx_mock.get("https://api.affinity.co/v2/persons/102").mock(
+        return_value=Response(200, json={**MOCK_PERSON_V2, "id": 102, "firstName": "Bob"})
     )
 
     runner = CliRunner()

@@ -3846,13 +3846,32 @@ def run_entry_field(
         ),
     )
 
+    # What this command already changed, for the partial_write error if a later step fails.
+    appended: list[str] = []
+    removed: list[tuple[str, str]] = []
+
+    def _changed() -> bool:
+        return bool(written or appended or removed)
+
     def _partial(exc: Exception) -> CLIError:
-        names_written = [resolver.get_field_name(f) or f for f in written]
+        names_written = [
+            resolver.get_field_name(f) or f for f in dict.fromkeys([*written, *appended])
+        ]
+        done: list[str] = []
+        if names_written:
+            done.append(f"{', '.join(names_written)} were already updated")
+        if removed:
+            done.append(
+                "already removed " + ", ".join(f"'{value}' from {name}" for name, value in removed)
+            )
+        details: dict[str, Any] = {"written": names_written}
+        if removed:
+            details["removed"] = [{"field": name, "value": value} for name, value in removed]
         return CLIError(
-            f"Stopped part-way: {', '.join(names_written)} were already updated, then {exc}",
+            f"Stopped part-way: {' and '.join(done)}, then {exc}",
             exit_code=1,
             error_type="partial_write",
-            details={"written": names_written},
+            details=details,
         )
 
     # Phase 3: --append (V2 multi-value merge logic lives in execute_append_phase).
@@ -3865,6 +3884,7 @@ def run_entry_field(
                 append_ops=append_ops_for_validation,
                 existing_values_serialized=existing_values_serialized,
                 resolver=resolver,
+                written_ids=appended,
             )
             created_values.extend(append_created)
 
@@ -3874,16 +3894,16 @@ def run_entry_field(
                 client.field_values.list(list_entry_id=ListEntryId(entry_id))
             )
             existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values_list]
-    except CLIError:
-        raise
     except Exception as exc:
-        if written:
+        # A CLI error too: once anything changed, the caller must learn what did
+        if _changed() and not (isinstance(exc, CLIError) and exc.error_type == "partial_write"):
             raise _partial(exc) from exc
         raise
 
     # Phase 3b: Handle --unset-value (delete specific value)
     for field_spec, value_to_remove in unset_values:
         target_field_id = resolved_fields[field_spec]  # Already resolved upfront
+        resolved_name = resolver.get_field_name(target_field_id) or field_spec
         existing_for_field = find_field_values_for_field(
             field_values=existing_values_serialized,
             field_id=target_field_id,
@@ -3895,7 +3915,13 @@ def run_entry_field(
             if format_value_for_comparison(fv_value) == value_str:
                 fv_id = fv.get("id")
                 if fv_id:
-                    if client.field_values.delete(fv_id) is False:
+                    try:
+                        deleted = client.field_values.delete(fv_id)
+                    except Exception as exc:
+                        if _changed():
+                            raise _partial(exc) from exc
+                        raise
+                    if deleted is False:
                         # Affinity answered {"success": false}: the value is still there.
                         not_removed = CLIError(
                             f"Affinity did not remove value '{value_to_remove}' "
@@ -3903,15 +3929,15 @@ def run_entry_field(
                             exit_code=1,
                             error_type="api_error",
                         )
-                        if written:
+                        if _changed():
                             raise _partial(not_removed)
                         raise not_removed
                     deleted_count += 1
+                    removed.append((resolved_name, value_to_remove))
                     found = True
                     break
         # Idempotent: silent success if value not found
         if not found:
-            resolved_name = resolver.get_field_name(target_field_id) or field_spec
             warnings.append(
                 f"Value '{value_to_remove}' not found for field '{resolved_name}' "
                 "(already removed or never existed)."

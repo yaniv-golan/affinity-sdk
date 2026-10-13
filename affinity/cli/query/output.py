@@ -930,6 +930,58 @@ def truncate_toon_output(content: str, max_bytes: int) -> tuple[str, bool]:
     return "\n".join(result_lines), True
 
 
+def truncate_toon_result(result: QueryResult, max_bytes: int) -> tuple[str, bool]:
+    """Format ``result`` as TOON within ``max_bytes``, cutting data rows.
+
+    Each page's included records are the ones related to its rows (per
+    ``included_by_parent``), so a page holds as many rows as fit with their included records
+    and every section's count matches its lines. ``result`` is not modified.
+
+    Returns (content, was_truncated).
+    """
+    from dataclasses import replace
+
+    content = format_query_result(result, "toon")
+    if len(content.encode()) <= max_bytes:
+        return content, False
+    data = result.data or []
+    if not result.included:
+        # No included section to keep in step with the rows
+        return truncate_toon_output(content, max_bytes)
+    if len(data) < 2:
+        # One row (with its included records), past the budget on its own: shown whole
+        return content, False
+
+    def page(count: int) -> str:
+        rows = data[:count]
+        included = included_for_rows(rows, result.included, result.included_by_parent)
+        return format_query_result(replace(result, data=rows, included=included), "toon")
+
+    # Binary search for the most rows that fit with their included records and the
+    # truncation section. The first row is kept even past the budget: a page with no row
+    # would hand back the same cursor forever.
+    lo, hi, best = 1, len(data) - 1, 1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if len(page(mid).encode()) + _TRUNCATION_SECTION_RESERVE <= max_bytes:
+            best, lo = mid, mid + 1
+        else:
+            hi = mid - 1
+
+    lines = page(best).split("\n")
+    # The truncation section goes right after the data rows (before pagination/included)
+    data_end = next(
+        (i for i, line in enumerate(lines[1:], 1) if line and not line.startswith("  ")),
+        len(lines),
+    )
+    truncation_section = [
+        "truncation:",
+        f"  rowsShown: {best}",
+        f"  rowsOmitted: {len(data) - best}",
+    ]
+    return "\n".join([*lines[:data_end], *truncation_section, *lines[data_end:]]), True
+
+
 def truncate_markdown_output(
     content: str, max_bytes: int, *, original_total: int | None = None
 ) -> tuple[str, bool]:

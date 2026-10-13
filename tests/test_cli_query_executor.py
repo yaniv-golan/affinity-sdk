@@ -1831,8 +1831,8 @@ class TestFieldNameResolution:
 
     @pytest.mark.asyncio
     @pytest.mark.req("QUERY-EXECUTOR-010")
-    async def test_warns_on_get_fields_failure(self) -> None:
-        """Adds warning and returns where unchanged when get_fields fails."""
+    async def test_get_fields_failure_fails_the_query(self) -> None:
+        """A get_fields failure propagates (an unresolved fields.* where reads nulls)."""
         mock_client = MagicMock()
         mock_client.lists.get_fields = AsyncMock(side_effect=Exception("Network timeout"))
         mock_client.whoami = AsyncMock(return_value={"id": 1})
@@ -1842,13 +1842,8 @@ class TestFieldNameResolution:
         ctx = ExecutionContext(query=query)
 
         where = {"path": "fields.Status", "op": "eq", "value": "Active"}
-        resolved = await executor._resolve_field_names_to_ids(where, [12345], ctx)
-
-        # Where clause returned unchanged (field name not resolved to ID)
-        assert resolved == where
-        # Warning surfaced to user
-        assert len(ctx.warnings) == 1
-        assert "Network timeout" in ctx.warnings[0]
+        with pytest.raises(Exception, match="Network timeout"):
+            await executor._resolve_field_names_to_ids(where, [12345], ctx)
 
 
 # =============================================================================
@@ -2089,19 +2084,16 @@ class TestResolveFieldIdsForListEntries:
     @pytest.mark.asyncio
     @pytest.mark.req("QUERY-EXECUTOR-011")
     async def test_handles_get_fields_error(self, mock_client: AsyncMock) -> None:
-        """Returns None and adds warning if get_fields fails."""
+        """A get_fields failure propagates (fields.* values would read as null)."""
         mock_client.lists.get_fields = AsyncMock(side_effect=Exception("API Error"))
         executor = QueryExecutor(mock_client, max_records=100)
 
         query = Query(from_="listEntries", group_by="fields.Status")
         ctx = ExecutionContext(query=query)
 
-        field_ids = await executor._resolve_field_ids_for_list_entries(ctx, 12345)
-
-        assert field_ids is None
-        assert len(ctx.warnings) == 1
-        assert "API Error" in ctx.warnings[0]
-        assert "field" in ctx.warnings[0].lower()
+        with pytest.raises(Exception, match="API Error"):
+            await executor._resolve_field_ids_for_list_entries(ctx, 12345)
+        assert ctx.warnings == []
 
     @pytest.mark.asyncio
     @pytest.mark.req("QUERY-EXECUTOR-013")

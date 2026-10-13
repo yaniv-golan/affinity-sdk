@@ -565,18 +565,12 @@ class FieldResolver:
             return (parsed if isinstance(parsed, list) else [parsed]), type_str
 
         # Text: the V2 API rejects non-string data (a number from --set-json -> 400).
-        if type_str in ("text", "filterable-text") and isinstance(value, (int, float, bool)):
-            return (str(value).lower() if isinstance(value, bool) else str(value)), type_str
+        # Booleans never get here: pre_validate_set_operations refuses them.
+        if type_str in ("text", "filterable-text") and isinstance(value, (int, float)):
+            return str(value), type_str
         if type_str == "filterable-text-multi":
             items = value if isinstance(value, list) else [value]
-            return [
-                str(item).lower()
-                if isinstance(item, bool)
-                else str(item)
-                if isinstance(item, (int, float))
-                else item
-                for item in items
-            ], type_str
+            return [str(i) if isinstance(i, (int, float)) else i for i in items], type_str
 
         # Any other multi-value type takes a list: wrap a single value (V2 rejects a scalar).
         if type_str.endswith("-multi") and not isinstance(value, list):
@@ -1097,6 +1091,17 @@ def value_equals_existing(
     return new_s == old_s
 
 
+def _contains_bool(value: Any) -> bool:
+    """True if a JSON bool appears anywhere in ``value`` (top level, list items, object values)."""
+    if isinstance(value, bool):
+        return True
+    if isinstance(value, list):
+        return any(_contains_bool(item) for item in value)
+    if isinstance(value, dict):
+        return any(_contains_bool(item) for item in value.values())
+    return False
+
+
 def pre_validate_set_operations(
     resolver: FieldResolver,
     set_operations: list[tuple[str, Any]],
@@ -1126,9 +1131,9 @@ def pre_validate_set_operations(
     errors: list[dict[str, Any]] = []
 
     for field_id, value in set_operations:
-        if isinstance(value, bool):
-            # The SDK refuses a bool for every field write (TypeError); catch it here so it's a
-            # validation error before anything is written.
+        if _contains_bool(value):
+            # Affinity has no boolean field type and the SDK refuses a bool (TypeError); refuse
+            # one anywhere in the value (inside a list or object too) before anything is written.
             errors.append(
                 {
                     "field": resolver.get_field_name(field_id) or field_id,
@@ -1435,6 +1440,7 @@ def execute_append_phase(
     append_ops: list[tuple[str, Any]],
     existing_values_serialized: list[dict[str, Any]],
     resolver: FieldResolver,
+    written_ids: list[str] | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """V2-only --append phase. Merges with existing values for multi-fields.
 
@@ -1450,6 +1456,9 @@ def execute_append_phase(
 
     ``append_ops`` MUST be the *resolved* field-id list (callers should run
     pre-validation first to catch invalid values before any side-effect).
+
+    ``written_ids``, when given, collects each field id as soon as its write succeeds, so a
+    caller can report what was already changed if a later step fails.
     """
     from collections import OrderedDict
 
@@ -1559,6 +1568,8 @@ def execute_append_phase(
             final_value,
             value_type=value_type_str,
         )
+        if written_ids is not None:
+            written_ids.append(field_id)
         new_serialized = _serialize(result)
         created.append(new_serialized)
         # For multi-value fields the V2 POST replaces the entire row set; for the

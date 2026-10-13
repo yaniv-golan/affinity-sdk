@@ -553,3 +553,249 @@ def test_unset_value_failure_after_a_set_is_a_partial_write(respx_mock: respx.Mo
     payload = json.loads(result.stdout)
     assert payload["error"]["type"] == "partial_write"
     assert "did not remove" in payload["error"]["message"]
+
+
+# --- 8. bool anywhere in a --set-json value ------------------------------------------------------
+
+
+def test_set_json_bool_inside_a_list_is_a_validation_error(respx_mock: respx.MockRouter) -> None:
+    _setup_list(respx_mock)
+    respx_mock.get("https://api.affinity.co/field-values").mock(return_value=Response(200, json=[]))
+    result = CliRunner().invoke(
+        cli,
+        ["--json", "entry", "field", "Portfolio", str(ENTRY_ID), "--set-json", '{"Tags": [true]}'],
+        env=ENV,
+    )
+    assert result.exit_code == 2, result.output
+    payload = json.loads(result.stdout)
+    assert payload["error"]["type"] == "validation_error"
+    assert "boolean" in payload["error"]["message"]
+    writes = [c for c in respx_mock.calls if c.request.method in ("POST", "PATCH", "DELETE")]
+    assert writes == []
+
+
+@pytest.mark.parametrize(
+    "value",
+    [["Acme Corp", False], {"city": True}, [{"city": "Paris", "country": True}], [[True]]],
+)
+def test_pre_validate_rejects_nested_bools(value: Any) -> None:
+    from affinity.cli.errors import CLIError
+    from affinity.cli.field_utils import pre_validate_set_operations
+
+    resolver = MagicMock()
+    resolver.get_field_name.return_value = "Tags"
+    with pytest.raises(CLIError) as info:
+        pre_validate_set_operations(resolver, [("field-102", value)])
+    assert info.value.exit_code == 2
+    assert info.value.error_type == "validation_error"
+    assert info.value.details["failures"][0]["reason"] == "Affinity has no boolean field type"
+    resolver.resolve_field_value.assert_not_called()
+
+
+def test_text_fields_still_stringify_numbers() -> None:
+    from affinity.cli.field_utils import FieldResolver
+    from affinity.models.entities import FieldMetadata
+
+    fields = [
+        FieldMetadata.model_validate(
+            {"id": "field-100", "name": "Status", "valueType": "text", "allowsMultiple": False}
+        ),
+        FieldMetadata.model_validate(
+            {
+                "id": "field-102",
+                "name": "Tags",
+                "valueType": "filterable-text-multi",
+                "allowsMultiple": True,
+            }
+        ),
+    ]
+    resolver = FieldResolver(fields)
+    assert resolver.resolve_field_value("field-100", 5) == ("5", "text")
+    assert resolver.resolve_field_value("field-102", [1, "a"]) == (
+        ["1", "a"],
+        "filterable-text-multi",
+    )
+
+
+# --- 9. --unset-value: a failure reports what the command already changed ------------------------
+
+
+def _two_tags(respx_mock: respx.MockRouter) -> None:
+    respx_mock.get("https://api.affinity.co/field-values").mock(
+        return_value=Response(
+            200,
+            json=[
+                {"id": 500, "fieldId": "field-102", "entityId": 12345, "value": "Tag1"},
+                {"id": 501, "fieldId": "field-102", "entityId": 12345, "value": "Tag2"},
+            ],
+        )
+    )
+
+
+def _unset_two(extra: list[str] | None = None) -> Any:
+    args = ["--json", "entry", "field", "Portfolio", str(ENTRY_ID), *(extra or [])]
+    args += ["--unset-value", "Tags", "Tag1", "--unset-value", "Tags", "Tag2"]
+    return CliRunner().invoke(cli, args, env=ENV)
+
+
+def test_unset_value_failure_after_an_earlier_delete_is_a_partial_write(
+    respx_mock: respx.MockRouter,
+) -> None:
+    _setup_list(respx_mock)
+    _two_tags(respx_mock)
+    respx_mock.delete("https://api.affinity.co/field-values/500").mock(
+        return_value=Response(200, json={"success": True})
+    )
+    respx_mock.delete("https://api.affinity.co/field-values/501").mock(
+        return_value=Response(200, json={"success": False})
+    )
+    result = _unset_two()
+    assert result.exit_code == 1, result.output
+    error = json.loads(result.stdout)["error"]
+    assert error["type"] == "partial_write"
+    assert "already removed 'Tag1' from Tags" in error["message"]
+    assert "did not remove value 'Tag2'" in error["message"]
+    assert error["details"]["removed"] == [{"field": "Tags", "value": "Tag1"}]
+    assert error["details"]["written"] == []
+
+
+def test_unset_value_delete_error_after_an_earlier_delete_is_a_partial_write(
+    respx_mock: respx.MockRouter,
+) -> None:
+    _setup_list(respx_mock)
+    _two_tags(respx_mock)
+    respx_mock.delete("https://api.affinity.co/field-values/500").mock(
+        return_value=Response(200, json={"success": True})
+    )
+    respx_mock.delete("https://api.affinity.co/field-values/501").mock(
+        return_value=Response(404, json={"message": "Not found"})
+    )
+    result = _unset_two()
+    assert result.exit_code == 1, result.output
+    error = json.loads(result.stdout)["error"]
+    assert error["type"] == "partial_write"
+    assert error["details"]["removed"] == [{"field": "Tags", "value": "Tag1"}]
+
+
+def test_unset_value_delete_error_after_a_set_is_a_partial_write(
+    respx_mock: respx.MockRouter,
+) -> None:
+    _setup_list(respx_mock)
+    _two_tags(respx_mock)
+    respx_mock.delete("https://api.affinity.co/field-values/500").mock(
+        return_value=Response(404, json={"message": "Not found"})
+    )
+    result = CliRunner().invoke(
+        cli,
+        [
+            "--json",
+            "entry",
+            "field",
+            "Portfolio",
+            str(ENTRY_ID),
+            "--set",
+            "Status",
+            "Active",
+            "--unset-value",
+            "Tags",
+            "Tag1",
+        ],
+        env=ENV,
+    )
+    assert result.exit_code == 1, result.output
+    error = json.loads(result.stdout)["error"]
+    assert error["type"] == "partial_write"
+    assert "Status were already updated" in error["message"]
+    assert error["details"]["written"] == ["Status"]
+    assert "removed" not in error["details"]
+
+
+def test_unset_value_delete_error_with_nothing_changed_is_not_a_partial_write(
+    respx_mock: respx.MockRouter,
+) -> None:
+    _setup_list(respx_mock)
+    _two_tags(respx_mock)
+    respx_mock.delete("https://api.affinity.co/field-values/500").mock(
+        return_value=Response(404, json={"message": "Not found"})
+    )
+    result = _unset_two()
+    assert result.exit_code != 0, result.output
+    assert json.loads(result.stdout)["error"]["type"] != "partial_write"
+
+
+def test_execute_append_phase_reports_written_field_ids() -> None:
+    from affinity.cli.field_utils import FieldResolver, execute_append_phase
+    from affinity.models.entities import FieldMetadata
+
+    resolver = FieldResolver(
+        [
+            FieldMetadata.model_validate(
+                {"id": "field-103", "name": "Scores", "valueType": "number-multi"}
+            )
+        ]
+    )
+    entries = MagicMock()
+    entries.update_field_value.return_value = {"id": "field-103", "value": [1, 5]}
+    written: list[str] = []
+    execute_append_phase(
+        entries=entries,
+        list_entry_id=ENTRY_ID,
+        append_ops=[("field-103", "5")],
+        existing_values_serialized=[
+            {"id": 1, "fieldId": "field-103", "entityId": 12345, "value": 1}
+        ],
+        resolver=resolver,
+        written_ids=written,
+    )
+    assert written == ["field-103"]
+
+
+def test_append_cli_error_after_a_set_is_a_partial_write(
+    respx_mock: respx.MockRouter, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from affinity.cli import field_utils
+    from affinity.cli.errors import CLIError
+
+    _setup_list(respx_mock)
+    _two_tags(respx_mock)
+    # Tags as a multi-value text field, so --append passes validation and reaches the phase
+    multi_tags = {"id": "field-102", "name": "Tags", "valueType": "filterable-text-multi"}
+    respx_mock.get(f"https://api.affinity.co/v2/lists/{LIST_ID}/fields").mock(
+        return_value=Response(
+            200,
+            json={
+                "data": [
+                    {"id": "field-100", "name": "Status", "valueType": "text"},
+                    {**multi_tags, "allowsMultiple": True},
+                ],
+                "pagination": {},
+            },
+        )
+    )
+
+    def refuse(**_kwargs: Any) -> Any:
+        raise CLIError("Tags would hold too many values", error_type="usage_error", exit_code=2)
+
+    monkeypatch.setattr(field_utils, "execute_append_phase", refuse)
+    result = CliRunner().invoke(
+        cli,
+        [
+            "--json",
+            "entry",
+            "field",
+            "Portfolio",
+            str(ENTRY_ID),
+            "--set",
+            "Status",
+            "Active",
+            "--append",
+            "Tags",
+            "Tag3",
+        ],
+        env=ENV,
+    )
+    assert result.exit_code == 1, result.output
+    error = json.loads(result.stdout)["error"]
+    assert error["type"] == "partial_write"
+    assert "Status were already updated" in error["message"]
+    assert "too many values" in error["message"]
