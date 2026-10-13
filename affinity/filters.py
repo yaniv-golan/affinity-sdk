@@ -194,7 +194,7 @@ class FieldComparison(FilterExpression):
                 f"Supported operators: =, !=, =~, =^, =$, >, >=, <, <=, "
                 f"contains, starts_with, ends_with, gt, gte, lt, lte, "
                 f"is null, is not null, is empty, "
-                f"in, between, has_any, has_all, contains_any, contains_all"
+                f"in, between, has_any, has_all, contains_any, contains_all, starts_word"
             ) from None
 
         return compare_values(field_value, target, canonical_op)
@@ -438,6 +438,7 @@ class _Tokenizer:
         "has_all": "has_all",
         "contains_any": "contains_any",
         "contains_all": "contains_all",
+        "starts_word": "starts_word",
     }
 
     # Multi-word aliases that need lookahead

@@ -7,7 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (breaking)
+
+**Exception to semantic versioning:** these change what some filters return, in a patch release
+(the maintainer's call). Filters now mean what Affinity's own search means, so the same filter
+gives the same answer whether Affinity or the CLI applies it.
+
+- **An empty multi-value field counts as empty.** `is_null` / `is empty` now match a field with
+  no items (`[]`), and `is_not_null` / `is not null` no longer do, in `query`, `--filter` and
+  the SDK's `affinity.filters`.
+- **`contains` on person and company fields is refused** (in `query` on list entries): use the
+  new **`starts_word`** operator, which matches a word in the name that starts with the text,
+  the way Affinity's search does ("Jan" finds "Jane Doe"; "ane" doesn't).
+- **`query`: a field name two list fields share is refused.** Name the field by id instead:
+  `fields.<field id>` (e.g. Affinity's and Dealroom's "Year Founded"). Such fields come back
+  keyed by id, instead of one silently overwriting the other. Any field can be named by id.
+
 ### Added
+
+- **`starts_word` filter operator** (`query` JSON and `--filter` text: `Owner starts_word "Jan"`).
 
 - **Teams, users and feedback (V2):** `client.teams.list/iter/get` (Affinity API 2026-09-17+;
   filter by name, sort, `includes` for the first members and accessible lists),

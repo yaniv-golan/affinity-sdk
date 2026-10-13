@@ -279,6 +279,7 @@ OPERATORS: dict[str, OperatorFunc] = {
     "contains_all": _make_operator("contains_all"),
     "has_any": _make_operator("has_any"),
     "has_all": _make_operator("has_all"),
+    "starts_word": _make_operator("starts_word"),
 }
 
 

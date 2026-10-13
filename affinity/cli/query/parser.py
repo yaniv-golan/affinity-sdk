@@ -43,6 +43,7 @@ SUPPORTED_OPERATORS_V1 = frozenset(
         "contains_all",
         "has_any",
         "has_all",
+        "starts_word",
     ]
 )
 

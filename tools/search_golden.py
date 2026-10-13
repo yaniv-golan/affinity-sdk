@@ -12,6 +12,7 @@ Read-only (search is a read). Prints field types, operators and counts only, nev
 
 Usage:
     AFFINITY_API_KEY=... python tools/search_golden.py LIST_ID [LIST_ID ...]
+    ... --enriched-or-empty   # only Affinity's enriched fields, sent as "condition OR empty"
 
 Exit codes: 0 every exercised mapping is safe, 1 a mapping dropped records, 2 usage.
 Copy the "safe" mappings into ``VERIFIED`` in ``affinity/cli/query/pushdown.py``.
@@ -38,7 +39,7 @@ from affinity.types import ListId
 def _cases(meta: FieldMetadata, vt: str, values: list[Any]) -> list[WhereClause]:
     path = f"fields.{meta.name}"
     present = [v for v in values if v not in (None, "", [])]
-    cases = [WhereClause(path=path, op="is_not_null")]
+    cases = [WhereClause(path=path, op="is_not_null"), WhereClause(path=path, op="is_null")]
     if not present:
         return cases
 
@@ -69,16 +70,25 @@ def _cases(meta: FieldMetadata, vt: str, values: list[Any]) -> list[WhereClause]
     elif vt == "date":
         days = sorted(str(v)[:10] for v in present if isinstance(v, str))
         if days:
-            m = days[len(days) // 2]
-            cases += [w(op, m) for op in ("gt", "gte", "lt", "lte", "eq")]
+            mid_day = days[len(days) // 2]
+            cases += [w(op, mid_day) for op in ("gt", "gte", "lt", "lte", "eq")]
             cases.append(w("between", [days[len(days) // 4], days[(3 * len(days)) // 4]]))
+    elif vt in ("person", "person-multi", "company", "company-multi"):
+        names = sorted({n for v in present for n in (v if isinstance(v, list) else [v]) if n})
+        for name in [str(n) for n in names[:4]]:
+            words = [p for p in name.split() if len(p) >= 3]
+            cases.append(w("starts_word", name))
+            if words:
+                cases += [w("starts_word", words[0]), w("starts_word", words[-1][:3])]
     elif vt == "filterable-text":
         texts = sorted({str(v) for v in present})
         cases += [w("eq", texts[0]), w("in", texts[:3])]
     return cases
 
 
-def run_list(client: Affinity, list_id: int) -> dict[tuple[str, str], list[tuple[int, int, int]]]:
+def run_list(
+    client: Affinity, list_id: int, *, enriched_or_empty: bool = False
+) -> dict[tuple[str, str], list[tuple[int, int, int]]]:
     lists = client.lists
     fields = lists.get_fields(ListId(list_id), includes=["filterability"])
     filterable = [
@@ -104,15 +114,28 @@ def run_list(client: Affinity, list_id: int) -> dict[tuple[str, str], list[tuple
 
     results: dict[tuple[str, str], list[tuple[int, int, int]]] = defaultdict(list)
     for meta in filterable:
+        if enriched_or_empty and meta.type != "enriched":
+            continue
         vt = filter_value_type(str(getattr(meta.value_type, "value", meta.value_type))) or ""
         values = [r["fields"].get(meta.name) for r in records]
         for where in _cases(meta, vt, values):
-            split = split_where(where, fields, options_for, verified=ALL_MAPPINGS)
-            if split.where is None or split.local:
+            split = split_where(
+                where,
+                fields,
+                options_for,
+                verified=ALL_MAPPINGS,
+                enriched="or-empty" if enriched_or_empty else "local",
+            )
+            if not split.server_side or split.local or split.errors:
                 continue
-            conds = SearchCriteria(where=split.where).conditions()
-            mapping = (conds[0].value_type or vt, conds[0].operator)
-            body = SearchCriteria(where=split.where).to_body()
+            criteria = SearchCriteria(
+                where=split.where, term=split.term, term_fields=split.term_fields
+            )
+            conds = criteria.conditions()
+            label = conds[0].value_type or vt if conds else vt
+            operator = conds[0].operator if conds else "term"
+            mapping = (f"enriched {label}" if enriched_or_empty else label, operator)
+            body = criteria.to_body()
             server = {int(e.id) for e in _all(entries, body)}
             keep = compile_filter(where)
             local = {int(r["id"]) for r in records if keep(r)}
@@ -134,10 +157,13 @@ def main(argv: list[str]) -> int:
     if not argv:
         print(__doc__)
         return 2
+    enriched_or_empty = "--enriched-or-empty" in argv
+    argv = [a for a in argv if a != "--enriched-or-empty"]
     totals: dict[tuple[str, str], list[tuple[int, int, int]]] = defaultdict(list)
     with Affinity.from_env(load_dotenv=True, policies=Policies(write=WritePolicy.DENY)) as client:
         for raw in argv:
-            for mapping, rows in run_list(client, int(raw)).items():
+            found = run_list(client, int(raw), enriched_or_empty=enriched_or_empty)
+            for mapping, rows in found.items():
                 totals[mapping].extend(rows)
     unsafe = False
     print(f"\n{'value type':<18} {'operator':<28} cases  local  server  missing")

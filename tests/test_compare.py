@@ -374,7 +374,12 @@ class TestNullEmptyOperators:
         """is_null returns False for non-null values."""
         assert compare_values("hello", None, "is_null") is False
         assert compare_values(0, None, "is_null") is False
-        assert compare_values([], None, "is_null") is False
+        assert compare_values(["a"], None, "is_null") is False
+
+    def test_an_empty_list_is_null(self) -> None:
+        """A multi-value field with no items has no value, as in Affinity's search."""
+        assert compare_values([], None, "is_null") is True
+        assert compare_values([], None, "is_not_null") is False
 
     def test_is_not_null_value(self) -> None:
         """is_not_null returns True for non-null, non-empty values."""

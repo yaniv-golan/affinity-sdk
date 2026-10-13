@@ -178,7 +178,7 @@ def test_conditions_affinity_cant_answer_read_the_list(respx_mock: respx.MockRou
 
 def test_the_env_switch_turns_it_off(respx_mock: respx.MockRouter) -> None:
     search = respx_mock.post(f"{V2}/lists/9/list-entries/search")
-    respx_mock.get(f"{V2}/lists/9/fields").mock(return_value=Response(200, json=_page(FIELDS)))
+    _mock_metadata(respx_mock)
     respx_mock.get(f"{V2}/lists/9/list-entries").mock(
         return_value=Response(200, json=_page([_entry(1, "Won")]))
     )
@@ -186,3 +186,92 @@ def test_the_env_switch_turns_it_off(respx_mock: respx.MockRouter) -> None:
     assert code == 0, out
     assert [row["id"] for row in out["data"]] == [1]
     assert not search.called
+
+
+PERSON_FIELD = {
+    "id": "field-2",
+    "name": "Owners",
+    "type": "list",
+    "valueType": "person-multi",
+    "enrichmentSource": None,
+    "filterability": {
+        "filterableFieldType": "field-only",
+        "operators": [{"id": "has-any-of", "name": "x", "numberOfValuesRequired": "multi"}],
+    },
+}
+
+
+def test_contains_on_a_person_field_is_refused(respx_mock: respx.MockRouter) -> None:
+    respx_mock.get(f"{V2}/lists/9/fields").mock(
+        return_value=Response(200, json=_page([*FIELDS, PERSON_FIELD]))
+    )
+    code, out = _query(
+        {
+            "and": [
+                {"path": "listId", "op": "eq", "value": 9},
+                {"path": "fields.Owners", "op": "contains", "value": "an"},
+            ]
+        }
+    )
+    assert code != 0
+    assert "starts_word" in json.dumps(out)
+
+
+def _numeric(fid: str) -> dict[str, Any]:
+    return {
+        "id": fid,
+        "name": "Year Founded",
+        "type": "enriched" if fid.startswith("affinity-data") else "global",
+        "valueType": "number",
+        "enrichmentSource": None,
+        "filterability": None,
+    }
+
+
+TWINS = [*FIELDS, _numeric("affinity-data-year-founded"), _numeric("field-8")]
+
+
+def test_a_name_two_fields_share_must_be_given_by_id(respx_mock: respx.MockRouter) -> None:
+    respx_mock.get(f"{V2}/lists/9/fields").mock(return_value=Response(200, json=_page(TWINS)))
+    code, out = _query(
+        {
+            "and": [
+                {"path": "listId", "op": "eq", "value": 9},
+                {"path": "fields.Year Founded", "op": "gt", "value": 2000},
+            ]
+        }
+    )
+    assert code != 0
+    text = json.dumps(out)
+    assert "fields.affinity-data-year-founded" in text and "fields.field-8" in text
+
+
+def test_fields_by_id(respx_mock: respx.MockRouter) -> None:
+    respx_mock.get(f"{V2}/lists/9/fields").mock(return_value=Response(200, json=_page(TWINS)))
+    entry = _entry(1, None)
+    entry["entity"]["fields"] = [
+        {"id": "field-8", "name": "Year Founded", "type": "global",
+         "value": {"type": "number", "data": 1999}},
+        {"id": "affinity-data-year-founded", "name": "Year Founded", "type": "enriched",
+         "value": {"type": "number", "data": 2005}},
+    ]  # fmt: skip
+    respx_mock.get(f"{V2}/lists/9/list-entries").mock(
+        return_value=Response(200, json=_page([entry]))
+    )
+    query = {
+        "from": "listEntries",
+        "where": {
+            "and": [
+                {"path": "listId", "op": "eq", "value": 9},
+                {"path": "fields.field-8", "op": "lt", "value": 2000},
+            ]
+        },
+        "select": ["id", "fields.field-8", "fields.affinity-data-year-founded"],
+    }
+    result = CliRunner().invoke(cli, ["--json", "query", "--query", json.dumps(query)], env=ENV)
+    out = json.loads(result.stdout.strip().splitlines()[-1])
+    assert result.exit_code == 0, out
+    # Both "Year Founded" fields come back, keyed by id instead of overwriting each other
+    assert out["data"] == [
+        {"id": 1, "fields": {"field-8": 1999, "affinity-data-year-founded": 2005}}
+    ]

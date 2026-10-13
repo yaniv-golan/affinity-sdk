@@ -163,7 +163,9 @@ def _extract_person_display_name(data: dict[str, Any]) -> str | None:
 
 
 def _normalize_list_entry_fields(
-    record: dict[str, Any], truncated: list[tuple[str, Any]] | None = None
+    record: dict[str, Any],
+    truncated: list[tuple[str, Any]] | None = None,
+    id_keyed: set[str] | frozenset[str] = frozenset(),
 ) -> dict[str, Any]:
     """Normalize list entry field values from API format to query-friendly format.
 
@@ -208,6 +210,10 @@ def _normalize_list_entry_fields(
                     field_name = field_obj.get("name")
                     if not field_name:
                         continue
+                    # Fields two fields' names collide on (or the query names by id) are keyed
+                    # by field id: fields.<id>
+                    if str(_field_id) in id_keyed:
+                        field_name = str(_field_id)
 
                     value_wrapper = field_obj.get("value")
                     if value_wrapper is None:
@@ -393,6 +399,8 @@ class ExecutionContext:
     truncated_fields: list[tuple[str, Any]] = field(default_factory=list)
     # What Affinity's search filtered and what stayed local ({"pushed", "local", "fallback"})
     server_filter: dict[str, Any] | None = None
+    # List fields keyed by id in normalized records (shared names, or named by id in the query)
+    id_keyed_fields: set[str] = field(default_factory=set)
 
     def check_timeout(self, timeout: float) -> None:
         """Check if execution has exceeded timeout."""
@@ -1070,7 +1078,9 @@ class QueryExecutor:
 
             # Convert to dict, normalized for query-friendly access (fields.X, entityName)
             record_dict = record.model_dump(mode="json", by_alias=True)
-            ctx.records = [_normalize_list_entry_fields(record_dict, ctx.truncated_fields)]
+            ctx.records = [
+                _normalize_list_entry_fields(record_dict, ctx.truncated_fields, ctx.id_keyed_fields)
+            ]
             self.progress.on_step_complete(fetch_step, 1)
 
             # Handle includes and expands if present
@@ -1134,7 +1144,7 @@ class QueryExecutor:
                         "This should have been caught at parse time.",
                         step=step,
                     )
-        except QueryExecutionError:
+        except (QueryExecutionError, QueryValidationError):
             raise
         except Exception as e:
             raise QueryExecutionError(
@@ -1305,13 +1315,15 @@ class QueryExecutor:
                     for record in page.data:
                         record_dict = record.model_dump(mode="json", by_alias=True)
                         record_dict = _normalize_list_entry_fields(
-                            record_dict, ctx.truncated_fields
+                            record_dict, ctx.truncated_fields, ctx.id_keyed_fields
                         )
                         results.append(record_dict)
             else:
                 async for record in nested_service.all():
                     record_dict = record.model_dump(mode="json", by_alias=True)
-                    record_dict = _normalize_list_entry_fields(record_dict, ctx.truncated_fields)
+                    record_dict = _normalize_list_entry_fields(
+                        record_dict, ctx.truncated_fields, ctx.id_keyed_fields
+                    )
                     results.append(record_dict)
 
             return results
@@ -1384,7 +1396,9 @@ class QueryExecutor:
                 for record in page.data:
                     record_dict = record.model_dump(mode="json", by_alias=True)
                     # Normalize list entry fields for query-friendly access
-                    record_dict = _normalize_list_entry_fields(record_dict, ctx.truncated_fields)
+                    record_dict = _normalize_list_entry_fields(
+                        record_dict, ctx.truncated_fields, ctx.id_keyed_fields
+                    )
                     ctx.records.append(record_dict)
                     items_fetched += 1
 
@@ -1412,7 +1426,9 @@ class QueryExecutor:
                 for record in page.data:
                     record_dict = record.model_dump(mode="json", by_alias=True)
                     # Normalize list entry fields for query-friendly access
-                    record_dict = _normalize_list_entry_fields(record_dict, ctx.truncated_fields)
+                    record_dict = _normalize_list_entry_fields(
+                        record_dict, ctx.truncated_fields, ctx.id_keyed_fields
+                    )
                     ctx.records.append(record_dict)
                     items_fetched += 1
                     if self._should_stop(ctx):
@@ -1432,7 +1448,9 @@ class QueryExecutor:
                 for record in page.data:
                     record_dict = record.model_dump(mode="json", by_alias=True)
                     # Normalize list entry fields for query-friendly access
-                    record_dict = _normalize_list_entry_fields(record_dict, ctx.truncated_fields)
+                    record_dict = _normalize_list_entry_fields(
+                        record_dict, ctx.truncated_fields, ctx.id_keyed_fields
+                    )
                     ctx.records.append(record_dict)
                     if self._should_stop(ctx):
                         # Capture API cursor for potential streaming resumption
@@ -1447,7 +1465,9 @@ class QueryExecutor:
             async for record in nested_service.all(**all_kwargs):
                 record_dict = record.model_dump(mode="json", by_alias=True)
                 # Normalize list entry fields for query-friendly access
-                record_dict = _normalize_list_entry_fields(record_dict, ctx.truncated_fields)
+                record_dict = _normalize_list_entry_fields(
+                    record_dict, ctx.truncated_fields, ctx.id_keyed_fields
+                )
                 ctx.records.append(record_dict)
                 items_fetched += 1
 
@@ -1472,20 +1492,22 @@ class QueryExecutor:
         from .pushdown import fields_index, split_where
 
         where = ctx.query.where
-        if not self.server_filter or where is None or not _parent_is_conjunct(where):
+        if where is None:
             return None
         local_where = _strip_parent_filter(where, "listId")
         if local_where is None:
             return None
+        names: set[str] = set()
+        self._collect_field_refs_from_where(
+            local_where.model_dump(mode="json", by_alias=True), names
+        )
+        if not names:
+            return None  # only list fields can go to the server (or need checking)
         try:
             fields = await self.client.lists.get_fields(
                 ListId(list_id), includes=list(SEARCH_INCLUDES)
             )
             index = fields_index(fields)
-            names: set[str] = set()
-            self._collect_field_refs_from_where(
-                local_where.model_dump(mode="json", by_alias=True), names
-            )
             options: dict[str, list[Any]] = {}
             for name in names:
                 meta = index.get(name) or index.get(name.lower())
@@ -1498,10 +1520,16 @@ class QueryExecutor:
             ctx.warnings.append(f"Filtering locally: could not read the list's fields ({e}).")
             return None
         split = split_where(local_where, fields, lambda m: options.get(str(m.id), []))
-        ctx.server_filter = {"pushed": split.pushed, "local": split.local}
-        if split.where is None:
+        if split.errors:
+            raise QueryValidationError("; ".join(split.errors), field="where")
+        if not self.server_filter or not _parent_is_conjunct(where):
             return None
-        return SearchCriteria(where=split.where).to_body()
+        ctx.server_filter = {"pushed": split.pushed, "local": split.local}
+        if not split.server_side:
+            return None
+        return SearchCriteria(
+            where=split.where, term=split.term, term_fields=split.term_fields
+        ).to_body()
 
     async def _fetch_by_search(
         self,
@@ -1532,7 +1560,9 @@ class QueryExecutor:
         while True:
             for record in page.data:
                 record_dict = _normalize_list_entry_fields(
-                    record.model_dump(mode="json", by_alias=True), ctx.truncated_fields
+                    record.model_dump(mode="json", by_alias=True),
+                    ctx.truncated_fields,
+                    ctx.id_keyed_fields,
                 )
                 ctx.records.append(record_dict)
                 fetched += 1
@@ -1774,15 +1804,20 @@ class QueryExecutor:
         if cache_key not in self._field_name_cache:
             try:
                 fields = await self.client.lists.get_fields(ListId(list_id))
-                # Build a mapping of lowercase name -> field ID
+                # Build a mapping of lowercase name -> field ID (and the names fields share)
                 field_map: dict[str, str] = {}
+                shared: dict[str, list[str]] = {}
                 all_field_ids: list[str] = []
                 for field in fields:
                     if field.name:
-                        field_map[field.name.lower()] = str(field.id)
+                        key = field.name.lower()
+                        if key in field_map:
+                            shared.setdefault(key, [field_map[key]]).append(str(field.id))
+                        field_map[key] = str(field.id)
                     all_field_ids.append(str(field.id))
                 self._field_name_cache[cache_key] = {
                     "by_name": field_map,
+                    "shared": shared,
                     "all_ids": all_field_ids,
                 }
             except Exception as exc:
@@ -1793,16 +1828,29 @@ class QueryExecutor:
                 return None
 
         cache = self._field_name_cache[cache_key]
+        shared_names: dict[str, list[str]] = cache["shared"]
+        ctx.id_keyed_fields.update(i for ids in shared_names.values() for i in ids)
 
         # Handle wildcard: return all field IDs
         if "*" in field_names:
             all_ids: list[str] = cache["all_ids"]
             return all_ids
 
-        # Resolve specific field names to IDs
+        # Resolve specific field names (or ids) to IDs
         field_ids: list[str] = []
         missing_fields: list[str] = []
         for name in field_names:
+            if name in cache["all_ids"]:
+                field_ids.append(name)
+                ctx.id_keyed_fields.add(name)
+                continue
+            if name.lower() in shared_names:
+                ids = shared_names[name.lower()]
+                raise QueryValidationError(
+                    f"{len(ids)} fields on this list are named '{name}': name one by id, "
+                    + " or ".join(f"fields.{i}" for i in ids),
+                    field="where",
+                )
             field_id = cache["by_name"].get(name.lower())
             if field_id is not None:
                 field_ids.append(field_id)

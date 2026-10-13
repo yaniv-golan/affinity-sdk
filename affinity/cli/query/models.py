@@ -47,6 +47,7 @@ class FilterCondition(BaseModel):
         "is_not_null",
         "contains_any",
         "contains_all",
+        "starts_word",
     ]
     value: Any = None
 

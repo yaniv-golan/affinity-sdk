@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from typing import Any
 
+from ...compare import compare_values
 from ...criteria import Condition, FilterGroup, filter_value_type
 from ...models.entities import DropdownOption, FieldMetadata
 from .dates import parse_date_value
@@ -60,37 +61,37 @@ _NUMBER_OPS = {
     "lt": "is-less-than",
     "lte": "is-less-than-or-equal-to",
 }
+_VALUE_TYPES = (
+    "company",
+    "company-multi",
+    "person",
+    "person-multi",
+    "list-multi",
+    "dropdown",
+    "dropdown-multi",
+    "ranked-dropdown",
+    "location",
+    "location-multi",
+    "filterable-text",
+    "filterable-text-multi",
+    "text",
+    "number",
+    "date",
+)
 # Every (value type, operator) this module can emit; tools/search_golden.py checks each one.
 ALL_MAPPINGS: frozenset[tuple[str, str]] = frozenset(
     {(vt, op) for vt in ("dropdown", "ranked-dropdown") for op in ("is-any-of", "is-none-of")}
-    | {
-        (vt, "is-not-empty")
-        for vt in (
-            "company",
-            "person",
-            "dropdown",
-            "ranked-dropdown",
-            "location",
-            "filterable-text",
-            "text",
-            "number",
-            "date",
-        )
-    }
+    | {(vt, op) for vt in _VALUE_TYPES for op in ("is-empty", "is-not-empty")}
     | {("text", "contains"), ("filterable-text", "is-any-of")}
     | {("number", op) for op in (*_NUMBER_OPS.values(), "is-between")}
     | {("date", op) for op in ("is-after", "is-before", "is-between")}
+    | {(vt, "term") for vt in ("person", "person-multi", "company", "company-multi")}
 )
 
 _DROPDOWN = {"dropdown", "ranked-dropdown"}
-_MULTI = {
-    "company-multi",
-    "person-multi",
-    "list-multi",
-    "dropdown-multi",
-    "location-multi",
-    "filterable-text-multi",
-}
+_NAMED = {"person", "person-multi", "company", "company-multi"}
+# How enriched-field conditions go to the server (see split_where).
+ENRICHED = "local"
 MAX_GROUP = 50
 MAX_VALUES = 100
 
@@ -102,13 +103,24 @@ class Pushdown:
     """The server part of a WHERE clause and why the rest stays local."""
 
     where: Condition | FilterGroup | None = None
+    # A name search (``starts_word`` on a person or company field): the search term and the
+    # field it's matched against (it also matches the record's own name: a superset)
+    term: str | None = None
+    term_fields: tuple[str, ...] = ()
     pushed: list[str] = field(default_factory=list)
     local: list[str] = field(default_factory=list)
+    # Conditions the query must not run with (e.g. contains on a person field)
+    errors: list[str] = field(default_factory=list)
+
+    @property
+    def server_side(self) -> bool:
+        """True when some condition goes to the server."""
+        return self.where is not None or self.term is not None
 
     @property
     def complete(self) -> bool:
         """True when every condition went to the server (the local re-check is a formality)."""
-        return self.where is not None and not self.local
+        return self.server_side and not self.local
 
 
 @dataclass
@@ -118,6 +130,9 @@ class _Ctx:
     verified: frozenset[tuple[str, str]]
     pushed: list[str]
     local: list[str]
+    enriched: str  # "local" or "or-empty"
+    errors: list[str] = field(default_factory=list)
+    term_claim: WhereClause | None = None  # the starts_word condition sent as the search term
 
 
 def fields_index(fields: Sequence[FieldMetadata]) -> dict[str, FieldMetadata | None]:
@@ -139,21 +154,53 @@ def split_where(
     options_for: OptionsFor,
     *,
     verified: frozenset[tuple[str, str]] = VERIFIED,
+    enriched: str = ENRICHED,
 ) -> Pushdown:
     """Split ``where`` into the server part (a superset) and the reasons the rest stays local.
 
     ``fields`` need ``filterability`` (fields requested with ``includes``); ``options_for``
     returns a dropdown field's options (called only for dropdown conditions).
+
+    ``enriched``: how conditions on Affinity's enriched fields go: ``"local"`` (not sent) or
+    ``"or-empty"`` (sent as "condition OR the field is empty": search reads some records'
+    enriched values as empty, so those come back too and the local filter decides).
     """
     result = Pushdown()
     if where is None:
         return result
-    ctx = _Ctx(fields_index(fields), options_for, verified, result.pushed, result.local)
+    ctx = _Ctx(
+        fields_index(fields),
+        options_for,
+        verified,
+        result.pushed,
+        result.local,
+        enriched,
+        result.errors,
+    )
+    _claim_term(where, ctx, result)
     node = _node(where, ctx)
-    if node is None:
-        return result
-    result.where = node if isinstance(node, FilterGroup) else FilterGroup("and", (node,))
+    if node is not None:
+        result.where = node if isinstance(node, FilterGroup) else FilterGroup("and", (node,))
     return result
+
+
+def _claim_term(where: WhereClause, ctx: _Ctx, result: Pushdown) -> None:
+    """Send the first top-level ``starts_word`` on a person or company field as the search
+    term (a search takes one term; it ANDs with the filters)."""
+    for w in [where] if where.and_ is None else where.and_:
+        if w.op != "starts_word" or not isinstance(w.value, str) or len(w.value.strip()) < 3:
+            continue
+        trial = _Ctx(ctx.fields, ctx.options_for, ctx.verified, [], [], ctx.enriched)
+        found = _field(w, trial)
+        if found is None or found[1] not in _NAMED:
+            continue
+        meta, vt = found
+        if (vt, "term") not in ctx.verified:
+            continue
+        result.term, result.term_fields = w.value.strip(), (str(meta.id),)
+        ctx.term_claim = w
+        ctx.pushed.append(_describe(w))
+        return
 
 
 def _node(w: WhereClause, ctx: _Ctx) -> Condition | FilterGroup | None:
@@ -167,7 +214,7 @@ def _node(w: WhereClause, ctx: _Ctx) -> Condition | FilterGroup | None:
         return parts[0] if len(parts) == 1 else FilterGroup("and", tuple(parts))
     if w.or_ is not None:
         # Every branch must go to the server, or none: a partial OR would drop records.
-        trial = _Ctx(ctx.fields, ctx.options_for, ctx.verified, [], [])
+        trial = _Ctx(ctx.fields, ctx.options_for, ctx.verified, [], [], ctx.enriched, ctx.errors)
         branches = [_node(c, trial) for c in w.or_]
         if any(b is None for b in branches) or trial.local or len(branches) > MAX_GROUP:
             ctx.local.append("an OR with a branch the server can't answer")
@@ -182,7 +229,12 @@ def _node(w: WhereClause, ctx: _Ctx) -> Condition | FilterGroup | None:
         return None
     if w.op is None:
         return None
-    return _condition(w, ctx)
+    cond = _condition(w, ctx)
+    meta = ctx.fields.get(cond.field_id) if cond is not None else None
+    if cond is not None and meta is not None and meta.type == "enriched":
+        empty = Condition(cond.field_id, "is-empty", value_type=cond.value_type)
+        return FilterGroup("or", (cond, empty))
+    return cond
 
 
 def _describe(w: WhereClause) -> str:
@@ -203,8 +255,9 @@ def _field(w: WhereClause, ctx: _Ctx) -> tuple[FieldMetadata, str] | None:
     if meta is None:
         ctx.local.append(f"{_describe(w)}: two fields share this name")
         return None
-    if meta.type == "enriched":
-        # Search misses enriched values for some records (live golden test, 2026-10-13).
+    if meta.type == "enriched" and (ctx.enriched != "or-empty" or w.op == "is_not_null"):
+        # Search reads some records' enriched values as empty (live golden test, 2026-10-13);
+        # "or empty" makes "is not null" match everything, so it stays local too.
         ctx.local.append(f"{_describe(w)}: Affinity enriched fields stay local")
         return None
     if "filterability" in meta.model_fields_set and meta.filterability is None:
@@ -259,26 +312,35 @@ def _condition(w: WhereClause, ctx: _Ctx) -> Condition | None:
         if found is None:
             return None
         meta, vt = found
-        if vt in _MULTI:
-            # An empty list counts as "not null" locally and as empty on the server.
-            ctx.local.append(f"{_describe(w)}: multi-value fields stay local")
-            return None
         return _emit(w, meta, vt, "is-not-empty", None, ctx)
     if op in ("is_null", "is_empty"):
-        # "" counts as empty locally and maybe not on the server.
-        ctx.local.append(f"{_describe(w)}: empty checks stay local")
-        return None
+        found = _field(w, ctx)
+        if found is None:
+            return None
+        meta, vt = found
+        return _emit(w, meta, vt, "is-empty", None, ctx)
     if op == "neq":
         return _negated(WhereClause(path=w.path, op="eq", value=w.value), ctx)
+    if w is ctx.term_claim:
+        return None  # sent as the search term
     found = _field(w, ctx)
     if found is None:
         return None
     meta, vt = found
     value = w.value
+    if vt in _NAMED and op in ("contains", "contains_any", "contains_all"):
+        ctx.errors.append(
+            f"{_describe(w)}: on person and company fields use starts_word (a word in the "
+            "name starts with the text, as in Affinity's search)"
+        )
+        return None
+    if vt in _NAMED and op == "starts_word":
+        ctx.local.append(f"{_describe(w)}: one name search per query (the rest stay local)")
+        return None
     if vt in _DROPDOWN:
         return _dropdown(w, meta, vt, ctx)
     if vt == "text":
-        text_ops = ("eq", "contains", "starts_with", "ends_with")
+        text_ops = ("eq", "contains", "starts_with", "ends_with", "starts_word")
         if op in text_ops and isinstance(value, str) and value:
             # The server's contains is case-insensitive: a superset of all four (and the only
             # text operator many fields take).
@@ -313,6 +375,8 @@ def _dropdown(w: WhereClause, meta: FieldMetadata, vt: str, ctx: _Ctx) -> Condit
     elif op == "ends_with" and isinstance(value, str):
         suffix = value.lower()
         tests[op] = lambda t: t.lower().endswith(suffix)
+    elif op == "starts_word" and isinstance(value, str):
+        tests[op] = lambda t: compare_values(t, value, "starts_word")
     if op not in tests:
         ctx.local.append(f"{_describe(w)}: no server mapping for {vt} {op}")
         return None
@@ -329,7 +393,7 @@ def _negated(inner: WhereClause, ctx: _Ctx) -> Condition | None:
     if inner.op not in ("eq", "in") or inner.path is None:
         ctx.local.append("a NOT the server can't answer")
         return None
-    trial = _Ctx(ctx.fields, ctx.options_for, ctx.verified, [], [])
+    trial = _Ctx(ctx.fields, ctx.options_for, ctx.verified, [], [], ctx.enriched, ctx.errors)
     found = _field(inner, trial)
     if found is None or found[1] not in _DROPDOWN:
         ctx.local.append(f"not ({_describe(inner)}): stays local")

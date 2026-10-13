@@ -195,8 +195,6 @@ def test_or_goes_whole_or_not_at_all() -> None:
 @pytest.mark.parametrize(
     "where",
     [
-        {"path": "fields.Status", "op": "is_null"},
-        {"path": "fields.Owners", "op": "is_not_null"},  # [] is "not null" locally
         {"path": "fields.Last email", "op": "eq", "value": "x"},
         {"path": "fields.Unknown", "op": "eq", "value": "x"},
         {"path": "fields.Notes", "op": "neq", "value": "x"},
@@ -245,3 +243,65 @@ def test_shared_names_and_enriched_fields_stay_local() -> None:
             verified=ALL_MAPPINGS,
         )
         assert split.where is None and reason in split.local[0]
+
+
+@pytest.mark.parametrize(
+    ("where", "operator"),
+    [
+        ({"path": "fields.Status", "op": "is_null"}, "is-empty"),
+        ({"path": "fields.Owners", "op": "is_not_null"}, "is-not-empty"),  # [] is empty
+    ],
+)
+def test_empty_checks(where: dict[str, Any], operator: str) -> None:
+    assert _only(_split(where))["operator"] == operator
+
+
+def _named(where: dict[str, Any], verified: frozenset[tuple[str, str]] = ALL_MAPPINGS) -> Any:
+    return _split(where, verified)
+
+
+def test_starts_word_on_a_person_field_is_the_search_term() -> None:
+    split = _named(
+        {
+            "and": [
+                {"path": "fields.Owners", "op": "starts_word", "value": "Jan"},
+                {"path": "fields.Owners", "op": "starts_word", "value": "Doe"},
+                {"path": "fields.Status", "op": "eq", "value": "Lead"},
+            ]
+        }
+    )
+    assert (split.term, split.term_fields) == ("Jan", ("field-5",))
+    assert len(_body(split.where)["filters"]) == 1  # the dropdown
+    assert any("one name search per query" in r for r in split.local)
+
+
+def test_starts_word_in_an_or_or_too_short_stays_local() -> None:
+    nested = _named(
+        {
+            "or": [
+                {"path": "fields.Owners", "op": "starts_word", "value": "Jan"},
+                {"path": "fields.Status", "op": "eq", "value": "Lead"},
+            ]
+        }
+    )
+    assert nested.term is None and nested.where is None
+    short = _named({"path": "fields.Owners", "op": "starts_word", "value": "Ja"})
+    assert short.term is None
+    unverified = _named(
+        {"path": "fields.Owners", "op": "starts_word", "value": "Jan"}, verified=frozenset()
+    )
+    assert unverified.term is None
+
+
+def test_contains_on_a_person_field_is_an_error() -> None:
+    split = _named({"path": "fields.Owners", "op": "contains", "value": "an"})
+    assert split.errors and "starts_word" in split.errors[0]
+
+
+def test_starts_word_on_text_and_dropdowns() -> None:
+    assert (
+        _only(_named({"path": "fields.Notes", "op": "starts_word", "value": "Acme"}))["operator"]
+        == "contains"
+    )
+    lost = _only(_named({"path": "fields.Status", "op": "starts_word", "value": "lo"}))
+    assert lost["value"] == [{"dropdownOptionId": 14}]

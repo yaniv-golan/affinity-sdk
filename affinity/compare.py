@@ -9,6 +9,7 @@ This module is the single source of truth for comparison operations.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 
@@ -60,6 +61,7 @@ def compare_values(
     - contains: substring match (case-insensitive)
     - starts_with: prefix match (case-insensitive)
     - ends_with: suffix match (case-insensitive)
+    - starts_word: a word starts with the text (case-insensitive), as Affinity's name search
     - gt, gte, lt, lte: numeric/date comparisons
     - in: value in list of allowed values
     - between: value in range [low, high] (inclusive)
@@ -93,6 +95,8 @@ def compare_values(
         return _starts_with(field_value, target)
     elif operator == "ends_with":
         return _ends_with(field_value, target)
+    elif operator == "starts_word":
+        return _starts_word(field_value, target)
     elif operator == "gt":
         return _gt(field_value, target)
     elif operator == "gte":
@@ -122,7 +126,7 @@ def compare_values(
     else:
         raise ValueError(
             f"Unknown comparison operator: '{operator}'. "
-            f"Valid operators: eq, neq, contains, starts_with, ends_with, "
+            f"Valid operators: eq, neq, contains, starts_with, ends_with, starts_word, "
             f"gt, gte, lt, lte, in, between, has_any, has_all, "
             f"contains_any, contains_all, is_null, is_not_null, is_empty"
         )
@@ -252,6 +256,18 @@ def _ends_with(a: Any, b: Any) -> bool:
         return any(str(elem).lower().endswith(b_lower) for elem in a)
 
     return str(a).lower().endswith(str(b).lower())
+
+
+def _starts_word(a: Any, b: Any) -> bool:
+    """Starts-word operator: the text appears at the start of a word (case-insensitive), the
+    way Affinity's search matches names: "Jan" matches "Jane Doe" and "Mary-Jane", "ane"
+    doesn't. For array fields: any element."""
+    if a is None or b is None or str(b) == "":
+        return False
+    pattern = re.compile(r"(?<!\w)" + re.escape(str(b)), re.IGNORECASE)
+    if isinstance(a, list):
+        return any(pattern.search(str(elem)) is not None for elem in a)
+    return pattern.search(str(a)) is not None
 
 
 def _safe_compare(a: Any, b: Any, op: Any) -> bool:
@@ -413,20 +429,14 @@ def _contains_all(a: Any, b: Any) -> bool:
 
 
 def _is_null(a: Any, _b: Any) -> bool:
-    """Is null operator.
-
-    Uses SDK filter semantics: empty string is treated as null-equivalent.
-    This is more useful for CRM data where empty strings often mean "not set".
-    """
-    return a is None or a == ""
+    """Is null operator: no value. ``None``, an empty string and an empty list (a multi-value
+    field with no items) all count as empty, as in Affinity's search."""
+    return a is None or a == "" or (isinstance(a, list) and not a)
 
 
 def _is_not_null(a: Any, _b: Any) -> bool:
-    """Is not null operator.
-
-    Uses SDK filter semantics: empty string is treated as null-equivalent.
-    """
-    return a is not None and a != ""
+    """Is not null operator: the opposite of :func:`_is_null`."""
+    return not _is_null(a, _b)
 
 
 def _is_empty(a: Any, _b: Any) -> bool:
@@ -479,6 +489,7 @@ SDK_OPERATOR_MAP: dict[str, str] = {
     "has_all": "has_all",
     "contains_any": "contains_any",
     "contains_all": "contains_all",
+    "starts_word": "starts_word",
 }
 
 
