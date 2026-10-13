@@ -438,7 +438,8 @@ ExpandOnError = Literal["raise", "skip"]
     "filter_expr",
     type=str,
     default=None,
-    help='Client-side filter (field op value). Quote multi-word: Status="Intro Meeting".',
+    help="Filter (field op value): Affinity's search applies what it can, the rest is checked "
+    'locally. Quote multi-word: Status="Intro Meeting".',
 )
 @click.option(
     "--page-size", "-s", type=int, default=100, show_default=True, help="Page size (max 100)."

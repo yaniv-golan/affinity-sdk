@@ -64,13 +64,15 @@ skipped and the flag that fetches it. Never tell the user a record "has no lists
 ## Common pitfalls (READ THIS FIRST)
 
 **1. Never redirect stderr to `/dev/null`.** Every CLI safety signal — "results truncated",
-"unknown option", "--filter client-side" — lives on stderr. Dropping stderr is how you ship a
+"unknown option", "Filtering locally after fetching every entry" — lives on stderr. Dropping stderr is how you ship a
 silent-zero-match result and call it a duplicate check.
 
-**2. `--filter` on `list export` requires `--all`, `--max-results`, or `--first-page-only`.** The
-CLI errors on the unscoped case. Filtering is client-side; for large lists prefer
-`--saved-view` (server-side) or `--company-id` / `--person-id` (entity-scoped, cheap). Details:
-`references/filtering.md`.
+**2. `--filter` goes through Affinity's search.** On `list export`, `company ls` and `person ls`,
+the conditions on fields that Affinity can answer are applied on its side and the whole filter is
+checked again locally. When part of it runs locally, `--all`, `--max-results` (or, on `list
+export`, `--first-page-only`) is required; the error's `details.local` names those conditions.
+`company ls` / `person ls --filter` need a condition on a company/person field (names: `--query`).
+Details: `references/filtering.md`.
 
 **3. Duplicate checks: use `--company-id` / `--person-id`, not `--filter`.**
 `xaffinity list export "Pipeline" --company-id 555 --json` returns 0 or more rows for that exact
@@ -273,7 +275,8 @@ reference (JSON structure, operators, aggregation, examples): `references/query-
 |------|-----|
 | Simple search by name/email | `person ls --query` or `person get email:...` |
 | Export list entries | `list export "ListName"` |
-| Server-side filtered list | `list export --saved-view "ViewName"` |
+| Filter a list by its fields | `list export "ListName" --filter 'Status = "Active"'` |
+| Filter companies/persons by their fields | `company ls --filter 'Industry = "Software"' --max-results 50` |
 | Aggregate/group data, filter by related entities | `query` |
 | Preview API cost first | `query --dry-run` |
 
@@ -303,7 +306,8 @@ reference (JSON structure, operators, aggregation, examples): `references/query-
 | Recent interactions | `interaction ls --type all --company-id ID --days 90 --max-results 50 --json` |
 | Export list (bounded) | `list export "ListName" --max-results 100 --json` |
 | Export list (full CSV) | `list export "ListName" --all --csv --csv-bom > out.csv` |
-| List with server filter | `list export "ListName" --saved-view "ViewName" --max-results 50 --json` |
+| List filtered by a field | `list export "ListName" --filter 'Status = "Active"' --json` |
+| List through a saved view | `list export "ListName" --saved-view "ViewName" --max-results 50 --json` |
 | List entity files | `company files ls "domain:acme.com" --max-results 20 --json` |
 | Who changed a field, when | `field history field-123 --company-id <id> --json` |
 | What changed since a date (any field) | `field changes --changed-after -7d --max-results 100 --json` |

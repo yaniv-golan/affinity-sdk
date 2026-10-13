@@ -40,8 +40,8 @@ Structured query language for the `query` MCP tool. For simple lookups, prefer `
 // Simplest query - get 10 persons
 {"from": "persons", "limit": 10}
 
-// Add a filter
-{"from": "persons", "where": {"path": "email", "op": "contains", "value": "@acme.com"}, "limit": 10}
+// Add a filter (companies/persons: filter on a field)
+{"from": "companies", "where": {"path": "fields.Industry", "op": "eq", "value": "Software"}, "limit": 10}
 
 // Include related companies
 {"from": "persons", "include": ["companies"], "limit": 10}
@@ -56,8 +56,11 @@ Structured query language for the `query` MCP tool. For simple lookups, prefer `
 {
   "$version": "1.0",
   "from": "persons",
-  "where": {"path": "email", "op": "contains", "value": "@acme.com"},
-  "select": ["id", "firstName", "lastName", "email"],
+  "where": {"and": [
+    {"path": "fields.Seniority", "op": "eq", "value": "Executive"},
+    {"path": "primaryEmailAddress", "op": "contains", "value": "@acme.com"}
+  ]},
+  "select": ["id", "firstName", "lastName", "primaryEmailAddress"],
   "include": ["companies", "opportunities"],
   "expand": ["interactionDates"],
   "groupBy": "fields.Status",
@@ -72,9 +75,9 @@ Structured query language for the `query` MCP tool. For simple lookups, prefer `
 
 | Entity | Requires Parent Filter? | Notes |
 |--------|------------------------|-------|
-| `persons` | No | Global entity |
-| `companies` | No | Global entity |
-| `opportunities` | No | Global entity |
+| `persons` | No | Global entity; a `where` needs a condition on a person field |
+| `companies` | No | Global entity; a `where` needs a condition on a company field |
+| `opportunities` | No | Global entity; no `where` |
 | `lists` | No | Global entity |
 | `listEntries` | **Yes** — must filter by `listId` or `listName` | List-scoped |
 
@@ -87,18 +90,25 @@ Structured query language for the `query` MCP tool. For simple lookups, prefer `
 3. **Set `limit`** to avoid fetching too much data
 4. **Use `select`** to reduce output size — avoid `fields.*` on lists with 50+ fields
 5. **Use `maxRecords`** for quantifier queries on unbounded entities (persons/companies)
+6. **`companies` / `persons`: include a `fields.<name>` condition in any `where`.** Affinity's search applies it, and the rest (e.g. `name contains`) runs on what comes back. A `where` with no field condition is refused (it would read Affinity's whole company directory, about 12 million records). For name/email search use `execute-read-command` with `company ls --query TERM` / `person ls --query TERM`.
 
 ## Filtering
 
 ### Basic Conditions
 
 ```json
-{"path": "email", "op": "contains", "value": "@acme.com"}
+{"path": "entityName", "op": "contains", "value": "Acme"}
 {"path": "fields.Status", "op": "eq", "value": "Active"}
-{"path": "amount", "op": "gte", "value": 10000}
+{"path": "fields.Amount", "op": "gte", "value": 10000}
+{"path": "fields.Owner", "op": "starts_word", "value": "Jan"}
 ```
 
-Common operators: `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `contains`, `starts_with`, `in`, `is_null`, `is_not_null`
+Common operators: `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `contains`, `starts_with`, `starts_word`, `in`, `between`, `is_null`, `is_not_null`, `has_any`, `has_all`
+
+- `starts_word`: a word in the value starts with the text, case-insensitive, the way Affinity's search matches names (`"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"` doesn't).
+- Person and company field values are compared by name ("Jane Doe", "Acme"). `contains` / `contains_any` / `contains_all` on them is refused: use `starts_word`.
+- An empty multi-value field counts as empty: `is_null` matches it, `is_not_null` doesn't.
+- Name any field by id with `fields.<field id>` (e.g. `fields.affinity-data-year-founded`). When two list fields share a name (e.g. Affinity's and Dealroom's "Year Founded"), `fields.<name>` is refused with an error listing the ids; use the id. Such fields come back keyed by id.
 
 For the full operator reference (including `has_any`, `has_all`, multi-select handling, date filtering): see `references/filter-operators.md`
 
@@ -122,6 +132,17 @@ For the full operator reference (including `has_any`, `has_all`, multi-select ha
 ```
 
 These can be nested arbitrarily deep.
+
+### Filtering on Affinity's Side
+
+Conditions on fields (`fields.<name>`) that Affinity's search can answer are sent to Affinity, so only matching records are downloaded. The full `where` still runs locally on what comes back, so results are the same as a local filter.
+
+- **Sent to Affinity:** dropdowns and ranked dropdowns (`eq`, `in`, `contains`, `starts_with`, `starts_word` on option text, `neq`, `not` of `eq`/`in`); multi-select dropdowns (`eq` membership, `in`, `has_any`, `has_all`, `contains`/`starts_word` on option text, `neq`); numbers (`eq`, `gt`, `gte`, `lt`, `lte`, `between`, `neq`); dates (`gt`, `gte`, `lt`, `lte`, `eq`, `between`, relative dates like `"-30d"`); text (`eq`, `contains`, `starts_with`, `starts_word`, sent as Affinity's case-insensitive contains); `is_null` / `is_not_null` on most field types; `starts_word` on a person or company field (one per query, top level of the `where`, plain text of 3+ letters or digits).
+- **Stays local:** `all` / `none` / `exists` / `_count`, non-field paths (`entityName`, `entityId`, `entityType`, `createdAt`, ...), `expr`, `contains_any` / `contains_all`, an OR with any branch that can't go.
+- **Enriched fields** (`affinity-data-*`: funding, headcount, ...): exact on `listEntries`; on `companies` / `persons` the result warns that a few records may be missed.
+- **Sorting:** when every `orderBy` key is a sortable field (`fields.<name>`, up to 5, no `groupBy`/`aggregate`), Affinity sorts; with a `limit`, fetching stops once enough records match. Empty values sort last in both directions, ties break by id, ranked dropdowns sort by rank.
+- If Affinity refuses the search on `listEntries` (e.g. the key lacks the "Export data from Lists" permission), the query reads the whole list and filters locally, with a warning.
+- `dryRun: true` lists the list fields Affinity may filter ("decided when the query runs").
 
 ## Aggregation & GroupBy
 
@@ -172,14 +193,14 @@ For detailed include/expand syntax, parameterized includes, and output formats: 
 Filter entities based on related entity properties. **Causes N+1 API calls — always `dryRun: true` first.**
 
 ```json
-// Persons at 2+ companies
-{"from": "persons", "where": {"path": "companies._count", "op": "gte", "value": 2}, "limit": 50}
+// Dealflow entries whose company has 2+ associated persons
+{"from": "listEntries", "where": {"and": [{"path": "listName", "op": "eq", "value": "Dealflow"}, {"path": "persons._count", "op": "gte", "value": 2}]}, "limit": 50}
 
-// Persons where ALL companies have .com domains
-{"from": "persons", "where": {"all": {"path": "companies", "where": {"path": "domain", "op": "contains", "value": ".com"}}}, "limit": 50}
+// Executives where ALL companies have .com domains (persons need a field condition)
+{"from": "persons", "where": {"and": [{"path": "fields.Seniority", "op": "eq", "value": "Executive"}, {"all": {"path": "companies", "where": {"path": "domain", "op": "contains", "value": ".com"}}}]}, "limit": 50}
 
-// Persons with at least one meeting interaction
-{"from": "persons", "where": {"exists": {"from": "interactions", "where": {"path": "type", "op": "eq", "value": "meeting"}}}, "limit": 50}
+// Executives with at least one meeting interaction
+{"from": "persons", "where": {"and": [{"path": "fields.Seniority", "op": "eq", "value": "Executive"}, {"exists": {"from": "interactions", "where": {"path": "type", "op": "eq", "value": "meeting"}}}]}, "limit": 50}
 ```
 
 Quantifiers: `all`, `none`, `exists`, `._count`
@@ -247,13 +268,13 @@ Field values are normalized to display strings (dropdowns show text, person refe
 }
 ```
 
-### Find VIP Contacts with Companies
+### Find Executive Contacts with Companies
 ```json
 {
   "from": "persons",
   "where": {"and": [
-    {"path": "email", "op": "is_not_null"},
-    {"path": "fields.VIP", "op": "eq", "value": true}
+    {"path": "fields.Seniority", "op": "eq", "value": "Executive"},
+    {"path": "primaryEmailAddress", "op": "is_not_null"}
   ]},
   "include": ["companies"],
   "orderBy": [{"field": "lastName", "direction": "asc"}],
@@ -282,14 +303,15 @@ For full format reference, truncation handling, and cursor pagination: see `refe
 
 1. **Start with dry-run** for complex queries
 2. **Use limit** to avoid fetching too much data
-3. **Be specific with where** to reduce client-side filtering
+3. **Filter on fields** (`fields.<name>`) so Affinity's search narrows what's downloaded
 4. **Avoid deep includes** which cause N+1 API calls
 5. **Use groupBy + aggregate** for reports instead of fetching all records
 6. **For quantifier queries** on unbounded entities, always add `maxRecords`
 
 ## Limitations
 
-- All filtering except `listEntries` field filters happens client-side
+- Affinity's search answers conditions on fields of `listEntries`, `companies` and `persons`; everything else runs locally on what comes back
+- `companies` / `persons` need a field condition in any `where`; `opportunities` take no `where`
 - Includes and expands cause N+1 API calls (1 per parent record)
 - No cross-entity joins (use includes instead)
 - Maximum 10,000 records per query for safety

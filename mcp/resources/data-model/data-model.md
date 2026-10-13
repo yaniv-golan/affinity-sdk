@@ -12,7 +12,7 @@
 **Companies** and **Persons** exist globally in your CRM, independent of any list.
 
 - **Commands**: `company ls`, `person ls`, `company get`, `person get`
-- **Filters**: Core fields (name, domain, email)
+- **Filters**: `--query TERM` for name/domain/email search; `--filter` on company/person fields (e.g. Industry), applied by Affinity's search
 - **Use case**: Search or retrieve ANY company/person in your CRM
 - Can be added to multiple lists
 
@@ -82,7 +82,7 @@ opportunity get "Big Deal Q1"
 ```bash
 list export Dealflow --filter 'Status="New"'
 ```
-Use when you know the field name and value.
+Use when you know the field name and value. Affinity's search applies the conditions on list fields it can answer, so only matching entries are downloaded; the whole filter is then checked again locally.
 
 ### --saved-view (Pre-Configured Views)
 ```bash
@@ -298,7 +298,7 @@ list export Dealflow --filter "Status=New"     # One step!
 
 ### Mistake 2: Using wrong command for list fields
 ```bash
-# ✗ WRONG - Status is a LIST field, and --filter is not supported on companies/persons/opportunities
+# ✗ WRONG - Status is a LIST field; company ls --filter only knows company fields
 company ls --filter "Status=New"
 
 # ✓ RIGHT - use list export for list-specific fields
@@ -328,8 +328,8 @@ unambiguous from one call.
 ### Agent pitfalls (abbreviated; canonical list in the CLI skill)
 
 - `--json` emits a single JSON object, not NDJSON. Parse the whole blob and read `data.rows`.
-- Never redirect stderr to `/dev/null` — truncation, unknown-option, and client-side-filter warnings all go there.
-- `list export --filter` requires a scope flag: `--max-results` or `--first-page-only` (`--all` is blocked here). Unscoped invocations exit 2.
+- Never redirect stderr to `/dev/null` — truncation, unknown-option, and filtering warnings all go there.
+- `list export --filter`: when Affinity's search applies the whole filter, no scope flag is needed. When part of it runs locally, pass `--max-results` or `--first-page-only` (`--all` is blocked here); otherwise it exits 2 and `details.local` names the conditions that stay local.
 - For duplicate checks, use `list export --company-id <id>` / `--person-id <id>` instead of `--filter`. Entity-scoped, cheap, unambiguous.
 - Check `meta.truncated` on every JSON response; `meta.truncationReason` names the cause (currently `firstPageOnly`).
 - A plain `company get` / `person get` / `opportunity get` fetches no field values or list entries. `fields: {"requested": false}` or a missing `listEntries` means *not fetched*, not *empty*; `meta.notRequested` lists what was skipped and the flag that fetches it (e.g. `--expand list-entries`, read from `data.listEntries`).
@@ -507,31 +507,36 @@ Returns presigned `url` (60s expiry). **⚠️ Blocked in Claude Desktop/Cowork*
 
 CLI commands use `--filter 'field op "value"'` syntax:
 ```bash
---filter 'name =~ "Acme"'           # contains
+--filter 'Industry =~ "tech"'        # contains
 --filter "Status=Active"            # equals
 --filter 'email =$ "@acme.com"'     # ends with
 --filter 'Status in ["New", "Active"]'  # in list
+--filter 'Owner starts_word "Jan"'  # a word starts with (person/company fields)
 ```
 
-Common operators: `=` `!=` `=~` (contains) `=^` (starts) `=$` (ends) `>` `<` `>=` `<=`
+Common operators: `=` `!=` `=~` (contains) `=^` (starts) `=$` (ends) `>` `<` `>=` `<=` `starts_word`
 
-For the `query` tool, use JSON operators (`eq`, `contains`, `in`, etc.) - see `xaffinity://query-guide` for complete reference.
+- `starts_word`: a word in the value starts with the text, case-insensitive, the way Affinity's search matches names ("Jan" matches "Jane Doe" and "Mary-Jane"; "ane" doesn't).
+- Person and company field values are compared by name ("Jane Doe", "Acme"); `contains` on them is refused, use `starts_word`.
+- An empty multi-value field counts as empty: `is null` matches it, `is not null` doesn't.
 
-### Filter limitations (critical)
+For the `query` tool, use JSON operators (`eq`, `contains`, `starts_word`, `in`, etc.) - see `xaffinity://query-guide` for complete reference. The `--filter` text and the `query` `where` are the same filter language; every condition means the same in both.
 
-Global-entity list commands do **not** support server-side filtering:
+### Where filters run (critical)
 
-- `company ls --filter` → raises `unsupported_filter`
-- `person ls --filter` → raises `unsupported_filter`
+`--filter` and `query` send the conditions on **fields** that Affinity's search can answer to Affinity, so only matching records are downloaded. The whole filter is then checked again locally, so results are the same as a local filter. Conditions on record attributes (name, domain, email, entityName, createdAt) run locally on what comes back.
+
+- `company ls --filter` / `person ls --filter` → must include a condition on a company/person field (e.g. `Industry = "Software"`); a filter on name/domain/email alone is refused (it would mean reading Affinity's whole company directory). Partly-local filters need `--max-results`. Enriched-field filters warn that a few records may be missed.
 - `opportunity ls` → no filter support (opportunities are list-scoped; use `list export` instead)
-- `list export <LIST> --filter` → supported via client-side filtering, with a warning
+- `list export <LIST> --filter` → Affinity applies what it can; partly-local filters need `--max-results` or `--first-page-only`
+- A filtered run's `nextCursor` starts with `xsearch1:` and `--cursor` alone resumes it.
 
 **Use instead:**
 - **Name/domain/email search on global entities:** `company ls --query TERM` / `person ls --query TERM` (fuzzy search).
-- **List-specific field filters:** `list export <LIST> --filter '...'` (client-side, warned).
-- **Saved-view-backed filters on large lists:** `list export <LIST> --saved-view "<VIEW>"` (server-side efficiency).
+- **List-specific field filters:** `list export <LIST> --filter '...'`.
+- **Saved views:** `list export <LIST> --saved-view "<VIEW>"` (filtered on Affinity's side by the view's own criteria).
 
-The `query` tool rejects `where` clauses on `companies`, `persons`, and `opportunities` (these are global entities with no server-side filter support). Use `listEntries` with a `listId` filter for list-scoped queries.
+The `query` tool: a `where` on `companies` or `persons` must include a condition on their fields (`fields.<name>`); the rest runs on what Affinity's search returns. `opportunities` take no `where`. Use `listEntries` with a `listId`/`listName` filter for list-scoped queries.
 
 ### `company create` / `person create` duplicate protection
 
@@ -543,10 +548,10 @@ On conflict, exit code 6 with `error.type == "duplicate_exists"` and `error.deta
 
 ## Query vs Filter
 
-- `--filter`: Structured filtering with operators (preferred, supported on `list export` and some list-scoped reads)
-- `--query`: Free-text search (required for `company ls` / `person ls`; fuzzy search)
+- `--filter`: Structured filtering with operators on fields (`list export`, `company ls`, `person ls`)
+- `--query`: Free-text search on `company ls` / `person ls` (name, domain, email; fuzzy)
 
-Use `--filter` for precise matching on list entries, `--query` for fuzzy text search on global companies/persons.
+Use `--filter` for precise matching on fields, `--query` for fuzzy name/email/domain search on global companies/persons. They can't be combined.
 
 ## Output Formats
 

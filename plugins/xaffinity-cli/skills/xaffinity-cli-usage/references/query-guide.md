@@ -37,13 +37,18 @@ echo '{"from": "persons"}' | xaffinity --readonly query --json
 
 | Entity | Requires Parent Filter? | Notes |
 |--------|------------------------|-------|
-| `persons` | No | Global entity |
-| `companies` | No | Global entity |
-| `opportunities` | No | Global entity |
+| `persons` | No | Global entity; a `where` needs a condition on a person field |
+| `companies` | No | Global entity; a `where` needs a condition on a company field |
+| `opportunities` | No | Global entity; no `where` |
 | `lists` | No | Global entity |
 | `listEntries` | **Yes** — must filter by `listId` or `listName` | List-scoped |
 | `interactions` | N/A | Only via `include`, not queryable directly |
 | `notes` | N/A | Only via `include`, not queryable directly |
+
+On `companies` / `persons`, Affinity's search applies the field conditions and the rest of the
+`where` (e.g. `name contains`) runs on what comes back. A `where` with no `fields.<name>` condition
+is refused (it would read Affinity's whole company directory, about 12 million records); for
+name/email search use `company ls --query TERM` / `person ls --query TERM`.
 
 ## Filter Operators
 
@@ -53,7 +58,11 @@ echo '{"from": "persons"}' | xaffinity --readonly query --json
 ### String Matching
 - `contains` — case-insensitive substring match
 - `starts_with` — prefix match
-- `ends_with` — suffix match
+- `starts_word` — a word in the value starts with the text, case-insensitive, as Affinity's search
+  matches names (`"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"` doesn't)
+
+Person and company field values are compared by name ("Jane Doe", "Acme"); `contains`,
+`contains_any` and `contains_all` on them are refused, use `starts_word`.
 
 ### Collection
 - `in` — value in list: `{"op": "in", "value": ["A", "B"]}`
@@ -62,11 +71,33 @@ echo '{"from": "persons"}' | xaffinity --readonly query --json
 - `has_all` — array field contains all specified values
 
 ### Null Checks
-`is_null`, `is_not_null`, `is_empty`
+`is_null`, `is_not_null`. An empty multi-value field counts as empty: `is_null` matches it.
 
 ### Text Search
 - `contains_any` — text contains any keyword
 - `contains_all` — text contains all keywords
+
+## Where Filtering Happens
+
+Conditions on fields (`fields.<name>` or `fields.<field id>`) that Affinity's search can answer go
+to Affinity, so only matching records are downloaded; the full `where` then runs locally on what
+comes back, so results are the same as a local filter.
+
+- Sent: dropdown / multi-select / ranked-dropdown values, numbers, dates (incl. `"-30d"`), text
+  (as a case-insensitive contains), `is_null` / `is_not_null`, and `starts_word` on one person or
+  company field at the top level of the `where`.
+- Local: `all` / `none` / `exists` / `_count`, non-field paths (`entityName`, `createdAt`, ...),
+  `expr`, `contains_any` / `contains_all`, an OR with a branch Affinity can't answer.
+- Enriched fields (`affinity-data-*`) are exact on `listEntries`; on `companies` / `persons` the
+  result warns that a few records may be missed.
+- If Affinity refuses the search on `listEntries` (key without "Export data from Lists"), the
+  query reads the whole list and filters locally, with a warning.
+- `--include-meta` shows `meta.serverFilter`: `pushed`, `local` (with reasons), `sort`.
+  `XAFFINITY_QUERY_SERVER_FILTER=0` turns server filtering off.
+- When two list fields share a name (e.g. Affinity's and Dealroom's "Year Founded"),
+  `fields.<name>` is refused with the ids; use `fields.<field id>`. Such fields come back keyed
+  by id.
+- `--filter` text on `list export` / `company ls` / `person ls` is the same filter language.
 
 ## Boolean Logic
 
@@ -160,10 +191,13 @@ Filter entities based on related entity properties. **WARNING: causes N+1 API ca
 {
   "from": "persons",
   "where": {
-    "all": {
-      "path": "companies",
-      "where": {"path": "name", "op": "contains", "value": "Inc"}
-    }
+    "and": [
+      {"path": "fields.Seniority", "op": "eq", "value": "Executive"},
+      {"all": {
+        "path": "companies",
+        "where": {"path": "name", "op": "contains", "value": "Inc"}
+      }}
+    ]
   },
   "limit": 50
 }
@@ -171,12 +205,15 @@ Filter entities based on related entity properties. **WARNING: causes N+1 API ca
 
 ```json
 {
-  "from": "persons",
+  "from": "listEntries",
   "where": {
-    "exists": {
-      "path": "interactions",
-      "where": {"path": "type", "op": "eq", "value": "email"}
-    }
+    "and": [
+      {"path": "listName", "op": "eq", "value": "Dealflow"},
+      {"exists": {
+        "from": "interactions",
+        "where": {"path": "type", "op": "eq", "value": "email"}
+      }}
+    ]
   },
   "limit": 50
 }
@@ -237,6 +274,13 @@ Adds computed data directly to each record (unlike `include` which returns separ
 
 - `interactionDates` — last/next meeting, email activity, team members
 - `unreplied` — unreplied incoming messages with date, daysSince, type, subject
+
+## Sorting
+
+When every `orderBy` key is a sortable field (`fields.<name>`, up to 5, no `groupBy` / `aggregate`),
+Affinity sorts; with a `limit`, fetching stops once enough records match. Empty values sort last in
+both directions, ties break by id ascending, ranked dropdowns sort by rank. A local sort also breaks
+ties by id.
 
 ## Field Selection
 
@@ -321,11 +365,16 @@ Use `--dry-run-verbose` for detailed API call breakdown.
 }
 ```
 
-### Find Persons at Multiple Companies
+### Find Executives at Multiple Companies
 ```json
 {
   "from": "persons",
-  "where": {"path": "companies._count", "op": "gte", "value": 2},
+  "where": {
+    "and": [
+      {"path": "fields.Seniority", "op": "eq", "value": "Executive"},
+      {"path": "companies._count", "op": "gte", "value": 2}
+    ]
+  },
   "include": ["companies"],
   "limit": 100
 }

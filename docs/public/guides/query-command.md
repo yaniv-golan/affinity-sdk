@@ -48,9 +48,14 @@ A complete query can include:
 {
   "$version": "1.0",
   "from": "persons",
-  "where": { "path": "email", "op": "contains", "value": "@acme.com" },
+  "where": {
+    "and": [
+      { "path": "fields.Seniority", "op": "eq", "value": "Executive" },
+      { "path": "primaryEmailAddress", "op": "contains", "value": "@acme.com" }
+    ]
+  },
   "include": ["companies"],
-  "select": ["id", "firstName", "lastName", "email"],
+  "select": ["id", "firstName", "lastName", "primaryEmailAddress"],
   "orderBy": [{ "field": "lastName", "direction": "asc" }],
   "limit": 100
 }
@@ -60,9 +65,9 @@ A complete query can include:
 
 | Entity | Description | Query Type |
 |--------|-------------|------------|
-| `persons` | People in your CRM | Direct query |
-| `companies` | Companies/organizations | Direct query |
-| `opportunities` | Deals/opportunities | Direct query |
+| `persons` | People in your CRM | Direct query; a `where` needs a field condition |
+| `companies` | Companies/organizations | Direct query; a `where` needs a field condition |
+| `opportunities` | Deals/opportunities | Direct query; no `where` |
 | `lists` | Affinity list definitions | Direct query |
 | `listEntries` | Entries in Affinity lists | Requires `listId` or `listName` filter |
 | `interactions` | Emails, calls, meetings | Include only (cannot query directly) |
@@ -104,7 +109,26 @@ Or using list name (resolved automatically):
 }
 ```
 
-Field names are resolved case-insensitively. If a field name is not found, it passes through unchanged (allowing numeric field IDs like `fields.12345` to work).
+Field names are resolved case-insensitively. Any field can also be named by id (`fields.field-260415`, `fields.affinity-data-year-founded`). An unknown field name gives a warning listing the list's fields.
+
+When two list fields share a name (e.g. Affinity's and Dealroom's "Year Founded"), `fields.<name>` is refused with an error listing the ids: name the one you want by id. Such fields come back keyed by id.
+
+**`companies` and `persons`** are filtered by Affinity's search, so a `where` must include at least one condition on their fields (`fields.<name>`). Affinity applies what it can and the rest (e.g. `name contains`) runs on what comes back:
+
+```json
+{
+  "from": "companies",
+  "where": {
+    "and": [
+      { "path": "fields.Industry", "op": "eq", "value": "Software" },
+      { "path": "name", "op": "contains", "value": "Labs" }
+    ]
+  },
+  "limit": 50
+}
+```
+
+A `where` with no field condition is refused: it would mean reading Affinity's whole company directory (about 12 million records). For a name or email search use `xaffinity company ls --query TERM` / `xaffinity person ls --query TERM`. **`opportunities`** take no `where`; filter opportunity list entries with `listEntries` instead.
 
 **`interactions` and `notes`** cannot be queried directly. Instead, include them on a parent entity:
 
@@ -129,8 +153,13 @@ Example: {"from": "persons", "include": ["interactions"]}
 
 ```json
 {
-  "from": "persons",
-  "where": { "path": "email", "op": "contains", "value": "@gmail.com" }
+  "from": "listEntries",
+  "where": {
+    "and": [
+      { "path": "listName", "op": "eq", "value": "Dealflow" },
+      { "path": "fields.Status", "op": "eq", "value": "Active" }
+    ]
+  }
 }
 ```
 
@@ -146,6 +175,7 @@ Example: {"from": "persons", "include": ["interactions"]}
 | `lte` | Less than or equal | `5000` |
 | `contains` | Contains substring | `"@gmail"` |
 | `starts_with` | Starts with | `"Acme"` |
+| `starts_word` | A word in the value starts with the text (case-insensitive) | `"Jan"` |
 | `in` | Value in list | `["New", "Active"]` |
 | `between` | Value in range | `[1000, 5000]` |
 | `is_null` | Field is null | (no value needed) |
@@ -154,6 +184,10 @@ Example: {"from": "persons", "include": ["interactions"]}
 | `contains_all` | String contains all substrings (case-insensitive) | `["verified", "active"]` |
 | `has_any` | Array contains any of the values | `["LB", "MA"]` |
 | `has_all` | Array contains all of the values | `["LB", "MA"]` |
+
+`starts_word` matches the way Affinity's search matches names: `"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"` doesn't. Person and company field values are compared by name ("Jane Doe", "Acme"), and `contains` / `contains_any` / `contains_all` on a person or company field is refused: use `starts_word`. An empty multi-value field (no items) counts as empty: `is_null` matches it, `is_not_null` doesn't.
+
+The `--filter` text of `list export`, `company ls` and `person ls` is the same filter language: every condition means the same in both spellings.
 
 ### Multi-Select Field Filtering
 
@@ -208,7 +242,7 @@ Multi-select dropdown fields (like "Team Member") return arrays from the API. Th
   "from": "persons",
   "where": {
     "and": [
-      { "path": "email", "op": "is_not_null" },
+      { "path": "fields.Seniority", "op": "is_not_null" },
       { "path": "firstName", "op": "starts_with", "value": "J" }
     ]
   }
@@ -219,11 +253,16 @@ Multi-select dropdown fields (like "Team Member") return arrays from the API. Th
 
 ```json
 {
-  "from": "persons",
+  "from": "listEntries",
   "where": {
-    "or": [
-      { "path": "email", "op": "contains", "value": "@acme.com" },
-      { "path": "email", "op": "contains", "value": "@acme.io" }
+    "and": [
+      { "path": "listName", "op": "eq", "value": "Dealflow" },
+      {
+        "or": [
+          { "path": "fields.Status", "op": "eq", "value": "New" },
+          { "path": "fields.Status", "op": "eq", "value": "Active" }
+        ]
+      }
     ]
   }
 }
@@ -233,9 +272,12 @@ Multi-select dropdown fields (like "Team Member") return arrays from the API. Th
 
 ```json
 {
-  "from": "persons",
+  "from": "listEntries",
   "where": {
-    "not": { "path": "status", "op": "eq", "value": "Inactive" }
+    "and": [
+      { "path": "listName", "op": "eq", "value": "Dealflow" },
+      { "not": { "path": "fields.Status", "op": "eq", "value": "Closed" } }
+    ]
   }
 }
 ```
@@ -256,7 +298,12 @@ Array access:
 ```json
 {
   "from": "persons",
-  "where": { "path": "emails[0]", "op": "contains", "value": "@" }
+  "where": {
+    "and": [
+      { "path": "fields.Seniority", "op": "is_not_null" },
+      { "path": "emailAddresses[0]", "op": "contains", "value": "@acme.com" }
+    ]
+  }
 }
 ```
 
@@ -466,6 +513,29 @@ Records without unreplied messages have `"unreplied": null`. For chat messages, 
 }
 ```
 
+When every `orderBy` key is a sortable field (`fields.<name>`, up to 5) and the query has no `groupBy` or `aggregate`, Affinity sorts (on `listEntries`, `companies` and `persons`). With a `limit`, fetching stops once enough records pass the filter. Affinity's order puts empty values last in both directions, breaks ties by id ascending, and orders ranked dropdowns by rank. When the sort runs locally it also breaks ties by id.
+
+```json
+{
+  "from": "listEntries",
+  "where": { "path": "listName", "op": "eq", "value": "Dealflow" },
+  "orderBy": [{ "field": "fields.Deal Size", "direction": "desc" }],
+  "limit": 20
+}
+```
+
+## Filtering on Affinity's Side
+
+Conditions on fields that Affinity's search can answer are sent to Affinity, so only matching records are downloaded. The **full** `where` still runs locally on what comes back, so results are the same as a local filter.
+
+- **`listEntries`**: conditions on list fields (`fields.<name>` or `fields.<field id>`) go to Affinity when its search can answer them: dropdown and ranked-dropdown fields (`eq`, `in`, `contains`, `starts_with`, `starts_word` on the option text; `neq` and `not` of `eq`/`in`), multi-select dropdowns (membership `eq`, `in`, `has_any`, `has_all`, `contains` / `starts_word` on option text, `neq`), numbers (`eq`, `gt`, `gte`, `lt`, `lte`, `between`, `neq`), dates (`gt`, `gte`, `lt`, `lte`, `eq`, `between`, also relative dates like `"-30d"`), text (`eq`, `contains`, `starts_with`, `starts_word` are sent as Affinity's case-insensitive contains, and the exact check runs locally), `is_null` / `is_not_null` on most field types, and `starts_word` on a person or company field (one per query, at the top level of the `where`, plain text of 3+ letters or digits; sent as Affinity's name search).
+- **Stays local**: related-record quantifiers (`all`, `none`, `exists`, `_count`), `entityName` / `entityId` / `entityType` / `createdAt` and other non-field paths, `expr`, `contains_any` / `contains_all`, and an OR with any branch that can't go.
+- **Enriched fields** (`affinity-data-*`: funding, headcount, ...): on `listEntries` they're sent as "condition OR field is empty", because Affinity's search reads a few records' enriched values as empty; results stay exact. On `companies` / `persons` they're sent as they are, and the result carries a warning that a few records may be missed.
+- **Fallback**: if Affinity refuses the search on `listEntries` (e.g. the API key lacks the "Export data from Lists" permission), the query reads the whole list and filters locally, with a warning.
+- `XAFFINITY_QUERY_SERVER_FILTER=0` turns server filtering off for `query` and `list export` (to compare results or debug).
+
+`--include-meta` shows what happened in `meta.serverFilter`: `pushed` (conditions sent to Affinity), `local` (conditions checked locally, each with the reason), `sort` (when Affinity sorted) and `fallback` (why the search was refused, when it was). `--dry-run` lists the list fields Affinity may filter ("decided when the query runs").
+
 ## Limiting Results
 
 ```json
@@ -544,15 +614,15 @@ xaffinity query --file query.json --json --include-meta
 
 ## Examples
 
-### Find VIP Contacts at Tech Companies
+### Find Executive Contacts with Their Companies
 
 ```json
 {
   "from": "persons",
   "where": {
     "and": [
-      { "path": "fields.VIP", "op": "eq", "value": true },
-      { "path": "email", "op": "is_not_null" }
+      { "path": "fields.Seniority", "op": "eq", "value": "Executive" },
+      { "path": "primaryEmailAddress", "op": "is_not_null" }
     ]
   },
   "include": ["companies"],
@@ -595,13 +665,14 @@ Then filter for meetings client-side, or use the CLI with `--expand-filter` for 
 
 1. **Start with dry-run** for complex queries to see API call estimates
 2. **Use limit** to avoid fetching too much data
-3. **Be specific with where** to reduce client-side filtering
+3. **Filter on fields** (`fields.<name>`) so Affinity's search can narrow what's downloaded
 4. **Avoid deep includes** which cause N+1 API calls
 5. **Include `$version`** in saved query files for forward compatibility
 
 ## Limitations
 
-- All filtering except listEntries field filters happens client-side
+- Affinity's search answers conditions on fields of `listEntries`, `companies` and `persons`; other conditions run locally on what comes back
+- `companies` / `persons` need a field condition in any `where`; `opportunities` take no `where`
 - Includes cause N+1 API calls (1 per parent record)
 - Maximum 10,000 records per query for safety
 - No cross-entity joins (use includes instead)

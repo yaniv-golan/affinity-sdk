@@ -206,8 +206,8 @@ Execute structured JSON queries against Affinity data. Supports complex filterin
 # Simple query
 xaffinity query --query '{"from": "persons", "limit": 10}'
 
-# Filter with conditions
-xaffinity query --query '{"from": "persons", "where": {"path": "email", "op": "contains", "value": "@acme.com"}}'
+# Filter with conditions (Affinity filters list fields on its side)
+xaffinity query --query '{"from": "listEntries", "where": {"and": [{"path": "listName", "op": "eq", "value": "Dealflow"}, {"path": "fields.Status", "op": "eq", "value": "Active"}]}}'
 
 # Include related entities
 xaffinity query --query '{"from": "persons", "include": ["companies"], "limit": 50}'
@@ -231,6 +231,9 @@ xaffinity query --file query.json
 - `--max-records <n>`: Safety limit (default: 10000)
 - `--timeout <secs>`: Query timeout (default: 300)
 - `--csv` / `--json`: Output format
+- `--include-meta`: include execution metadata; `meta.serverFilter` shows which conditions Affinity's search applied (`pushed`), which ran locally and why (`local`), and whether Affinity sorted (`sort`)
+
+Conditions on fields go to Affinity's search where it can answer them; the full `where` still runs locally on what comes back. A `where` on `companies` or `persons` must include a condition on one of their fields (`fields.<name>`). `XAFFINITY_QUERY_SERVER_FILTER=0` turns server filtering off.
 
 See [Query Language Reference](../reference/query-language.md) and [Query Guide](../guides/query-command.md) for full documentation.
 
@@ -245,12 +248,12 @@ Options:
 - `--query <term>` / `-q <term>`: free-text search (name or email)
 - `--field <id-or-name>` (repeatable): field ID or name to include
 - `--field-type <type>` (repeatable): field type to include (global, enriched, relationship-intelligence)
-- `--filter <expression>`: filter expression (custom fields only)
+- `--filter <expression>`: filter expression; must include a condition on a person field (Affinity's search applies it)
 - `--page-size`, `--cursor`, `--max-results`, `--all`: pagination options
 - `--csv`: output as CSV (to stdout)
 - `--csv-bom`: add UTF-8 BOM for Excel compatibility
 
-**Note:** `--filter` only works with custom fields. To filter on built-in properties like `type`, `firstName`, etc., use `--json` output with `jq`.
+**Note:** `--filter` goes through Affinity's search: the conditions on person fields that Affinity can answer are applied on its side, and the whole filter (including attributes like `firstName` or `primaryEmail`) then runs on what comes back. A filter with only attribute conditions is refused; search names and emails with `--query`. When part of the filter runs locally, `--all` or `--max-results` is required. Filters on enriched fields warn that a few records may be missed. The next-page cursor of a filtered run starts with `xsearch1:` and `--cursor` alone resumes it. `--query` and `--filter` can't be combined.
 
 **Note:** `--query` can be combined with `--field` and `--field-type` to search with field data.
 
@@ -258,7 +261,7 @@ Options:
 xaffinity person ls
 xaffinity person ls --page-size 50
 xaffinity person ls --field-type enriched --all
-xaffinity person ls --filter 'Email =~ "@acme.com"'
+xaffinity person ls --filter 'Seniority = "Executive" & primaryEmail =~ "@acme.com"' --max-results 50
 xaffinity person ls --query "alice@example.com"
 xaffinity person ls --query "Alice" --field-type enriched --all
 xaffinity person ls --all --csv > people.csv
@@ -403,12 +406,12 @@ Options:
 - `--query <term>` / `-q <term>`: free-text search (name or domain)
 - `--field <id-or-name>` (repeatable): field ID or name to include
 - `--field-type <type>` (repeatable): field type to include (global, enriched, relationship-intelligence)
-- `--filter <expression>`: filter expression (custom fields only)
+- `--filter <expression>`: filter expression; must include a condition on a company field (Affinity's search applies it)
 - `--page-size`, `--cursor`, `--max-results`, `--all`: pagination options
 - `--csv`: output as CSV (to stdout)
 - `--csv-bom`: add UTF-8 BOM for Excel compatibility
 
-**Note:** `--filter` only works with custom fields. To filter on built-in properties like `name`, `domain`, etc., use `--json` output with `jq`.
+**Note:** `--filter` goes through Affinity's search: the conditions on company fields that Affinity can answer are applied on its side, and the whole filter (including attributes like `name` or `domain`) then runs on what comes back. A filter with only attribute conditions (e.g. `name =~ "Acme"`) is refused, since it would mean reading Affinity's whole company directory; search names and domains with `--query`. When part of the filter runs locally, `--all` or `--max-results` is required. Filters on enriched fields warn that a few records may be missed. The next-page cursor of a filtered run starts with `xsearch1:` and `--cursor` alone resumes it. `--query` and `--filter` can't be combined.
 
 **Note:** `--query` can be combined with `--field` and `--field-type` to search with field data.
 
@@ -417,6 +420,7 @@ xaffinity company ls
 xaffinity company ls --page-size 50
 xaffinity company ls --field-type enriched --all
 xaffinity company ls --filter 'Industry = "Software"'
+xaffinity company ls --filter 'Industry = "Software" & name =~ "Labs"' --max-results 50
 xaffinity company ls --query "example.com"
 xaffinity company ls --query "Example" --field-type enriched --all
 xaffinity company ls --all --csv > companies.csv
@@ -712,7 +716,7 @@ Options:
 - `--csv-bom`: add UTF-8 BOM for Excel compatibility
 - `--field <id-or-name>` (repeatable): include specific fields
 - `--saved-view <name>`: use a saved view's field selection (server-side filtering)
-- `--filter <expression>`: filter expression (client-side; requires a scope flag — see below)
+- `--filter <expression>`: filter expression; Affinity's search applies what it can, the rest runs locally (see below)
 - `--company-id <id>` (repeatable): entity-scoped export — return only rows where the entry is for this company
 - `--person-id <id>` (repeatable): entity-scoped export — return only rows where the entry is for this person
 - `--first-page-only`: fetch a single page of results; output includes `meta.truncated=true` and `meta.truncationReason="firstPageOnly"` when there are more pages
@@ -723,14 +727,15 @@ Options:
 - `--unreplied-types <types>`: Comma-separated types to check: email, chat, all (default: email,chat)
 - `--unreplied-lookback-days <days>`: Lookback period for unreplied message detection (default: 30)
 
-**`--filter` requires a scope flag.** Since v1.13, `list export --filter <expr>` must be combined with one of `--all`, `--max-results <N>`, or `--first-page-only`; otherwise the command exits with code 2. Filtering is client-side (all matching pages are downloaded and filtered locally), so an unscoped `--filter` could silently read the entire list. For large lists prefer `--saved-view` (server-side) or the entity-scoped `--company-id` / `--person-id` forms.
+**`--filter` and Affinity's search.** Conditions on list fields that Affinity's search can answer are applied on its side, so only matching entries are downloaded; the whole filter still runs locally on what comes back. When Affinity applies the whole filter, `--all`, `--max-results` and `--first-page-only` are not required (page one is the first page of matches). When part of the filter runs locally, one of them is required, otherwise the command exits with code 2 and the error's `details.local` names the conditions that stay local. The next-page cursor of a filtered export starts with `xsearch1:` and carries the search, so `--cursor` alone resumes it. If Affinity refuses the search (e.g. the API key lacks the "Export data from Lists" permission), the export reads the whole list and filters locally, with a warning. `XAFFINITY_QUERY_SERVER_FILTER=0` turns server filtering off. `--saved-view` also filters on Affinity's side; for one known company or person use `--company-id` / `--person-id`. See [Filtering](../guides/filtering.md#filtering-on-affinitys-side) for which conditions Affinity applies.
 
 **Truncation envelope.** JSON output includes a `meta` object with `truncated` (boolean) and, when `truncated=true`, a `truncationReason` string naming the cause (currently: `firstPageOnly`). Always check this before treating a response as complete.
 
 ```bash
 xaffinity list export 123 --csv > out.csv
 xaffinity list export "My Pipeline" --saved-view "Board" --csv > out.csv
-xaffinity list export 123 --field Stage --field Amount --filter '"Stage" = "Active"' --max-results 500 --csv > out.csv
+xaffinity list export 123 --field Stage --field Amount --filter '"Stage" = "Active"' --csv > out.csv
+xaffinity list export 123 --filter 'Stage = "Active" & entityName =~ "Labs"' --max-results 500 --csv > out.csv
 xaffinity list export 123 --csv --csv-bom > out.csv
 
 # Entity-scoped export (dedup-on-create pattern)

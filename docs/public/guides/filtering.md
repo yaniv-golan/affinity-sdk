@@ -1,28 +1,41 @@
 # Filtering
 
-> **For list entries:** prefer `--saved-view` (server-side, fast) or
-> `--company-id` / `--person-id` (entity-scoped, cheap). `--filter` is
-> client-side and requires a scope flag (`--all`, `--max-results`, or
-> `--first-page-only`) on `list export` since v1.13. Without a scope flag,
-> `list export --filter` exits 2.
+> **Where filtering happens:** `list export --filter`, `company ls --filter`,
+> `person ls --filter` and `query` send the conditions on fields that Affinity's
+> search can answer to Affinity, so only matching records are downloaded. The
+> whole filter then runs locally on what comes back, so results are the same as a
+> local filter. See [Filtering on Affinity's side](#filtering-on-affinitys-side).
+> For one known company or person on a list, `--company-id` / `--person-id` is
+> still the cheapest lookup.
 
-V2 list endpoints accept `filter` expressions to query custom fields.
+One filter language is used everywhere: the `--filter` text of the CLI, the JSON
+`where` of `query` (same conditions, JSON spelling), and the SDK's `affinity.filters`
+/ `F` builder. Every condition means the same in all of them.
 
-**Important:** V2 filters only work with **custom fields**, not built-in entity properties. Built-in properties like `type`, `firstName`, `domain`, etc. cannot be filtered.
+**Fields and attributes:** conditions on **fields** (custom, global and enriched
+fields) can go to Affinity. Conditions on a record's own attributes (`name`,
+`domain`, `firstName`, `primaryEmail`, ...) are checked locally on the records
+Affinity returns.
 
 ## Recommended: Use the Filter Builder
 
-Use `affinity.F` to build type-safe filter expressions:
+Use `affinity.F` to build type-safe filter expressions. In the SDK, `filter=` on
+list entries is matched locally after the entries are fetched; to filter on
+Affinity's side from Python, use [`find`](#sdk-filtering-on-affinitys-side-with-find).
 
 ```python
 from affinity import Affinity, F
+from affinity.types import ListId
 
 with Affinity(api_key="your-api-key") as client:
     # Recommended: Type-safe filter builder
-    companies = client.companies.list(
+    entries = client.lists.entries(ListId(123)).list(
         filter=F.field("Industry").equals("Software")
     )
 ```
+
+`client.companies.list()`, `client.persons.list()` and `client.opportunities.list()`
+don't take `filter=` (they raise `ValueError`).
 
 Benefits of the filter builder:
 - Prevents syntax errors with type checking
@@ -38,46 +51,49 @@ Benefits of the filter builder:
 
 ```python
 from affinity import Affinity, F
+from affinity.types import ListId
+
+entries = client.lists.entries(ListId(123))
 
 # Equals
-persons = client.persons.list(filter=F.field("Department").equals("Sales"))
+rows = entries.list(filter=F.field("Department").equals("Sales"))
 
 # Contains (case-insensitive substring match)
-companies = client.companies.list(filter=F.field("Industry").contains("Tech"))
+rows = entries.list(filter=F.field("Industry").contains("Tech"))
 
 # Starts with
-persons = client.persons.list(filter=F.field("Title").starts_with("VP"))
+rows = entries.list(filter=F.field("Title").starts_with("VP"))
 
 # Ends with
-persons = client.persons.list(filter=F.field("Email").ends_with("@acme.com"))
+rows = entries.list(filter=F.field("Email").ends_with("@acme.com"))
 
 # Greater than (for numbers/dates)
-opportunities = client.opportunities.list(filter=F.field("Amount").greater_than(100000))
+rows = entries.list(filter=F.field("Amount").greater_than(100000))
 
 # Is null / is not null
-persons = client.persons.list(filter=F.field("Manager").is_null())
+rows = entries.list(filter=F.field("Manager").is_null())
 ```
 
 **Complex logic (AND/OR/NOT):**
 
 ```python
 # AND: Both conditions must be true
-active_sales = client.persons.list(
+active_sales = entries.list(
     filter=F.field("Department").equals("Sales") & F.field("Status").equals("Active")
 )
 
 # OR: Either condition can be true
-tech_or_finance = client.companies.list(
+tech_or_finance = entries.list(
     filter=F.field("Industry").equals("Technology") | F.field("Industry").equals("Finance")
 )
 
 # NOT: Negate a condition
-non_archived = client.persons.list(
+non_archived = entries.list(
     filter=~F.field("Archived").equals(True)
 )
 
 # Complex: (A AND B) OR (C AND D)
-result = client.companies.list(
+result = entries.list(
     filter=(
         (F.field("Industry").equals("Software") & F.field("Region").equals("US"))
         | (F.field("Industry").equals("Hardware") & F.field("Region").equals("EU"))
@@ -89,18 +105,19 @@ result = client.companies.list(
 
 ```python
 # Match any value in the list
-multi_region = client.companies.list(
+multi_region = entries.list(
     filter=F.field("Region").in_list(["US", "Canada", "Mexico"])
 )
 ```
 
 ## Raw Filter Strings
 
-For CLI or advanced SDK use, you can use raw filter strings. The SDK supports both official Affinity V2 API syntax and SDK-specific extensions.
+For CLI or advanced SDK use, you can use raw filter strings: the `--filter` text of
+`list export`, `company ls` and `person ls`, and `affinity.filters.parse()` in the SDK.
 
-### Standard Operators (Affinity V2 API compatible)
+### Standard Operators
 
-These operators work both with the Affinity API and SDK client-side filtering:
+These operators work in every `--filter` and in `affinity.filters`:
 
 | Meaning | Operator | Example |
 |---|---|---|
@@ -123,9 +140,10 @@ These operators work both with the Affinity API and SDK client-side filtering:
 | collection contains all | `=~ [A, B]` | `field("Tags") =~ [tech, startup]` |
 | collection empty | `= []` | `field("Tags") = []` |
 
-### SDK Extensions (client-side filtering only)
+### SDK Extensions
 
-These operators are SDK-specific and only work for client-side filtering with `--expand-filter` or `matches()`. They do NOT work with the Affinity API.
+These operators work in every `--filter` (including `--expand-filter`) and in
+`affinity.filters` / `matches()`. Each one has a JSON spelling in `query`.
 
 #### Word-Based Aliases `[SDK Extension]`
 
@@ -136,6 +154,7 @@ Human/LLM-friendly aliases for official operators:
 | `contains` | `=~` | `name contains "Corp"` |
 | `starts_with` | `=^` | `name starts_with "Acme"` |
 | `ends_with` | `=$` | `email ends_with "@acme.com"` |
+| `starts_word` | (none) | `Owner starts_word "Jan"` |
 | `gt` | `>` | `count gt 5` |
 | `gte` | `>=` | `count gte 5` |
 | `lt` | `<` | `count lt 10` |
@@ -155,40 +174,57 @@ Human/LLM-friendly aliases for official operators:
 | contains any | `contains_any [A, B]` | Any element contains any substring |
 | contains all | `contains_all [A, B]` | Any element contains all substrings |
 
-**Example equivalents (prefer official syntax for API portability):**
+#### Matching rules
+
+- **`starts_word`**: a word in the value starts with the text, case-insensitive, the way
+  Affinity's search matches names. `"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"`
+  doesn't. JSON spelling in `query`: `{"path": "fields.Owner", "op": "starts_word", "value": "Jan"}`.
+- **Person and company fields** are compared by name ("Jane Doe", "Acme"). In `--filter`
+  and `query`, `contains` (and `contains_any` / `contains_all`) on a person or company
+  field is refused: use `starts_word`.
+- **Empty multi-value fields**: a multi-value field with no items counts as empty.
+  `is null` (`!= *`) matches it and `is not null` (`= *`) doesn't.
+
+**Example equivalents:**
 
 ```bash
 # These are equivalent:
-xaffinity list export 123 --expand-filter '"Team Member" =~ LB'       # Official V2 API
-xaffinity list export 123 --expand-filter '"Team Member" contains LB' # SDK alias
+xaffinity list export 123 --expand-filter '"Team Member" =~ LB'       # Symbol
+xaffinity list export 123 --expand-filter '"Team Member" contains LB' # Word alias
 
-xaffinity list export 123 --expand-filter 'email = *'           # Official V2 API
-xaffinity list export 123 --expand-filter 'email is not null'   # SDK alias
+xaffinity list export 123 --expand-filter 'email = *'           # Symbol
+xaffinity list export 123 --expand-filter 'email is not null'   # Word alias
 
-xaffinity list export 123 --expand-filter 'count > 5'   # Official V2 API
-xaffinity list export 123 --expand-filter 'count gt 5'  # SDK alias
+xaffinity list export 123 --expand-filter 'count > 5'   # Symbol
+xaffinity list export 123 --expand-filter 'count gt 5'  # Word alias
 ```
 
 ## CLI Examples
 
 ```bash
-# Simple filter
-xaffinity person ls --filter 'Department = "Sales"'
+# Simple filter on a list field
+xaffinity list export Pipeline --filter 'Status = "Active"'
+
+# Companies by a company field (Affinity filters on its side)
+xaffinity company ls --filter 'Industry = "Software"' --max-results 50
 
 # Contains (case-insensitive)
-xaffinity company ls --filter 'Industry =~ "tech"'
+xaffinity company ls --filter 'Industry =~ "tech"' --max-results 50
 
 # Numeric comparison
-xaffinity opportunity ls --filter 'Amount > 100000'
+xaffinity list export Pipeline --filter 'Amount > 100000'
 
 # Multiple conditions with AND
-xaffinity person ls --filter 'Status = "Active" & Department = "Sales"'
+xaffinity person ls --filter 'Status = "Active" & Department = "Sales"' --max-results 50
 
 # Multiple conditions with OR
-xaffinity company ls --filter 'Region = "US" | Region = "Canada"'
+xaffinity list export Pipeline --filter 'Region = "US" | Region = "Canada"'
+
+# A person field by name
+xaffinity list export Pipeline --filter 'Owner starts_word "Jan"'
 
 # Null check
-xaffinity person ls --filter 'Manager != *'
+xaffinity list export Pipeline --filter 'Owner != *'
 
 # Collection operators (SDK extension)
 xaffinity list export 123 --expand-filter 'Status in [Active, Pending]'
@@ -197,7 +233,7 @@ xaffinity list export 123 --expand-filter 'Tags has_any [priority, urgent]'
 
 ## What Can Be Filtered?
 
-**Custom fields** (added to entities in Affinity):
+**Fields** (custom, global and enriched fields):
 
 Python SDK:
 - `F.field("Department").equals("Sales")`
@@ -207,12 +243,90 @@ CLI (raw filter syntax):
 - `Department = "Sales"`
 - `Status =~ "Active"`
 
-**Built-in properties** (cannot be filtered with V2 filter expressions):
+**Record attributes** (checked locally on the records that come back):
 - Person: `type`, `firstName`, `lastName`, `primaryEmail`, `emailAddresses`
 - Company: `name`, `domain`, `domains`
-- Opportunity: `name`, `listId`
+- List entry: `entityName`, `entityId`, `entityType`, `createdAt`
 
-For built-in properties, retrieve all data and filter client-side (see [CSV Export Guide](./csv-export.md) for examples).
+On `company ls` and `person ls`, a `--filter` must include at least one condition on a
+company or person field: Affinity's search applies that part, and attribute conditions
+(e.g. `name =~ "Acme"`) run on what it returns. A filter with only attribute conditions is
+refused, since it would mean reading Affinity's whole company directory (about 12 million
+records). To search by name, domain or email, use `--query TERM`.
+
+## Filtering on Affinity's side
+
+`list export --filter`, `company ls --filter`, `person ls --filter` and `query` split a
+filter in two: the conditions Affinity's search can answer are sent to Affinity, and only
+matching records are downloaded. The **whole** filter still runs locally on what comes
+back, so the result is the same as a local filter.
+
+What Affinity's search answers:
+
+| Field type | Conditions |
+|---|---|
+| Dropdown, ranked dropdown | `=`, `in`, `contains`, `starts_with`, `ends_with`, `starts_word` on the option text; `!=` and `!(... = / in ...)` |
+| Multi-select dropdown | membership `=`, `in`, `has_any`, `has_all`, `contains` / `starts_word` on the option text, `!=` |
+| Number | `=`, `>`, `>=`, `<`, `<=`, `between`, `!=` |
+| Date | `>`, `>=`, `<`, `<=`, `=`, `between`, also relative dates like `-30d` |
+| Text | `=`, `contains`, `starts_with`, `ends_with`, `starts_word` (sent as Affinity's case-insensitive contains; the exact check runs locally) |
+| Most field types | `is null`, `is not null` |
+| Person or company field | `starts_word` with plain text of 3+ letters or digits, one per query, at the top level (sent as Affinity's name search) |
+
+What stays local: conditions on record attributes (`name`, `entityName`, `createdAt`, ...),
+related-record conditions in `query` (`all`, `none`, `exists`, `_count`), `expr`,
+`contains_any` / `contains_all`, and an OR with any branch Affinity can't answer.
+
+**Enriched fields** (`affinity-data-*`, e.g. funding and headcount): on list entries they're
+sent as "condition OR field is empty", because Affinity's search reads a few records' enriched
+values as empty; results stay exact. On `company ls`, `person ls` and `query` on companies or
+persons they're sent as they are, and the result carries a warning that a few records may be
+missed.
+
+**Scope flags and paging:**
+
+- `list export --filter`: when Affinity applies the whole filter, `--all`, `--max-results`
+  and `--first-page-only` aren't required (page one is the first page of matches). When part
+  of the filter runs locally, one of them is required; the error's `details.local` names the
+  conditions that stay local.
+- `company ls --filter` / `person ls --filter`: when part of the filter runs locally, `--all`
+  or `--max-results` is required.
+- The next-page cursor of a filtered run starts with `xsearch1:` and carries the search, so
+  `--cursor` alone resumes it.
+- If Affinity refuses the search on `list export` or a `listEntries` query (e.g. the API key
+  lacks the "Export data from Lists" permission), the command reads the whole list and filters
+  locally, with a warning.
+- `XAFFINITY_QUERY_SERVER_FILTER=0` turns this off for `query` and `list export` (to compare
+  results or debug).
+
+## SDK: filtering on Affinity's side with `find`
+
+`client.companies.find(...)`, `client.persons.find(...)` and
+`client.lists.entries(list_id).find(...)` call Affinity's search (V2, beta): Affinity
+filters and sorts, and only matching records are downloaded. Conditions are built with
+`affinity.criteria` and use Affinity's operator names (`is-any-of`, `has-any-of`,
+`contains`, `is-greater-than`, `is-between`, `is-after`, `is-within-the-last`,
+`is-empty`, ...).
+
+```python
+from datetime import date
+from affinity.criteria import Condition, Sort, all_of
+
+page = client.companies.find(
+    all_of(
+        Condition("field-498220", "is-any-of", [3, 4]),
+        Condition("affinity-data-last-funding-date", "is-after", date(2025, 1, 1)),
+    ),
+    sort=[Sort("affinity-data-total-funding-amount", "desc")],
+    limit=50,
+)
+```
+
+Values are ids for company, person, list and dropdown fields (dropdown values are option
+ids), dates are `datetime.date` or `"YYYY-MM-DD"`, and relative windows are `(6, "month")`.
+Search needs the "Export All Organizations directory" permission (companies, persons) or
+"Export data from Lists" (list entries). See [Companies service](../reference/services/companies.md#finding-records-with-affinitys-search)
+for paging and the full signature.
 
 ## Filtering in List Exports (CLI)
 
@@ -220,12 +334,12 @@ The `list export` command supports two filter options with **identical syntax** 
 
 | Option | What It Filters | Where Filtering Happens |
 |--------|----------------|------------------------|
-| `--filter` | List entries | Server-side (API) |
+| `--filter` | List entries | Affinity's search where it can, the rest locally |
 | `--expand-filter` | Expanded entities (people, companies) | Client-side (after fetch) |
 
 ### Why the difference?
 
-The Affinity API supports filtering for list entries, but **does not support filtering associations**.
+Affinity's search filters list entries, but **it doesn't filter associations**.
 
 When you use `--expand persons`, the CLI:
 
@@ -243,7 +357,7 @@ This means `--expand-filter`:
 ### Example
 
 ```bash
-# Server-side: only fetch Active opportunities
+# Affinity's search: only fetch Active opportunities
 # Client-side: only include people with valid email status
 xaffinity list export 275454 \
   --filter "Status=Active" \

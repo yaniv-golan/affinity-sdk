@@ -2,6 +2,8 @@
 
 Filter entities based on related entity properties. **All quantifiers cause N+1 API calls — always `dryRun: true` first.**
 
+Quantifiers always run locally. On `persons` and `companies` the `where` must also include a condition on one of their fields (`fields.<name>`), which Affinity's search applies first; a `where` with only quantifiers is refused. `opportunities` take no `where`.
+
 ## ALL Quantifier
 
 All related items must match the condition:
@@ -10,10 +12,10 @@ All related items must match the condition:
 {
   "from": "persons",
   "where": {
-    "all": {
-      "path": "companies",
-      "where": { "path": "domain", "op": "contains", "value": ".com" }
-    }
+    "and": [
+      { "path": "fields.Seniority", "op": "eq", "value": "Executive" },
+      { "all": { "path": "companies", "where": { "path": "domain", "op": "contains", "value": ".com" }}}
+    ]
   }
 }
 ```
@@ -37,12 +39,12 @@ No related items may match the condition:
 
 ```json
 {
-  "from": "persons",
+  "from": "listEntries",
   "where": {
-    "none": {
-      "path": "interactions",
-      "where": { "path": "type", "op": "eq", "value": "spam" }
-    }
+    "and": [
+      { "path": "listName", "op": "eq", "value": "Dealflow" },
+      { "none": { "path": "interactions", "where": { "path": "type", "op": "eq", "value": "spam" }}}
+    ]
   }
 }
 ```
@@ -54,18 +56,23 @@ At least one related item exists (optionally matching a filter):
 ```json
 // Simple existence check
 {
-  "from": "persons",
-  "where": { "exists": { "from": "interactions" }}
+  "from": "listEntries",
+  "where": {
+    "and": [
+      { "path": "listName", "op": "eq", "value": "Dealflow" },
+      { "exists": { "from": "interactions" }}
+    ]
+  }
 }
 
-// With filter
+// With filter (persons need a field condition too)
 {
   "from": "persons",
   "where": {
-    "exists": {
-      "from": "interactions",
-      "where": { "path": "type", "op": "eq", "value": "meeting" }
-    }
+    "and": [
+      { "path": "fields.Seniority", "op": "eq", "value": "Executive" },
+      { "exists": { "from": "interactions", "where": { "path": "type", "op": "eq", "value": "meeting" }}}
+    ]
   }
 }
 ```
@@ -94,7 +101,8 @@ Count related items and compare:
 
 **Quick decision:**
 - `listEntries` with quantifiers: Safe (bounded by list size)
-- `persons`/`companies`/`opportunities` with quantifiers: Requires `maxRecords`
+- `persons`/`companies` with quantifiers: Requires a field condition and `maxRecords`
+- `opportunities`: no `where`, so no quantifiers
 
 **Why?** Quantifier operations make N+1 API calls (one per record). On a database with 50,000 persons, this could take 26+ minutes.
 

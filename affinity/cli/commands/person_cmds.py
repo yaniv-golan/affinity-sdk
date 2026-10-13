@@ -206,7 +206,8 @@ def _parse_field_types(values: tuple[str, ...]) -> list[FieldType] | None:
     "filter_expr",
     type=str,
     default=None,
-    help="Filter: 'field op value'. Ops: = != =~ =^ =$ > < >= <=. E.g., 'Email =~ \"@acme\"'.",
+    help="Filter on person fields, applied by Affinity's search: 'field op value'. Ops: = != "
+    "=~ =^ =$ > < >= <= starts_word. E.g., 'Deals > 5'. Name/email search: --query.",
 )
 @click.option(
     "--query",

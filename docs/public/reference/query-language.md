@@ -8,8 +8,8 @@ This document provides a complete reference for the Affinity CLI query language.
 // Simplest query - get 10 persons
 {"from": "persons", "limit": 10}
 
-// Add a filter
-{"from": "persons", "where": {"path": "email", "op": "contains", "value": "@acme.com"}, "limit": 10}
+// Add a filter (companies and persons: filter on a field)
+{"from": "companies", "where": {"path": "fields.Industry", "op": "eq", "value": "Software"}, "limit": 10}
 
 // Include related companies
 {"from": "persons", "include": ["companies"], "limit": 10}
@@ -74,6 +74,8 @@ xaffinity query --query '{"from": "persons", "limit": 10}'
 {"from": "persons", "limit": 10}
 ```
 
+`companies` and `persons` are filtered by Affinity's search: a `where` must include at least one condition on their fields (`fields.<name>`), and the rest of the clause (e.g. `name contains`) runs on what Affinity returns. A `where` with no field condition is refused, since it would mean reading Affinity's whole company directory (about 12 million records); for a name or email search use `xaffinity company ls --query TERM` / `xaffinity person ls --query TERM`. `opportunities` take no `where`.
+
 **Requires parent filter** - Must specify parent context:
 ```json
 {
@@ -86,7 +88,7 @@ The `listEntries` entity supports:
 - `listId` filter with `eq` or `in` operator
 - `listName` filter (resolved to `listId` automatically)
 - Multiple lists via `in` operator or `or` conditions
-- `fields.*` paths with human-readable field names (resolved to field IDs automatically)
+- `fields.*` paths with human-readable field names (resolved to field IDs automatically) or field ids
 
 **Include only** - Cannot be queried directly; use as relationship include:
 ```json
@@ -140,8 +142,11 @@ Example: {"from": "persons", "include": ["interactions"]}
 
 | Operator | Description | Value Type |
 |----------|-------------|------------|
-| `contains` | Contains substring | string |
-| `starts_with` | Starts with prefix | string |
+| `contains` | Contains substring (case-insensitive) | string |
+| `starts_with` | Starts with prefix (case-insensitive) | string |
+| `starts_word` | A word in the value starts with the text (case-insensitive) | string |
+
+`starts_word` matches the way Affinity's search matches names: `"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"` doesn't. Person and company field values are compared by name ("Jane Doe", "Acme"); `contains`, `contains_any` and `contains_all` on a person or company field are refused (use `starts_word`).
 
 #### Collection
 
@@ -149,8 +154,10 @@ Example: {"from": "persons", "include": ["interactions"]}
 |----------|-------------|------------|
 | `in` | Value in list | array |
 | `between` | Value in range | [min, max] |
-| `contains_any` | Array has any of | array |
-| `contains_all` | Array has all of | array |
+| `contains_any` | Contains any of the substrings (case-insensitive) | array |
+| `contains_all` | Contains all of the substrings (case-insensitive) | array |
+| `has_any` | Multi-value field has any of the values | array |
+| `has_all` | Multi-value field has all of the values | array |
 
 #### Null
 
@@ -158,6 +165,14 @@ Example: {"from": "persons", "include": ["interactions"]}
 |----------|-------------|-------|
 | `is_null` | Field is null | (none) |
 | `is_not_null` | Field is not null | (none) |
+
+An empty multi-value field (no items) counts as empty: `is_null` matches it, `is_not_null` doesn't.
+
+The `--filter` text of `list export`, `company ls` and `person ls` is the same filter language with a text spelling (`Owner starts_word "Jan"`); every condition means the same in both.
+
+### Filtering on Affinity's Side
+
+On `listEntries`, `companies` and `persons`, the conditions on fields that Affinity's search can answer are sent to Affinity, so only matching records are downloaded. The full `where` still runs locally on what comes back, so results are the same as a local filter. Related-record quantifiers, non-field paths (`entityName`, `createdAt`, ...), `expr`, `contains_any` / `contains_all` and an OR with a branch Affinity can't answer stay local. `--include-meta` reports the split in `meta.serverFilter` (`pushed`, `local`, `sort`). Details: [Query command guide](../guides/query-command.md#filtering-on-affinitys-side).
 
 ### Compound Conditions
 
@@ -193,7 +208,7 @@ Example: {"from": "persons", "include": ["interactions"]}
 
 ### Quantifiers
 
-Quantifiers filter records based on related entities. They require fetching relationship data (N+1 API calls).
+Quantifiers filter records based on related entities. They require fetching relationship data (N+1 API calls). On `persons` and `companies` the `where` also needs a condition on a field, which Affinity's search applies first.
 
 #### ALL
 
@@ -203,10 +218,15 @@ All related items must match the condition:
 {
   "from": "persons",
   "where": {
-    "all": {
-      "path": "companies",
-      "where": { "path": "domain", "op": "contains", "value": ".com" }
-    }
+    "and": [
+      { "path": "fields.Seniority", "op": "eq", "value": "Executive" },
+      {
+        "all": {
+          "path": "companies",
+          "where": { "path": "domain", "op": "contains", "value": ".com" }
+        }
+      }
+    ]
   }
 }
 ```
@@ -219,10 +239,15 @@ No related items may match the condition:
 {
   "from": "persons",
   "where": {
-    "none": {
-      "path": "companies",
-      "where": { "path": "name", "op": "contains", "value": "Competitor" }
-    }
+    "and": [
+      { "path": "fields.Seniority", "op": "eq", "value": "Executive" },
+      {
+        "none": {
+          "path": "companies",
+          "where": { "path": "name", "op": "contains", "value": "Competitor" }
+        }
+      }
+    ]
   }
 }
 ```
@@ -234,7 +259,12 @@ Count related items using the `_count` pseudo-field:
 ```json
 {
   "from": "persons",
-  "where": { "path": "companies._count", "op": "gte", "value": 2 }
+  "where": {
+    "and": [
+      { "path": "fields.Seniority", "op": "eq", "value": "Executive" },
+      { "path": "companies._count", "op": "gte", "value": 2 }
+    ]
+  }
 }
 ```
 
@@ -246,10 +276,15 @@ Check if related items exist (optionally matching a filter):
 {
   "from": "persons",
   "where": {
-    "exists": {
-      "from": "interactions",
-      "where": { "path": "type", "op": "eq", "value": "meeting" }
-    }
+    "and": [
+      { "path": "fields.Seniority", "op": "eq", "value": "Executive" },
+      {
+        "exists": {
+          "from": "interactions",
+          "where": { "path": "type", "op": "eq", "value": "meeting" }
+        }
+      }
+    ]
   }
 }
 ```
@@ -286,7 +321,9 @@ For `listEntries` queries, `fields.*` paths support human-readable field names:
 {"path": "fields.Status", "op": "eq", "value": "Active"}
 ```
 
-Field names are resolved case-insensitively against the list's field definitions. If a name is not found, it passes through unchanged (allowing direct use of field IDs like `fields.12345` or `fields.field-260415`).
+Field names are resolved case-insensitively against the list's field definitions. Any field can also be named by id (`fields.field-260415`, `fields.affinity-data-year-founded`). An unknown name gives a warning listing the list's fields.
+
+When two list fields share a name (e.g. Affinity's and Dealroom's "Year Founded"), `fields.<name>` is refused with an error listing the ids: use `fields.<field id>`. Such fields come back keyed by id.
 
 ### Field Value Normalization
 
@@ -392,6 +429,8 @@ Use the discovered field names in your queries with `fields.<FieldName>` paths.
 | `field` | string | Yes | Field path |
 | `direction` | string | No | `asc` (default) or `desc` |
 
+When every `orderBy` key is a sortable field (`fields.<name>`, up to 5) and there is no `groupBy` or `aggregate`, Affinity sorts; with a `limit`, fetching stops once enough records pass the filter. Affinity's order puts empty values last in both directions, breaks ties by id ascending, and orders ranked dropdowns by rank. When the sort runs locally it also breaks ties by id.
+
 ## Aggregate Functions
 
 ### Basic Aggregates
@@ -492,12 +531,12 @@ Both `include` and quantifiers fetch relationship data, but serve different purp
 {"from": "persons", "include": ["companies"], "limit": 10}
 // Result: [{"id": 1, "firstName": "John", "companies": [{"id": 100, "name": "Acme"}]}]
 
-// Quantifier: Get persons who have 2+ companies (companies not in result)
-{"from": "persons", "where": {"path": "companies._count", "op": "gte", "value": 2}, "limit": 10}
+// Quantifier: Get executives who have 2+ companies (companies not in result)
+{"from": "persons", "where": {"and": [{"path": "fields.Seniority", "op": "eq", "value": "Executive"}, {"path": "companies._count", "op": "gte", "value": 2}]}, "limit": 10}
 // Result: [{"id": 1, "firstName": "John"}]
 
-// Both: Get persons with 2+ companies AND include those companies
-{"from": "persons", "where": {"path": "companies._count", "op": "gte", "value": 2}, "include": ["companies"], "limit": 10}
+// Both: Get executives with 2+ companies AND include those companies
+{"from": "persons", "where": {"and": [{"path": "fields.Seniority", "op": "eq", "value": "Executive"}, {"path": "companies._count", "op": "gte", "value": 2}]}, "include": ["companies"], "limit": 10}
 ```
 
 ## Include Relationships
@@ -601,7 +640,7 @@ Unlike `include` (which fetches separate related entities), `expand` enriches re
 ```json
 {
   "from": "companies",
-  "where": {"path": "name", "op": "contains", "value": "Acme"},
+  "where": {"path": "fields.Industry", "op": "eq", "value": "Software"},
   "expand": ["interactionDates"],
   "limit": 10
 }
@@ -670,7 +709,7 @@ For `listEntries` queries, interaction dates are fetched for the underlying comp
 ```json
 {
   "error": "QueryParseError",
-  "message": "Unknown operator 'like'. Supported: eq, neq, gt, gte, lt, lte, contains, starts_with, in, between, is_null, is_not_null",
+  "message": "Unknown operator 'like'. Supported operators: between, contains, contains_all, contains_any, eq, gt, gte, has_all, has_any, in, is_not_null, is_null, lt, lte, neq, starts_with, starts_word",
   "field": "where.op"
 }
 ```
@@ -717,7 +756,7 @@ Do you need all, none, exists, or _count?
 ├── No → Use normal filters (fast, no N+1 calls)
 └── Yes → What entity are you querying from?
     ├── listEntries → Safe (bounded by list size)
-    └── persons/companies/opportunities → ⚠️ Read below
+    └── persons/companies → ⚠️ Read below (opportunities take no where)
         ├── Add cheap pre-filters first to reduce dataset
         ├── Use --max-records 100 for exploration
         └── Use --dry-run to preview API calls
@@ -735,7 +774,7 @@ be very slow on large databases.
 | 1,000 records | 1,000 | ~33 seconds | ⚠️ Slow |
 | 10,000 records | 10,000 | ~5.5 minutes | ❌ Painful |
 
-**Important**: Unbounded queries (from `persons`, `companies`, or `opportunities`)
+**Important**: Queries from `persons` or `companies`
 with quantifier filters require explicit `--max-records` to prevent accidentally
 running very long queries.
 
@@ -748,7 +787,7 @@ running very long queries.
      "where": {
        "and": [
          {"path": "listId", "op": "eq", "value": 12345},
-         {"path": "entity.companies._count", "op": "gte", "value": 2}
+         {"path": "persons._count", "op": "gte", "value": 2}
        ]
      }
    }
@@ -760,6 +799,7 @@ running very long queries.
      "from": "companies",
      "where": {
        "and": [
+         {"path": "fields.Industry", "op": "eq", "value": "Software"},
          {"path": "domain", "op": "contains", "value": "example"},
          {"path": "persons._count", "op": "gte", "value": 2}
        ]

@@ -35,6 +35,21 @@ with Affinity(api_key="YOUR_API_KEY") as client:
         print(f"Last meeting attendees: {team_ids}")
 ```
 
+## Finding records with Affinity's search
+
+`client.persons.find(...)`, `iter_find(...)` and `find_body(...)` filter and sort on
+Affinity's side (V2 search, beta) and return `Person` records. They work like the
+[companies methods](companies.md#finding-records-with-affinitys-search) and need the
+"Export All Organizations directory" permission. `search(term)` is the separate
+name/email search.
+
+```python
+from affinity.criteria import Condition
+
+for person in client.persons.iter_find(Condition("field-123", "is-not-empty")):
+    print(person.id, person.first_name, person.last_name)
+```
+
 ::: affinity.services.persons.PersonService
 
 ::: affinity.services.persons.AsyncPersonService

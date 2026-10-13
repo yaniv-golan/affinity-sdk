@@ -534,8 +534,8 @@ class QueryPlanner:
 
         if requires_full_scan:
             recommendations.append(
-                "Query requires client-side filtering. For better performance, "
-                "consider using saved views or list export with --filter."
+                "Only conditions on fields (fields.<name>) can be filtered by Affinity's search; "
+                "this query reads every record and filters locally."
             )
 
         # Estimate memory

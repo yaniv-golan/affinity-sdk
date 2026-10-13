@@ -154,8 +154,8 @@ You: execute-write-command(command: "person delete", argv: ["123"], confirm: tru
 // Pipeline with field values and unreplied email detection
 {"from": "listEntries", "where": {"path": "listName", "op": "eq", "value": "Dealflow"}, "select": ["entityName", "fields.Status", "fields.Owner"], "expand": ["unreplied"]}
 
-// Persons with their companies and interaction history summary
-{"from": "persons", "where": {"path": "email", "op": "contains", "value": "@acme.com"}, "include": ["companies"], "expand": ["interactionDates"]}
+// Persons with their companies and interaction history summary (persons/companies: filter on a field)
+{"from": "persons", "where": {"and": [{"path": "fields.Seniority", "op": "eq", "value": "Executive"}, {"path": "primaryEmailAddress", "op": "contains", "value": "@acme.com"}]}, "include": ["companies"], "expand": ["interactionDates"], "limit": 50}
 
 // Pipeline summary by status (aggregation) - no expand, no dryRun needed
 {"from": "listEntries", "where": {"path": "listName", "op": "eq", "value": "Dealflow"}, "groupBy": "fields.Status", "aggregate": {"count": {"count": true}}}

@@ -71,15 +71,15 @@ with Affinity.from_env(policies=Policies(write=WritePolicy.DENY)) as client:
     ...
 ```
 
-**Filters only work on custom fields**
+**Filter persons and companies on fields with `find()`**
 
 ```python
-from affinity import F
+from affinity.criteria import Condition
 
-# Works - custom fields
-client.persons.list(filter=F.field("Department").equals("Sales"))
+# Affinity's search filters on field values (dropdown values are option ids)
+page = client.persons.find(Condition("field-123", "is-any-of", [4]), limit=50)
 
-# Won't work - built-in properties like firstName, lastName, domain, etc.
+# persons.list(filter=...) raises ValueError; name/email search is persons.search("jane")
 ```
 
 ### Example prompts

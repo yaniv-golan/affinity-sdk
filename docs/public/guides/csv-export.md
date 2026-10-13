@@ -242,10 +242,10 @@ xaffinity person ls --max-results 100 --csv > people.csv
 
 **Filtering on custom fields (recommended):**
 
-When filtering on custom fields, use `--filter` for server-side filtering. This is more efficient as Affinity filters the data before sending it:
+When filtering on fields, use `--filter`. Affinity's search applies the conditions on fields before sending the data, and the whole filter is checked again locally:
 
 ```bash
-# Efficient: Server-side filtering on custom field
+# Efficient: Affinity filters on the field
 xaffinity person ls --filter 'Department = "Sales"' --all --csv > sales-people.csv
 ```
 
@@ -259,7 +259,7 @@ xaffinity person ls --filter 'Department = "Sales"' --json --all | \
 
 **Filtering on built-in properties:**
 
-Built-in properties like `type`, `firstName`, `primaryEmail`, etc. cannot be filtered using `--filter` (which only works with custom fields). Use jq for client-side filtering:
+Built-in properties like `type`, `firstName` or `primaryEmail` are checked locally. On `person ls` and `company ls` a `--filter` with only such conditions is refused (it would mean reading every record); combine them with a field condition, use `--query TERM` for a name or email search, or use jq:
 
 ```bash
 # Less efficient: Client-side filtering on built-in 'type' property
@@ -270,7 +270,7 @@ xaffinity person ls --json --all | \
 
 **Combining both approaches:**
 
-For complex scenarios, combine server-side custom field filtering with client-side built-in property filtering:
+For complex scenarios, combine a field filter (applied by Affinity) with built-in property filtering in jq:
 
 ```bash
 # Filter on custom field server-side, then filter on type client-side
@@ -337,4 +337,4 @@ xaffinity list export 123 --all --csv | awk -F',' '$3 > 1000'
 - [CLI Scripting Guide](../cli/scripting.md) - JSON output and automation
 - [CLI Commands Reference](../cli/commands.md) - Complete command documentation
 - [Field Values Guide](./field-values.md) - Working with custom fields
-- [Filtering Guide](./filtering.md) - Server-side and client-side filtering
+- [Filtering Guide](./filtering.md) - Filtering with Affinity's search and locally

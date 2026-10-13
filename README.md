@@ -154,15 +154,22 @@ with Affinity.from_env() as client:
 ### Working with Companies
 
 ```python
-from affinity import Affinity, F
+from datetime import date
+
+from affinity import Affinity
+from affinity.criteria import Condition, Sort, all_of
 from affinity.models import CompanyCreate
-from affinity.types import CompanyId, FieldType
+from affinity.types import CompanyId
 
 with Affinity(api_key="your-key") as client:
-    # List companies with filtering (V2 API)
-    companies = client.companies.list(
-        filter=F.field("domain").contains("acme"),
-        field_types=[FieldType.ENRICHED],
+    # Filter and sort on Affinity's side (V2 search, beta)
+    page = client.companies.find(
+        all_of(
+            Condition("field-498220", "is-any-of", [3, 4]),
+            Condition("affinity-data-last-funding-date", "is-after", date(2025, 1, 1)),
+        ),
+        sort=[Sort("affinity-data-total-funding-amount", "desc")],
+        limit=50,
     )
 
     # Iterate through all companies with automatic pagination

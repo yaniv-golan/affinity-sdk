@@ -19,7 +19,11 @@ Complete reference for all filter operators in the Affinity query language.
 |----------|-------------|---------|
 | `contains` | Contains substring (case-insensitive) | `{"path": "email", "op": "contains", "value": "@gmail"}` |
 | `starts_with` | Starts with (case-insensitive) | `{"path": "name", "op": "starts_with", "value": "Acme"}` |
-| `ends_with` | Ends with (case-insensitive) | `{"path": "email", "op": "ends_with", "value": "@acme.com"}` |
+| `starts_word` | A word in the value starts with the text (case-insensitive) | `{"path": "fields.Owner", "op": "starts_word", "value": "Jan"}` |
+
+`starts_word` matches the way Affinity's search matches names: `"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"` doesn't.
+
+Person and company field values are compared by name ("Jane Doe", "Acme"). `contains`, `contains_any` and `contains_all` on a person or company field are refused: use `starts_word`.
 
 ## Collection Operators
 
@@ -36,9 +40,8 @@ Complete reference for all filter operators in the Affinity query language.
 
 | Operator | Description | Example |
 |----------|-------------|---------|
-| `is_null` | Field is null or empty string | `{"path": "email", "op": "is_null"}` |
-| `is_not_null` | Field is not null and not empty | `{"path": "email", "op": "is_not_null"}` |
-| `is_empty` | Field is null, empty string, or empty array | `{"path": "emails", "op": "is_empty"}` |
+| `is_null` | Field is null, an empty string, or an empty multi-value field | `{"path": "fields.Owner", "op": "is_null"}` |
+| `is_not_null` | Field has a value (an empty multi-value field doesn't) | `{"path": "fields.Owner", "op": "is_not_null"}` |
 
 ## Multi-Select Field Filtering
 
@@ -62,6 +65,10 @@ Multi-select dropdown fields (like "Team Member") return arrays. Operators handl
 // Find entries where Team Member includes both "LB" and "MA"
 { "path": "fields.Team Member", "op": "has_all", "value": ["LB", "MA"] }
 ```
+
+## Where Each Condition Runs
+
+Conditions on fields that Affinity's search can answer are sent to Affinity; the full `where` then runs locally on what comes back, so results are the same either way. Conditions on non-field paths, quantifiers, `expr`, `contains_any` / `contains_all` and an OR with a branch Affinity can't answer run locally. `--include-meta` (CLI) shows the split in `meta.serverFilter`.
 
 ## Date Filtering
 
@@ -88,7 +95,8 @@ Access nested fields using dot notation:
 ```
 
 Common paths:
-- `fields.<FieldName>` — custom list fields on listEntries (preferred)
+- `fields.<FieldName>` — custom list fields on listEntries (preferred); also company/person fields on `companies` / `persons`
+- `fields.<field id>` — any field by id (e.g. `fields.affinity-data-year-founded`); required when two list fields share a name
 - `fields.*` — all custom fields (avoid for lists with 50+ fields — very slow)
 - `emails[0]` — first email in array
 - `company.name` — nested object field (on included relationships)

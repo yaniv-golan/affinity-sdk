@@ -179,7 +179,46 @@ for company in client.companies.all(on_progress=log_progress):
 
 ## Searching and Filtering
 
-**Note:** Global-entity lists (`companies`, `persons`, `opportunities`) do NOT accept `filter=` — server-side filtering is not supported on these endpoints, and the SDK raises `ValueError` to prevent silently-unfiltered results. Use `search_pages()` for name/domain/email fuzzy search, or filter **list entries** (which support client-side filtering).
+**Note:** Global-entity lists (`companies.list()`, `persons.list()`, `opportunities.list()`) do NOT accept `filter=`: the SDK raises `ValueError` to prevent silently-unfiltered results. To filter companies, persons or list entries on field values, use `find()` (Affinity's search, below). Use `search_pages()` for name/domain/email fuzzy search. `filter=` on **list entries** is matched locally after fetching.
+
+### Filtering on Affinity's side: `find()` and `affinity.criteria`
+
+`client.companies.find(...)`, `client.persons.find(...)` and `client.lists.entries(list_id).find(...)` call Affinity's search (V2, beta): Affinity filters and sorts, and only matching records are downloaded.
+
+```python
+from datetime import date
+from affinity.criteria import Condition, Sort, all_of
+
+page = client.companies.find(
+    all_of(
+        Condition("field-498220", "is-any-of", [3, 4]),          # dropdown option ids
+        Condition("affinity-data-last-funding-date", "is-after", date(2025, 1, 1)),
+    ),
+    sort=[Sort("affinity-data-total-funding-amount", "desc")],   # up to 5
+    limit=50,                                                     # 1-100 per page
+)
+next_page = client.companies.find(  # same criteria + cursor; a cursor alone isn't enough
+    all_of(
+        Condition("field-498220", "is-any-of", [3, 4]),
+        Condition("affinity-data-last-funding-date", "is-after", date(2025, 1, 1)),
+    ),
+    sort=[Sort("affinity-data-total-funding-amount", "desc")],
+    limit=50,
+    cursor=page.next_cursor,
+)
+
+for entry in client.lists.entries(ListId(123)).iter_find(   # every page
+    Condition("field-456", "is-within-the-last", (6, "month"))
+):
+    ...
+```
+
+- Signature: `find(where=None, *, sort=None, term=None, term_fields=None, field_ids=None, field_types=None, limit=None, total_count=False, cursor=None)`; also `iter_find(...)` (all pages) and `find_body(body, ...)` (a prebuilt search body).
+- `Condition(field_id, operator, value=..., value_type=None, attribute_id=None)`; groups with `all_of(...)` / `any_of(...)`; `Sort(field_id, "asc"|"desc")`; `SearchCriteria` bundles them.
+- Operators are Affinity's names: `is-any-of`, `has-any-of`, `contains`, `is-greater-than`, `is-between`, `is-after`, `is-within-the-last`, `is-empty`, ... The value type is read from the fields metadata when omitted (one cached request), and the operator is checked against the field.
+- Values: ids for company, person, list and dropdown fields (dropdown = option ids); dates as `datetime.date` or `"YYYY-MM-DD"` (not datetimes); relative windows as `(6, "month")`.
+- Needs the "Export All Organizations directory" permission (companies, persons) or "Export data from Lists" (list entries); otherwise `AuthorizationError` naming the permission. Allowed in read-only mode.
+- `companies.search(term)` / `search_pages(term)` remain the separate name search (no extra permission).
 
 ```python
 from affinity import F

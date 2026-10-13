@@ -61,7 +61,7 @@ gives the same answer whether Affinity or the CLI applies it.
   read-only mode.
 - **`query` on list entries filters on Affinity's side:** conditions on list fields that
   Affinity's search answers (dropdown and ranked-dropdown values, `!=` on dropdowns, numbers,
-  dates, text `contains`/`eq`/`starts_with`/`ends_with`, `is_not_null` on single-value fields)
+  dates, text `contains`/`eq`/`starts_with`, `is_not_null` on single-value fields)
   go to the server, so only matching entries are downloaded; the full `where` still runs
   locally on what comes back, so results are unchanged. Everything else (related records,
   `entityName`, `is_null`, Affinity's enriched fields, field names two fields share) is
@@ -90,7 +90,8 @@ gives the same answer whether Affinity or the CLI applies it.
   a warning that a few records' enriched values can be missed.
 - **More of `query` goes to Affinity** (list entries too): `is_null` / `is_not_null` on every
   verified field type, multi-value fields included, and `starts_word` on a person or company
-  field (one per query, at the top level of the `where`, plain text of 3+ letters).
+  field (person, multi-person and multi-company fields; one per query, at the top level of the
+  `where`, plain text of 3+ letters).
 - **`query` sorts on Affinity's side** when every `orderBy` key is a sortable field
   (`fields.<name>`, up to 5, no `groupBy`/`aggregate`): with a `limit`, the fetch stops once
   enough records pass the filter, instead of reading everything to sort it. This works on

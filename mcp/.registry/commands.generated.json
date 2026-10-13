@@ -598,7 +598,7 @@
         "--filter": {
           "type": "string",
           "required": false,
-          "help": "Filter: 'field op value'. Ops: = != =~ =^ =$ > < >= <=. E.g., 'name =~ \"Acme\"'."
+          "help": "Filter on company fields, applied by Affinity's search: 'field op value'. Ops: = != =~ =^ =$ > < >= <= starts_word. E.g., 'Stage = \"Seed\"'. Name search: --query."
         },
         "--max-results": {
           "type": "int",
@@ -2557,7 +2557,7 @@
         "--filter": {
           "type": "string",
           "required": false,
-          "help": "Client-side filter (field op value). Quote multi-word: Status=\"Intro Meeting\"."
+          "help": "Filter (field op value): Affinity's search applies what it can, the rest is checked locally. Quote multi-word: Status=\"Intro Meeting\"."
         },
         "--first-page-only": {
           "type": "flag",
@@ -4241,7 +4241,7 @@
         "--filter": {
           "type": "string",
           "required": false,
-          "help": "Filter: 'field op value'. Ops: = != =~ =^ =$ > < >= <=. E.g., 'Email =~ \"@acme\"'."
+          "help": "Filter on person fields, applied by Affinity's search: 'field op value'. Ops: = != =~ =^ =$ > < >= <= starts_word. E.g., 'Deals > 5'. Name/email search: --query."
         },
         "--max-results": {
           "type": "int",

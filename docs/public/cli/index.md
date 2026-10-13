@@ -6,7 +6,7 @@ The SDK ships an optional `xaffinity` CLI that dogfoods the SDK. Install it as a
 
 - **Query Language**: Complex queries with filtering, aggregations, and includes ([Query Guide](../guides/query-command.md))
 - **CSV Export**: Export people, companies, opportunities, and list entries to CSV with `--csv` flag ([CSV Export Guide](../guides/csv-export.md))
-- **Filtering**: Server-side filtering on custom fields with `--filter` ([Filtering Guide](../guides/filtering.md))
+- **Filtering**: `--filter` on `list export`, `company ls` and `person ls` sends conditions on fields to Affinity's search and checks the rest locally ([Filtering Guide](../guides/filtering.md))
 - **JSON Output**: All commands support `--json` for programmatic use ([Scripting Guide](scripting.md))
 - **Datetime Handling**: Local time input, UTC output for JSON ([Datetime Guide](../guides/datetime-handling.md))
 - **Pagination**: Fetch all pages with `--all`, control page size with `--page-size` (items per API call), or limit total results with `--max-results`
