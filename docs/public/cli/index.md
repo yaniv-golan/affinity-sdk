@@ -56,7 +56,7 @@ pip install "affinity-sdk[cli]"
 xaffinity --version
 ```
 
-**Expected**: Version number (e.g., `0.15.0`)
+**Expected**: Version number (e.g., `xaffinity, version 2.0.3`)
 
 **Step 2**: Verify API connectivity with your API key:
 
@@ -72,7 +72,8 @@ Once verified, see [Authentication](#authentication) for persistent API key conf
 
 ## Authentication
 
-The CLI never makes "background" requests. It only calls the API for commands that require it.
+The CLI calls the Affinity API only for commands that need it, never in the background. (The
+[update check](#update-notifications) contacts the package index, not Affinity.)
 
 ### Quick Setup
 
@@ -138,7 +139,7 @@ The `config setup-key --scope project` command creates a `.env` file and adds it
 - In `--json` mode, JSON is written to **stdout**. Progress/logging go to **stderr**.
 - Human/table output goes to **stdout**; diagnostics go to **stderr**.
 - Commands build a single structured result and then render it as either JSON or table output (no “double implementations”).
-- In `--json` mode, `data` is an object keyed by section name (even for single-section commands), and pagination tokens/URLs live in `meta.pagination.<section>`.
+- In `--json` mode, `data` is usually an object keyed by section name (even for single-section commands), and pagination tokens/URLs live in `meta.pagination.<section>`. Some list commands put the rows directly in `data` as an array instead, for example `person|company|opportunity files ls`, `note ls` and `interaction ls`: use `.data[]` for those.
 - If `--max-results` truncates results mid-page, the CLI may omit `meta.pagination.<section>` to avoid producing an unsafe resume token.
 
 ## Performance

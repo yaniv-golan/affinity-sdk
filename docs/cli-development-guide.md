@@ -45,7 +45,9 @@ def entity_get(ctx: CLIContext, entity_id: int) -> None:
 ### Key Components
 
 1. **Click Decorators**: Use `@click.command()` with `cls=RichCommand` for enhanced formatting
-2. **Output Options**: Always include `@output_options` for `--json`, `--yaml`, and `--quiet` flags
+2. **Output Options**: Always include `@output_options` for `--output`/`-o` (`table`, `json`, `jsonl`,
+   `markdown`, `toon`, `csv`) and `--json`; use `@csv_output_options` to add the `--csv` alias.
+   `--quiet` is a global option, not part of `@output_options`
 3. **Context**: Use `@click.pass_obj` to receive `CLIContext`
 4. **Inner Function**: Define command logic in an inner `fn()` function
 5. **Orchestration**: Call `run_command()` to handle execution, error formatting, and output

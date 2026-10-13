@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   routing (company and person field values, `notes.get`, transcripts, teams, semantic search
   and connections are V2); `api-versions.md` lists every call that sends a minimum version;
   beta endpoints need no opt-in.
+- Docs: the CLI command page documents `files ls`/`read`/`download` on persons, companies and
+  opportunities (not the old `files dump`), `relationship-strength ls` (not `get`),
+  `opportunity field`, `list entry get`, `file-url` and `config update-check`; the CLI page says
+  which list commands return a bare `data` array.
 
 ### Plugins
 

@@ -36,8 +36,11 @@ Check if an API key is configured. Returns exit code 0 if key found, 1 if not fo
 
 This command checks (in order):
 1. `AFFINITY_API_KEY` environment variable
-2. `.env` file in current directory
-3. User config file (`config.toml`)
+2. `.env` file in current directory (found even without `--dotenv`; commands still need
+   `--dotenv` to use it)
+3. `AFFINITY_API_KEY_FILE`
+4. `AFFINITY_API_KEY_COMMAND` (not run; its presence counts)
+5. User config file (`config.toml`)
 
 ```bash
 xaffinity config check-key
@@ -47,7 +50,7 @@ xaffinity config check-key && echo "Key exists"
 
 The `--json` output includes:
 - `configured`: boolean indicating if a key was found
-- `source`: where the key was found (`"environment"`, `"dotenv"`, `"config"`, or `null`)
+- `source`: where the key was found (`"environment"`, `"dotenv"`, `"file"`, `"command"`, `"config"`, or `null`)
 
 ### `xaffinity config setup-key`
 
@@ -79,6 +82,21 @@ xaffinity config setup-key --no-validate
 ```
 
 Get your API key from [Affinity API Settings](https://support.affinity.co/s/article/How-to-Create-and-Manage-API-Keys).
+
+### `xaffinity config update-check`
+
+Shows or changes the automatic update check (once a day in interactive sessions; see
+[Update notifications](index.md#update-notifications)).
+
+```bash
+xaffinity config update-check               # Show current settings
+xaffinity config update-check --status      # Show update status
+xaffinity config update-check --now         # Check for updates now
+xaffinity config update-check --background  # Start a background check (for MCP/automation)
+xaffinity config update-check --disable     # Turn checks off (--enable to turn them on)
+```
+
+The check asks the package index (PyPI) for the latest version; it never calls the Affinity API.
 
 ## Global options
 
@@ -374,13 +392,38 @@ for confirmation; pass `--yes` to skip it (needed in scripts that don't answer t
 xaffinity person merge 111 222 --yes
 ```
 
-### `xaffinity person files dump <personId>`
+### `xaffinity person files ls <person>`
 
-Downloads all files attached to a person into a folder bundle with a `manifest.json`.
+Lists the files attached to a person. Takes `--max-results`, `--all`, `--page-size` and `--cursor`.
 
 ```bash
-xaffinity person files dump 12345 --out ./bundle
+xaffinity person files ls 12345
+xaffinity person files ls 12345 --all --json
 ```
+
+### `xaffinity person files read <personId> --file-id <fileId>`
+
+Reads one file's content, base64-encoded, in chunks (`--limit`, default `1MB`). The output's
+`nextOffset` is the `--offset` for the next chunk (`null` when done).
+
+```bash
+xaffinity person files read 12345 --file-id 456 --json
+xaffinity person files read 12345 --file-id 456 --offset 1048576 --json
+```
+
+### `xaffinity person files download <personId>`
+
+With `--file-id`, downloads one file to `--out`. Without it, downloads every file attached to
+the person into the `--out` folder, with a `manifest.json` (`--concurrency`, `--max-files`,
+`--overwrite`).
+
+```bash
+xaffinity person files download 12345 --file-id 456 --out ./doc.pdf
+xaffinity person files download 12345 --out ./bundle
+```
+
+Saved files use the original filename when possible; if several files share a name, the file id
+is appended.
 
 ### `xaffinity person files upload <personId>`
 
@@ -392,8 +435,8 @@ xaffinity person files upload 12345 --file a.pdf --file b.pdf
 ```
 
 With `--json`, each entry in `data.uploads` includes `fileId` (and `createdAt`) of the new file,
-so you can pass it straight to `files read --file-id` / `files download`. `fileId` is `null` if the
-API did not return the created file.
+so you can pass it straight to `files read --file-id` / `files download --file-id` on the same
+record. `fileId` is `null` if the API did not return the created file.
 
 ## Companies
 
@@ -583,14 +626,38 @@ for confirmation; pass `--yes` to skip it (needed in scripts that don't answer t
 xaffinity company merge 111 222 --yes
 ```
 
-### `xaffinity company files dump <companyId>`
+### `xaffinity company files ls <company>`
+
+Lists the files attached to a company. Takes `--max-results`, `--all`, `--page-size` and `--cursor`.
 
 ```bash
-xaffinity company files dump 9876 --out ./bundle
+xaffinity company files ls 9876
+xaffinity company files ls 9876 --all --json
 ```
 
-Notes:
-- Saved files use the original filename when possible; if multiple files share the same name, the CLI disambiguates by appending the file id.
+### `xaffinity company files read <companyId> --file-id <fileId>`
+
+Reads one file's content, base64-encoded, in chunks (`--limit`, default `1MB`). The output's
+`nextOffset` is the `--offset` for the next chunk (`null` when done).
+
+```bash
+xaffinity company files read 9876 --file-id 456 --json
+xaffinity company files read 9876 --file-id 456 --offset 1048576 --json
+```
+
+### `xaffinity company files download <companyId>`
+
+With `--file-id`, downloads one file to `--out`. Without it, downloads every file attached to
+the company into the `--out` folder, with a `manifest.json` (`--concurrency`, `--max-files`,
+`--overwrite`).
+
+```bash
+xaffinity company files download 9876 --file-id 456 --out ./doc.pdf
+xaffinity company files download 9876 --out ./bundle
+```
+
+Saved files use the original filename when possible; if several files share a name, the file id
+is appended.
 
 ### `xaffinity company files upload <companyId>`
 
@@ -602,8 +669,8 @@ xaffinity company files upload 9876 --file a.pdf --file b.pdf
 ```
 
 With `--json`, each entry in `data.uploads` includes `fileId` (and `createdAt`) of the new file,
-so you can pass it straight to `files read --file-id` / `files download`. `fileId` is `null` if the
-API did not return the created file.
+so you can pass it straight to `files read --file-id` / `files download --file-id` on the same
+record. `fileId` is `null` if the API did not return the created file.
 
 ## Opportunities
 
@@ -663,6 +730,51 @@ xaffinity opportunity update 123 --person-id 1 --person-id 2
 xaffinity opportunity delete 123
 ```
 
+### `xaffinity opportunity field <opportunityId>`
+
+Gets, sets and unsets an opportunity's field values (`--get`, `--set`, `--set-json`, `--unset`).
+An opportunity's fields are its list entry's fields, so the options and rules are those of
+[`list entry field`](#xaffinity-list-entry-field-list-entryid).
+
+```bash
+xaffinity opportunity field 123 --get Status --get Stage
+xaffinity opportunity field 123 --set Status "Active" --set Stage "Negotiation"
+xaffinity opportunity field 123 --unset Status
+```
+
+### `xaffinity opportunity files ls <opportunity>`
+
+Lists the files attached to an opportunity. Takes `--max-results`, `--all`, `--page-size` and `--cursor`.
+
+```bash
+xaffinity opportunity files ls 123
+xaffinity opportunity files ls 123 --all --json
+```
+
+### `xaffinity opportunity files read <opportunityId> --file-id <fileId>`
+
+Reads one file's content, base64-encoded, in chunks (`--limit`, default `1MB`). The output's
+`nextOffset` is the `--offset` for the next chunk (`null` when done).
+
+```bash
+xaffinity opportunity files read 123 --file-id 456 --json
+xaffinity opportunity files read 123 --file-id 456 --offset 1048576 --json
+```
+
+### `xaffinity opportunity files download <opportunityId>`
+
+With `--file-id`, downloads one file to `--out`. Without it, downloads every file attached to
+the opportunity into the `--out` folder, with a `manifest.json` (`--concurrency`, `--max-files`,
+`--overwrite`).
+
+```bash
+xaffinity opportunity files download 123 --file-id 456 --out ./doc.pdf
+xaffinity opportunity files download 123 --out ./bundle
+```
+
+Saved files use the original filename when possible; if several files share a name, the file id
+is appended.
+
 ### `xaffinity opportunity files upload <opportunityId>`
 
 Uploads one or more files to an opportunity.
@@ -673,8 +785,8 @@ xaffinity opportunity files upload 123 --file a.pdf --file b.pdf
 ```
 
 With `--json`, each entry in `data.uploads` includes `fileId` (and `createdAt`) of the new file,
-so you can pass it straight to `files read --file-id` / `files download`. `fileId` is `null` if the
-API did not return the created file.
+so you can pass it straight to `files read --file-id` / `files download --file-id` on the same
+record. `fileId` is `null` if the API did not return the created file.
 
 ## Lists
 
@@ -765,6 +877,15 @@ See the [CSV Export Guide](../guides/csv-export.md) for more details.
 ```bash
 xaffinity entry get 123 456          # Same as: xaffinity list entry get 123 456
 xaffinity entry field 123 456 ...    # Same as: xaffinity list entry field 123 456 ...
+```
+
+### `xaffinity list entry get <list> <entryId>`
+
+Shows one list entry with its field values and field names.
+
+```bash
+xaffinity list entry get "Portfolio" 12345
+xaffinity list entry get 67890 12345 --json
 ```
 
 ### `xaffinity list entry add <list>`
@@ -944,7 +1065,16 @@ One row per file: `fileId`, `name`, `pageNumber` (null for files without pages) 
 ```bash
 xaffinity file search "pitch deck"
 xaffinity file search "revenue projections" --company-id 12345 --json
-xaffinity file-url 9192757   # download link for a hit
+```
+
+### `xaffinity file-url <fileId>`
+
+Returns a presigned download URL for a file (valid for about 60 seconds; no API key needed to
+use it).
+
+```bash
+xaffinity file-url 456
+xaffinity file-url 456 --json
 ```
 
 ## Reminders
@@ -1248,11 +1378,14 @@ Fragments have `content`, `speaker`, `startTimestamp` and `endTimestamp` (offset
 
 ## Relationship Strengths
 
-### `xaffinity relationship-strength get`
+### `xaffinity relationship-strength ls`
+
+Relationship strengths between a person outside your organization (`--external-id`, required)
+and your team's users (`--internal-id` for one user).
 
 ```bash
-xaffinity relationship-strength get --external-id 26229794
-xaffinity relationship-strength get --external-id 26229794 --internal-id 42
+xaffinity relationship-strength ls --external-id 12345
+xaffinity relationship-strength ls --external-id 12345 --internal-id 42
 ```
 
 ## Tasks

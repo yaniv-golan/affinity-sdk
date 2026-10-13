@@ -1210,7 +1210,7 @@ def _render_object_section(
         renderables.append(Text(_humanize_title(title), style="bold"))
 
     # Use simple text output for dicts with only scalar values (no nested structures)
-    # This is cleaner for commands like `files dump` that output simple summaries
+    # This is cleaner for commands like `files download` that output simple summaries
     if _is_simple_scalar_dict(obj):
         renderables.append(_simple_kv_text(scalar_summary))
         return Group(*renderables) if len(renderables) > 1 else renderables[0]

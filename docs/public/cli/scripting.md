@@ -47,7 +47,8 @@ All JSON responses use a standard envelope structure:
 
 ### Extracting entity data
 
-Entity data is nested under `.data.<entityType>`:
+Entity data is nested under `.data.<entityType>` (some list commands, such as `person files ls`,
+`note ls` and `interaction ls`, put the rows directly in `.data[]`):
 
 ```bash
 # Get a person's name
