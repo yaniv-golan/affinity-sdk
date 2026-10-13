@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- On mcp-bash 1.9.3 (was 1.9.2): a tool's error output with invalid UTF-8 is no longer cut short
+  on macOS.
+
 ## [2.0.2] - 2026-10-13
 
 Requires CLI 2.0.2 (released together with SDK 2.0.2).
