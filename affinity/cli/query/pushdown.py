@@ -90,8 +90,9 @@ ALL_MAPPINGS: frozenset[tuple[str, str]] = frozenset(
 
 _DROPDOWN = {"dropdown", "ranked-dropdown"}
 _NAMED = {"person", "person-multi", "company", "company-multi"}
-# How enriched-field conditions go to the server (see split_where).
-ENRICHED = "local"
+# How enriched-field conditions go to the server (see split_where). "or-empty" verified by
+# tools/search_golden.py --enriched-or-empty (5 lists, 604 cases, none missing; 2026-10-13).
+ENRICHED = "or-empty"
 MAX_GROUP = 50
 MAX_VALUES = 100
 

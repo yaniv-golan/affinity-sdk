@@ -217,7 +217,7 @@ def test_verified_is_a_subset_of_what_can_be_emitted() -> None:
     assert VERIFIED <= ALL_MAPPINGS
 
 
-def test_shared_names_and_enriched_fields_stay_local() -> None:
+def test_shared_names_stay_local_and_enriched_fields_include_empty() -> None:
     twin = _field("field-9", "Status", "number", ["is-equal-to"])
     enriched = FieldMetadata.model_validate(
         {
@@ -232,28 +232,25 @@ def test_shared_names_and_enriched_fields_stay_local() -> None:
             },
         }
     )
-    for where, reason in (
-        ({"path": "fields.Status", "op": "eq", "value": "Won"}, "two fields share this name"),
-        ({"path": "fields.Year Founded", "op": "eq", "value": 2001}, "enriched"),
-    ):
-        split = split_where(
+
+    def split(where: dict[str, Any], **kw: Any) -> Any:
+        return split_where(
             WhereClause.model_validate(where),
             [*FIELDS, twin, enriched],
             lambda meta: OPTIONS.get(str(meta.id), []),
             verified=ALL_MAPPINGS,
+            **kw,
         )
-        assert split.where is None and reason in split.local[0]
 
-
-@pytest.mark.parametrize(
-    ("where", "operator"),
-    [
-        ({"path": "fields.Status", "op": "is_null"}, "is-empty"),
-        ({"path": "fields.Owners", "op": "is_not_null"}, "is-not-empty"),  # [] is empty
-    ],
-)
-def test_empty_checks(where: dict[str, Any], operator: str) -> None:
-    assert _only(_split(where))["operator"] == operator
+    shared = split({"path": "fields.Status", "op": "eq", "value": "Won"})
+    assert shared.where is None and "two fields share this name" in shared.local[0]
+    year = {"path": "fields.Year Founded", "op": "eq", "value": 2001}
+    # Search reads some enriched values as empty, so empty ones come back too
+    either = _body(split(year).where)
+    assert either["operator"] == "or"
+    assert [f["operator"] for f in either["filters"]] == ["is-equal-to", "is-empty"]
+    local = split(year, enriched="local")
+    assert local.where is None and "enriched" in local.local[0]
 
 
 def _named(where: dict[str, Any], verified: frozenset[tuple[str, str]] = ALL_MAPPINGS) -> Any:

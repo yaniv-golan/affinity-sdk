@@ -54,9 +54,18 @@ class TestNormalizeValue:
         assert normalize_value([]) == []
 
     def test_dict_without_text_passthrough(self) -> None:
-        """Dict without 'text' key passes through unchanged."""
-        value = {"name": "Test", "id": 123}
+        """A dict that isn't a dropdown, person or company passes through unchanged."""
+        value = {"city": "Tel Aviv", "country": "Israel"}
         assert normalize_value(value) == value
+
+    def test_persons_and_companies_become_names(self) -> None:
+        """Person and company values compare by name, as in query."""
+        assert normalize_value({"firstName": "Jane", "lastName": "Doe", "id": 1}) == "Jane Doe"
+        assert normalize_value({"name": "Acme", "domain": "acme.com", "id": 7}) == "Acme"
+        assert normalize_value([{"firstName": "Jane", "lastName": None}, {"name": "Acme"}]) == [
+            "Jane",
+            "Acme",
+        ]
 
 
 # =============================================================================

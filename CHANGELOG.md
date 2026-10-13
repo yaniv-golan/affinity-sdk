@@ -22,6 +22,9 @@ gives the same answer whether Affinity or the CLI applies it.
 - **`query`: a field name two list fields share is refused.** Name the field by id instead:
   `fields.<field id>` (e.g. Affinity's and Dealroom's "Year Founded"). Such fields come back
   keyed by id, instead of one silently overwriting the other. Any field can be named by id.
+- **Person and company field values filter by name** in `--filter` and the SDK's
+  `affinity.filters` (`Owner = "Jane Doe"`, `Owner starts_word "Jan"`), as they already did in
+  `query`; before, they were compared as raw objects.
 
 ### Added
 

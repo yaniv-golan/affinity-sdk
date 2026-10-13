@@ -17,28 +17,36 @@ def normalize_value(value: Any) -> Any:
     """Normalize a value for comparison.
 
     Handles Affinity API response formats:
-    - Extracts "text" from dropdown dicts: {"text": "Active"} -> "Active"
-    - Extracts text values from multi-select arrays: [{"text": "A"}, {"text": "B"}] -> ["A", "B"]
-    - Passes through scalars unchanged
+    - Dropdowns become their text: {"text": "Active"} -> "Active"
+    - Persons become their name: {"firstName": "Jane", "lastName": "Doe"} -> "Jane Doe"
+    - Companies become their name: {"name": "Acme", "domain": ...} -> "Acme"
+    - Multi-value arrays become lists of those: [{"text": "A"}, {"text": "B"}] -> ["A", "B"]
+    - Scalars pass through unchanged
 
-    Args:
-        value: The value to normalize (from API response)
-
-    Returns:
-        Normalized value suitable for comparison
+    These are the values ``query`` filters on too, so a filter reads the same everywhere.
     """
     if value is None:
         return None
-
-    # Handle dropdown dict: {"text": "Active", "id": 123} -> "Active"
-    if isinstance(value, dict) and "text" in value:
-        return value["text"]
-
-    # Handle multi-select array: [{"text": "A"}, {"text": "B"}] -> ["A", "B"]
-    if isinstance(value, list) and value and isinstance(value[0], dict) and "text" in value[0]:
-        return [item.get("text") for item in value if isinstance(item, dict)]
-
+    if isinstance(value, list):
+        if value and all(isinstance(item, dict) for item in value):
+            return [_normalize_item(item) for item in value]
+        return value
+    if isinstance(value, dict):
+        return _normalize_item(value)
     return value
+
+
+def _normalize_item(item: dict[str, Any]) -> Any:
+    if "text" in item:
+        return item["text"]
+    if "firstName" in item or "lastName" in item:
+        parts = [
+            p.strip() for p in (item.get("firstName"), item.get("lastName")) if isinstance(p, str)
+        ]
+        return " ".join(p for p in parts if p) or None
+    if "name" in item:
+        return item["name"]
+    return item
 
 
 def compare_values(
