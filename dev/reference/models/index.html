@@ -14826,7 +14826,13 @@ the "Manage Teams" permission and team privacy settings; otherwise it is <code>N
 <span class="normal">84</span>
 <span class="normal">85</span>
 <span class="normal">86</span>
-<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Team</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Team</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A team (V2).</span>
 
 <span class="sd">    ``members`` and ``accessible_lists`` (the first ones, up to 10, with ``*_total``) are filled</span>
@@ -14837,11 +14843,17 @@ the "Manage Teams" permission and team privacy settings; otherwise it is <code>N
     <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">created_at</span><span class="p">:</span> <span class="n">ISODatetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">"createdAt"</span><span class="p">)</span>
+    <span class="n">updated_at</span><span class="p">:</span> <span class="n">ISODatetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">"updatedAt"</span><span class="p">)</span>
     <span class="n">privacy_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">"privacyType"</span><span class="p">)</span>
 
-    <span class="n">members</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TeamMember</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># Read from membersPreview / accessibleListsPreview ({data, totalCount}), flattened below</span>
+    <span class="n">members</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TeamMember</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">validation_alias</span><span class="o">=</span><span class="n">AliasChoices</span><span class="p">(</span><span class="s2">"members"</span><span class="p">,</span> <span class="s2">"membersPreview"</span><span class="p">)</span>
+    <span class="p">)</span>
     <span class="n">members_total</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">accessible_lists</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ListSummary</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">accessible_lists</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ListSummary</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">validation_alias</span><span class="o">=</span><span class="n">AliasChoices</span><span class="p">(</span><span class="s2">"accessible_lists"</span><span class="p">,</span> <span class="s2">"accessibleListsPreview"</span><span class="p">)</span>
+    <span class="p">)</span>
     <span class="n">accessible_lists_total</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"before"</span><span class="p">)</span>

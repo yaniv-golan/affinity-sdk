@@ -2281,7 +2281,7 @@
 <code>tools/api_coverage.json</code> by <code>python tools/api_coverage.py --markdown</code>; CI checks it
 against the pinned API specs and checks that each supported call requests its operation.</p>
 <h2 id="v2-api">V2 API<a class="headerlink" href="#v2-api" title="Permanent link">&para;</a></h2>
-<p>106 supported, 6 planned</p>
+<p>108 supported, 6 planned</p>
 <table>
 <thead>
 <tr>
@@ -2896,6 +2896,18 @@ against the pinned API specs and checks that each supported call requests its op
 <td><code>GET /v2/teams/{teamId}</code></td>
 <td>supported</td>
 <td><code>teams.get(1)</code></td>
+<td>beta; API 2026-09-17+</td>
+</tr>
+<tr>
+<td><code>GET /v2/teams/{teamId}/accessible-lists</code></td>
+<td>supported</td>
+<td><code>teams.list_accessible_lists(1)</code></td>
+<td>beta; API 2026-09-17+</td>
+</tr>
+<tr>
+<td><code>GET /v2/teams/{teamId}/members</code></td>
+<td>supported</td>
+<td><code>teams.list_members(1)</code></td>
 <td>beta; API 2026-09-17+</td>
 </tr>
 <tr>

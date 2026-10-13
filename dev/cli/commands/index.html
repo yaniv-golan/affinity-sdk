@@ -1841,6 +1841,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#xaffinity-team-members-teamid-xaffinity-team-lists-teamid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity team members &lt;teamId&gt; / xaffinity team lists &lt;teamId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#xaffinity-user-ls" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5045,6 +5056,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#xaffinity-team-members-teamid-xaffinity-team-lists-teamid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        xaffinity team members &lt;teamId&gt; / xaffinity team lists &lt;teamId&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#xaffinity-user-ls" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -6195,6 +6217,13 @@ xaffinity<span class="w"> </span>team<span class="w"> </span>ls<span class="w"> 
 first 10 members / accessible lists and the totals. <code>--sort name|-name|createdAt|-createdAt</code>.</p>
 <h3 id="xaffinity-team-get-teamid"><code>xaffinity team get &lt;teamId&gt;</code><a class="headerlink" href="#xaffinity-team-get-teamid" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>team<span class="w"> </span>get<span class="w"> </span><span class="m">42</span><span class="w"> </span>--with-members<span class="w"> </span>--with-lists
+</code></pre></div>
+<h3 id="xaffinity-team-members-teamid-xaffinity-team-lists-teamid"><code>xaffinity team members &lt;teamId&gt;</code> / <code>xaffinity team lists &lt;teamId&gt;</code><a class="headerlink" href="#xaffinity-team-members-teamid-xaffinity-team-lists-teamid" title="Permanent link">&para;</a></h3>
+<p>Every member of a team (<code>userId</code>, <code>name</code>, <code>email</code>, <code>addedAt</code>), or every list it has access to
+(<code>id</code>, <code>name</code>, <code>type</code>, <code>isPublic</code>). <code>team get --with-members</code> / <code>--with-lists</code> show only the
+first 10. Paging: <code>--max-results</code>, <code>--all</code>, <code>--cursor</code>.</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>team<span class="w"> </span>members<span class="w"> </span><span class="m">42</span><span class="w"> </span>--all
+xaffinity<span class="w"> </span>team<span class="w"> </span>lists<span class="w"> </span><span class="m">42</span>
 </code></pre></div>
 <h3 id="xaffinity-user-ls"><code>xaffinity user ls</code><a class="headerlink" href="#xaffinity-user-ls" title="Permanent link">&para;</a></h3>
 <p>The organization's internal users. A user's id is also their person id.</p>
