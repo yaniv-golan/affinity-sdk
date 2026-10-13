@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.3] - 2026-10-13
+
+**Exception to semantic versioning** (the maintainer's call, as 2.0.2): some results change
+(`list(filter=...)` pages, the local sort's order, date comparisons in filters). The
+`### Changed` entries say how.
+
 ### Changed
 
 - **SDK list-entry filters go through Affinity's search:**

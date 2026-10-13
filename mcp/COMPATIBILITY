@@ -1,8 +1,13 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="2.0.2"
-CLI_MAX_VERSION="2.0.2"
+CLI_MIN_VERSION="2.0.3"
+CLI_MAX_VERSION="2.0.3"
+
+# MCP 2.0.3 requires CLI 2.0.3 for:
+# - `team members` and `team lists` (new read commands in the registry).
+# - Quantifier queries on companies/persons bounded by Affinity's search count, and numeric
+#   dry-run estimates (the query tool's timeout reads estimatedApiCalls).
 
 # MCP 2.0.2 requires CLI 2.0.2 for:
 # - Filtering and sorting on Affinity's side in `query`, `list export --filter`,

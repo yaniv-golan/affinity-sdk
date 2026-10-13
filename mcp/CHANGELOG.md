@@ -7,9 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.3] - 2026-10-13
+
+Requires CLI 2.0.3 (released together with SDK 2.0.3).
+
 ### Added
 
 - `team members` and `team lists` in the registry (every member / accessible list of a team).
+
+### Fixed
+
+- **Quantifier queries (`all`/`none`/`exists`) no longer fall back to a 120-second timeout:**
+  the dry-run now gives a number of API calls (it said "UNBOUNDED", which the tool's timeout
+  arithmetic couldn't use). The query tool's description says how to keep them small.
 
 ### Changed
 
