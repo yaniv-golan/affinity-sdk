@@ -68,6 +68,13 @@ gives the same answer whether Affinity or the CLI applies it.
   `--include-meta` shows `meta.serverFilter` (what went to the server, and why the rest
   didn't); `--dry-run` names the candidate fields. `XAFFINITY_QUERY_SERVER_FILTER=0` turns it
   off.
+- **`list export --filter` filters on Affinity's side** through the same engine as `query`:
+  the `--filter` text becomes a `query` where clause, the part Affinity's search answers is
+  sent, and the whole filter still runs locally. When Affinity applies the whole filter,
+  `--all` / `--max-results` / `--first-page-only` are no longer required (page one is the
+  first page of matches); otherwise the error's `details.local` says which conditions stay
+  local. The printed cursor (`xsearch1:...`) carries the search, so `--cursor` alone resumes
+  a filtered export. A refused search falls back to reading the whole list, with a warning.
 - **CLI:** `team ls|get`, `user ls|get`, `meeting get`, `note attached`, `feedback send` (asks
   for confirmation: the text leaves your organization). The MCP registry has them; `feedback
   send` goes through the user-confirmation flow.

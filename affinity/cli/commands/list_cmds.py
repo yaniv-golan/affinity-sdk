@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 import warnings as stdlib_warnings
@@ -11,11 +12,14 @@ from typing import Any, Literal, cast
 from rich.console import Console
 from rich.progress import BarColumn, Progress, TaskID, TextColumn, TimeElapsedColumn
 
+from affinity.exceptions import AuthorizationError, NotFoundError
+from affinity.exceptions import ValidationError as SDKValidationError
 from affinity.filters import FilterExpression
 from affinity.filters import parse as parse_filter
 from affinity.models.entities import FieldMetadata, ListCreate, ListEntryWithEntity
 from affinity.models.pagination import FilterStats
 from affinity.models.types import InteractionType, ListType
+from affinity.services.lists import _entry_to_filter_dict
 from affinity.types import (
     AnyFieldId,
     CompanyId,
@@ -33,6 +37,7 @@ from ..context import CLIContext
 from ..csv_utils import write_csv_to_stdout
 from ..decorators import category, destructive
 from ..errors import CLIError
+from ..list_search import ListSearch, decode_cursor, encode_cursor, plan_list_search
 from ..mcp_limits import apply_mcp_limits
 from ..options import csv_output_options, csv_suboption_callback, output_options
 from ..render import format_duration
@@ -754,34 +759,15 @@ def list_export(
                 error_type="usage_error",
             )
 
-        # --filter on list entries is client-side. Without explicit scope, it silently
-        # returns page-1-only results. Require one of --all / --max-results /
-        # --first-page-only so the caller is making an informed choice.
+        # A filter with no list-field condition can't go to Affinity's search: refuse a missing
+        # scope flag before any API call (the full check runs once the list's fields are known)
         if (
             filter_expr
             and not saved_view
             and not (all_pages or max_results is not None or first_page_only)
+            and not _filter_names_list_fields(filter_expr)
         ):
-            raise CLIError(
-                "--filter on list export fetches pages client-side. Without a scope flag, "
-                "this silently returns first-page results and was the root cause of "
-                "duplicate-check incidents. Add --all to scan everything, --max-results N "
-                "to cap, or --first-page-only to explicitly opt in.",
-                exit_code=2,
-                error_type="usage_error",
-                hint="Prefer --saved-view for server-side filtering on large lists.",
-                details={"rejected_filter": str(filter_expr)},
-            )
-
-        # Warn about client-side filtering (API doesn't support server-side filtering).
-        # Fires for the now-informed path: user opted in via --all / --max-results /
-        # --first-page-only but we still note the cost.
-        if filter_expr and not saved_view:
-            warnings.append(
-                "The Affinity API does not support server-side filtering on list entries. "
-                "Filtering is being applied client-side after fetching data. "
-                "For large lists, consider using saved views instead (--saved-view)."
-            )
+            raise _filter_scope_error(filter_expr, [])
 
         # Warn if both --expand-all and --expand-max-results specified
         if expand_all and expand_max_results != 100:
@@ -817,6 +803,32 @@ def list_export(
                 exit_code=2,
                 error_type="usage_error",
             )
+
+        # --filter: Affinity's search applies what it can; the whole filter still runs locally
+        list_search: ListSearch | None = None
+        if filter_expr and not saved_view:
+            if os.environ.get("XAFFINITY_QUERY_SERVER_FILTER", "1") != "0":
+                try:
+                    list_search = plan_list_search(client, list_id, filter_expr)
+                except (AuthorizationError, NotFoundError, SDKValidationError) as e:
+                    warnings.append(f"Filtering locally: could not read the list's fields ({e}).")
+            # Without a scope flag a locally filtered export would silently return only what
+            # matched on the first page. When Affinity applies the whole filter, page one is
+            # the first page of matches, so no flag is needed.
+            complete = list_search is not None and list_search.complete
+            if not complete and not (all_pages or max_results is not None or first_page_only):
+                raise _filter_scope_error(filter_expr, list_search.local if list_search else [])
+            if list_search is None or list_search.body is None:
+                reasons = "; ".join(list_search.local) if list_search else ""
+                warnings.append(
+                    "Filtering locally after fetching every entry"
+                    + (f" (Affinity's search can't apply: {reasons})." if reasons else ".")
+                )
+            elif list_search.local:
+                warnings.append(
+                    "Affinity filtered part of --filter; the rest is checked locally: "
+                    + "; ".join(list_search.local)
+                )
 
         resolved: dict[str, Any] = dict(resolved_list.resolved)
 
@@ -1287,6 +1299,7 @@ def list_export(
                         state=csv_iter_state,
                         cache=cache,
                         filter_progress_callback=filter_callback,
+                        search=list_search.body if list_search else None,
                     ):
                         next_cursor = page_next_cursor
 
@@ -1607,9 +1620,12 @@ def list_export(
                 # the explicit opt-in flag.)
                 from ..field_utils import truncation_warnings
 
-                for msg in truncation_warnings(
-                    csv_iter_state.get("truncatedFields", []), filtered=bool(filter_expr)
-                ):
+                for msg in [
+                    *csv_iter_state.get("warnings", []),
+                    *truncation_warnings(
+                        csv_iter_state.get("truncatedFields", []), filtered=bool(filter_expr)
+                    ),
+                ]:
                     Console(file=sys.stderr).print(f"Warning: {msg}", markup=False)
 
                 if first_page_only:
@@ -1717,6 +1733,7 @@ def list_export(
                 state=table_iter_state,
                 cache=cache,
                 filter_progress_callback=json_filter_callback,
+                search=list_search.body if list_search else None,
             ):
                 next_cursor = page_next_cursor
 
@@ -1858,6 +1875,7 @@ def list_export(
                 warnings.append("Results limited by --max-results. Use --all to fetch all results.")
             from ..field_utils import truncation_warnings
 
+            warnings.extend(table_iter_state.get("warnings", []))
             warnings.extend(
                 truncation_warnings(
                     table_iter_state.get("truncatedFields", []), filtered=bool(filter_expr)
@@ -2049,9 +2067,14 @@ def _iterate_list_entries(
     state: dict[str, Any] | None = None,
     cache: Any = None,
     filter_progress_callback: Callable[[FilterStats], None] | None = None,
+    search: dict[str, Any] | None = None,
 ) -> Any:
     """
     Yield `(row_dict, next_cursor)` where `next_cursor` resumes at the next page (not per-row).
+
+    ``search``: the search body for the part of ``filter_expr`` Affinity applies (pages come
+    from the list entry search; the whole filter still runs locally). A search cursor
+    (``xsearch1:...``) resumes such an export.
 
     Args:
         filter_progress_callback: Optional callback invoked after each physical page
@@ -2117,6 +2140,39 @@ def _iterate_list_entries(
                     return
         return
 
+    decoded = decode_cursor(cursor) if cursor is not None else None
+    if decoded is not None or (search is not None and filter_expr):
+        try:
+            if decoded is not None:
+                url, body, filter_text = decoded
+                first = entries.find_body(body, cursor=url)
+            else:
+                assert search is not None and filter_expr
+                body, filter_text = search, filter_expr
+                first = entries.find_body(body, field_ids=selected_field_ids, limit=page_size)
+        except (AuthorizationError, NotFoundError, SDKValidationError) as e:
+            if decoded is not None:
+                raise
+            if state is not None:
+                state.setdefault("warnings", []).append(
+                    f"Affinity's search refused the filter, filtering locally: {e}"
+                )
+        else:
+            yield from _search_rows(
+                entries,
+                first,
+                body=body,
+                filter_text=filter_text,
+                selected_field_ids=selected_field_ids,
+                field_by_id=field_by_id,
+                key_mode=key_mode,
+                max_results=max_results,
+                all_pages=all_pages,
+                state=state,
+                filter_progress_callback=filter_progress_callback,
+            )
+            return
+
     pages = (
         entries.pages(cursor=cursor)
         if cursor is not None
@@ -2154,6 +2210,74 @@ def _iterate_list_entries(
         if first_page and not all_pages and max_results is None:
             return
         first_page = False
+
+
+def _filter_names_list_fields(filter_expr: str) -> bool:
+    """True when the --filter tests a list field (something Affinity's search may apply)."""
+    from ..query.filter_text import where_from_filter
+    from ..query.planner import _field_paths
+
+    try:
+        return bool(_field_paths(where_from_filter(parse_filter(filter_expr))))
+    except ValueError:
+        return False
+
+
+def _filter_scope_error(filter_expr: str, local: list[str]) -> CLIError:
+    return CLIError(
+        "Part of this --filter runs locally on fetched pages, so without a scope flag the "
+        "export would silently return only first-page matches. Add --all to scan everything, "
+        "--max-results N to cap, or --first-page-only to opt in.",
+        exit_code=2,
+        error_type="usage_error",
+        hint="details.local names the conditions Affinity's search can't apply; --saved-view "
+        "filters large lists on Affinity's side.",
+        details={"rejected_filter": str(filter_expr), "local": local},
+    )
+
+
+def _search_rows(
+    entries: Any,
+    page: Any,
+    *,
+    body: dict[str, Any],
+    filter_text: str,
+    selected_field_ids: list[str],
+    field_by_id: dict[str, FieldMetadata],
+    key_mode: Literal["names", "ids"],
+    max_results: int | None,
+    all_pages: bool,
+    state: dict[str, Any] | None,
+    filter_progress_callback: Callable[[FilterStats], None] | None,
+) -> Any:
+    """Rows from list entry search pages, re-checked against the whole ``--filter``."""
+    local = parse_filter(filter_text)
+    stats = FilterStats()
+    fetched = 0
+    while True:
+        token = encode_cursor(page.next_cursor, body, filter_text) if page.next_cursor else None
+        matching = [e for e in page.data if local.matches(_entry_to_filter_dict(e))]
+        stats.scanned += len(page.data)
+        stats.matched += len(matching)
+        if state is not None:
+            state["filterStats"] = {"scanned": stats.scanned, "matched": stats.matched}
+        if filter_progress_callback is not None:
+            filter_progress_callback(stats)
+        for idx, entry in enumerate(matching):
+            fetched += 1
+            _note_truncated_fields(state, entry)
+            last = max_results is not None and fetched >= max_results
+            yield (
+                _entry_to_row(entry, selected_field_ids, field_by_id, key_mode=key_mode),
+                None if last and idx < len(matching) - 1 else token,
+            )
+            if last:
+                if idx < len(matching) - 1 and state is not None:
+                    state["truncatedMidPage"] = True
+                return
+        if not page.next_cursor or (not all_pages and max_results is None):
+            return
+        page = entries.find_body(body, cursor=page.next_cursor)
 
 
 def _extract_field_values(obj: Any) -> dict[str, Any]:
