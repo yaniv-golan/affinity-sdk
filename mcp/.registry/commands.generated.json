@@ -635,7 +635,7 @@
         "company ls --all --csv > companies.csv",
         "company ls --all --output csv --csv-bom > companies.csv"
       ],
-      "whenToUse": "Use `--query TERM` for name/domain fuzzy search — `--filter` is not supported on companies (V2 API limitation) and will raise unsupported_filter. List or search ALL companies in CRM. NOT for list-specific fields like Status — use `list export` for those.",
+      "whenToUse": "Use `--query TERM` for name/domain fuzzy search. `--filter` filters companies on their fields (e.g. `--filter 'Stage = \"Seed\"'`): Affinity's search applies it, and a filter with no field condition raises unsupported_filter. NOT for list-specific fields like Status: use the query tool on listEntries.",
       "relatedCommands": [
         "company get",
         "company field"
@@ -4274,7 +4274,7 @@
         "person ls --query 'John Smith'",
         "person ls --query 'john@example.com'"
       ],
-      "whenToUse": "Use `--query TERM` for name/email fuzzy search — `--filter` is not supported on persons (V2 API limitation) and will raise unsupported_filter. Search persons by name/email. ALWAYS use --query for text search.",
+      "whenToUse": "Use `--query TERM` for name/email fuzzy search. `--filter` filters persons on their fields (e.g. `--filter 'Deals > 5'`): Affinity's search applies it, and a filter with no field condition raises unsupported_filter. For complex filters use the query tool.",
       "relatedCommands": [
         "person get",
         "person field"
@@ -4676,7 +4676,8 @@
           "string": [
             "contains",
             "starts_with",
-            "ends_with"
+            "ends_with",
+            "starts_word"
           ],
           "collection": [
             "in",
@@ -4716,7 +4717,10 @@
         "listEntriesRequiresFilter": "listEntries MUST have where clause with listId or listName - e.g. {\"path\": \"listName\", \"op\": \"eq\", \"value\": \"Pipeline\"}",
         "includeVsExpand": "include fetches related entities (separate section), expand adds computed data to each record",
         "quantifiersNeedMaxRecords": "all/none/exists/_count on persons/companies/opportunities cause N+1 calls - always add maxRecords",
-        "multiSelectFields": "Use has_any/has_all for multi-select dropdown fields, not eq/in"
+        "multiSelectFields": "Use has_any/has_all for multi-select dropdown fields, not eq/in",
+        "personCompanyFields": "On person and company fields use starts_word (a word in the name starts with the text, as in Affinity's search); contains is refused",
+        "companiesAndPersons": "where on companies/persons needs a condition on their fields (fields.<name>); Affinity's search applies it and the rest runs on what comes back",
+        "sharedFieldNames": "When two fields share a name, name the field by id: fields.<field id>"
       },
       "include": {
         "persons": [
