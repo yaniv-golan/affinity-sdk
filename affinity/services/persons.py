@@ -60,6 +60,7 @@ from ._org_reads import (
     RELATIONSHIPS_MIN_API_VERSION,
     check_cursor_alone,
     check_positive_limit,
+    materialize_ids,
     merge_params,
     merge_task_url,
     no_ids,
@@ -69,6 +70,7 @@ from ._org_reads import (
 )
 from ._search import SEARCH_INCLUDES, AsyncSearchMixin, SearchMixin
 from ._single_field import AsyncSingleFieldMixin, SingleFieldMixin
+from .lists import invalidate_all_list_sizes
 
 if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
@@ -212,6 +214,7 @@ class PersonService(PersonDiscoveryMixin, SingleFieldMixin, SearchMixin[Person])
             data = self._client.get_url(cursor)
         else:
             check_positive_limit(limit)
+            ids = materialize_ids(ids)
             if no_ids(ids):
                 return PaginatedResponse[Person]()
             params: dict[str, Any] = {}
@@ -1238,6 +1241,7 @@ class PersonService(PersonDiscoveryMixin, SingleFieldMixin, SearchMixin[Person])
     def delete(self, person_id: PersonId) -> bool:
         """Delete a person (also deletes associated field values)."""
         result = self._client.delete(f"/persons/{person_id}", v1=True)
+        invalidate_all_list_sizes(self._client)
 
         if self._client.cache:
             self._client.cache.invalidate_prefix("person")
@@ -1506,6 +1510,7 @@ class AsyncPersonService(
             data = await self._client.get_url(cursor)
         else:
             check_positive_limit(limit)
+            ids = materialize_ids(ids)
             if no_ids(ids):
                 return PaginatedResponse[Person]()
             params: dict[str, Any] = {}
@@ -2584,6 +2589,7 @@ class AsyncPersonService(
     async def delete(self, person_id: PersonId) -> bool:
         """Delete a person (also deletes associated field values)."""
         result = await self._client.delete(f"/persons/{person_id}", v1=True)
+        invalidate_all_list_sizes(self._client)
 
         if self._client.cache:
             self._client.cache.invalidate_prefix("person")

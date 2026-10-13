@@ -134,6 +134,17 @@ def invalidate_list_size(client: Any, list_id: int) -> None:
         cache.pop(int(list_id), None)
 
 
+def invalidate_all_list_sizes(client: Any) -> None:
+    """Forget every cached ``get_size`` on this client: for writes that remove rows from lists
+    the SDK can't name without another request (deleting an opportunity, person or company)."""
+    try:
+        cache = _SIZE_CACHES.get(client)
+    except TypeError:
+        return
+    if cache:
+        cache.clear()
+
+
 T = TypeVar("T", bound=BaseModel)
 
 

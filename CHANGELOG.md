@@ -69,7 +69,7 @@ or a CLI exit code; each is marked **Behavior change**.
 - SDK: `tasks.wait` no longer sleeps past its `timeout`.
 - SDK: `lists.resolve` no longer remembers a name it didn't find, so a list created later is found.
 - SDK: `lists.get_size` is shared by every list service on a client and dropped when an entry is
-  added or removed or an opportunity is created.
+  added or removed, an opportunity is created or deleted, or a person or company is deleted.
 - SDK: page iterators stop when a cursor repeats, when a page says more follow but gives no
   cursor, or after 1,000 empty pages in a row (with a `RuntimeWarning`), instead of looping.
 - SDK: association paging tolerates `"pagination": null`.
@@ -118,12 +118,18 @@ or a CLI exit code; each is marked **Behavior change**.
   sort as numbers.
 - **Behavior change. CLI: a delete Affinity reports as failed exits 1** (`api_error`) instead of
   printing `"success": false` with exit 0.
-- **Behavior change. CLI `field history-bulk`:** exits 1 when every entry fails and 3 on an auth
-  error (both exited 0). Partial failures still exit 0 with warnings and now set
+- **Behavior change. CLI `field history-bulk`:** when every entry fails it exits with the usual
+  code for that error (3 auth, 4 not found, 5 rate limit or server; 1 for mixed errors), and 3 on
+  any auth error (all exited 0). Partial failures still exit 0 with warnings and now set
   `meta.truncated` with `truncationReason: "partialFailure"`.
-- **Behavior change. CLI `list export --expand interactions`:** a failed interaction lookup fails
-  the export under the default `--expand-on-error raise` (it left the dates empty silently), and
-  warns under `skip`. An auth error during any expansion fails the export.
+- **Behavior change. CLI `list export` expansions:** a failed interaction, opportunity or
+  unreplied-message lookup fails the export under the default `--expand-on-error raise` (it was
+  left empty silently), and warns under `skip`, keeping the entry's other expansions. An auth
+  error during any expansion fails the export; a deleted opportunity is left out.
+- **Behavior change. CLI field writes:** `true`/`false` in `--set-json` is refused before any write
+  (exit 2, `validation_error`); Affinity has no boolean field type.
+- CLI `list entry field --unset-value` exits 1 when Affinity reports the delete failed, instead of
+  reporting the value as deleted; `field delete` clears its caches only after a confirmed delete.
 - CLI: answering "n" to a confirmation under `--json` prints an error envelope (type `aborted`),
   still exit 1, instead of an empty stdout.
 - CLI `list ls --type`: warns when the first page has no list of that type but more pages exist.

@@ -2954,13 +2954,22 @@ def _fetch_associations(
             }
             entity_type = entity_type_map.get(list_type, "")
             if entity_type in ("company", "person", "opportunity"):
-                unreplied = _check_unreplied(
-                    client=client,
-                    entity_type=entity_type,
-                    entity_id=entity_id,
-                    interaction_types=unreplied_types,
-                    lookback_days=unreplied_lookback_days,
-                )
+                # Like interaction dates: a failed check follows on_error on its own (skip
+                # leaves it empty with a warning and keeps the entry's other expansions).
+                try:
+                    unreplied = _check_unreplied(
+                        client=client,
+                        entity_type=entity_type,
+                        entity_id=entity_id,
+                        interaction_types=unreplied_types,
+                        lookback_days=unreplied_lookback_days,
+                    )
+                except (AuthenticationError, AuthorizationError):
+                    raise
+                except Exception as e:
+                    if on_error != "skip":
+                        raise
+                    warnings.append(f"Skipped unreplied check for {entity_type} {entity_id}: {e}")
 
         # Apply expand filters (Phase 5)
         if expand_filters:
@@ -3049,9 +3058,19 @@ def _fetch_entity_opportunities(
                             if max_results is not None and len(opportunities) >= max_results:
                                 return opportunities
 
-                    except Exception:
-                        # Skip opportunities we can't access
+                    except NotFoundError:
+                        # Deleted since the list was read: no associations.
                         continue
+                    except (AuthenticationError, AuthorizationError):
+                        raise
+                    except Exception as e:
+                        if on_error == "skip":
+                            warnings.append(
+                                f"Skipped opportunity {int(opp_id)} while fetching opportunities "
+                                f"for {entity_type} {int(entity_id)}: {e}"
+                            )
+                            continue
+                        raise
 
                 # Stop pagination if we have enough results
                 if max_results is not None and len(opportunities) >= max_results:
@@ -3876,7 +3895,17 @@ def run_entry_field(
             if format_value_for_comparison(fv_value) == value_str:
                 fv_id = fv.get("id")
                 if fv_id:
-                    client.field_values.delete(fv_id)
+                    if client.field_values.delete(fv_id) is False:
+                        # Affinity answered {"success": false}: the value is still there.
+                        not_removed = CLIError(
+                            f"Affinity did not remove value '{value_to_remove}' "
+                            f"(field value {fv_id}).",
+                            exit_code=1,
+                            error_type="api_error",
+                        )
+                        if written:
+                            raise _partial(not_removed)
+                        raise not_removed
                     deleted_count += 1
                     found = True
                     break

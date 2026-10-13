@@ -15,7 +15,14 @@ from ..models.entities import ListSummary
 from ..models.org import Team, TeamMember, UserAccount, UserStatus
 from ..models.pagination import AsyncPageIterator, PageIterator, PaginatedResponse
 from ..models.types import UserId
-from ._org_reads import check_cursor_alone, check_limit, empty_page, no_ids, page_of
+from ._org_reads import (
+    check_cursor_alone,
+    check_limit,
+    empty_page,
+    materialize_ids,
+    no_ids,
+    page_of,
+)
 
 if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
@@ -153,6 +160,7 @@ class TeamService:
         (or ``["membersPreview"]`` / ``["accessibleListsPreview"]``) fills the first members
         and accessible lists, with totals. ``limit`` is 1-100.
         """
+        ids = materialize_ids(ids)
         check_cursor_alone(cursor, ids, name, name_contains, order_by, includes, limit, total_count)
         if cursor is not None:
             return page_of(
@@ -310,6 +318,7 @@ class AsyncTeamService:
         cursor: str | None = None,
     ) -> PaginatedResponse[Team]:
         """One page of teams; see :meth:`TeamService.list`."""
+        ids = materialize_ids(ids)
         check_cursor_alone(cursor, ids, name, name_contains, order_by, includes, limit, total_count)
         if cursor is not None:
             return page_of(
@@ -469,6 +478,7 @@ class UserService:
     ) -> PaginatedResponse[UserAccount]:
         """One page of users. ``term`` matches first name, last name or primary email;
         ``status`` is active, invited or deactivated. ``limit`` is 1-100."""
+        ids = materialize_ids(ids)
         check_cursor_alone(cursor, term, ids, status, limit)
         if cursor is not None:
             return page_of(UserAccount, self._client.get_url(cursor))
@@ -515,6 +525,7 @@ class AsyncUserService:
         cursor: str | None = None,
     ) -> PaginatedResponse[UserAccount]:
         """One page of users; see :meth:`UserService.list`."""
+        ids = materialize_ids(ids)
         check_cursor_alone(cursor, term, ids, status, limit)
         if cursor is not None:
             return page_of(UserAccount, await self._client.get_url(cursor))

@@ -33,11 +33,17 @@ from ..models.types import CompanyId, ListId, OpportunityId, PersonId
 from ._org_reads import (
     check_cursor_alone,
     check_positive_limit,
+    materialize_ids,
     no_ids,
     note_params,
     page_of,
 )
-from .lists import AsyncListEntryService, ListEntryService, invalidate_list_size
+from .lists import (
+    AsyncListEntryService,
+    ListEntryService,
+    invalidate_all_list_sizes,
+    invalidate_list_size,
+)
 
 if TYPE_CHECKING:
     from ..clients.http import AsyncHTTPClient, HTTPClient
@@ -146,6 +152,7 @@ class OpportunityService:
             data = self._client.get_url(cursor)
         else:
             check_positive_limit(limit)
+            ids = materialize_ids(ids)
             if no_ids(ids):
                 return PaginatedResponse[Opportunity]()
             params: dict[str, Any] = {}
@@ -444,6 +451,7 @@ class OpportunityService:
             True if successful
         """
         result = self._client.delete(f"/opportunities/{opportunity_id}", v1=True)
+        invalidate_all_list_sizes(self._client)
         return bool(result.get("success", True))
 
     # =========================================================================
@@ -914,6 +922,7 @@ class AsyncOpportunityService:
             data = await self._client.get_url(cursor)
         else:
             check_positive_limit(limit)
+            ids = materialize_ids(ids)
             if no_ids(ids):
                 return PaginatedResponse[Opportunity]()
             params: dict[str, Any] = {}
@@ -1274,6 +1283,7 @@ class AsyncOpportunityService:
             True if successful
         """
         result = await self._client.delete(f"/opportunities/{opportunity_id}", v1=True)
+        invalidate_all_list_sizes(self._client)
         return bool(result.get("success", True))
 
     # =========================================================================

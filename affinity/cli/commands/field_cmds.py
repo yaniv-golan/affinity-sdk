@@ -31,7 +31,7 @@ from affinity.types import (
 
 from ..click_compat import RichCommand, RichGroup, click
 from ..confirm import run_destructive
-from ..context import CLIContext
+from ..context import CLIContext, exit_code_for_exception, normalize_exception
 from ..decorators import category, destructive, progress_capable
 from ..errors import CLIError
 from ..mcp_limits import apply_mcp_limits
@@ -344,12 +344,14 @@ def field_delete(ctx: CLIContext, field_id: str, yes: bool) -> None:
         client = ctx.get_client(warnings=warnings)
         success = client.fields.delete(FieldId(field_id))
 
-        # Invalidate field-related caches
-        cache = ctx.session_cache
-        cache.invalidate_prefix("list_fields_")
-        cache.invalidate_prefix("person_fields_")
-        cache.invalidate_prefix("company_fields_")
-        cache.invalidate_prefix("fields_v1_")
+        # Invalidate field-related caches, only once the field is gone ({"success": false}
+        # leaves it in place, and run_destructive exits 1 on it).
+        if success:
+            cache = ctx.session_cache
+            cache.invalidate_prefix("list_fields_")
+            cache.invalidate_prefix("person_fields_")
+            cache.invalidate_prefix("company_fields_")
+            cache.invalidate_prefix("fields_v1_")
 
         cmd_context = CommandContext(
             name="field delete",
@@ -1419,7 +1421,7 @@ def field_history_bulk(
             and (ctx.progress == "always" or sys.stderr.isatty())
         )
 
-        async def _run() -> tuple[list[dict[str, object]], list[str], int, int]:
+        async def _run() -> tuple[list[dict[str, object]], list[str], list[Exception], int]:
             from affinity import AsyncAffinity
             from affinity.hooks import ResponseInfo
 
@@ -1451,6 +1453,7 @@ def field_history_bulk(
             ) as async_client:
                 results: list[dict[str, object]] = []
                 async_warnings: list[str] = []
+                errors: list[Exception] = []
                 completed = 0
                 succeeded = 0
                 failed = 0
@@ -1491,6 +1494,7 @@ def field_history_bulk(
                         raise
                     except Exception as exc:
                         failed += 1
+                        errors.append(exc)
                         async_warnings.append(f"Entry {eid}: {exc}")
                         return []
                     finally:
@@ -1526,7 +1530,7 @@ def field_history_bulk(
                     async_warnings.append(
                         f"{succeeded} of {len(work)} {unit} succeeded, {failed} failed"
                     )
-                return results, async_warnings, failed, len(work)
+                return results, async_warnings, errors, len(work)
 
         def _field_wide() -> list[dict[str, object]]:
             on_list = set(entry_ids)
@@ -1624,14 +1628,22 @@ def field_history_bulk(
                 chosen = "entries"
         partial = False
         if chosen == "entries":
-            all_changes, async_warnings, failed_count, work_count = asyncio.run(_run())
+            all_changes, async_warnings, fetch_errors, work_count = asyncio.run(_run())
+            failed_count = len(fetch_errors)
             warnings.extend(async_warnings)
             if work_count and failed_count == work_count:
+                # One kind of failure (all rate-limited, all not found, ...) keeps its usual
+                # exit code and error type; a mix is a generic api_error (exit 1).
+                error_type, exit_code = "api_error", 1
+                codes = {exit_code_for_exception(e) for e in fetch_errors}
+                if len(codes) == 1 and isinstance(fetch_errors[0], AffinityError):
+                    first = normalize_exception(fetch_errors[0])
+                    error_type, exit_code = first.error_type, first.exit_code
                 raise CLIError(
                     f"All {work_count} history fetches failed; first error: "
                     f"{async_warnings[0] if async_warnings else 'unknown'}",
-                    error_type="api_error",
-                    exit_code=1,
+                    error_type=error_type,
+                    exit_code=exit_code,
                     hint="Retry; the warnings list each failed entry.",
                 )
             partial = failed_count > 0

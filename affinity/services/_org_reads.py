@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from datetime import datetime
 from typing import Any, TypeVar
 
@@ -12,6 +13,7 @@ from ..models.pagination import PaginatedResponse, PaginationInfoWithTotal
 from ._v2_filters import v2_filter_datetime
 
 T = TypeVar("T", bound=BaseModel)
+IdT = TypeVar("IdT")
 
 # Relationships are beta on 2024-01-01 and GA from 2026-07-15 (same schema).
 RELATIONSHIPS_MIN_API_VERSION = "2026-07-15"
@@ -28,6 +30,11 @@ def page_of(model: type[T], data: dict[str, Any]) -> PaginatedResponse[T]:
 def empty_page(model: type[T], *, total_count: bool = False) -> PaginatedResponse[T]:
     """The page an empty ``ids`` filter returns, without a request (no id matches nothing)."""
     return page_of(model, {"pagination": {"totalCount": 0}} if total_count else {})
+
+
+def materialize_ids(ids: Iterable[IdT] | None) -> list[IdT] | None:
+    """``ids`` as a list (``None`` stays ``None``), so a generator is read exactly once."""
+    return None if ids is None else list(ids)
 
 
 def no_ids(ids: Any) -> bool:

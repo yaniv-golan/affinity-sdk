@@ -34,7 +34,14 @@ from ..models.types import (
     ReminderType,
     UserId,
 )
-from ._org_reads import check_cursor_alone, check_limit, empty_page, no_ids, page_of
+from ._org_reads import (
+    check_cursor_alone,
+    check_limit,
+    empty_page,
+    materialize_ids,
+    no_ids,
+    page_of,
+)
 from ._v2_filters import v2_body_datetime, v2_filter_datetime
 
 if TYPE_CHECKING:
@@ -353,6 +360,7 @@ class ReminderService:
         is 1-100. Pass ``cursor`` (``pagination.next_cursor``) alone for the next page;
         :meth:`iter` follows every page.
         """
+        ids = materialize_ids(ids)
         filters: dict[str, Any] = {
             "ids": ids,
             "person_id": person_id,
@@ -546,6 +554,7 @@ class AsyncReminderService:
         cursor: str | None = None,
     ) -> PaginatedResponse[Reminder]:
         """One page of reminders; see :meth:`ReminderService.list`."""
+        ids = materialize_ids(ids)
         filters: dict[str, Any] = {
             "ids": ids,
             "person_id": person_id,

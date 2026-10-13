@@ -15,7 +15,14 @@ from typing import TYPE_CHECKING, Any
 from ..models.pagination import AsyncPageIterator, PageIterator, PaginatedResponse
 from ..models.secondary import Webhook, WebhookCreate, WebhookUpdate
 from ..models.types import WebhookId
-from ._org_reads import check_cursor_alone, check_limit, empty_page, no_ids, page_of
+from ._org_reads import (
+    check_cursor_alone,
+    check_limit,
+    empty_page,
+    materialize_ids,
+    no_ids,
+    page_of,
+)
 from ._v2_filters import v2_filter_datetime
 
 if TYPE_CHECKING:
@@ -95,6 +102,7 @@ class WebhookService:
         exclusive. ``limit`` is 1-100. Pass ``cursor`` (``pagination.next_cursor``) alone for the
         next page; :meth:`iter` follows every page.
         """
+        ids = materialize_ids(ids)
         check_cursor_alone(
             cursor,
             ids,
@@ -216,6 +224,7 @@ class AsyncWebhookService:
         cursor: str | None = None,
     ) -> PaginatedResponse[Webhook]:
         """One page of webhooks; see :meth:`WebhookService.list`."""
+        ids = materialize_ids(ids)
         check_cursor_alone(
             cursor,
             ids,

@@ -1126,6 +1126,19 @@ def pre_validate_set_operations(
     errors: list[dict[str, Any]] = []
 
     for field_id, value in set_operations:
+        if isinstance(value, bool):
+            # The SDK refuses a bool for every field write (TypeError); catch it here so it's a
+            # validation error before anything is written.
+            errors.append(
+                {
+                    "field": resolver.get_field_name(field_id) or field_id,
+                    "fieldId": field_id,
+                    "value": value,
+                    "reason": "Affinity has no boolean field type",
+                    "hint": 'Write a text value (e.g. "Yes"), a number or a dropdown option.',
+                }
+            )
+            continue
         try:
             res_val, type_str = resolver.resolve_field_value(field_id, value)
             resolved[field_id] = (value, res_val, type_str)

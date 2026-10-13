@@ -61,6 +61,7 @@ from ._org_reads import (
     RELATIONSHIPS_MIN_API_VERSION,
     check_cursor_alone,
     check_positive_limit,
+    materialize_ids,
     merge_params,
     merge_task_url,
     no_ids,
@@ -70,6 +71,7 @@ from ._org_reads import (
 )
 from ._search import SEARCH_INCLUDES, AsyncSearchMixin, SearchMixin
 from ._single_field import AsyncSingleFieldMixin, SingleFieldMixin
+from .lists import invalidate_all_list_sizes
 from .search import AsyncCompanySemanticSearchMixin, CompanySemanticSearchMixin
 
 if TYPE_CHECKING:
@@ -153,6 +155,7 @@ class CompanyService(
             data = self._client.get_url(cursor)
         else:
             check_positive_limit(limit)
+            ids = materialize_ids(ids)
             if no_ids(ids):
                 return PaginatedResponse[Company]()
             params: dict[str, Any] = {}
@@ -1157,6 +1160,7 @@ class CompanyService(
         Note: Cannot delete global companies.
         """
         result = self._client.delete(f"/organizations/{company_id}", v1=True)
+        invalidate_all_list_sizes(self._client)
 
         if self._client.cache:
             self._client.cache.invalidate_prefix("company")
@@ -1441,6 +1445,7 @@ class AsyncCompanyService(
             data = await self._client.get_url(cursor)
         else:
             check_positive_limit(limit)
+            ids = materialize_ids(ids)
             if no_ids(ids):
                 return PaginatedResponse[Company]()
             params: dict[str, Any] = {}
@@ -2504,6 +2509,7 @@ class AsyncCompanyService(
         Uses V1 API.
         """
         result = await self._client.delete(f"/organizations/{company_id}", v1=True)
+        invalidate_all_list_sizes(self._client)
 
         if self._client.cache:
             self._client.cache.invalidate_prefix("company")

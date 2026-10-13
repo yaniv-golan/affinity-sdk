@@ -115,7 +115,7 @@ for lst in client.lists.all():
 count = client.lists.get_size(list_id, force=True)
 ```
 
-This uses the V1 API which returns accurate counts. Results are cached for 5 minutes per list. Use `force=True` to bypass the cache when you need the most up-to-date value.
+This uses the V1 API which returns accurate counts. Results are cached for 5 minutes per list. Adding or removing an entry, creating or deleting an opportunity, and deleting a person or company through the same client drop the cached sizes. Use `force=True` to bypass the cache when you need the most up-to-date value (e.g. after changes made elsewhere, or a merge).
 
 ### Global persons/companies (no direct method)
 
