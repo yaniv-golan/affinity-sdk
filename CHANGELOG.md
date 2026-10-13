@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   longer files V2 services under "V1 endpoints"; the `Affinity`/`AsyncAffinity` docstrings and
   the sync/async table list every service; the field-values guide starts with the V2
   company/person/list-entry methods; the plugins page covers all three plugins.
+- Docs and `file-url` help: examples use placeholder ids and names.
 
 ### Plugins
 

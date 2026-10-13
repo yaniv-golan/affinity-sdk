@@ -210,8 +210,8 @@ xaffinity whoami --json | jq
 Parses an Affinity UI URL (including tenant hosts like `https://<tenant>.affinity.co/...` or `https://<tenant>.affinity.com/...`) and validates it by fetching the referenced object.
 
 ```bash
-xaffinity resolve-url "https://app.affinity.co/companies/263169568"
-xaffinity resolve-url "https://mydomain.affinity.com/companies/263169568" --json
+xaffinity resolve-url "https://app.affinity.co/companies/67890"
+xaffinity resolve-url "https://mydomain.affinity.com/companies/67890" --json
 ```
 
 ## Query
@@ -295,8 +295,8 @@ Fetch a person by id, UI URL (including tenant hosts), or a resolver selector.
 Examples:
 
 ```bash
-xaffinity person get 26229794
-xaffinity person get "https://mydomain.affinity.com/persons/26229794"
+xaffinity person get 12345
+xaffinity person get "https://mydomain.affinity.com/persons/12345"
 xaffinity person get email:alice@example.com
 xaffinity person get 'name:"Alice Smith"'
 ```
@@ -323,38 +323,38 @@ Interaction dates (V1 API):
 - `--with-interaction-persons`: include person IDs involved in each interaction (requires `--with-interaction-dates`).
 
 ```bash
-xaffinity person get 26229794 --all-fields --expand lists
-xaffinity person get 26229794 --expand list-entries --list "Dealflow" --max-results 200
-xaffinity person get 26229794 --expand list-entries --list "Dealflow" --list-entry-field Stage --list-entry-field Amount
-xaffinity person get 26229794 --expand list-entries --max-results 1 --show-list-entry-fields
-xaffinity person get 26229794 --expand list-entries --max-results 1 --show-list-entry-fields --list-entry-fields-scope all
-xaffinity person get 26229794 --all-fields --expand lists --json | jq '.data.person.name'
+xaffinity person get 12345 --all-fields --expand lists
+xaffinity person get 12345 --expand list-entries --list "Dealflow" --max-results 200
+xaffinity person get 12345 --expand list-entries --list "Dealflow" --list-entry-field Stage --list-entry-field Amount
+xaffinity person get 12345 --expand list-entries --max-results 1 --show-list-entry-fields
+xaffinity person get 12345 --expand list-entries --max-results 1 --show-list-entry-fields --list-entry-fields-scope all
+xaffinity person get 12345 --all-fields --expand lists --json | jq '.data.person.name'
 
 # Include interaction dates (last meeting, next meeting, email dates)
-xaffinity person get 26229794 --with-interaction-dates --json
-xaffinity person get 26229794 --with-interaction-dates --with-interaction-persons --json
+xaffinity person get 12345 --with-interaction-dates --json
+xaffinity person get 12345 --with-interaction-dates --with-interaction-persons --json
 ```
 
 ### `xaffinity person create`
 
 ```bash
 xaffinity person create --first-name Ada --last-name Lovelace --email ada@example.com
-xaffinity person create --first-name Ada --last-name Lovelace --company-id 224925494
+xaffinity person create --first-name Ada --last-name Lovelace --company-id 67890
 ```
 
 ### `xaffinity person update <personId>`
 
 ```bash
-xaffinity person update 26229794 --email ada@example.com --email ada@work.com
-xaffinity person update 26229794 --first-name Ada --last-name Byron
+xaffinity person update 12345 --email ada@example.com --email ada@work.com
+xaffinity person update 12345 --first-name Ada --last-name Byron
 ```
 
 ### `xaffinity person field <personId>`
 
 ```bash
-xaffinity person field 26229794 --set "Current Job Title" "CEO" --set "Phone Number" "+1-555-0123"
-xaffinity person field 26229794 --set "Source of Introduction" 26229795 --unset "lool Tag"
-xaffinity person field 26229794 --get "Current Organization"
+xaffinity person field 12345 --set "Current Job Title" "CEO" --set "Phone Number" "+1-555-0123"
+xaffinity person field 12345 --set "Source of Introduction" 12346 --unset Tags
+xaffinity person field 12345 --get "Current Organization"
 ```
 
 All `--set` / `--set-json` / `--unset` of one command are written in **one request** that
@@ -371,7 +371,7 @@ that version for the write; with `--api-version 2024-01-01` the command exits 2
 ### `xaffinity person delete <personId>`
 
 ```bash
-xaffinity person delete 26229794
+xaffinity person delete 12345
 ```
 
 ### `xaffinity person merge-history ls` / `get <mergeId>`
@@ -500,8 +500,8 @@ Fetch a company by id, UI URL (including tenant hosts), or a resolver selector.
 Examples:
 
 ```bash
-xaffinity company get 224925494
-xaffinity company get "https://mydomain.affinity.com/companies/224925494"
+xaffinity company get 67890
+xaffinity company get "https://mydomain.affinity.com/companies/67890"
 xaffinity company get domain:wellybox.com
 xaffinity company get 'name:"WellyBox"'
 ```
@@ -538,39 +538,39 @@ Interaction dates (V1 API):
 - `--with-interaction-persons`: include person IDs involved in each interaction (requires `--with-interaction-dates`).
 
 ```bash
-xaffinity company get 224925494 --all-fields --expand lists
-xaffinity company get 224925494 --expand list-entries --list "Dealflow" --max-results 200
-xaffinity company get 224925494 --expand list-entries --list "Dealflow" --list-entry-field Stage --list-entry-field Amount
-xaffinity company get 224925494 --expand list-entries --max-results 1 --show-list-entry-fields
-xaffinity company get 224925494 --expand list-entries --max-results 1 --show-list-entry-fields --list-entry-fields-scope all
-xaffinity company get 224925494 --expand persons --max-results 50
-xaffinity company get 224925494 --all-fields --expand lists --json | jq '.data.company.name'
+xaffinity company get 67890 --all-fields --expand lists
+xaffinity company get 67890 --expand list-entries --list "Dealflow" --max-results 200
+xaffinity company get 67890 --expand list-entries --list "Dealflow" --list-entry-field Stage --list-entry-field Amount
+xaffinity company get 67890 --expand list-entries --max-results 1 --show-list-entry-fields
+xaffinity company get 67890 --expand list-entries --max-results 1 --show-list-entry-fields --list-entry-fields-scope all
+xaffinity company get 67890 --expand persons --max-results 50
+xaffinity company get 67890 --all-fields --expand lists --json | jq '.data.company.name'
 
 # Include interaction dates (last meeting, next meeting, email dates)
-xaffinity company get 224925494 --with-interaction-dates --json
-xaffinity company get 224925494 --with-interaction-dates --with-interaction-persons --json
+xaffinity company get 67890 --with-interaction-dates --json
+xaffinity company get 67890 --with-interaction-dates --with-interaction-persons --json
 ```
 
 ### `xaffinity company create`
 
 ```bash
 xaffinity company create --name "Acme Corp" --domain acme.com
-xaffinity company create --name "Acme Corp" --person-id 26229794
+xaffinity company create --name "Acme Corp" --person-id 12345
 ```
 
 ### `xaffinity company update <companyId>`
 
 ```bash
-xaffinity company update 224925494 --domain acme.com
-xaffinity company update 224925494 --person-id 26229794 --person-id 26229795
+xaffinity company update 67890 --domain acme.com
+xaffinity company update 67890 --person-id 12345 --person-id 12346
 ```
 
 ### `xaffinity company field <companyId>`
 
 ```bash
-xaffinity company field 224925494 --set Stage "Series A" --set-json '{"Technologies": ["Python", "Go"]}'
-xaffinity company field 224925494 --unset Stage
-xaffinity company field 224925494 --get Description
+xaffinity company field 67890 --set Stage "Series A" --set-json '{"Technologies": ["Python", "Go"]}'
+xaffinity company field 67890 --unset Stage
+xaffinity company field 67890 --get Description
 ```
 
 All `--set` / `--set-json` / `--unset` of one command are written in **one request** that
@@ -587,7 +587,7 @@ that version for the write; with `--api-version 2024-01-01` the command exits 2
 ### `xaffinity company delete <companyId>`
 
 ```bash
-xaffinity company delete 224925494
+xaffinity company delete 67890
 ```
 
 ### `xaffinity company merge-history ls` / `get <mergeId>`
@@ -891,8 +891,8 @@ xaffinity list entry get 67890 12345 --json
 ### `xaffinity list entry add <list>`
 
 ```bash
-xaffinity list entry add 123 --person-id 26229794
-xaffinity list entry add "Dealflow" --company-id 224925494
+xaffinity list entry add 123 --person-id 12345
+xaffinity list entry add "Dealflow" --company-id 67890
 ```
 
 ### `xaffinity list entry delete <list> <entryId>`
@@ -1506,7 +1506,7 @@ permission).
 ### `xaffinity user get <userId>`
 
 ```bash
-xaffinity user get 26229794
+xaffinity user get 12345
 ```
 
 ## Meetings
@@ -1528,7 +1528,7 @@ Every company, person and opportunity a note is attached to (all of them; `note 
 preview).
 
 ```bash
-xaffinity note attached 33410431
+xaffinity note attached 555
 ```
 
 ## Feedback
@@ -1563,7 +1563,7 @@ Warm intros into a company: people working there today whom someone you know may
 (V2, beta).
 
 ```bash
-xaffinity company connections domain:wix.com
+xaffinity company connections domain:acme.com
 xaffinity company connections 12345 --type investor-executive --all
 ```
 

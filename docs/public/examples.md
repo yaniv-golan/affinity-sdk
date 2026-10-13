@@ -186,6 +186,6 @@ from affinity import Affinity
 from affinity.types import CompanyId
 
 with Affinity.from_env() as client:
-    person_ids = client.companies.get_associated_person_ids(CompanyId(224925494))
-    people = client.companies.get_associated_people(CompanyId(224925494), max_results=5)
+    person_ids = client.companies.get_associated_person_ids(CompanyId(67890))
+    people = client.companies.get_associated_people(CompanyId(67890), max_results=5)
 ```

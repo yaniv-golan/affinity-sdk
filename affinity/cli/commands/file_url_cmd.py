@@ -30,7 +30,7 @@ def file_url_cmd(ctx: CLIContext, file_id: int) -> None:
     To find a file by its contents, use `file search`.
 
     Example:
-        xaffinity file-url 9192757
+        xaffinity file-url 456
     """
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:

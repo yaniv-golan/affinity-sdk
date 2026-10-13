@@ -448,8 +448,8 @@ Files can be attached to companies, persons, and opportunities.
 
 ### Step 1: List files to get file IDs
 ```bash
-company files ls 306016520
-person files ls 67890
+company files ls 67890
+person files ls 12345
 opportunity files ls 98765
 ```
 
@@ -469,8 +469,8 @@ Two options are available - choose based on your environment:
 Returns base64-encoded content inline. Works in all environments including Claude Desktop/Cowork.
 
 ```bash
-company files read 306016520 --file-id 9192757
-person files read 67890 --file-id 9192758
+company files read 67890 --file-id 456
+person files read 12345 --file-id 457
 opportunity files read 98765 --file-id 9192759
 ```
 
@@ -496,7 +496,7 @@ company files read 123 --file-id 456 --limit 500KB
 Returns a presigned S3 URL valid for 60 seconds. More efficient for direct downloads but **blocked in Claude Desktop/Cowork**.
 
 ```bash
-get-file-url fileId=9192757
+get-file-url fileId=456
 ```
 
 Returns presigned `url` (60s expiry). **⚠️ Blocked in Claude Desktop/Cowork** - use `files read` instead.
