@@ -64,7 +64,7 @@ def _cases(meta: FieldMetadata, vt: str, values: list[Any]) -> list[WhereClause]
         nums = sorted(float(v) for v in present if isinstance(v, (int, float)))
         if nums:
             m = median(nums)
-            cases += [w(op, m) for op in ("eq", "gt", "gte", "lt", "lte")]
+            cases += [w(op, m) for op in ("eq", "neq", "gt", "gte", "lt", "lte")]
             cases.append(w("eq", nums[0]))
             cases.append(w("between", [nums[len(nums) // 4], nums[(3 * len(nums)) // 4]]))
     elif vt == "date":
@@ -73,6 +73,14 @@ def _cases(meta: FieldMetadata, vt: str, values: list[Any]) -> list[WhereClause]
             mid_day = days[len(days) // 2]
             cases += [w(op, mid_day) for op in ("gt", "gte", "lt", "lte", "eq")]
             cases.append(w("between", [days[len(days) // 4], days[(3 * len(days)) // 4]]))
+    elif vt in ("dropdown-multi", "filterable-text-multi"):
+        items = sorted({str(i) for v in present if isinstance(v, list) for i in v})
+        for t in items[:3]:
+            cases += [w("eq", t), w("neq", t), w("has_all", [t])]
+            if vt == "dropdown-multi" and len(t) >= 2:
+                cases.append(w("contains", t[: len(t) // 2].upper()))
+        if len(items) >= 2:
+            cases += [w("in", items[:2]), w("has_any", items[:2])]
     elif vt in ("person", "person-multi", "company", "company-multi"):
         names = sorted({n for v in present for n in (v if isinstance(v, list) else [v]) if n})
         for name in [str(n) for n in names[:4]]:

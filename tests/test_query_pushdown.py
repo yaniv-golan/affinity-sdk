@@ -51,6 +51,7 @@ FIELDS = [
             "is-less-than",
             "is-less-than-or-equal-to",
             "is-between",
+            "is-not-equal-to",
             "is-not-empty",
         ],
     ),
@@ -315,3 +316,61 @@ def test_verified_name_search_and_empty_checks() -> None:
 
     assert {("person-multi", "term"), ("person-multi", "is-not-empty")} <= VERIFIED
     assert ("location", "is-empty") not in VERIFIED  # never exercised live
+
+
+MULTI = _field("field-10", "Tags", "dropdown-multi", ["has-any-of", "has-all-of", "has-none-of"])
+MULTI_OPTIONS = [
+    DropdownOption(id=21, text="AI"),
+    DropdownOption(id=22, text="Fintech"),
+    DropdownOption(id=23, text="Health"),
+    DropdownOption(id=24, text="Health"),
+]
+
+
+def _multi(where: dict[str, Any]) -> Any:
+    split = split_where(
+        WhereClause.model_validate(where),
+        [*FIELDS, MULTI],
+        lambda meta: MULTI_OPTIONS if str(meta.id) == "field-10" else OPTIONS.get(str(meta.id), []),
+        verified=ALL_MAPPINGS,
+    )
+    return _only(split) if split.where is not None else split
+
+
+@pytest.mark.parametrize(
+    ("where", "operator", "ids"),
+    [
+        ({"path": "fields.Tags", "op": "eq", "value": "AI"}, "has-any-of", [21]),
+        (
+            {"path": "fields.Tags", "op": "has_any", "value": ["AI", "Fintech"]},
+            "has-any-of",
+            [21, 22],
+        ),
+        ({"path": "fields.Tags", "op": "contains", "value": "tech"}, "has-any-of", [22]),
+        (
+            {"path": "fields.Tags", "op": "has_all", "value": ["AI", "Fintech"]},
+            "has-all-of",
+            [21, 22],
+        ),
+        ({"path": "fields.Tags", "op": "neq", "value": "Health"}, "has-none-of", [23, 24]),
+    ],
+)
+def test_multi_select_dropdowns(where: dict[str, Any], operator: str, ids: list[int]) -> None:
+    sent = _multi(where)
+    assert sent["operator"] == operator
+    assert [v["dropdownOptionId"] for v in sent["value"]] == ids
+
+
+def test_has_all_with_a_shared_option_text_stays_local() -> None:
+    # "Health" names two options: has-all-of both would ask for more than the filter does
+    split = _multi({"path": "fields.Tags", "op": "has_all", "value": ["Health"]})
+    assert split.where is None
+
+
+def test_number_not_equal() -> None:
+    assert _only(_split({"path": "fields.Amount", "op": "neq", "value": 5})) == {
+        "valueType": "number",
+        "fieldId": "field-3",
+        "operator": "is-not-equal-to",
+        "value": 5,
+    }

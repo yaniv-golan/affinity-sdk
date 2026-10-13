@@ -73,6 +73,11 @@ VERIFIED: frozenset[tuple[str, str]] = frozenset(
         ("person", "term"),
         ("person-multi", "term"),
         ("company-multi", "term"),
+        # Third run (multi-select dropdowns, number !=), 2026-10-13
+        ("dropdown-multi", "has-any-of"),
+        ("dropdown-multi", "has-all-of"),
+        ("dropdown-multi", "has-none-of"),
+        ("number", "is-not-equal-to"),
     }
 )
 
@@ -108,6 +113,12 @@ ALL_MAPPINGS: frozenset[tuple[str, str]] = frozenset(
     | {("number", op) for op in (*_NUMBER_OPS.values(), "is-between")}
     | {("date", op) for op in ("is-after", "is-before", "is-between")}
     | {(vt, "term") for vt in ("person", "person-multi", "company", "company-multi")}
+    | {
+        (vt, op)
+        for vt in ("dropdown-multi", "filterable-text-multi")
+        for op in ("has-any-of", "has-all-of", "has-none-of")
+    }
+    | {("number", "is-not-equal-to")}
 )
 
 _DROPDOWN = {"dropdown", "ranked-dropdown"}
@@ -386,6 +397,8 @@ def _condition(w: WhereClause, ctx: _Ctx) -> Condition | None:
         return None
     if vt in _DROPDOWN:
         return _dropdown(w, meta, vt, ctx)
+    if vt in ("dropdown-multi", "filterable-text-multi"):
+        return _multi(w, meta, vt, ctx)
     if vt == "text":
         text_ops = ("eq", "contains", "starts_with", "ends_with", "starts_word")
         if op in text_ops and isinstance(value, str) and value:
@@ -435,14 +448,31 @@ def _dropdown(w: WhereClause, meta: FieldMetadata, vt: str, ctx: _Ctx) -> Condit
 
 
 def _negated(inner: WhereClause, ctx: _Ctx) -> Condition | None:
-    """NOT: only "not (dropdown is one of these options)" — is-none-of keeps empty values,
-    like the local filter."""
+    """NOT (or !=): "not (dropdown is one of these options)" as is-none-of, "has none of" for
+    multi-value fields, is-not-equal-to for numbers (each keeps empty values, like the local
+    filter; verified live)."""
     if inner.op not in ("eq", "in") or inner.path is None:
         ctx.local.append("a NOT the server can't answer")
         return None
     trial = _Ctx(ctx.fields, ctx.options_for, ctx.verified, [], [], ctx.enriched, ctx.errors)
     found = _field(inner, trial)
-    if found is None or found[1] not in _DROPDOWN:
+    if found is not None and found[1] == "number" and inner.op == "eq":
+        n = _as_number(inner.value)
+        if n is not None:
+            cond = _emit(
+                WhereClause(not_=inner), found[0], "number", "is-not-equal-to", _num(n), ctx
+            )
+            if cond is not None:
+                ctx.pushed[-1] = f"not ({_describe(inner)})"
+            return cond
+    if found is not None and found[1] == "filterable-text-multi":
+        texts = _texts(inner.value)
+        if texts:
+            cond = _emit(WhereClause(not_=inner), found[0], found[1], "has-none-of", texts, ctx)
+            if cond is not None:
+                ctx.pushed[-1] = f"not ({_describe(inner)})"
+            return cond
+    if found is None or found[1] not in (*_DROPDOWN, "dropdown-multi"):
         ctx.local.append(f"not ({_describe(inner)}): stays local")
         return None
     meta, vt = found
@@ -454,10 +484,45 @@ def _negated(inner: WhereClause, ctx: _Ctx) -> Condition | None:
         ctx.local.append(f"not ({_describe(inner)}): no dropdown option matches")
         return None
     w = WhereClause(not_=inner)
-    cond = _emit(w, meta, vt, "is-none-of", ids, ctx)
+    cond = _emit(w, meta, vt, "has-none-of" if vt == "dropdown-multi" else "is-none-of", ids, ctx)
     if cond is not None:
         ctx.pushed[-1] = f"not ({_describe(inner)})"
     return cond
+
+
+def _multi(w: WhereClause, meta: FieldMetadata, vt: str, ctx: _Ctx) -> Condition | None:
+    """Multi-value fields (dropdown-multi: option texts locally; filterable-text-multi: text).
+    eq with one value is membership locally (has-any-of); eq with a list is set equality,
+    answered by the superset has-all-of."""
+    op, value = w.op, w.value
+    if vt == "filterable-text-multi":
+        texts = _texts(value)
+        if texts and (op in ("in", "has_any") or (op == "eq" and not isinstance(value, list))):
+            return _emit(w, meta, vt, "has-any-of", texts, ctx)
+        if texts and (op == "has_all" or (op == "eq" and isinstance(value, list))):
+            return _emit(w, meta, vt, "has-all-of", texts, ctx)
+        ctx.local.append(f"{_describe(w)}: no server mapping for {vt} {op}")
+        return None
+    options = list(ctx.options_for(meta))
+    if op in ("in", "has_any") or (op == "eq" and not isinstance(value, list)):
+        wanted = set(_texts(value) or [])
+        ids = [int(o.id) for o in options if o.text in wanted]
+        if ids:
+            return _emit(w, meta, vt, "has-any-of", ids, ctx)
+    elif op in ("contains", "starts_word") and isinstance(value, str) and value:
+        ids = [int(o.id) for o in options if compare_values(o.text, value, op)]
+        if ids:
+            return _emit(w, meta, vt, "has-any-of", ids, ctx)
+    elif op == "has_all" or (op == "eq" and isinstance(value, list)):
+        # Each text must name exactly one option, or "has all of" could ask for too much
+        by_text: dict[str, list[int]] = {}
+        for o in options:
+            by_text.setdefault(o.text, []).append(int(o.id))
+        texts = _texts(value) or []
+        if texts and all(len(by_text.get(t, [])) == 1 for t in texts):
+            return _emit(w, meta, vt, "has-all-of", [by_text[t][0] for t in texts], ctx)
+    ctx.local.append(f"{_describe(w)}: no server mapping for {vt} {op}")
+    return None
 
 
 def _as_number(value: Any) -> float | None:
