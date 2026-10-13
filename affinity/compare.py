@@ -10,7 +10,10 @@ This module is the single source of truth for comparison operations.
 from __future__ import annotations
 
 import re
+from datetime import date, datetime, timezone
 from typing import Any
+
+from ._filtering.dates import as_utc, parse_date_value, parse_iso_datetime
 
 
 def normalize_value(value: Any) -> Any:
@@ -303,23 +306,60 @@ def _safe_compare(a: Any, b: Any, op: Any) -> bool:
         return bool(op(str(a), str(b)))
 
 
+def _date_pair(a: Any, b: Any) -> tuple[datetime, datetime] | None:
+    """``(value, target)`` as UTC datetimes when the target is a date (a datetime/date, or a
+    string such as ``-30d``, ``today`` or an ISO date) and the value is one too (a
+    datetime/date or an ISO string); else ``None``. Ordering operators compare dates this way
+    instead of as text (``"2019-…" > "-30d"`` was true as text)."""
+
+    def target(x: Any) -> datetime | None:
+        if isinstance(x, datetime):
+            return as_utc(x)
+        if isinstance(x, date):
+            return datetime(x.year, x.month, x.day, tzinfo=timezone.utc)
+        if isinstance(x, str):
+            parsed = parse_date_value(x)
+            return as_utc(parsed) if parsed is not None else None
+        return None
+
+    def value(x: Any) -> datetime | None:
+        if isinstance(x, (datetime, date)):
+            return target(x)
+        parsed = parse_iso_datetime(x)
+        return as_utc(parsed) if parsed is not None else None
+
+    t = target(b)
+    if t is None:
+        return None
+    v = value(a)
+    return (v, t) if v is not None else None
+
+
 def _gt(a: Any, b: Any) -> bool:
     """Greater than operator."""
+    if (pair := _date_pair(a, b)) is not None:
+        return pair[0] > pair[1]
     return _safe_compare(a, b, lambda x, y: x > y)
 
 
 def _gte(a: Any, b: Any) -> bool:
     """Greater than or equal operator."""
+    if (pair := _date_pair(a, b)) is not None:
+        return pair[0] >= pair[1]
     return _safe_compare(a, b, lambda x, y: x >= y)
 
 
 def _lt(a: Any, b: Any) -> bool:
     """Less than operator."""
+    if (pair := _date_pair(a, b)) is not None:
+        return pair[0] < pair[1]
     return _safe_compare(a, b, lambda x, y: x < y)
 
 
 def _lte(a: Any, b: Any) -> bool:
     """Less than or equal operator."""
+    if (pair := _date_pair(a, b)) is not None:
+        return pair[0] <= pair[1]
     return _safe_compare(a, b, lambda x, y: x <= y)
 
 
@@ -351,6 +391,9 @@ def _between(a: Any, b: Any) -> bool:
         return False
 
     low, high = b[0], b[1]
+    lo_pair, hi_pair = _date_pair(a, low), _date_pair(a, high)
+    if lo_pair is not None and hi_pair is not None:
+        return lo_pair[1] <= lo_pair[0] <= hi_pair[1]
 
     # Try numeric coercion first (filter values are often parsed as strings)
     try:

@@ -18,6 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Dates compare as dates in `>`, `>=`, `<`, `<=` and between**, everywhere filters run
+  (`query`, `--filter`, `--expand-filter`, `company ls` / `person ls --filter`, and the SDK's
+  `affinity.filters`): relative dates (`-30d`, `today`) and ISO dates are compared with the
+  field's timestamp in UTC. Before, the text filter compared them as text, so
+  `Close > "-30d"` matched every dated entry. Equality stays textual (`= "today"` matches the
+  word). Timestamps with `Z` or long fractions parse on Python 3.10 too.
+- **`list export --field X --filter "Y = …"`** returned no rows: the filter's fields are now
+  fetched even when `--field` leaves them out of the output.
 - **`Team` reads `updatedAt`** (`updated_at`), and accepts the `membersPreview` /
   `accessibleListsPreview` blocks under their own names too.
 

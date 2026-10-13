@@ -530,3 +530,38 @@ class TestOperatorMapCompleteness:
         ]
         for alias in required_aliases:
             assert alias in SDK_OPERATOR_MAP, f"Missing alias: {alias}"
+
+
+class TestDateOrdering:
+    """Ordering operators compare dates as dates (text and SDK filters as well as query)."""
+
+    def test_relative_date_targets(self) -> None:
+        assert compare_values("2019-01-01T00:00:00Z", "-30d", "gt") is False  # was True as text
+        assert compare_values("2999-01-01T00:00:00Z", "-30d", "gt") is True
+        assert compare_values("2019-01-01T00:00:00Z", "today", "lt") is True
+
+    def test_same_day_and_time_zones(self) -> None:
+        assert compare_values("2026-09-13T05:00:00Z", "2026-09-13", "gt") is True
+        assert compare_values("2026-09-13T05:00:00+03:00", "2026-09-13T03:00:00Z", "lt") is True
+
+    def test_datetime_targets_and_values(self) -> None:
+        from datetime import date, datetime, timezone
+
+        assert compare_values("2026-09-13T05:00:00Z", datetime(2026, 9, 13), "gt") is True
+        assert compare_values(datetime(2026, 1, 1, tzinfo=timezone.utc), date(2025, 1, 1), "gt")
+
+    def test_between_uses_dates_only_when_everything_parses(self) -> None:
+        assert compare_values("2026-05-01T00:00:00Z", ["2026-04-01", "2026-06-01"], "between")
+        assert not compare_values("2026-07-01T00:00:00Z", ["2026-04-01", "2026-06-01"], "between")
+
+    def test_equality_and_non_dates_stay_as_before(self) -> None:
+        assert compare_values("today", "today", "eq") is True
+        assert compare_values(5, "3", "gt") is True
+        assert compare_values("abc", "abb", "gt") is True
+
+    def test_python_310_timestamp_shapes(self) -> None:
+        from affinity._filtering.dates import parse_iso_datetime
+
+        assert parse_iso_datetime("2026-09-13T05:00:00.123456789Z") is not None
+        assert parse_iso_datetime("2026-09-13T05:00:00.12Z") is not None
+        assert parse_iso_datetime("not a date") is None

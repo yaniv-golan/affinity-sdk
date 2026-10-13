@@ -442,8 +442,9 @@ def _compile_condition(where: WhereClause) -> Callable[[dict[str, Any]], bool]:
     path = where.path
     value = where.value
 
-    # Parse date values if they look like relative dates
-    if value is not None and isinstance(value, str):
+    # Ordering operators compare dates ("-30d", "today", ISO dates) as dates; eq/in/contains
+    # keep the text ("= today" matches the word "today").
+    if value is not None and isinstance(value, str) and where.op in ("gt", "gte", "lt", "lte"):
         parsed_value = parse_date_value(value)
         if parsed_value is not None:
             value = parsed_value

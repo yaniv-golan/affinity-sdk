@@ -113,17 +113,31 @@ def parse_date_value(value: str) -> datetime | None:
         pass
 
     # Try ISO date
-    if ISO_DATE_PATTERN.match(value):
-        try:
-            # Handle with and without time component
-            if "T" in value:
-                return datetime.fromisoformat(value.replace("Z", "+00:00"))
-            else:
-                return datetime.fromisoformat(value)
-        except ValueError:
-            pass
+    return parse_iso_datetime(value)
 
-    return None
+
+_FRACTION = re.compile(r"(\.\d+)")
+
+
+def parse_iso_datetime(value: object) -> datetime | None:
+    """An ISO 8601 date or date-time (``YYYY-MM-DD``, ``...THH:MM:SS[.fraction][Z|±HH:MM]``) as a
+    datetime, or ``None``. Tolerant of what Python 3.10's ``fromisoformat`` rejects: ``Z`` and
+    fractions that aren't 3 or 6 digits."""
+    if not isinstance(value, str) or not ISO_DATE_PATTERN.match(value.strip()):
+        return None
+    text = value.strip()
+    if text.endswith(("Z", "z")):
+        text = text[:-1] + "+00:00"
+    text = _FRACTION.sub(lambda m: (m.group(1) + "000000")[:7], text, count=1)
+    try:
+        return datetime.fromisoformat(text)
+    except ValueError:
+        return None
+
+
+def as_utc(value: datetime) -> datetime:
+    """``value`` with a time zone: naive values are taken as UTC."""
+    return value if value.tzinfo is not None else value.replace(tzinfo=timezone.utc)
 
 
 def days_since(date: datetime, *, now: datetime | None = None) -> int:

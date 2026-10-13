@@ -167,3 +167,17 @@ def test_a_refused_search_falls_back(router: respx.MockRouter) -> None:
     assert code == 0, out
     assert _ids(out) == [1]
     assert any("filtering locally" in w for w in out["warnings"])
+
+
+def test_the_filters_fields_are_fetched_even_when_not_exported(
+    router: respx.MockRouter,
+) -> None:
+    notes = {**FIELDS[0], "id": "field-2", "name": "Notes", "valueType": "text"}
+    router.get(f"{V2}/lists/9/fields").mock(
+        return_value=Response(200, json=_page([*FIELDS, notes]))
+    )
+    route = router.post(SEARCH).mock(return_value=Response(201, json=_page([_entry(1, "Won")])))
+    code, out = _export("--field", "Notes", "--filter", 'Status = "Won"')
+    assert code == 0, out
+    assert _ids(out) == [1]  # the local re-check saw Status (it was fetched)
+    assert sorted(route.calls[0].request.url.params.get_list("fieldIds")) == ["field-1", "field-2"]

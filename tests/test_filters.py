@@ -1069,3 +1069,13 @@ class TestCollectionBracketSyntax:
         assert expr.matches({"name": "Acme"})
         assert expr.matches({"name": None})  # None != ""
         assert not expr.matches({"name": ""})
+
+
+def test_text_filters_compare_relative_dates_as_dates() -> None:
+    from affinity.filters import parse
+
+    recent = parse('Close > "-30d"')
+    assert not recent.matches({"Close": "2019-01-01T00:00:00Z"})
+    assert recent.matches({"Close": "2999-01-01T00:00:00Z"})
+    # Equality stays textual: "today" is the word, not a date
+    assert parse('Code = "today"').matches({"Code": "today"})

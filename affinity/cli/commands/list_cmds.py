@@ -971,6 +971,7 @@ def list_export(
             selected_field_ids = [str(f.id) for f in field_meta]
 
         columns = _columns_meta(selected_field_ids, field_by_id=field_by_id)
+        filter_field_ids = _filter_field_ids(filter_expr, field_meta) if filter_expr else []
 
         if dry_run:
             want_csv = ctx.output == "csv"
@@ -1301,6 +1302,7 @@ def list_export(
                         cache=cache,
                         filter_progress_callback=filter_callback,
                         search=list_search.body if list_search else None,
+                        filter_field_ids=filter_field_ids,
                     ):
                         next_cursor = page_next_cursor
 
@@ -1735,6 +1737,7 @@ def list_export(
                 cache=cache,
                 filter_progress_callback=json_filter_callback,
                 search=list_search.body if list_search else None,
+                filter_field_ids=filter_field_ids,
             ):
                 next_cursor = page_next_cursor
 
@@ -2069,6 +2072,7 @@ def _iterate_list_entries(
     cache: Any = None,
     filter_progress_callback: Callable[[FilterStats], None] | None = None,
     search: dict[str, Any] | None = None,
+    filter_field_ids: list[str] | None = None,
 ) -> Any:
     """
     Yield `(row_dict, next_cursor)` where `next_cursor` resumes at the next page (not per-row).
@@ -2090,6 +2094,9 @@ def _iterate_list_entries(
     )
 
     fetched = 0
+    # The filter's fields are fetched too (the local re-check reads them), even when --field
+    # leaves them out of the output.
+    fetch_ids = list(dict.fromkeys([*selected_field_ids, *(filter_field_ids or [])]))
 
     entries = client.lists.entries(list_id)
 
@@ -2150,7 +2157,7 @@ def _iterate_list_entries(
             else:
                 assert search is not None and filter_expr
                 body, filter_text = search, filter_expr
-                first = entries.find_body(body, field_ids=selected_field_ids, limit=page_size)
+                first = entries.find_body(body, field_ids=fetch_ids, limit=page_size)
         except (AuthorizationError, NotFoundError, SDKValidationError) as e:
             if decoded is not None:
                 raise
@@ -2178,7 +2185,7 @@ def _iterate_list_entries(
         entries.pages(cursor=cursor)
         if cursor is not None
         else entries.pages(
-            field_ids=selected_field_ids,
+            field_ids=fetch_ids,
             filter=filter_expr,
             limit=page_size,
             progress_callback=filter_progress_callback,
@@ -2211,6 +2218,26 @@ def _iterate_list_entries(
         if first_page and not all_pages and max_results is None:
             return
         first_page = False
+
+
+def _filter_field_ids(filter_expr: str, field_meta: list[FieldMetadata]) -> list[str]:
+    """Ids of the list fields a --filter tests (by name or id)."""
+    from ..query.filter_text import where_from_filter
+    from ..query.planner import _field_paths
+
+    try:
+        paths = _field_paths(where_from_filter(parse_filter(filter_expr)))
+    except ValueError:
+        return []
+    by_name = {f.name.lower(): str(f.id) for f in field_meta if f.name}
+    by_id = {str(f.id) for f in field_meta}
+    ids = []
+    for path in sorted(paths):
+        key = path.removeprefix("fields.")
+        fid = key if key in by_id else by_name.get(key.lower())
+        if fid is not None:
+            ids.append(fid)
+    return ids
 
 
 def _filter_names_list_fields(filter_expr: str) -> bool:
