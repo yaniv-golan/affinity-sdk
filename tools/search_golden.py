@@ -26,10 +26,10 @@ from statistics import median
 from typing import Any
 
 from affinity import Affinity
+from affinity._filtering.pushdown import ALL_MAPPINGS, split_where
 from affinity.cli.query.executor import _normalize_list_entry_fields
 from affinity.cli.query.filters import compile_filter
 from affinity.cli.query.models import WhereClause
-from affinity.cli.query.pushdown import ALL_MAPPINGS, split_where
 from affinity.criteria import SearchCriteria, filter_value_type
 from affinity.models.entities import DropdownOption, FieldMetadata
 from affinity.policies import Policies, WritePolicy
