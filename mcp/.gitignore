@@ -20,3 +20,6 @@ server.d/.debug
 
 # MCPB bundle files (build artifacts)
 *.mcpb
+
+# Launcher `mcp-bash vendor` writes next to .mcp-bash/ (we launch through xaffinity-mcp.sh)
+/run-server.sh
