@@ -38,9 +38,11 @@ def test_list_export_filter_without_scope_errors(monkeypatch):
 
 
 @pytest.mark.req("REQ-EXPORT-FILTER-SAFETY-002")
-def test_list_export_filter_with_all_is_allowed(monkeypatch):
+def test_list_export_filter_with_all_is_allowed(make_mock_transport, monkeypatch):
     """--filter --all passes validation (no flag-combo error)."""
     monkeypatch.setenv("AFFINITY_API_KEY", "test")
+    # No real network: every request is refused, which is fine (only the scope check matters)
+    make_mock_transport(lambda _request: httpx.Response(404, json={"errors": []}))
     runner = CliRunner()
     result = runner.invoke(
         cli,
@@ -56,8 +58,8 @@ def test_list_export_filter_with_all_is_allowed(monkeypatch):
         ],
         catch_exceptions=False,
     )
-    # We want to prove the flag-combo check doesn't fire. Error kind may
-    # vary (no transport); just assert it's not the scope error.
+    # We want to prove the flag-combo check doesn't fire. The mocked API refuses everything,
+    # so some other error follows; just assert it's not the scope error.
     if result.exit_code == 2:
         payload = json.loads(result.output)
         err_msg = (payload["error"].get("message") or "") + (payload["error"].get("hint") or "")
