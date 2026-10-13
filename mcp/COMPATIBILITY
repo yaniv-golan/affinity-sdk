@@ -1,8 +1,20 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="2.0.0"
-CLI_MAX_VERSION="2.0.0"
+CLI_MIN_VERSION="2.0.2"
+CLI_MAX_VERSION="2.0.2"
+
+# MCP 2.0.2 requires CLI 2.0.2 for:
+# - Filtering and sorting on Affinity's side in `query`, `list export --filter`,
+#   `company ls --filter` and `person ls --filter` (the query tool and skills describe it).
+# - `query` filters on company/person fields (`fields.<name>`); a where with no field
+#   condition is refused. `company ls` / `person ls --filter` work (they used to raise
+#   unsupported_filter).
+# - The `starts_word` operator; `contains` on person/company fields is refused; an empty
+#   multi-value field counts as empty; a field name two list fields share is refused
+#   (`fields.<field id>`).
+# - New read commands: `team ls|get`, `user ls|get`, `meeting get`, `note attached`,
+#   `company|person duplicates`, `company connections`; `feedback send` (confirmation).
 
 # MCP 2.0.0 requires CLI 2.0.0 for:
 # - the `webhook` commands in the registry, `note create/update --type plain-text|html`,

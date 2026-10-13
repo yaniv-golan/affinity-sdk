@@ -2,11 +2,11 @@
   "_generated": {
     "warning": "DO NOT EDIT - This file is auto-generated",
     "generator": "tools/generate_mcp_command_registry.py",
-    "cliVersion": "2.0.1",
+    "cliVersion": "2.0.2",
     "sourceConfig": "mcp/.registry/mcp-commands.json"
   },
   "version": 1,
-  "cliVersion": "2.0.1",
+  "cliVersion": "2.0.2",
   "commands": [
     {
       "name": "company connections",

@@ -7,9 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Works with CLI 2.0.1: `note get` content is now the stored HTML (same keys).
+## [2.0.2] - 2026-10-13
+
+Requires CLI 2.0.2 (released together with SDK 2.0.2).
+
+### Changed (breaking)
+
+Filters mean what Affinity's own search means (the CLI's changelog lists every change):
+`contains` on person and company fields is refused (use `starts_word`), an empty multi-value
+field counts as empty, and a field name two list fields share is refused (name it by id).
 
 ### Added
+
+- **Filtering and sorting on Affinity's side.** The query tool sends the conditions Affinity's
+  search can answer and its sorts to Affinity, so only matching records are downloaded; the
+  full `where` still runs on what comes back. `query` can filter companies and persons on their
+  fields (`fields.<name>`). `company ls` / `person ls --filter` work (they used to raise
+  unsupported_filter). The query tool description, the query-guide resource and the skills
+  describe it, with the `starts_word` operator.
 
 - `company duplicates`, `person duplicates`, `company connections` (reads: duplicate
   suggestions to review before a merge, and warm intros into a company).

@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.2] - 2026-10-13
+
 ### Changed (breaking)
 
 **Exception to semantic versioning:** these change what some filters return, in a patch release
 (the maintainer's call). Filters now mean what Affinity's own search means, so the same filter
-gives the same answer whether Affinity or the CLI applies it.
+gives the same answer whether Affinity or the CLI applies it. This reaches Python code too:
+`affinity.filters` (`F`, filter strings, `lists.entries(...).list/iter/pages(filter=...)`)
+uses the same comparison rules as the CLI.
 
 - **An empty multi-value field counts as empty.** `is_null` / `is empty` now match a field with
   no items (`[]`), and `is_not_null` / `is not null` no longer do, in `query`, `--filter` and
@@ -89,7 +93,9 @@ gives the same answer whether Affinity or the CLI applies it.
   whole directory). `meta.serverFilter` with `--include-meta`; enriched-field conditions carry
   a warning that a few records' enriched values can be missed.
 - **More of `query` goes to Affinity** (list entries too): `is_null` / `is_not_null` on every
-  verified field type, multi-value fields included, and `starts_word` on a person or company
+  verified field type, multi-value fields included; multi-select dropdowns (`eq` membership,
+  `in`, `has_any`, `has_all`, `contains`/`starts_word` on option text, `!=`); `!=` on numbers;
+  and `starts_word` on a person or company
   field (person, multi-person and multi-company fields; one per query, at the top level of the
   `where`, plain text of 3+ letters).
 - **`query` sorts on Affinity's side** when every `orderBy` key is a sortable field
