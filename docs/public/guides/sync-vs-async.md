@@ -41,6 +41,10 @@ async def main() -> None:
 | reminders | ✅ | ✅ |
 | webhooks | ✅ | ✅ |
 | interactions | ✅ | ✅ |
+| transcripts | ✅ | ✅ |
+| teams | ✅ | ✅ |
+| users | ✅ | ✅ |
+| feedback | ✅ | ✅ |
 | fields | ✅ | ✅ |
 | field_values | ✅ | ✅ |
 | field_value_changes | ✅ | ✅ |

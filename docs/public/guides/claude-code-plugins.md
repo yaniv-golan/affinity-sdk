@@ -1,11 +1,12 @@
 # Claude Code Plugins & Skills
 
-Two [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugins provide **skills** that teach Claude best practices for the Affinity SDK and CLI:
+Three [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugins: two provide **skills** that teach Claude best practices for the Affinity SDK and CLI, and one installs the MCP server:
 
 | Plugin | Best For | Key Feature |
 |--------|----------|-------------|
 | **sdk** | Python developers | Type-safe SDK patterns |
 | **cli** | CLI power users | CLI skill + API key guard hook |
+| **mcp** | Agentic workflows | The [MCP server](#mcp-server) (tools and guided prompts) |
 
 All plugins are installed from the `xaffinity` marketplace.
 
@@ -31,9 +32,12 @@ Install the plugin(s) you need:
 
 # For CLI usage + hooks
 /plugin install affinity-crm-cli-xaffinity-unofficial@xaffinity
+
+# For the MCP server
+/plugin install affinity-crm-mcp-unofficial@xaffinity
 ```
 
-You can install both plugins. They complement each other.
+You can install any combination. They complement each other.
 
 ---
 
@@ -66,7 +70,7 @@ client = Affinity.from_env()          # May leak resources
 ```python
 from affinity.policies import Policies, WritePolicy
 
-# Default: read-only (prevents accidental data modification)
+# Read-only (prevents accidental data modification); the client allows writes unless you set this
 with Affinity.from_env(policies=Policies(write=WritePolicy.DENY)) as client:
     ...
 ```
@@ -100,7 +104,7 @@ Teaches Claude the correct patterns for running `xaffinity` CLI commands.
 - Use `--json` for structured, parseable output
 - Run `xaffinity config check-key --json` to verify API key configuration
 - Use `--all` with caution (can be slow for large datasets)
-- Filters only work on custom fields
+- `--filter` sends what Affinity's search can answer and re-checks the whole filter locally
 
 ### Example prompts
 
@@ -134,6 +138,7 @@ The MCP server is protocol-agnostic and works with any MCP client (Claude Deskto
 /plugin marketplace update
 /plugin update affinity-crm-sdk-unofficial@xaffinity
 /plugin update affinity-crm-cli-xaffinity-unofficial@xaffinity
+/plugin update affinity-crm-mcp-unofficial@xaffinity
 ```
 
 ### Uninstalling
@@ -141,6 +146,7 @@ The MCP server is protocol-agnostic and works with any MCP client (Claude Deskto
 ```bash
 /plugin uninstall affinity-crm-sdk-unofficial@xaffinity
 /plugin uninstall affinity-crm-cli-xaffinity-unofficial@xaffinity
+/plugin uninstall affinity-crm-mcp-unofficial@xaffinity
 ```
 
 ---

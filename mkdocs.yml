@@ -86,11 +86,11 @@ nav:
           - Tasks: reference/services/tasks.md
           - Webhooks: reference/services/webhooks.md
           - Teams, users and feedback: reference/services/teams-users.md
-          - V1 endpoints:
-              - Notes: reference/services/v1/notes.md
-              - Interactions: reference/services/v1/interactions.md
-              - Fields: reference/services/v1/fields.md
-              - Field values: reference/services/v1/field-values.md
-              - Files: reference/services/v1/files.md
-              - Relationships: reference/services/v1/relationships.md
-              - Auth: reference/services/v1/auth.md
+          - Transcripts: reference/services/transcripts.md
+          - Notes: reference/services/v1/notes.md
+          - Interactions: reference/services/v1/interactions.md
+          - Fields: reference/services/v1/fields.md
+          - Field values (V1): reference/services/v1/field-values.md
+          - Files: reference/services/v1/files.md
+          - Relationship strength (V1): reference/services/v1/relationships.md
+          - Auth: reference/services/v1/auth.md

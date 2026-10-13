@@ -2,6 +2,42 @@
 
 Field values store custom data on entities (persons, companies, opportunities, list entries). This guide covers common patterns for working with field values.
 
+## Reading and changing a company's or person's fields
+
+The `companies` and `persons` services read and write field values through V2. This is the usual
+way to change a field such as a company's Stage:
+
+```python
+from affinity import Affinity
+from affinity.types import CompanyId
+
+with Affinity(api_key="your-api-key") as client:
+    values = client.companies.get_field_values(CompanyId(123))
+    print(values.get_value("field-456"))
+
+    print(client.companies.get_field_value(CompanyId(123), "field-456"))
+
+    # Replace one field's value
+    client.companies.update_field_value(CompanyId(123), "field-456", "Series A")
+
+    # Several fields in one request (all or nothing)
+    client.companies.batch_update_fields(
+        CompanyId(123), {"field-456": "Series A", "field-789": 5}
+    )
+```
+
+`persons` has the same methods. For fields on a list (including an opportunity's fields), use
+the list entry: `client.lists.entries(list_id).update_field_value(entry_id, field_id, value)`
+and `batch_update_fields`. Field names are resolved to ids with
+[`FieldResolver`](../reference/models.md#fieldresolver) or `fields.get_by_name()`; see
+[Field types and values](field-types-and-values.md) for value types.
+
+## The V1 `field_values` service
+
+The rest of this guide covers `client.field_values`, which calls V1's field-value endpoints
+directly. It returns one `FieldValue` per value (with its id), across persons, companies,
+opportunities and list entries.
+
 ## Getting field values for an entity
 
 Use `field_values.list()` to get all field values for a specific entity:

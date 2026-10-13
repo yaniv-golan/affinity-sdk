@@ -175,17 +175,24 @@ class Affinity:
     Attributes:
         companies: Company (organization) operations, incl. ``semantic_search``
         persons: Person (contact) operations
-        lists: List operations
+        opportunities: Opportunity operations
+        lists: List and list entry operations
+        tasks: Long-running task (e.g. merge) status
         notes: Note operations, incl. keyword ``search``
         reminders: Reminder operations
         webhooks: Webhook subscription operations
         interactions: Interaction (email, meeting, etc.) operations
+        transcripts: Meeting transcripts (AI Notetaker)
+        teams: Team operations
+        users: User operations
+        feedback: Send feedback to Affinity
         fields: Custom field operations
-        field_values: Field value operations
+        field_values: Field value operations (V1 service)
         field_value_changes: Field value change history operations
         files: Entity file operations, incl. keyword ``search`` of file contents
         relationships: Relationship strength queries
-        auth: Authentication and rate limit info
+        auth: Authentication info (``whoami``)
+        rate_limits: Rate limit status
     """
 
     def __init__(
@@ -635,7 +642,11 @@ class AsyncAffinity:
     """
     Asynchronous Affinity API client.
 
-    Same interface as Affinity but with async/await support.
+    Same interface as Affinity but with async/await support: the same service attributes
+    (``companies``, ``persons``, ``opportunities``, ``lists``, ``tasks``, ``notes``,
+    ``reminders``, ``webhooks``, ``interactions``, ``transcripts``, ``teams``, ``users``,
+    ``feedback``, ``fields``, ``field_values``, ``field_value_changes``, ``files``,
+    ``relationships``, ``auth``, ``rate_limits``).
 
     Example:
         ```python

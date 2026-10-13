@@ -24,6 +24,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Docs: the official-MCP comparison lists this project's transcript, meeting, team, user,
   duplicate and connection reads; `VERSIONING.md` describes 2.x and its patch-release
   exceptions; the MCP README asks for Python 3.10+.
+- Docs: the docs home page introduces the project and links configuration, migration, API
+  versions, the query command and webhooks; a Transcripts reference page; the reference nav no
+  longer files V2 services under "V1 endpoints"; the `Affinity`/`AsyncAffinity` docstrings and
+  the sync/async table list every service; the field-values guide starts with the V2
+  company/person/list-entry methods; the plugins page covers all three plugins.
 
 ### Plugins
 
