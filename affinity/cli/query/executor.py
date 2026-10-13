@@ -399,6 +399,9 @@ class ExecutionContext:
     truncated_fields: list[tuple[str, Any]] = field(default_factory=list)
     # What Affinity's search filtered and what stayed local ({"pushed", "local", "fallback"})
     server_filter: dict[str, Any] | None = None
+    # Affinity's search sorts (orderBy went to the server): pending until search pages arrive
+    pending_server_sort: bool = False
+    server_sorted: bool = False
     # List fields keyed by id in normalized records (shared names, or named by id in the query)
     id_keyed_fields: set[str] = field(default_factory=set)
 
@@ -736,6 +739,36 @@ def can_use_streaming(query: Query, *, max_records_explicit: bool = False) -> bo
 # =============================================================================
 # Query Executor
 # =============================================================================
+
+
+def _order_field_names(query: Query) -> list[str] | None:
+    """The field names an orderBy sorts by, when every key is a field (fields.<name>)."""
+    if not query.order_by:
+        return None
+    names: list[str] = []
+    for order in query.order_by:
+        if order.field is None or not order.field.startswith("fields."):
+            return None
+        names.append(order.field.removeprefix("fields."))
+    return names
+
+
+def _server_sorts(query: Query, index: Mapping[str, Any]) -> list[Any] | None:
+    """Sorts for Affinity's search when every orderBy key is a sortable field (at most 5) and
+    the sort orders records, not groups (no groupBy / aggregate)."""
+    from affinity.criteria import MAX_SORTS, Sort
+
+    names = _order_field_names(query)
+    if not names or len(names) > MAX_SORTS or query.group_by or query.aggregate:
+        return None
+    assert query.order_by is not None
+    sorts = []
+    for order, name in zip(query.order_by, names, strict=True):
+        meta = index.get(name) or index.get(name.lower())
+        if meta is None or (meta.sortability or {}).get("sortableFieldType") != "field-only":
+            return None
+        sorts.append(Sort(str(meta.id), order.direction))
+    return sorts
 
 
 def _parent_is_conjunct(where: WhereClause) -> bool:
@@ -1167,10 +1200,14 @@ class QueryExecutor:
         starts from the cursor instead of from the beginning.
         """
         service = getattr(self.client, schema.service_attr)
+        matches: Callable[[dict[str, Any]], bool] | None = None
         async for page in self._global_pages(ctx, service, step.entity or ""):
+            if matches is None and ctx.server_sorted:
+                matches = self._sorted_match_counter(ctx)
             for record in page.data:
-                ctx.records.append(self._global_record(record))
-                if self._should_stop(ctx):
+                record_dict = self._global_record(record)
+                ctx.records.append(record_dict)
+                if self._should_stop(ctx) or (matches is not None and matches(record_dict)):
                     # Capture API cursor for potential streaming resumption
                     ctx.last_api_cursor = page.next_cursor
                     return
@@ -1453,7 +1490,6 @@ class QueryExecutor:
 
         Records ``ctx.server_filter`` (what went to the server and why the rest stayed local).
         """
-        from affinity.criteria import SearchCriteria
         from affinity.services._search import SEARCH_INCLUDES
         from affinity.types import ListId
 
@@ -1461,16 +1497,13 @@ class QueryExecutor:
         from .pushdown import fields_index, split_where
 
         where = ctx.query.where
-        if where is None:
-            return None
-        local_where = _strip_parent_filter(where, "listId")
-        if local_where is None:
-            return None
+        local_where = _strip_parent_filter(where, "listId") if where is not None else None
         names: set[str] = set()
-        self._collect_field_refs_from_where(
-            local_where.model_dump(mode="json", by_alias=True), names
-        )
-        if not names:
+        if local_where is not None:
+            self._collect_field_refs_from_where(
+                local_where.model_dump(mode="json", by_alias=True), names
+            )
+        if not names and not _order_field_names(ctx.query):
             return None  # only list fields can go to the server (or need checking)
         try:
             fields = await self.client.lists.get_fields(
@@ -1491,13 +1524,27 @@ class QueryExecutor:
         split = split_where(local_where, fields, lambda m: options.get(str(m.id), []))
         if split.errors:
             raise QueryValidationError("; ".join(split.errors), field="where")
-        if not self.server_filter or not _parent_is_conjunct(where):
+        if not self.server_filter or (where is not None and not _parent_is_conjunct(where)):
             return None
+        return self._search_body(ctx, split, _server_sorts(ctx.query, index))
+
+    def _search_body(
+        self, ctx: ExecutionContext, split: Any, sorts: list[Any] | None
+    ) -> dict[str, Any] | None:
+        """The search body for a split WHERE and server sorts; notes them on ``ctx``."""
+        from affinity.criteria import SearchCriteria
+
         ctx.server_filter = {"pushed": split.pushed, "local": split.local}
-        if not split.server_side:
+        if sorts:
+            ctx.server_filter["sort"] = [f"{s.field_id} {s.direction}" for s in sorts]
+            ctx.pending_server_sort = True
+        if not split.server_side and not sorts:
             return None
         return SearchCriteria(
-            where=split.where, term=split.term, term_fields=split.term_fields
+            where=split.where,
+            sort=tuple(sorts or ()),
+            term=split.term,
+            term_fields=split.term_fields,
         ).to_body()
 
     async def _fetch_by_search(
@@ -1526,6 +1573,8 @@ class QueryExecutor:
                 ctx.server_filter["fallback"] = reason
             return False
         fetched = 0
+        ctx.server_sorted = ctx.pending_server_sort
+        matches = self._sorted_match_counter(ctx)
         while True:
             for record in page.data:
                 record_dict = _normalize_list_entry_fields(
@@ -1535,7 +1584,7 @@ class QueryExecutor:
                 )
                 ctx.records.append(record_dict)
                 fetched += 1
-                if self._should_stop(ctx):
+                if self._should_stop(ctx) or (matches is not None and matches(record_dict)):
                     ctx.last_api_cursor = page.next_cursor
                     return True
             self.progress.on_step_progress(step, fetched, None)
@@ -1557,6 +1606,7 @@ class QueryExecutor:
                 if resume and "/search" in resume
                 else service.find_body(body, field_ids=self._search_field_ids or None, limit=100)
             )
+            ctx.server_sorted = ctx.pending_server_sort
             while True:
                 yield page
                 if not page.next_cursor:
@@ -1587,17 +1637,17 @@ class QueryExecutor:
         """The search body for a company or person query whose WHERE tests fields, or
         ``None``. A field filter Affinity can't apply at all is refused: without search it
         would mean reading Affinity's whole directory."""
-        from affinity.criteria import SearchCriteria
         from affinity.services._search import SEARCH_INCLUDES
 
         from .pushdown import fields_index, split_where
 
         where = ctx.query.where
-        if entity not in ("companies", "persons") or where is None:
+        if entity not in ("companies", "persons"):
             return None
         names: set[str] = set()
-        self._collect_field_refs_from_where(where.model_dump(mode="json", by_alias=True), names)
-        if not names:
+        if where is not None:
+            self._collect_field_refs_from_where(where.model_dump(mode="json", by_alias=True), names)
+        if not names and not _order_field_names(ctx.query):
             return None
         fields = await service.get_fields(includes=list(SEARCH_INCLUDES))
         index = fields_index(fields)
@@ -1614,17 +1664,42 @@ class QueryExecutor:
         split = split_where(where, fields, lambda m: options.get(str(m.id), []), enriched="as-is")
         if split.errors:
             raise QueryValidationError("; ".join(split.errors), field="where")
-        if not split.server_side:
+        if names and not split.server_side:
             raise QueryValidationError(
                 f"Affinity's search can't apply any part of this where clause, and reading "
                 f"every {entity[:-1]} isn't practical: " + "; ".join(split.local),
                 field="where",
             )
-        ctx.server_filter = {"pushed": split.pushed, "local": split.local}
         ctx.warnings.extend(split.caveats)
-        return SearchCriteria(
-            where=split.where, term=split.term, term_fields=split.term_fields
-        ).to_body()
+        return self._search_body(ctx, split, _server_sorts(ctx.query, index))
+
+    def _sorted_match_counter(
+        self, ctx: ExecutionContext
+    ) -> Callable[[dict[str, Any]], bool] | None:
+        """When Affinity sorts and the query has a limit, a function that counts records
+        passing the local filter and says when the limit is reached (the rest of the pages
+        can't change the top N). ``None`` when every record is needed (aggregates, groupBy,
+        a filter that needs related records)."""
+        from .filters import partition_where
+        from .planner import _strip_parent_filter
+
+        query = ctx.query
+        if not ctx.server_sorted or query.limit is None or query.aggregate or query.group_by:
+            return None
+        where = _strip_parent_filter(query.where, "listId") if query.where is not None else None
+        cheap, expensive = partition_where(where, query.from_)
+        if expensive is not None:
+            return None
+        keep = compile_filter(cheap) if cheap is not None else None
+        count = 0
+
+        def reached(record: dict[str, Any]) -> bool:
+            nonlocal count
+            if keep is None or keep(record):
+                count += 1
+            return count >= (query.limit or 0)
+
+        return reached
 
     def _should_stop(self, ctx: ExecutionContext) -> bool:
         """Check if we should stop fetching.
@@ -3234,10 +3309,16 @@ class QueryExecutor:
             ctx.records = [agg_result]
 
     def _execute_sort(self, _step: PlanStep, ctx: ExecutionContext) -> None:
-        """Execute sort step."""
+        """Execute sort step, the way Affinity's search sorts: empty values last in both
+        directions, ties by id (ascending)."""
+        if ctx.server_sorted:
+            return  # Affinity's search sorted the records (its order is the rule)
         order_by = ctx.query.order_by
         if order_by is None:
             return
+
+        # Ties keep id order: sort by id first (the sorts below are stable)
+        ctx.records.sort(key=lambda r: (not isinstance(r.get("id"), int), r.get("id") or 0))
 
         # Wrapper class for descending sort on non-numeric values
         class _Descending:

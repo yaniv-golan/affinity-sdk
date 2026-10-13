@@ -19,6 +19,8 @@ gives the same answer whether Affinity or the CLI applies it.
 - **`contains` on person and company fields is refused** (in `query` on list entries): use the
   new **`starts_word`** operator, which matches a word in the name that starts with the text,
   the way Affinity's search does ("Jan" finds "Jane Doe"; "ane" doesn't).
+- **`query` sorts the way Affinity's search sorts:** Affinity's order is kept when it sorts,
+  and the local sort breaks ties by id (ascending) instead of keeping fetch order.
 - **`query`: a field name two list fields share is refused.** Name the field by id instead:
   `fields.<field id>` (e.g. Affinity's and Dealroom's "Year Founded"). Such fields come back
   keyed by id, instead of one silently overwriting the other. Any field can be named by id.
@@ -89,6 +91,10 @@ gives the same answer whether Affinity or the CLI applies it.
 - **More of `query` goes to Affinity** (list entries too): `is_null` / `is_not_null` on every
   verified field type, multi-value fields included, and `starts_word` on a person or company
   field (one per query, at the top level of the `where`, plain text of 3+ letters).
+- **`query` sorts on Affinity's side** when every `orderBy` key is a sortable field
+  (`fields.<name>`, up to 5, no `groupBy`/`aggregate`): with a `limit`, the fetch stops once
+  enough records pass the filter, instead of reading everything to sort it. This works on
+  companies and persons without a `where` too. `meta.serverFilter.sort` says so.
 - **CLI:** `team ls|get`, `user ls|get`, `meeting get`, `note attached`, `feedback send` (asks
   for confirmation: the text leaves your organization). The MCP registry has them; `feedback
   send` goes through the user-confirmation flow.

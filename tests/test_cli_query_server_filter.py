@@ -275,3 +275,56 @@ def test_fields_by_id(respx_mock: respx.MockRouter) -> None:
     assert out["data"] == [
         {"id": 1, "fields": {"field-8": 1999, "affinity-data-year-founded": 2005}}
     ]
+
+
+def test_affinity_sorts_and_the_limit_stops_the_fetch(respx_mock: respx.MockRouter) -> None:
+    _mock_metadata(respx_mock)
+    url = f"{V2}/lists/9/list-entries/search"
+    second = respx_mock.post(url, params={"cursor": "p2"}).mock(
+        return_value=Response(201, json=_page([_entry(9, "Won")]))
+    )
+    # Affinity's order (ids 5, 2, 7) is kept as is: no local re-sort
+    first = respx_mock.post(url).mock(
+        return_value=Response(
+            201,
+            json=_page([_entry(5, "Won"), _entry(2, "Lead"), _entry(7, "Won")], f"{url}?cursor=p2"),
+        )
+    )
+    query = {
+        "from": "listEntries",
+        "where": {"path": "listId", "op": "eq", "value": 9},
+        "orderBy": [{"field": "fields.Status", "direction": "desc"}],
+        "limit": 2,
+        "select": ["id"],
+    }
+    result = CliRunner().invoke(cli, ["--json", "query", "--query", json.dumps(query)], env=ENV)
+    out = json.loads(result.stdout.strip().splitlines()[-1])
+    assert result.exit_code == 0, out
+    assert [row["id"] for row in out["data"]] == [5, 2]
+    assert json.loads(first.calls[0].request.content)["sorts"] == [
+        {"fieldId": "field-1", "direction": "desc"}
+    ]
+    assert not second.called  # the limit was reached on page one
+
+
+def test_a_sort_affinity_cant_do_stays_local_with_ties_by_id(
+    respx_mock: respx.MockRouter,
+) -> None:
+    respx_mock.get(f"{V2}/lists/9/fields").mock(return_value=Response(200, json=_page(FIELDS)))
+    search = respx_mock.post(f"{V2}/lists/9/list-entries/search")
+    respx_mock.get(f"{V2}/lists/9/list-entries").mock(
+        return_value=Response(
+            200, json=_page([_entry(7, "Won"), _entry(3, "Won"), _entry(5, "Won")])
+        )
+    )
+    query = {
+        "from": "listEntries",
+        "where": {"path": "listId", "op": "eq", "value": 9},
+        "orderBy": [{"field": "entityType", "direction": "desc"}],
+        "select": ["id"],
+    }
+    result = CliRunner().invoke(cli, ["--json", "query", "--query", json.dumps(query)], env=ENV)
+    out = json.loads(result.stdout.strip().splitlines()[-1])
+    assert result.exit_code == 0, out
+    assert [row["id"] for row in out["data"]] == [3, 5, 7]  # equal keys: id order
+    assert not search.called
