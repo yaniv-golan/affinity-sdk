@@ -159,3 +159,35 @@ def test_new_commands_in_json_help() -> None:
         assert commands[name]["category"] == "read", name
     assert commands["feedback send"]["category"] == "write"
     assert commands["feedback send"]["destructive"] is True
+
+
+def test_team_members_and_lists(respx_mock: respx.MockRouter) -> None:
+    respx_mock.get(f"{V2}/teams/42/members").mock(
+        return_value=Response(200, json=_page(TEAM["membersPreview"]["data"]))
+    )
+    respx_mock.get(f"{V2}/teams/42/accessible-lists").mock(
+        return_value=Response(
+            200,
+            json=_page(
+                [
+                    {
+                        "id": 9,
+                        "name": "Dealflow",
+                        "type": "company",
+                        "isPublic": False,
+                        "ownerId": 4,
+                        "creatorId": 4,
+                        "createdAt": "2026-01-01T00:00:00Z",
+                    }
+                ]
+            ),
+        )
+    )
+    code, out = _run(["team", "members", "42"])
+    assert code == 0, out
+    assert out["data"]["members"] == [
+        {"userId": 4, "name": "Ann Lee", "email": "a@x.co", "addedAt": "2024-03-02T09:00:00Z"}
+    ]
+    code, out = _run(["team", "lists", "42"])
+    assert code == 0, out
+    assert out["data"]["lists"][0]["id"] == 9 and out["data"]["lists"][0]["isPublic"] is False

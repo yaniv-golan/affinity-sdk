@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `team members` and `team lists` in the registry (every member / accessible list of a team).
+
 ### Changed
 
 - On mcp-bash 1.9.3 (was 1.9.2): a tool's error output with invalid UTF-8 is no longer cut short

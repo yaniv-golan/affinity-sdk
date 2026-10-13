@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from affinity.models.org import Team, UserAccount
+from affinity.models.entities import ListSummary
+from affinity.models.org import Team, TeamMember, UserAccount
 from affinity.types import NoteId, UserId
 
 from ..click_compat import RichCommand, RichGroup, click
@@ -178,6 +179,79 @@ def team_get(ctx: CLIContext, team_id: int, *, with_members: bool, with_lists: b
         )
 
     run_command(ctx, command="team get", fn=fn)
+
+
+def _team_pages_command(name: str, method: str, key: str, row: Any, doc: str) -> None:
+    command = f"team {name}"
+
+    @category("read")
+    @team_group.command(name=name, cls=RichCommand)
+    @click.argument("team_id", type=int)
+    @_paging_options
+    @output_options
+    @click.pass_obj
+    @apply_mcp_limits()
+    def cmd(
+        ctx: CLIContext,
+        team_id: int,
+        *,
+        cursor: str | None,
+        max_results: int | None,
+        all_pages: bool,
+    ) -> None:
+        def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
+            _cursor_alone(cursor)
+            service = ctx.get_client(warnings=warnings).teams
+            fetch = getattr(service, method)
+            rows, next_cursor = collect_pages(
+                (lambda: fetch(team_id, cursor=cursor))
+                if cursor is not None
+                else (lambda: fetch(team_id, limit=page_limit(max_results))),
+                lambda c: fetch(team_id, cursor=c),
+                row,
+                max_results=max_results,
+                all_pages=all_pages,
+                warnings=warnings,
+            )
+            return CommandOutput(
+                data={key: rows},
+                context=CommandContext(name=command, inputs={"teamId": team_id}, modifiers={}),
+                pagination=pagination(next_cursor),
+                api_called=True,
+            )
+
+        run_command(ctx, command=command, fn=fn)
+
+    cmd.help = doc
+
+
+def _member_row(member: TeamMember) -> dict[str, object]:
+    return {
+        "userId": int(member.user.id),
+        "name": _name(member.user.first_name, member.user.last_name),
+        "email": member.user.email,
+        "addedAt": member.added_at,
+    }
+
+
+def _list_row(lst: ListSummary) -> dict[str, object]:
+    return {"id": int(lst.id), "name": lst.name, "type": lst.type, "isPublic": lst.is_public}
+
+
+_team_pages_command(
+    "members",
+    "list_members",
+    "members",
+    _member_row,
+    "Every member of a team (V2, beta; Affinity API 2026-09-17+).",
+)
+_team_pages_command(
+    "lists",
+    "list_accessible_lists",
+    "lists",
+    _list_row,
+    "The lists a team has access to (V2, beta; Affinity API 2026-09-17+).",
+)
 
 
 # --- user ---------------------------------------------------------------------------------------

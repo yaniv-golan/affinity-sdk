@@ -714,6 +714,20 @@
    "stability": "beta"
   },
   {
+   "op": "GET /v2/teams/{teamId}/accessible-lists",
+   "api": "v2",
+   "status": "supported",
+   "call": "teams.list_accessible_lists(1)",
+   "stability": "beta"
+  },
+  {
+   "op": "GET /v2/teams/{teamId}/members",
+   "api": "v2",
+   "status": "supported",
+   "call": "teams.list_members(1)",
+   "stability": "beta"
+  },
+  {
    "op": "GET /v2/transcripts",
    "api": "v2",
    "status": "supported",

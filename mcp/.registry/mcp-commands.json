@@ -699,8 +699,16 @@
       "relatedCommands": ["team get", "user ls"]
     },
     "team get": {
-      "whenToUse": "Show one team by id; --with-members / --with-lists add members and accessible lists.",
-      "relatedCommands": ["team ls"]
+      "whenToUse": "Show one team by id; --with-members / --with-lists add the first 10 members and accessible lists.",
+      "relatedCommands": ["team ls", "team members", "team lists"]
+    },
+    "team members": {
+      "whenToUse": "Every member of a team (userId, name, email, addedAt), when team get --with-members' first 10 aren't enough.",
+      "relatedCommands": ["team get", "user ls"]
+    },
+    "team lists": {
+      "whenToUse": "Every list a team has access to (id, name, type, isPublic).",
+      "relatedCommands": ["team get", "list ls"]
     },
     "user ls": {
       "whenToUse": "List the organization's internal users (colleagues): id, name, email, status. --term matches name or email; --status active|invited|deactivated. A user's id is also their person id.",

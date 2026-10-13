@@ -233,3 +233,41 @@ async def test_async_services() -> None:
         assert (await client.interactions.get_meeting(77)).id == 77
         assert [c async for c in client.notes.iter_attached_companies(NoteId(5))] == []
     assert fb.called
+
+
+@respx.mock
+def test_team_members_and_accessible_lists_page() -> None:
+    members_url = f"{V2}/teams/42/members"
+    respx.get(members_url, params={"cursor": "p2"}).mock(
+        return_value=Response(200, json=_page([{**TEAM["membersPreview"]["data"][0], "id": 1002}]))
+    )
+    first = respx.get(members_url).mock(
+        return_value=Response(
+            200, json=_page(TEAM["membersPreview"]["data"], f"{members_url}?cursor=p2")
+        )
+    )
+    lists = respx.get(f"{V2}/teams/42/accessible-lists").mock(
+        return_value=Response(200, json=_page(TEAM["accessibleListsPreview"]["data"]))
+    )
+    with Affinity(api_key="k", max_retries=0) as client:
+        members = list(client.teams.iter_members(42))
+        page = client.teams.list_accessible_lists(42, limit=5, total_count=True)
+    assert [m.id for m in members] == [1001, 1002]
+    assert members[0].user.id == 4
+    assert page.data[0].name == "Dealflow" and page.data[0].is_public is False
+    assert _version(first) == "2026-09-17"
+    assert lists.calls[0].request.url.params["limit"] == "5"
+    assert lists.calls[0].request.url.params["totalCount"] == "true"
+
+
+@respx.mock
+async def test_async_team_members_and_accessible_lists() -> None:
+    respx.get(f"{V2}/teams/42/members").mock(
+        return_value=Response(200, json=_page(TEAM["membersPreview"]["data"]))
+    )
+    respx.get(f"{V2}/teams/42/accessible-lists").mock(
+        return_value=Response(200, json=_page(TEAM["accessibleListsPreview"]["data"]))
+    )
+    async with AsyncAffinity(api_key="k", max_retries=0) as client:
+        assert [m.id async for m in client.teams.iter_members(42)] == [1001]
+        assert (await client.teams.list_accessible_lists(42)).data[0].id == 9

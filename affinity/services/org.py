@@ -7,9 +7,12 @@ Teams need Affinity API 2026-09-17 (beta); users and feedback work under any ver
 from __future__ import annotations
 
 from collections.abc import AsyncIterator, Iterator, Sequence
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, TypeVar
 
-from ..models.org import Team, UserAccount, UserStatus
+from pydantic import BaseModel
+
+from ..models.entities import ListSummary
+from ..models.org import Team, TeamMember, UserAccount, UserStatus
 from ..models.pagination import AsyncPageIterator, PageIterator, PaginatedResponse
 from ..models.types import UserId
 from ._org_reads import check_cursor_alone, check_limit, page_of
@@ -112,6 +115,19 @@ def feedback_body(kind: FeedbackType, subject: str, body: str) -> dict[str, str]
 # --- teams --------------------------------------------------------------------------------------
 
 
+T = TypeVar("T", bound=BaseModel)
+
+
+def team_page_params(limit: int | None, total_count: bool) -> list[tuple[str, Any]]:
+    check_limit(limit)
+    params: list[tuple[str, Any]] = []
+    if limit is not None:
+        params.append(("limit", limit))
+    if total_count:
+        params.append(("totalCount", "true"))
+    return params
+
+
 class TeamService:
     """Teams (V2, beta; Affinity API 2026-09-17+): the teams the caller may see."""
 
@@ -195,6 +211,83 @@ class TeamService:
             )
         )
 
+    def _team_page(
+        self,
+        model: type[T],
+        path: str,
+        *,
+        limit: int | None,
+        total_count: bool,
+        cursor: str | None,
+    ) -> PaginatedResponse[T]:
+        check_cursor_alone(cursor, limit, total_count)
+        if cursor is not None:
+            return page_of(
+                model, self._client.get_url(cursor, min_api_version=TEAMS_MIN_API_VERSION)
+            )
+        return page_of(
+            model,
+            self._client.get(
+                path,
+                params=team_page_params(limit, total_count) or None,
+                min_api_version=TEAMS_MIN_API_VERSION,
+            ),
+        )
+
+    def list_members(
+        self,
+        team_id: int,
+        *,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[TeamMember]:
+        """One page of a team's members (V2, beta; API 2026-09-17+): every member, where
+        ``get(includes=True)`` gives only the first ones. ``limit`` is 1-100."""
+        return self._team_page(
+            TeamMember,
+            f"/teams/{int(team_id)}/members",
+            limit=limit,
+            total_count=total_count,
+            cursor=cursor,
+        )
+
+    def iter_members(self, team_id: int) -> Iterator[TeamMember]:
+        """Every member of a team (all pages); see :meth:`list_members`."""
+        return PageIterator(
+            lambda c: (
+                self.list_members(team_id, cursor=c) if c else self.list_members(team_id, limit=100)
+            )
+        )
+
+    def list_accessible_lists(
+        self,
+        team_id: int,
+        *,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[ListSummary]:
+        """One page of the lists a team has access to (V2, beta; API 2026-09-17+). ``limit`` is
+        1-100."""
+        return self._team_page(
+            ListSummary,
+            f"/teams/{int(team_id)}/accessible-lists",
+            limit=limit,
+            total_count=total_count,
+            cursor=cursor,
+        )
+
+    def iter_accessible_lists(self, team_id: int) -> Iterator[ListSummary]:
+        """Every list a team has access to (all pages); see :meth:`list_accessible_lists`."""
+        return PageIterator(
+            lambda c: (
+                self.list_accessible_lists(team_id, cursor=c)
+                if c
+                else self.list_accessible_lists(team_id, limit=100)
+            )
+        )
+
 
 class AsyncTeamService:
     """Async teams; see :class:`TeamService`."""
@@ -272,6 +365,84 @@ class AsyncTeamService:
                 min_api_version=TEAMS_MIN_API_VERSION,
             )
         )
+
+    async def _team_page(
+        self,
+        model: type[T],
+        path: str,
+        *,
+        limit: int | None,
+        total_count: bool,
+        cursor: str | None,
+    ) -> PaginatedResponse[T]:
+        check_cursor_alone(cursor, limit, total_count)
+        if cursor is not None:
+            return page_of(
+                model, await self._client.get_url(cursor, min_api_version=TEAMS_MIN_API_VERSION)
+            )
+        return page_of(
+            model,
+            await self._client.get(
+                path,
+                params=team_page_params(limit, total_count) or None,
+                min_api_version=TEAMS_MIN_API_VERSION,
+            ),
+        )
+
+    async def list_members(
+        self,
+        team_id: int,
+        *,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[TeamMember]:
+        """One page of a team's members; see :meth:`TeamService.list_members`."""
+        return await self._team_page(
+            TeamMember,
+            f"/teams/{int(team_id)}/members",
+            limit=limit,
+            total_count=total_count,
+            cursor=cursor,
+        )
+
+    def iter_members(self, team_id: int) -> AsyncIterator[TeamMember]:
+        """Every member of a team (all pages)."""
+
+        async def fetch(c: str | None) -> PaginatedResponse[TeamMember]:
+            if c:
+                return await self.list_members(team_id, cursor=c)
+            return await self.list_members(team_id, limit=100)
+
+        return AsyncPageIterator(fetch)
+
+    async def list_accessible_lists(
+        self,
+        team_id: int,
+        *,
+        limit: int | None = None,
+        total_count: bool = False,
+        cursor: str | None = None,
+    ) -> PaginatedResponse[ListSummary]:
+        """One page of a team's accessible lists; see
+        :meth:`TeamService.list_accessible_lists`."""
+        return await self._team_page(
+            ListSummary,
+            f"/teams/{int(team_id)}/accessible-lists",
+            limit=limit,
+            total_count=total_count,
+            cursor=cursor,
+        )
+
+    def iter_accessible_lists(self, team_id: int) -> AsyncIterator[ListSummary]:
+        """Every list a team has access to (all pages)."""
+
+        async def fetch(c: str | None) -> PaginatedResponse[ListSummary]:
+            if c:
+                return await self.list_accessible_lists(team_id, cursor=c)
+            return await self.list_accessible_lists(team_id, limit=100)
+
+        return AsyncPageIterator(fetch)
 
 
 # --- users --------------------------------------------------------------------------------------

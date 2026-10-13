@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **A team's members and accessible lists, every page** (V2, beta; API 2026-09-17+):
+  `teams.list|iter_members(team_id)` and `teams.list|iter_accessible_lists(team_id)`; CLI
+  `team members <id>` and `team lists <id>` (`team get` shows only the first 10).
+
 ### Fixed
 
 - **`Team` reads `updatedAt`** (`updated_at`), and accepts the `membersPreview` /

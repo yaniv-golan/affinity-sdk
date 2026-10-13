@@ -2576,6 +2576,78 @@
     },
     "x-stability-level": "beta"
    },
+   "GET /v2/teams/{teamId}/accessible-lists": {
+    "parameters": {
+     "path:teamId": {
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     },
+     "query:cursor": {
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     "query:limit": {
+      "required": false,
+      "schema": {
+       "type": "integer"
+      }
+     },
+     "query:totalCount": {
+      "required": false,
+      "schema": {
+       "type": "boolean"
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "application/json": {
+       "$ref": "#/components/schemas/TeamAccessibleListsPaged"
+      }
+     }
+    },
+    "x-stability-level": "beta"
+   },
+   "GET /v2/teams/{teamId}/members": {
+    "parameters": {
+     "path:teamId": {
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     },
+     "query:cursor": {
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     "query:limit": {
+      "required": false,
+      "schema": {
+       "type": "integer"
+      }
+     },
+     "query:totalCount": {
+      "required": false,
+      "schema": {
+       "type": "boolean"
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "application/json": {
+       "$ref": "#/components/schemas/TeamMemberPaged"
+      }
+     }
+    },
+    "x-stability-level": "beta"
+   },
    "GET /v2/transcripts": {
     "parameters": {
      "query:cursor": {
@@ -9031,6 +9103,25 @@
     },
     "type": "object"
    },
+   "TeamAccessibleListsPaged": {
+    "properties": {
+     "data": {
+      "items": {
+       "$ref": "#/components/schemas/ListWithType"
+      },
+      "maxItems": 100,
+      "type": "array"
+     },
+     "pagination": {
+      "$ref": "#/components/schemas/PaginationWithTotalCount"
+     }
+    },
+    "required": [
+     "data",
+     "pagination"
+    ],
+    "type": "object"
+   },
    "TeamAccessibleListsPreview": {
     "properties": {
      "data": {
@@ -9109,6 +9200,25 @@
      "addedAt",
      "id",
      "user"
+    ],
+    "type": "object"
+   },
+   "TeamMemberPaged": {
+    "properties": {
+     "data": {
+      "items": {
+       "$ref": "#/components/schemas/TeamMember"
+      },
+      "maxItems": 100,
+      "type": "array"
+     },
+     "pagination": {
+      "$ref": "#/components/schemas/PaginationWithTotalCount"
+     }
+    },
+    "required": [
+     "data",
+     "pagination"
     ],
     "type": "object"
    },
@@ -12755,8 +12865,8 @@
   }
  },
  "source": {
-  "sha": "6ec5a3104d34ac94888aef78b2afe3c5cda59a46",
-  "url": "https://raw.githubusercontent.com/yaniv-golan/affinity-api-docs/6ec5a3104d34ac94888aef78b2afe3c5cda59a46/docs/v2/openapi.json",
+  "sha": "5af24e930a738bbfbc6151bd4db9d2cb27d5deb8",
+  "url": "https://raw.githubusercontent.com/yaniv-golan/affinity-api-docs/5af24e930a738bbfbc6151bd4db9d2cb27d5deb8/docs/v2/openapi.json",
   "x-affinity-api-version": "2026-09-17"
  }
 }

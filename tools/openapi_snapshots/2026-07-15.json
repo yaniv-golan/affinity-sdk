@@ -11539,8 +11539,8 @@
   }
  },
  "source": {
-  "sha": "6ec5a3104d34ac94888aef78b2afe3c5cda59a46",
-  "url": "https://raw.githubusercontent.com/yaniv-golan/affinity-api-docs/6ec5a3104d34ac94888aef78b2afe3c5cda59a46/docs/v2/versions/openapi-2026-07-15.json",
+  "sha": "5af24e930a738bbfbc6151bd4db9d2cb27d5deb8",
+  "url": "https://raw.githubusercontent.com/yaniv-golan/affinity-api-docs/5af24e930a738bbfbc6151bd4db9d2cb27d5deb8/docs/v2/versions/openapi-2026-07-15.json",
   "x-affinity-api-version": "2026-07-15"
  }
 }

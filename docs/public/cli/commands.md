@@ -1347,6 +1347,17 @@ first 10 members / accessible lists and the totals. `--sort name|-name|createdAt
 xaffinity team get 42 --with-members --with-lists
 ```
 
+### `xaffinity team members <teamId>` / `xaffinity team lists <teamId>`
+
+Every member of a team (`userId`, `name`, `email`, `addedAt`), or every list it has access to
+(`id`, `name`, `type`, `isPublic`). `team get --with-members` / `--with-lists` show only the
+first 10. Paging: `--max-results`, `--all`, `--cursor`.
+
+```bash
+xaffinity team members 42 --all
+xaffinity team lists 42
+```
+
 ### `xaffinity user ls`
 
 The organization's internal users. A user's id is also their person id.

@@ -5340,10 +5340,70 @@
           "required": true
         }
       ],
-      "whenToUse": "Show one team by id; --with-members / --with-lists add members and accessible lists.",
+      "whenToUse": "Show one team by id; --with-members / --with-lists add the first 10 members and accessible lists.",
       "relatedCommands": [
-        "team ls"
+        "team ls",
+        "team members",
+        "team lists"
       ]
+    },
+    {
+      "name": "team lists",
+      "description": "The lists a team has access to (V2, beta; Affinity API 2026-09-17+).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a nextCursor."
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        }
+      },
+      "positionals": [
+        {
+          "name": "TEAM_ID",
+          "type": "int",
+          "required": true
+        }
+      ],
+      "whenToUse": "Every list a team has access to (id, name, type, isPublic).",
+      "relatedCommands": [
+        "team get",
+        "list ls"
+      ],
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      }
     },
     {
       "name": "team ls",
@@ -5408,6 +5468,64 @@
       },
       "positionals": [],
       "whenToUse": "List the organization's teams (needs Affinity API 2026-09-17). --name (exact) or --name-contains; --with-members / --with-lists add the first 10 members / accessible lists with totals.",
+      "relatedCommands": [
+        "team get",
+        "user ls"
+      ],
+      "limitConfig": {
+        "flag": "--max-results",
+        "flagAliases": [
+          "--max-results",
+          "--limit",
+          "-n"
+        ],
+        "default": 1000,
+        "max": 10000,
+        "unboundedFlag": "--all",
+        "unboundedFlagAliases": [
+          "--all",
+          "-A"
+        ]
+      }
+    },
+    {
+      "name": "team members",
+      "description": "Every member of a team (V2, beta; Affinity API 2026-09-17+).",
+      "category": "read",
+      "destructive": false,
+      "progressCapable": false,
+      "parameters": {
+        "--all": {
+          "type": "flag",
+          "required": false,
+          "help": "Fetch all pages.",
+          "aliases": [
+            "-A"
+          ]
+        },
+        "--cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Resume from a nextCursor."
+        },
+        "--max-results": {
+          "type": "int",
+          "required": false,
+          "help": "Stop after N results total.",
+          "aliases": [
+            "--limit",
+            "-n"
+          ]
+        }
+      },
+      "positionals": [
+        {
+          "name": "TEAM_ID",
+          "type": "int",
+          "required": true
+        }
+      ],
+      "whenToUse": "Every member of a team (userId, name, email, addedAt), when team get --with-members' first 10 aren't enough.",
       "relatedCommands": [
         "team get",
         "user ls"
@@ -5961,5 +6079,5 @@
       ]
     }
   ],
-  "total": 101
+  "total": 103
 }

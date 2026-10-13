@@ -6,7 +6,7 @@ against the pinned API specs and checks that each supported call requests its op
 
 ## V2 API
 
-106 supported, 6 planned
+108 supported, 6 planned
 
 | Operation | Status | SDK | Notes |
 |---|---|---|---|
@@ -111,6 +111,8 @@ against the pinned API specs and checks that each supported call requests its op
 | `GET /v2/tasks/person-merges/{taskId}` | supported | `persons.get_merge_status("t1")` |  |
 | `GET /v2/teams` | supported | `teams.list()` | beta; API 2026-09-17+ |
 | `GET /v2/teams/{teamId}` | supported | `teams.get(1)` | beta; API 2026-09-17+ |
+| `GET /v2/teams/{teamId}/accessible-lists` | supported | `teams.list_accessible_lists(1)` | beta; API 2026-09-17+ |
+| `GET /v2/teams/{teamId}/members` | supported | `teams.list_members(1)` | beta; API 2026-09-17+ |
 | `GET /v2/transcripts` | supported | `transcripts.list()` |  |
 | `DELETE /v2/transcripts/{transcriptId}` | planned |  | beta; API 2026-09-17+; phase when-live |
 | `GET /v2/transcripts/{transcriptId}` | supported | `transcripts.get(1)` |  |
