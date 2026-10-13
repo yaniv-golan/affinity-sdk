@@ -78,6 +78,12 @@ VERIFIED: frozenset[tuple[str, str]] = frozenset(
         ("dropdown-multi", "has-all-of"),
         ("dropdown-multi", "has-none-of"),
         ("number", "is-not-equal-to"),
+        # Fourth run (lists with single-company and location fields), 2026-10-13
+        ("company", "term"),
+        ("company", "is-not-empty"),
+        ("location", "is-not-empty"),
+        ("location-multi", "is-empty"),
+        ("location-multi", "is-not-empty"),
     }
 )
 

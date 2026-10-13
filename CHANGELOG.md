@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **More filters go to Affinity's search** (verified live): `starts_word` on single-company
+  fields, and `is_not_null` / `is_null` on location fields.
+
 - **A team's members and accessible lists, every page** (V2, beta; API 2026-09-17+):
   `teams.list|iter_members(team_id)` and `teams.list|iter_accessible_lists(team_id)`; CLI
   `team members <id>` and `team lists <id>` (`team get` shows only the first 10).
