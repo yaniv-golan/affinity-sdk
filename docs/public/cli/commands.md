@@ -251,7 +251,7 @@ xaffinity query --file query.json
 - `--file <path>`: Read query from JSON file
 - `--dry-run`: Show execution plan without running (estimated API calls)
 - `--dry-run-verbose`: Detailed plan with step breakdown
-- `--max-records <n>`: Safety limit (default: 10000). Matches past it are dropped with a warning and `meta.truncated`; with `orderBy` or an aggregate, the cut comes after sorting and aggregating
+- `--max-records <n>`: Safety limit (default: 10000). Matches past it are dropped with a warning and `meta.truncated`; with `orderBy` or an aggregate, the cut comes after sorting and aggregating. A `--cursor` resumes only with the same `--max-records`
 - `--timeout <secs>`: Query timeout (default: 300)
 - `--csv` / `--json`: Output format
 - `--include-meta`: include execution metadata; `meta.serverFilter` shows which conditions Affinity's search applied (`pushed`), which ran locally and why (`local`), and whether Affinity sorted (`sort`)
@@ -841,9 +841,9 @@ Options:
 - `--person-id <id>` (repeatable): entity-scoped export — return only rows where the entry is for this person
 - `--first-page-only`: fetch a single page of results; output includes `meta.truncated=true` and `meta.truncationReason="firstPageOnly"` when there are more pages
 - `--expand <type>` (repeatable): expand associated entities or interaction data
-  - `persons`, `companies`, `opportunities`: Expand related entities
+  - `persons`, `companies`, `opportunities`: Expand related entities. A failed fetch follows `--expand-on-error` (`raise` fails the export; `skip` leaves the entry out, with a warning listing the skipped entries; for `opportunities`, a failed check of one opportunity leaves out only that opportunity, with a warning); auth errors always fail it, and an opportunity that is gone is left out
   - `interactions`: Add interaction date summaries (last/next meeting, email dates). A failed fetch follows `--expand-on-error` (`raise` fails the export; `skip` leaves the summary empty with a warning); auth errors always fail it
-- `--check-unreplied`: Check for unreplied incoming messages (email/chat) for each list entry
+- `--check-unreplied`: Check for unreplied incoming messages (email/chat) for each list entry. A failed check follows `--expand-on-error` (`raise` fails the export; `skip` leaves it empty with a warning); auth errors always fail it
 - `--unreplied-types <types>`: Comma-separated types to check: email, chat, all (default: email,chat)
 - `--unreplied-lookback-days <days>`: Lookback period for unreplied message detection (default: 30)
 
@@ -954,6 +954,8 @@ xaffinity list entry field "Portfolio" 123 --append Tags "NewTag" --unset-value 
   `--unset`; `deleted` counts values removed by `--unset-value`
 - `opportunity field` works the same way (an opportunity's fields are its list entry's fields)
 - Numbers are sent as numbers (`--set Amount 5`); anything else is refused before any write
+- `true`/`false` in `--set-json` is refused before any write (exit 2, `validation_error`):
+  Affinity has no boolean field type; write text, a number or a dropdown option
 - Locations are JSON objects with any of `streetAddress` (or `street_address`), `city`, `state`,
   `country`, `continent`: `--set HQ '{"city": "Paris", "country": "France"}'`
 - Multi-value company, person and location fields hold at most 100 values per write; a request
@@ -961,6 +963,8 @@ xaffinity list entry field "Portfolio" 123 --append Tags "NewTag" --unset-value 
 - `--get` is exclusive with write operations
 - `--get` returns resolved objects for person/company reference fields (with `firstName`, `lastName`, `primaryEmailAddress`, etc.) and full dropdown option data (with `text`, `color`). Output format matches `list export`.
 - Operation order: one request for `--set`/`--set-json`/`--unset` → `--append` → `--unset-value`
+- If Affinity answers an `--unset-value` delete with `success: false`, the command stops with
+  exit 1 (`api_error`, or `partial_write` when `--set`/`--unset` fields were already written)
 
 ## Notes
 
@@ -1324,7 +1328,9 @@ is an error; it never falls back to per-entry calls); the dry run shows `fieldKi
 the list are left out (a warning says how many). Rows are sorted by `changedAt`. When some
 per-entry fetches fail, the rest are returned with a warning per failure and
 `meta.truncated=true`, `meta.truncationReason="partialFailure"` (exit 0); when every fetch fails,
-or on an authentication or permission error, the command fails.
+or on an authentication or permission error, the command fails. When every fetch fails and the
+failures share an exit code, the command keeps it (4 not found; 5 rate limit or server error);
+otherwise it exits 1.
 
 **Global fields** (company or person fields, not the list's own): their changes belong to the
 company or person, not to a list entry. The CLI reads them per company/person (one call each)

@@ -152,7 +152,7 @@ def test_resume_stopping_mid_page_keeps_the_rest_of_the_page(
 
 
 def test_resume_with_include_reruns_and_skips(respx_mock: respx.MockRouter) -> None:
-    # 'include' results aren't cached: resume runs the query again and skips the rows shown
+    # 'include' results are cached with the rows: resume serves the rest from the cache
     ids = list(range(3001, 3007))
     _mock_person_pages(respx_mock, ids, size=4)
     respx_mock.get(url__regex=r"^https://api\.affinity\.co/persons/\d+").mock(
@@ -325,7 +325,12 @@ def test_old_api_cursor_is_not_used_to_skip_ahead(respx_mock: respx.MockRouter) 
     query = {"from": "persons", "limit": 8, "select": ["id"]}
     parsed = parse_query(query).query
     old = create_streaming_cursor(
-        parsed, "json", 2, last_id=6002, api_cursor=f"{V2}/persons?cursor=1"
+        parsed,
+        "json",
+        2,
+        last_id=6002,
+        api_cursor=f"{V2}/persons?cursor=1",
+        max_records=10000,  # The default --max-records, part of the query hash
     )
     code, out, _ = _run_query(query, "--cursor", encode_cursor(old))
     assert code == 0, out
@@ -346,9 +351,9 @@ def test_csv_truncation_keeps_whole_records() -> None:
     rows = list(csv.reader(io.StringIO(out, newline="")))
     assert rows[0] == ["id", "note"]
     assert rows[1:] == [["1", "line one\r\nline two"], ["2", "plain"]]
-    # A cut that would land inside the quoted field keeps the header only
+    # A first record past the budget is still kept whole (a page with no row never advances)
     out, _ = truncate_csv_output(content, 25)
-    assert out == "id,note"
+    assert out == 'id,note\r\n1,"line one\r\nline two"'
 
 
 def test_csv_row_count_uses_records() -> None:
@@ -641,9 +646,12 @@ def test_group_by_scalar_lists_unchanged() -> None:
 
 
 def test_min_max_compare_within_one_kind() -> None:
-    records = [{"v": 5}, {"v": "text"}, {"v": 2}, {"v": {"a": 1}}, {"v": None}]
+    records = [{"v": 5}, {"v": 2}, {"v": {"a": 1}}, {"v": None}]
     assert compute_min(records, "v") == 2
     assert compute_max(records, "v") == 5
+    # Numbers mixed with text are refused (tests/test_cli_query_review_fixes.py)
+    with pytest.raises(QueryValidationError, match="numbers"):
+        compute_min([*records, {"v": "text"}], "v")
     texts = [{"v": "2026-02-01"}, {"v": "2025-01-01"}]
     assert compute_min(texts, "v") == "2025-01-01"
 

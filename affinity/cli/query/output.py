@@ -163,6 +163,35 @@ def expand_includes(
     return expanded
 
 
+def included_for_rows(
+    rows: list[dict[str, Any]],
+    included: dict[str, list[dict[str, Any]]],
+    included_by_parent: dict[str, dict[int, list[dict[str, Any]]]],
+) -> dict[str, list[dict[str, Any]]]:
+    """The included records related to ``rows`` (a resumed page), by the per-parent mapping.
+
+    A relationship without a mapping, or rows without an ``id`` to correlate, keep every
+    included record.
+    """
+    if not included or any("id" not in row for row in rows):
+        return included
+    row_ids = {row["id"] for row in rows}
+    result: dict[str, list[dict[str, Any]]] = {}
+    for rel_name, records in included.items():
+        parent_map = included_by_parent.get(rel_name)
+        if not parent_map:
+            result[rel_name] = records
+            continue
+        wanted = {
+            related.get("id")
+            for parent_id, related_records in parent_map.items()
+            if parent_id in row_ids
+            for related in related_records
+        }
+        result[rel_name] = [r for r in records if r.get("id") in wanted]
+    return result
+
+
 # =============================================================================
 # JSON Output
 # =============================================================================
@@ -845,8 +874,15 @@ def truncate_toon_output(content: str, max_bytes: int) -> tuple[str, bool]:
 
     # Edge case: envelope alone exceeds max_bytes - keep as much envelope as fits
     if envelope_size >= max_bytes - _TRUNCATION_SECTION_RESERVE:
-        header = f"data[0]{{{fieldnames}}}:\n"
-        trunc_str = "truncation:\n  rowsShown: 0\n  reason: envelope exceeds limit\n"
+        # The first row is kept even past the budget: a page with no row would hand back
+        # the same cursor forever
+        first_row = [line + "\n" for line in lines[data_start + 1 : data_end][:1]]
+        header = f"data[{len(first_row)}]{{{fieldnames}}}:\n" + "".join(first_row)
+        trunc_str = (
+            f"truncation:\n  rowsShown: {len(first_row)}\n"
+            f"  rowsOmitted: {original_count - len(first_row)}\n"
+            "  reason: envelope exceeds limit\n"
+        )
 
         # Keep as much envelope as fits
         remaining = max_bytes - len(header.encode()) - len(trunc_str.encode()) - _HEADER_RESERVE
@@ -865,14 +901,20 @@ def truncate_toon_output(content: str, max_bytes: int) -> tuple[str, bool]:
     available = max_bytes - envelope_size - _TRUNCATION_SECTION_RESERVE
     data_header = lines[data_start]
 
-    kept_rows = []
+    kept_rows: list[str] = []
     current_size = len(data_header.encode()) + 1
     for line in lines[data_start + 1 : data_end]:
         line_size = len(line.encode()) + 1
-        if current_size + line_size > available:
+        # The first row is kept even past the budget: a page with no row would hand back
+        # the same cursor forever
+        if kept_rows and current_size + line_size > available:
             break
         kept_rows.append(line)
         current_size += line_size
+
+    if len(kept_rows) == data_end - data_start - 1:
+        # One row, past the budget on its own: shown whole, nothing is cut
+        return content, False
 
     # Rebuild with updated count and native TOON truncation key
     rows_omitted = original_count - len(kept_rows)
@@ -920,16 +962,21 @@ def truncate_markdown_output(
 
     header = lines[:2]  # Header row + separator
 
-    kept_rows = []
+    kept_rows: list[str] = []
     current_size = sum(len(line.encode()) + 1 for line in header) + _MARKDOWN_FOOTER_RESERVE
     for line in lines[2:]:
         if not line.startswith("|"):
             continue  # Skip footer if present
         line_size = len(line.encode()) + 1
-        if current_size + line_size > max_bytes:
+        # Keep the first row even past the budget (a page with no row never advances)
+        if kept_rows and current_size + line_size > max_bytes:
             break
         kept_rows.append(line)
         current_size += line_size
+
+    if len(kept_rows) == sum(1 for line in lines[2:] if line.startswith("|")):
+        # One row, past the budget on its own: shown whole, nothing is cut
+        return content, False
 
     result = "\n".join(header + kept_rows)
     # Preserve original total in truncation footer when available
@@ -963,14 +1010,19 @@ def truncate_jsonl_output(content: str, max_bytes: int) -> tuple[str, bool]:
     truncation_line = '{"truncated":true}'
     available = max_bytes - len(truncation_line.encode()) - 1  # -1 for newline
 
-    kept_lines = []
+    kept_lines: list[str] = []
     current_size = 0
     for line in lines:
         line_size = len(line.encode()) + 1  # +1 for newline
-        if current_size + line_size > available:
+        # Keep the first line even past the budget (a page with no row never advances)
+        if kept_lines and current_size + line_size > available:
             break
         kept_lines.append(line)
         current_size += line_size
+
+    if len(kept_lines) == len(lines):
+        # One line, past the budget on its own: shown whole, nothing is cut
+        return content, False
 
     return "\n".join(kept_lines) + "\n" + truncation_line, True
 
@@ -1024,21 +1076,22 @@ def truncate_csv_output(content: str, max_bytes: int) -> tuple[str, bool]:
 
     header_size = len(header.encode())
 
-    # Defensive: if header alone exceeds max, truncate header
-    if header_size > max_bytes:
-        logger.warning("CSV truncation: header exceeds max_bytes, truncating header")
-        return header.rstrip("\r\n")[:max_bytes], True
-
-    kept_rows = []
+    kept_rows: list[str] = []
     current_size = header_size
     for record in records[1:]:
         if not record.strip("\r\n"):  # Skip empty lines
             continue
         record_size = len(record.encode())
-        if current_size + record_size > max_bytes:
+        # The header and first record are kept even past the budget: a page with no row
+        # would hand back the same cursor forever
+        if kept_rows and current_size + record_size > max_bytes:
             break
         kept_rows.append(record)
         current_size += record_size
+
+    if len(kept_rows) == sum(1 for record in records[1:] if record.strip("\r\n")):
+        # One record, past the budget on its own: shown whole, nothing is cut
+        return content, False
 
     # Drop the last record's terminator (the caller's echo ends the output)
     output = "".join([header, *kept_rows])
@@ -1060,6 +1113,8 @@ def truncate_json_result(
     Operates on the Python object BEFORE serialization to avoid precision loss
     from JSON parse/re-serialize round-trip. This is important because JSON
     number serialization can lose precision for large integers or floats.
+
+    ``included`` keeps the records related to the kept rows (per ``included_by_parent``).
 
     Args:
         result: QueryResult to potentially truncate
@@ -1083,6 +1138,14 @@ def truncate_json_result(
 
     original_data = result.data
     original_count = len(original_data)
+    original_included = result.included
+
+    def keep(count: int) -> None:
+        # The kept rows, with the included records related to them
+        result.data = original_data[:count]
+        result.included = included_for_rows(
+            result.data, original_included, result.included_by_parent
+        )
 
     # Binary search for maximum items that fit
     lo, hi = 0, original_count
@@ -1090,7 +1153,7 @@ def truncate_json_result(
 
     while lo <= hi:
         mid = (lo + hi) // 2
-        result.data = original_data[:mid]
+        keep(mid)
         test_output = format_json(result, pretty=False, include_meta=include_meta)
 
         if len(test_output.encode()) <= max_bytes:
@@ -1101,16 +1164,16 @@ def truncate_json_result(
 
     # Edge case: can't fit even one item (envelope too large)
     if best_fit == 0:
-        result.data = original_data  # Restore
+        result.data, result.included = original_data, original_included  # Restore
         return result, original_count, False  # Can't truncate
 
     # Edge case: all items fit (shouldn't happen since we checked above)
     if best_fit >= original_count:
-        result.data = original_data
+        result.data, result.included = original_data, original_included
         return result, original_count, False
 
     # Apply truncation
-    result.data = original_data[:best_fit]
+    keep(best_fit)
 
     # Final sanity check - binary search guarantees best_fit items fit,
     # but verify to catch any edge cases
@@ -1123,7 +1186,7 @@ def truncate_json_result(
             max_bytes,
         )
         # Decrement by one as fallback
-        result.data = original_data[: max(0, best_fit - 1)]
+        keep(max(0, best_fit - 1))
         best_fit = max(0, best_fit - 1)
 
     return result, best_fit, True
@@ -1217,7 +1280,8 @@ def format_query_result(
             explicit_select=result.explicit_select,
             explicit_expand=result.explicit_expand,
         )
-        fieldnames = list(display_data[0].keys()) if display_data else []
+        # Columns from every row, not the first one only (rows can hold different keys)
+        fieldnames = list(dict.fromkeys(key for row in display_data for key in row))
         return format_data(display_data, format, fieldnames=fieldnames)
 
     if format == "table":

@@ -11,6 +11,7 @@ from affinity.cli.query import (
     QueryExecutionError,
     QuerySafetyLimitError,
     QueryTimeoutError,
+    QueryValidationError,
 )
 from affinity.cli.query.executor import (
     ExecutionContext,
@@ -1611,9 +1612,9 @@ class TestListNameResolution:
 
     @pytest.mark.asyncio
     async def test_unknown_list_name_raises_error(self, executor: QueryExecutor) -> None:
-        """Unknown list name raises QueryExecutionError."""
+        """Unknown list name raises QueryValidationError (exit 2, as an ambiguous name)."""
         where = {"path": "listName", "op": "eq", "value": "Nonexistent List"}
-        with pytest.raises(QueryExecutionError, match="List not found"):
+        with pytest.raises(QueryValidationError, match="List not found"):
             await executor._resolve_list_names_to_ids(where)
 
     @pytest.mark.asyncio
@@ -2697,7 +2698,7 @@ class TestResolveListNamesEdgeCases:
         executor = QueryExecutor(mock_client, max_records=100)
 
         where = {"path": "listName", "op": "in", "value": ["Known List", "Unknown List"]}
-        with pytest.raises(QueryExecutionError, match="List not found: 'Unknown List'"):
+        with pytest.raises(QueryValidationError, match="List not found: 'Unknown List'"):
             await executor._resolve_list_names_to_ids(where)
 
     @pytest.mark.asyncio
@@ -3849,6 +3850,7 @@ class TestPreIncludeExecution:
 
         # Mock companies service for batch fetch
         mock_companies_service = AsyncMock()
+        del mock_companies_service.iter  # No V2 batch lookup: fetched one by one
 
         async def mock_get(company_id: int):
             result = MagicMock()
@@ -3940,6 +3942,7 @@ class TestIDsOnlyUpgrade:
 
         # Set up mock companies service for batch fetch
         mock_companies = AsyncMock()
+        del mock_companies.iter  # No V2 batch lookup: fetched one by one
 
         async def mock_get(company_id: int):
             result = MagicMock()
@@ -4031,6 +4034,7 @@ class TestIDsOnlyUpgrade:
 
         # Set up mock companies service for batch fetch
         mock_companies = AsyncMock()
+        del mock_companies.iter  # No V2 batch lookup: fetched one by one
 
         async def mock_get(company_id: int):
             result = MagicMock()
@@ -4120,6 +4124,7 @@ class TestQuantifierIntegration:
 
         # Set up companies
         mock_companies = AsyncMock()
+        del mock_companies.iter  # No V2 batch lookup: fetched one by one
 
         async def mock_get(company_id: int):
             result = MagicMock()
@@ -4181,6 +4186,7 @@ class TestQuantifierIntegration:
         mock_client.persons = mock_persons
 
         mock_companies = AsyncMock()
+        del mock_companies.iter  # No V2 batch lookup: fetched one by one
 
         async def mock_get(company_id: int):
             result = MagicMock()
@@ -4440,10 +4446,10 @@ class TestBatchFetchByIds:
     async def test_batch_fetch_handles_iter_failure_with_fallback(
         self, mock_client: AsyncMock
     ) -> None:
-        """Verify _batch_fetch_by_ids falls back to get() if iter() fails."""
+        """Verify _batch_fetch_by_ids falls back to get() when a batch record is not found."""
 
-        async def failing_iter(_ids: list[int]):
-            raise Exception("Simulated batch failure")
+        async def failing_iter(ids: list[int]):  # noqa: ARG001
+            raise NotFoundError("Simulated batch failure")
             yield  # Make it a generator
 
         mock_record = MagicMock()
@@ -4475,15 +4481,15 @@ class TestBatchFetchByIds:
 
     @pytest.mark.asyncio
     async def test_batch_fetch_handles_get_errors_gracefully(self, mock_client: AsyncMock) -> None:
-        """Verify _batch_fetch_by_ids returns ID-only for failed individual fetches."""
+        """Verify _batch_fetch_by_ids returns ID-only for records that are not found."""
 
-        async def failing_iter(_ids: list[int]):
-            raise Exception("Batch failed")
+        async def failing_iter(ids: list[int]):  # noqa: ARG001
+            raise NotFoundError("Batch failed")
             yield
 
         async def partial_failure_get(id_: int):
             if id_ == 200:
-                raise Exception("Not found")
+                raise NotFoundError("Not found")
             record = MagicMock()
             record.model_dump = MagicMock(return_value={"id": id_, "name": f"Company {id_}"})
             return record
@@ -4500,7 +4506,7 @@ class TestBatchFetchByIds:
         # Should have 3 results: 100 full, 200 ID-only, 300 full
         assert len(result) == 3
         assert result[0]["name"] == "Company 100"
-        assert result[1] == {"id": 200}  # Fallback on error
+        assert result[1] == {"id": 200}  # Stub for the record that is gone
         assert result[2]["name"] == "Company 300"
 
 

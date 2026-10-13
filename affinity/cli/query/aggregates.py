@@ -46,8 +46,8 @@ def compute_avg(records: list[dict[str, Any]], field: str) -> float | None:
 
 
 def _comparable_values(records: list[dict[str, Any]], field: str, func: str) -> list[Any]:
-    """The values of ``field`` that min/max compare: numbers when there are any, else text
-    (ISO dates compare as text). Values of different kinds never compare with each other."""
+    """The values of ``field`` that min/max compare: numbers, or text (ISO dates compare as
+    text). A field that mixes numbers with text has no single order: refused, not half-read."""
     numbers: list[Any] = []
     texts: list[str] = []
     other = False
@@ -61,6 +61,12 @@ def _comparable_values(records: list[dict[str, Any]], field: str, func: str) -> 
             texts.append(value)
         else:
             other = True
+    if numbers and texts:
+        raise QueryValidationError(
+            f"{func} on '{field}' can't compare its values: {len(numbers)} are numbers and "
+            f"{len(texts)} are text (e.g. {texts[0]!r})",
+            field="aggregate",
+        )
     if numbers:
         return numbers
     if texts:

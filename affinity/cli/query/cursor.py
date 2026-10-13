@@ -161,7 +161,7 @@ class CursorQueryMismatch(InvalidCursor):
 # =============================================================================
 
 
-def hash_query(query: Query, output_format: str) -> str:
+def hash_query(query: Query, output_format: str, *, max_records: int | None = None) -> str:
     """Generate deterministic hash of query for cursor validation.
 
     Only includes user-specified query fields, not internal state.
@@ -170,6 +170,8 @@ def hash_query(query: Query, output_format: str) -> str:
     Args:
         query: The Query object to hash
         output_format: Output format (toon, json, markdown, etc.)
+        max_records: --max-records of the run (it decides which rows the result holds);
+            None leaves it out of the hash
 
     Returns:
         24-character hex hash (96 bits)
@@ -182,6 +184,8 @@ def hash_query(query: Query, output_format: str) -> str:
 
     # Include format in hash (changing format invalidates cursor)
     user_fields["_format"] = output_format
+    if max_records is not None:
+        user_fields["_maxRecords"] = max_records
 
     # Sort keys for deterministic ordering
     canonical = json.dumps(user_fields, sort_keys=True, separators=(",", ":"))
@@ -237,6 +241,8 @@ def validate_cursor(
     cursor: CursorPayload,
     query: Query,
     output_format: str,
+    *,
+    max_records: int | None = None,
 ) -> None:
     """Validate cursor against current query.
 
@@ -244,6 +250,7 @@ def validate_cursor(
         cursor: Decoded cursor payload
         query: Current query to validate against
         output_format: Current output format
+        max_records: Current --max-records (as passed to hash_query)
 
     Raises:
         InvalidCursor: If cursor is invalid
@@ -255,13 +262,14 @@ def validate_cursor(
         raise InvalidCursor(f"Unsupported cursor version {cursor.v} (expected {CURSOR_VERSION})")
 
     # 2. Query hash check (ensures same query + format)
-    expected_hash = hash_query(query, output_format)
+    expected_hash = hash_query(query, output_format, max_records=max_records)
     if cursor.qh != expected_hash:
         raise CursorQueryMismatch(
-            "Query or format does not match cursor. "
-            "Cursors can only be used with the IDENTICAL query object and output format. "
-            "Changing any field (including 'from', 'where', 'orderBy', 'limit', or format) "
-            "invalidates the cursor. To continue, re-run the original query to get a fresh cursor."
+            "Query or format does not match cursor (or --max-records changed). "
+            "Cursors can only be used with the IDENTICAL query object, output format and "
+            "--max-records. Changing any field (including 'from', 'where', 'orderBy', 'limit', "
+            "format or --max-records) invalidates the cursor. To continue, re-run the original "
+            "query to get a fresh cursor."
         )
 
     # 3. Expiration check (cursors valid for 1 hour)
@@ -338,12 +346,19 @@ def generate_cache_filename(query_hash: str) -> str:
     return f"xaff_{query_hash}_{session_id}_{timestamp}.json"
 
 
-def write_cache(data: list[dict[str, Any]], query_hash: str) -> tuple[str, str]:
+def write_cache(
+    data: list[dict[str, Any]],
+    query_hash: str,
+    *,
+    extra: dict[str, Any] | None = None,
+) -> tuple[str, str]:
     """Write query results to cache file.
 
     Args:
         data: Query result data to cache
         query_hash: Query hash for filename
+        extra: What else a resumed page needs (included records, warnings, truncated),
+            stored next to the rows and returned by read_cache_payload()
 
     Returns:
         Tuple of (cache_file_path, cache_content_hash)
@@ -352,7 +367,8 @@ def write_cache(data: list[dict[str, Any]], query_hash: str) -> tuple[str, str]:
         InvalidCursor: If data exceeds size limits
     """
     # Serialize data
-    json_content = json.dumps(data, separators=(",", ":"), default=str)
+    payload: dict[str, Any] = {**(extra or {}), "data": data}
+    json_content = json.dumps(payload, separators=(",", ":"), default=str)
     content_bytes = json_content.encode()
 
     # Check single file limit
@@ -395,7 +411,7 @@ def write_cache(data: list[dict[str, Any]], query_hash: str) -> tuple[str, str]:
 
 
 def read_cache(cursor: CursorPayload) -> list[dict[str, Any]] | None:
-    """Read cached results with integrity check.
+    """Read cached rows with integrity check.
 
     Args:
         cursor: Cursor with cache file info
@@ -403,6 +419,13 @@ def read_cache(cursor: CursorPayload) -> list[dict[str, Any]] | None:
     Returns:
         Cached data list, or None if cache is invalid/expired
     """
+    payload = read_cache_payload(cursor)
+    return payload["data"] if payload is not None else None
+
+
+def read_cache_payload(cursor: CursorPayload) -> dict[str, Any] | None:
+    """Read a cache file with integrity check: ``{"data": rows, ...}`` plus the ``extra``
+    given to write_cache(). None if the cache is invalid or expired."""
     if not cursor.cache_file or not cursor.cache_hash:
         return None
 
@@ -425,8 +448,13 @@ def read_cache(cursor: CursorPayload) -> list[dict[str, Any]] | None:
             logger.warning("Cache integrity check failed, will re-execute")
             return None
 
-        result: list[dict[str, Any]] = json.loads(content_bytes)
-        return result
+        loaded = json.loads(content_bytes)
+        if isinstance(loaded, list):  # Written before the cache held more than the rows
+            return {"data": loaded}
+        if isinstance(loaded, dict) and isinstance(loaded.get("data"), list):
+            return loaded
+        logger.warning("Cache content not recognized, will re-execute")
+        return None
 
     except FileNotFoundError:
         logger.warning("Cache file not found, will re-execute")
@@ -511,6 +539,7 @@ def create_streaming_cursor(
     api_cursor: str | None = None,
     last_id: int | None = None,
     total: int | None = None,
+    max_records: int | None = None,
 ) -> CursorPayload:
     """Create cursor for streaming mode resumption.
 
@@ -521,13 +550,14 @@ def create_streaming_cursor(
         api_cursor: Affinity API cursor for efficient resumption
         last_id: Last record ID for anchor-based fallback
         total: Total record count if known
+        max_records: --max-records of the run (part of the query hash)
 
     Returns:
         CursorPayload for streaming mode
     """
     return CursorPayload(
         v=CURSOR_VERSION,
-        qh=hash_query(query, output_format),
+        qh=hash_query(query, output_format, max_records=max_records),
         skip=skip,
         last_id=last_id,
         ts=int(time.time() * 1000),
@@ -588,6 +618,7 @@ def create_full_fetch_cursor(
     *,
     last_id: int | None = None,
     total: int | None = None,
+    max_records: int | None = None,
 ) -> CursorPayload:
     """Create cursor for full-fetch mode resumption.
 
@@ -599,13 +630,14 @@ def create_full_fetch_cursor(
         cache_hash: SHA-256 of cache content
         last_id: Last record ID for anchor-based fallback
         total: Total record count
+        max_records: --max-records of the run (part of the query hash)
 
     Returns:
         CursorPayload for full-fetch mode
     """
     return CursorPayload(
         v=CURSOR_VERSION,
-        qh=hash_query(query, output_format),
+        qh=hash_query(query, output_format, max_records=max_records),
         skip=skip,
         last_id=last_id,
         ts=int(time.time() * 1000),

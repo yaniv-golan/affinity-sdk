@@ -22,10 +22,12 @@ import pydantic
 from ...exceptions import (
     AuthenticationError,
     AuthorizationError,
+    MergedEntityError,
     NotFoundError,
     UnsupportedOperationError,
     ValidationError,
 )
+from ..async_utils import gather_or_raise
 from ..errors import CLIError
 from ..interaction_utils import resolve_interaction_names_async, transform_interaction_data
 from .aggregates import apply_having, compute_aggregates, group_and_aggregate
@@ -415,6 +417,9 @@ class ExecutionContext:
     # Cap filtered rows at max_records only after aggregate/sort (they need every row)
     defer_max_records: bool = False
     max_records_cut: bool = False  # Rows were dropped at max_records
+    # Rows are in their final shape (every filter/aggregate/sort step done): Ctrl+C may
+    # return them as partial results. Unfiltered or unsorted rows never are.
+    rows_final: bool = False
 
     def check_timeout(self, timeout: float) -> None:
         """Check if execution has exceeded timeout."""
@@ -443,9 +448,16 @@ class ExecutionContext:
             return
         matched = len(self.records)
         self.records = self.records[: self.max_records]
+        self.note_max_records_cut(matched)
+
+    def note_max_records_cut(self, matched: int | None = None) -> None:
+        """Record that matches were dropped at max_records (``matched`` when the total is known;
+        a streaming fetch stops reading instead, so the total isn't)."""
         self.max_records_cut = True
+        of_total = f" of {matched}" if matched is not None else ""
+        more = "" if matched is not None else ", more may match"
         self.warnings.append(
-            f"Results cut to the first {self.max_records} of {matched} rows (--max-records); "
+            f"Results cut to the first {self.max_records}{of_total} rows (--max-records){more}; "
             "raise --max-records to get them all."
         )
 
@@ -891,6 +903,16 @@ def _parent_is_conjunct(where: WhereClause) -> bool:
     return where.and_ is not None and any(c.path in parent for c in where.and_)
 
 
+# A related record that no longer exists (deleted, or merged into another): read as absent.
+# Any other error fails the query.
+_GONE_ERRORS = (NotFoundError, MergedEntityError)
+
+
+# Plan steps that decide which rows the result holds, or their order. (A limit alone keeps a
+# prefix, and a fetch with nothing of these pending stops at the limit itself.)
+_ROW_SHAPING_OPERATIONS = frozenset({"filter", "aggregate", "sort"})
+
+
 def _steps_to_run_last(plan: ExecutionPlan) -> list[PlanStep]:
     """Include and expand steps that can wait until sort and limit have trimmed the rows.
 
@@ -1058,13 +1080,21 @@ class QueryExecutor:
             # --max-records cut, on the rows kept. With an aggregate the rows become aggregate
             # results, so the order stays as planned.
             deferred = _steps_to_run_last(plan)
+            # Steps that change which rows there are or their order: until they all ran,
+            # Ctrl+C has no partial rows to give (they'd be unfiltered or unsorted)
+            shaping = [s for s in plan.steps if s.operation in _ROW_SHAPING_OPERATIONS]
+            ctx.rows_final = not shaping
             for step in plan.steps:
                 if step in deferred:
                     continue
                 await self._run_step(step, ctx)
+                if step in shaping:
+                    shaping.remove(step)
+                    ctx.rows_final = not shaping
 
             if ctx.defer_max_records and ctx.query.where is not None:
                 ctx.cap_max_records()
+            ctx.rows_final = True
             for step in deferred:
                 await self._run_step(step, ctx)
             return ctx.build_result()
@@ -1078,7 +1108,9 @@ class QueryExecutor:
         except (KeyboardInterrupt, asyncio.CancelledError) as e:
             # Under asyncio.run, Ctrl+C arrives as CancelledError in this coroutine
             ctx.interrupted = True
-            if self.allow_partial and ctx.records:
+            # Partial rows only when they are final-shaped (interrupted during include or
+            # expand, or a streaming fetch that filters page by page): never unfiltered rows
+            if self.allow_partial and ctx.records and ctx.rows_final:
                 return ctx.build_result()
             if isinstance(e, asyncio.CancelledError):
                 raise  # asyncio.run turns it back into KeyboardInterrupt
@@ -1087,7 +1119,7 @@ class QueryExecutor:
                 f"{len(ctx.records)} records fetched before interruption.",
                 step_id=ctx.current_step,
                 records_fetched=len(ctx.records),
-                partial_results=ctx.records,
+                partial_results=ctx.records if ctx.rows_final else [],
             ) from None
 
     async def _verify_auth(self) -> None:
@@ -1503,7 +1535,7 @@ class QueryExecutor:
             return results
 
         # Execute all fetches in parallel
-        all_results = await asyncio.gather(*[fetch_from_parent(pid) for pid in parent_ids])
+        all_results = await gather_or_raise(*[fetch_from_parent(pid) for pid in parent_ids])
 
         # Merge results, respecting limits
         for results in all_results:
@@ -1906,11 +1938,15 @@ class QueryExecutor:
         # Only apply limits during fetch if no operation needs all records first
         if ctx.needs_full_fetch:
             return False
-        # Stop at max_records safety limit
-        if len(ctx.records) >= ctx.max_records:
-            return True
         # Stop at query limit
-        return bool(ctx.query.limit and len(ctx.records) >= ctx.query.limit)
+        if ctx.query.limit and len(ctx.records) >= ctx.query.limit:
+            return True
+        # Stop at max_records safety limit, and say so: more records may exist
+        if len(ctx.records) >= ctx.max_records:
+            if not ctx.max_records_cut:
+                ctx.note_max_records_cut()
+            return True
+        return False
 
     def _extract_parent_ids(self, where: Any, field_name: str | None) -> list[int]:
         """Extract ALL parent ID values from where clause.
@@ -2226,7 +2262,8 @@ class QueryExecutor:
             def list_id_for(name: str) -> int:
                 ids = self._list_name_cache.get(name)
                 if not ids:
-                    raise QueryExecutionError(f"List not found: '{name}'")
+                    # A usage error, as an ambiguous name is (exit 2)
+                    raise QueryValidationError(f"List not found: '{name}'", field="where")
                 if len(ids) > 1:
                     raise QueryValidationError(
                         f'Ambiguous list name: "{name}" ({len(ids)} matches: '
@@ -2477,7 +2514,7 @@ class QueryExecutor:
 
             # Execute ID fetches in parallel with bounded concurrency
             tasks = [fetch_ids_for_record(r) for r in ctx.records]
-            results = await asyncio.gather(*tasks)
+            results = await gather_or_raise(*tasks)
 
             # Build parent-to-related-ids mapping
             parent_to_related_ids: dict[int, list[int]] = {}
@@ -2715,24 +2752,24 @@ class QueryExecutor:
                             entity.interaction_dates,
                             entity.interactions,
                         )
-                except Exception as e:
+                except _GONE_ERRORS as e:
+                    # The record is gone: no dates. Other errors (rate limit, server, auth)
+                    # fail the query rather than pass as "no interactions"
                     logger.debug(f"Failed to expand {expansion_def.name} for record {raw_id}: {e}")
                     record["interactionDates"] = None
                     return
             # Rate limiter permit released here
 
-            # PERF: Person resolution OUTSIDE rate limiter, with SHARED semaphore
+            # PERF: Person resolution OUTSIDE rate limiter, with SHARED semaphore.
+            # A person that can't be found keeps its id as the name; auth, rate-limit and
+            # server errors fail the query.
             if expansion_def.name == "interactionDates" and record.get("interactionDates"):
-                try:
-                    await resolve_interaction_names_async(
-                        self.client,
-                        record["interactionDates"],
-                        person_name_cache,
-                        person_semaphore=person_semaphore,
-                    )
-                except Exception as e:
-                    # Graceful degradation: keep interactionDates with unresolved IDs
-                    logger.debug(f"Failed to resolve person names for record {raw_id}: {e}")
+                await resolve_interaction_names_async(
+                    self.client,
+                    record["interactionDates"],
+                    person_name_cache,
+                    person_semaphore=person_semaphore,
+                )
 
             # Report progress after each record
             completed += 1
@@ -2741,7 +2778,7 @@ class QueryExecutor:
 
         # Execute in parallel with bounded concurrency
         tasks = [fetch_with_expansion(r) for r in ctx.records]
-        await asyncio.gather(*tasks)
+        await gather_or_raise(*tasks)
 
     # PERF: rate_limiter_boundary - expand_list_entries
     async def _expand_list_entries(
@@ -2799,7 +2836,8 @@ class QueryExecutor:
                     try:
                         result = await async_check_unreplied(self.client, entity_type, raw_id)
                         record["unreplied"] = result
-                    except Exception as e:
+                    except _GONE_ERRORS as e:
+                        # Only a missing record reads as "nothing unreplied"
                         logger.debug(f"Failed to check unreplied for {entity_type} {raw_id}: {e}")
                         record["unreplied"] = None
 
@@ -2843,7 +2881,8 @@ class QueryExecutor:
                             entity.interaction_dates,
                             entity.interactions,
                         )
-                except Exception as e:
+                except _GONE_ERRORS as e:
+                    # The entity is gone: no dates. Other errors fail the query.
                     logger.debug(
                         f"Failed to expand {expansion_def.name} for {entity_type} {raw_id}: {e}"
                     )
@@ -2851,18 +2890,16 @@ class QueryExecutor:
                     return
             # Rate limiter permit released here
 
-            # PERF: Person resolution OUTSIDE rate limiter, with SHARED semaphore
+            # PERF: Person resolution OUTSIDE rate limiter, with SHARED semaphore.
+            # A person that can't be found keeps its id as the name; auth, rate-limit and
+            # server errors fail the query.
             if expansion_def.name == "interactionDates" and record.get("interactionDates"):
-                try:
-                    await resolve_interaction_names_async(
-                        self.client,
-                        record["interactionDates"],
-                        person_name_cache,
-                        person_semaphore=person_semaphore,
-                    )
-                except Exception as e:
-                    # Graceful degradation: keep interactionDates with unresolved IDs
-                    logger.debug(f"Failed to resolve person names for {entity_type} {raw_id}: {e}")
+                await resolve_interaction_names_async(
+                    self.client,
+                    record["interactionDates"],
+                    person_name_cache,
+                    person_semaphore=person_semaphore,
+                )
 
             # Report progress after each record
             completed += 1
@@ -2870,7 +2907,7 @@ class QueryExecutor:
             self.progress.on_step_progress(step, completed, record_count)
 
         tasks = [fetch_entity_expansion(r) for r in ctx.records]
-        await asyncio.gather(*tasks)
+        await gather_or_raise(*tasks)
 
     async def _execute_pre_include(
         self,
@@ -3030,7 +3067,7 @@ class QueryExecutor:
             related = await fetch_for_record(record)
             return (record_id, related)
 
-        results = await asyncio.gather(*[fetch_for_parent(r) for r in ctx.records])
+        results = await gather_or_raise(*[fetch_for_parent(r) for r in ctx.records])
 
         # Build parent -> related_data mapping
         parent_to_related: dict[int, list[dict[str, Any]]] = {}
@@ -3095,12 +3132,13 @@ class QueryExecutor:
                 async for item in service.iter(ids=ids):
                     records.append(item.model_dump(mode="json", by_alias=True))
                 return records
-            except Exception as e:
-                # Fall through to individual fetches for graceful per-ID degradation
+            except _GONE_ERRORS as e:
+                # A record in the batch is gone: fetch one by one so the rest still come back.
+                # Other errors (rate limit, server, auth) fail the query.
                 logger.debug(f"Batch lookup failed for {entity_type}, trying individual: {e}")
 
         # Fallback: individual fetches (V1-only entities OR batch-failed V2 entities)
-        # Preserves per-ID graceful degradation: 99 successes + 1 failure = 99 full + 1 ID-only
+        # A record that is gone becomes an ID-only stub: 99 found + 1 gone = 99 full + 1 ID-only
         if hasattr(service, "get"):
 
             async def fetch_one(id_: int) -> dict[str, Any]:
@@ -3111,12 +3149,13 @@ class QueryExecutor:
                             result: dict[str, Any] = record.model_dump(mode="json", by_alias=True)
                             return result
                         return dict(record)  # type: ignore[arg-type]
-                    except Exception as e:
-                        # See Finding #46 about broad exception handling trade-offs
+                    except _GONE_ERRORS as e:
+                        # Only a missing record becomes a stub; any other error fails the
+                        # query rather than pass as an empty record
                         logger.debug(f"Failed to fetch {entity_type} {id_}: {e}")
-                        return {"id": id_}  # ID-only stub on failure
+                        return {"id": id_}
 
-            results = await asyncio.gather(*[fetch_one(id_) for id_ in ids])
+            results = await gather_or_raise(*[fetch_one(id_) for id_ in ids])
             return list(results)
 
         return [{"id": id_} for id_ in ids]  # Fallback to ID-only
@@ -3630,7 +3669,13 @@ class QueryExecutor:
 
         # Get service for streaming pages
         service = getattr(self.client, schema.service_attr)
+        # Matches so far, filtered page by page: final rows, so Ctrl+C can return them
         accumulated: list[dict[str, Any]] = []
+        ctx.records = accumulated
+        ctx.rows_final = True
+        # Stopping at --max-records (not at the query's own limit) can leave matches unread
+        cut_by_max_records = query.limit is None or query.limit > self.max_records
+        stop_at = min(limit, self.max_records)
 
         # Create a fake step for progress reporting
         fetch_step = PlanStep(
@@ -3687,25 +3732,20 @@ class QueryExecutor:
                 # Report progress
                 self.progress.on_step_progress(fetch_step, len(accumulated), None)
 
-                # Early termination check
-                if len(accumulated) >= limit:
-                    ctx.records = accumulated[:limit]
-                    ctx.early_terminated = True
+                # Early termination: the query's limit, or --max-records
+                if len(accumulated) >= stop_at:
+                    more_unread = len(accumulated) > stop_at or bool(page.next_cursor)
+                    del accumulated[stop_at:]
+                    ctx.early_terminated = len(accumulated) >= limit
                     # Capture API cursor for O(1) streaming resumption
                     ctx.last_api_cursor = page.next_cursor
+                    if cut_by_max_records and more_unread:
+                        ctx.note_max_records_cut()
                     logger.debug(
                         "Streaming early termination: found %d matches in %d pages",
-                        limit,
+                        stop_at,
                         pages_processed,
                     )
-                    self.progress.on_step_complete(fetch_step, len(ctx.records))
-                    return
-
-                # Safety check - don't exceed max_records even before limit
-                if len(accumulated) >= ctx.max_records:
-                    ctx.records = accumulated[: ctx.max_records]
-                    # Capture API cursor for O(1) streaming resumption
-                    ctx.last_api_cursor = page.next_cursor
                     self.progress.on_step_complete(fetch_step, len(ctx.records))
                     return
 
@@ -3713,7 +3753,6 @@ class QueryExecutor:
                 ctx.check_timeout(self.timeout)
 
             # Exhausted all pages without hitting limit
-            ctx.records = accumulated[:limit] if len(accumulated) > limit else accumulated
             self.progress.on_step_complete(fetch_step, len(ctx.records))
 
         except (QueryExecutionError, QueryValidationError):

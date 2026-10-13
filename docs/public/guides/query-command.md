@@ -603,7 +603,7 @@ xaffinity query --file query.json --json --include-meta
 | `--dry-run` | Show execution plan without running |
 | `--dry-run-verbose` | Show detailed plan with API call breakdown |
 | `--confirm` | Require confirmation before expensive operations |
-| `--max-records` | Safety limit on total records (default: 10000). Matches past it are dropped with a warning and `meta.truncated`; with `orderBy` or an aggregate, the cut comes after sorting and aggregating |
+| `--max-records` | Safety limit on total records (default: 10000). Matches past it are dropped with a warning and `meta.truncated`; with `orderBy` or an aggregate, the cut comes after sorting and aggregating. A `--cursor` resumes only with the same `--max-records` |
 | `--timeout` | Overall timeout in seconds (default: 300) |
 | `--json` | Output as JSON (alias for `--output json`) |
 | `--csv` | Output as CSV (alias for `--output csv`) |

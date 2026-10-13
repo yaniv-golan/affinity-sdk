@@ -232,6 +232,25 @@ def test_query_cursor_is_one_argument(tmp_path: Path) -> None:
     assert "a.json" not in call
 
 
+def test_query_executed_shows_the_command_as_run(tmp_path: Path) -> None:
+    env_file = _env_file(tmp_path)
+    cursor = "abc def"
+    result, calls = _run(
+        tmp_path,
+        "query",
+        {"query": {"from": "persons"}, "cursor": cursor, "timeout": 30},
+        {"XAFFINITY_ENV_FILE": str(env_file)},
+    )
+    assert result.get("isError") is not True, result
+    executed = result["structuredContent"]["result"]["executed"]
+    assert executed[0] == "xaffinity"
+    assert executed[1:5] == ["--dotenv", "--env-file", str(env_file), "--readonly"]
+    assert f"--cursor={cursor}" in executed
+    assert executed[executed.index("--file") + 1] == "<query.json>"
+    # Same arguments as the call, apart from the program and the temp file
+    assert len(executed) == len(calls[0]) + 1
+
+
 # --- 41: launcher allowlist from policy.sh ----------------------------------------------------
 
 

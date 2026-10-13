@@ -287,7 +287,7 @@ def _query_cmd_impl(
         encode_cursor,
         find_resume_position,
         hash_query,
-        read_cache,
+        read_cache_payload,
         validate_cursor,
         write_cache,
     )
@@ -302,6 +302,7 @@ def _query_cmd_impl(
         format_json,
         format_query_result,
         format_table,
+        included_for_rows,
         insert_cursor_in_toon_truncation,
         truncate_csv_output,
         truncate_json_result,
@@ -336,7 +337,7 @@ def _query_cmd_impl(
     if cursor_str:
         try:
             cursor = decode_cursor(cursor_str)
-            validate_cursor(cursor, query, output_format)
+            validate_cursor(cursor, query, output_format, max_records=max_records)
         except CursorExpired as e:
             raise CLIError(
                 str(e), hint="Re-run the original query to get a fresh cursor."
@@ -364,12 +365,16 @@ def _query_cmd_impl(
 
     # Try cache resumption for full-fetch mode cursors
     cached_data: list[dict[str, Any]] | None = None
+    cached_payload: dict[str, Any] = {}
     cache_file_path: str | None = None
     cache_content_hash: str | None = None
 
     if cursor and cursor.mode == "full-fetch" and cursor.cache_file:
         # Try to read from cache (no API calls needed)
-        cached_data = read_cache(cursor)
+        payload = read_cache_payload(cursor)
+        if payload is not None:
+            cached_payload = payload
+            cached_data = payload["data"]
         if cached_data is not None:
             if not quiet:
                 click.echo("[info] Resuming from cache (no API calls)", err=True)
@@ -418,14 +423,23 @@ def _query_cmd_impl(
         # Use cached data - no execution needed
         from affinity.cli.query.models import QueryResult
 
+        # The cache holds what the first run produced besides the rows: included records,
+        # warnings (e.g. the --max-records cut) and meta.truncated, repeated on every page
+        cached_meta: dict[str, Any] = {"fromCache": True}
+        if cached_payload.get("truncated"):
+            cached_meta["truncated"] = True
         result = QueryResult(
             data=cached_data,
-            meta={"fromCache": True},
+            included=cached_payload.get("included") or {},
+            included_by_parent=_int_parent_keys(cached_payload.get("includedByParent") or {}),
+            include_configs=query.include or {},
+            meta=cached_meta,
             pagination={"total": len(cached_data)},
             # Same columns as the first page (fields.* / expand flattening)
             source_entity=query.from_,
             explicit_select=query.select,
             explicit_expand=query.expand,
+            warnings=list(cached_payload.get("warnings") or []),
         )
     else:
         # Normal execution path
@@ -543,13 +557,15 @@ def _query_cmd_impl(
     # after the stopping page lost the rows fetched but not shown.)
     resume_position = 0
     all_data_for_cache = result.data  # Keep original for cache writing
+    all_included_for_cache = result.included
     if cursor is not None and result.data:
         resume_position, resume_warnings = find_resume_position(result.data, cursor)
         for warning in resume_warnings:
             if not quiet:
                 click.echo(f"[warning] {warning}", err=True)
-        # Slice data to only include remaining records
+        # Slice data to only include remaining records, and included records to theirs
         result.data = result.data[resume_position:]
+        result.included = included_for_rows(result.data, result.included, result.included_by_parent)
         if not quiet and resume_position > 0:
             click.echo(f"[info] Resuming from position {resume_position}", err=True)
 
@@ -620,6 +636,9 @@ def _query_cmd_impl(
     elif ctx.output in ("jsonl", "csv"):
         # Data-only export formats
         output = format_query_result(result, ctx.output, pretty=False, include_meta=include_meta)
+        if ctx.output == "csv" and csv_bom:
+            # Before truncation, so the BOM counts against the byte budget
+            output = "\ufeff" + output
 
         # Apply truncation if requested
         if max_output_bytes and len(output.encode()) > max_output_bytes:
@@ -665,40 +684,47 @@ def _query_cmd_impl(
             )
 
             # Every row of the result is in hand (a fetch stops only at the query's limit or
-            # --max-records), so the rest is served from a cache of the rows. With 'include'
-            # the cache would lose the included records: run the query again and skip instead.
+            # --max-records), so the rest is served from a cache: the rows, with the included
+            # records, warnings and meta.truncated that later pages repeat.
             new_cursor: CursorPayload | None = None
-            if not query.include:
-                if cache_file_path is None or cache_content_hash is None:
-                    # First truncation - write cache
-                    try:
-                        query_hash = hash_query(query, output_format)
-                        cache_file_path, cache_content_hash = write_cache(
-                            all_data_for_cache, query_hash
-                        )
-                        if not quiet:
-                            click.echo(
-                                f"[info] Cached {len(all_data_for_cache)} records for resumption",
-                                err=True,
-                            )
-                    except Exception as e:
-                        # Cache write failed (or too large) - fall back to re-running
-                        if not quiet:
-                            click.echo(f"[warning] Cache write failed: {e}", err=True)
-                        cache_file_path = None
-                        cache_content_hash = None
-
-                if cache_file_path and cache_content_hash:
-                    new_cursor = create_full_fetch_cursor(
-                        query=query,
-                        output_format=output_format,
-                        skip=new_skip,
-                        cache_file=cache_file_path,
-                        cache_hash=cache_content_hash,
-                        last_id=last_id,
-                        total=total_records,
+            if cache_file_path is None or cache_content_hash is None:
+                # First truncation - write cache
+                try:
+                    query_hash = hash_query(query, output_format, max_records=max_records)
+                    cache_file_path, cache_content_hash = write_cache(
+                        all_data_for_cache,
+                        query_hash,
+                        extra={
+                            "included": all_included_for_cache,
+                            "includedByParent": result.included_by_parent,
+                            "warnings": list(result.warnings),
+                            "truncated": bool(result.meta and result.meta.get("truncated")),
+                        },
                     )
-            if new_cursor is None:
+                    if not quiet:
+                        click.echo(
+                            f"[info] Cached {len(all_data_for_cache)} records for resumption",
+                            err=True,
+                        )
+                except Exception as e:
+                    # Cache write failed (or too large) - fall back to re-running
+                    if not quiet:
+                        click.echo(f"[warning] Cache write failed: {e}", err=True)
+                    cache_file_path = None
+                    cache_content_hash = None
+
+            if cache_file_path and cache_content_hash:
+                new_cursor = create_full_fetch_cursor(
+                    query=query,
+                    output_format=output_format,
+                    skip=new_skip,
+                    cache_file=cache_file_path,
+                    cache_hash=cache_content_hash,
+                    last_id=last_id,
+                    total=total_records,
+                    max_records=max_records,
+                )
+            else:
                 # No cache: resuming runs the query again and skips the rows shown
                 new_cursor = create_streaming_cursor(
                     query=query,
@@ -706,6 +732,7 @@ def _query_cmd_impl(
                     skip=new_skip,
                     last_id=last_id,
                     total=total_records,
+                    max_records=max_records,
                 )
 
             cursor_encoded = encode_cursor(new_cursor)
@@ -748,6 +775,20 @@ def _query_cmd_impl(
             parts.append(f"org {rl.org_monthly.remaining}/{rl.org_monthly.limit}")
         if parts:
             click.echo(f"rate-limit[{rl.source}]: " + " | ".join(parts), err=True)
+
+
+def _int_parent_keys(
+    included_by_parent: dict[str, dict[Any, list[dict[str, Any]]]],
+) -> dict[str, dict[int, list[dict[str, Any]]]]:
+    """included_by_parent read back from the JSON cache: parent ids are keys, which JSON made
+    strings; rows match them by their int id."""
+    return {
+        rel_name: {
+            int(key) if isinstance(key, str) and key.lstrip("-").isdigit() else key: records
+            for key, records in parent_map.items()
+        }
+        for rel_name, parent_map in included_by_parent.items()
+    }
 
 
 def _count_rows_in_output(output: str, format: str) -> int:

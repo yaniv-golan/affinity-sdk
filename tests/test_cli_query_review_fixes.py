@@ -1,0 +1,722 @@
+"""CLI query engine, review fixes: the --max-records cut is reported on the streaming path,
+include/expand lookups fail the query instead of passing as empty, CSV columns from every
+row, Ctrl+C never prints unfiltered rows, cached resume for include queries, truncation
+always shows a row, min/max refuse mixed values, cursors carry --max-records, and an
+unknown listName is a usage error."""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import tempfile
+from typing import Any
+from unittest.mock import AsyncMock, MagicMock
+
+import pytest
+
+pytest.importorskip("rich_click")
+
+try:
+    import respx
+except ModuleNotFoundError:  # pragma: no cover
+    respx = None  # type: ignore[assignment]
+
+from click.testing import CliRunner
+from httpx import Response
+
+from affinity.cli.commands.query_cmd import _count_rows_in_output
+from affinity.cli.interaction_utils import (
+    _resolve_person_names,
+    _resolve_person_names_async,
+    async_check_unreplied,
+    check_unreplied,
+)
+from affinity.cli.main import cli
+from affinity.cli.query.aggregates import compute_max, compute_min
+from affinity.cli.query.cursor import hash_query
+from affinity.cli.query.exceptions import (
+    QueryExecutionError,
+    QueryInterruptedError,
+    QueryValidationError,
+)
+from affinity.cli.query.executor import QueryExecutor
+from affinity.cli.query.models import ExecutionPlan, PlanStep, Query, QueryResult
+from affinity.cli.query.output import (
+    format_query_result,
+    included_for_rows,
+    truncate_csv_output,
+    truncate_jsonl_output,
+    truncate_markdown_output,
+    truncate_toon_output,
+)
+from affinity.exceptions import (
+    AuthenticationError,
+    CompanyMergedError,
+    NotFoundError,
+    RateLimitError,
+    ServerError,
+)
+
+if respx is None:  # pragma: no cover
+    pytest.skip("respx is not installed", allow_module_level=True)
+
+V1 = "https://api.affinity.co"
+V2 = "https://api.affinity.co/v2"
+ENV = {"AFFINITY_API_KEY": "test-key"}
+WHOAMI = {
+    "tenant": {"id": 1, "name": "Acme Corp", "subdomain": "acme"},
+    "user": {"id": 100, "firstName": "Jane", "lastName": "Doe", "emailAddress": "j@example.com"},
+    "grant": {"type": "api_key", "scopes": ["all"], "createdAt": "2024-01-01T00:00:00Z"},
+}
+
+
+@pytest.fixture(autouse=True)
+def _isolated_cache(monkeypatch: pytest.MonkeyPatch, tmp_path: Any) -> None:
+    """Resume caches go to a per-test directory."""
+    monkeypatch.setattr(tempfile, "tempdir", str(tmp_path))
+
+
+@pytest.fixture(autouse=True)
+def _whoami(respx_mock: respx.MockRouter) -> None:
+    respx_mock.get(f"{V2}/auth/whoami").mock(return_value=Response(200, json=WHOAMI))
+
+
+def _person(pid: int, last_name: str = "Doe") -> dict[str, Any]:
+    return {
+        "id": pid,
+        "firstName": "Jane",
+        "lastName": f"{last_name} {pid}",
+        "primaryEmailAddress": f"jane{pid}@example.com",
+        "emailAddresses": [f"jane{pid}@example.com"],
+        "type": "external",
+    }
+
+
+def _mock_person_pages(
+    router: respx.MockRouter, ids: list[int], size: int, last_name: str = "Doe"
+) -> respx.Route:
+    """Pages of ``size`` persons, chained by cursor; returns the route (for call counts)."""
+    url = f"{V2}/persons"
+    pages = [ids[i : i + size] for i in range(0, len(ids), size)]
+
+    def respond(request: Any) -> Response:
+        cursor = request.url.params.get("cursor")
+        index = int(cursor) if cursor else 0
+        nxt = f"{url}?cursor={index + 1}" if index + 1 < len(pages) else None
+        data = [_person(i, last_name) for i in pages[index]]
+        return Response(200, json={"data": data, "pagination": {"nextUrl": nxt}})
+
+    return router.get(url__regex=rf"^{V2}/persons(\?.*)?$").mock(side_effect=respond)
+
+
+def _run(query: dict[str, Any], *args: str, output: str = "json") -> tuple[int, str, str | None]:
+    """Run the query; (exit code, stdout, cursor from stderr or None)."""
+    result = CliRunner().invoke(
+        cli,
+        ["--max-retries", "0", "query", "--query", json.dumps(query), "--output", output, *args],
+        env=ENV,
+    )
+    cursor = None
+    for line in result.stderr.splitlines():
+        if line.startswith("{") and '"cursor"' in line:
+            cursor = json.loads(line)["cursor"]
+    return result.exit_code, result.stdout, cursor
+
+
+def _page_through(
+    query: dict[str, Any], max_bytes: int, *extra: str, output: str = "json"
+) -> list[str]:
+    """Resume until the end; each run's stdout."""
+    outputs: list[str] = []
+    cursor: str | None = None
+    for _ in range(40):
+        args = ["--max-output-bytes", str(max_bytes), *extra]
+        if cursor:
+            args += ["--cursor", cursor]
+        code, out, cursor = _run(query, *args, output=output)
+        outputs.append(out)
+        if code == 0:
+            return outputs
+        assert code == 100, out
+        assert cursor, "a truncated run gives a cursor"
+    raise AssertionError("never finished: a page showed no row")
+
+
+def _envelope(out: str) -> dict[str, Any]:
+    result: dict[str, Any] = json.loads(out.strip().splitlines()[-1])
+    return result
+
+
+def _client() -> AsyncMock:
+    client = AsyncMock()
+    client.whoami = AsyncMock(return_value={})
+    return client
+
+
+def _plan(query: Query, *ops: str, relationship: str | None = None) -> ExecutionPlan:
+    steps = [PlanStep(step_id=0, operation="fetch", entity=query.from_, description="Fetch")]
+    for i, op in enumerate(ops, start=1):
+        steps.append(
+            PlanStep(
+                step_id=i,
+                operation=op,  # type: ignore[arg-type]
+                entity=query.from_,
+                relationship=relationship if op == "include" else None,
+                expansion="interactionDates" if op == "expand" else None,
+                description=op,
+                depends_on=[i - 1],
+            )
+        )
+    return ExecutionPlan(
+        query=query,
+        steps=steps,
+        total_api_calls=1,
+        estimated_records_fetched=1,
+        estimated_memory_mb=0.01,
+        warnings=[],
+        recommendations=[],
+        has_expensive_operations=False,
+        requires_full_scan=False,
+    )
+
+
+def _page(records: list[dict[str, Any]], next_cursor: str | None = None) -> MagicMock:
+    page = MagicMock()
+    page.data = [MagicMock(model_dump=MagicMock(return_value=dict(r))) for r in records]
+    page.next_cursor = next_cursor
+    return page
+
+
+# --- 1: the --max-records cut is reported when streaming ------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("ids", "query_limit", "warned"),
+    [
+        (list(range(1, 9)), None, True),  # more rows on the page and a next page
+        (list(range(1, 6)), None, False),  # exactly --max-records rows exist
+        (list(range(1, 9)), 3, False),  # the query's own limit stops it
+        (list(range(1, 9)), 20, True),  # a limit above --max-records: the cap stops it
+    ],
+)
+def test_streaming_max_records_cut_is_reported(
+    respx_mock: respx.MockRouter, ids: list[int], query_limit: int | None, warned: bool
+) -> None:
+    _mock_person_pages(respx_mock, ids, size=4)
+    query: dict[str, Any] = {"from": "persons", "select": ["id"]}
+    if query_limit is not None:
+        query["limit"] = query_limit
+    code, out, _ = _run(query, "--max-records", "5", "--include-meta")
+    assert code == 0, out
+    envelope = _envelope(out)
+    assert [r["id"] for r in envelope["data"]] == ids[: min(5, query_limit or 5)]
+    warnings = envelope.get("warnings", [])
+    assert any("(--max-records)" in w and "raise --max-records" in w for w in warnings) is warned
+    assert envelope["meta"].get("truncated", False) is warned
+
+
+def test_streaming_cut_on_a_page_boundary_with_a_next_page_is_reported() -> None:
+    client = _client()
+    pages = [_page([{"id": i} for i in range(1, 5)], next_cursor="more")]
+
+    async def all_pages(**_kwargs: Any) -> Any:
+        for page in pages:
+            yield page
+
+    client.persons = MagicMock()
+    client.persons.all.return_value = MagicMock(pages=all_pages)
+    query = Query(from_="persons")
+    result = asyncio.run(
+        QueryExecutor(client, max_records=4, max_records_explicit=True).execute(_plan(query))
+    )
+    assert [r["id"] for r in result.data] == [1, 2, 3, 4]
+    assert result.meta["truncated"] is True
+
+
+# --- 2: include and expand lookups fail the query on errors other than not-found ------------
+
+
+@pytest.mark.parametrize("error", [RateLimitError("slow down"), ServerError("boom")])
+def test_batch_include_lookup_errors_propagate(error: Exception) -> None:
+    client = _client()
+
+    async def failing_iter(**_kwargs: Any) -> Any:
+        raise error
+        yield  # pragma: no cover
+
+    client.companies = MagicMock()
+    client.companies.iter = failing_iter
+    client.companies.get = AsyncMock()
+    with pytest.raises(type(error)):
+        asyncio.run(QueryExecutor(client)._batch_fetch_by_ids("companies", [1, 2]))
+    client.companies.get.assert_not_awaited()
+
+
+def test_per_id_include_lookup_errors_propagate_and_not_found_is_a_stub() -> None:
+    client = _client()
+
+    async def missing_iter(**_kwargs: Any) -> Any:
+        raise NotFoundError("gone")
+        yield  # pragma: no cover
+
+    async def get(id_: int) -> Any:
+        if id_ == 2:
+            raise NotFoundError("gone")
+        if id_ == 3:
+            raise ServerError("boom")
+        if id_ == 4:
+            raise CompanyMergedError("4 merged into 5", source_id=4, target_id=5)
+        return MagicMock(model_dump=MagicMock(return_value={"id": id_, "name": "Acme Corp"}))
+
+    client.companies = MagicMock()
+    client.companies.iter = missing_iter
+    client.companies.get = get
+    executor = QueryExecutor(client)
+    found = asyncio.run(executor._batch_fetch_by_ids("companies", [1, 2, 4]))
+    # Gone (not found, or merged into another record): an ID-only stub
+    assert found == [{"id": 1, "name": "Acme Corp"}, {"id": 2}, {"id": 4}]
+    with pytest.raises(ServerError):
+        asyncio.run(executor._batch_fetch_by_ids("companies", [1, 3]))
+
+
+def test_include_server_error_exits_with_affinity_exit_code(respx_mock: respx.MockRouter) -> None:
+    _mock_person_pages(respx_mock, [3001], size=4)
+    respx_mock.get(url__regex=rf"^{V1}/persons/\d+").mock(
+        return_value=Response(200, json={"id": 3001, "organization_ids": [7001]})
+    )
+    respx_mock.get(url__startswith=f"{V2}/companies").mock(
+        return_value=Response(503, json={"errors": [{"code": "x", "message": "unavailable"}]})
+    )
+    query = {"from": "persons", "limit": 1, "include": ["companies"]}
+    code, out, _ = _run(query)
+    assert code == 5, out
+    assert _envelope(out)["error"]["type"] != "error"
+
+
+def _expand_client(get: Any) -> AsyncMock:
+    client = _client()
+    client.persons = MagicMock()
+    client.persons.all.return_value = MagicMock(pages=_single_page([{"id": 11}]))
+    client.persons.get = get
+    return client
+
+
+def _single_page(records: list[dict[str, Any]]) -> Any:
+    async def pages(**_kwargs: Any) -> Any:
+        yield _page(records)
+
+    return pages
+
+
+def test_expand_interaction_dates_error_fails_the_query() -> None:
+    client = _expand_client(AsyncMock(side_effect=RateLimitError("slow down")))
+    query = Query.model_validate({"from": "persons", "expand": ["interactionDates"]})
+    with pytest.raises(QueryExecutionError) as exc:
+        asyncio.run(QueryExecutor(client).execute(_plan(query, "expand")))
+    assert isinstance(exc.value.cause, RateLimitError)
+
+
+def test_expand_interaction_dates_not_found_is_none() -> None:
+    client = _expand_client(AsyncMock(side_effect=NotFoundError("gone")))
+    query = Query.model_validate({"from": "persons", "expand": ["interactionDates"]})
+    result = asyncio.run(QueryExecutor(client).execute(_plan(query, "expand")))
+    assert result.data == [{"id": 11, "interactionDates": None}]
+
+
+def test_person_name_lookups_reraise_fatal_errors_and_fall_back_on_not_found() -> None:
+    sync_client = MagicMock()
+    sync_client.persons.get.side_effect = NotFoundError("gone")
+    assert _resolve_person_names(sync_client, [5]) == ["Person 5"]
+    sync_client.persons.get.side_effect = AuthenticationError("bad key")
+    with pytest.raises(AuthenticationError):
+        _resolve_person_names(sync_client, [6])
+
+    async_client = MagicMock()
+    async_client.persons.get = AsyncMock(side_effect=NotFoundError("gone"))
+    assert asyncio.run(_resolve_person_names_async(async_client, [5])) == ["Person 5"]
+    async_client.persons.get = AsyncMock(side_effect=ServerError("boom"))
+    with pytest.raises(ServerError):
+        asyncio.run(_resolve_person_names_async(async_client, [6]))
+
+
+def test_unreplied_checks_reraise_fatal_errors() -> None:
+    sync_client = MagicMock()
+    sync_client.interactions.iter.side_effect = RateLimitError("slow down")
+    with pytest.raises(RateLimitError):
+        check_unreplied(sync_client, "person", 5)
+    sync_client.interactions.iter.side_effect = NotFoundError("gone")
+    assert check_unreplied(sync_client, "person", 5) is None
+
+    async def failing(**_kwargs: Any) -> Any:
+        raise ServerError("boom")
+        yield  # pragma: no cover
+
+    async_client = MagicMock()
+    async_client.interactions.iter = failing
+    with pytest.raises(ServerError):
+        asyncio.run(async_check_unreplied(async_client, "person", 5))
+
+
+# --- 3: CSV columns come from every row; --csv-bom with --max-output-bytes ------------------
+
+
+def test_csv_header_is_the_union_of_every_rows_keys() -> None:
+    result = QueryResult(data=[{"id": 1}, {"id": 2, "name": "Acme Corp"}])
+    out = format_query_result(result, "csv")
+    assert out.splitlines()[0] == "id,name"
+    assert "Acme Corp" in out
+
+
+def test_csv_bom_is_kept_with_max_output_bytes(respx_mock: respx.MockRouter) -> None:
+    _mock_person_pages(respx_mock, [1, 2, 3], size=4)
+    result = CliRunner().invoke(
+        cli,
+        [
+            "query",
+            "--query",
+            json.dumps({"from": "persons", "limit": 3, "select": ["id"]}),
+            "--output",
+            "csv",
+            "--csv-bom",
+            "--max-output-bytes",
+            "5000",
+        ],
+        env=ENV,
+    )
+    assert result.exit_code == 0, result.output
+    assert result.stdout_bytes.startswith(b"\xef\xbb\xbf")
+    lines = [line for line in result.stdout.lstrip("\ufeff").splitlines() if line]
+    assert lines == ["id", "1", "2", "3"]
+
+
+# --- 4: Ctrl+C returns rows only when they are final-shaped ---------------------------------
+
+
+def _interrupting_pages(records: list[dict[str, Any]], error: BaseException) -> Any:
+    async def pages(**_kwargs: Any) -> Any:
+        yield _page(records, next_cursor="more")
+        raise error
+
+    return pages
+
+
+def test_interrupt_before_filter_ran_returns_no_rows() -> None:
+    client = _client()
+    client.listEntries = None
+    client.persons = MagicMock()
+    client.persons.all.return_value = MagicMock(
+        pages=_interrupting_pages(
+            [{"id": 1, "score": 0}, {"id": 2, "score": 5}], KeyboardInterrupt()
+        )
+    )
+    query = Query.model_validate(
+        {"from": "persons", "where": {"path": "score", "op": "gt", "value": 1}}
+    )
+    executor = QueryExecutor(client, allow_partial=True)
+    with pytest.raises(QueryInterruptedError) as exc:
+        asyncio.run(executor.execute(_plan(query, "filter")))
+    assert exc.value.partial_results == []
+
+    # Under asyncio.run Ctrl+C arrives as CancelledError: re-raised, no rows returned
+    client.persons.all.return_value = MagicMock(
+        pages=_interrupting_pages([{"id": 1, "score": 0}], asyncio.CancelledError())
+    )
+    with pytest.raises(asyncio.CancelledError):
+        asyncio.run(executor.execute(_plan(query, "filter")))
+
+
+def test_interrupt_during_include_returns_the_filtered_rows() -> None:
+    client = _client()
+    client.persons = MagicMock()
+    client.persons.all.return_value = MagicMock(
+        pages=_single_page([{"id": 1, "score": 0}, {"id": 2, "score": 5}])
+    )
+    client.persons.get_associated_company_ids = AsyncMock(side_effect=asyncio.CancelledError())
+    query = Query.model_validate(
+        {
+            "from": "persons",
+            "where": {"path": "score", "op": "gt", "value": 1},
+            "include": ["companies"],
+        }
+    )
+    result = asyncio.run(
+        QueryExecutor(client, allow_partial=True).execute(
+            _plan(query, "filter", "include", relationship="companies")
+        )
+    )
+    assert [r["id"] for r in result.data] == [2]
+    assert result.meta["interrupted"] is True
+
+
+def test_interrupt_while_streaming_returns_the_rows_filtered_so_far() -> None:
+    client = _client()
+    client.persons = MagicMock()
+    client.persons.all.return_value = MagicMock(
+        pages=_interrupting_pages(
+            [{"id": 1, "score": 0}, {"id": 2, "score": 5}], asyncio.CancelledError()
+        )
+    )
+    query = Query.model_validate(
+        {"from": "persons", "where": {"path": "score", "op": "gt", "value": 1}, "limit": 10}
+    )
+    result = asyncio.run(QueryExecutor(client, allow_partial=True).execute(_plan(query)))
+    assert [r["id"] for r in result.data] == [2]
+    assert result.meta["interrupted"] is True
+
+
+def test_interrupt_without_final_rows_exits_130_with_no_rows(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def interrupted(_self: Any, _plan: Any) -> Any:
+        raise QueryInterruptedError("stopped", partial_results=[])
+
+    monkeypatch.setattr(QueryExecutor, "execute", interrupted)
+    code, out, _ = _run({"from": "persons", "limit": 5})
+    assert code == 130
+    envelope = _envelope(out)
+    assert envelope["error"]["type"] == "interrupted"
+    assert envelope["data"] is None
+
+
+# --- 5 / 8: include queries resume from the cache; cursors carry --max-records --------------
+
+
+def _mock_companies(router: respx.MockRouter) -> respx.Route:
+    def respond(request: Any) -> Response:
+        ids = [int(i) for i in request.url.params.get_list("ids")]
+        data = [
+            {"id": i, "name": f"Acme Corp {i}", "domain": None, "domains": [], "isGlobal": False}
+            for i in ids
+        ]
+        return Response(200, json={"data": data, "pagination": {"nextUrl": None}})
+
+    return router.get(url__startswith=f"{V2}/companies").mock(side_effect=respond)
+
+
+def test_include_query_resumes_from_cache_with_each_pages_included(
+    respx_mock: respx.MockRouter,
+) -> None:
+    ids = list(range(3001, 3007))
+    persons = _mock_person_pages(respx_mock, ids, size=4)
+    person_details = respx_mock.get(url__regex=rf"^{V1}/persons/\d+").mock(
+        side_effect=lambda req: Response(
+            200,
+            json={
+                "id": int(req.url.path.rsplit("/", 1)[-1]),
+                "organization_ids": [int(req.url.path.rsplit("/", 1)[-1]) + 4000],
+            },
+        )
+    )
+    companies = _mock_companies(respx_mock)
+    query = {"from": "persons", "limit": 6, "select": ["id"], "include": ["companies"]}
+
+    code, first, cursor = _run(query, "--max-output-bytes", "700")
+    assert code == 100 and cursor
+    calls = (persons.call_count, person_details.call_count, companies.call_count)
+
+    outputs = [first]
+    while cursor:
+        code, out, cursor = _run(query, "--max-output-bytes", "700", "--cursor", cursor)
+        assert code in (0, 100), out
+        outputs.append(out)
+    # Resumed pages come from the cache: no API calls
+    assert (persons.call_count, person_details.call_count, companies.call_count) == calls
+
+    assert len(outputs) > 2
+    seen: list[int] = []
+    for out in outputs:
+        envelope = _envelope(out)
+        page_ids = [r["id"] for r in envelope["data"]]
+        seen.extend(page_ids)
+        # Each page carries the companies of its own rows
+        assert {c["id"] for c in envelope["included"]["companies"]} == {
+            pid + 4000 for pid in page_ids
+        }
+    assert seen == ids
+
+
+def test_cached_pages_repeat_the_max_records_warning(respx_mock: respx.MockRouter) -> None:
+    ids = list(range(1, 13))
+    route = _mock_person_pages(respx_mock, ids, size=4)
+    query = {"from": "persons", "select": ["id"]}
+    args = ["--max-records", "6", "--include-meta"]
+    outputs = _page_through(query, 300, *args)
+    assert len(outputs) > 1
+    assert route.call_count == 2
+    for out in outputs:
+        envelope = _envelope(out)
+        assert envelope["meta"]["truncated"] is True
+        assert any("(--max-records)" in w for w in envelope["warnings"])
+    assert sum(len(_envelope(o)["data"]) for o in outputs) == 6
+
+
+def test_cursor_is_refused_with_a_different_max_records(respx_mock: respx.MockRouter) -> None:
+    _mock_person_pages(respx_mock, list(range(1, 13)), size=4)
+    query = {"from": "persons", "select": ["id"]}
+    code, _out, cursor = _run(query, "--max-records", "6", "--max-output-bytes", "150")
+    assert code == 100 and cursor
+    code, out, _ = _run(
+        query, "--max-records", "8", "--max-output-bytes", "150", "--cursor", cursor
+    )
+    assert code != 0
+    assert "--max-records" in _envelope(out)["error"]["message"]
+
+
+def test_hash_query_includes_max_records() -> None:
+    query = Query(from_="persons")
+    assert hash_query(query, "json", max_records=5) != hash_query(query, "json", max_records=6)
+    assert hash_query(query, "json") != hash_query(query, "json", max_records=5)
+
+
+def test_included_for_rows_keeps_the_rows_related_records() -> None:
+    included = {"companies": [{"id": 7}, {"id": 8}], "notes": [{"id": 1}]}
+    by_parent = {"companies": {1: [{"id": 7}], 2: [{"id": 8}]}}
+    assert included_for_rows([{"id": 2}], included, by_parent) == {
+        "companies": [{"id": 8}],
+        "notes": [{"id": 1}],
+    }
+    # Rows without an id can't be matched: everything is kept
+    assert included_for_rows([{"name": "Acme Corp"}], included, by_parent) == included
+
+
+# --- 6: a page always shows at least one row ------------------------------------------------
+
+
+def test_truncation_keeps_a_first_record_larger_than_the_budget() -> None:
+    big = "x" * 200
+    csv_out, cut = truncate_csv_output(f"id,note\n1,{big}\n2,b\n", 50)
+    assert cut and _count_rows_in_output(csv_out, "csv") == 1
+    jsonl_out, cut = truncate_jsonl_output(f'{{"id":1,"n":"{big}"}}\n{{"id":2}}\n', 50)
+    assert cut and _count_rows_in_output(jsonl_out, "jsonl") == 1
+    md = f"| id | n |\n| --- | --- |\n| 1 | {big} |\n| 2 | b |"
+    md_out, cut = truncate_markdown_output(md, 50)
+    assert cut and _count_rows_in_output(md_out, "markdown") == 1
+    toon = f"data[2]{{id,n}}:\n  1,{big}\n  2,b"
+    toon_out, cut = truncate_toon_output(toon, 50)
+    assert cut and _count_rows_in_output(toon_out, "toon") == 1
+    # The envelope alone is past the budget: the first row is still shown
+    toon = f"data[2]{{id,n}}:\n  1,a\n  2,b\nincluded_companies[1]{{id,name}}:\n  9,{big}"
+    toon_out, cut = truncate_toon_output(toon, 50)
+    assert cut and _count_rows_in_output(toon_out, "toon") == 1
+    assert "rowsOmitted: 1" in toon_out
+
+
+@pytest.mark.parametrize("output", ["csv", "jsonl", "toon", "markdown"])
+def test_paging_rows_larger_than_the_budget_finishes(
+    respx_mock: respx.MockRouter, output: str
+) -> None:
+    ids = [1, 2, 3]
+    _mock_person_pages(respx_mock, ids, size=4, last_name="Doe" * 80)
+    query = {"from": "persons", "limit": 3, "select": ["id", "lastName"]}
+    outputs = _page_through(query, 150, output=output)
+    assert sum(_count_rows_in_output(o.rstrip("\n"), output) for o in outputs) == 3
+
+
+# --- 7: min/max refuse numbers mixed with text ----------------------------------------------
+
+
+def test_min_max_refuse_numbers_mixed_with_text() -> None:
+    with pytest.raises(QueryValidationError, match=r"max on 'v'.*1 are numbers and 1 are text"):
+        compute_max([{"v": 5}, {"v": "n/a"}], "v")
+    assert compute_min([{"v": 5}, {"v": 2.5}, {"v": None}], "v") == 2.5
+    assert compute_max([{"v": "2026-02-01"}, {"v": "2025-01-01"}], "v") == "2026-02-01"
+
+
+# --- 9: an unknown listName is a usage error (exit 2) ---------------------------------------
+
+
+def test_unknown_list_name_exits_2(respx_mock: respx.MockRouter) -> None:
+    respx_mock.get(url__startswith=f"{V2}/lists").mock(
+        return_value=Response(
+            200,
+            json={
+                "data": [
+                    {
+                        "id": 9,
+                        "name": "Deals",
+                        "type": "company",
+                        "isPublic": True,
+                        "ownerId": 100,
+                        "creatorId": 100,
+                    }
+                ],
+                "pagination": {"nextUrl": None},
+            },
+        )
+    )
+    query = {"from": "listEntries", "where": {"path": "listName", "op": "eq", "value": "Leads"}}
+    code, out, _ = _run(query)
+    assert code == 2, out
+    error = _envelope(out)["error"]
+    assert error["type"] == "validation_error"
+    assert "List not found: 'Leads'" in error["message"]
+
+
+# --- the --max-records stop is reported on the non-streaming fetch too ------------------------
+
+
+@pytest.mark.parametrize(
+    ("count", "query_limit", "warned"),
+    [
+        (8, None, True),  # more rows than --max-records
+        (8, 3, False),  # the query's own limit stops it
+    ],
+)
+def test_plain_fetch_reports_the_max_records_stop(
+    count: int, query_limit: int | None, warned: bool
+) -> None:
+    client = _client()
+    client.persons = MagicMock()
+    client.persons.all.return_value = MagicMock(
+        pages=_single_page([{"id": i} for i in range(1, count + 1)])
+    )
+    spec: dict[str, Any] = {"from": "persons"}
+    if query_limit is not None:
+        spec["limit"] = query_limit
+    query = Query.model_validate(spec)
+    result = asyncio.run(QueryExecutor(client, max_records=5).execute(_plan(query)))
+    assert len(result.data) == (query_limit or 5)
+    assert bool(result.meta.get("truncated")) is warned
+    assert any("--max-records" in w for w in result.warnings) is warned
+
+
+# --- concurrent fetches: the first error stops the rest, none is left unretrieved ------------
+
+
+def test_gather_or_raise_returns_results_in_order() -> None:
+    from affinity.cli.async_utils import gather_or_raise
+
+    async def value(v: int, delay: float) -> int:
+        await asyncio.sleep(delay)
+        return v
+
+    assert asyncio.run(gather_or_raise(value(1, 0.02), value(2, 0))) == [1, 2]
+    assert asyncio.run(gather_or_raise()) == []
+
+
+def test_gather_or_raise_cancels_the_rest_and_leaves_no_unretrieved_error(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    from affinity.cli.async_utils import gather_or_raise
+
+    finished: list[str] = []
+
+    async def fail_fast() -> None:
+        raise RateLimitError("slow down")
+
+    async def fail_later() -> None:
+        await asyncio.sleep(0)
+        raise ServerError("boom")
+
+    async def slow() -> None:
+        await asyncio.sleep(1)
+        finished.append("slow")
+
+    async def main() -> None:
+        with pytest.raises(RateLimitError):
+            await gather_or_raise(fail_fast(), fail_later(), slow())
+
+    with caplog.at_level("ERROR", logger="asyncio"):
+        asyncio.run(main())
+    assert finished == []
+    assert "never retrieved" not in caplog.text

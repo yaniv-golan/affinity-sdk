@@ -15,11 +15,34 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any
 
+from affinity.exceptions import (
+    AuthenticationError,
+    AuthorizationError,
+    NetworkError,
+    RateLimitError,
+    ServerError,
+)
+from affinity.exceptions import TimeoutError as AffinityTimeoutError
+
+from .async_utils import gather_or_raise
+
 if TYPE_CHECKING:
     from affinity import Affinity, AsyncAffinity
     from affinity.models.entities import InteractionDates, Interactions
 
 logger = logging.getLogger(__name__)
+
+# Errors a lookup must not hide: a fallback ("Person <id>", no unreplied message) would pass
+# an auth, rate-limit, server or network failure off as data. Others (a person that is gone)
+# keep the fallback.
+LOOKUP_FATAL_ERRORS: tuple[type[Exception], ...] = (
+    AuthenticationError,
+    AuthorizationError,
+    RateLimitError,
+    ServerError,
+    NetworkError,
+    AffinityTimeoutError,
+)
 
 # =============================================================================
 # CSV Column Definitions
@@ -241,7 +264,7 @@ def _resolve_person_names(
 
     Returns:
         List of person names in same order as input IDs.
-        Uses "Unknown" for any IDs that fail to resolve.
+        Uses "Person {id}" for an ID that fails to resolve; LOOKUP_FATAL_ERRORS propagate.
     """
     if cache is None:
         cache = {}
@@ -260,6 +283,8 @@ def _resolve_person_names(
             name = person.full_name or f"Person {pid}"
             cache[pid] = name
             names.append(name)
+        except LOOKUP_FATAL_ERRORS:
+            raise
         except Exception:
             # Cache as Unknown to avoid repeated failures
             cache[pid] = f"Person {pid}"
@@ -290,7 +315,7 @@ async def _resolve_person_names_async(
 
     Returns:
         List of person names in same order as input IDs.
-        Uses "Person {id}" for any IDs that fail to resolve.
+        Uses "Person {id}" for an ID that fails to resolve; LOOKUP_FATAL_ERRORS propagate.
     """
     if cache is None:
         cache = {}
@@ -311,12 +336,14 @@ async def _resolve_person_names_async(
                     person = await client.persons.get(PersonId(pid))
                     name = person.full_name or f"Person {pid}"
                     cache[pid] = name
+                except LOOKUP_FATAL_ERRORS:
+                    raise
                 except Exception:
                     # Cache as fallback to avoid repeated failures
                     cache[pid] = f"Person {pid}"
 
         # PERF: Parallelize person fetches with bounded concurrency
-        await asyncio.gather(*[fetch_person(pid) for pid in uncached_ids])
+        await gather_or_raise(*[fetch_person(pid) for pid in uncached_ids])
 
     # Return names in original order
     return [cache.get(pid, f"Person {pid}") for pid in person_ids]
@@ -363,7 +390,7 @@ async def resolve_interaction_names_async(
                 )
 
     # PERF: Parallelize over sections (lastMeeting, nextMeeting, lastEmail)
-    await asyncio.gather(
+    await gather_or_raise(
         *[resolve_section(key) for key in ("lastMeeting", "nextMeeting", "lastEmail")]
     )
 
@@ -413,7 +440,8 @@ def check_unreplied(
         lookback_days: Number of days to look back (default 30)
 
     Returns:
-        Dict with unreplied message info if found, None otherwise.
+        Dict with unreplied message info if found, None otherwise (also when the check
+        fails, except for LOOKUP_FATAL_ERRORS, which propagate).
         Example: {
             "date": "2026-01-10T10:00:00Z",
             "daysSince": 5,
@@ -498,6 +526,8 @@ def check_unreplied(
             "subject": getattr(last_incoming, "subject", None),  # None for chat
         }
 
+    except LOOKUP_FATAL_ERRORS:
+        raise
     except Exception as e:
         logger.warning(f"Failed to check unreplied for {entity_type} {entity_id}: {e}")
         return None
@@ -529,7 +559,8 @@ async def async_check_unreplied(
         lookback_days: Number of days to look back (default 30)
 
     Returns:
-        Dict with unreplied message info if found, None otherwise.
+        Dict with unreplied message info if found, None otherwise (also when the check
+        fails, except for LOOKUP_FATAL_ERRORS, which propagate).
         Example: {
             "date": "2026-01-10T10:00:00Z",
             "daysSince": 5,
@@ -577,7 +608,7 @@ async def async_check_unreplied(
                 result.append(interaction)
             return result
 
-        type_results = await asyncio.gather(*[_fetch_type(itype) for itype in types_to_check])
+        type_results = await gather_or_raise(*[_fetch_type(itype) for itype in types_to_check])
         directional = [i for sublist in type_results for i in sublist]
 
         if not directional:
@@ -617,6 +648,8 @@ async def async_check_unreplied(
             "subject": getattr(last_incoming, "subject", None),  # None for chat
         }
 
+    except LOOKUP_FATAL_ERRORS:
+        raise
     except Exception as e:
         logger.warning(f"Failed to check unreplied for {entity_type} {entity_id}: {e}")
         return None

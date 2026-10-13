@@ -121,14 +121,6 @@ stdout_file=$(mktemp)
 stderr_file=$(mktemp)
 trap 'rm -f "$query_file" "$stdout_file" "$stderr_file"' EXIT
 
-# Build command for transparency logging (actual execution uses run_xaffinity_with_progress)
-declare -a cmd_display=("xaffinity" "query" "--file" "<query.json>" "--max-records" "$max_records" "--timeout" "$timeout_secs" "--output" "$format")
-[[ "$dry_run" == "true" ]] && cmd_display+=("--dry-run")
-# CLI handles truncation via --max-output-bytes for all formats including JSON
-cmd_display+=("--max-output-bytes" "$max_output_bytes")
-# Pass cursor to CLI if provided
-[[ -n "$cursor" ]] && cmd_display+=("--cursor" "$cursor")
-
 # Check for cancellation before execution
 if mcp_is_cancelled; then
     mcp_error "cancelled" "Operation cancelled by client"
@@ -150,6 +142,18 @@ query_args+=(query --file "$query_file" --max-records "$max_records" --timeout "
 [[ "$dry_run" == "true" ]] && query_args+=(--dry-run)
 query_args+=(--max-output-bytes "$max_output_bytes")
 [[ -n "$cursor" ]] && query_args+=("--cursor=$cursor")
+
+# The command as run, for transparency logging: the base flags (--dotenv --env-file when a
+# project .env holds the key) and these arguments, with the temp query file shown as a placeholder
+declare -a cmd_display=("xaffinity")
+for arg in "${XAFFINITY_CLI_BASE[@]:1}" "${query_args[@]}"; do
+    if [[ "$arg" == "$query_file" ]]; then
+        cmd_display+=("<query.json>")
+    else
+        cmd_display+=("$arg")
+    fi
+done
+
 set +e
 run_xaffinity_with_progress --stderr-file "$stderr_file" "${query_args[@]}" >"$stdout_file"
 exit_code=$?

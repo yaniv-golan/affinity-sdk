@@ -94,7 +94,7 @@
       },
       "cursor": {
         "type": "string",
-        "description": "Opaque cursor from previous truncated response. Pass the exact 'nextCursor' value to resume fetching. The query object AND format parameter must be IDENTICAL to the original request. Cursors expire after 1 hour. Works with all formats (toon, markdown, json, jsonl, csv). NEVER fabricate a cursor; it contains cryptographic hashes and will fail validation."
+        "description": "Opaque cursor from previous truncated response. Pass the exact 'nextCursor' value to resume fetching. The query object, format and maxRecords must be IDENTICAL to the original request. Cursors expire after 1 hour. Works with all formats (toon, markdown, json, jsonl, csv). NEVER fabricate a cursor; it contains cryptographic hashes and will fail validation."
       }
     }
   },

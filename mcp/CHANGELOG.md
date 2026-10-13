@@ -24,7 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `execute-read-command` no longer offers `config setup-key` (it prompts for the key).
 - Flag aliases such as `-t` satisfy required flags and count as their flag for duplicates.
 - A write `dryRun` no longer asks for confirmation or uses one up, and shows no `--yes`.
-- The `query` tool passes the cursor as one argument.
+- The `query` tool passes the cursor as one argument, and its `executed` field shows the command
+  as run. A cursor needs the same `maxRecords` as the first call.
 - The session cache gets hits on Linux.
 - Data-model resource: truncation reasons and query cursor resume.
 

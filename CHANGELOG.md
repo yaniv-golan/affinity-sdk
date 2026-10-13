@@ -82,23 +82,28 @@ or a CLI exit code; each is marked **Behavior change**.
   `streetAddress`; V2 list entries pick the entity model from `type`.
 - **CLI `query`: resuming a cut-off result no longer skips rows.** The resume cursor jumped to
   the next API page, losing the rest of the current page and every fetched row that didn't fit in
-  `--max-output-bytes`. A cut-off result is now cached and the cursor resumes from it (a query
-  with `include` re-runs and skips the rows already shown). Cursors from earlier versions still
-  resume.
+  `--max-output-bytes`. A cut-off result, with its included records, is now cached and the
+  cursor resumes from it without API calls; each page's `included` holds only the records related
+  to that page's rows. A cursor needs the same `--max-records` as the first run. Cursors from
+  earlier versions still resume.
 - **Behavior change. CLI `query`: errors are no longer read as "no data".** A rate-limit, server or
-  auth error while fetching related records (for `include`, relationship filters, or an id lookup)
-  fails the query. Before, the record silently had no related records, so `none`, `all`
-  and `_count eq 0` filters could match wrongly. Only a 404 counts as empty.
-- **Behavior change. CLI `query`: `--max-records`.** When filtered matches exceed it, the extra
-  rows are dropped with a warning and `meta.truncated`; with `orderBy` or an aggregate the cut
-  comes after sorting and aggregating, so counts, sums, groups and top-N use every match. Before,
-  they were computed silently on the first 10,000.
-- **Behavior change. CLI `query`: Ctrl+C exits 130**, printing the rows collected so far (exit 0
-  before); with no rows the error type is `interrupted`.
-- **Behavior change. CLI `query`:** a `listName` (or an include's `list:` name) that matches more
-  than one list, or none, is a validation error (exit 2) asking for the list id; before, the last
-  list with that name was used, or the scope was dropped. `min`/`max` over objects or lists is a
-  validation error instead of a crash.
+  auth error while fetching related records (for `include`, relationship filters, or an id
+  lookup) or an expansion (`interactionDates`, `unreplied`, person names) fails the query. Before,
+  the record silently had no related records, an id-only stub or an empty expansion, so `none`,
+  `all` and `_count eq 0` filters could match wrongly. Only a deleted or merged record counts as
+  empty.
+- **Behavior change. CLI `query`: `--max-records`.** When results are cut at it, a warning says
+  so and `meta.truncated` is set, on every path (before, the cut was silent); with `orderBy` or
+  an aggregate the cut comes after sorting and aggregating, so counts, sums, groups and top-N use
+  every match. Before, they were computed on the first 10,000.
+- **Behavior change. CLI `query`: Ctrl+C exits 130** (exit 0 before). Rows that already went
+  through the query's filter, sort and aggregate are printed; when one of those hadn't run yet, no
+  rows are printed (before, unfiltered rows were) and the error type is `interrupted`.
+- **Behavior change. CLI `query`:** a `listName` that matches more than one list, or none, is a
+  validation error (exit 2) asking for the list id; before, the last list with that name was
+  used. An include's `list:` name that matches several lists is a validation error and one that
+  matches none is not found (exit 4); before, the scope was dropped. `min`/`max` over objects,
+  lists, or a mix of numbers and text is a validation error instead of a crash or a silent pick.
 - CLI `query`: with `orderBy` or `limit`, `include` (and an `expand` the sort doesn't read) runs
   on the rows kept after sorting, limiting and `--max-records`, not on every match, so a top-N
   query makes one call per kept row.
@@ -106,8 +111,9 @@ or a CLI exit code; each is marked **Behavior change**.
   rate limit or server error) and its usual error envelope, instead of exit 1 with "Query
   execution failed".
 - CLI `query`: CSV output with `--max-output-bytes` cuts on whole records (a note with a line
-  break could be split) and can be resumed; JSONL resume no longer skips rows whose data contains
-  `"truncated"`.
+  break could be split), has every row's columns, honors `--csv-bom` and can be resumed; JSONL
+  resume no longer skips rows whose data contains `"truncated"`. A row larger than
+  `--max-output-bytes` is printed whole instead of giving an empty page whose cursor repeats.
 - CLI `query`: `groupBy` on object values (such as a location) works; formula fields filter and
   sort as numbers.
 - **Behavior change. CLI: a delete Affinity reports as failed exits 1** (`api_error`) instead of
