@@ -94,7 +94,7 @@ def test_body_wraps_values_by_type() -> None:
             Condition("owner", "is-any-of", 5, value_type="person"),
             Condition("loc", "is-any-of", {"country": "Israel"}, value_type="location"),
             Condition("size", "is-between", (10, 50), value_type="number"),
-            Condition("url", "contains", "wix", value_type="text"),
+            Condition("url", "contains", "acme", value_type="text"),
             Condition("emp", "is-any-of", ["11-50"], value_type="filterable-text"),
             Condition("stage", "is-empty"),
         ),
@@ -118,7 +118,7 @@ def test_body_wraps_values_by_type() -> None:
     assert owner["value"] == [{"id": 5}]
     assert loc["value"] == [{"country": "Israel"}]
     assert size["value"] == [10, 50]
-    assert url["value"] == "wix"
+    assert url["value"] == "acme"
     assert emp["value"] == ["11-50"]
     assert "value" not in empty  # is-empty takes no value key (null is rejected)
     assert body["sorts"] == [{"fieldId": "size", "direction": "desc"}]

@@ -109,21 +109,21 @@ def test_error_info_includes_hint_and_renders(capsys: pytest.CaptureFixture[str]
 
 def test_validation_error_normalization_includes_sanitized_params() -> None:
     exc = ValidationError(
-        "Field organization_id: expected 2249254 to be a valid id",
+        "Field organization_id: expected 2222222 to be a valid id",
         status_code=422,
         diagnostics=ErrorDiagnostics(
             method="GET",
             url="https://api.affinity.co/entity-files",
-            request_params={"organization_id": "2249254", "term": "secret"},
+            request_params={"organization_id": "2222222", "term": "secret"},
         ),
     )
     normalized = normalize_exception(exc, verbosity=0)
     assert normalized.error_type == "validation_error"
     assert normalized.exit_code == 2
     assert normalized.hint is not None
-    assert "company_id=2249254" in normalized.hint
+    assert "company_id=2222222" in normalized.hint
     assert normalized.details is not None
-    assert normalized.details.get("params") == {"organization_id": 2249254}
+    assert normalized.details.get("params") == {"organization_id": 2222222}
 
 
 @pytest.mark.req("SDK-CLI-JSON-ERROR-ENVELOPE")

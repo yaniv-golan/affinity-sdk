@@ -33,11 +33,11 @@ PRESIGNED_URL = "https://userfiles.affinity.co/abc123?X-Amz-Expires=60&X-Amz-Sig
 
 # V2 file metadata (files.get)
 SAMPLE_FILE_METADATA = {
-    "id": 9192757,
+    "id": 7777777,
     "name": "Pitch Deck 2025.pdf",
     "size": 5242880,  # 5MB
     "type": "application/pdf",
-    "creator": {"id": 222321674},
+    "creator": {"id": 11111114},
     "createdAt": "2025-09-16T12:53:13Z",
     "updatedAt": None,
     "downloadUrl": PRESIGNED_URL,
@@ -114,11 +114,11 @@ class TestFilesReadCommand:
         file_content = b"Hello, World! This is test content."
 
         # Mock the file metadata endpoint
-        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/7777777").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
         # Mock the download endpoint to return a redirect
-        respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
+        respx_mock.get("https://api.affinity.co/entity-files/download/7777777").mock(
             return_value=Response(307, headers={"Location": PRESIGNED_URL})
         )
         # Mock the S3 presigned URL with Range header support
@@ -127,14 +127,14 @@ class TestFilesReadCommand:
         runner = CliRunner()
         result = runner.invoke(
             cli,
-            ["--json", "company", "files", "read", "12345", "--file-id", "9192757"],
+            ["--json", "company", "files", "read", "12345", "--file-id", "7777777"],
             env={"AFFINITY_API_KEY": "test-key"},
         )
         assert result.exit_code == 0, f"Output: {result.output}"
         payload = json.loads(result.output.strip())
         assert payload["ok"] is True
         assert payload["command"]["name"] == "company files read"
-        assert payload["data"]["fileId"] == 9192757
+        assert payload["data"]["fileId"] == 7777777
         assert payload["data"]["name"] == "Pitch Deck 2025.pdf"
         assert payload["data"]["size"] == 5242880
         assert payload["data"]["contentType"] == "application/pdf"
@@ -144,10 +144,10 @@ class TestFilesReadCommand:
     def test_person_files_read_works(self, respx_mock: respx.MockRouter) -> None:
         """person files read command works."""
         file_content = b"Test content"
-        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/7777777").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
-        respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
+        respx_mock.get("https://api.affinity.co/entity-files/download/7777777").mock(
             return_value=Response(307, headers={"Location": PRESIGNED_URL})
         )
         respx_mock.get(PRESIGNED_URL).mock(return_value=Response(206, content=file_content))
@@ -155,7 +155,7 @@ class TestFilesReadCommand:
         runner = CliRunner()
         result = runner.invoke(
             cli,
-            ["--json", "person", "files", "read", "67890", "--file-id", "9192757"],
+            ["--json", "person", "files", "read", "67890", "--file-id", "7777777"],
             env={"AFFINITY_API_KEY": "test-key"},
         )
         assert result.exit_code == 0
@@ -165,10 +165,10 @@ class TestFilesReadCommand:
     def test_opportunity_files_read_works(self, respx_mock: respx.MockRouter) -> None:
         """opportunity files read command works."""
         file_content = b"Test content"
-        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/7777777").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
-        respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
+        respx_mock.get("https://api.affinity.co/entity-files/download/7777777").mock(
             return_value=Response(307, headers={"Location": PRESIGNED_URL})
         )
         respx_mock.get(PRESIGNED_URL).mock(return_value=Response(206, content=file_content))
@@ -176,7 +176,7 @@ class TestFilesReadCommand:
         runner = CliRunner()
         result = runner.invoke(
             cli,
-            ["--json", "opportunity", "files", "read", "98765", "--file-id", "9192757"],
+            ["--json", "opportunity", "files", "read", "98765", "--file-id", "7777777"],
             env={"AFFINITY_API_KEY": "test-key"},
         )
         assert result.exit_code == 0
@@ -186,10 +186,10 @@ class TestFilesReadCommand:
     def test_files_read_with_offset(self, respx_mock: respx.MockRouter) -> None:
         """files read with offset starts at correct position."""
         file_content = b"Content from offset"
-        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/7777777").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
-        respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
+        respx_mock.get("https://api.affinity.co/entity-files/download/7777777").mock(
             return_value=Response(307, headers={"Location": PRESIGNED_URL})
         )
         respx_mock.get(PRESIGNED_URL).mock(return_value=Response(206, content=file_content))
@@ -204,7 +204,7 @@ class TestFilesReadCommand:
                 "read",
                 "12345",
                 "--file-id",
-                "9192757",
+                "7777777",
                 "--offset",
                 "1048576",
             ],
@@ -217,10 +217,10 @@ class TestFilesReadCommand:
     def test_files_read_with_limit(self, respx_mock: respx.MockRouter) -> None:
         """files read with limit respects size limit."""
         file_content = b"Limited content"
-        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/7777777").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
-        respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
+        respx_mock.get("https://api.affinity.co/entity-files/download/7777777").mock(
             return_value=Response(307, headers={"Location": PRESIGNED_URL})
         )
         respx_mock.get(PRESIGNED_URL).mock(return_value=Response(206, content=file_content))
@@ -235,7 +235,7 @@ class TestFilesReadCommand:
                 "read",
                 "12345",
                 "--file-id",
-                "9192757",
+                "7777777",
                 "--limit",
                 "500KB",
             ],
@@ -254,10 +254,10 @@ class TestFilesReadChunking:
         """hasMore is true when more content is available."""
         # Create a 100-byte chunk from a 5MB file
         chunk_content = b"x" * 100
-        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/7777777").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
-        respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
+        respx_mock.get("https://api.affinity.co/entity-files/download/7777777").mock(
             return_value=Response(307, headers={"Location": PRESIGNED_URL})
         )
         respx_mock.get(PRESIGNED_URL).mock(return_value=Response(206, content=chunk_content))
@@ -272,7 +272,7 @@ class TestFilesReadChunking:
                 "read",
                 "12345",
                 "--file-id",
-                "9192757",
+                "7777777",
                 "--limit",
                 "100",
             ],
@@ -288,10 +288,10 @@ class TestFilesReadChunking:
         # Small file that fits in one read
         small_file = {**SAMPLE_FILE_METADATA, "size": 100}
         chunk_content = b"x" * 100
-        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/7777777").mock(
             return_value=Response(200, json=small_file)
         )
-        respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
+        respx_mock.get("https://api.affinity.co/entity-files/download/7777777").mock(
             return_value=Response(307, headers={"Location": PRESIGNED_URL})
         )
         respx_mock.get(PRESIGNED_URL).mock(return_value=Response(206, content=chunk_content))
@@ -299,7 +299,7 @@ class TestFilesReadChunking:
         runner = CliRunner()
         result = runner.invoke(
             cli,
-            ["--json", "company", "files", "read", "12345", "--file-id", "9192757"],
+            ["--json", "company", "files", "read", "12345", "--file-id", "7777777"],
             env={"AFFINITY_API_KEY": "test-key"},
         )
         assert result.exit_code == 0
@@ -310,10 +310,10 @@ class TestFilesReadChunking:
     def test_next_offset_calculation(self, respx_mock: respx.MockRouter) -> None:
         """nextOffset is correctly calculated from offset + actual length."""
         chunk_content = b"x" * 500  # 500 bytes
-        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/7777777").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
-        respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
+        respx_mock.get("https://api.affinity.co/entity-files/download/7777777").mock(
             return_value=Response(307, headers={"Location": PRESIGNED_URL})
         )
         respx_mock.get(PRESIGNED_URL).mock(return_value=Response(206, content=chunk_content))
@@ -328,7 +328,7 @@ class TestFilesReadChunking:
                 "read",
                 "12345",
                 "--file-id",
-                "9192757",
+                "7777777",
                 "--offset",
                 "1000",
                 "--limit",
@@ -348,7 +348,7 @@ class TestFilesReadErrors:
 
     def test_negative_offset_error(self, respx_mock: respx.MockRouter) -> None:
         """Negative offset raises error."""
-        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/7777777").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
 
@@ -362,7 +362,7 @@ class TestFilesReadErrors:
                 "read",
                 "12345",
                 "--file-id",
-                "9192757",
+                "7777777",
                 "--offset",
                 "-100",
             ],
@@ -376,7 +376,7 @@ class TestFilesReadErrors:
     def test_offset_exceeds_file_size_error(self, respx_mock: respx.MockRouter) -> None:
         """Offset >= file size raises error."""
         small_file = {**SAMPLE_FILE_METADATA, "size": 100}
-        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/7777777").mock(
             return_value=Response(200, json=small_file)
         )
 
@@ -390,7 +390,7 @@ class TestFilesReadErrors:
                 "read",
                 "12345",
                 "--file-id",
-                "9192757",
+                "7777777",
                 "--offset",
                 "100",
             ],
@@ -431,7 +431,7 @@ class TestFilesReadErrors:
                 "read",
                 "12345",
                 "--file-id",
-                "9192757",
+                "7777777",
                 "--limit",
                 "invalid",
             ],
@@ -444,10 +444,10 @@ class TestFilesReadErrors:
 
     def test_s3_range_not_satisfiable_error(self, respx_mock: respx.MockRouter) -> None:
         """S3 416 Range Not Satisfiable is handled gracefully."""
-        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/7777777").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
-        respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
+        respx_mock.get("https://api.affinity.co/entity-files/download/7777777").mock(
             return_value=Response(307, headers={"Location": PRESIGNED_URL})
         )
         # S3 returns 416 when range is unsatisfiable
@@ -458,7 +458,7 @@ class TestFilesReadErrors:
         runner = CliRunner()
         result = runner.invoke(
             cli,
-            ["--json", "company", "files", "read", "12345", "--file-id", "9192757"],
+            ["--json", "company", "files", "read", "12345", "--file-id", "7777777"],
             env={"AFFINITY_API_KEY": "test-key"},
         )
         assert result.exit_code == 1

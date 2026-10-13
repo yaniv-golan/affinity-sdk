@@ -9,15 +9,15 @@ from affinity.cli.errors import CLIError
 
 
 def test_resolve_url_accepts_tenant_host() -> None:
-    resolved = _parse_affinity_url("https://mydomain.affinity.co/companies/263169568")
+    resolved = _parse_affinity_url("https://mydomain.affinity.co/companies/333333333")
     assert resolved.type == "company"
-    assert resolved.company_id == 263169568
+    assert resolved.company_id == 333333333
 
 
 def test_resolve_url_accepts_tenant_host_affinity_dot_com() -> None:
-    resolved = _parse_affinity_url("https://mydomain.affinity.com/companies/263169568")
+    resolved = _parse_affinity_url("https://mydomain.affinity.com/companies/333333333")
     assert resolved.type == "company"
-    assert resolved.company_id == 263169568
+    assert resolved.company_id == 333333333
 
 
 def test_resolve_url_rejects_non_affinity_host() -> None:

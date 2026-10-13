@@ -179,18 +179,18 @@ class TestNormalizeAffinityErrors:
 class TestNormalizeMergedEntityError:
     def test_company_merged_error(self) -> None:
         exc = CompanyMergedError(
-            "292479388 no longer exists as it has been merged into 301128758",
-            source_id=292479388,
-            target_id=301128758,
+            "666666661 no longer exists as it has been merged into 666666662",
+            source_id=666666661,
+            target_id=666666662,
             status_code=422,
         )
         result = normalize_exception(exc)
         assert result.error_type == "entity_merged"
         assert result.exit_code == 4
-        assert result.details["sourceId"] == 292479388
-        assert result.details["targetId"] == 301128758
+        assert result.details["sourceId"] == 666666661
+        assert result.details["targetId"] == 666666662
         assert result.details["entityType"] == "Company"
-        assert "301128758" in result.hint
+        assert "666666662" in result.hint
         assert "Use the target ID" in result.hint
 
     def test_person_merged_error(self) -> None:

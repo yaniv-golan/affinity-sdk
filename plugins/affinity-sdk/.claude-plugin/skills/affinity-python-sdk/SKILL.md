@@ -268,7 +268,7 @@ from affinity.models import CompanyCreate, CompanyId
 
 try:
     company = client.companies.create(
-        CompanyCreate(name="Elssway", domain="elssway.com")
+        CompanyCreate(name="Acmeco", domain="acmeco.com")
     )
 except DuplicateEntityError as e:
     # e.existing_id is the pre-existing company's ID

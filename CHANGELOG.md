@@ -49,6 +49,7 @@ the CLI uses changes when a key flag and a key environment variable are both set
 
 - **CLI plugin**: 2.0.2 → 2.0.3 — skill: the API-key resolution order (key flags first) and
   where `config setup-key` stores the key.
+- **SDK plugin**: 2.0.3 → 2.0.4 — skill: the duplicate-company example uses a placeholder name.
 
 ## [2.0.3] - 2026-10-13
 

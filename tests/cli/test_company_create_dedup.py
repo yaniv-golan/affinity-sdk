@@ -16,27 +16,27 @@ def test_company_create_refuses_duplicate_by_default(monkeypatch):
 
     def raise_dup(self, data, *, if_not_exists=True):  # noqa: ARG001
         raise DuplicateEntityError(
-            "Company 'Elssway' exists",
+            "Company 'Acmeco' exists",
             entity_type="company",
-            existing_id=282327760,
-            existing_name="Elssway",
-            existing_domain="elssway.com",
+            existing_id=888888888,
+            existing_name="Acmeco",
+            existing_domain="acmeco.com",
             existing_is_global=False,
         )
 
     with patch("affinity.services.companies.CompanyService.create", raise_dup):
         result = runner.invoke(
             cli,
-            ["company", "create", "--name", "Elssway", "--json"],
+            ["company", "create", "--name", "Acmeco", "--json"],
             catch_exceptions=False,
         )
 
     assert result.exit_code == 6, result.output
     payload = json.loads(result.output)
     assert payload["error"]["type"] == "duplicate_exists"
-    assert payload["error"]["details"]["existing"]["companyId"] == 282327760
-    assert payload["error"]["details"]["existing"]["name"] == "Elssway"
-    assert payload["error"]["details"]["existing"]["domain"] == "elssway.com"
+    assert payload["error"]["details"]["existing"]["companyId"] == 888888888
+    assert payload["error"]["details"]["existing"]["name"] == "Acmeco"
+    assert payload["error"]["details"]["existing"]["domain"] == "acmeco.com"
     assert payload["error"]["details"]["existing"]["isGlobal"] is False
 
 
@@ -86,7 +86,7 @@ def test_company_create_allow_duplicate_bypasses(monkeypatch):
     with patch("affinity.services.companies.CompanyService.create", fake_create):
         result = runner.invoke(
             cli,
-            ["company", "create", "--name", "Elssway", "--allow-duplicate", "--json"],
+            ["company", "create", "--name", "Acmeco", "--allow-duplicate", "--json"],
             catch_exceptions=False,
         )
 

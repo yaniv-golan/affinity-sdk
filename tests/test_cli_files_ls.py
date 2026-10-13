@@ -29,25 +29,25 @@ if respx is None:  # pragma: no cover
 SAMPLE_FILES = {
     "entity_files": [
         {
-            "id": 9192757,
+            "id": 7777777,
             "name": "Pitch Deck 2025.pdf",
             "size": 5826929,
             "content_type": "application/pdf",
             "person_id": None,
-            "organization_id": 306016520,
+            "organization_id": 555555555,
             "opportunity_id": None,
-            "uploader_id": 222321674,
+            "uploader_id": 11111114,
             "created_at": "2025-09-16T12:53:13.339Z",
         },
         {
-            "id": 9192758,
+            "id": 7777778,
             "name": "Financial Model.xlsx",
             "size": 1048576,
             "content_type": None,
             "person_id": None,
-            "organization_id": 306016520,
+            "organization_id": 555555555,
             "opportunity_id": None,
-            "uploader_id": 222321674,
+            "uploader_id": 11111114,
             "created_at": "2025-09-16T13:00:00.000Z",
         },
     ],
@@ -62,22 +62,22 @@ class TestCompanyFilesLs:
         """Basic file listing by company ID."""
         respx_mock.get(
             "https://api.affinity.co/entity-files",
-            params={"organization_id": "306016520"},
+            params={"organization_id": "555555555"},
         ).mock(return_value=Response(200, json=SAMPLE_FILES))
 
         runner = CliRunner()
         result = runner.invoke(
             cli,
-            ["--json", "company", "files", "ls", "306016520"],
+            ["--json", "company", "files", "ls", "555555555"],
             env={"AFFINITY_API_KEY": "test-key"},
         )
         assert result.exit_code == 0
         payload = json.loads(result.output.strip())
         assert payload["ok"] is True
         assert payload["command"]["name"] == "company files ls"
-        assert payload["command"]["inputs"]["selector"] == "306016520"
+        assert payload["command"]["inputs"]["selector"] == "555555555"
         assert len(payload["data"]) == 2
-        assert payload["data"][0]["id"] == 9192757
+        assert payload["data"][0]["id"] == 7777777
         assert payload["data"][0]["name"] == "Pitch Deck 2025.pdf"
         assert payload["data"][0]["contentType"] == "application/pdf"
         assert payload["data"][1]["contentType"] is None  # null content type preserved
@@ -137,20 +137,20 @@ class TestCompanyFilesLs:
         """Resolved metadata shows source and companyId."""
         respx_mock.get(
             "https://api.affinity.co/entity-files",
-            params={"organization_id": "306016520"},
+            params={"organization_id": "555555555"},
         ).mock(return_value=Response(200, json=SAMPLE_FILES))
 
         runner = CliRunner()
         result = runner.invoke(
             cli,
-            ["--json", "company", "files", "ls", "306016520"],
+            ["--json", "company", "files", "ls", "555555555"],
             env={"AFFINITY_API_KEY": "test-key"},
         )
         assert result.exit_code == 0
         payload = json.loads(result.output.strip())
         resolved = payload["meta"]["resolved"]["company"]
         assert resolved["source"] == "id"
-        assert resolved["companyId"] == 306016520
+        assert resolved["companyId"] == 555555555
 
     def test_pagination_cursor_returned(self, respx_mock: respx.MockRouter) -> None:
         """Pagination cursor returned when more data exists."""
@@ -454,7 +454,7 @@ class TestSelectorResolution:
         # URL resolution extracts company ID from URL
         respx_mock.get(
             "https://api.affinity.co/entity-files",
-            params={"organization_id": "306016520"},
+            params={"organization_id": "555555555"},
         ).mock(return_value=Response(200, json={"entity_files": [], "next_page_token": None}))
 
         runner = CliRunner()
@@ -465,7 +465,7 @@ class TestSelectorResolution:
                 "company",
                 "files",
                 "ls",
-                "https://app.affinity.co/companies/306016520",
+                "https://app.affinity.co/companies/555555555",
             ],
             env={"AFFINITY_API_KEY": "test-key"},
         )
@@ -474,7 +474,7 @@ class TestSelectorResolution:
         assert payload["ok"] is True
         resolved = payload["meta"]["resolved"]["company"]
         assert resolved["source"] == "url"
-        assert resolved["companyId"] == 306016520
+        assert resolved["companyId"] == 555555555
 
     def test_resolve_by_name_prefix(self, respx_mock: respx.MockRouter) -> None:
         """Selector with 'name:' prefix resolves by company name."""

@@ -47,7 +47,7 @@ TARGET = {
     "fullName": "Bob Lee",
     "title": "CEO",
     "linkedinUrl": "https://linkedin.com/in/bob",
-    "currentCompany": {"id": 7, "name": "Wix", "domain": "wix.com"},
+    "currentCompany": {"id": 7, "name": "Acme Corp", "domain": "acme.com"},
 }
 COWORKER_GROUP = {
     "target": TARGET,
@@ -79,12 +79,12 @@ INVESTOR_GROUP = {
                 "executive": {
                     **ROLE,
                     "title": "CEO",
-                    "company": {"id": 7, "name": "Wix", "domain": None},
+                    "company": {"id": 7, "name": "Acme Corp", "domain": None},
                 },
             },
             "inference": {
                 "investingFirm": None,
-                "portfolioCompany": {"id": 7, "name": "Wix", "domain": None},
+                "portfolioCompany": {"id": 7, "name": "Acme Corp", "domain": None},
             },
         }
     ],

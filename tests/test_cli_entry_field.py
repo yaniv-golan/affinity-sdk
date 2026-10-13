@@ -478,10 +478,10 @@ def test_entry_field_get_resolves_person_fields(respx_mock: respx.MockRouter) ->
                 "enrichmentSource": None,
                 "value": {
                     "data": {
-                        "id": 26323038,
-                        "firstName": "Avichay",
-                        "lastName": "Nissenbaum",
-                        "primaryEmailAddress": "avichay@lool.vc",
+                        "id": 11111113,
+                        "firstName": "Jane",
+                        "lastName": "Doe",
+                        "primaryEmailAddress": "jane@example.com",
                         "type": "internal",
                     },
                     "type": "person",
@@ -500,9 +500,9 @@ def test_entry_field_get_resolves_person_fields(respx_mock: respx.MockRouter) ->
     assert result.exit_code == 0, result.output
     payload = json.loads(result.output.strip())
     owner = payload["data"]["fields"]["Owner"]
-    assert owner["id"] == 26323038
-    assert owner["firstName"] == "Avichay"
-    assert owner["lastName"] == "Nissenbaum"
+    assert owner["id"] == 11111113
+    assert owner["firstName"] == "Jane"
+    assert owner["lastName"] == "Doe"
 
 
 def test_entry_field_get_resolves_dropdown_fields(respx_mock: respx.MockRouter) -> None:
@@ -1670,7 +1670,7 @@ class TestEntryFieldEntityRefSet:
     """Tests for --set on person/company fields."""
 
     def test_set_person_field_wraps_id(self, respx_mock: respx.MockRouter) -> None:
-        """--set Owner 26229794 sends {"id": 26229794} in V2 payload."""
+        """--set Owner 11111111 sends {"id": 11111111} in V2 payload."""
         patch_route = setup_entity_field_mocks(respx_mock)
         respx_mock.get("https://api.affinity.co/field-values").mock(
             return_value=Response(200, json=[])
@@ -1690,7 +1690,7 @@ class TestEntryFieldEntityRefSet:
                 str(ENTRY_ID),
                 "--set",
                 "Owner",
-                "26229794",
+                "11111111",
             ],
             env={"AFFINITY_API_KEY": "test-key"},
         )
@@ -1700,7 +1700,7 @@ class TestEntryFieldEntityRefSet:
         assert post_route.called
         request_body = patched(post_route)[0]
         assert request_body["value"]["type"] == "person"
-        assert request_body["value"]["data"] == {"id": 26229794}
+        assert request_body["value"]["data"] == {"id": 11111111}
 
     def test_set_company_field_wraps_id(self, respx_mock: respx.MockRouter) -> None:
         """--set 'Parent Company' 789 sends {"id": 789} in V2 payload."""

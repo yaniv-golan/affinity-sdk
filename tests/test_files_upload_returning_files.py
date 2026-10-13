@@ -34,13 +34,13 @@ UPLOAD_URL = "https://api.affinity.co/entity-files"
 
 def _file_item(**overrides: Any) -> dict[str, Any]:
     item: dict[str, Any] = {
-        "id": 9192757,
+        "id": 7777777,
         "name": "notes.txt",
         "size": 5,
         "person_id": None,
-        "organization_id": 306016520,
+        "organization_id": 555555555,
         "opportunity_id": None,
-        "uploader_id": 222321674,
+        "uploader_id": 11111114,
         "created_at": "2026-10-08T12:53:13.339Z",
     }
     item.update(overrides)
@@ -59,7 +59,7 @@ OLD_SHAPE = {"success": True}
 class TestEntityFileCompanyId:
     def test_company_id_from_v1_snake_case(self) -> None:
         f = EntityFile.model_validate(_file_item())
-        assert f.company_id == CompanyId(306016520)
+        assert f.company_id == CompanyId(555555555)
 
     def test_company_id_from_camel_case(self) -> None:
         payload = {
@@ -74,7 +74,7 @@ class TestEntityFileCompanyId:
 
     def test_company_id_serializes_as_organization_id(self) -> None:
         dumped = EntityFile.model_validate(_file_item()).model_dump(by_alias=True)
-        assert dumped["organizationId"] == 306016520
+        assert dumped["organizationId"] == 555555555
         assert "organization_id" not in dumped
 
 
@@ -88,13 +88,13 @@ class TestUploadReturningFilesSync:
         respx_mock.post(UPLOAD_URL).mock(return_value=Response(200, json=NEW_SHAPE))
         with Affinity(api_key="k", max_retries=0) as client:
             files = client.files.upload_bytes_returning_files(
-                b"hello", "notes.txt", company_id=CompanyId(306016520)
+                b"hello", "notes.txt", company_id=CompanyId(555555555)
             )
         assert len(files) == 1
         f = files[0]
         assert isinstance(f, EntityFile)
-        assert f.id == FileId(9192757)
-        assert f.company_id == CompanyId(306016520)
+        assert f.id == FileId(7777777)
+        assert f.company_id == CompanyId(555555555)
         assert isinstance(f.created_at, datetime)
 
     def test_upload_path_returns_created_files_and_reports_progress(
@@ -110,7 +110,7 @@ class TestUploadReturningFilesSync:
                 person_id=PersonId(1),
                 on_progress=lambda done, total, *, phase: progress.append((done, total, phase)),
             )
-        assert [int(f.id) for f in files] == [9192757]
+        assert [int(f.id) for f in files] == [7777777]
         assert progress == [(0, 5, "upload"), (5, 5, "upload")]
 
     def test_upload_returns_created_files(self, respx_mock: respx.MockRouter) -> None:
@@ -120,7 +120,7 @@ class TestUploadReturningFilesSync:
                 files={"file": ("notes.txt", b"hello", "text/plain")},
                 opportunity_id=OpportunityId(3),
             )
-        assert [int(f.id) for f in files] == [9192757]
+        assert [int(f.id) for f in files] == [7777777]
         assert b"opportunity_id" in route.calls.last.request.content
 
     def test_old_success_only_response_returns_empty_list(
@@ -174,7 +174,7 @@ class TestUploadReturningFilesSync:
         assert [int(f.id) for f in files] == [11, 12, 13]
         bad_size = files[2]
         assert bad_size.size is None
-        assert bad_size.uploader_id == 222321674
+        assert bad_size.uploader_id == 11111114
         assert bad_size.created_at == datetime(2026, 10, 8, 10, 0, tzinfo=timezone.utc)
         assert bad_size.created_at.tzinfo is not None
         partial = files[0]
@@ -219,10 +219,10 @@ class TestUploadReturningFilesAsync:
         respx_mock.post(UPLOAD_URL).mock(return_value=Response(200, json=NEW_SHAPE))
         async with AsyncAffinity(api_key="k", max_retries=0) as client:
             files = await client.files.upload_bytes_returning_files(
-                b"hello", "notes.txt", company_id=CompanyId(306016520)
+                b"hello", "notes.txt", company_id=CompanyId(555555555)
             )
-        assert [int(f.id) for f in files] == [9192757]
-        assert files[0].company_id == CompanyId(306016520)
+        assert [int(f.id) for f in files] == [7777777]
+        assert files[0].company_id == CompanyId(555555555)
 
     async def test_upload_path_returns_created_files(
         self, respx_mock: respx.MockRouter, tmp_path: Path
@@ -237,7 +237,7 @@ class TestUploadReturningFilesAsync:
                 person_id=PersonId(1),
                 on_progress=lambda done, total, *, phase: progress.append((done, total, phase)),
             )
-        assert [int(f.id) for f in files] == [9192757]
+        assert [int(f.id) for f in files] == [7777777]
         assert progress == [(0, 5, "upload"), (5, 5, "upload")]
 
     async def test_upload_returns_created_files(self, respx_mock: respx.MockRouter) -> None:
@@ -247,7 +247,7 @@ class TestUploadReturningFilesAsync:
                 files={"file": ("notes.txt", b"hello", "text/plain")},
                 person_id=PersonId(1),
             )
-        assert [int(f.id) for f in files] == [9192757]
+        assert [int(f.id) for f in files] == [7777777]
 
     async def test_old_shape_and_lenient(self, respx_mock: respx.MockRouter) -> None:
         respx_mock.post(UPLOAD_URL).mock(
@@ -282,7 +282,7 @@ class TestUploadReturningFilesAsync:
 @pytest.mark.parametrize(
     ("entity", "entity_id", "form_field"),
     [
-        ("company", "306016520", "organization_id"),
+        ("company", "555555555", "organization_id"),
         ("person", "42", "person_id"),
         ("opportunity", "77", "opportunity_id"),
     ],
@@ -313,7 +313,7 @@ class TestCliFilesUpload:
         payload = self._invoke(tmp_path, entity, entity_id)
         assert form_field.encode() in route.calls.last.request.content
         (row,) = payload["data"]["uploads"]
-        assert row["fileId"] == 9192757
+        assert row["fileId"] == 7777777
         assert row["createdAt"].startswith("2026-10-08T12:53:13")
         assert row["success"] is True
         assert row["filename"] == "notes.txt"

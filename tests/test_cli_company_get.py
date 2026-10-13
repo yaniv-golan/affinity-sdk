@@ -355,9 +355,9 @@ def test_company_get_human_output_list_entries_default_is_count_only(
             json={
                 "data": [
                     {
-                        "id": 135563331,
+                        "id": 99999991,
                         "listId": 41780,
-                        "creatorId": 116834779,
+                        "creatorId": 11111115,
                         "createdAt": "2023-08-06T11:39:40Z",
                         "fields": [
                             {
@@ -368,7 +368,7 @@ def test_company_get_human_output_list_entries_default_is_count_only(
                                 "value": {
                                     "type": "person",
                                     "data": {
-                                        "id": 26229794,
+                                        "id": 11111111,
                                         "firstName": "Yaniv",
                                         "lastName": "Golan",
                                         "primaryEmailAddress": "yaniv@example.com",
@@ -452,9 +452,9 @@ def test_company_get_human_output_show_list_entry_fields_renders_fields_tables(
             json={
                 "data": [
                     {
-                        "id": 135563331,
+                        "id": 99999991,
                         "listId": 41780,
-                        "creatorId": 116834779,
+                        "creatorId": 11111115,
                         "createdAt": "2023-08-06T11:39:40Z",
                         "fields": [
                             {
@@ -480,7 +480,7 @@ def test_company_get_human_output_show_list_entry_fields_renders_fields_tables(
                                 "value": {
                                     "type": "person",
                                     "data": {
-                                        "id": 26229794,
+                                        "id": 11111111,
                                         "firstName": "Yaniv",
                                         "lastName": "Golan",
                                         "primaryEmailAddress": "yaniv@example.com",
@@ -516,7 +516,7 @@ def test_company_get_human_output_show_list_entry_fields_renders_fields_tables(
     assert "List Entries" in result.output
     assert "fieldsCount" in result.output
     normalized = re.sub(r"[│┃\s]+", " ", result.output)
-    assert "List Entry 135563331" in normalized
+    assert "List Entry 99999991" in normalized
     assert "Status" in normalized
     assert "Intro Meeting" in normalized
     assert "Some non-list fields hidden" in result.output
@@ -548,9 +548,9 @@ def test_company_get_show_list_entry_fields_scope_hint_suppressed_when_all_list(
             json={
                 "data": [
                     {
-                        "id": 135563331,
+                        "id": 99999991,
                         "listId": 41780,
-                        "creatorId": 116834779,
+                        "creatorId": 11111115,
                         "createdAt": "2023-08-06T11:39:40Z",
                         "fields": [
                             {
@@ -704,7 +704,7 @@ def test_company_get_list_entry_fields_use_list_name_without_lookup(
             json={
                 "data": [
                     {
-                        "id": 135563331,
+                        "id": 99999991,
                         "listId": 41780,
                         "listName": "Dealflow",
                         "creatorId": 1,

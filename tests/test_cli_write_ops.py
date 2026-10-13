@@ -108,23 +108,23 @@ def test_company_crud_and_merge(respx_mock: respx.MockRouter) -> None:
         return_value=Response(
             200,
             json={
-                "id": 224925494,
+                "id": 222222222,
                 "name": "Acme Corp",
                 "domain": "acme.com",
             },
         )
     )
-    respx_mock.put("https://api.affinity.co/organizations/224925494").mock(
+    respx_mock.put("https://api.affinity.co/organizations/222222222").mock(
         return_value=Response(
             200,
             json={
-                "id": 224925494,
+                "id": 222222222,
                 "name": "Acme Corp",
                 "domain": "acme.co",
             },
         )
     )
-    respx_mock.delete("https://api.affinity.co/organizations/224925494").mock(
+    respx_mock.delete("https://api.affinity.co/organizations/222222222").mock(
         return_value=Response(200, json={"success": True})
     )
     respx_mock.post("https://api.affinity.co/v2/company-merges").mock(
@@ -150,11 +150,11 @@ def test_company_crud_and_merge(respx_mock: respx.MockRouter) -> None:
     )
     assert created.exit_code == 0
     created_payload = json.loads(created.output.strip())
-    assert created_payload["data"]["company"]["id"] == 224925494
+    assert created_payload["data"]["company"]["id"] == 222222222
 
     updated = runner.invoke(
         cli,
-        ["--json", "company", "update", "224925494", "--domain", "acme.co"],
+        ["--json", "company", "update", "222222222", "--domain", "acme.co"],
         env={"AFFINITY_API_KEY": "test-key"},
     )
     assert updated.exit_code == 0
@@ -163,7 +163,7 @@ def test_company_crud_and_merge(respx_mock: respx.MockRouter) -> None:
 
     deleted = runner.invoke(
         cli,
-        ["--json", "company", "delete", "224925494", "--yes"],
+        ["--json", "company", "delete", "222222222", "--yes"],
         env={"AFFINITY_API_KEY": "test-key"},
     )
     assert deleted.exit_code == 0
@@ -211,7 +211,7 @@ def test_list_create_and_entry_ops(respx_mock: respx.MockRouter) -> None:
             json={
                 "id": 98765,
                 "listId": 123,
-                "entityId": 224925494,
+                "entityId": 222222222,
                 "entityType": 1,
                 "createdAt": "2024-01-01T00:00:00Z",
             },
@@ -280,7 +280,7 @@ def test_list_create_and_entry_ops(respx_mock: respx.MockRouter) -> None:
 
     added = runner.invoke(
         cli,
-        ["--json", "list", "entry", "add", "123", "--company-id", "224925494"],
+        ["--json", "list", "entry", "add", "123", "--company-id", "222222222"],
         env={"AFFINITY_API_KEY": "test-key"},
     )
     assert added.exit_code == 0

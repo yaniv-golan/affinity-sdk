@@ -42,11 +42,11 @@ def _search_response(matches):
 def test_create_raises_duplicate_on_exact_name_match():
     def handler(request):
         url = str(request.url)
-        if request.method == "GET" and "/organizations" in url and "term=Elssway" in url:
+        if request.method == "GET" and "/organizations" in url and "term=Acmeco" in url:
             return httpx.Response(
                 200,
                 json=_search_response(
-                    [{"id": 282327760, "name": "Elssway", "domain": "elssway.com"}]
+                    [{"id": 888888888, "name": "Acmeco", "domain": "acmeco.com"}]
                 ),
                 request=request,
             )
@@ -55,9 +55,9 @@ def test_create_raises_duplicate_on_exact_name_match():
     client = _make_client(handler)
     try:
         with pytest.raises(DuplicateEntityError) as exc_info:
-            client.companies.create(CompanyCreate(name="Elssway"))
-        assert exc_info.value.existing_id == 282327760
-        assert exc_info.value.existing_name == "Elssway"
+            client.companies.create(CompanyCreate(name="Acmeco"))
+        assert exc_info.value.existing_id == 888888888
+        assert exc_info.value.existing_name == "Acmeco"
         assert exc_info.value.entity_type == "company"
     finally:
         client.close()
@@ -185,13 +185,13 @@ def test_create_skips_dedup_when_flag_false():
         if request.method == "POST" and "/organizations" in url:
             calls["post"] += 1
             return httpx.Response(
-                200, json={"id": 1234, "name": "Elssway", "domain": None}, request=request
+                200, json={"id": 1234, "name": "Acmeco", "domain": None}, request=request
             )
         raise AssertionError(f"Unexpected call: {request.method} {url}")
 
     client = _make_client(handler)
     try:
-        result = client.companies.create(CompanyCreate(name="Elssway"), if_not_exists=False)
+        result = client.companies.create(CompanyCreate(name="Acmeco"), if_not_exists=False)
         assert result.id == 1234
         assert calls["search"] == 0
         assert calls["post"] == 1
@@ -206,7 +206,7 @@ def test_create_name_match_is_case_insensitive():
         if request.method == "GET" and "/organizations" in url:
             return httpx.Response(
                 200,
-                json=_search_response([{"id": 77, "name": "ELSSWAY", "domain": None}]),
+                json=_search_response([{"id": 77, "name": "ACMECO", "domain": None}]),
                 request=request,
             )
         raise AssertionError(f"Unexpected call: {request.method} {url}")
@@ -214,7 +214,7 @@ def test_create_name_match_is_case_insensitive():
     client = _make_client(handler)
     try:
         with pytest.raises(DuplicateEntityError) as exc_info:
-            client.companies.create(CompanyCreate(name="elssway"))
+            client.companies.create(CompanyCreate(name="acmeco"))
         assert exc_info.value.existing_id == 77
     finally:
         client.close()
@@ -229,21 +229,21 @@ def test_create_fuzzy_non_exact_matches_do_not_block():
                 200,
                 json=_search_response(
                     [
-                        {"id": 1, "name": "Elssway Holdings", "domain": "elsswayholdings.com"},
-                        {"id": 2, "name": "Elsswayland", "domain": None},
+                        {"id": 1, "name": "Acmeco Holdings", "domain": "acmecoholdings.com"},
+                        {"id": 2, "name": "Acmecoland", "domain": None},
                     ]
                 ),
                 request=request,
             )
         if request.method == "POST" and "/organizations" in url:
             return httpx.Response(
-                200, json={"id": 999, "name": "Elssway", "domain": None}, request=request
+                200, json={"id": 999, "name": "Acmeco", "domain": None}, request=request
             )
         raise AssertionError(f"Unexpected call: {request.method} {url}")
 
     client = _make_client(handler)
     try:
-        result = client.companies.create(CompanyCreate(name="Elssway"))
+        result = client.companies.create(CompanyCreate(name="Acmeco"))
         assert result.id == 999
     finally:
         client.close()
@@ -261,7 +261,7 @@ def test_async_create_raises_duplicate_on_exact_name_match():
         if request.method == "GET" and "/organizations" in url:
             return httpx.Response(
                 200,
-                json=_search_response([{"id": 282327760, "name": "Elssway", "domain": None}]),
+                json=_search_response([{"id": 888888888, "name": "Acmeco", "domain": None}]),
                 request=request,
             )
         raise AssertionError(f"Unexpected call: {request.method} {url}")
@@ -269,8 +269,8 @@ def test_async_create_raises_duplicate_on_exact_name_match():
     async def run():
         async with _make_async_client(handler) as client:
             with pytest.raises(DuplicateEntityError) as exc_info:
-                await client.companies.create(CompanyCreate(name="Elssway"))
-            assert exc_info.value.existing_id == 282327760
+                await client.companies.create(CompanyCreate(name="Acmeco"))
+            assert exc_info.value.existing_id == 888888888
             assert exc_info.value.entity_type == "company"
 
     asyncio.run(run())
@@ -311,14 +311,14 @@ def test_async_create_skips_dedup_when_flag_false():
         if request.method == "POST" and "/organizations" in url:
             calls["post"] += 1
             return httpx.Response(
-                200, json={"id": 1234, "name": "Elssway", "domain": None}, request=request
+                200, json={"id": 1234, "name": "Acmeco", "domain": None}, request=request
             )
         raise AssertionError(f"Unexpected call: {request.method} {url}")
 
     async def run():
         async with _make_async_client(handler) as client:
             result = await client.companies.create(
-                CompanyCreate(name="Elssway"), if_not_exists=False
+                CompanyCreate(name="Acmeco"), if_not_exists=False
             )
             assert result.id == 1234
             assert calls["search"] == 0

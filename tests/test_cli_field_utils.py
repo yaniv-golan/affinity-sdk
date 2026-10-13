@@ -15,12 +15,12 @@ def dropdown_multi_resolver() -> CLIFieldResolver:
     """Create a CLI FieldResolver with dropdown-multi field metadata."""
     fields = [
         FieldMetadata(
-            id=FieldId(2166604),
+            id=FieldId(3333333),
             name="Sourced by",
             value_type=FieldValueType.DROPDOWN_MULTI,
             dropdown_options=[
-                DropdownOption(id=DropdownOptionId(5064548), text="YG"),
-                DropdownOption(id=DropdownOptionId(5064549), text="AB"),
+                DropdownOption(id=DropdownOptionId(5555551), text="YG"),
+                DropdownOption(id=DropdownOptionId(5555552), text="AB"),
             ],
         ),
         FieldMetadata(
@@ -50,13 +50,13 @@ def v1_dropdown_multi_resolver() -> CLIFieldResolver:
     """
     fields = [
         FieldMetadata(
-            id=FieldId(2166604),
+            id=FieldId(3333333),
             name="Sourced by",
             value_type=FieldValueType.DROPDOWN,
             allows_multiple=True,
             dropdown_options=[
-                DropdownOption(id=DropdownOptionId(5064548), text="YG"),
-                DropdownOption(id=DropdownOptionId(5064549), text="AB"),
+                DropdownOption(id=DropdownOptionId(5555551), text="YG"),
+                DropdownOption(id=DropdownOptionId(5555552), text="AB"),
             ],
         ),
         FieldMetadata(
@@ -81,24 +81,24 @@ class TestResolveDropdownValue:
         self, dropdown_multi_resolver: CLIFieldResolver
     ) -> None:
         """dropdown-multi should resolve text to array of option objects."""
-        value, type_str = dropdown_multi_resolver.resolve_dropdown_value("field-2166604", "YG")
+        value, type_str = dropdown_multi_resolver.resolve_dropdown_value("field-3333333", "YG")
         assert type_str == "dropdown-multi"
-        assert value == [{"dropdownOptionId": 5064548}]
+        assert value == [{"dropdownOptionId": 5555551}]
 
     def test_dropdown_multi_resolves_id_to_array(
         self, dropdown_multi_resolver: CLIFieldResolver
     ) -> None:
         """dropdown-multi should resolve numeric ID to array of option objects."""
-        value, type_str = dropdown_multi_resolver.resolve_dropdown_value("field-2166604", "5064548")
+        value, type_str = dropdown_multi_resolver.resolve_dropdown_value("field-3333333", "5555551")
         assert type_str == "dropdown-multi"
-        assert value == [{"dropdownOptionId": 5064548}]
+        assert value == [{"dropdownOptionId": 5555551}]
 
     def test_dropdown_multi_case_insensitive(
         self, dropdown_multi_resolver: CLIFieldResolver
     ) -> None:
         """dropdown-multi should resolve case-insensitively."""
-        value, _type_str = dropdown_multi_resolver.resolve_dropdown_value("field-2166604", "yg")
-        assert value == [{"dropdownOptionId": 5064548}]
+        value, _type_str = dropdown_multi_resolver.resolve_dropdown_value("field-3333333", "yg")
+        assert value == [{"dropdownOptionId": 5555551}]
 
     def test_dropdown_multi_invalid_option_raises(
         self, dropdown_multi_resolver: CLIFieldResolver
@@ -107,7 +107,7 @@ class TestResolveDropdownValue:
         from affinity.cli.errors import CLIError
 
         with pytest.raises(CLIError, match="not found"):
-            dropdown_multi_resolver.resolve_dropdown_value("field-2166604", "Unknown")
+            dropdown_multi_resolver.resolve_dropdown_value("field-3333333", "Unknown")
 
     def test_regular_dropdown_returns_single_object(
         self, dropdown_multi_resolver: CLIFieldResolver
@@ -128,26 +128,26 @@ class TestResolveDropdownValue:
     ) -> None:
         """List value from --set-json resolves each element for dropdown-multi."""
         value, type_str = dropdown_multi_resolver.resolve_dropdown_value(
-            "field-2166604", ["YG", "AB"]
+            "field-3333333", ["YG", "AB"]
         )
         assert type_str == "dropdown-multi"
-        assert value == [{"dropdownOptionId": 5064548}, {"dropdownOptionId": 5064549}]
+        assert value == [{"dropdownOptionId": 5555551}, {"dropdownOptionId": 5555552}]
 
     def test_dropdown_multi_list_single_element(
         self, dropdown_multi_resolver: CLIFieldResolver
     ) -> None:
         """Single-element list resolves to single-element array."""
-        value, type_str = dropdown_multi_resolver.resolve_dropdown_value("field-2166604", ["YG"])
+        value, type_str = dropdown_multi_resolver.resolve_dropdown_value("field-3333333", ["YG"])
         assert type_str == "dropdown-multi"
-        assert value == [{"dropdownOptionId": 5064548}]
+        assert value == [{"dropdownOptionId": 5555551}]
 
     def test_dropdown_multi_list_with_ids(self, dropdown_multi_resolver: CLIFieldResolver) -> None:
         """List of numeric IDs resolves correctly."""
         value, type_str = dropdown_multi_resolver.resolve_dropdown_value(
-            "field-2166604", ["5064548", "5064549"]
+            "field-3333333", ["5555551", "5555552"]
         )
         assert type_str == "dropdown-multi"
-        assert value == [{"dropdownOptionId": 5064548}, {"dropdownOptionId": 5064549}]
+        assert value == [{"dropdownOptionId": 5555551}, {"dropdownOptionId": 5555552}]
 
     def test_list_value_rejected_for_regular_dropdown(
         self, dropdown_multi_resolver: CLIFieldResolver
@@ -172,29 +172,29 @@ class TestV1DropdownMultiPromotion:
         self, v1_dropdown_multi_resolver: CLIFieldResolver
     ) -> None:
         """V1 dropdown+allows_multiple=True should wrap in array and return 'dropdown-multi'."""
-        value, type_str = v1_dropdown_multi_resolver.resolve_dropdown_value("field-2166604", "YG")
+        value, type_str = v1_dropdown_multi_resolver.resolve_dropdown_value("field-3333333", "YG")
         assert type_str == "dropdown-multi"
-        assert value == [{"dropdownOptionId": 5064548}]
+        assert value == [{"dropdownOptionId": 5555551}]
 
     def test_v1_dropdown_multi_id_wraps_in_array(
         self, v1_dropdown_multi_resolver: CLIFieldResolver
     ) -> None:
         """V1 dropdown+allows_multiple=True should wrap numeric ID in array."""
         value, type_str = v1_dropdown_multi_resolver.resolve_dropdown_value(
-            "field-2166604", "5064548"
+            "field-3333333", "5555551"
         )
         assert type_str == "dropdown-multi"
-        assert value == [{"dropdownOptionId": 5064548}]
+        assert value == [{"dropdownOptionId": 5555551}]
 
     def test_v1_dropdown_multi_list_value(
         self, v1_dropdown_multi_resolver: CLIFieldResolver
     ) -> None:
         """V1 dropdown+allows_multiple=True should handle list values."""
         value, type_str = v1_dropdown_multi_resolver.resolve_dropdown_value(
-            "field-2166604", ["YG", "AB"]
+            "field-3333333", ["YG", "AB"]
         )
         assert type_str == "dropdown-multi"
-        assert value == [{"dropdownOptionId": 5064548}, {"dropdownOptionId": 5064549}]
+        assert value == [{"dropdownOptionId": 5555551}, {"dropdownOptionId": 5555552}]
 
     def test_v1_single_dropdown_unchanged(
         self, v1_dropdown_multi_resolver: CLIFieldResolver
@@ -263,15 +263,15 @@ class TestResolveEntityRefValue:
 
     def test_person_string_id_wraps(self, entity_ref_resolver: CLIFieldResolver) -> None:
         """Person field wraps string ID in {"id": int}."""
-        value, type_str = entity_ref_resolver.resolve_field_value("field-400", "26229794")
+        value, type_str = entity_ref_resolver.resolve_field_value("field-400", "11111111")
         assert type_str == "person"
-        assert value == {"id": 26229794}
+        assert value == {"id": 11111111}
 
     def test_person_int_id_wraps(self, entity_ref_resolver: CLIFieldResolver) -> None:
         """Person field wraps int ID in {"id": int}."""
-        value, type_str = entity_ref_resolver.resolve_field_value("field-400", 26229794)
+        value, type_str = entity_ref_resolver.resolve_field_value("field-400", 11111111)
         assert type_str == "person"
-        assert value == {"id": 26229794}
+        assert value == {"id": 11111111}
 
     def test_company_string_id_wraps(self, entity_ref_resolver: CLIFieldResolver) -> None:
         """Company field wraps string ID in {"id": int}."""

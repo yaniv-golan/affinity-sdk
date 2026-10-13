@@ -31,14 +31,14 @@ if respx is None:  # pragma: no cover
 
 # Sample file metadata returned by the V1 API
 SAMPLE_FILE_METADATA = {
-    "id": 9192757,
+    "id": 7777777,
     "name": "Pitch Deck 2025.pdf",
     "size": 5826929,
     "content_type": "application/pdf",
     "person_id": None,
-    "organization_id": 306016520,
+    "organization_id": 555555555,
     "opportunity_id": None,
-    "uploader_id": 222321674,
+    "uploader_id": 11111114,
     "created_at": "2025-09-16T12:53:13.339Z",
 }
 
@@ -52,15 +52,15 @@ class TestFileUrlCLICommand:
     def test_file_url_returns_presigned_url(self, respx_mock: respx.MockRouter) -> None:
         """file-url command returns presigned URL with metadata."""
         # V2 can't answer (404), so the V1 metadata + redirect path is used
-        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/7777777").mock(
             return_value=Response(404, json={"errors": []})
         )
         # Mock the file metadata endpoint
-        respx_mock.get("https://api.affinity.co/entity-files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/entity-files/7777777").mock(
             return_value=Response(200, json=SAMPLE_FILE_METADATA)
         )
         # Mock the download endpoint to return a redirect
-        respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
+        respx_mock.get("https://api.affinity.co/entity-files/download/7777777").mock(
             return_value=Response(
                 307,
                 headers={"Location": PRESIGNED_URL},
@@ -70,15 +70,15 @@ class TestFileUrlCLICommand:
         runner = CliRunner()
         result = runner.invoke(
             cli,
-            ["--json", "file-url", "9192757"],
+            ["--json", "file-url", "7777777"],
             env={"AFFINITY_API_KEY": "test-key"},
         )
         assert result.exit_code == 0
         payload = json.loads(result.output.strip())
         assert payload["ok"] is True
         assert payload["command"]["name"] == "file-url"
-        assert payload["command"]["inputs"]["fileId"] == 9192757
-        assert payload["data"]["fileId"] == 9192757
+        assert payload["command"]["inputs"]["fileId"] == 7777777
+        assert payload["data"]["fileId"] == 7777777
         assert payload["data"]["name"] == "Pitch Deck 2025.pdf"
         assert payload["data"]["size"] == 5826929
         assert payload["data"]["contentType"] == "application/pdf"
@@ -91,20 +91,20 @@ class TestFileUrlCLICommand:
     def test_file_url_with_null_content_type(self, respx_mock: respx.MockRouter) -> None:
         """file-url handles files with null content type."""
         file_meta = {**SAMPLE_FILE_METADATA, "content_type": None}
-        respx_mock.get("https://api.affinity.co/v2/files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/v2/files/7777777").mock(
             return_value=Response(404, json={"errors": []})
         )
-        respx_mock.get("https://api.affinity.co/entity-files/9192757").mock(
+        respx_mock.get("https://api.affinity.co/entity-files/7777777").mock(
             return_value=Response(200, json=file_meta)
         )
-        respx_mock.get("https://api.affinity.co/entity-files/download/9192757").mock(
+        respx_mock.get("https://api.affinity.co/entity-files/download/7777777").mock(
             return_value=Response(307, headers={"Location": PRESIGNED_URL})
         )
 
         runner = CliRunner()
         result = runner.invoke(
             cli,
-            ["--json", "file-url", "9192757"],
+            ["--json", "file-url", "7777777"],
             env={"AFFINITY_API_KEY": "test-key"},
         )
         assert result.exit_code == 0
@@ -124,11 +124,11 @@ class TestGetDownloadUrlSDK:
             url_str = str(request.url)
 
             # File metadata request
-            if "/entity-files/9192757" in url_str and "download" not in url_str:
+            if "/entity-files/7777777" in url_str and "download" not in url_str:
                 return httpx.Response(200, json=SAMPLE_FILE_METADATA, request=request)
 
             # Download redirect request
-            if "/entity-files/download/9192757" in url_str:
+            if "/entity-files/download/7777777" in url_str:
                 return httpx.Response(
                     307,
                     headers={"Location": PRESIGNED_URL},
@@ -148,11 +148,11 @@ class TestGetDownloadUrlSDK:
         )
         try:
             files = EntityFileService(http)
-            result = files.get_download_url(FileId(9192757))
+            result = files.get_download_url(FileId(7777777))
 
             assert isinstance(result, PresignedUrl)
             assert result.url == PRESIGNED_URL
-            assert result.file_id == 9192757
+            assert result.file_id == 7777777
             assert result.name == "Pitch Deck 2025.pdf"
             assert result.size == 5826929
             assert result.content_type == "application/pdf"
@@ -171,9 +171,9 @@ class TestGetDownloadUrlSDK:
 
         def handler(request: httpx.Request) -> httpx.Response:
             url_str = str(request.url)
-            if "/entity-files/9192757" in url_str and "download" not in url_str:
+            if "/entity-files/7777777" in url_str and "download" not in url_str:
                 return httpx.Response(200, json=SAMPLE_FILE_METADATA, request=request)
-            if "/entity-files/download/9192757" in url_str:
+            if "/entity-files/download/7777777" in url_str:
                 return httpx.Response(307, headers={"Location": custom_url}, request=request)
             return httpx.Response(404, request=request)
 
@@ -188,7 +188,7 @@ class TestGetDownloadUrlSDK:
         )
         try:
             files = EntityFileService(http)
-            result = files.get_download_url(FileId(9192757))
+            result = files.get_download_url(FileId(7777777))
             assert result.expires_in == 300
         finally:
             http.close()
@@ -199,9 +199,9 @@ class TestGetDownloadUrlSDK:
 
         def handler(request: httpx.Request) -> httpx.Response:
             url_str = str(request.url)
-            if "/entity-files/9192757" in url_str and "download" not in url_str:
+            if "/entity-files/7777777" in url_str and "download" not in url_str:
                 return httpx.Response(200, json=SAMPLE_FILE_METADATA, request=request)
-            if "/entity-files/download/9192757" in url_str:
+            if "/entity-files/download/7777777" in url_str:
                 return httpx.Response(
                     307, headers={"Location": url_without_expiry}, request=request
                 )
@@ -218,7 +218,7 @@ class TestGetDownloadUrlSDK:
         )
         try:
             files = EntityFileService(http)
-            result = files.get_download_url(FileId(9192757))
+            result = files.get_download_url(FileId(7777777))
             assert result.expires_in == 60  # Default
         finally:
             http.close()
@@ -229,9 +229,9 @@ class TestGetDownloadUrlSDK:
 
         def handler(request: httpx.Request) -> httpx.Response:
             url_str = str(request.url)
-            if "/entity-files/9192757" in url_str and "download" not in url_str:
+            if "/entity-files/7777777" in url_str and "download" not in url_str:
                 return httpx.Response(200, json=SAMPLE_FILE_METADATA, request=request)
-            if "/entity-files/download/9192757" in url_str:
+            if "/entity-files/download/7777777" in url_str:
                 # Return 200 instead of redirect
                 return httpx.Response(200, content=b"file content", request=request)
             return httpx.Response(404, request=request)
@@ -248,7 +248,7 @@ class TestGetDownloadUrlSDK:
         try:
             files = EntityFileService(http)
             with pytest.raises(AffinityError, match="no redirect returned"):
-                files.get_download_url(FileId(9192757))
+                files.get_download_url(FileId(7777777))
         finally:
             http.close()
 
@@ -264,9 +264,9 @@ class TestGetDownloadUrlAsync:
 
         def handler(request: httpx.Request) -> httpx.Response:
             url_str = str(request.url)
-            if "/entity-files/9192757" in url_str and "download" not in url_str:
+            if "/entity-files/7777777" in url_str and "download" not in url_str:
                 return httpx.Response(200, json=SAMPLE_FILE_METADATA, request=request)
-            if "/entity-files/download/9192757" in url_str:
+            if "/entity-files/download/7777777" in url_str:
                 return httpx.Response(307, headers={"Location": PRESIGNED_URL}, request=request)
             return httpx.Response(404, request=request)
 
@@ -281,11 +281,11 @@ class TestGetDownloadUrlAsync:
         )
         try:
             files = AsyncEntityFileService(http)
-            result = await files.get_download_url(FileId(9192757))
+            result = await files.get_download_url(FileId(7777777))
 
             assert isinstance(result, PresignedUrl)
             assert result.url == PRESIGNED_URL
-            assert result.file_id == 9192757
+            assert result.file_id == 7777777
             assert result.name == "Pitch Deck 2025.pdf"
             assert result.size == 5826929
             assert result.content_type == "application/pdf"

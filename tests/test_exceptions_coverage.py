@@ -347,13 +347,13 @@ class TestValidationErrorStr:
 class TestMergedEntityError:
     """Tests for MergedEntityError and subclasses."""
 
-    MERGE_MSG = "292479388 no longer exists as it has been merged into 301128758"
+    MERGE_MSG = "666666661 no longer exists as it has been merged into 666666662"
 
     def test_match_positive(self) -> None:
         m = MergedEntityError.match(self.MERGE_MSG)
         assert m is not None
-        assert m.group(1) == "292479388"
-        assert m.group(2) == "301128758"
+        assert m.group(1) == "666666661"
+        assert m.group(2) == "666666662"
 
     def test_match_negative(self) -> None:
         assert MergedEntityError.match("Invalid email format") is None
@@ -361,12 +361,12 @@ class TestMergedEntityError:
     def test_init_base(self) -> None:
         err = MergedEntityError(
             self.MERGE_MSG,
-            source_id=292479388,
-            target_id=301128758,
+            source_id=666666661,
+            target_id=666666662,
             status_code=422,
         )
-        assert err.source_id == 292479388
-        assert err.target_id == 301128758
+        assert err.source_id == 666666661
+        assert err.target_id == 666666662
         assert err.entity_type is None
         assert err.status_code == 422
         assert isinstance(err, ValidationError)
@@ -374,12 +374,12 @@ class TestMergedEntityError:
     def test_company_merged_error(self) -> None:
         err = CompanyMergedError(
             self.MERGE_MSG,
-            source_id=292479388,
-            target_id=301128758,
+            source_id=666666661,
+            target_id=666666662,
         )
         assert err.entity_type == "Company"
-        assert err.source_id == 292479388
-        assert err.target_id == 301128758
+        assert err.source_id == 666666661
+        assert err.target_id == 666666662
         assert isinstance(err, MergedEntityError)
         assert isinstance(err, ValidationError)
 
@@ -396,18 +396,18 @@ class TestMergedEntityError:
 
     def test_catchable_as_validation_error(self) -> None:
         """MergedEntityError can be caught by existing ValidationError handlers."""
-        err = CompanyMergedError(self.MERGE_MSG, source_id=292479388, target_id=301128758)
+        err = CompanyMergedError(self.MERGE_MSG, source_id=666666661, target_id=666666662)
         try:
             raise err
         except ValidationError as caught:
             assert isinstance(caught, CompanyMergedError)
-            assert caught.source_id == 292479388
+            assert caught.source_id == 666666661
 
 
 class TestErrorFromResponseMergedEntity:
     """Tests for error_from_response detecting merged entities."""
 
-    MERGE_MSG = "292479388 no longer exists as it has been merged into 301128758"
+    MERGE_MSG = "666666661 no longer exists as it has been merged into 666666662"
 
     def test_422_with_merge_message_returns_merged_entity_error(self) -> None:
         err = error_from_response(
@@ -415,14 +415,14 @@ class TestErrorFromResponseMergedEntity:
             {"errors": [{"message": self.MERGE_MSG}]},
         )
         assert isinstance(err, MergedEntityError)
-        assert err.source_id == 292479388
-        assert err.target_id == 301128758
+        assert err.source_id == 666666661
+        assert err.target_id == 666666662
         assert err.status_code == 422
 
     def test_422_merge_with_company_url_returns_company_merged(self) -> None:
         diag = ErrorDiagnostics(
             method="GET",
-            url="https://api.affinity.co/v2/companies/292479388",
+            url="https://api.affinity.co/v2/companies/666666661",
         )
         err = error_from_response(
             422,
@@ -434,7 +434,7 @@ class TestErrorFromResponseMergedEntity:
 
     def test_422_merge_with_organizations_url_returns_company_merged(self) -> None:
         diag = ErrorDiagnostics(
-            url="https://api.affinity.co/organizations/292479388",
+            url="https://api.affinity.co/organizations/666666661",
         )
         err = error_from_response(
             422,
