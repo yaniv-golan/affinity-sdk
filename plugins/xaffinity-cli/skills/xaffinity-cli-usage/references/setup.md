@@ -6,16 +6,17 @@ Read this when `xaffinity config check-key --json` reports `"configured": false`
 
 The CLI resolves the API key in this order:
 
-1. `AFFINITY_API_KEY` env var
-2. `AFFINITY_API_KEY_FILE` env var (path to a file containing the key, or a `.env` file with an
+1. `--api-key-file <path>` or `--api-key-stdin` CLI flags (when one is used and an env var below
+   is also set, the CLI warns that the env var is ignored)
+2. `AFFINITY_API_KEY` env var
+3. `AFFINITY_API_KEY_FILE` env var (path to a file containing the key, or a `.env` file with an
    `AFFINITY_API_KEY=` line — including a 1Password Environments locally mounted `.env` file, which the
    CLI waits up to 30 s for while 1Password asks the user to approve the read)
-3. `AFFINITY_API_KEY_COMMAND` env var (shell command whose stdout is the key — git-credential-helper style; works with `op` / `pass` / `vault` / macOS `security`)
-4. `--api-key-file <path>` or `--api-key-stdin` CLI flags
+4. `AFFINITY_API_KEY_COMMAND` env var (shell command whose stdout is the key — git-credential-helper style; works with `op` / `pass` / `vault` / macOS `security`)
 5. `api_key` in the user config file (`config.toml`, written by `xaffinity config setup-key --scope user`)
 
 `xaffinity config setup-key --scope project` writes `AFFINITY_API_KEY` to a `.env` file in the current
-directory instead. The CLI reads it only with `--dotenv` (it is then step 1), so commands need
+directory instead. The CLI reads it only with `--dotenv` (it then sets the step 2 env var), so commands need
 `xaffinity --dotenv …`.
 
 ## Helping the user set up

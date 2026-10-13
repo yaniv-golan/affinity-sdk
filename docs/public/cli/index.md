@@ -95,16 +95,17 @@ See [config check-key](commands.md#xaffinity-config-check-key) and [config setup
 
 The CLI checks these sources in order (highest precedence first):
 
-1. `AFFINITY_API_KEY` environment variable. With `--dotenv` (or `--env-file <path>`, which
+1. `--api-key-file PATH` (reads from file, or `-` for stdin)
+2. `--api-key-stdin` flag (reads from stdin)
+3. `AFFINITY_API_KEY` environment variable. With `--dotenv` (or `--env-file <path>`, which
    implies it), a `.env` file is loaded first and can set this variable.
-2. `AFFINITY_API_KEY_FILE` — path to a file containing the key (or a `.env` file with an
+4. `AFFINITY_API_KEY_FILE` — path to a file containing the key (or a `.env` file with an
    `AFFINITY_API_KEY=` line)
-3. `AFFINITY_API_KEY_COMMAND` — a command whose stdout is the key
-4. `--api-key-file PATH` (reads from file, or `-` for stdin)
-5. `--api-key-stdin` flag (reads from stdin)
+5. `AFFINITY_API_KEY_COMMAND` — a command whose stdout is the key
 6. `api_key` in the user config file (`xaffinity config path` prints its location)
 
-An empty value counts as unset. See [Authentication](../guides/authentication.md) for the
+An empty value counts as unset. When a key flag is used while any of the three environment
+variables is set, the CLI warns that the variables are ignored. See [Authentication](../guides/authentication.md) for the
 file and command options.
 
 ### Reading from File or Stdin

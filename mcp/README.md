@@ -324,16 +324,18 @@ The MCP server uses the xaffinity CLI, which resolves API keys in this order (hi
 
 | Priority | Source | Description |
 |----------|--------|-------------|
-| 1 | `AFFINITY_API_KEY` env var | **← Claude Desktop sets this**. A `.env` file loaded with `--dotenv` can also set it |
-| 2 | `AFFINITY_API_KEY_FILE` env var | Path to a file containing the key |
-| 3 | `AFFINITY_API_KEY_COMMAND` env var | Command whose stdout is the key |
-| 4 | `--api-key-file` | CLI flag (reads from file, or `-` for stdin) |
-| 5 | `--api-key-stdin` | CLI flag (reads from stdin) |
+| 1 | `--api-key-file` | CLI flag (reads from file, or `-` for stdin) |
+| 2 | `--api-key-stdin` | CLI flag (reads from stdin) |
+| 3 | `AFFINITY_API_KEY` env var | **← Claude Desktop sets this**. A `.env` file loaded with `--dotenv` can also set it |
+| 4 | `AFFINITY_API_KEY_FILE` env var | Path to a file containing the key |
+| 5 | `AFFINITY_API_KEY_COMMAND` env var | Command whose stdout is the key |
 | 6 | Config file | `api_key` in the user config file (`xaffinity config path`) |
 
-**Claude Desktop / MCPB**: When you enter an API key in the Claude Desktop configuration UI, it's passed to the MCP server as the `AFFINITY_API_KEY` environment variable (priority 1). This means:
+The MCP server doesn't pass the key flags, so for it the environment comes first.
 
-- It **overrides** every other source, including `AFFINITY_API_KEY_FILE`, `AFFINITY_API_KEY_COMMAND`, `--api-key-file` and your config file
+**Claude Desktop / MCPB**: When you enter an API key in the Claude Desktop configuration UI, it's passed to the MCP server as the `AFFINITY_API_KEY` environment variable (priority 3). This means:
+
+- It **overrides** `AFFINITY_API_KEY_FILE`, `AFFINITY_API_KEY_COMMAND` and your config file
 - If you have a key configured via `xaffinity config setup-key` AND enter one in Claude Desktop, the **Claude Desktop key wins**
 
 **Recommendation**: Use ONE of these methods:

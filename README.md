@@ -508,15 +508,17 @@ create/delete, opportunity update/delete, list-entry create, and transcript dele
 
 The SDK and CLI resolve the API key through the following chain (first non-empty value wins):
 
-1. **Explicit constructor arg** — `Affinity(api_key="…")` (SDK only)
+1. **The key you pass explicitly** — `Affinity(api_key="…")` in the SDK; `--api-key-file <path>`
+   or `--api-key-stdin` in the CLI (the CLI has no `--api-key` flag)
 2. **`AFFINITY_API_KEY`** — standard environment variable
 3. **`AFFINITY_API_KEY_FILE`** — path to a file containing the key (12-factor / Docker secrets convention)
 4. **`AFFINITY_API_KEY_COMMAND`** — shell command whose stdout is the key (credential-helper convention)
-5. **`--api-key-file <path>`** or **`--api-key-stdin`** — CLI flags (the CLI has no `--api-key` flag)
-6. **User config file** — `api_key` in `config.toml`, written by `xaffinity config setup-key --scope user`
+5. **User config file** — `api_key` in `config.toml`, written by `xaffinity config setup-key --scope user`
    (file mode `0600` on Unix; `xaffinity config path` prints the location). CLI only.
 
-The SDK uses steps 1–4; steps 5–6 are CLI only. With `load_dotenv=True` (SDK) or `--dotenv` (CLI),
+The SDK uses steps 1–4; step 5 is CLI only. When the CLI uses a key flag while
+`AFFINITY_API_KEY`, `AFFINITY_API_KEY_FILE` or `AFFINITY_API_KEY_COMMAND` is also set, it warns
+that those are ignored (the file is not read and the command is not run). With `load_dotenv=True` (SDK) or `--dotenv` (CLI),
 a `.env` file is loaded into the environment before step 2, so its `AFFINITY_API_KEY` counts as
 step 2. That is how a key saved by `xaffinity config setup-key --scope project` (a `.env` in the
 current directory) is used: run commands with `--dotenv`.

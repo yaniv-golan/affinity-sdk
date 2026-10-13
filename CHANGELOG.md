@@ -7,12 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+**Exception to semantic versioning** (the maintainer's call, as 2.0.2 and 2.0.3): which API key
+the CLI uses changes when a key flag and a key environment variable are both set. The
+`### Changed` entry says how.
+
+### Changed
+
+- **CLI: `--api-key-file` and `--api-key-stdin` win over the environment.** A key named on the
+  command line is used even when `AFFINITY_API_KEY`, `AFFINITY_API_KEY_FILE` or
+  `AFFINITY_API_KEY_COMMAND` is set, and the CLI warns that those are ignored (the file is not
+  read and the command is not run). Before, an environment key silently replaced the flag's key,
+  so a stale `export` could send reads and writes to another workspace. To keep using the
+  environment key, drop the flag. The SDK and the MCP server (which passes no key flag) are
+  unchanged.
+
 ### Fixed
 
 - The missing-API-key error no longer says `config setup-key` saves to the system keychain: it
   writes a config file, or a `.env` file with `--scope project`.
 - Docs: one API-key resolution order across the README, guides, CLI page, MCP README and CLI
-  skill (there is no `--api-key` CLI flag; `AFFINITY_API_KEY` wins over `--api-key-file`).
+  skill (there is no `--api-key` CLI flag).
 - Docs: the README coverage table, routing guide, glossary and errors guide describe 2.0's
   routing (company and person field values, `notes.get`, transcripts, teams, semantic search
   and connections are V2); `api-versions.md` lists every call that sends a minimum version;
@@ -33,8 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Plugins
 
-- **CLI plugin**: 2.0.2 → 2.0.3 — skill: the API-key resolution order and where
-  `config setup-key` stores the key.
+- **CLI plugin**: 2.0.2 → 2.0.3 — skill: the API-key resolution order (key flags first) and
+  where `config setup-key` stores the key.
 
 ## [2.0.3] - 2026-10-13
 

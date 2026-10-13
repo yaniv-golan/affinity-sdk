@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- README: the API-key priority table matches the CLI (`AFFINITY_API_KEY` first, then
-  `AFFINITY_API_KEY_FILE`, `AFFINITY_API_KEY_COMMAND`, the flags and the config file), so a
-  Claude Desktop key overrides `--api-key-file`; Python 3.10+ is required.
+- README: the API-key priority table matches the CLI (the `--api-key-file` / `--api-key-stdin`
+  flags, then `AFFINITY_API_KEY`, `AFFINITY_API_KEY_FILE`, `AFFINITY_API_KEY_COMMAND` and the
+  config file). The server passes no key flag, so a Claude Desktop key still wins over the
+  other environment variables and the config file; Python 3.10+ is required.
 - Data-model resource: file examples use placeholder ids.
 
 ## [2.0.3] - 2026-10-13

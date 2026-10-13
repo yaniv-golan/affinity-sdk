@@ -483,27 +483,62 @@ def test_check_key_precedence_matches_resolver(
 
 
 @pytest.mark.req("REQ-AUTH-RESOLVE-021")
-def test_cli_env_var_wins_over_api_key_file_flag(
+def test_cli_api_key_file_flag_wins_over_env_vars(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """In the CLI, AFFINITY_API_KEY_FILE env var (step 3) wins over --api-key-file
-    flag (step 5).
-
-    This is intentional precedence per the resolver chain: env vars (steps 2-4)
-    are checked before CLI flags (steps 5-6). This is unusual — most CLI tools
-    have explicit flags win over env — but it preserves the pre-existing
-    xaffinity convention where env-set credentials win over flags. Pin this
-    behavior so a future refactor doesn't silently invert it.
-    """
-    env_file = _make_key_file(tmp_path, "key-from-env-var", name="env_var.txt")
+    """In the CLI, --api-key-file wins over every env var, and the ignored ones are named
+    in a warning. The ignored file is not read and the ignored command is not run."""
+    env_file = tmp_path / "missing.txt"  # would fail if it were read
     flag_file = _make_key_file(tmp_path, "key-from-cli-flag", name="flag_file.txt")
+    marker = tmp_path / "command-ran"
 
-    monkeypatch.delenv("AFFINITY_API_KEY", raising=False)
-    monkeypatch.delenv("AFFINITY_API_KEY_COMMAND", raising=False)
+    monkeypatch.setenv("AFFINITY_API_KEY", "key-from-env")
     monkeypatch.setenv("AFFINITY_API_KEY_FILE", str(env_file))
+    monkeypatch.setenv("AFFINITY_API_KEY_COMMAND", f"touch {marker}")
 
     ctx = _make_cli_context(api_key_file=str(flag_file))
-    assert _resolve_cli_key(ctx) == "key-from-env-var"
+    warnings: list[str] = []
+    assert ctx.resolve_api_key(warnings=warnings) == "key-from-cli-flag"
+    assert warnings == [
+        "AFFINITY_API_KEY, AFFINITY_API_KEY_FILE, AFFINITY_API_KEY_COMMAND are set but "
+        "ignored: the key from --api-key-file is used."
+    ]
+    assert not marker.exists()
+
+
+@pytest.mark.req("REQ-AUTH-RESOLVE-021")
+def test_cli_api_key_stdin_flag_wins_over_env_var(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """--api-key-stdin wins over AFFINITY_API_KEY, with a warning naming it."""
+    import io
+
+    monkeypatch.setenv("AFFINITY_API_KEY", "key-from-env")
+    monkeypatch.delenv("AFFINITY_API_KEY_FILE", raising=False)
+    monkeypatch.delenv("AFFINITY_API_KEY_COMMAND", raising=False)
+    monkeypatch.setattr("sys.stdin", io.StringIO("key-from-stdin\n"))
+
+    ctx = _make_cli_context(api_key_stdin=True)
+    warnings: list[str] = []
+    assert ctx.resolve_api_key(warnings=warnings) == "key-from-stdin"
+    assert warnings == [
+        "AFFINITY_API_KEY is set but ignored: the key from --api-key-stdin is used."
+    ]
+
+
+@pytest.mark.req("REQ-AUTH-RESOLVE-021")
+def test_cli_api_key_file_flag_without_env_vars_has_no_warning(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """No env key set: the flag's key is used and nothing is reported as ignored."""
+    flag_file = _make_key_file(tmp_path, "key-from-cli-flag", name="flag_file.txt")
+    for name in ("AFFINITY_API_KEY", "AFFINITY_API_KEY_FILE", "AFFINITY_API_KEY_COMMAND"):
+        monkeypatch.delenv(name, raising=False)
+
+    ctx = _make_cli_context(api_key_file=str(flag_file))
+    warnings: list[str] = []
+    assert ctx.resolve_api_key(warnings=warnings) == "key-from-cli-flag"
+    assert warnings == []
 
 
 @pytest.mark.req("REQ-AUTH-RESOLVE-020")
