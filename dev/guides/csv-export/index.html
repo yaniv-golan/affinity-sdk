@@ -2208,6 +2208,34 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../../reference/services/teams-users/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Teams, users and feedback
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
     
@@ -2217,10 +2245,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
         
           
-          <label class="md-nav__link" for="__nav_10_8_8" id="__nav_10_8_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
             
   
   
@@ -2238,8 +2266,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_8">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_8_9">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -3018,8 +3046,8 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"
 </code></pre></div>
 <h3 id="2-combine-with-filters">2. Combine with filters<a class="headerlink" href="#2-combine-with-filters" title="Permanent link">&para;</a></h3>
 <p><strong>Filtering on custom fields (recommended):</strong></p>
-<p>When filtering on custom fields, use <code>--filter</code> for server-side filtering. This is more efficient as Affinity filters the data before sending it:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Efficient: Server-side filtering on custom field</span>
+<p>When filtering on fields, use <code>--filter</code>. Affinity's search applies the conditions on fields before sending the data, and the whole filter is checked again locally:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Efficient: Affinity filters on the field</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Department = "Sales"'</span><span class="w"> </span>--all<span class="w"> </span>--csv<span class="w"> </span>&gt;<span class="w"> </span>sales-people.csv
 </code></pre></div>
 <p>You can also combine <code>--filter</code> with jq for additional client-side processing:</p>
@@ -3028,14 +3056,14 @@ xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"
 <span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.data.persons[] | [.id, .name, .primaryEmail] | @csv'</span>
 </code></pre></div>
 <p><strong>Filtering on built-in properties:</strong></p>
-<p>Built-in properties like <code>type</code>, <code>firstName</code>, <code>primaryEmail</code>, etc. cannot be filtered using <code>--filter</code> (which only works with custom fields). Use jq for client-side filtering:</p>
+<p>Built-in properties like <code>type</code>, <code>firstName</code> or <code>primaryEmail</code> are checked locally. On <code>person ls</code> and <code>company ls</code> a <code>--filter</code> with only such conditions is refused (it would mean reading every record); combine them with a field condition, use <code>--query TERM</code> for a name or email search, or use jq:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Less efficient: Client-side filtering on built-in 'type' property</span>
 <span class="c1"># (downloads all data, then filters locally)</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.data.persons[] | select(.type == "internal") | [.id, .name] | @csv'</span>
 </code></pre></div>
 <p><strong>Combining both approaches:</strong></p>
-<p>For complex scenarios, combine server-side custom field filtering with client-side built-in property filtering:</p>
+<p>For complex scenarios, combine a field filter (applied by Affinity) with built-in property filtering in jq:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Filter on custom field server-side, then filter on type client-side</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>ls<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Department = "Sales"'</span><span class="w"> </span>--json<span class="w"> </span>--all<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.data.persons[] | select(.type == "internal") | [.id, .name] | @csv'</span>
@@ -3083,7 +3111,7 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 <li><a href="../../cli/scripting/">CLI Scripting Guide</a> - JSON output and automation</li>
 <li><a href="../../cli/commands/">CLI Commands Reference</a> - Complete command documentation</li>
 <li><a href="../field-values/">Field Values Guide</a> - Working with custom fields</li>
-<li><a href="../filtering/">Filtering Guide</a> - Server-side and client-side filtering</li>
+<li><a href="../filtering/">Filtering Guide</a> - Filtering with Affinity's search and locally</li>
 </ul>
 
 

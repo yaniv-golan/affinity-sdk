@@ -964,6 +964,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#filters-in-202" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filters in 2.0.2
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1975,6 +1986,34 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../../reference/services/teams-users/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Teams, users and feedback
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
     
@@ -1984,10 +2023,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
         
           
-          <label class="md-nav__link" for="__nav_10_8_8" id="__nav_10_8_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
             
   
   
@@ -2005,8 +2044,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_8">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_8_9">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2338,6 +2377,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#filters-in-202" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filters in 2.0.2
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2542,6 +2592,23 @@ request for the details and a URL valid 60 seconds) and V1 otherwise. New:
 <li>The MCP server needs CLI 2.0; it adds the webhook commands, and <code>webhook create</code>/<code>update</code>/<code>delete</code>
   need the user's confirmation.</li>
 </ul>
+<h2 id="filters-in-202">Filters in 2.0.2<a class="headerlink" href="#filters-in-202" title="Permanent link">&para;</a></h2>
+<p>From 2.0.2, filters mean what Affinity's own search means, so a filter gives the same answer
+whether Affinity or the CLI applies it. This applies to <code>query</code>, every <code>--filter</code>, and Python
+code that uses <code>affinity.filters</code> (<code>F</code>, filter strings, <code>lists.entries(...).list(filter=...)</code>).</p>
+<ul>
+<li><strong>Empty multi-value fields count as empty.</strong> <code>is_null</code> (<code>field != *</code>) now matches a field with
+  no items, and <code>is_not_null</code> (<code>field = *</code>) no longer does.</li>
+<li><strong>Person and company values compare by name</strong> ("Jane Doe", "Acme") in <code>--filter</code> and
+  <code>affinity.filters</code>, as they already did in <code>query</code>.</li>
+<li><strong><code>contains</code> on person and company fields is refused</strong> in <code>query</code>: use <code>starts_word</code>, which
+  matches a word in the name that starts with the text ("Jan" finds "Jane Doe").</li>
+<li><strong><code>query</code>: a field name two list fields share is refused.</strong> Name the field by id instead,
+  for example <code>fields.affinity-data-year-founded</code>.</li>
+</ul>
+<p>These now work where they were refused before: <code>company ls --filter</code> and <code>person ls --filter</code>
+(on company and person fields), and <code>query</code> on companies and persons with a condition on their
+fields. See <a href="../filtering/">Filtering</a> for what goes to Affinity's search.</p>
 
 
 

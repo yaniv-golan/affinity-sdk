@@ -1920,6 +1920,34 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../services/teams-users/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Teams, users and feedback
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
     
@@ -1929,10 +1957,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
         
           
-          <label class="md-nav__link" for="__nav_10_8_8" id="__nav_10_8_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
             
   
   
@@ -1950,8 +1978,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_8">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_8_9">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2253,7 +2281,7 @@
 <code>tools/api_coverage.json</code> by <code>python tools/api_coverage.py --markdown</code>; CI checks it
 against the pinned API specs and checks that each supported call requests its operation.</p>
 <h2 id="v2-api">V2 API<a class="headerlink" href="#v2-api" title="Permanent link">&para;</a></h2>
-<p>82 supported, 30 planned</p>
+<p>106 supported, 6 planned</p>
 <table>
 <thead>
 <tr>
@@ -2302,9 +2330,9 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>POST /v2/companies/search</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; phase 2.x-3</td>
+<td>supported</td>
+<td><code>companies.find()</code></td>
+<td>beta</td>
 </tr>
 <tr>
 <td><code>GET /v2/companies/{companyId}</code></td>
@@ -2326,21 +2354,21 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /v2/companies/{companyId}/fields/{fieldId}</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; phase 2.x-4</td>
+<td>supported</td>
+<td><code>companies.get_field_value(CompanyId(1), "field-1")</code></td>
+<td>beta</td>
 </tr>
 <tr>
 <td><code>POST /v2/companies/{companyId}/fields/{fieldId}</code></td>
-<td>planned</td>
+<td>supported</td>
+<td><code>companies.update_field_value(CompanyId(1), "field-1", "x")</code></td>
 <td></td>
-<td>phase 2.x-4</td>
 </tr>
 <tr>
 <td><code>GET /v2/companies/{companyId}/fields/{fieldId}/values</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-09-17+; phase 2.x-4</td>
+<td>supported</td>
+<td><code>companies.list_field_value_items(CompanyId(1), "field-1")</code></td>
+<td>beta; API 2026-09-17+</td>
 </tr>
 <tr>
 <td><code>GET /v2/companies/{companyId}/list-entries</code></td>
@@ -2386,15 +2414,15 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /v2/duplicates/company-suggestions</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-07-15+; phase 2.x-2</td>
+<td>supported</td>
+<td><code>companies.list_duplicate_suggestions()</code></td>
+<td>beta; API 2026-07-15+</td>
 </tr>
 <tr>
 <td><code>GET /v2/duplicates/person-suggestions</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-07-15+; phase 2.x-2</td>
+<td>supported</td>
+<td><code>persons.list_duplicate_suggestions()</code></td>
+<td>beta; API 2026-07-15+</td>
 </tr>
 <tr>
 <td><code>GET /v2/emails</code></td>
@@ -2404,9 +2432,9 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>POST /v2/feedback</code></td>
-<td>planned</td>
+<td>supported</td>
+<td><code>feedback.send("api", "s", "b")</code></td>
 <td></td>
-<td>phase 2.x-1</td>
 </tr>
 <tr>
 <td><code>GET /v2/field-value-changes</code></td>
@@ -2434,15 +2462,15 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /v2/inferred-connections/coworkers</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; phase 2.x-2</td>
+<td>supported</td>
+<td><code>companies.list_coworker_connections(CompanyId(1))</code></td>
+<td>beta</td>
 </tr>
 <tr>
 <td><code>GET /v2/inferred-connections/investor-executive-connections</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; phase 2.x-2</td>
+<td>supported</td>
+<td><code>companies.list_investor_executive_connections(CompanyId(1))</code></td>
+<td>beta</td>
 </tr>
 <tr>
 <td><code>GET /v2/lists</code></td>
@@ -2512,9 +2540,9 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>POST /v2/lists/{listId}/list-entries/search</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; phase 2.x-3</td>
+<td>supported</td>
+<td><code>lists.entries(ListId(1)).find()</code></td>
+<td>beta</td>
 </tr>
 <tr>
 <td><code>GET /v2/lists/{listId}/list-entries/{listEntryId}</code></td>
@@ -2524,9 +2552,9 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /v2/lists/{listId}/list-entries/{listEntryId}/field-value-changes</code></td>
-<td>planned</td>
+<td>supported</td>
+<td><code>lists.entries(ListId(1)).list_field_changes(ListEntryId(1))</code></td>
 <td></td>
-<td>phase 2.x-4</td>
 </tr>
 <tr>
 <td><code>GET /v2/lists/{listId}/list-entries/{listEntryId}/fields</code></td>
@@ -2554,9 +2582,9 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /v2/lists/{listId}/list-entries/{listEntryId}/fields/{fieldId}/values</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-09-17+; phase 2.x-4</td>
+<td>supported</td>
+<td><code>lists.entries(ListId(1)).list_field_value_items(ListEntryId(1), "field-1")</code></td>
+<td>beta; API 2026-09-17+</td>
 </tr>
 <tr>
 <td><code>GET /v2/lists/{listId}/saved-views</code></td>
@@ -2584,9 +2612,9 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /v2/meetings/{meetingId}</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-07-15+; phase 2.x-1</td>
+<td>supported</td>
+<td><code>interactions.get_meeting(1)</code></td>
+<td>beta; API 2026-07-15+</td>
 </tr>
 <tr>
 <td><code>GET /v2/notes</code></td>
@@ -2626,21 +2654,21 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /v2/notes/{noteId}/attached-companies</code></td>
-<td>planned</td>
+<td>supported</td>
+<td><code>notes.list_attached_companies(NoteId(1))</code></td>
 <td></td>
-<td>phase 2.x-1</td>
 </tr>
 <tr>
 <td><code>GET /v2/notes/{noteId}/attached-opportunities</code></td>
-<td>planned</td>
+<td>supported</td>
+<td><code>notes.list_attached_opportunities(NoteId(1))</code></td>
 <td></td>
-<td>phase 2.x-1</td>
 </tr>
 <tr>
 <td><code>GET /v2/notes/{noteId}/attached-persons</code></td>
-<td>planned</td>
+<td>supported</td>
+<td><code>notes.list_attached_persons(NoteId(1))</code></td>
 <td></td>
-<td>phase 2.x-1</td>
 </tr>
 <tr>
 <td><code>GET /v2/notes/{noteId}/replies</code></td>
@@ -2722,9 +2750,9 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>POST /v2/persons/search</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; phase 2.x-3</td>
+<td>supported</td>
+<td><code>persons.find()</code></td>
+<td>beta</td>
 </tr>
 <tr>
 <td><code>DELETE /v2/persons/{personId}</code></td>
@@ -2752,21 +2780,21 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /v2/persons/{personId}/fields/{fieldId}</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; phase 2.x-4</td>
+<td>supported</td>
+<td><code>persons.get_field_value(PersonId(1), "field-1")</code></td>
+<td>beta</td>
 </tr>
 <tr>
 <td><code>POST /v2/persons/{personId}/fields/{fieldId}</code></td>
-<td>planned</td>
+<td>supported</td>
+<td><code>persons.update_field_value(PersonId(1), "field-1", "x")</code></td>
 <td></td>
-<td>phase 2.x-4</td>
 </tr>
 <tr>
 <td><code>GET /v2/persons/{personId}/fields/{fieldId}/values</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-09-17+; phase 2.x-4</td>
+<td>supported</td>
+<td><code>persons.list_field_value_items(PersonId(1), "field-1")</code></td>
+<td>beta; API 2026-09-17+</td>
 </tr>
 <tr>
 <td><code>GET /v2/persons/{personId}/list-entries</code></td>
@@ -2860,15 +2888,15 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /v2/teams</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-09-17+; phase 2.x-1</td>
+<td>supported</td>
+<td><code>teams.list()</code></td>
+<td>beta; API 2026-09-17+</td>
 </tr>
 <tr>
 <td><code>GET /v2/teams/{teamId}</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; API 2026-09-17+; phase 2.x-1</td>
+<td>supported</td>
+<td><code>teams.get(1)</code></td>
+<td>beta; API 2026-09-17+</td>
 </tr>
 <tr>
 <td><code>GET /v2/transcripts</code></td>
@@ -2880,7 +2908,7 @@ against the pinned API specs and checks that each supported call requests its op
 <td><code>DELETE /v2/transcripts/{transcriptId}</code></td>
 <td>planned</td>
 <td></td>
-<td>beta; API 2026-09-17+; phase 2.x-1</td>
+<td>beta; API 2026-09-17+; phase when-live</td>
 </tr>
 <tr>
 <td><code>GET /v2/transcripts/{transcriptId}</code></td>
@@ -2896,15 +2924,15 @@ against the pinned API specs and checks that each supported call requests its op
 </tr>
 <tr>
 <td><code>GET /v2/users</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; phase 2.x-1</td>
+<td>supported</td>
+<td><code>users.list()</code></td>
+<td>beta</td>
 </tr>
 <tr>
 <td><code>GET /v2/users/{userId}</code></td>
-<td>planned</td>
-<td></td>
-<td>beta; phase 2.x-1</td>
+<td>supported</td>
+<td><code>users.get(UserId(1))</code></td>
+<td>beta</td>
 </tr>
 <tr>
 <td><code>GET /v2/webhooks</code></td>

@@ -1764,6 +1764,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#filtering-on-affinitys-side" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtering on Affinity's Side
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#compound-conditions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2692,6 +2703,34 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../services/teams-users/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Teams, users and feedback
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
     
@@ -2701,10 +2740,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
         
           
-          <label class="md-nav__link" for="__nav_10_8_8" id="__nav_10_8_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
             
   
   
@@ -2722,8 +2761,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_8">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_8_9">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -3126,6 +3165,17 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filtering-on-affinitys-side" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtering on Affinity's Side
+      
+    </span>
+  </a>
   
 </li>
         
@@ -3798,8 +3848,8 @@
 <div class="highlight"><pre><span></span><code><span class="c1">// Simplest query - get 10 persons</span>
 <span class="p">{</span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"persons"</span><span class="p">,</span><span class="w"> </span><span class="nt">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">}</span>
 
-<span class="c1">// Add a filter</span>
-<span class="p">{</span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"persons"</span><span class="p">,</span><span class="w"> </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"email"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contains"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"@acme.com"</span><span class="p">},</span><span class="w"> </span><span class="nt">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">}</span>
+<span class="c1">// Add a filter (companies and persons: filter on a field)</span>
+<span class="p">{</span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"companies"</span><span class="p">,</span><span class="w"> </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fields.Industry"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eq"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Software"</span><span class="p">},</span><span class="w"> </span><span class="nt">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">}</span>
 
 <span class="c1">// Include related companies</span>
 <span class="p">{</span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"persons"</span><span class="p">,</span><span class="w"> </span><span class="nt">"include"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"companies"</span><span class="p">],</span><span class="w"> </span><span class="nt">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">}</span>
@@ -3966,6 +4016,7 @@
 <p><strong>Direct</strong> - Can be queried without any required filters:
 <div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"persons"</span><span class="p">,</span><span class="w"> </span><span class="nt">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">}</span>
 </code></pre></div></p>
+<p><code>companies</code> and <code>persons</code> are filtered by Affinity's search: a <code>where</code> must include at least one condition on their fields (<code>fields.&lt;name&gt;</code>), and the rest of the clause (e.g. <code>name contains</code>) runs on what Affinity returns. A <code>where</code> with no field condition is refused, since it would mean reading Affinity's whole company directory (about 12 million records); for a name or email search use <code>xaffinity company ls --query TERM</code> / <code>xaffinity person ls --query TERM</code>. <code>opportunities</code> take no <code>where</code>.</p>
 <p><strong>Requires parent filter</strong> - Must specify parent context:
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"listEntries"</span><span class="p">,</span>
@@ -3976,7 +4027,7 @@
 - <code>listId</code> filter with <code>eq</code> or <code>in</code> operator
 - <code>listName</code> filter (resolved to <code>listId</code> automatically)
 - Multiple lists via <code>in</code> operator or <code>or</code> conditions
-- <code>fields.*</code> paths with human-readable field names (resolved to field IDs automatically)</p>
+- <code>fields.*</code> paths with human-readable field names (resolved to field IDs automatically) or field ids</p>
 <p><strong>Include only</strong> - Cannot be queried directly; use as relationship include:
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"persons"</span><span class="p">,</span>
@@ -4082,16 +4133,22 @@ Example: {"from": "persons", "include": ["interactions"]}
 <tbody>
 <tr>
 <td><code>contains</code></td>
-<td>Contains substring</td>
+<td>Contains substring (case-insensitive)</td>
 <td>string</td>
 </tr>
 <tr>
 <td><code>starts_with</code></td>
-<td>Starts with prefix</td>
+<td>Starts with prefix (case-insensitive)</td>
+<td>string</td>
+</tr>
+<tr>
+<td><code>starts_word</code></td>
+<td>A word in the value starts with the text (case-insensitive)</td>
 <td>string</td>
 </tr>
 </tbody>
 </table>
+<p><code>starts_word</code> matches the way Affinity's search matches names: <code>"Jan"</code> matches "Jane Doe" and "Mary-Jane"; <code>"ane"</code> doesn't. Person and company field values are compared by name ("Jane Doe", "Acme"); <code>contains</code>, <code>contains_any</code> and <code>contains_all</code> on a person or company field are refused (use <code>starts_word</code>).</p>
 <h4 id="collection">Collection<a class="headerlink" href="#collection" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
@@ -4114,12 +4171,22 @@ Example: {"from": "persons", "include": ["interactions"]}
 </tr>
 <tr>
 <td><code>contains_any</code></td>
-<td>Array has any of</td>
+<td>Contains any of the substrings (case-insensitive)</td>
 <td>array</td>
 </tr>
 <tr>
 <td><code>contains_all</code></td>
-<td>Array has all of</td>
+<td>Contains all of the substrings (case-insensitive)</td>
+<td>array</td>
+</tr>
+<tr>
+<td><code>has_any</code></td>
+<td>Multi-value field has any of the values</td>
+<td>array</td>
+</tr>
+<tr>
+<td><code>has_all</code></td>
+<td>Multi-value field has all of the values</td>
 <td>array</td>
 </tr>
 </tbody>
@@ -4146,6 +4213,10 @@ Example: {"from": "persons", "include": ["interactions"]}
 </tr>
 </tbody>
 </table>
+<p>An empty multi-value field (no items) counts as empty: <code>is_null</code> matches it, <code>is_not_null</code> doesn't.</p>
+<p>The <code>--filter</code> text of <code>list export</code>, <code>company ls</code> and <code>person ls</code> is the same filter language with a text spelling (<code>Owner starts_word "Jan"</code>); every condition means the same in both.</p>
+<h3 id="filtering-on-affinitys-side">Filtering on Affinity's Side<a class="headerlink" href="#filtering-on-affinitys-side" title="Permanent link">&para;</a></h3>
+<p>On <code>listEntries</code>, <code>companies</code> and <code>persons</code>, the conditions on fields that Affinity's search can answer are sent to Affinity, so only matching records are downloaded. The full <code>where</code> still runs locally on what comes back, so results are the same as a local filter. Related-record quantifiers, non-field paths (<code>entityName</code>, <code>createdAt</code>, ...), <code>expr</code>, <code>contains_any</code> / <code>contains_all</code> and an OR with a branch Affinity can't answer stay local. <code>--include-meta</code> reports the split in <code>meta.serverFilter</code> (<code>pushed</code>, <code>local</code>, <code>sort</code>). Details: <a href="../../guides/query-command/#filtering-on-affinitys-side">Query command guide</a>.</p>
 <h3 id="compound-conditions">Compound Conditions<a class="headerlink" href="#compound-conditions" title="Permanent link">&para;</a></h3>
 <h4 id="and">AND<a class="headerlink" href="#and" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -4169,16 +4240,21 @@ Example: {"from": "persons", "include": ["interactions"]}
 <span class="p">}</span>
 </code></pre></div>
 <h3 id="quantifiers">Quantifiers<a class="headerlink" href="#quantifiers" title="Permanent link">&para;</a></h3>
-<p>Quantifiers filter records based on related entities. They require fetching relationship data (N+1 API calls).</p>
+<p>Quantifiers filter records based on related entities. They require fetching relationship data (N+1 API calls). On <code>persons</code> and <code>companies</code> the <code>where</code> also needs a condition on a field, which Affinity's search applies first.</p>
 <h4 id="all">ALL<a class="headerlink" href="#all" title="Permanent link">&para;</a></h4>
 <p>All related items must match the condition:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"persons"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"all"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"companies"</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"domain"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contains"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">".com"</span><span class="w"> </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nt">"and"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fields.Seniority"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eq"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Executive"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"all"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"companies"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"domain"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contains"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">".com"</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -4187,10 +4263,15 @@ Example: {"from": "persons", "include": ["interactions"]}
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"persons"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"none"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"companies"</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"name"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contains"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Competitor"</span><span class="w"> </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nt">"and"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fields.Seniority"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eq"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Executive"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"none"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"companies"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"name"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contains"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Competitor"</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -4198,7 +4279,12 @@ Example: {"from": "persons", "include": ["interactions"]}
 <p>Count related items using the <code>_count</code> pseudo-field:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"persons"</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"companies._count"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gte"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"and"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fields.Seniority"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eq"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Executive"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"companies._count"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gte"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 <h3 id="exists-subquery">EXISTS Subquery<a class="headerlink" href="#exists-subquery" title="Permanent link">&para;</a></h3>
@@ -4206,10 +4292,15 @@ Example: {"from": "persons", "include": ["interactions"]}
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"persons"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"exists"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"interactions"</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"type"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eq"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"meeting"</span><span class="w"> </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nt">"and"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fields.Seniority"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eq"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Executive"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"exists"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"interactions"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"type"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eq"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"meeting"</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -4231,7 +4322,8 @@ fields["Field With Spaces"]
 <p>For <code>listEntries</code> queries, <code>fields.*</code> paths support human-readable field names:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fields.Status"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eq"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Active"</span><span class="p">}</span>
 </code></pre></div>
-<p>Field names are resolved case-insensitively against the list's field definitions. If a name is not found, it passes through unchanged (allowing direct use of field IDs like <code>fields.12345</code> or <code>fields.field-260415</code>).</p>
+<p>Field names are resolved case-insensitively against the list's field definitions. Any field can also be named by id (<code>fields.field-260415</code>, <code>fields.affinity-data-year-founded</code>). An unknown name gives a warning listing the list's fields.</p>
+<p>When two list fields share a name (e.g. Affinity's and Dealroom's "Year Founded"), <code>fields.&lt;name&gt;</code> is refused with an error listing the ids: use <code>fields.&lt;field id&gt;</code>. Such fields come back keyed by id.</p>
 <h3 id="field-value-normalization">Field Value Normalization<a class="headerlink" href="#field-value-normalization" title="Permanent link">&para;</a></h3>
 <p>When selecting custom fields in <code>listEntries</code> queries, reference field values are <strong>normalized to display strings</strong> for readability:</p>
 <table>
@@ -4385,6 +4477,7 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>field<span class="w
 </tr>
 </tbody>
 </table>
+<p>When every <code>orderBy</code> key is a sortable field (<code>fields.&lt;name&gt;</code>, up to 5) and there is no <code>groupBy</code> or <code>aggregate</code>, Affinity sorts; with a <code>limit</code>, fetching stops once enough records pass the filter. Affinity's order puts empty values last in both directions, breaks ties by id ascending, and orders ranked dropdowns by rank. When the sort runs locally it also breaks ties by id.</p>
 <h2 id="aggregate-functions">Aggregate Functions<a class="headerlink" href="#aggregate-functions" title="Permanent link">&para;</a></h2>
 <h3 id="basic-aggregates">Basic Aggregates<a class="headerlink" href="#basic-aggregates" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -4509,12 +4602,12 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>field<span class="w
 <span class="p">{</span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"persons"</span><span class="p">,</span><span class="w"> </span><span class="nt">"include"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"companies"</span><span class="p">],</span><span class="w"> </span><span class="nt">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">}</span>
 <span class="c1">// Result: [{"id": 1, "firstName": "John", "companies": [{"id": 100, "name": "Acme"}]}]</span>
 
-<span class="c1">// Quantifier: Get persons who have 2+ companies (companies not in result)</span>
-<span class="p">{</span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"persons"</span><span class="p">,</span><span class="w"> </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"companies._count"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gte"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="nt">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">}</span>
+<span class="c1">// Quantifier: Get executives who have 2+ companies (companies not in result)</span>
+<span class="p">{</span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"persons"</span><span class="p">,</span><span class="w"> </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"and"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fields.Seniority"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eq"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Executive"</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"companies._count"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gte"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">}]},</span><span class="w"> </span><span class="nt">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">}</span>
 <span class="c1">// Result: [{"id": 1, "firstName": "John"}]</span>
 
-<span class="c1">// Both: Get persons with 2+ companies AND include those companies</span>
-<span class="p">{</span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"persons"</span><span class="p">,</span><span class="w"> </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"companies._count"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gte"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="nt">"include"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"companies"</span><span class="p">],</span><span class="w"> </span><span class="nt">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">}</span>
+<span class="c1">// Both: Get executives with 2+ companies AND include those companies</span>
+<span class="p">{</span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"persons"</span><span class="p">,</span><span class="w"> </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"and"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fields.Seniority"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eq"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Executive"</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"companies._count"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gte"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">}]},</span><span class="w"> </span><span class="nt">"include"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"companies"</span><span class="p">],</span><span class="w"> </span><span class="nt">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">}</span>
 </code></pre></div>
 <h2 id="include-relationships">Include Relationships<a class="headerlink" href="#include-relationships" title="Permanent link">&para;</a></h2>
 <h3 id="available-relationships">Available Relationships<a class="headerlink" href="#available-relationships" title="Permanent link">&para;</a></h3>
@@ -4634,7 +4727,7 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>field<span class="w
 <h3 id="expand-syntax">Expand Syntax<a class="headerlink" href="#expand-syntax" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"companies"</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"name"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contains"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Acme"</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fields.Industry"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eq"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Software"</span><span class="p">},</span>
 <span class="w">  </span><span class="nt">"expand"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"interactionDates"</span><span class="p">],</span>
 <span class="w">  </span><span class="nt">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span>
 <span class="p">}</span>
@@ -4709,7 +4802,7 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>field<span class="w
 <h3 id="parse-error">Parse Error<a class="headerlink" href="#parse-error" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"QueryParseError"</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Unknown operator 'like'. Supported: eq, neq, gt, gte, lt, lte, contains, starts_with, in, between, is_null, is_not_null"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Unknown operator 'like'. Supported operators: between, contains, contains_all, contains_any, eq, gt, gte, has_all, has_any, in, is_not_null, is_null, lt, lte, neq, starts_with, starts_word"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"where.op"</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -4757,7 +4850,7 @@ xaffinity<span class="w"> </span>list<span class="w"> </span>field<span class="w
 ├── No → Use normal filters (fast, no N+1 calls)
 └── Yes → What entity are you querying from?
     ├── listEntries → Safe (bounded by list size)
-    └── persons/companies/opportunities → ⚠️ Read below
+    └── persons/companies → ⚠️ Read below (opportunities take no where)
         ├── Add cheap pre-filters first to reduce dataset
         ├── Use --max-records 100 for exploration
         └── Use --dry-run to preview API calls
@@ -4796,7 +4889,7 @@ be very slow on large databases.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Important</strong>: Unbounded queries (from <code>persons</code>, <code>companies</code>, or <code>opportunities</code>)
+<p><strong>Important</strong>: Queries from <code>persons</code> or <code>companies</code>
 with quantifier filters require explicit <code>--max-records</code> to prevent accidentally
 running very long queries.</p>
 <h3 id="recommended-patterns">Recommended Patterns<a class="headerlink" href="#recommended-patterns" title="Permanent link">&para;</a></h3>
@@ -4808,7 +4901,7 @@ running very long queries.</p>
 <span class="w">  </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">"and"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">      </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"listId"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eq"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">12345</span><span class="p">},</span>
-<span class="w">      </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"entity.companies._count"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gte"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">}</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"persons._count"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gte"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">}</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -4820,6 +4913,7 @@ running very long queries.</p>
 <span class="w">  </span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"companies"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">"and"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fields.Industry"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eq"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Software"</span><span class="p">},</span>
 <span class="w">      </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"domain"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contains"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"example"</span><span class="p">},</span>
 <span class="w">      </span><span class="p">{</span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"persons._count"</span><span class="p">,</span><span class="w"> </span><span class="nt">"op"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gte"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">}</span>
 <span class="w">    </span><span class="p">]</span>

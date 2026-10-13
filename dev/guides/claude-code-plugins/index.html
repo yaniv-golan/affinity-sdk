@@ -2065,6 +2065,34 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../../reference/services/teams-users/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Teams, users and feedback
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
     
@@ -2074,10 +2102,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
         
           
-          <label class="md-nav__link" for="__nav_10_8_8" id="__nav_10_8_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
             
   
   
@@ -2095,8 +2123,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_8">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_8_9">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2605,13 +2633,13 @@
 <span class="k">with</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">policies</span><span class="o">=</span><span class="n">Policies</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="n">WritePolicy</span><span class="o">.</span><span class="n">DENY</span><span class="p">))</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
-<p><strong>Filters only work on custom fields</strong></p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">F</span>
+<p><strong>Filter persons and companies on fields with <code>find()</code></strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity.criteria</span><span class="w"> </span><span class="kn">import</span> <span class="n">Condition</span>
 
-<span class="c1"># Works - custom fields</span>
-<span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">"Department"</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">"Sales"</span><span class="p">))</span>
+<span class="c1"># Affinity's search filters on field values (dropdown values are option ids)</span>
+<span class="n">page</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">Condition</span><span class="p">(</span><span class="s2">"field-123"</span><span class="p">,</span> <span class="s2">"is-any-of"</span><span class="p">,</span> <span class="p">[</span><span class="mi">4</span><span class="p">]),</span> <span class="n">limit</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 
-<span class="c1"># Won't work - built-in properties like firstName, lastName, domain, etc.</span>
+<span class="c1"># persons.list(filter=...) raises ValueError; name/email search is persons.search("jane")</span>
 </code></pre></div>
 <h3 id="example-prompts">Example prompts<a class="headerlink" href="#example-prompts" title="Permanent link">&para;</a></h3>
 <ul>
