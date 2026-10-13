@@ -75,6 +75,12 @@ gives the same answer whether Affinity or the CLI applies it.
   first page of matches); otherwise the error's `details.local` says which conditions stay
   local. The printed cursor (`xsearch1:...`) carries the search, so `--cursor` alone resumes
   a filtered export. A refused search falls back to reading the whole list, with a warning.
+- **`company ls --filter` and `person ls --filter` work** (they used to be refused): the filter
+  goes to Affinity's search, which filters on field values, and the whole filter still runs
+  locally on what comes back. A filter with no field condition is still refused (reading every
+  company isn't practical: use `--query`). Conditions on Affinity's enriched fields are sent
+  as they are, with a warning that Affinity's search can miss a few records' enriched values.
+  The cursor carries the search (`xsearch1:...`).
 - **CLI:** `team ls|get`, `user ls|get`, `meeting get`, `note attached`, `feedback send` (asks
   for confirmation: the text leaves your organization). The MCP registry has them; `feedback
   send` goes through the user-confirmation flow.

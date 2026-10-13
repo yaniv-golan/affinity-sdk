@@ -26,18 +26,23 @@ ROW_KEYS = frozenset(
 )
 
 
-def where_from_filter(expr: FilterExpression) -> WhereClause:
-    """The WHERE clause for a parsed ``--filter`` expression on list entries: field names
-    become ``fields.<name>`` paths; row keys (``entityName``, ...) keep their own path."""
+def where_from_filter(expr: FilterExpression, row_keys: frozenset[str] = ROW_KEYS) -> WhereClause:
+    """The WHERE clause for a parsed ``--filter`` expression: field names become
+    ``fields.<name>`` paths; ``row_keys`` (attributes such as ``entityName``) keep their own
+    path. The default keys are a list entry's."""
     if isinstance(expr, AndExpression):
-        return WhereClause(and_=[where_from_filter(expr.left), where_from_filter(expr.right)])
+        return WhereClause(
+            and_=[where_from_filter(expr.left, row_keys), where_from_filter(expr.right, row_keys)]
+        )
     if isinstance(expr, OrExpression):
-        return WhereClause(or_=[where_from_filter(expr.left), where_from_filter(expr.right)])
+        return WhereClause(
+            or_=[where_from_filter(expr.left, row_keys), where_from_filter(expr.right, row_keys)]
+        )
     if isinstance(expr, NotExpression):
-        return WhereClause(not_=where_from_filter(expr.expr))
+        return WhereClause(not_=where_from_filter(expr.expr, row_keys))
     if isinstance(expr, FieldComparison):
         name = expr.field_name
-        path = name if name in ROW_KEYS else f"fields.{name}"
+        path = name if name in row_keys else f"fields.{name}"
         if isinstance(expr.value, RawToken) and expr.value.token == "*":
             # `field = *` is "has a value"; `field != *` is "no value"
             op = "is_not_null" if expr.operator == "=" else "is_null"

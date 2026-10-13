@@ -76,8 +76,8 @@ class TestPersonLs:
         # Should have truncated to 2 results
         assert len(payload["data"]["persons"]) <= 2
 
-    def test_ls_with_filter(self) -> None:
-        """Person ls rejects --filter (V2 /persons does not support server-side filtering)."""
+    def test_ls_with_invalid_filter(self) -> None:
+        """Person ls refuses --filter text that doesn't parse, before any API call."""
         runner = CliRunner()
         result = runner.invoke(
             cli,
@@ -86,7 +86,8 @@ class TestPersonLs:
         )
         assert result.exit_code == 2
         payload = json.loads(result.output)
-        assert payload["error"]["type"] == "unsupported_filter"
+        assert payload["error"]["type"] == "usage_error"
+        assert "Invalid --filter" in payload["error"]["message"]
 
 
 class TestPersonCreate:

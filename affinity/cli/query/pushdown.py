@@ -112,6 +112,8 @@ class Pushdown:
     local: list[str] = field(default_factory=list)
     # Conditions the query must not run with (e.g. contains on a person field)
     errors: list[str] = field(default_factory=list)
+    # Sent conditions whose answer may be incomplete (enriched fields, "as-is" mode)
+    caveats: list[str] = field(default_factory=list)
 
     @property
     def server_side(self) -> bool:
@@ -131,8 +133,9 @@ class _Ctx:
     verified: frozenset[tuple[str, str]]
     pushed: list[str]
     local: list[str]
-    enriched: str  # "local" or "or-empty"
+    enriched: str  # "local", "or-empty" or "as-is"
     errors: list[str] = field(default_factory=list)
+    caveats: list[str] = field(default_factory=list)
     term_claim: WhereClause | None = None  # the starts_word condition sent as the search term
 
 
@@ -162,9 +165,11 @@ def split_where(
     ``fields`` need ``filterability`` (fields requested with ``includes``); ``options_for``
     returns a dropdown field's options (called only for dropdown conditions).
 
-    ``enriched``: how conditions on Affinity's enriched fields go: ``"local"`` (not sent) or
+    ``enriched``: how conditions on Affinity's enriched fields go: ``"local"`` (not sent),
     ``"or-empty"`` (sent as "condition OR the field is empty": search reads some records'
-    enriched values as empty, so those come back too and the local filter decides).
+    enriched values as empty, so those come back too and the local filter decides), or
+    ``"as-is"`` (sent plainly; such records may be missed, noted in ``caveats``: for company
+    and person searches, where "or empty" would match most of Affinity's directory).
     """
     result = Pushdown()
     if where is None:
@@ -177,6 +182,7 @@ def split_where(
         result.local,
         enriched,
         result.errors,
+        result.caveats,
     )
     _claim_term(where, ctx, result)
     node = _node(where, ctx)
@@ -233,6 +239,11 @@ def _node(w: WhereClause, ctx: _Ctx) -> Condition | FilterGroup | None:
     cond = _condition(w, ctx)
     meta = ctx.fields.get(cond.field_id) if cond is not None else None
     if cond is not None and meta is not None and meta.type == "enriched":
+        if ctx.enriched == "as-is":
+            ctx.caveats.append(
+                f"{_describe(w)}: Affinity's search can miss a few records' enriched values"
+            )
+            return cond
         empty = Condition(cond.field_id, "is-empty", value_type=cond.value_type)
         return FilterGroup("or", (cond, empty))
     return cond
@@ -256,7 +267,9 @@ def _field(w: WhereClause, ctx: _Ctx) -> tuple[FieldMetadata, str] | None:
     if meta is None:
         ctx.local.append(f"{_describe(w)}: two fields share this name")
         return None
-    if meta.type == "enriched" and (ctx.enriched != "or-empty" or w.op == "is_not_null"):
+    if meta.type == "enriched" and (
+        ctx.enriched == "local" or (ctx.enriched == "or-empty" and w.op == "is_not_null")
+    ):
         # Search reads some records' enriched values as empty (live golden test, 2026-10-13);
         # "or empty" makes "is not null" match everything, so it stays local too.
         ctx.local.append(f"{_describe(w)}: Affinity enriched fields stay local")

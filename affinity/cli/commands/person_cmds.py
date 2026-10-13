@@ -23,7 +23,9 @@ from ..confirm import run_destructive
 from ..context import CLIContext
 from ..csv_utils import write_csv_to_stdout
 from ..decorators import category, destructive, progress_capable
+from ..entity_search import PERSON_KEYS, filtered_ls
 from ..errors import CLIError
+from ..list_search import SEARCH_CURSOR_PREFIX
 from ..mcp_limits import apply_mcp_limits
 from ..options import csv_output_options, csv_suboption_callback, output_options
 from ..progress import ProgressManager, ProgressSettings
@@ -254,17 +256,6 @@ def person_ls(
     """
 
     def fn(ctx: CLIContext, warnings: list[str]) -> CommandOutput:
-        if filter_expr is not None:
-            raise CLIError(
-                "The V2 /persons endpoint does not support server-side filtering. "
-                "The --filter flag was silently ignored in previous versions. "
-                "Use --query TERM for name/email fuzzy search instead.",
-                exit_code=2,
-                error_type="unsupported_filter",
-                hint='Try: xaffinity person ls --query "alex@acme.com"',
-                details={"rejected_filter": str(filter_expr)},
-            )
-
         client = ctx.get_client(warnings=warnings)
 
         if cursor is not None and page_size is not None:
@@ -311,6 +302,32 @@ def person_ls(
         parsed_field_ids: list[FieldId] | None = (
             [FieldId(fid) for fid in field_ids] if field_ids else None
         )
+
+        # --filter (or a cursor from a filtered run): Affinity's search filters on its side
+        if filter_expr is not None or (cursor or "").startswith(SEARCH_CURSOR_PREFIX):
+            found, next_token = filtered_ls(
+                client.persons,
+                entity="person",
+                filter_expr=filter_expr,
+                cursor=cursor,
+                row_keys=PERSON_KEYS,
+                row=_person_ls_row,
+                field_ids=list(field_ids or ()),
+                page_size=page_size,
+                max_results=max_results,
+                all_pages=all_pages,
+                warnings=warnings,
+            )
+            return CommandOutput(
+                data={"persons": found},
+                context=cmd_context,
+                pagination=(
+                    {"persons": {"nextCursor": next_token, "prevCursor": None}}
+                    if next_token
+                    else None
+                ),
+                api_called=True,
+            )
 
         rows: list[dict[str, object]] = []
         first_page = True

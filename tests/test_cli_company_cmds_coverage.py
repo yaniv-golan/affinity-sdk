@@ -49,8 +49,8 @@ class TestCompanyLs:
         )
         assert result.exit_code == 0
 
-    def test_ls_with_filter(self) -> None:
-        """Company ls rejects --filter (V2 /companies does not support server-side filtering)."""
+    def test_ls_with_invalid_filter(self) -> None:
+        """Company ls refuses --filter text that doesn't parse, before any API call."""
         runner = CliRunner()
         result = runner.invoke(
             cli,
@@ -59,7 +59,8 @@ class TestCompanyLs:
         )
         assert result.exit_code == 2
         payload = json.loads(result.output)
-        assert payload["error"]["type"] == "unsupported_filter"
+        assert payload["error"]["type"] == "usage_error"
+        assert "Invalid --filter" in payload["error"]["message"]
 
     def test_ls_with_max_results(self, respx_mock: respx.MockRouter) -> None:
         """Company ls with --max-results should limit output."""
