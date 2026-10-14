@@ -1226,7 +1226,7 @@ def truncate_csv_output(content: str, max_bytes: int) -> tuple[str, bool]:
         # One record, past the budget on its own: shown whole, nothing is cut
         return content, False
 
-    # Drop the last record's terminator (the caller's echo ends the output)
+    # Drop the last record's terminator (the query command ends the output with CRLF)
     output = "".join([header, *kept_rows])
     if output.endswith("\r\n"):
         return output[:-2], True
@@ -1257,7 +1257,9 @@ def truncate_json_result(
     Returns:
         Tuple of (result, items_kept, was_truncated)
         - result: QueryResult with data potentially truncated
-        - items_kept: Number of data items kept (for cursor calculation)
+        - items_kept: Number of data items kept (for cursor calculation); 0 with
+          was_truncated False when the output can't be brought under max_bytes (no rows, or
+          an envelope past it with no row)
         - was_truncated: True if truncation occurred
     """
     # First, check if truncation is needed
@@ -1301,10 +1303,23 @@ def truncate_json_result(
         else:
             hi = mid - 1
 
-    # Edge case: can't fit even one item (envelope too large)
+    # Not even one row fits
     if best_fit == 0:
+        keep(0)
+        envelope_fits = (
+            len(format_json(result, pretty=False, include_meta=include_meta).encode()) <= max_bytes
+        )
         restore()
-        return result, original_count, False  # Can't truncate
+        if not envelope_fits:
+            # Included records that can't be matched to rows, or the envelope, past the budget
+            # on their own: can't truncate (0 rows kept; the caller reports it)
+            return result, 0, False
+        # The first row is kept past the budget (shown whole, like the other formats): a page
+        # with no row would hand back the same cursor forever. A single row is all of it.
+        if original_count == 1:
+            return result, 1, False
+        keep(1)
+        return result, 1, True
 
     # Edge case: all items fit (shouldn't happen since we checked above)
     if best_fit >= original_count:

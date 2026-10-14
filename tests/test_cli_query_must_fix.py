@@ -823,3 +823,340 @@ def test_include_after_sort_fetches_only_kept_rows(
     assert [r["id"] for r in result.data] == kept
     fetched = [c.args[0] for c in client.persons.get_associated_company_ids.await_args_list]
     assert sorted(fetched) == sorted(kept)
+
+
+# --- --max-records with orderBy or groupBy and no where -------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("spec", "op", "kept"),
+    [
+        ({"orderBy": [{"field": "score", "direction": "desc"}]}, "sort", list(range(30, 20, -1))),
+        ({"groupBy": "score", "aggregate": {"n": {"count": True}}}, "aggregate", None),
+    ],
+)
+def test_sort_or_group_without_where_is_cut_at_max_records(
+    spec: dict[str, Any], op: str, kept: list[int] | None
+) -> None:
+    client = _client()
+    client.persons = MagicMock()
+    client.persons.all.return_value = _pages(_many(30))
+    query = Query.model_validate({"from": "persons", **spec})
+    result = asyncio.run(
+        QueryExecutor(client, max_records=10, max_records_explicit=True).execute(_plan(query, op))
+    )
+    assert len(result.data) == 10
+    if kept is not None:
+        assert [r["id"] for r in result.data] == kept
+    assert result.meta["truncated"] is True
+    assert any("10 of 30" in w and "--max-records" in w for w in result.warnings)
+
+
+def test_cli_order_by_without_where_is_cut_at_max_records(
+    respx_mock: respx.MockRouter,
+) -> None:
+    _mock_person_pages(respx_mock, list(range(1, 31)), 10)
+    code, out, _ = _run_query(
+        {"from": "persons", "orderBy": [{"field": "id", "direction": "desc"}]},
+        "--max-records",
+        "10",
+    )
+    assert code == 0, out
+    envelope = json.loads(out.strip().splitlines()[-1])
+    assert [r["id"] for r in envelope["data"]] == list(range(30, 20, -1))
+    assert any("--max-records" in w for w in envelope.get("warnings", [])), envelope
+
+
+# --- include options (list, where, limit, days) are used --------------------------------------
+
+
+def _list_entry_ctx(query: Query, entity_type: str = "company") -> Any:
+    from affinity.cli.query.executor import ExecutionContext
+
+    records = [
+        {"id": 1, "entityId": 501, "entityType": entity_type},
+        {"id": 2, "entityId": 502, "entityType": entity_type},
+    ]
+    return ExecutionContext(query=query, records=records)
+
+
+def _include_step(entity: str, relationship: str) -> PlanStep:
+    return PlanStep(
+        step_id=1,
+        operation="include",
+        entity=entity,
+        relationship=relationship,
+        description="include",
+    )
+
+
+def _deals_lists(*names: str) -> list[MagicMock]:
+    found = []
+    for list_id, name in enumerate(names, start=111):
+        item = MagicMock(id=list_id, type="opportunity")
+        item.name = name  # MagicMock(name=...) would name the mock
+        found.append(item)
+    return found
+
+
+def _opportunity_client(lists: list[MagicMock]) -> AsyncMock:
+    client = _client()
+    client.lists = MagicMock()
+    client.lists.resolve_all = AsyncMock(return_value=lists)
+    client.companies = MagicMock()
+    client.companies.get_associated_opportunity_ids = AsyncMock(
+        side_effect=lambda cid: [cid * 10, cid * 10 + 1]
+    )
+    opportunities = [
+        {"id": 5010, "name": "Acme Corp seed", "listId": 111},
+        {"id": 5011, "name": "Acme Corp other", "listId": 999},
+        {"id": 5020, "name": "Beta Inc seed", "listId": 111},
+        {"id": 5021, "name": "Beta Inc A", "listId": 111},
+    ]
+
+    async def iterate(**_kwargs: Any) -> Any:
+        for record in opportunities:
+            yield MagicMock(model_dump=MagicMock(return_value=dict(record)))
+
+    client.opportunities = MagicMock()
+    client.opportunities.iter = MagicMock(side_effect=iterate)
+    return client
+
+
+def test_list_entries_include_uses_list_and_where() -> None:
+    client = _opportunity_client(_deals_lists("Deals"))
+    query = Query.model_validate(
+        {
+            "from": "listEntries",
+            "where": {"path": "listId", "op": "eq", "value": 9},
+            "include": {
+                "opportunities": {
+                    "list": "Deals",
+                    "where": {"path": "name", "op": "contains", "value": "seed"},
+                }
+            },
+        }
+    )
+    ctx = _list_entry_ctx(query)
+    asyncio.run(
+        QueryExecutor(client)._execute_include(_include_step("listEntries", "opportunities"), ctx)
+    )
+    client.lists.resolve_all.assert_awaited_once_with(name="Deals")
+    assert {
+        k: [r["id"] for r in v] for k, v in ctx.included_by_parent["opportunities"].items()
+    } == {
+        1: [5010],
+        2: [5020],
+    }
+
+
+@pytest.mark.parametrize(
+    ("lists", "exit_code", "error_type"),
+    [
+        (("Deals", "Deals"), 2, "ambiguous_resolution"),
+        ((), 4, "not_found"),
+    ],
+)
+def test_list_entries_include_unknown_or_ambiguous_list_fails(
+    lists: tuple[str, ...], exit_code: int, error_type: str
+) -> None:
+    from affinity.cli.errors import CLIError
+
+    client = _opportunity_client(_deals_lists(*lists))
+    query = Query.model_validate(
+        {
+            "from": "listEntries",
+            "where": {"path": "listId", "op": "eq", "value": 9},
+            "include": {"opportunities": {"list": "Deals"}},
+        }
+    )
+    ctx = _list_entry_ctx(query)
+    with pytest.raises(CLIError) as raised:
+        asyncio.run(
+            QueryExecutor(client)._execute_include(
+                _include_step("listEntries", "opportunities"), ctx
+            )
+        )
+    assert raised.value.exit_code == exit_code
+    assert raised.value.error_type == error_type
+    client.companies.get_associated_opportunity_ids.assert_not_awaited()
+
+
+def _interactions_client(per_type: int) -> tuple[AsyncMock, list[dict[str, Any]]]:
+    client = _client()
+    calls: list[dict[str, Any]] = []
+
+    async def iterate(**kwargs: Any) -> Any:
+        calls.append(kwargs)
+        await asyncio.sleep(0.001)  # other fetches run meanwhile, as with a real request
+        for i in range(per_type):
+            yield MagicMock(model_dump=MagicMock(return_value={"id": len(calls) * 100 + i}))
+
+    client.interactions = MagicMock()
+    client.interactions.iter = MagicMock(side_effect=iterate)
+    return client, calls
+
+
+@pytest.mark.parametrize(
+    ("source", "entity"),
+    [("listEntries", "listEntries"), ("persons", "persons")],
+)
+def test_interactions_include_uses_limit_and_days(source: str, entity: str) -> None:
+    client, calls = _interactions_client(per_type=5)
+    spec: dict[str, Any] = {
+        "from": source,
+        "include": {"interactions": {"limit": 3, "days": 7}},
+    }
+    if source == "listEntries":
+        spec["where"] = {"path": "listId", "op": "eq", "value": 9}
+    query = Query.model_validate(spec)
+    if source == "listEntries":
+        ctx = _list_entry_ctx(query, entity_type="person")
+    else:
+        from affinity.cli.query.executor import ExecutionContext
+
+        ctx = ExecutionContext(query=query, records=[{"id": 501}, {"id": 502}])
+    asyncio.run(QueryExecutor(client)._execute_include(_include_step(entity, "interactions"), ctx))
+    assert calls
+    for call in calls:
+        assert (call["end_time"] - call["start_time"]).days == 7
+    assert all(len(v) == 3 for v in ctx.included_by_parent["interactions"].values())
+
+
+# --- a relationship filter on interactions doesn't deadlock -----------------------------------
+
+
+def test_interactions_filter_with_records_at_the_concurrency_finishes() -> None:
+    client, _calls = _interactions_client(per_type=0)
+    client.persons = MagicMock()
+    client.persons.all.return_value = _pages(_many(6))
+    query = Query.model_validate(
+        {"from": "persons", "where": {"path": "interactions._count", "op": "eq", "value": 0}}
+    )
+    executor = QueryExecutor(client, max_records_explicit=True, concurrency=3)
+
+    async def run() -> Any:
+        return await asyncio.wait_for(executor.execute(_plan(query, "filter")), 5)
+
+    assert len(asyncio.run(run()).data) == 6
+
+
+# --- a failed related-record fetch stops the other fetches ------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("target", "service", "method"),
+    [
+        ("persons", "companies", "get_associated_person_ids"),
+        ("companies", "persons", "get_associated_company_ids"),
+        ("opportunities", "companies", "get_associated_opportunity_ids"),
+        ("interactions", "companies", None),
+    ],
+)
+def test_list_entry_fetch_error_cancels_the_other_fetches(
+    target: str, service: str, method: str | None
+) -> None:
+    client = _client()
+    finished: list[int] = []
+    entity_type = "person" if service == "persons" else "company"
+
+    async def lookup(entity_id: int, **_kwargs: Any) -> list[int]:
+        if entity_id == 1:
+            raise ServerError("Internal error", status_code=500)
+        await asyncio.sleep(0.05)
+        finished.append(entity_id)
+        return []
+
+    if method is None:
+
+        async def iterate(**kwargs: Any) -> Any:
+            await lookup(int(kwargs["company_id"]))
+            if False:  # pragma: no cover - an async generator with no items
+                yield None
+
+        client.interactions = MagicMock()
+        client.interactions.iter = MagicMock(side_effect=iterate)
+    else:
+        setattr(client, service, MagicMock())
+        setattr(getattr(client, service), method, lookup)
+    entries = [{"id": i, "entityId": i, "entityType": entity_type} for i in range(1, 6)]
+
+    async def run() -> None:
+        with pytest.raises(ServerError):
+            await QueryExecutor(client)._fetch_list_entry_indirect(entries, target)
+        await asyncio.sleep(0.1)
+
+    asyncio.run(run())
+    assert finished == []
+
+
+# --- CLI output: CSV warnings and shape, a JSON row past the budget, TOON cursor in budget ----
+
+
+def _run_full(query: dict[str, Any], *args: str, output: str) -> Any:
+    return CliRunner().invoke(
+        cli,
+        ["query", "--query", json.dumps(query), "--output", output, *args],
+        env=ENV,
+    )
+
+
+@pytest.mark.parametrize("budget", [[], ["--max-output-bytes", "100000"]])
+def test_csv_prints_execution_warnings(respx_mock: respx.MockRouter, budget: list[str]) -> None:
+    _mock_person_pages(respx_mock, list(range(1, 13)), 4)
+    result = _run_full(
+        {"from": "persons", "select": ["id"]}, "--max-records", "6", *budget, output="csv"
+    )
+    assert result.exit_code == 0, result.output
+    assert "--max-records" in result.stderr
+
+
+def test_csv_is_the_same_with_and_without_a_budget(respx_mock: respx.MockRouter) -> None:
+    _mock_person_pages(respx_mock, [1, 2], 4)
+    query = {"from": "persons", "limit": 2, "select": ["id", "firstName", "emailAddresses"]}
+    plain = _run_full(query, output="csv")
+    budget = _run_full(query, "--max-output-bytes", "100000", output="csv")
+    assert plain.exit_code == budget.exit_code == 0
+    assert plain.stdout_bytes == budget.stdout_bytes
+    # Select order, CRLF records, one terminator at the end
+    assert plain.stdout_bytes.startswith(b"id,firstName,emailAddresses\r\n")
+    assert plain.stdout_bytes.endswith(b"\r\n") and not plain.stdout_bytes.endswith(b"\r\n\n")
+
+
+def test_csv_cut_page_ends_with_a_record_terminator(respx_mock: respx.MockRouter) -> None:
+    _mock_person_pages(respx_mock, list(range(1, 11)), 10)
+    query = {"from": "persons", "limit": 10, "select": ["id", "firstName"]}
+    result = _run_full(query, "--max-output-bytes", "60", output="csv")
+    assert result.exit_code == 100
+    assert result.stdout_bytes.endswith(b"\r\n") and b"\n\n" not in result.stdout_bytes
+
+
+def _mock_small_then_large(router: respx.MockRouter) -> None:
+    def person(pid: int, last_name: str) -> dict[str, Any]:
+        return {**_person(pid), "lastName": last_name}
+
+    router.get(url__startswith=f"{V2}/persons").mock(
+        return_value=Response(200, json=_page([person(1, "B"), person(2, "X" * 400)]))
+    )
+
+
+def test_json_row_larger_than_the_budget_is_shown_whole(respx_mock: respx.MockRouter) -> None:
+    _mock_small_then_large(respx_mock)
+    query = {"from": "persons", "limit": 2, "select": ["id", "lastName"]}
+    outputs, runs = _page_through(query, max_bytes=200)
+    assert runs == 2
+    assert _json_ids(outputs) == [1, 2]
+    assert "X" * 400 in outputs[1]
+
+
+def test_toon_page_with_cursor_stays_within_the_budget(respx_mock: respx.MockRouter) -> None:
+    # The cursor line (~500 bytes: it names the cache file) is part of the page
+    _mock_person_pages(respx_mock, list(range(1, 151)), 200)
+    query = {"from": "persons", "limit": 150, "select": ["id", "firstName"]}
+    code, out, cursor = _run_query(query, "--max-output-bytes", "1000", output="toon")
+    assert code == 100 and cursor
+    assert f"cursor: {cursor}" in out
+    assert len(out.rstrip("\n").encode()) <= 1000, len(out.encode())
+    outputs, _runs = _page_through(query, max_bytes=1000, output="toon")
+    counts = [re.search(r"^data\[(\d+)\]", o, re.MULTILINE) for o in outputs]
+    assert sum(int(m.group(1)) for m in counts if m) == 150

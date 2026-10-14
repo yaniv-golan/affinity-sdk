@@ -193,7 +193,6 @@ def query_cmd(
             max_records=max_records,
             max_records_explicit=max_records_explicit,
             timeout=timeout,
-            csv_flag=ctx.output == "csv",
             csv_bom=csv_bom,
             include_meta=include_meta,
             quiet=quiet,
@@ -254,7 +253,6 @@ def _query_cmd_impl(
     max_records: int,
     max_records_explicit: bool,
     timeout: float,
-    csv_flag: bool,
     csv_bom: bool,
     include_meta: bool,
     quiet: bool,
@@ -599,32 +597,27 @@ def _query_cmd_impl(
     # Track pre-truncation count for JSON format (see cursor logic below)
     json_pre_truncation_count: int = 0
 
-    if csv_flag and not max_output_bytes:
-        from ..csv_utils import write_csv_to_stdout
+    # Execution warnings (e.g. multi-value fields cut off at 100 values). JSON carries them in
+    # its "warnings" key; other formats get them on stderr.
+    if result.warnings and not quiet and ctx.output != "json":
+        for warning in result.warnings:
+            click.echo(f"[warning] {warning}", err=True)
 
-        if not result.data:
-            click.echo("No results.", err=True)
-            sys.exit(exit_code)
-
-        # Collect all unique field names from data
-        all_keys: set[str] = set()
-        for record in result.data:
-            all_keys.update(record.keys())
-        fieldnames = sorted(all_keys)
-
-        write_csv_to_stdout(rows=result.data, fieldnames=fieldnames, bom=csv_bom)
+    if ctx.output == "csv" and not result.data:
+        click.echo("No results.", err=True)
         sys.exit(exit_code)
-    elif ctx.output == "json":
+
+    if ctx.output == "json":
         # Truncate at object level BEFORE serialization to avoid precision loss
         # Save count before truncation for cursor logic (line ~593)
         json_pre_truncation_count = len(result.data) if result.data else 0
         if max_output_bytes:
-            result, _items_kept, was_truncated = truncate_json_result(
+            result, items_kept, was_truncated = truncate_json_result(
                 result, max_output_bytes, include_meta=include_meta
             )
-            # Handle can't-truncate case: envelope too large or empty data with large included
-            # IMPORTANT: Always check size when not truncated, even if data is empty
-            if not was_truncated:
+            # Handle can't-truncate case: no rows, or included records or an envelope past the
+            # budget with no row (a row past it on its own is shown whole)
+            if not was_truncated and items_kept == 0:
                 test_output = format_json(result, pretty=False, include_meta=include_meta)
                 if len(test_output.encode()) > max_output_bytes:
                     # Can't truncate but output exceeds limit - this is an error
@@ -687,21 +680,9 @@ def _query_cmd_impl(
         )
 
         if rows_shown < remaining_records:
-            # Calculate new skip position (cumulative from original position)
-            new_skip = resume_position + rows_shown
-            last_shown_record = (
-                result.data[rows_shown - 1] if rows_shown > 0 and result.data else None
-            )
-            last_id = (
-                last_shown_record.get("id") or last_shown_record.get("listEntryId")
-                if last_shown_record
-                else None
-            )
-
             # Every row of the result is in hand (a fetch stops only at the query's limit or
             # --max-records), so the rest is served from a cache: the rows, with the included
             # records, warnings and meta.truncated that later pages repeat.
-            new_cursor: CursorPayload | None = None
             if cache_file_path is None or cache_content_hash is None:
                 # First truncation - write cache
                 try:
@@ -729,20 +710,29 @@ def _query_cmd_impl(
                     cache_file_path = None
                     cache_content_hash = None
 
-            if cache_file_path and cache_content_hash:
-                new_cursor = create_full_fetch_cursor(
-                    query=query,
-                    output_format=output_format,
-                    skip=new_skip,
-                    cache_file=cache_file_path,
-                    cache_hash=cache_content_hash,
-                    last_id=last_id,
-                    total=total_records,
-                    max_records=max_records,
+            def make_cursor(shown: int) -> CursorPayload:
+                """The cursor after ``shown`` rows of this page."""
+                # New skip position (cumulative from original position)
+                new_skip = resume_position + shown
+                last_shown_record = result.data[shown - 1] if shown > 0 and result.data else None
+                last_id = (
+                    last_shown_record.get("id") or last_shown_record.get("listEntryId")
+                    if last_shown_record
+                    else None
                 )
-            else:
+                if cache_file_path and cache_content_hash:
+                    return create_full_fetch_cursor(
+                        query=query,
+                        output_format=output_format,
+                        skip=new_skip,
+                        cache_file=cache_file_path,
+                        cache_hash=cache_content_hash,
+                        last_id=last_id,
+                        total=total_records,
+                        max_records=max_records,
+                    )
                 # No cache: resuming runs the query again and skips the rows shown
-                new_cursor = create_streaming_cursor(
+                return create_streaming_cursor(
                     query=query,
                     output_format=output_format,
                     skip=new_skip,
@@ -751,21 +741,38 @@ def _query_cmd_impl(
                     max_records=max_records,
                 )
 
+            new_cursor = make_cursor(rows_shown)
             cursor_encoded = encode_cursor(new_cursor)
-            cursor_mode = new_cursor.mode
 
             # Insert cursor into TOON truncation section for human readability
             if output_format == "toon":
-                output = insert_cursor_in_toon_truncation(output, cursor_encoded)
-
-    # Execution warnings (e.g. multi-value fields cut off at 100 values). JSON carries them in
-    # its "warnings" key; other formats get them on stderr.
-    if result.warnings and not quiet and ctx.output != "json":
-        for warning in result.warnings:
-            click.echo(f"[warning] {warning}", err=True)
+                with_cursor = insert_cursor_in_toon_truncation(output, cursor_encoded)
+                # The cursor line counts against the budget: cut again leaving room for it
+                # (the first row is shown even past the budget)
+                budget = max_output_bytes or 0
+                while (
+                    max_output_bytes
+                    and len(with_cursor.encode()) > max_output_bytes
+                    and rows_shown > 1
+                ):
+                    budget -= len(with_cursor.encode()) - max_output_bytes
+                    output, _cut = truncate_toon_result(result, budget)
+                    rows_shown = _count_rows_in_output(output, output_format)
+                    new_cursor = make_cursor(rows_shown)
+                    cursor_encoded = encode_cursor(new_cursor)
+                    with_cursor = insert_cursor_in_toon_truncation(output, cursor_encoded)
+                output = with_cursor
+            cursor_mode = new_cursor.mode
 
     # Output the formatted result
-    click.echo(output)
+    if ctx.output == "csv":
+        # Bytes, so the UTF-8 text (and --csv-bom) doesn't depend on the terminal's encoding.
+        # Every record ends with CRLF, a cut-off page's last one too.
+        if not output.endswith("\n"):
+            output += "\r\n"
+        click.echo(output.encode("utf-8"), nl=False)
+    else:
+        click.echo(output)
 
     if interrupted:
         sys.exit(exit_code)

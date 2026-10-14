@@ -605,7 +605,7 @@ def test_truncation_keeps_a_first_record_larger_than_the_budget() -> None:
     assert "rowsOmitted: 1" in toon_out
 
 
-@pytest.mark.parametrize("output", ["csv", "jsonl", "toon", "markdown"])
+@pytest.mark.parametrize("output", ["csv", "jsonl", "toon", "markdown", "json"])
 def test_paging_rows_larger_than_the_budget_finishes(
     respx_mock: respx.MockRouter, output: str
 ) -> None:

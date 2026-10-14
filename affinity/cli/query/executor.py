@@ -12,9 +12,9 @@ import json
 import logging
 import os
 import time
-from collections.abc import AsyncIterator, Callable, Mapping
+from collections.abc import AsyncIterator, Awaitable, Callable, Mapping
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol, TypeVar
 
 from ...exceptions import (
     AuthorizationError,
@@ -70,6 +70,36 @@ _ALL_INTERACTION_TYPES = [
     InteractionType.CHAT_MESSAGE,
 ]
 _DEFAULT_INTERACTION_LOOKBACK_DAYS = 90
+
+
+_T = TypeVar("_T")
+
+
+async def _gather_with_progress(
+    aws: list[Awaitable[_T]],
+    progress_callback: Callable[[int, int | None], None] | None,
+) -> list[_T]:
+    """Run ``aws`` concurrently; their results in completion order.
+
+    ``progress_callback(completed, total)`` is called every 10 results and at the end (the MCP
+    watchdog needs it during N+1 fetches). On the first error the others are cancelled and
+    awaited before it is raised, so none keeps calling the API or ends up as "Task exception
+    was never retrieved" on stderr.
+    """
+    tasks = [asyncio.ensure_future(aw) for aw in aws]
+    total = len(tasks)
+    results: list[_T] = []
+    try:
+        for completed, future in enumerate(asyncio.as_completed(tasks), start=1):
+            results.append(await future)
+            if progress_callback and (completed % 10 == 0 or completed == total):
+                progress_callback(completed, total)
+    except BaseException:
+        for task in tasks:
+            task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
+        raise
+    return results
 
 
 async def _fetch_interactions_for_entity(
@@ -1078,7 +1108,8 @@ class QueryExecutor:
                     shaping.remove(step)
                     ctx.rows_final = not shaping
 
-            if ctx.defer_max_records and ctx.query.where is not None:
+            # A sort or aggregate turned the fetch-time cap off: cut the rows it left
+            if ctx.defer_max_records:
                 ctx.cap_max_records()
             ctx.rows_final = True
             for step in deferred:
@@ -2484,19 +2515,8 @@ class QueryExecutor:
             entity_ids: list[int] = [r["id"] for r in ctx.records if isinstance(r.get("id"), int)]
 
             if rel.method_or_service == "interactions":
-                # Extract include config for configurable days/limit
-                include_config = None
-                if ctx.query.include:
-                    for item in ctx.query.include:
-                        if isinstance(item, dict):
-                            for key, val in item.items():
-                                if key == step.relationship:
-                                    from .models import IncludeConfig
-
-                                    include_config = (
-                                        IncludeConfig.model_validate(val) if val else None
-                                    )
-                                    break
+                # Include config for configurable days/limit
+                include_config = (ctx.query.include or {}).get(step.relationship)
                 i_days = (
                     include_config.days
                     if include_config and include_config.days
@@ -2535,17 +2555,8 @@ class QueryExecutor:
             # The target entity type is stored in method_or_service
             target_entity_type = rel.method_or_service
 
-            # Extract include config (limit, days, where, list)
-            include_config = None
-            if ctx.query.include:
-                for item in ctx.query.include:
-                    if isinstance(item, dict):
-                        for key, val in item.items():
-                            if key == step.relationship:
-                                from .models import IncludeConfig
-
-                                include_config = IncludeConfig.model_validate(val) if val else None
-                                break
+            # Include config (limit, days, where, list)
+            include_config = (ctx.query.include or {}).get(step.relationship)
 
             # Fetch related entities using the specialized handler
             # Pass progress callback to emit incremental progress during N+1 operations
@@ -2956,10 +2967,11 @@ class QueryExecutor:
 
                     try:
                         if rel_info.method_or_service == "interactions":
+                            # This fetch already holds a rate_limiter permit: taking a
+                            # second one here deadlocks once every permit is held
                             related = await _fetch_interactions_for_entity(
                                 service,
                                 {rel_info.filter_field: record_id},
-                                rate_limiter=self.rate_limiter,
                             )
                         else:
                             filter_kwargs = {rel_info.filter_field: record_id}
@@ -3194,18 +3206,10 @@ class QueryExecutor:
 
             return (entry_id, ids)
 
-        # Phase 1: Parallel fetch all association IDs with incremental progress
-        # Use as_completed to emit progress during N+1 fetches (prevents MCP timeout)
-        total = len(entries)
-        tasks = [asyncio.create_task(get_person_ids_for_entry(e)) for e in entries]
-        id_results: list[tuple[int, list[int]]] = []
-
-        for completed, future in enumerate(asyncio.as_completed(tasks), start=1):
-            result = await future
-            id_results.append(result)
-            # Emit progress every 10 items or at completion to extend MCP timeout
-            if progress_callback and (completed % 10 == 0 or completed == total):
-                progress_callback(completed, total)
+        # Concurrent, with incremental progress (prevents MCP timeout)
+        id_results: list[tuple[int, list[int]]] = await _gather_with_progress(
+            [get_person_ids_for_entry(e) for e in entries], progress_callback
+        )
 
         entry_to_person_ids = dict(id_results)
 
@@ -3265,16 +3269,10 @@ class QueryExecutor:
 
             return (entry_id, ids)
 
-        # Same two-phase pattern as persons with incremental progress
-        total = len(entries)
-        tasks = [asyncio.create_task(get_company_ids_for_entry(e)) for e in entries]
-        id_results: list[tuple[int, list[int]]] = []
-
-        for completed, future in enumerate(asyncio.as_completed(tasks), start=1):
-            result = await future
-            id_results.append(result)
-            if progress_callback and (completed % 10 == 0 or completed == total):
-                progress_callback(completed, total)
+        # Concurrent, with incremental progress (prevents MCP timeout)
+        id_results: list[tuple[int, list[int]]] = await _gather_with_progress(
+            [get_company_ids_for_entry(e) for e in entries], progress_callback
+        )
 
         entry_to_company_ids = dict(id_results)
 
@@ -3341,16 +3339,10 @@ class QueryExecutor:
 
             return (entry_id, ids)
 
-        # Same two-phase pattern with incremental progress
-        total = len(entries)
-        tasks = [asyncio.create_task(get_opportunity_ids_for_entry(e)) for e in entries]
-        id_results: list[tuple[int, list[int]]] = []
-
-        for completed, future in enumerate(asyncio.as_completed(tasks), start=1):
-            result = await future
-            id_results.append(result)
-            if progress_callback and (completed % 10 == 0 or completed == total):
-                progress_callback(completed, total)
+        # Concurrent, with incremental progress (prevents MCP timeout)
+        id_results: list[tuple[int, list[int]]] = await _gather_with_progress(
+            [get_opportunity_ids_for_entry(e) for e in entries], progress_callback
+        )
 
         entry_to_opp_ids = dict(id_results)
 
@@ -3423,16 +3415,10 @@ class QueryExecutor:
             )
             return (entry_id, interactions)
 
-        # Direct fetch with incremental progress (no ID→record indirection needed)
-        total = len(entries)
-        tasks = [asyncio.create_task(get_interactions_for_entry(e)) for e in entries]
-        interaction_results: list[tuple[int, list[dict[str, Any]]]] = []
-
-        for completed, future in enumerate(asyncio.as_completed(tasks), start=1):
-            result = await future
-            interaction_results.append(result)
-            if progress_callback and (completed % 10 == 0 or completed == total):
-                progress_callback(completed, total)
+        # Concurrent, with incremental progress (prevents MCP timeout)
+        interaction_results: list[tuple[int, list[dict[str, Any]]]] = await _gather_with_progress(
+            [get_interactions_for_entry(e) for e in entries], progress_callback
+        )
 
         results.update(dict(interaction_results))
 
