@@ -42,7 +42,7 @@ if [ -f "$HOME/.xaffinity-install-status" ] && grep -qF "INSTALL_FAILED" "$HOME/
   "hookSpecificOutput": {
     "permissionDecision": "deny"
   },
-  "systemMessage": "BLOCKED: xaffinity CLI installation failed. Ask the user to check network connectivity and Python environment, then run: pip install 'affinity-sdk[cli]==2.0.5'"
+  "systemMessage": "BLOCKED: xaffinity CLI installation failed. Ask the user to check network connectivity and Python environment, then run: pip install 'affinity-sdk[cli]==2.0.6'"
 }
 EOF
   exit 2
@@ -67,7 +67,7 @@ if [ -z "${AFFINITY_SESSION_CACHE:-}" ]; then
   "hookSpecificOutput": {
     "permissionDecision": "deny"
   },
-  "systemMessage": "BLOCKED: xaffinity CLI installation failed. Ask the user to check network connectivity and Python environment, then run: pip install 'affinity-sdk[cli]==2.0.5'"
+  "systemMessage": "BLOCKED: xaffinity CLI installation failed. Ask the user to check network connectivity and Python environment, then run: pip install 'affinity-sdk[cli]==2.0.6'"
 }
 EOF
     exit 2

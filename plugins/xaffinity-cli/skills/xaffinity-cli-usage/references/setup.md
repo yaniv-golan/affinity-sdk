@@ -43,7 +43,7 @@ config files):
 ## Claude Cowork
 
 **Installing the CLI.** Cowork's VM may not have `xaffinity` (`command not found`). Install it
-once per task: `pip install --user -q --no-warn-script-location "affinity-sdk[cli]==2.0.5"` (about
+once per task: `pip install --user -q --no-warn-script-location "affinity-sdk[cli]==2.0.6"` (about
 10s). It lands in `~/.local/bin`, which is not on PATH, and each bash call is a fresh shell, so start every
 xaffinity call with `export PATH="$HOME/.local/bin:$PATH";` — then commands and check-key's
 `pattern` work as written (or call `~/.local/bin/xaffinity` by its full path). The install lasts
