@@ -129,7 +129,7 @@ _build_cmd() {
     # Note: ${argv[@]+...} syntax for Bash 3.2 compatibility with empty arrays
     cmd_tail+=(${argv[@]+"${argv[@]}"})
     cmd_tail+=("--json")
-    cmd_args=("${XAFFINITY_CLI_BASE[@]}" "${cmd_tail[@]}")
+    cmd_args=("${XAFFINITY_CLI_BASE[@]}" ${cmd_tail[@]+"${cmd_tail[@]}"})
 }
 declare -a cmd_tail=() cmd_args=()
 _build_cmd
@@ -137,7 +137,7 @@ _build_cmd
 # Dry run: return what would be executed, before any confirmation (it runs nothing, so it
 # neither asks nor uses up a confirmation; the command is shown without --yes)
 if [[ "$dry_run" == "true" ]]; then
-    mcp_result_success "$(jq_tool -n --args '$ARGS.positional' -- "${cmd_args[@]}" | \
+    mcp_result_success "$(jq_tool -n --args '$ARGS.positional' -- ${cmd_args[@]+"${cmd_args[@]}"} | \
         jq_tool '{result: null, dryRun: true, command: .}')"
     exit 0
 fi
@@ -250,11 +250,11 @@ fi
 set +e
 if [[ "$supports_progress" == "true" ]]; then
     # Use progress-aware execution with --stderr-file to capture CLI errors (mcp-bash 0.9.11+)
-    run_xaffinity_with_progress --stderr-file "$stderr_file" "${cmd_tail[@]}" >"$stdout_file"
+    run_xaffinity_with_progress --stderr-file "$stderr_file" ${cmd_tail[@]+"${cmd_tail[@]}"} >"$stdout_file"
     exit_code=$?
 else
     # Standard execution
-    "${cmd_args[@]}" >"$stdout_file" 2>"$stderr_file"
+    ${cmd_args[@]+"${cmd_args[@]}"} >"$stdout_file" 2>"$stderr_file"
     exit_code=$?
 fi
 set -e
@@ -263,7 +263,7 @@ stdout_content=$(cat "$stdout_file")
 stderr_content=$(cat "$stderr_file")
 
 # Build executed command array for transparency
-cmd_json=$(jq_tool -n --args '$ARGS.positional' -- "${cmd_args[@]}")
+cmd_json=$(jq_tool -n --args '$ARGS.positional' -- ${cmd_args[@]+"${cmd_args[@]}"})
 
 # Check for cancellation after execution
 if mcp_is_cancelled; then
