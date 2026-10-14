@@ -5,6 +5,20 @@ All notable changes to the xaffinity MCP server will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.5] - 2026-10-14
+
+Requires CLI 2.0.4 (no new CLI requirements).
+
+### Security
+
+- On mcp-bash 1.9.5 (was 1.9.4): when `server.d/policy.sh` can't be loaded safely (it,
+  `server.d` or the server's folder is writable by group or other users, is a symlink, is owned
+  by another user, or has a syntax error), every tool call is refused with an error naming the
+  file and the fix. Before, the server ran without its own policy (read-only mode and other
+  limits) and only logged a warning. An install cloned or unzipped with `umask 002` hits this:
+  run the `chmod go-w ...` the error names. The release bundles are built with those
+  permissions removed.
+
 ## [2.0.4] - 2026-10-14
 
 Requires CLI 2.0.4 (released together with SDK 2.0.4).

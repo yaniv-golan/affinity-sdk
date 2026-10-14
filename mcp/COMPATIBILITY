@@ -4,6 +4,8 @@
 CLI_MIN_VERSION="2.0.4"
 CLI_MAX_VERSION="2.0.4"
 
+# MCP 2.0.5: no new CLI requirements (mcp-bash 1.9.5).
+
 # MCP 2.0.4 requires CLI 2.0.4 for:
 # - `query`: resume cursors that are bound to `--max-records` (the tool says maxRecords must
 #   match), the `--max-records` warning and `meta.truncated` on every path, `included` trimmed
