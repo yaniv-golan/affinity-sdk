@@ -7,6 +7,7 @@ unknown listName is a usage error."""
 from __future__ import annotations
 
 import asyncio
+import inspect
 import json
 import tempfile
 from typing import Any
@@ -74,6 +75,13 @@ WHOAMI = {
 }
 
 
+def _runner() -> CliRunner:
+    """A runner with stderr kept apart from stdout on click 8.1 too (8.2+ always does)."""
+    if "mix_stderr" in inspect.signature(CliRunner.__init__).parameters:
+        return CliRunner(mix_stderr=False)  # type: ignore[call-arg]
+    return CliRunner()
+
+
 @pytest.fixture(autouse=True)
 def _isolated_cache(monkeypatch: pytest.MonkeyPatch, tmp_path: Any) -> None:
     """Resume caches go to a per-test directory."""
@@ -115,7 +123,7 @@ def _mock_person_pages(
 
 def _run(query: dict[str, Any], *args: str, output: str = "json") -> tuple[int, str, str | None]:
     """Run the query; (exit code, stdout, cursor from stderr or None)."""
-    result = CliRunner().invoke(
+    result = _runner().invoke(
         cli,
         ["--max-retries", "0", "query", "--query", json.dumps(query), "--output", output, *args],
         env=ENV,
@@ -373,7 +381,7 @@ def test_csv_header_is_the_union_of_every_rows_keys() -> None:
 
 def test_csv_bom_is_kept_with_max_output_bytes(respx_mock: respx.MockRouter) -> None:
     _mock_person_pages(respx_mock, [1, 2, 3], size=4)
-    result = CliRunner().invoke(
+    result = _runner().invoke(
         cli,
         [
             "query",

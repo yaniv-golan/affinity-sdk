@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import inspect
 import json
 import re
 import tempfile
@@ -42,6 +43,13 @@ WHOAMI = {
     "user": {"id": 100, "firstName": "T", "lastName": "U", "emailAddress": "t@example.com"},
     "grant": {"type": "api_key", "scopes": ["all"], "createdAt": "2024-01-01T00:00:00Z"},
 }
+
+
+def _runner() -> CliRunner:
+    """A runner with stderr kept apart from stdout on click 8.1 too (8.2+ always does)."""
+    if "mix_stderr" in inspect.signature(CliRunner.__init__).parameters:
+        return CliRunner(mix_stderr=False)  # type: ignore[call-arg]
+    return CliRunner()
 
 
 @pytest.fixture(autouse=True)
@@ -88,7 +96,7 @@ def _run_query(
     query: dict[str, Any], *args: str, output: str = "json"
 ) -> tuple[int, str, str | None]:
     """Run the query; (exit code, stdout, cursor from stderr or None)."""
-    result = CliRunner().invoke(
+    result = _runner().invoke(
         cli,
         ["query", "--query", json.dumps(query), "--output", output, *args],
         env=ENV,
@@ -704,7 +712,7 @@ def test_interrupt_with_partial_rows_exits_130(monkeypatch: pytest.MonkeyPatch) 
         return QueryResult(data=[{"id": 1}], meta={"interrupted": True})
 
     monkeypatch.setattr(QueryExecutor, "execute", interrupted)
-    result = CliRunner().invoke(
+    result = _runner().invoke(
         cli, ["--json", "query", "--query", json.dumps({"from": "persons", "limit": 5})], env=ENV
     )
     assert result.exit_code == 130
@@ -717,7 +725,7 @@ def test_interrupt_before_any_row_exits_130(monkeypatch: pytest.MonkeyPatch) -> 
         raise KeyboardInterrupt
 
     monkeypatch.setattr(QueryExecutor, "execute", interrupted)
-    result = CliRunner().invoke(
+    result = _runner().invoke(
         cli, ["query", "--query", json.dumps({"from": "persons", "limit": 5})], env=ENV
     )
     assert result.exit_code == 130
@@ -774,7 +782,7 @@ def test_query_api_error_keeps_documented_exit_code(status: int, exit_code: int)
         mock.route(host="api.affinity.co").mock(
             return_value=Response(status, json={"errors": [{"code": "x", "message": "boom"}]})
         )
-        result = CliRunner().invoke(
+        result = _runner().invoke(
             cli,
             [
                 "--json",
@@ -1094,7 +1102,7 @@ def test_list_entry_fetch_error_cancels_the_other_fetches(
 
 
 def _run_full(query: dict[str, Any], *args: str, output: str) -> Any:
-    return CliRunner().invoke(
+    return _runner().invoke(
         cli,
         ["query", "--query", json.dumps(query), "--output", output, *args],
         env=ENV,
