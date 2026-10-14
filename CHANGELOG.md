@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- `FieldResolver.get`, `get_many` and `get_by_id` accept a plain `ListEntry` (as returned by
+  `companies.get_list_entries()` and `persons.get_list_entries()`) in their type hints. They
+  already worked on it at runtime; strict type checkers no longer need a cast.
+
 ## [2.0.5] - 2026-10-14
 
 **Exception to semantic versioning** (as 2.0.2–2.0.4): two fixes change what a call returns or

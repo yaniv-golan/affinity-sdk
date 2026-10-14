@@ -554,6 +554,41 @@ class TestFieldResolver:
         result = resolver.get(entry, "Status")
         assert result == "FromEntry"
 
+    def test_plain_list_entry_reads_its_own_fields(self, resolver) -> None:
+        """A ListEntry from get_list_entries() (entity None) resolves by name and id."""
+        from affinity.models.entities import ListEntry
+
+        entry = ListEntry.model_validate(
+            {
+                "id": 1,
+                "listId": 100,
+                "createdAt": "2026-01-01T00:00:00Z",
+                "entityId": 7,
+                "entityType": 1,
+                "fields": [{"id": "field-1", "value": {"data": "Active"}}],
+            }
+        )
+        assert entry.entity is None
+        assert resolver.get(entry, "Status") == "Active"
+        assert resolver.get_many(entry, ["Status"]) == {"Status": "Active"}
+        assert resolver.get_by_id(entry, FieldId(1)) == "Active"
+
+    def test_plain_list_entry_with_a_raw_dict_entity_reads_its_own_fields(self, resolver) -> None:
+        """A dict entity (no field values) is not delegated to."""
+        from affinity.models.entities import ListEntry
+
+        entry = ListEntry.model_validate(
+            {
+                "id": 1,
+                "listId": 100,
+                "createdAt": "2026-01-01T00:00:00Z",
+                "entity": {"id": 7, "fields": [{"id": "field-1", "value": {"data": "X"}}]},
+            }
+        )
+        assert not entry.fields.requested
+        with pytest.warns(UserWarning, match="Fields were not requested"):
+            assert resolver.get(entry, "Status") is None
+
 
 @pytest.mark.req("SDK-FIELD-RESOLVER")
 class TestFindField:

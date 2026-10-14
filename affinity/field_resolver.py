@@ -12,6 +12,7 @@ from .field_resolve_utils import (
     resolve_location,
     resolve_person,
 )
+from .models.entities import FieldValues
 from .models.types import FieldValueType, ResolveMode
 
 __all__ = ["AmbiguousFieldError", "FieldResolver"]
@@ -20,11 +21,31 @@ if TYPE_CHECKING:
     from .models.entities import (
         Company,
         FieldMetadata,
+        ListEntry,
         ListEntryWithEntity,
         Opportunity,
         Person,
     )
     from .models.types import AnyFieldId
+
+
+def _field_values(
+    entity: Company | Person | Opportunity | ListEntry | ListEntryWithEntity,
+) -> FieldValues:
+    """
+    The field values to read: the entity's own, or, for a list entry fetched without its
+    list fields, those of the embedded entity when they were requested. A ``ListEntry``
+    from ``get_list_entries()`` has no embedded entity (``entity`` is None), so it reads
+    its own fields.
+    """
+    inner_fields = getattr(getattr(entity, "entity", None), "fields", None)
+    if (
+        not entity.fields.requested
+        and isinstance(inner_fields, FieldValues)
+        and inner_fields.requested
+    ):
+        return inner_fields
+    return entity.fields
 
 
 class AmbiguousFieldError(Exception):
@@ -97,7 +118,7 @@ class FieldResolver:
 
     def get(
         self,
-        entity: Company | Person | Opportunity | ListEntryWithEntity,
+        entity: Company | Person | Opportunity | ListEntry | ListEntryWithEntity,
         field_name: str,
         *,
         resolve: ResolveMode = ResolveMode.RAW,
@@ -123,17 +144,8 @@ class FieldResolver:
             >>> stage = resolver.get(opportunity, "Stage", resolve=ResolveMode.TEXT)
             >>> print(stage)  # "Negotiation" instead of 12345
         """
-        # Delegate to inner entity for ListEntryWithEntity
-        if (
-            hasattr(entity, "entity")
-            and entity.entity is not None
-            and hasattr(entity.entity, "fields")
-            and not entity.fields.requested
-            and entity.entity.fields.requested
-        ):
-            entity = entity.entity
-
-        if not entity.fields.requested:
+        fields = _field_values(entity)
+        if not fields.requested:
             warnings.warn(
                 "Fields were not requested for this entity. "
                 "Pass field_ids or field_types when fetching to populate field values.",
@@ -146,7 +158,7 @@ class FieldResolver:
         if field is None:
             return None
 
-        value = entity.fields.get_value(str(field.id))
+        value = fields.get_value(str(field.id))
 
         if resolve == ResolveMode.TEXT and value is not None:
             value = self._resolve_value(value, field.value_type)
@@ -155,7 +167,7 @@ class FieldResolver:
 
     def get_many(
         self,
-        entity: Company | Person | Opportunity | ListEntryWithEntity,
+        entity: Company | Person | Opportunity | ListEntry | ListEntryWithEntity,
         field_names: Sequence[str],
         *,
         resolve: ResolveMode = ResolveMode.RAW,
@@ -284,7 +296,7 @@ class FieldResolver:
 
     def get_by_id(
         self,
-        entity: Company | Person | Opportunity | ListEntryWithEntity,
+        entity: Company | Person | Opportunity | ListEntry | ListEntryWithEntity,
         field_id: str | AnyFieldId,
         *,
         resolve: ResolveMode = ResolveMode.RAW,
@@ -300,18 +312,8 @@ class FieldResolver:
         Returns:
             The extracted field value, or None if not found.
         """
-        # Delegate to inner entity for ListEntryWithEntity
-        if (
-            hasattr(entity, "entity")
-            and entity.entity is not None
-            and hasattr(entity.entity, "fields")
-            and not entity.fields.requested
-            and entity.entity.fields.requested
-        ):
-            entity = entity.entity
-
         field_id_str = str(field_id)
-        value = entity.fields.get_value(field_id_str)
+        value = _field_values(entity).get_value(field_id_str)
         if resolve == ResolveMode.TEXT and value is not None:
             field = self._by_id.get(field_id_str)
             value_type = field.value_type if field else None
