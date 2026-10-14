@@ -1,8 +1,14 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="2.0.3"
-CLI_MAX_VERSION="2.0.3"
+CLI_MIN_VERSION="2.0.4"
+CLI_MAX_VERSION="2.0.4"
+
+# MCP 2.0.4 requires CLI 2.0.4 for:
+# - `query`: resume cursors that are bound to `--max-records` (the tool says maxRecords must
+#   match), the `--max-records` warning and `meta.truncated` on every path, `included` trimmed
+#   to each page's rows, and Affinity errors with exit 3/4/5 instead of empty results.
+# - Range-checked options (`--page-size`, `--max-results`) typed `int` in the registry.
 
 # MCP 2.0.3 requires CLI 2.0.3 for:
 # - `team members` and `team lists` (new read commands in the registry).
