@@ -20,12 +20,14 @@ what the CLI prints. Each is marked **Behavior change**.
   options are unchanged. When a value is plain text the CLI reads the field's metadata (one call)
   to tell a dropdown from a text field (`history-bulk --list-id` already has it). Table and CSV
   output show the text, as before.
-- **Behavior change. SDK: `on_error="skip"` leaves failed records out of
+- **Behavior change (correctness fix). SDK: `on_error="skip"` leaves failed records out of
   `AsyncReminderService.list_batch` and `AsyncFileService.list_batch`.** A failed request used
-  to leave its ids in the result with empty or partial lists, which looked like "no reminders" /
-  "no files"; one failed reminders request (50 ids) silently hid them all. They are now absent
-  from the result, as with every other `on_error="skip"` method: a requested id with no key
-  failed.
+  to leave its ids in the result with empty lists, which looked like "no reminders" / "no files";
+  one failed reminders request (50 ids) silently hid them all. A failure on a later page left a
+  partial list that looked complete. They are now absent from the result, as with every other
+  `on_error="skip"` method: a requested id with no key failed. **If you stored or cached results
+  of these calls made with `on_error="skip"` before 2.0.5, some empty or partial lists may be
+  failures: re-fetch them.**
 - SDK: `field_value_changes.iter_all()` reads 10,000 changes per call by default (was 100), the
   V1 maximum: a 16,000-change history takes 3 calls instead of 161 (paging ends on an empty
   page). Pass `page_size` for smaller
