@@ -1739,12 +1739,13 @@ class FieldValueChangesService:
         list_entry_id: ListEntryId | None = None,
         action_type: FieldValueChangeAction | None = None,
         changed_after: datetime | None = None,
-        page_size: int = 100,
+        page_size: int = 10_000,
     ) -> Iterator[FieldValueChange]:
         """Iterate a field's changes oldest first, one page at a time (keyset paging).
 
-        Pages of ``page_size`` are fetched with ``order_by="asc"``, each continuing after the
-        last change of the previous page, until a page comes back empty. Optional selector and
+        Pages of ``page_size`` (default 10,000, the most V1 returns per call) are fetched with
+        ``order_by="asc"``, each continuing after the last change of the previous page, until a
+        page comes back empty. Optional selector and
         ``changed_after`` (inclusive) narrow it; without a selector every entity's changes for
         the field are returned.
 
@@ -3708,12 +3709,13 @@ class AsyncFieldValueChangesService:
         list_entry_id: ListEntryId | None = None,
         action_type: FieldValueChangeAction | None = None,
         changed_after: datetime | None = None,
-        page_size: int = 100,
+        page_size: int = 10_000,
     ) -> AsyncIterator[FieldValueChange]:
         """Iterate a field's changes oldest first, one page at a time (keyset paging).
 
-        Pages of ``page_size`` are fetched with ``order_by="asc"``, each continuing after the
-        last change of the previous page, until a page comes back empty. Optional selector and
+        Pages of ``page_size`` (default 10,000, the most V1 returns per call) are fetched with
+        ``order_by="asc"``, each continuing after the last change of the previous page, until a
+        page comes back empty. Optional selector and
         ``changed_after`` (inclusive) narrow it; without a selector every entity's changes for
         the field are returned.
 
@@ -4055,7 +4057,8 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
             max_concurrent: Maximum concurrent entity queries (default: 10)
             on_error: How to handle errors:
                 - "raise": Raise on first error (default)
-                - "skip": Skip failed entities, return partial results
+                - "skip": Leave failed entities out of the result (their file lists
+                  would be incomplete), return the rest
 
         Returns:
             Dict mapping entity ID (int) -> list of EntityFile objects.
@@ -4101,7 +4104,9 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
         }
         iter_kwarg_name = id_kwarg_map[param_name]
 
-        async def fetch_all_for_entity(eid: int) -> tuple[int, builtins.list[EntityFile]]:
+        async def fetch_all_for_entity(
+            eid: int,
+        ) -> tuple[int, builtins.list[EntityFile] | None]:
             iter_kwargs: dict[str, Any] = {iter_kwarg_name: eid}
             files: builtins.list[EntityFile] = []
             try:
@@ -4110,6 +4115,7 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
             except AffinityError:
                 if on_error == "raise":
                     raise
+                return (int(eid), None)  # skip: left out, not reported as having no files
             return (int(eid), files)
 
         for i in range(0, len(unique_ids), max_concurrent):
@@ -4118,7 +4124,8 @@ class AsyncEntityFileService(AsyncFileSearchMixin):
             try:
                 for coro in asyncio.as_completed(tasks):
                     eid_int, files = await coro
-                    results[eid_int] = files
+                    if files is not None:
+                        results[eid_int] = files
             except BaseException:
                 for task in tasks:
                     if not task.done():

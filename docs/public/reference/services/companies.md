@@ -15,6 +15,7 @@ its `interaction_dates` and `interactions` fields populated with:
 - **Next meeting date**: When the next scheduled calendar event is
 - **Last email date**: When the last email exchange happened
 - **Last interaction date**: The most recent interaction of any type
+- Also the first email, first meeting and last chat message dates
 
 ```python
 from affinity import Affinity
@@ -39,6 +40,28 @@ with Affinity(api_key="YOUR_API_KEY") as client:
         person_ids = company.interactions.last_event.person_ids
         print(f"Last meeting attendees: {person_ids}")
 ```
+
+### Many companies
+
+`get()` with interaction dates makes one V1 call per company, plus one V2 call when `field_ids` or
+`field_types` is given. For many companies, use the async client's `batch_get(ids,
+with_interaction_dates=True, ...)`: with field filters it reads the fields in one call per 100
+ids and the dates in one call per company, so about N + N/100 calls instead of 2N. With
+`on_error="skip"` a company that can't be read is left out of the result.
+
+For just the last and next meeting dates, the relationship-intelligence fields are cheaper:
+they come with the company records, one call per 100, with no per-company call:
+
+```python
+from affinity.types import FieldType
+
+for company in client.companies.iter(ids=ids[:100], field_types=[FieldType.RELATIONSHIP_INTELLIGENCE]):
+    ...  # the last/next event fields are among company.fields
+```
+
+Pass at most 100 ids per call (the ids go in the URL). The other interaction dates and the
+interaction persons have no confirmed counterpart there, so use `with_interaction_dates` for
+those.
 
 ## Finding records with Affinity's search
 

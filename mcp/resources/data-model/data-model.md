@@ -256,6 +256,8 @@ Use `field history` to:
 
 **Note**: `field history` takes the field ID (from `field ls`) and at most one entity selector (`--person-id`, `--company-id`, `--opportunity-id`, or `--list-entry-id`); without one it needs `--changed-after` and/or `--max-results`. `field changes` covers all fields and entities with filters for field, list entry, changer, time window and action; its action types are `add`/`update`/`delete` (V2 names; `field history` says `create`).
 
+**Dropdown values**: in `field history` and `field history-bulk`, a dropdown `value` is an object; read `value.text`. An option deleted since is `{"id": null, "text": "...", "deleted": true}`. In `field changes` it is `{"referenceType": "deleted-entity", "displayValue": "..."}` (read `displayValue`).
+
 ### Bulk field change history (pipeline analysis)
 For pipeline stage analysis, funnel conversion, or time-in-stage metrics across a whole list, use `field history-bulk`:
 
@@ -529,7 +531,8 @@ For the `query` tool, use JSON operators (`eq`, `contains`, `starts_word`, `in`,
 - `company ls --filter` / `person ls --filter` → must include a condition on a company/person field (e.g. `Industry = "Software"`); a filter on name/domain/email alone is refused (it would mean reading Affinity's whole company directory). Partly-local filters need `--max-results`. Enriched-field filters warn that a few records may be missed.
 - `opportunity ls` → no filter support (opportunities are list-scoped; use `list export` instead)
 - `list export <LIST> --filter` → Affinity applies what it can; partly-local filters need `--max-results` or `--first-page-only`
-- A filtered run's `nextCursor` starts with `xsearch1:` and `--cursor` alone resumes it.
+- A filtered run's `nextCursor` starts with `xsearch2:` and `--cursor` alone resumes it.
+- `meta.serverFilter` shows the split: `pushed` (conditions Affinity applied), `local` (checked locally, with reasons) and, on `list export` when the search was refused or turned off, `fallback` (why; the whole filter then ran locally). `list export --dry-run` shows it as `data.serverFilter`; a `--cursor` resume doesn't report it.
 
 **Use instead:**
 - **Name/domain/email search on global entities:** `company ls --query TERM` / `person ls --query TERM` (fuzzy search).

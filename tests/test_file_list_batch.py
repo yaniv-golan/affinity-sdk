@@ -106,7 +106,7 @@ async def test_list_batch_requires_exactly_one_entity_type() -> None:
 @pytest.mark.req("SDK-FILE-LIST-BATCH")
 @pytest.mark.asyncio
 async def test_list_batch_on_error_skip() -> None:
-    """list_batch(on_error='skip') should skip failed entities."""
+    """list_batch(on_error='skip') leaves a failed entity out (its files are unknown)."""
 
     def handler(request: httpx.Request) -> httpx.Response:
         url = str(request.url)
@@ -123,10 +123,7 @@ async def test_list_batch_on_error_skip() -> None:
             on_error="skip",
         )
 
-    assert 1 in results
-    assert 2 in results
-    assert results[2] == []
-    assert 3 in results
+    assert results == {1: [], 3: []}
 
 
 @pytest.mark.req("SDK-FILE-LIST-BATCH")
@@ -285,7 +282,7 @@ async def test_list_batch_with_opportunity_ids() -> None:
 @pytest.mark.req("SDK-FILE-LIST-BATCH")
 @pytest.mark.asyncio
 async def test_list_batch_on_error_skip_mid_pagination() -> None:
-    """list_batch(on_error='skip') should keep partial files when page 2 fails."""
+    """A failure on page 2 leaves the entity out: page 1 alone would pass for all its files."""
 
     def handler(request: httpx.Request) -> httpx.Response:
         url = str(request.url)
@@ -318,8 +315,4 @@ async def test_list_batch_on_error_skip_mid_pagination() -> None:
             on_error="skip",
         )
 
-    assert 1 in results
-    assert len(results[1]) == 1
-    assert results[1][0].name == "page1.pdf"
-    assert 2 in results
-    assert results[2] == []
+    assert results == {2: []}

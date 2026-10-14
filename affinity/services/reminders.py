@@ -631,8 +631,10 @@ class AsyncReminderService:
     ) -> dict[int, builtins.list[Reminder]]:
         """Reminders for many entities of one kind; see :meth:`ReminderService.list_batch`.
 
-        Chunks of 50 ids run up to ``max_concurrent`` at a time. ``on_error="skip"`` keeps
-        what a failed chunk collected before the error instead of raising.
+        Chunks of 50 ids run up to ``max_concurrent`` at a time. ``on_error="skip"`` doesn't
+        raise for a failed chunk: its ids are left out of the result (they may have reminders
+        the failed request didn't return), so every key present is complete and a missing
+        requested id means its chunk failed.
         """
         field, attr, unique = _batch_target(person_ids, company_ids, opportunity_ids)
         if max_concurrent < 1:
@@ -649,7 +651,7 @@ class AsyncReminderService:
         }
         semaphore = asyncio.Semaphore(max_concurrent)
 
-        async def fetch_chunk(chunk: builtins.list[int]) -> builtins.list[Reminder]:
+        async def fetch_chunk(chunk: builtins.list[int]) -> builtins.list[Reminder] | None:
             found: builtins.list[Reminder] = []
             async with semaphore:
                 try:
@@ -663,10 +665,16 @@ class AsyncReminderService:
                 except AffinityError:
                     if on_error == "raise":
                         raise
+                    return None  # skip: the chunk's ids are left out, not reported as empty
             return found
 
         chunks = [unique[i : i + BATCH_CHUNK] for i in range(0, len(unique), BATCH_CHUNK)]
-        for found in await asyncio.gather(*(fetch_chunk(c) for c in chunks)):
+        fetched = await asyncio.gather(*(fetch_chunk(c) for c in chunks))
+        for chunk, found in zip(chunks, fetched, strict=True):
+            if found is None:
+                for entity_id in chunk:
+                    del results[entity_id]
+                continue
             for reminder in found:
                 owner = _owner_of(reminder, attr)
                 if owner in results:

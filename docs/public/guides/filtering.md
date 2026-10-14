@@ -296,8 +296,12 @@ missed.
   conditions that stay local.
 - `company ls --filter` / `person ls --filter`: when part of the filter runs locally, `--all`
   or `--max-results` is required.
-- The next-page cursor of a filtered run starts with `xsearch1:` and carries the search, so
+- The next-page cursor of a filtered run starts with `xsearch2:` and carries the search, so
   `--cursor` alone resumes it.
+- With `--json`, `meta.serverFilter` shows the split: `pushed` (conditions Affinity applied),
+  `local` (checked only on your machine, with reasons) and, on `list export` when the search
+  was refused or turned off, `fallback` (why; the whole filter then ran locally).
+  `list export --dry-run` shows it under `data.serverFilter`; a `--cursor` resume doesn't.
 - If Affinity refuses the search on `list export` or a `listEntries` query (e.g. the API key
   lacks the "Export data from Lists" permission), the command reads the whole list and filters
   locally, with a warning.

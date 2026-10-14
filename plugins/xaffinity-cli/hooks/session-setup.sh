@@ -72,7 +72,7 @@ set -euo pipefail
 # The CLI version this plugin release is written for. Kept equal to pyproject.toml's version
 # (tests/test_cli_session_setup_hook.py checks it). Set XAFFINITY_CLI_SPEC to install another,
 # e.g. XAFFINITY_CLI_SPEC="affinity-sdk[cli]" for the newest release.
-cli_spec="${XAFFINITY_CLI_SPEC:-affinity-sdk[cli]==2.0.4}"
+cli_spec="${XAFFINITY_CLI_SPEC:-affinity-sdk[cli]==2.0.5}"
 
 # --- Recursion guard ---
 # Prevents infinite loop if pip install somehow triggers this wrapper again.

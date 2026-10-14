@@ -48,7 +48,11 @@ xaffinity --readonly list export "Pipeline" --filter 'Status = "Active" & entity
   `is null` / `is not null`, and `starts_word` on one person or company field.
 - Stays local: record attributes (`entityName`, `name`, `createdAt`, ...), `contains_any` /
   `contains_all`, and an OR with a branch Affinity can't answer.
-- A filtered run's next-page cursor starts with `xsearch1:`; `--cursor` alone resumes it.
+- A filtered run's next-page cursor starts with `xsearch2:`; `--cursor` alone resumes it.
+- `--json` output carries the split in `meta.serverFilter`: `pushed` (Affinity applied),
+  `local` (checked locally, with reasons), and on `list export` `fallback` when the search was
+  refused or turned off (then the whole filter ran locally). `list export --dry-run` shows it
+  as `data.serverFilter` before any rows are read. A `--cursor` resume doesn't report it.
 - If Affinity refuses the search on `list export` (key without the "Export data from Lists"
   permission), the export reads the whole list and filters locally, with a warning on stderr.
 - `--saved-view` also filters on Affinity's side, by the view's own criteria.

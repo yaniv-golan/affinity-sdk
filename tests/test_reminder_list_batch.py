@@ -108,7 +108,7 @@ async def test_list_batch_chunks_ids() -> None:
 
 @pytest.mark.req("SDK-REMINDER-LIST-BATCH")
 async def test_list_batch_on_error_skip() -> None:
-    """A failed chunk is skipped: its ids keep empty lists."""
+    """A failed chunk is skipped: its ids are left out, not reported as having none."""
 
     def handler(request: httpx.Request) -> httpx.Response:
         if "person.id=1" in request.url.params["filter"]:
@@ -120,8 +120,28 @@ async def test_list_batch_on_error_skip() -> None:
         api_key="test", max_retries=0, async_transport=httpx.MockTransport(handler)
     ) as client:
         results = await client.reminders.list_batch(person_ids=ids, on_error="skip")
-    assert results[1] == []
+    assert set(results) == {BATCH_CHUNK + 1}  # ids 1..50 (the failed chunk) are absent
     assert [r.id for r in results[BATCH_CHUNK + 1]] == [30]
+
+
+@pytest.mark.req("SDK-REMINDER-LIST-BATCH")
+async def test_list_batch_skip_drops_a_chunk_that_fails_on_a_later_page() -> None:
+    """Reminders read before a later page failed don't pass for the chunk's full answer."""
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.params.get("cursor") == "p2":
+            return httpx.Response(500, json={"error": "Server error"})
+        body = _page([_reminder(30, person=1)])
+        body["pagination"] = {"nextUrl": "https://api.affinity.co/v2/reminders?cursor=p2"}
+        return httpx.Response(200, json=body)
+
+    async with AsyncAffinity(
+        api_key="test", max_retries=0, async_transport=httpx.MockTransport(handler)
+    ) as client:
+        results = await client.reminders.list_batch(
+            person_ids=[PersonId(1), PersonId(2)], on_error="skip"
+        )
+    assert results == {}
 
 
 @pytest.mark.req("SDK-REMINDER-LIST-BATCH")

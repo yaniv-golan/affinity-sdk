@@ -172,9 +172,11 @@ def filtered_ls(
     max_results: int | None,
     all_pages: bool,
     warnings: list[str],
+    server_filter: dict[str, Any] | None = None,
 ) -> tuple[list[dict[str, Any]], str | None]:
     """``company ls`` / ``person ls`` with ``--filter`` (or a search ``--cursor``): rows and the
-    next cursor. Raises ``CLIError`` for a filter Affinity's search can't apply at all."""
+    next cursor. Raises ``CLIError`` for a filter Affinity's search can't apply at all.
+    ``server_filter`` (when given) receives the split: ``pushed`` and ``local`` conditions."""
     from affinity.filters import parse as parse_filter
 
     from .errors import CLIError
@@ -241,6 +243,8 @@ def filtered_ls(
             hint="details.local names the conditions Affinity's search can't apply.",
             details=details,
         )
+    if server_filter is not None:
+        server_filter.update(pushed=plan.pushed, local=plan.local)
     warnings.extend(plan.caveats)
     if plan.local:
         warnings.append(

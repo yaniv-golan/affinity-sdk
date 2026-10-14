@@ -43,12 +43,14 @@ from ..models.secondary import CompanyMergeState, MergeTask, NoteV2
 from ..models.types import (
     AnyFieldId,
     CompanyId,
+    EntityType,
     FieldType,
     FieldValueType,
     OpportunityId,
     PersonId,
     validate_entity_field_types,
 )
+from ._batch_interactions import batch_get_with_dates
 from ._discovery import AsyncCompanyDiscoveryMixin, CompanyDiscoveryMixin
 from ._dropdown_options import (
     DROPDOWN_OPTION_WRITES_MIN_API_VERSION,
@@ -61,7 +63,9 @@ from ._org_reads import (
     COMPANY_NOTES_MIN_API_VERSION,
     RELATIONSHIPS_MIN_API_VERSION,
     check_cursor_alone,
+    check_list_entries_cursor,
     check_positive_limit,
+    entity_list_entries_page,
     materialize_ids,
     merge_params,
     merge_task_url,
@@ -673,8 +677,12 @@ class CompanyService(
         """
         Get all list entries for a company across all lists.
 
-        Returns comprehensive field data for each list entry.
+        Returns comprehensive field data for each list entry. Each entry's ``entity_id`` is
+        ``company_id`` and its ``entity_type`` is ``EntityType.ORGANIZATION``; ``entity`` is
+        ``None`` (this endpoint doesn't embed the company). A ``cursor`` must come from this
+        company's entries.
         """
+        path = f"/companies/{company_id}/list-entries"
         if cursor is not None:
             if limit is not None:
                 raise ValueError(
@@ -682,20 +690,17 @@ class CompanyService(
                     "context. Start a new pagination sequence without a cursor to change "
                     "parameters."
                 )
+            check_list_entries_cursor(cursor, path)
             data = self._client.get_url(cursor)
         else:
             params: dict[str, Any] = {}
             check_positive_limit(limit)
             if limit is not None:
                 params["limit"] = limit
-            data = self._client.get(
-                f"/companies/{company_id}/list-entries",
-                params=params or None,
-            )
+            data = self._client.get(path, params=params or None)
 
-        return PaginatedResponse[ListEntry](
-            data=[ListEntry.model_validate(e) for e in data.get("data", [])],
-            pagination=PaginationInfo.model_validate(data.get("pagination", {})),
+        return entity_list_entries_page(
+            data, entity_id=company_id, entity_type=EntityType.ORGANIZATION
         )
 
     def get_lists(
@@ -1518,6 +1523,14 @@ class AsyncCompanyService(
         you need parameters not supported by the batch endpoint (e.g.,
         with_interaction_dates=True).
 
+        Calls: one per id. With with_interaction_dates and field_ids/field_types, the fields
+        come from one call per 100 ids and the dates from one V1 call per id (about N + N/100
+        calls, not 2N). For just the last and next event dates of many companies, the
+        relationship-intelligence fields are cheaper: ``iter(ids=<up to 100 ids>,
+        field_types=[FieldType.RELATIONSHIP_INTELLIGENCE])`` reads them in one call per 100
+        ids, without the V1 calls (the other interaction dates and interaction persons have
+        no confirmed V2 counterpart).
+
         Args:
             company_ids: Company IDs to fetch
             field_ids: Specific field IDs to include
@@ -1541,6 +1554,35 @@ class AsyncCompanyService(
             raise ValueError("max_concurrent must be at least 1")
 
         unique_ids = list(dict.fromkeys(company_ids))
+        if with_interaction_dates and (field_ids is not None or field_types is not None):
+            # One V2 call per 100 ids for the fields, one V1 call per id for the dates
+            v1_params: dict[str, Any] = {"with_interaction_dates": True}
+            if with_interaction_persons:
+                v1_params["with_interaction_persons"] = True
+            v2_params: dict[str, Any] = {}
+            if field_ids:
+                v2_params["fieldIds"] = [str(fid) for fid in field_ids]
+            if field_types:
+                v2_params["fieldTypes"] = [ft.value for ft in field_types]
+            return await batch_get_with_dates(
+                self._client,
+                unique_ids,
+                v1_path="/organizations",
+                v2_path="/companies",
+                kind="Company",
+                v1_params=v1_params,
+                v2_params=v2_params,
+                max_concurrent=max_concurrent,
+                on_error=on_error,
+                get_one=lambda record_id: self.get(
+                    record_id,
+                    field_ids=field_ids,
+                    field_types=field_types,
+                    with_interaction_dates=True,
+                    with_interaction_persons=with_interaction_persons,
+                ),
+                build=Company.model_validate,
+            )
         results: dict[CompanyId, Company] = {}
 
         async def fetch_one(cid: CompanyId) -> tuple[CompanyId, Company | None]:
@@ -1874,8 +1916,12 @@ class AsyncCompanyService(
         """
         Get all list entries for a company across all lists.
 
-        Returns comprehensive field data for each list entry.
+        Returns comprehensive field data for each list entry. Each entry's ``entity_id`` is
+        ``company_id`` and its ``entity_type`` is ``EntityType.ORGANIZATION``; ``entity`` is
+        ``None`` (this endpoint doesn't embed the company). A ``cursor`` must come from this
+        company's entries.
         """
+        path = f"/companies/{company_id}/list-entries"
         if cursor is not None:
             if limit is not None:
                 raise ValueError(
@@ -1883,20 +1929,17 @@ class AsyncCompanyService(
                     "context. Start a new pagination sequence without a cursor to change "
                     "parameters."
                 )
+            check_list_entries_cursor(cursor, path)
             data = await self._client.get_url(cursor)
         else:
             params: dict[str, Any] = {}
             check_positive_limit(limit)
             if limit is not None:
                 params["limit"] = limit
-            data = await self._client.get(
-                f"/companies/{company_id}/list-entries",
-                params=params or None,
-            )
+            data = await self._client.get(path, params=params or None)
 
-        return PaginatedResponse[ListEntry](
-            data=[ListEntry.model_validate(e) for e in data.get("data", [])],
-            pagination=PaginationInfo.model_validate(data.get("pagination", {})),
+        return entity_list_entries_page(
+            data, entity_id=company_id, entity_type=EntityType.ORGANIZATION
         )
 
     async def get_lists(

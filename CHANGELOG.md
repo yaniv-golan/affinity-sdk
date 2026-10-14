@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.5] - 2026-10-14
+
+**Exception to semantic versioning** (as 2.0.2–2.0.4): two fixes change what a call returns or
+what the CLI prints. Each is marked **Behavior change**.
+
+### Changed
+
+- **Behavior change. CLI: deleted dropdown options in `field history` and `field history-bulk`
+  (`--json`).** Affinity sends an option deleted since as its bare text ("Reach Out") and a live
+  one as `{id, text, rank, color}`; the CLI passed both through, so one field's history mixed
+  strings and objects. A deleted option is now `{"id": null, "text": "Reach Out", "deleted":
+  true}`, so every dropdown value has a `text`. Text fields keep their string values; live
+  options are unchanged. When a value is plain text the CLI reads the field's metadata (one call)
+  to tell a dropdown from a text field (`history-bulk --list-id` already has it). Table and CSV
+  output show the text, as before.
+- **Behavior change. SDK: `on_error="skip"` leaves failed records out of
+  `AsyncReminderService.list_batch` and `AsyncFileService.list_batch`.** A failed request used
+  to leave its ids in the result with empty or partial lists, which looked like "no reminders" /
+  "no files"; one failed reminders request (50 ids) silently hid them all. They are now absent
+  from the result, as with every other `on_error="skip"` method: a requested id with no key
+  failed.
+- SDK: `field_value_changes.iter_all()` reads 10,000 changes per call by default (was 100), the
+  V1 maximum: a 16,000-change history takes 3 calls instead of 161 (paging ends on an empty
+  page). Pass `page_size` for smaller
+  pages.
+- SDK: `AsyncCompanyService.batch_get` / `AsyncPersonService.batch_get` with
+  `with_interaction_dates` and `field_ids` / `field_types` read the fields in one call per 100
+  ids and the dates in one V1 call per record: about N + N/100 calls instead of 2N. Results are
+  the same. Under `on_error="skip"` a failed fields call falls back to one read per id of it.
+
+### Added
+
+- CLI: `list export --filter`, `company ls --filter` and `person ls --filter` report how the
+  filter was split in `meta.serverFilter` (`--json`): `pushed` (conditions Affinity's search
+  applied), `local` (checked only locally, with reasons) and, on `list export` when the search
+  was refused or turned off, `fallback` (why: refused, the list's fields unreadable, or
+  `XAFFINITY_QUERY_SERVER_FILTER=0`; the whole filter then ran locally). `list export
+  --dry-run` shows it as `data.serverFilter`. A `--cursor` resume doesn't report it.
+  Like `query --include-meta`, but always present with `--json`.
+- SDK: `persons.get_list_entries()` takes `limit` and `cursor` (it returned only the first page).
+
+### Fixed
+
+- SDK: `companies.get_list_entries()` and `persons.get_list_entries()` set each entry's
+  `entity_id` and `entity_type` (`ORGANIZATION` / `PERSON`); the endpoint doesn't send them, so
+  they were `None`. `entity` stays `None` there. A `cursor` from another company's or person's
+  entries raises `ValueError` instead of labelling its entries with the wrong record. CLI:
+  `company get --expand list-entries` and `person get --expand list-entries` (`--json`) now
+  show each entry's `entityId` and `entityType` (1 company, 0 person).
+- SDK: the `ListEntry` docstring said it always contains the entity; it says where `entity` is
+  filled.
+- Docs: filtered-run cursors start with `xsearch2:` (the CLI page, filtering guide, CLI skill
+  and MCP data model said `xsearch1:`). The `field changes` docs say a deleted dropdown option is
+  `{"referenceType": "deleted-entity", "displayValue": ...}`. The companies and persons pages
+  say what reading interaction dates for many records costs, and the companies page and
+  `batch_get` docstring point to the relationship-intelligence fields for last / next meeting
+  dates.
+
 ## [2.0.4] - 2026-10-14
 
 **Exception to semantic versioning** (the maintainer's call, as 2.0.2 and 2.0.3): which API key

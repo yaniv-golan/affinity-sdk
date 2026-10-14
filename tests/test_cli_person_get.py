@@ -111,6 +111,8 @@ def test_person_get_expand_list_entries_filtered_by_list_id(
     payload = json.loads(result.output.strip())
     entries = payload["data"]["listEntries"]
     assert [e["id"] for e in entries] == [1]
+    # The endpoint doesn't name the entity: each entry is labelled with this person
+    assert [(e["entityId"], e["entityType"]) for e in entries] == [(123, 0)]
     assert payload["meta"]["resolved"]["list"]["listId"] == 10
 
 

@@ -827,12 +827,19 @@ def list_export(
 
         # --filter: Affinity's search applies what it can; the whole filter still runs locally
         list_search: ListSearch | None = None
+        # meta.serverFilter: what Affinity's search applied, what ran locally, and why not
+        server_filter: dict[str, Any] | None = None
         if filter_expr and not saved_view:
             if os.environ.get("XAFFINITY_QUERY_SERVER_FILTER", "1") != "0":
                 try:
                     list_search = plan_list_search(client, list_id, filter_expr)
                 except (AuthorizationError, NotFoundError, SDKValidationError) as e:
                     warnings.append(f"Filtering locally: could not read the list's fields ({e}).")
+                    server_filter = {"fallback": f"could not read the list's fields ({e})"}
+                else:
+                    server_filter = {"pushed": list_search.pushed, "local": list_search.local}
+            else:
+                server_filter = {"fallback": "XAFFINITY_QUERY_SERVER_FILTER=0"}
             # Without a scope flag a locally filtered export would silently return only what
             # matched on the first page. When Affinity applies the whole filter, page one is
             # the first page of matches, so no flag is needed.
@@ -1018,6 +1025,8 @@ def list_export(
                     "cursor": cursor,
                     "csv": want_csv,
                 }
+            if server_filter is not None:
+                data["serverFilter"] = server_filter
             if want_expand:
                 # Estimate API calls for expansion (get_size uses V1 API for accurate values)
                 entry_count = client.lists.get_size(list_id)
@@ -1903,6 +1912,8 @@ def list_export(
             from ..field_utils import truncation_warnings
 
             warnings.extend(table_iter_state.get("warnings", []))
+            if server_filter is not None and table_iter_state.get("searchFallback"):
+                server_filter["fallback"] = table_iter_state["searchFallback"]
             warnings.extend(
                 truncation_warnings(
                     table_iter_state.get("truncatedFields", []), filtered=bool(filter_expr)
@@ -1972,6 +1983,7 @@ def list_export(
                 # to truncation, so mark truncated=True whenever the flag is set.
                 truncated=True if first_page_only else None,
                 truncation_reason="firstPageOnly" if first_page_only else None,
+                server_filter=server_filter,
             )
         raise AssertionError("unreachable")
 
@@ -2192,6 +2204,7 @@ def _iterate_list_entries(
                 state.setdefault("warnings", []).append(
                     f"Affinity's search refused the filter, filtering locally: {e}"
                 )
+                state["searchFallback"] = getattr(e, "message", None) or str(e)
         else:
             yield from _search_rows(
                 entries,

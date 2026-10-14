@@ -436,6 +436,7 @@ def company_ls(
 
         # --filter (or a cursor from a filtered run): Affinity's search filters on its side
         if filter_expr is not None or is_filter_cursor(cursor):
+            server_filter: dict[str, Any] = {}
             found, next_token = filtered_ls(
                 client.companies,
                 entity="company",
@@ -448,6 +449,7 @@ def company_ls(
                 max_results=max_results,
                 all_pages=all_pages,
                 warnings=warnings,
+                server_filter=server_filter,
             )
             return CommandOutput(
                 data={"companies": found},
@@ -457,6 +459,7 @@ def company_ls(
                     if next_token
                     else None
                 ),
+                server_filter=server_filter or None,
                 api_called=True,
             )
 

@@ -104,6 +104,7 @@ def test_company_ls_filter_searches_on_affinity(respx_mock: respx.MockRouter) ->
     }
     assert route.calls[0].request.url.params.get_list("fieldIds") == ["field-1"]
     assert out["meta"]["pagination"]["companies"]["nextCursor"].startswith("xsearch2:")
+    assert out["meta"]["serverFilter"] == {"pushed": ["fields.Deals gt '5'"], "local": []}
 
 
 def test_enriched_filters_carry_a_caveat(respx_mock: respx.MockRouter) -> None:

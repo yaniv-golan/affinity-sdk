@@ -737,7 +737,10 @@ class ListEntry(AffinityModel):
     """
     A row in a list, linking an entity to a list.
 
-    Contains the entity data and list-specific field values.
+    Holds the list-specific field values and which entity the row is for (``entity_id``,
+    ``entity_type``). ``entity`` (a summary of that entity) is filled only where the endpoint
+    embeds it, e.g. a list's entries; it is ``None`` from ``companies.get_list_entries()`` and
+    ``persons.get_list_entries()``.
     """
 
     id: ListEntryId

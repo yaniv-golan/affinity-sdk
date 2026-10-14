@@ -123,6 +123,75 @@ def _field_value_change_payload(item: FieldValueChange) -> dict[str, object]:
     }
 
 
+_DROPDOWN_VALUE_TYPES = frozenset(
+    {"dropdown", "dropdown-multi", "ranked-dropdown", "status-dropdown"}
+)
+
+
+def _is_dropdown(meta: FieldMetadata) -> bool:
+    """True for a dropdown field. V1 metadata's value type 2 covers both text and dropdown
+    fields, so there a dropdown is the ranked kind (7) or a field with options."""
+    raw = getattr(meta, "value_type_raw", None)
+    if isinstance(raw, int):
+        return raw == 7 or bool(getattr(meta, "dropdown_options", None))
+    if not isinstance(raw, str):
+        value_type = getattr(meta, "value_type", None)
+        raw = getattr(value_type, "value", value_type)
+    kind = raw
+    return str(kind).lower() in _DROPDOWN_VALUE_TYPES
+
+
+def _mark_deleted_options(
+    rows: list[dict[str, object]],
+    field_id: str,
+    *,
+    meta: FieldMetadata | None,
+    ctx: CLIContext,
+    warnings: list[str],
+) -> None:
+    """In a dropdown's history, V1 sends an option deleted since as its bare text ("Reach Out")
+    and a live one as {id, text, rank, color}. Give the deleted ones the same shape:
+    {"id": null, "text": "Reach Out", "deleted": true}, so every value has a .text.
+
+    ``meta`` is the field's metadata when the caller has it (V2 list fields); otherwise V1
+    field metadata is read, only when some value is a bare string.
+    """
+
+    def is_text(value: object) -> bool:
+        return isinstance(value, str) or (
+            isinstance(value, list) and any(isinstance(v, str) for v in value)
+        )
+
+    if not any(is_text(row.get("value")) for row in rows):
+        return
+    if meta is None:
+        try:
+            metas = ctx.get_client(warnings=warnings).fields.list()
+        except Exception:  # the history itself was read: don't fail it over its labels
+            metas = []
+        meta = next((m for m in metas if _same_field(m.id, field_id)), None)
+    if meta is None:
+        warnings.append(
+            f"Could not read {field_id}'s type, so text values are shown as sent; in a dropdown "
+            "they are options deleted since."
+        )
+        return
+    if not _is_dropdown(meta):
+        return
+
+    def deleted(value: object) -> object:
+        if isinstance(value, str):
+            return {"id": None, "text": value, "deleted": True}
+        return value
+
+    for row in rows:
+        value = row.get("value")
+        if isinstance(value, list):
+            row["value"] = [deleted(v) for v in value]
+        else:
+            row["value"] = deleted(value)
+
+
 def _validate_history_selector(
     person_id: int | None,
     company_id: int | None,
@@ -470,6 +539,7 @@ def field_history(
             _refuse_if_global(ctx, warnings, field_id, "--list-entry-id")
 
         payload = [_field_value_change_payload(item) for item in changes]
+        _mark_deleted_options(payload, field_id, meta=None, ctx=ctx, warnings=warnings)
 
         # Build CommandContext for richer output metadata
         # Per spec: required params are inputs, optional params are modifiers
@@ -1297,6 +1367,7 @@ def field_history_bulk(
         # What kind of field: a list field's changes belong to list entries, a global field's to
         # the company/person (they carry no list entry, so per-entry reads find none).
         field_kind: str | None = None
+        field_meta: FieldMetadata | None = None  # V2 metadata, when the list's fields were read
         if list_id is not None:
             try:
                 list_fields: list[FieldMetadata] | None = client.lists.get_fields(
@@ -1332,6 +1403,7 @@ def field_history_bulk(
                         exit_code=2,
                     )
                 field_kind = kind
+                field_meta = match
 
         # Global field: one read per company/person, labelled with its entry on the list
         entity_entry: dict[int, int] = {}  # entity id -> the first entry of it on the list
@@ -1649,6 +1721,7 @@ def field_history_bulk(
             partial = failed_count > 0
             if list_entry_ids is not None and not all_changes and not async_warnings:
                 _refuse_if_global(ctx, warnings, field_id, "--list-entry-ids")
+        _mark_deleted_options(all_changes, field_id, meta=field_meta, ctx=ctx, warnings=warnings)
         all_changes.sort(
             key=lambda r: (str(r.get("changedAt") or ""), str(r.get("id") or "").zfill(20))
         )

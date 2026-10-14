@@ -5,6 +5,22 @@ All notable changes to the xaffinity MCP server will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.6] - 2026-10-14
+
+Requires CLI 2.0.5.
+
+### Changed
+
+- `pipeline-history` skill: stage names are `value.text` (funnel counts and transition pairs
+  compare it). With CLI 2.0.5, `field history-bulk` gives a stage whose dropdown option was
+  deleted since as `{"id": null, "text": "...", "deleted": true}` instead of a bare string, so
+  every stage has a `text`; before, deleted stages were strings and dropped out of a `.text`
+  comparison.
+- Data model resource: dropdown values in `field history` / `history-bulk` (`value.text`) and in
+  `field changes` (`displayValue` for a deleted option); `meta.serverFilter` on filtered
+  `list export`, `company ls` and `person ls`; filtered-run cursors start with `xsearch2:`
+  (it said `xsearch1:`).
+
 ## [2.0.5] - 2026-10-14
 
 Requires CLI 2.0.4 (no new CLI requirements).

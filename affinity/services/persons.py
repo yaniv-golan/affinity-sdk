@@ -43,12 +43,14 @@ from ..models.secondary import MergeTask, NoteV2, PersonMergeState
 from ..models.types import (
     AnyFieldId,
     CompanyId,
+    EntityType,
     FieldType,
     FieldValueType,
     OpportunityId,
     PersonId,
     validate_entity_field_types,
 )
+from ._batch_interactions import batch_get_with_dates
 from ._discovery import AsyncPersonDiscoveryMixin, PersonDiscoveryMixin
 from ._dropdown_options import (
     DROPDOWN_OPTION_WRITES_MIN_API_VERSION,
@@ -60,7 +62,9 @@ from ._field_updates import FIELD_WRITES_MIN_API_VERSION, _batch_update_items
 from ._org_reads import (
     RELATIONSHIPS_MIN_API_VERSION,
     check_cursor_alone,
+    check_list_entries_cursor,
     check_positive_limit,
+    entity_list_entries_page,
     materialize_ids,
     merge_params,
     merge_task_url,
@@ -615,14 +619,32 @@ class PersonService(PersonDiscoveryMixin, SingleFieldMixin, SearchMixin[Person])
     def get_list_entries(
         self,
         person_id: PersonId,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
     ) -> PaginatedResponse[ListEntry]:
-        """Get all list entries for a person across all lists."""
-        data = self._client.get(f"/persons/{person_id}/list-entries")
+        """One page of a person's list entries across all lists.
 
-        return PaginatedResponse[ListEntry](
-            data=[ListEntry.model_validate(e) for e in data.get("data", [])],
-            pagination=PaginationInfo.model_validate(data.get("pagination", {})),
-        )
+        Each entry's ``entity_id`` is ``person_id`` and its ``entity_type`` is
+        ``EntityType.PERSON``; ``entity`` is ``None`` (this endpoint doesn't embed the person).
+        Follow ``pagination.next_cursor`` with ``cursor=`` (from this person's entries) for
+        the next page.
+        """
+        path = f"/persons/{person_id}/list-entries"
+        if cursor is not None:
+            if limit is not None:
+                raise ValueError(
+                    "Cannot combine 'cursor' with other parameters; cursor encodes all query "
+                    "context. Start a new pagination sequence without a cursor to change "
+                    "parameters."
+                )
+            check_list_entries_cursor(cursor, path)
+            data = self._client.get_url(cursor)
+        else:
+            check_positive_limit(limit)
+            data = self._client.get(path, params={"limit": limit} if limit is not None else None)
+
+        return entity_list_entries_page(data, entity_id=person_id, entity_type=EntityType.PERSON)
 
     def get_lists(
         self,
@@ -1579,7 +1601,9 @@ class AsyncPersonService(
         """
         Fetch multiple persons with controlled concurrency.
 
-        Makes individual get() calls with bounded concurrency.
+        Makes individual get() calls with bounded concurrency: one call per id. With
+        with_interaction_dates and field_ids/field_types, the fields come from one call per
+        100 ids and the dates from one V1 call per id (about N + N/100 calls, not 2N).
 
         Args:
             person_ids: Person IDs to fetch
@@ -1605,6 +1629,39 @@ class AsyncPersonService(
             raise ValueError("max_concurrent must be at least 1")
 
         unique_ids = list(dict.fromkeys(person_ids))
+        if (
+            with_interaction_dates
+            and (field_ids is not None or field_types is not None)
+            and not include_field_values
+        ):
+            # One V2 call per 100 ids for the fields, one V1 call per id for the dates
+            v1_params: dict[str, Any] = {"with_interaction_dates": True}
+            if with_interaction_persons:
+                v1_params["with_interaction_persons"] = True
+            v2_params: dict[str, Any] = {}
+            if field_ids:
+                v2_params["fieldIds"] = [str(fid) for fid in field_ids]
+            if field_types:
+                v2_params["fieldTypes"] = [ft.value for ft in field_types]
+            return await batch_get_with_dates(
+                self._client,
+                unique_ids,
+                v1_path="/persons",
+                v2_path="/persons",
+                kind="Person",
+                v1_params=v1_params,
+                v2_params=v2_params,
+                max_concurrent=max_concurrent,
+                on_error=on_error,
+                get_one=lambda record_id: self.get(
+                    record_id,
+                    field_ids=field_ids,
+                    field_types=field_types,
+                    with_interaction_dates=True,
+                    with_interaction_persons=with_interaction_persons,
+                ),
+                build=Person.model_validate,
+            )
         results: dict[PersonId, Person] = {}
 
         async def fetch_one(pid: PersonId) -> tuple[PersonId, Person | None]:
@@ -1991,14 +2048,34 @@ class AsyncPersonService(
     async def get_list_entries(
         self,
         person_id: PersonId,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
     ) -> PaginatedResponse[ListEntry]:
-        """Get all list entries for a person across all lists."""
-        data = await self._client.get(f"/persons/{person_id}/list-entries")
+        """One page of a person's list entries across all lists.
 
-        return PaginatedResponse[ListEntry](
-            data=[ListEntry.model_validate(e) for e in data.get("data", [])],
-            pagination=PaginationInfo.model_validate(data.get("pagination", {})),
-        )
+        Each entry's ``entity_id`` is ``person_id`` and its ``entity_type`` is
+        ``EntityType.PERSON``; ``entity`` is ``None`` (this endpoint doesn't embed the person).
+        Follow ``pagination.next_cursor`` with ``cursor=`` (from this person's entries) for
+        the next page.
+        """
+        path = f"/persons/{person_id}/list-entries"
+        if cursor is not None:
+            if limit is not None:
+                raise ValueError(
+                    "Cannot combine 'cursor' with other parameters; cursor encodes all query "
+                    "context. Start a new pagination sequence without a cursor to change "
+                    "parameters."
+                )
+            check_list_entries_cursor(cursor, path)
+            data = await self._client.get_url(cursor)
+        else:
+            check_positive_limit(limit)
+            data = await self._client.get(
+                path, params={"limit": limit} if limit is not None else None
+            )
+
+        return entity_list_entries_page(data, entity_id=person_id, entity_type=EntityType.PERSON)
 
     async def get_lists(
         self,

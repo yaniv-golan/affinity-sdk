@@ -15,7 +15,7 @@ from rich.progress import BarColumn, Progress, SpinnerColumn, TaskID, TextColumn
 
 from affinity.exceptions import DuplicateEntityError
 from affinity.models.entities import Person, PersonCreate, PersonUpdate
-from affinity.models.types import FieldId
+from affinity.models.types import EntityType, FieldId
 from affinity.types import CompanyId, FieldType, ListId, PersonId
 
 from ..click_compat import RichCommand, RichGroup, click
@@ -308,6 +308,7 @@ def person_ls(
 
         # --filter (or a cursor from a filtered run): Affinity's search filters on its side
         if filter_expr is not None or is_filter_cursor(cursor):
+            server_filter: dict[str, Any] = {}
             found, next_token = filtered_ls(
                 client.persons,
                 entity="person",
@@ -320,6 +321,7 @@ def person_ls(
                 max_results=max_results,
                 all_pages=all_pages,
                 warnings=warnings,
+                server_filter=server_filter,
             )
             return CommandOutput(
                 data={"persons": found},
@@ -329,6 +331,7 @@ def person_ls(
                     if next_token
                     else None
                 ),
+                server_filter=server_filter or None,
                 api_called=True,
             )
 
@@ -1190,6 +1193,14 @@ def person_get(
                     pagination=pagination,
                     keep_item=keep_entry if list_id is not None else None,
                 )
+                # The endpoint doesn't name the entity: label each entry with this person, as
+                # persons.get_list_entries() (and company get) do
+                for entry in entries_items:
+                    if isinstance(entry, dict):
+                        if entry.get("entityId") is None:
+                            entry["entityId"] = int(person_id)
+                        if entry.get("entityType") is None:
+                            entry["entityType"] = int(EntityType.PERSON)
                 data["listEntries"] = entries_items
 
         if "list-entries" in expand_set and entries_items and ctx.output != "json":

@@ -995,6 +995,7 @@ def build_result(
     truncation_reason: str | None = None,
     not_requested: list[dict[str, str]] | None = None,
     explanation: str | None = None,
+    server_filter: dict[str, Any] | None = None,
     affinity_api_version: str | list[str] | None = None,
     affinity_api_version_per_operation: list[str] | None = None,
 ) -> CommandResult:
@@ -1013,6 +1014,7 @@ def build_result(
         truncation_reason=truncation_reason,
         not_requested=not_requested,
         explanation=explanation,
+        server_filter=server_filter,
     )
     return CommandResult(
         ok=ok,

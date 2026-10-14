@@ -75,10 +75,12 @@ Each row has: `id`, `fieldId`, `entityId`, `listEntryId`, `entityName`, `actionT
 
 **Reconstruct transitions:** Sort events per entity by `changedAt` (parse it as a time — comparing the strings misorders events within a second — and break ties by `id`). Each row's `value` is the value AT that point. Compare consecutive rows to derive old→new transitions.
 
+**Stage names:** for a status (dropdown) field, `value` is an object; the stage name is `value.text`. A stage whose option was deleted since is `{"id": null, "text": "Reach Out", "deleted": true}` — still a stage the deal passed through, so count it by its `text`.
+
 **Common analyses:**
-- **Funnel conversion:** Count distinct entities that ever had `value` = each stage
+- **Funnel conversion:** Count distinct entities that ever had `value.text` = each stage
 - **Time-in-stage:** Duration between consecutive `changedAt` timestamps for the same entity
-- **Stage transition matrix:** Group by (previous value → current value) pairs
+- **Stage transition matrix:** Group by (previous `value.text` → current `value.text`) pairs
 - **Stalled deals:** Entities with no change event in the last N days
 
 ## Gotchas

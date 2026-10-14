@@ -138,6 +138,9 @@ def test_a_filter_affinity_answers_needs_no_scope_flag(router: respx.MockRouter)
         {"dropdownOptionId": 12}
     ]
     assert not plain.called
+    assert out["meta"]["serverFilter"]["local"] == []
+    assert out["meta"]["serverFilter"]["pushed"]
+    assert "fallback" not in out["meta"]["serverFilter"]
     # The next-page cursor carries the search: it resumes on its own
     cursor = out["meta"]["pagination"]["rows"]["nextCursor"]
     decoded = decode_cursor(cursor, path_suffixes=["/lists/9/list-entries/search"])
@@ -167,6 +170,36 @@ def test_a_refused_search_falls_back(router: respx.MockRouter) -> None:
     assert code == 0, out
     assert _ids(out) == [1]
     assert any("filtering locally" in w for w in out["warnings"])
+    assert out["meta"]["serverFilter"]["fallback"]
+
+
+def test_without_a_filter_there_is_no_server_filter_meta(router: respx.MockRouter) -> None:
+    router.get(f"{V2}/lists/9/list-entries").mock(
+        return_value=Response(200, json=_page([_entry(1, "Won")]))
+    )
+    code, out = _export("--all")
+    assert code == 0, out
+    assert "serverFilter" not in out["meta"]
+
+
+@pytest.mark.usefixtures("router")
+def test_a_dry_run_shows_the_split() -> None:
+    code, out = _export("--filter", 'Status = "Won" & entityName =~ "Deal"', "--all", "--dry-run")
+    assert code == 0, out
+    split = out["data"]["serverFilter"]
+    assert split["pushed"] and split["local"]
+
+
+def test_server_filter_off_is_reported(
+    router: respx.MockRouter, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("XAFFINITY_QUERY_SERVER_FILTER", "0")
+    router.get(f"{V2}/lists/9/list-entries").mock(
+        return_value=Response(200, json=_page([_entry(1, "Won")]))
+    )
+    code, out = _export("--filter", 'Status = "Won"', "--all")
+    assert code == 0, out
+    assert out["meta"]["serverFilter"] == {"fallback": "XAFFINITY_QUERY_SERVER_FILTER=0"}
 
 
 def test_the_filters_fields_are_fetched_even_when_not_exported(

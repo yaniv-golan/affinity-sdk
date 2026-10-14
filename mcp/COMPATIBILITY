@@ -1,8 +1,14 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="2.0.4"
-CLI_MAX_VERSION="2.0.4"
+CLI_MIN_VERSION="2.0.5"
+CLI_MAX_VERSION="2.0.5"
+
+# MCP 2.0.6 requires CLI 2.0.5 for:
+# - `field history` / `field history-bulk`: a deleted dropdown option as
+#   {"id": null, "text": ..., "deleted": true} (was a bare string); the pipeline-history skill
+#   and data model read stages as `value.text`.
+# - `meta.serverFilter` on `list export`, `company ls` and `person ls` with --filter (data model).
 
 # MCP 2.0.5: no new CLI requirements (mcp-bash 1.9.5).
 

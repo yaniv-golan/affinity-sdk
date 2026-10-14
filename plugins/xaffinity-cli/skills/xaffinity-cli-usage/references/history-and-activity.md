@@ -18,6 +18,10 @@ these are reads except `field options create|update|delete`.
 - `--max-results` on `field history` is the **most recent** N (`--order asc`: the oldest N).
 - Sort events by `changedAt` **parsed as a time** (string order misplaces same-second events), then
   by `id`. Each row's `value` is the value at that point; derive transitions from consecutive rows.
+- A dropdown `value` (`field history`, `history-bulk`) is an object: compare `value.text`, not
+  `value`. An option deleted since is `{"id": null, "text": "Reach Out", "deleted": true}`
+  (live ones have their `id`, `rank`, `color`). In `field changes` a deleted option is
+  `{"referenceType": "deleted-entity", "displayValue": "..."}`: read `displayValue` there.
 - `history-bulk --all` on a list of 100+ entries reads the field's history in a few calls (dry
   run: `"strategy": "field"`); otherwise one call per entry. Check the dry run's
   `estimatedApiCalls` before a big run. `--strategy field` insists on the field-wide read: if it

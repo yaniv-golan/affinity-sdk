@@ -5,11 +5,14 @@ from __future__ import annotations
 from collections.abc import Iterable
 from datetime import datetime
 from typing import Any, TypeVar
+from urllib.parse import urlsplit
 
 from pydantic import BaseModel
 
 from ..exceptions import AffinityError
-from ..models.pagination import PaginatedResponse, PaginationInfoWithTotal
+from ..models.entities import ListEntry
+from ..models.pagination import PaginatedResponse, PaginationInfo, PaginationInfoWithTotal
+from ..models.types import EntityType
 from ._v2_filters import v2_filter_datetime
 
 T = TypeVar("T", bound=BaseModel)
@@ -67,6 +70,39 @@ def check_cursor_alone(cursor: str | None, *others: Any) -> None:
         raise ValueError(
             "Cannot combine 'cursor' with other parameters; cursor encodes all query context."
         )
+
+
+def check_list_entries_cursor(cursor: str, path: str) -> None:
+    """A cursor of ``/companies/{id}/list-entries`` (or persons) must be for the entity asked
+    about: its entries are labelled with that entity, so another entity's cursor would mislabel
+    them."""
+    if not urlsplit(cursor).path.endswith(path):
+        raise ValueError(
+            f"This cursor is not for {path}: pass the cursor with the same entity id that "
+            "returned it."
+        )
+
+
+def entity_list_entries_page(
+    data: dict[str, Any], *, entity_id: int, entity_type: EntityType
+) -> PaginatedResponse[ListEntry]:
+    """A page of one entity's list entries (``/companies|persons/{id}/list-entries``).
+
+    Those items don't name their entity, so ``entity_id`` / ``entity_type`` are filled in from
+    the entity asked about (a value the API does send is kept). ``entity`` stays ``None``.
+    """
+    items = []
+    for raw in data.get("data", []):
+        item = dict(raw)
+        if item.get("entityId") is None:
+            item["entityId"] = int(entity_id)
+        if item.get("entityType") is None:
+            item["entityType"] = int(entity_type)
+        items.append(ListEntry.model_validate(item))
+    return PaginatedResponse[ListEntry](
+        data=items,
+        pagination=PaginationInfo.model_validate(data.get("pagination", {})),
+    )
 
 
 def check_positive_limit(limit: int | None) -> None:

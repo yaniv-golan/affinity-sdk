@@ -303,6 +303,10 @@ class CommandMeta(AffinityModel):
     not_requested: list[dict[str, str]] | None = Field(None, alias="notRequested")
     # Server-provided explanation of how a query was interpreted (semantic search).
     explanation: str | None = None
+    # How a --filter was split: {"pushed": [...], "local": [...]} — what Affinity's search
+    # applied and what was checked locally — plus "fallback" (why) when the search was refused or
+    # turned off: then the whole filter ran locally (and pushed/local may be absent).
+    server_filter: dict[str, Any] | None = Field(None, alias="serverFilter")
     # Affinity V2 API version(s) that answered this command (echoed X-Affinity-Api-Version,
     # incl. cache hits): a string, or a sorted list when more than one answered.
     affinity_api_version: str | list[str] | None = Field(None, alias="affinityApiVersion")

@@ -168,6 +168,15 @@ async def test_async_iter_all_pages_by_keyset() -> None:
         ids = [int(c.id) async for c in client.field_value_changes.iter_all(FieldId("field-1"))]
     assert ids == [1]
     assert _params(route, 1)["after_id"] == "1"
+    assert _params(route)["limit"] == "10000"  # the V1 maximum per call by default
+
+
+@respx.mock
+def test_iter_all_asks_for_the_v1_maximum_page_by_default() -> None:
+    route = respx.get(V1).mock(return_value=Response(200, json=[]))
+    with Affinity(api_key="k", max_retries=0) as client:
+        assert list(client.field_value_changes.iter_all(FieldId("field-1"))) == []
+    assert _params(route)["limit"] == "10000"
 
 
 # --- V2 org-wide ---------------------------------------------------------------------------------

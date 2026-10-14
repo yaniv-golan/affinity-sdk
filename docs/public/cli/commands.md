@@ -278,7 +278,7 @@ Options:
 - `--csv`: output as CSV (to stdout)
 - `--csv-bom`: add UTF-8 BOM for Excel compatibility
 
-**Note:** `--filter` goes through Affinity's search: the conditions on person fields that Affinity can answer are applied on its side, and the whole filter (including attributes like `firstName` or `primaryEmail`) then runs on what comes back. A filter with only attribute conditions is refused; search names and emails with `--query`. When part of the filter runs locally, `--all` or `--max-results` is required. Filters on enriched fields warn that a few records may be missed. The next-page cursor of a filtered run starts with `xsearch1:` and `--cursor` alone resumes it. `--query` and `--filter` can't be combined.
+**Note:** `--filter` goes through Affinity's search: the conditions on person fields that Affinity can answer are applied on its side, and the whole filter (including attributes like `firstName` or `primaryEmail`) then runs on what comes back. A filter with only attribute conditions is refused; search names and emails with `--query`. When part of the filter runs locally, `--all` or `--max-results` is required. Filters on enriched fields warn that a few records may be missed. The next-page cursor of a filtered run starts with `xsearch2:` and `--cursor` alone resumes it. `--query` and `--filter` can't be combined. With `--json`, `meta.serverFilter` lists the conditions Affinity applied (`pushed`) and those checked locally (`local`); a `--cursor` resume doesn't report it.
 
 **Note:** `--query` can be combined with `--field` and `--field-type` to search with field data.
 
@@ -461,7 +461,7 @@ Options:
 - `--csv`: output as CSV (to stdout)
 - `--csv-bom`: add UTF-8 BOM for Excel compatibility
 
-**Note:** `--filter` goes through Affinity's search: the conditions on company fields that Affinity can answer are applied on its side, and the whole filter (including attributes like `name` or `domain`) then runs on what comes back. A filter with only attribute conditions (e.g. `name =~ "Acme"`) is refused, since it would mean reading Affinity's whole company directory; search names and domains with `--query`. When part of the filter runs locally, `--all` or `--max-results` is required. Filters on enriched fields warn that a few records may be missed. The next-page cursor of a filtered run starts with `xsearch1:` and `--cursor` alone resumes it. `--query` and `--filter` can't be combined.
+**Note:** `--filter` goes through Affinity's search: the conditions on company fields that Affinity can answer are applied on its side, and the whole filter (including attributes like `name` or `domain`) then runs on what comes back. A filter with only attribute conditions (e.g. `name =~ "Acme"`) is refused, since it would mean reading Affinity's whole company directory; search names and domains with `--query`. When part of the filter runs locally, `--all` or `--max-results` is required. Filters on enriched fields warn that a few records may be missed. The next-page cursor of a filtered run starts with `xsearch2:` and `--cursor` alone resumes it. `--query` and `--filter` can't be combined. With `--json`, `meta.serverFilter` lists the conditions Affinity applied (`pushed`) and those checked locally (`local`); a `--cursor` resume doesn't report it.
 
 **Note:** `--query` can be combined with `--field` and `--field-type` to search with field data.
 
@@ -849,7 +849,7 @@ Options:
 - `--unreplied-types <types>`: Comma-separated types to check: email, chat, all (default: email,chat)
 - `--unreplied-lookback-days <days>`: Lookback period for unreplied message detection (default: 30)
 
-**`--filter` and Affinity's search.** Conditions on list fields that Affinity's search can answer are applied on its side, so only matching entries are downloaded; the whole filter still runs locally on what comes back. When Affinity applies the whole filter, `--all`, `--max-results` and `--first-page-only` are not required (page one is the first page of matches). When part of the filter runs locally, one of them is required, otherwise the command exits with code 2 and the error's `details.local` names the conditions that stay local. The next-page cursor of a filtered export starts with `xsearch1:` and carries the search, so `--cursor` alone resumes it. If Affinity refuses the search (e.g. the API key lacks the "Export data from Lists" permission), the export reads the whole list and filters locally, with a warning. `XAFFINITY_QUERY_SERVER_FILTER=0` turns server filtering off for list entries (`query` on listEntries and `list export`); company and person filters always use it. `--saved-view` also filters on Affinity's side; for one known company or person use `--company-id` / `--person-id`. See [Filtering](../guides/filtering.md#filtering-on-affinitys-side) for which conditions Affinity applies.
+**`--filter` and Affinity's search.** Conditions on list fields that Affinity's search can answer are applied on its side, so only matching entries are downloaded; the whole filter still runs locally on what comes back. When Affinity applies the whole filter, `--all`, `--max-results` and `--first-page-only` are not required (page one is the first page of matches). When part of the filter runs locally, one of them is required, otherwise the command exits with code 2 and the error's `details.local` names the conditions that stay local. The next-page cursor of a filtered export starts with `xsearch2:` and carries the search, so `--cursor` alone resumes it. If Affinity refuses the search (e.g. the API key lacks the "Export data from Lists" permission), the export reads the whole list and filters locally, with a warning. With `--json`, `meta.serverFilter` reports the split (in `--dry-run`, `data.serverFilter`): `pushed` (conditions Affinity's search applied), `local` (what runs only on your machine, with reasons) and, when the search was refused or turned off, `fallback` (why; the whole filter then ran locally). A `--cursor` resume doesn't report it. CSV and table output report the split as warnings on stderr. `XAFFINITY_QUERY_SERVER_FILTER=0` turns server filtering off for list entries (`query` on listEntries and `list export`); company and person filters always use it. `--saved-view` also filters on Affinity's side; for one known company or person use `--company-id` / `--person-id`. See [Filtering](../guides/filtering.md#filtering-on-affinitys-side) for which conditions Affinity applies.
 
 **Truncation envelope.** JSON output includes a `meta` object with `truncated` (boolean) and, when `truncated=true`, a `truncationReason` string naming the cause (`firstPageOnly` here; `field history-bulk` uses `partialFailure`). Always check this before treating a response as complete.
 
@@ -1279,6 +1279,13 @@ Options:
 Use at most one entity selector. Without one, history covers every entity, so
 `--changed-after` and/or `--max-results` is required.
 
+Each row's `value` is the value at that point. For a dropdown it is an object with `text`
+(`{"id": 11, "text": "Lead", "rank": 1, "color": 2}`); an option deleted since is
+`{"id": null, "text": "Reach Out", "deleted": true}`, so compare stages by `value.text`.
+Telling the two apart needs the field's type: when some value is plain text, the CLI reads the
+field's metadata (one call); if that fails, values are shown as sent, with a warning.
+`field history-bulk` rows have the same `value`.
+
 ```bash
 xaffinity field history field-123 --person-id 456
 xaffinity field history field-123 --company-id 789 --action-type update
@@ -1310,7 +1317,10 @@ Options (filters combine with AND; repeated values of one option combine with OR
 There is no person/company/opportunity filter; use `field history` for one entity. Only
 fields with change tracking are included. Each row has `id`, `fieldId`, `fieldName`,
 `fieldEntityType`, `fieldScope` (`global`/`list`), `entityId`, `listEntryId`, `listId`,
-`actionType`, `valueType`, `value`, `changedAt`, `changerId`, `changerName`.
+`actionType`, `valueType`, `value`, `changedAt`, `changerId`, `changerName`. A dropdown
+`value` is a reference: `{"referenceType": "entity", "id": 3, "text": "Won"}`, or for an option
+deleted since `{"referenceType": "deleted-entity", "displayValue": "Old"}` (`displayValue`, not
+`text`).
 
 ```bash
 xaffinity field changes --field-id field-123 --changed-after -7d
@@ -1352,6 +1362,9 @@ whole org, so `auto` uses it only if it fits in one call (otherwise per company/
 warning) and a forced `--strategy field` reads up to 200,000 changes, then stops with an error.
 `--list-entry-ids` can't map entries to companies, so a global field there is a usage error, as
 are enriched fields (no change history) and fields that aren't on the list.
+
+Each row's `value` is as in `field history`: dropdown options are objects with `text`, and an
+option deleted since is `{"id": null, "text": "...", "deleted": true}`.
 
 ### `xaffinity field options`
 

@@ -476,6 +476,7 @@ def _setup(
     iter_all: object = None,
     entry_type: str = "company",
     entity_ids: dict[int, int | None] | None = None,
+    value_type: str | None = None,
 ) -> dict[str, list[object]]:
     from affinity.cli.commands import field_cmds
     from affinity.services.lists import ListService
@@ -525,6 +526,8 @@ def _setup(
         def __init__(self) -> None:
             self.id = field_id
             self.type = field_type
+            if value_type is not None:
+                self.value_type = value_type
 
     def get_fields(self, list_id, **kw):  # noqa: ARG001
         seen["get_fields"].append(int(list_id))
@@ -577,6 +580,19 @@ def test_big_list_with_a_list_field_reads_field_wide(monkeypatch: pytest.MonkeyP
     assert any("no longer on the list" in w for w in out["warnings"])
     assert out["command"]["modifiers"]["strategy"] == "field"
     assert rows == sorted(rows, key=lambda r: (r["changedAt"], r["id"]))
+
+
+@pytest.mark.req("CLI-FIELD-HISTORY-BULK")
+@pytest.mark.parametrize("strategy", ["field", "entries"])
+def test_a_dropdowns_deleted_options_get_the_live_shape(
+    monkeypatch: pytest.MonkeyPatch, strategy: str
+) -> None:
+    # The list's (V2) field metadata says dropdown: no further metadata call is needed
+    _setup(monkeypatch, entries=100, value_type="ranked-dropdown")
+    code, out = _bulk("--all", "--strategy", strategy)
+    assert code == 0, out
+    values = {json.dumps(r["value"]) for r in out["data"]["fieldValueChanges"]}
+    assert values == {json.dumps({"id": None, "text": "Won", "deleted": True})}
 
 
 @pytest.mark.req("CLI-FIELD-HISTORY-BULK")

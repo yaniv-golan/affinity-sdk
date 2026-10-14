@@ -2,7 +2,7 @@
 
 Read this when a task goes beyond get/list/search of companies, persons, opportunities and lists:
 change history, org-wide activity, notes and replies, meeting transcripts, who-knows-whom, merges,
-dropdown options, or file uploads. Sync names shown; `AsyncAffinity` has the same methods
+dropdown options, file uploads, or reading many records at once. Sync names shown; `AsyncAffinity` has the same methods
 (`async for` over `iter_*`, `await` the rest). `list_*` / `list` return one page
 (`.data`, `.next_cursor`); `iter_*` / `iter` follow every page.
 
@@ -16,6 +16,7 @@ dropdown options, or file uploads. Sync names shown; `AsyncAffinity` has the sam
 - Field values of one company / person
 - Dropdown options
 - File uploads
+- Many records at once (lists a record is on, batch reads)
 
 ## Who changed what (field history)
 
@@ -41,6 +42,7 @@ for ch in client.field_value_changes.iter_global(changed_after=since, changer_id
 - V1 (`list`, `iter_all`) actions are `create` / `update` / `delete`; V2 (`iter_global`) uses
   `add` / `update` / `delete`.
 - Sort by `changed_at` as a datetime, then `id`. Each row's `value` is the value at that point.
+- `iter_all` reads 10,000 changes per call (the V1 maximum) unless you pass `page_size`.
 
 ## Org-wide activity
 
@@ -160,3 +162,33 @@ from affinity.types import CompanyId
 files = client.files.upload_path_returning_files("./deck.pdf", company_id=CompanyId(456))
 print(files[0].id)    # the created EntityFile(s); no follow-up list call needed
 ```
+
+## Many records at once
+
+```python
+from affinity import AsyncAffinity
+from affinity.types import CompanyId, FieldType, PersonId
+
+# The lists one company / person is on: entity_id and entity_type are set (entity is None)
+page = client.companies.get_list_entries(CompanyId(456))
+if page.next_cursor:  # the next page: same company
+    more = client.companies.get_list_entries(CompanyId(456), cursor=page.next_cursor)
+client.persons.get_list_entries(PersonId(789), limit=50)
+
+async with AsyncAffinity(api_key=KEY) as aclient:
+    # Interaction dates for many companies: fields in one call per 100 ids, dates one call each
+    companies = await aclient.companies.batch_get(
+        ids, field_types=[FieldType.GLOBAL], with_interaction_dates=True, on_error="skip"
+    )
+    reminders = await aclient.reminders.list_batch(company_ids=ids, on_error="skip")
+    files = await aclient.files.list_batch(company_ids=ids, on_error="skip")
+```
+
+- `on_error="skip"` leaves a record that failed **out of the result**: a requested id with no
+  key failed; a key with an empty list has none. `reminders.list_batch` fetches 50 ids per
+  request, so one failed request leaves out its 50 ids. Re-read the missing ids if they matter.
+- A cursor passed to `get_list_entries` must come from the same company / person.
+- For just the last / next meeting dates of many companies,
+  `companies.iter(ids=<up to 100>, field_types=[FieldType.RELATIONSHIP_INTELLIGENCE])` returns
+  them among the fields with no per-company call. The other interaction dates need
+  `with_interaction_dates`.

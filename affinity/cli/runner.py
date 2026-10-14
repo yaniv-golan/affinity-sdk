@@ -38,6 +38,7 @@ class CommandOutput:
     # [{"key": "data.listEntries", "flag": "--expand list-entries"}, ...]
     not_requested: list[dict[str, str]] | None = None
     explanation: str | None = None  # meta.explanation (semantic search)
+    server_filter: dict[str, Any] | None = None  # meta.serverFilter (--filter split)
     api_called: bool = False
     exit_code: int = 0  # Allow commands to specify non-zero exit codes (e.g., check-key)
 
@@ -52,6 +53,7 @@ def _emit_json(result: CommandResult) -> None:
             "truncationReason",
             "notRequested",
             "explanation",
+            "serverFilter",
             "affinityApiVersion",
             "affinityApiVersionPerOperation",
         ):
@@ -239,6 +241,7 @@ def run_command(ctx: CLIContext, *, command: str, fn: CommandFn) -> None:
             truncation_reason=out.truncation_reason,
             not_requested=out.not_requested,
             explanation=out.explanation,
+            server_filter=out.server_filter,
             affinity_api_version=api_version,
             affinity_api_version_per_operation=ctx.api_versions_per_operation(),
         )

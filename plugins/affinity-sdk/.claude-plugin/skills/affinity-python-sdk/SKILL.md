@@ -321,6 +321,7 @@ with Affinity.from_env() as client:
 | Which merges ran or failed? | `companies` / `persons.list_merges`, `tasks.list_merge_tasks` |
 | A dropdown's options; add / rename / delete one | `lists.get_field_dropdown_options`, `create_` / `update_` / `delete_field_dropdown_option` |
 | Upload a file and get its id | `files.upload_path_returning_files` |
+| Which lists is this company / person on? Many records' reminders, files, interaction dates | `companies` / `persons.get_list_entries`, async `batch_get`, `reminders` / `files.list_batch` |
 
 ## Error Handling
 
