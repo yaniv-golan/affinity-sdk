@@ -192,6 +192,7 @@ mcp-bash install, not just the vendored runtime — see step 4 of manual install
 | "API key not configured" | Missing credentials | `xaffinity config setup-key` |
 | "No JSON processor found" | jq/gojq not installed (manual install only) | See [Installing jq/gojq](#installing-jqgojq) |
 | "Framework not found" | Vendored `.mcp-bash/` directory missing | `cd mcp && mcp-bash vendor` |
+| Every tool call fails with "server.d/policy.sh was not loaded" | The server's folder, `server.d` or `policy.sh` is writable by group or other users (common after a clone or unzip with `umask 002`), a symlink, or owned by another user. The server then refuses to run without its policy (read-only mode and other limits). | Run the `chmod go-w ...` command the error names (or `chmod -R go-w <server folder>`), then restart the server |
 
 For detailed debugging, see [docs/DEBUGGING.md](docs/DEBUGGING.md).
 

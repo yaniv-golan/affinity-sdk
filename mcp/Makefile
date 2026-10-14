@@ -39,6 +39,8 @@ all: mcpb plugin
 mcpb:
 	@echo "Building MCPB bundle..."
 	@mkdir -p "$(MCPB_OUTPUT_DIR)"
+	@# mcp-bash refuses to load server.d/policy.sh from group/other-writable paths
+	@chmod -R go-w .
 	@mcp-bash bundle --output "$(MCPB_OUTPUT_DIR)" --verbose
 	@echo ""
 	@echo "MCPB bundle created in $(MCPB_OUTPUT_DIR)/"
@@ -53,6 +55,7 @@ mcpb-validate:
 plugin: clean-plugin
 	@echo "Building plugin ZIP..."
 	@rm -f "$(ZIP_FILE)"
+	@chmod -R go-w .
 	@zip -q "$(ZIP_FILE)" $(MCP_FILES)
 	@for dir in $(MCP_DIRS); do \
 		if [ -d "$$dir" ]; then \

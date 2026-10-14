@@ -221,6 +221,8 @@ jobs:
       - name: Build MCPB bundle
         run: |
           cd mcp
+          # mcp-bash refuses to load server.d/policy.sh from group/other-writable paths
+          chmod -R go-w .
           mcp-bash bundle --output dist --verbose
           ls -la dist/*.mcpb
 
