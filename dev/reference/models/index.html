@@ -8027,10 +8027,7 @@ and use integer colours.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 994</span>
-<span class="normal"> 995</span>
-<span class="normal"> 996</span>
-<span class="normal"> 997</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 997</span>
 <span class="normal"> 998</span>
 <span class="normal"> 999</span>
 <span class="normal">1000</span>
@@ -8038,7 +8035,10 @@ and use integer colours.</p>
 <span class="normal">1002</span>
 <span class="normal">1003</span>
 <span class="normal">1004</span>
-<span class="normal">1005</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">1005</span>
+<span class="normal">1006</span>
+<span class="normal">1007</span>
+<span class="normal">1008</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Data for creating a new field (V1 API)."""</span>
 
     <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">use_enum_values</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -8103,10 +8103,7 @@ and use integer colours.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">912</span>
-<span class="normal">913</span>
-<span class="normal">914</span>
-<span class="normal">915</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">915</span>
 <span class="normal">916</span>
 <span class="normal">917</span>
 <span class="normal">918</span>
@@ -8182,7 +8179,10 @@ and use integer colours.</p>
 <span class="normal">988</span>
 <span class="normal">989</span>
 <span class="normal">990</span>
-<span class="normal">991</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldMetadata</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">991</span>
+<span class="normal">992</span>
+<span class="normal">993</span>
+<span class="normal">994</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldMetadata</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Metadata about a field (column) in Affinity.</span>
 
@@ -8359,10 +8359,7 @@ and use integer colours.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1013</span>
-<span class="normal">1014</span>
-<span class="normal">1015</span>
-<span class="normal">1016</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1016</span>
 <span class="normal">1017</span>
 <span class="normal">1018</span>
 <span class="normal">1019</span>
@@ -8376,7 +8373,10 @@ and use integer colours.</p>
 <span class="normal">1027</span>
 <span class="normal">1028</span>
 <span class="normal">1029</span>
-<span class="normal">1030</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValue</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">1030</span>
+<span class="normal">1031</span>
+<span class="normal">1032</span>
+<span class="normal">1033</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValue</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A single field value (cell data).</span>
 
@@ -8446,17 +8446,17 @@ and use integer colours.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1053</span>
-<span class="normal">1054</span>
-<span class="normal">1055</span>
-<span class="normal">1056</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1056</span>
 <span class="normal">1057</span>
 <span class="normal">1058</span>
 <span class="normal">1059</span>
 <span class="normal">1060</span>
 <span class="normal">1061</span>
 <span class="normal">1062</span>
-<span class="normal">1063</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueChange</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">1063</span>
+<span class="normal">1064</span>
+<span class="normal">1065</span>
+<span class="normal">1066</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueChange</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Historical change to a field value."""</span>
 
     <span class="nb">id</span><span class="p">:</span> <span class="n">FieldValueChangeId</span>
@@ -8798,13 +8798,13 @@ or entity comes back as a reference with a <code>displayValue</code> snapshot). 
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1033</span>
-<span class="normal">1034</span>
-<span class="normal">1035</span>
-<span class="normal">1036</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1036</span>
 <span class="normal">1037</span>
 <span class="normal">1038</span>
-<span class="normal">1039</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">1039</span>
+<span class="normal">1040</span>
+<span class="normal">1041</span>
+<span class="normal">1042</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldValueCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Data for creating a field value (V1 API)."""</span>
 
     <span class="n">field_id</span><span class="p">:</span> <span class="n">FieldId</span>
@@ -9823,7 +9823,10 @@ list is created through the V1 API.</p>
 
 
         <p>A row in a list, linking an entity to a list.</p>
-<p>Contains the entity data and list-specific field values.</p>
+<p>Holds the list-specific field values and which entity the row is for (<code>entity_id</code>,
+<code>entity_type</code>). <code>entity</code> (a summary of that entity) is filled only where the endpoint
+embeds it, e.g. a list's entries; it is <code>None</code> from <code>companies.get_list_entries()</code> and
+<code>persons.get_list_entries()</code>.</p>
 
 
 
@@ -9914,11 +9917,17 @@ list is created through the V1 API.</p>
 <span class="normal">813</span>
 <span class="normal">814</span>
 <span class="normal">815</span>
-<span class="normal">816</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListEntry</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">816</span>
+<span class="normal">817</span>
+<span class="normal">818</span>
+<span class="normal">819</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListEntry</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A row in a list, linking an entity to a list.</span>
 
-<span class="sd">    Contains the entity data and list-specific field values.</span>
+<span class="sd">    Holds the list-specific field values and which entity the row is for (``entity_id``,</span>
+<span class="sd">    ``entity_type``). ``entity`` (a summary of that entity) is filled only where the endpoint</span>
+<span class="sd">    embeds it, e.g. a list's entries; it is ``None`` from ``companies.get_list_entries()`` and</span>
+<span class="sd">    ``persons.get_list_entries()``.</span>
 <span class="sd">    """</span>
 
     <span class="nb">id</span><span class="p">:</span> <span class="n">ListEntryId</span>
@@ -10047,11 +10056,11 @@ list is created through the V1 API.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">880</span>
-<span class="normal">881</span>
-<span class="normal">882</span>
-<span class="normal">883</span>
-<span class="normal">884</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListEntryCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">883</span>
+<span class="normal">884</span>
+<span class="normal">885</span>
+<span class="normal">886</span>
+<span class="normal">887</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListEntryCreate</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Data for adding an entity to a list (V1 API)."""</span>
 
     <span class="n">entity_id</span><span class="p">:</span> <span class="nb">int</span>
@@ -10108,10 +10117,7 @@ list is created through the V1 API.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">819</span>
-<span class="normal">820</span>
-<span class="normal">821</span>
-<span class="normal">822</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">822</span>
 <span class="normal">823</span>
 <span class="normal">824</span>
 <span class="normal">825</span>
@@ -10166,7 +10172,10 @@ list is created through the V1 API.</p>
 <span class="normal">874</span>
 <span class="normal">875</span>
 <span class="normal">876</span>
-<span class="normal">877</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListEntryWithEntity</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">877</span>
+<span class="normal">878</span>
+<span class="normal">879</span>
+<span class="normal">880</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListEntryWithEntity</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""List entry with full entity data included (V2 response format)."""</span>
 
     <span class="nb">id</span><span class="p">:</span> <span class="n">ListEntryId</span>
@@ -14491,10 +14500,7 @@ Setting <code>type</code> sends the whole update through the V1 API (V2 can't ch
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/models/entities.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">892</span>
-<span class="normal">893</span>
-<span class="normal">894</span>
-<span class="normal">895</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">895</span>
 <span class="normal">896</span>
 <span class="normal">897</span>
 <span class="normal">898</span>
@@ -14503,7 +14509,10 @@ Setting <code>type</code> sends the whole update through the V1 API (V2 can't ch
 <span class="normal">901</span>
 <span class="normal">902</span>
 <span class="normal">903</span>
-<span class="normal">904</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SavedView</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
+<span class="normal">904</span>
+<span class="normal">905</span>
+<span class="normal">906</span>
+<span class="normal">907</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SavedView</span><span class="p">(</span><span class="n">AffinityModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A saved view configuration for a list."""</span>
 
     <span class="nb">id</span><span class="p">:</span> <span class="n">SavedViewId</span>
