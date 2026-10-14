@@ -104,6 +104,14 @@ class TestGetParamType:
         opt.type = INT
         assert _get_param_type(opt) == "int"
 
+    def test_int_range_type(self) -> None:
+        from click import IntRange
+
+        opt = MagicMock(spec=Option)
+        opt.is_flag = False
+        opt.type = IntRange(1, None)
+        assert _get_param_type(opt) == "int"
+
     def test_bool_type(self) -> None:
         from click import BOOL
 

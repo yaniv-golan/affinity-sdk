@@ -268,3 +268,44 @@ async def test_async() -> None:
         assert [[e.id for e in p.data] for p in pages] == [[1], [3]]
         first = await entries.get_first(filter=WON)
         assert first is not None and first.id == 1
+
+
+def _cycling_search(calls: list[str | None]) -> Any:
+    """Search pages whose cursors cycle A -> B -> A; raises past 25 reads instead of hanging."""
+
+    def respond(request: Any) -> Response:
+        cursor = request.url.params.get("cursor")
+        calls.append(cursor)
+        if len(calls) > 25:
+            raise RuntimeError("paging did not stop")
+        nxt = {None: "A", "A": "B", "B": "A"}[cursor]
+        return Response(201, json=_page([_entry(len(calls), "Won")], f"{SEARCH}?cursor={nxt}"))
+
+    return respond
+
+
+@respx.mock
+def test_search_pages_stop_on_a_cursor_cycle() -> None:
+    _metadata(respx.mock)
+    calls: list[str | None] = []
+    respx.post(SEARCH).mock(side_effect=_cycling_search(calls))
+    with Affinity(api_key="k", max_retries=0) as client:
+        entries = client.lists.entries(ListId(9))
+        assert [e.id for e in entries.iter(filter=WON)] == [1, 2, 3]
+        assert calls == [None, "A", "B"]
+        calls.clear()
+        pages = list(entries.pages(filter=WON, limit=10))
+    assert [[e.id for e in p.data] for p in pages] == [[1, 2, 3]]
+    assert calls == [None, "A", "B"]
+
+
+@respx.mock
+async def test_async_search_pages_stop_on_a_cursor_cycle() -> None:
+    _metadata(respx.mock)
+    calls: list[str | None] = []
+    respx.post(SEARCH).mock(side_effect=_cycling_search(calls))
+    async with AsyncAffinity(api_key="k", max_retries=0) as client:
+        entries = client.lists.entries(ListId(9))
+        pages = [p async for p in entries.pages(filter=WON, limit=10)]
+    assert [[e.id for e in p.data] for p in pages] == [[1, 2, 3]]
+    assert calls == [None, "A", "B"]

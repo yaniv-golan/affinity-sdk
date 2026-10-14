@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   as run. A cursor needs the same `maxRecords` as the first call.
 - The session cache gets hits on Linux.
 - Data-model resource: truncation reasons and query cursor resume.
+- Command registry: range-checked options (`--page-size`, `--max-results`) are typed `int`
+  instead of `string`.
 
 ## [2.0.3] - 2026-10-13
 

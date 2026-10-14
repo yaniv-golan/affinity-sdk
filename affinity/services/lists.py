@@ -67,6 +67,7 @@ from ..models.pagination import (
     PageIterator,
     PaginatedResponse,
     PaginationInfo,
+    _CursorGuard,
 )
 from ..models.secondary import FieldValueChangeV2
 from ..models.types import (
@@ -328,16 +329,15 @@ class ListService:
                 "Start a new pagination sequence without a cursor to change parameters."
             )
         requested_cursor = cursor
+        guard = _CursorGuard(cursor)
         page = self.list(limit=limit, term=term) if cursor is None else self.list(cursor=cursor)
         while True:
             yield page
-            if not page.has_next:
+            # Stop at the last page, or when paging can't progress (see _CursorGuard).
+            if guard.last_page(requested_cursor, page):
                 return
-            next_cursor = page.next_cursor
-            if next_cursor is None or next_cursor == requested_cursor:
-                return
-            requested_cursor = next_cursor
-            page = self.list(cursor=next_cursor)
+            requested_cursor = page.next_cursor
+            page = self.list(cursor=requested_cursor)
 
     def all(self) -> Iterator[AffinityList]:
         """Iterate through all accessible lists."""
@@ -686,6 +686,7 @@ class ListService:
                 "Start a new pagination sequence without a cursor to change parameters."
             )
         requested_cursor = cursor
+        guard = _CursorGuard(cursor)
         page = (
             self.get_saved_views(list_id, limit=limit)
             if cursor is None
@@ -693,13 +694,11 @@ class ListService:
         )
         while True:
             yield page
-            if not page.has_next:
+            # Stop at the last page, or when paging can't progress (see _CursorGuard).
+            if guard.last_page(requested_cursor, page):
                 return
-            next_cursor = page.next_cursor
-            if next_cursor is None or next_cursor == requested_cursor:
-                return
-            requested_cursor = next_cursor
-            page = self.get_saved_views(list_id, cursor=next_cursor)
+            requested_cursor = page.next_cursor
+            page = self.get_saved_views(list_id, cursor=requested_cursor)
 
     def saved_views_all(self, list_id: ListId) -> Iterator[SavedView]:
         """Iterate all saved views for a list."""
@@ -907,22 +906,28 @@ class ListEntryService(SearchMixin[ListEntryWithEntity]):
                     UnsupportedOperationError) as e:  # fmt: skip
                 reason = _note_refusal(self._cache, str(self._list_id), e)
             else:
+                guard = _CursorGuard(None)
+                requested: str | None = None
                 while True:
                     yield _filtered_page(page, expr, "search", plan.body)
-                    if not page.next_cursor:
+                    if not page.next_cursor or guard.last_page(requested, page):
                         return
-                    page = self.find_body(plan.body, cursor=page.next_cursor)
+                    requested = page.next_cursor
+                    page = self.find_body(plan.body, cursor=requested)
         elif refused:
             reason = "Affinity's search was refused for this list"
         elif not server_filter:
             reason = "server_filter=False"
         _warn_client_side(reason)
         page = self.list(field_ids=fetch_ids, field_types=field_types, limit=limit)
+        guard = _CursorGuard(None)
+        requested = None
         while True:
             yield _filtered_page(page, expr, "local", None)
-            if not page.has_next or not page.next_cursor:
+            if not page.next_cursor or guard.last_page(requested, page):
                 return
-            page = self.list(cursor=page.next_cursor)
+            requested = page.next_cursor
+            page = self.list(cursor=requested)
 
     def _resume(self, cursor: SearchCursor) -> PaginatedResponse[ListEntryWithEntity]:
         """One page of a filtered read, from its cursor."""
@@ -1122,6 +1127,7 @@ class ListEntryService(SearchMixin[ListEntryWithEntity]):
         # No filter: use simple pagination (original behavior)
         if filter_expr is None:
             requested_cursor = cursor
+            guard = _CursorGuard(cursor)
             page = (
                 self.list(field_ids=field_ids, field_types=field_types, limit=limit)
                 if cursor is None
@@ -1129,13 +1135,11 @@ class ListEntryService(SearchMixin[ListEntryWithEntity]):
             )
             while True:
                 yield page
-                if not page.has_next:
+                # Stop at the last page, or when paging can't progress (see _CursorGuard).
+                if guard.last_page(requested_cursor, page):
                     return
-                next_cursor = page.next_cursor
-                if next_cursor is None or next_cursor == requested_cursor:
-                    return
-                requested_cursor = next_cursor
-                page = self.list(cursor=next_cursor)
+                requested_cursor = page.next_cursor
+                page = self.list(cursor=requested_cursor)
             return
 
         # With filter: virtual pages of `limit` matches over the filtered page reads
@@ -1781,6 +1785,7 @@ class AsyncListService:
                 "Start a new pagination sequence without a cursor to change parameters."
             )
         requested_cursor = cursor
+        guard = _CursorGuard(cursor)
         page = (
             await self.list(limit=limit, term=term)
             if cursor is None
@@ -1788,13 +1793,11 @@ class AsyncListService:
         )
         while True:
             yield page
-            if not page.has_next:
+            # Stop at the last page, or when paging can't progress (see _CursorGuard).
+            if guard.last_page(requested_cursor, page):
                 return
-            next_cursor = page.next_cursor
-            if next_cursor is None or next_cursor == requested_cursor:
-                return
-            requested_cursor = next_cursor
-            page = await self.list(cursor=next_cursor)
+            requested_cursor = page.next_cursor
+            page = await self.list(cursor=requested_cursor)
 
     def all(self) -> AsyncIterator[AffinityList]:
         """Iterate through all accessible lists."""
@@ -1881,6 +1884,7 @@ class AsyncListService:
                 "Start a new pagination sequence without a cursor to change parameters."
             )
         requested_cursor = cursor
+        guard = _CursorGuard(cursor)
         page = (
             await self.get_saved_views(list_id, limit=limit)
             if cursor is None
@@ -1888,13 +1892,11 @@ class AsyncListService:
         )
         while True:
             yield page
-            if not page.has_next:
+            # Stop at the last page, or when paging can't progress (see _CursorGuard).
+            if guard.last_page(requested_cursor, page):
                 return
-            next_cursor = page.next_cursor
-            if next_cursor is None or next_cursor == requested_cursor:
-                return
-            requested_cursor = next_cursor
-            page = await self.get_saved_views(list_id, cursor=next_cursor)
+            requested_cursor = page.next_cursor
+            page = await self.get_saved_views(list_id, cursor=requested_cursor)
 
     async def saved_views_all(self, list_id: ListId) -> AsyncIterator[SavedView]:
         """Iterate all saved views for a list."""
@@ -2249,22 +2251,28 @@ class AsyncListEntryService(AsyncSearchMixin[ListEntryWithEntity]):
                     UnsupportedOperationError) as e:  # fmt: skip
                 reason = _note_refusal(self._cache, str(self._list_id), e)
             else:
+                guard = _CursorGuard(None)
+                requested: str | None = None
                 while True:
                     yield _filtered_page(page, expr, "search", plan.body)
-                    if not page.next_cursor:
+                    if not page.next_cursor or guard.last_page(requested, page):
                         return
-                    page = await self.find_body(plan.body, cursor=page.next_cursor)
+                    requested = page.next_cursor
+                    page = await self.find_body(plan.body, cursor=requested)
         elif refused:
             reason = "Affinity's search was refused for this list"
         elif not server_filter:
             reason = "server_filter=False"
         _warn_client_side(reason)
         page = await self.list(field_ids=fetch_ids, field_types=field_types, limit=limit)
+        guard = _CursorGuard(None)
+        requested = None
         while True:
             yield _filtered_page(page, expr, "local", None)
-            if not page.has_next or not page.next_cursor:
+            if not page.next_cursor or guard.last_page(requested, page):
                 return
-            page = await self.list(cursor=page.next_cursor)
+            requested = page.next_cursor
+            page = await self.list(cursor=requested)
 
     async def _resume(self, cursor: SearchCursor) -> PaginatedResponse[ListEntryWithEntity]:
         if cursor.kind == "search":
@@ -2410,6 +2418,7 @@ class AsyncListEntryService(AsyncSearchMixin[ListEntryWithEntity]):
         # No filter: use simple pagination (original behavior)
         if filter_expr is None:
             requested_cursor = cursor
+            guard = _CursorGuard(cursor)
             page = (
                 await self.list(field_ids=field_ids, field_types=field_types, limit=limit)
                 if cursor is None
@@ -2417,13 +2426,11 @@ class AsyncListEntryService(AsyncSearchMixin[ListEntryWithEntity]):
             )
             while True:
                 yield page
-                if not page.has_next:
+                # Stop at the last page, or when paging can't progress (see _CursorGuard).
+                if guard.last_page(requested_cursor, page):
                     return
-                next_cursor = page.next_cursor
-                if next_cursor is None or next_cursor == requested_cursor:
-                    return
-                requested_cursor = next_cursor
-                page = await self.list(cursor=next_cursor)
+                requested_cursor = page.next_cursor
+                page = await self.list(cursor=requested_cursor)
             return
 
         # With filter: virtual pages of `limit` matches over the filtered page reads

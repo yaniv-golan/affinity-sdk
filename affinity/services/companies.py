@@ -36,6 +36,7 @@ from ..models.pagination import (
     PageIterator,
     PaginatedResponse,
     PaginationInfo,
+    _CursorGuard,
 )
 from ..models.relationships_v2 import Relationship
 from ..models.secondary import CompanyMergeState, MergeTask, NoteV2
@@ -259,6 +260,7 @@ class CompanyService(
                 "Start a new pagination sequence without a cursor to change parameters."
             )
         requested_cursor = cursor
+        guard = _CursorGuard(cursor)
         page = (
             self.list(cursor=cursor)
             if cursor is not None
@@ -266,13 +268,11 @@ class CompanyService(
         )
         while True:
             yield page
-            if not page.has_next:
+            # Stop at the last page, or when paging can't progress (see _CursorGuard).
+            if guard.last_page(requested_cursor, page):
                 return
-            next_cursor = page.next_cursor
-            if next_cursor is None or next_cursor == requested_cursor:
-                return
-            requested_cursor = next_cursor
-            page = self.list(cursor=next_cursor)
+            requested_cursor = page.next_cursor
+            page = self.list(cursor=requested_cursor)
 
     def all(
         self,
@@ -1640,6 +1640,7 @@ class AsyncCompanyService(
                 "Start a new pagination sequence without a cursor to change parameters."
             )
         requested_cursor = cursor
+        guard = _CursorGuard(cursor)
         if cursor is not None:
             page = await self.list(cursor=cursor)
         else:
@@ -1651,13 +1652,11 @@ class AsyncCompanyService(
             )
         while True:
             yield page
-            if not page.has_next:
+            # Stop at the last page, or when paging can't progress (see _CursorGuard).
+            if guard.last_page(requested_cursor, page):
                 return
-            next_cursor = page.next_cursor
-            if next_cursor is None or next_cursor == requested_cursor:
-                return
-            requested_cursor = next_cursor
-            page = await self.list(cursor=next_cursor)
+            requested_cursor = page.next_cursor
+            page = await self.list(cursor=requested_cursor)
 
     def all(
         self,

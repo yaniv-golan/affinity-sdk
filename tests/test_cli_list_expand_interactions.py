@@ -251,6 +251,45 @@ def test_list_export_expand_interactions_csv(respx_mock: respx.MockRouter) -> No
     assert "lastMeetingDate" in header or "_expand_interactions" in header
 
 
+def test_list_export_csv_prints_expand_skip_warnings(respx_mock: respx.MockRouter) -> None:
+    """--csv --expand-on-error skip: a failed lookup is reported on stderr, not left blank."""
+    respx_mock.get(url__regex=r"^https://api\.affinity\.co(/v2)?/lists/12345$").mock(
+        return_value=Response(200, json=MOCK_LIST_COMPANY)
+    )
+    respx_mock.get("https://api.affinity.co/v2/lists/12345/fields").mock(
+        return_value=Response(200, json=MOCK_LIST_FIELDS)
+    )
+    respx_mock.get(url__regex=r"https://api\.affinity\.co/fields(\?.*)?$").mock(
+        return_value=Response(200, json={"data": []})
+    )
+    respx_mock.get("https://api.affinity.co/v2/lists/12345/list-entries").mock(
+        return_value=Response(200, json=MOCK_LIST_ENTRIES_COMPANY)
+    )
+    respx_mock.get(url__regex=r"https://api\.affinity\.co/organizations/789.*").mock(
+        return_value=Response(400, json={"errors": [{"message": "bad [request]"}]})
+    )
+
+    result = CliRunner().invoke(
+        cli,
+        [
+            "list",
+            "export",
+            "12345",
+            "--expand",
+            "interactions",
+            "--expand-on-error",
+            "skip",
+            "--csv",
+        ],
+        env={"AFFINITY_API_KEY": "test-key"},
+    )
+
+    assert result.exit_code == 0, f"Failed with: {result.output}"
+    # result.output carries stderr too (CliRunner mixes them on click 8.1 and later)
+    assert "Warning: Skipped interaction dates for company 789" in result.output
+    assert "[request]" in result.output  # printed as plain text, not Rich markup
+
+
 # ==============================================================================
 # Validation Tests
 # ==============================================================================

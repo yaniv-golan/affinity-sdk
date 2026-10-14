@@ -70,8 +70,10 @@ or a CLI exit code; each is marked **Behavior change**.
 - SDK: `lists.resolve` no longer remembers a name it didn't find, so a list created later is found.
 - SDK: `lists.get_size` is shared by every list service on a client and dropped when an entry is
   added or removed, an opportunity is created or deleted, or a person or company is deleted.
-- SDK: page iterators stop when a cursor repeats, when a page says more follow but gives no
-  cursor, or after 1,000 empty pages in a row (with a `RuntimeWarning`), instead of looping.
+- SDK: paging stops when a cursor repeats, when a page says more follow but gives no cursor, or
+  after 1,000 empty pages in a row (with a `RuntimeWarning`), instead of looping. This covers the
+  page iterators (`iter()`, `all()`) and the `pages()` generators of companies, persons,
+  opportunities, lists, saved views and list entries (filtered reads included), sync and async.
 - SDK: association paging tolerates `"pagination": null`.
 - SDK filters: `in`, `has_any` and `has_all` compare values the way `=` does, so `score in [5, 6]`
   matches the number 5.
@@ -97,15 +99,17 @@ or a CLI exit code; each is marked **Behavior change**.
   empty.
 - **Behavior change. CLI `query`: `--max-records`.** When results are cut at it, a warning says
   so and `meta.truncated` is set, on every path (before, the cut was silent); with `orderBy` or
-  an aggregate the cut comes after sorting and aggregating, so counts, sums, groups and top-N use
+  an aggregate the cut comes after sorting and aggregating (also when the query has no `where`), so counts, sums, groups and top-N use
   every match. Before, they were computed on the first 10,000.
 - **Behavior change. CLI `query`: Ctrl+C exits 130** (exit 0 before). Rows that already went
   through the query's filter, sort and aggregate are printed; when one of those hadn't run yet, no
-  rows are printed (before, unfiltered rows were) and the error type is `interrupted`.
+  rows are printed (before, unfiltered rows were) and the error type is `interrupted`. On Python
+  3.10, Ctrl+C prints no rows (it still exits 130); Python 3.11+ prints them.
 - **Behavior change. CLI `query`:** a `listName` that matches more than one list, or none, is a
   validation error (exit 2) asking for the list id; before, the last list with that name was
-  used. An include's `list:` name that matches several lists is a validation error and one that
-  matches none is not found (exit 4); before, the scope was dropped. `min`/`max` over objects,
+  used. An include's `list:` name that matches several lists fails (exit 2,
+  `ambiguous_resolution`) and one that matches none is not found (exit 4); before, the scope was
+  dropped. `min`/`max` over objects,
   lists, or a mix of numbers and text is a validation error instead of a crash or a silent pick.
 - CLI `query`: with `orderBy` or `limit`, `include` (and an `expand` the sort doesn't read) runs
   on the rows kept after sorting, limiting and `--max-records`, not on every match, so a top-N
@@ -116,7 +120,25 @@ or a CLI exit code; each is marked **Behavior change**.
 - CLI `query`: CSV output with `--max-output-bytes` cuts on whole records (a note with a line
   break could be split), has every row's columns, honors `--csv-bom` and can be resumed; JSONL
   resume no longer skips rows whose data contains `"truncated"`. A row larger than
-  `--max-output-bytes` is printed whole instead of giving an empty page whose cursor repeats.
+  `--max-output-bytes` is printed whole (JSON too, which exited 1 partway through paging) instead
+  of giving an empty page whose cursor repeats.
+- CLI `query`: `include` options are applied: `list`, `where`, `limit` and `days` on a
+  `listEntries` include, and `limit` and `days` on an `interactions` include. Before, they were
+  ignored, so related opportunities came from every list and interactions used the default 90-day
+  window and 100-record limit.
+- CLI `query`: a relationship filter on `interactions` (`interactions._count`,
+  `exists`/`all`/`none`) no longer hangs when the query has at least as many records as the
+  concurrency limit (10).
+- CLI `query`: when fetching related records for a `listEntries` include fails, the other fetches
+  are stopped instead of continuing to call the API and printing "Task exception was never
+  retrieved".
+- CLI `query --output toon`: a cut-off page, its `cursor:` line included, stays within
+  `--max-output-bytes` (if the cursor alone, about 500 bytes, doesn't fit, one row is shown).
+- **Behavior change. CLI `query --output csv`:** without `--max-output-bytes`, execution warnings
+  (the `--max-records` cut, multi-value fields cut off) go to stderr as with the other formats,
+  and the CSV has the same shape as with a budget: columns in `select` order (first-seen order
+  without `select`; they were sorted alphabetically), selected `fields.*` and expanded
+  `interactionDates` flattened into columns, and every record ending with CRLF.
 - CLI `query`: `groupBy` on object values (such as a location) works; formula fields filter and
   sort as numbers.
 - **Behavior change. CLI: a delete Affinity reports as failed exits 1** (`api_error`) instead of
@@ -128,7 +150,15 @@ or a CLI exit code; each is marked **Behavior change**.
 - **Behavior change. CLI `list export` expansions:** a failed interaction, opportunity or
   unreplied-message lookup fails the export under the default `--expand-on-error raise` (it was
   left empty silently), and warns under `skip`, keeping the entry's other expansions. An auth
-  error during any expansion fails the export; a deleted opportunity is left out.
+  error during any expansion fails the export; a deleted opportunity is left out. With `--csv`
+  these warnings, and the export's other warnings (such as "Filtering locally"), are printed to
+  stderr; they were dropped.
+- **Behavior change. CLI `--page-size` below 1** is a usage error (exit 2) on `company`,
+  `person`, `opportunity`, `list`, `note`, `interaction` and `reminder ls`, `list export` and
+  `files download`. With the SDK's new `limit` check it was an `internal_error` (exit 1) on most
+  of them, and `note ls` and `interaction ls` accepted it. `--help --json` (and the MCP command
+  registry) reports such range-checked options, including `search --max-results` and
+  `files ls --max-results`, as `int`; they were `string`.
 - **Behavior change. CLI field writes:** `true`/`false` anywhere in a `--set-json` value (including
   list items and object values) is refused before any write (exit 2, `validation_error`);
   Affinity has no boolean field type. A text field no longer stores `true` as `"true"`.
@@ -146,7 +176,8 @@ or a CLI exit code; each is marked **Behavior change**.
 - **CLI plugin**: 2.0.2 → 2.0.3 — skill: the API-key resolution order (key flags first) and
   where `config setup-key` stores the key. Installs pin the CLI version the plugin was written
   for (`XAFFINITY_CLI_SPEC` overrides it); the Read hook also guards the CLI's `config.toml`;
-  the skill names the `partialFailure` truncation reason.
+  the skill names the `partialFailure` truncation reason; the file download example uses `--out`
+  (there is no `--output-dir`).
 - **SDK plugin**: 2.0.3 → 2.0.4 — skill: the duplicate-company example uses a placeholder name.
 
 ## [2.0.3] - 2026-10-13

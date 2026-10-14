@@ -92,7 +92,9 @@ def _resolve_opportunity_selector(
 
 @category("read")
 @opportunity_group.command(name="ls", cls=RichCommand)
-@click.option("--page-size", "-s", type=int, default=None, help="Page size (limit).")
+@click.option(
+    "--page-size", "-s", type=click.IntRange(1, None), default=None, help="Page size (limit)."
+)
 @click.option(
     "--cursor", type=str, default=None, help="Resume from cursor (incompatible with --page-size)."
 )
@@ -1057,7 +1059,7 @@ def opportunity_files_read(
 )
 @click.option(
     "--page-size",
-    type=int,
+    type=click.IntRange(1, None),
     default=100,
     show_default=True,
     help="Page size for file listing (max 100, bulk mode only).",

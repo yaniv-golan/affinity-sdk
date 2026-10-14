@@ -144,7 +144,9 @@ def _validate_single_entity(
     default=None,
     help="Filter reminders due before this date (ISO-8601, relative, or keyword).",
 )
-@click.option("--page-size", "-s", type=int, default=None, help="Page size (max 100).")
+@click.option(
+    "--page-size", "-s", type=click.IntRange(1, None), default=None, help="Page size (max 100)."
+)
 @click.option(
     "--cursor", type=str, default=None, help="Resume from a nextCursor (no other filters)."
 )

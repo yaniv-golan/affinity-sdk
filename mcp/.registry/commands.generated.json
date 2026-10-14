@@ -290,7 +290,7 @@
           "help": "Resume from pagination cursor (incompatible with --page-size)."
         },
         "--max-results": {
-          "type": "string",
+          "type": "int",
           "required": false,
           "help": "Stop after N results (min 1).",
           "aliases": [
@@ -299,7 +299,7 @@
           ]
         },
         "--page-size": {
-          "type": "string",
+          "type": "int",
           "required": false,
           "help": "Page size (1-100).",
           "aliases": [
@@ -883,7 +883,7 @@
           "multiple": true
         },
         "--max-results": {
-          "type": "string",
+          "type": "int",
           "required": false,
           "help": "Maximum results (1-100; API default 100). Values above 100 are clamped.",
           "aliases": [
@@ -1903,7 +1903,7 @@
           "multiple": true
         },
         "--max-results": {
-          "type": "string",
+          "type": "int",
           "required": false,
           "help": "Maximum results (1-100; API default 20). Values above 100 are clamped.",
           "aliases": [
@@ -3122,7 +3122,7 @@
           "help": "Only notes on this company (id, URL, name:NAME or domain:DOMAIN)."
         },
         "--max-results": {
-          "type": "string",
+          "type": "int",
           "required": false,
           "help": "Maximum results (1-100; API default 20). Values above 100 are clamped.",
           "aliases": [
@@ -3341,7 +3341,7 @@
           "help": "Resume from pagination cursor (incompatible with --page-size)."
         },
         "--max-results": {
-          "type": "string",
+          "type": "int",
           "required": false,
           "help": "Stop after N results (min 1).",
           "aliases": [
@@ -3350,7 +3350,7 @@
           ]
         },
         "--page-size": {
-          "type": "string",
+          "type": "int",
           "required": false,
           "help": "Page size (1-100).",
           "aliases": [
@@ -3899,7 +3899,7 @@
           "help": "Resume from pagination cursor (incompatible with --page-size)."
         },
         "--max-results": {
-          "type": "string",
+          "type": "int",
           "required": false,
           "help": "Stop after N results (min 1).",
           "aliases": [
@@ -3908,7 +3908,7 @@
           ]
         },
         "--page-size": {
-          "type": "string",
+          "type": "int",
           "required": false,
           "help": "Page size (1-100).",
           "aliases": [

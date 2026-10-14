@@ -404,7 +404,9 @@ def _fetch_interactions_multi_type(
 @click.option("--person-id", type=int, default=None, help="Filter by person id.")
 @click.option("--company-id", type=int, default=None, help="Filter by company id.")
 @click.option("--opportunity-id", type=int, default=None, help="Filter by opportunity id.")
-@click.option("--page-size", "-s", type=int, default=None, help="Page size (max 500).")
+@click.option(
+    "--page-size", "-s", type=click.IntRange(1, None), default=None, help="Page size (max 500)."
+)
 @click.option(
     "--max-results", "--limit", "-n", type=int, default=None, help="Stop after N results total."
 )

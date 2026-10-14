@@ -270,7 +270,9 @@ def _truncation_warnings(note: NoteV2, warnings: list[str]) -> None:
 @click.option("--company-id", type=int, default=None, help="Filter by company id.")
 @click.option("--opportunity-id", type=int, default=None, help="Filter by opportunity id.")
 @click.option("--creator-id", type=int, default=None, help="Filter by creator id.")
-@click.option("--page-size", "-s", type=int, default=None, help="Page size (max 500).")
+@click.option(
+    "--page-size", "-s", type=click.IntRange(1, None), default=None, help="Page size (max 500)."
+)
 @click.option(
     "--cursor", type=str, default=None, help="Resume from cursor (incompatible with --page-size)."
 )

@@ -53,7 +53,7 @@ def _classify_command(cmd: Command, cmd_name: str) -> tuple[str, bool, bool]:
 
 def _get_param_type(param: Option | Argument) -> str:
     """Get the parameter type string for JSON output."""
-    from click import BOOL, INT, Choice, Path
+    from click import BOOL, INT, Choice, IntRange, Path
 
     param_type = param.type
 
@@ -63,6 +63,8 @@ def _get_param_type(param: Option | Argument) -> str:
 
     # Check common types
     if param_type == INT or (hasattr(param_type, "name") and param_type.name == "INT"):
+        return "int"
+    if isinstance(param_type, IntRange):
         return "int"
     if param_type == BOOL or (hasattr(param_type, "name") and param_type.name == "BOOL"):
         return "bool"

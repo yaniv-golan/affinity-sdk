@@ -15,7 +15,7 @@ xaffinity --readonly person files ls "email:alice@example.com" --max-results 20 
 xaffinity --readonly opportunity files ls 12345 --max-results 20 --json
 
 # Download files
-xaffinity --readonly company files download "domain:acme.com" --output-dir ./downloads
+xaffinity --readonly company files download "domain:acme.com" --out ./downloads/
 
 # Read file content (with chunking support for large files)
 xaffinity --readonly company files read "domain:acme.com" --file-id 67890 --json

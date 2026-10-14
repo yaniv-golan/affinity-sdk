@@ -122,7 +122,9 @@ def _parse_unreplied_types(types_str: str) -> list[InteractionType]:
     default=None,
     help="Only lists whose name contains this text (case-insensitive, matched by Affinity).",
 )
-@click.option("--page-size", "-s", type=int, default=None, help="Page size (limit).")
+@click.option(
+    "--page-size", "-s", type=click.IntRange(1, None), default=None, help="Page size (limit)."
+)
 @click.option(
     "--cursor", type=str, default=None, help="Resume from cursor (incompatible with --page-size)."
 )
@@ -455,7 +457,12 @@ ExpandOnError = Literal["raise", "skip"]
     'locally. Quote multi-word: Status="Intro Meeting".',
 )
 @click.option(
-    "--page-size", "-s", type=int, default=100, show_default=True, help="Page size (max 100)."
+    "--page-size",
+    "-s",
+    type=click.IntRange(1, None),
+    default=100,
+    show_default=True,
+    help="Page size (max 100).",
 )
 @click.option(
     "--cursor", type=str, default=None, help="Resume from cursor (incompatible with --page-size)."
@@ -1636,7 +1643,10 @@ def list_export(
                 # the explicit opt-in flag.)
                 from ..field_utils import truncation_warnings
 
+                # `warnings` (expansion skips, filter notes, client warnings) would otherwise
+                # only reach the JSON envelope, which CSV never builds.
                 for msg in [
+                    *warnings,
                     *csv_iter_state.get("warnings", []),
                     *truncation_warnings(
                         csv_iter_state.get("truncatedFields", []), filtered=bool(filter_expr)
