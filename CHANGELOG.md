@@ -84,12 +84,14 @@ or a CLI exit code; each is marked **Behavior change**.
   the next API page, losing the rest of the current page and every fetched row that didn't fit in
   `--max-output-bytes`. A cut-off result, with its included records, is now cached and the
   cursor resumes from it without API calls; each page's `included` holds only the records related
-  to that page's rows (TOON pages hold as many rows as fit, with matching counts). A cursor needs the same `--max-records` as the first run; a cursor from an
+  to that page's rows, also when `select` leaves out `id` (TOON pages hold as many rows as fit,
+  with matching counts; related records that can't be matched to rows are cut to the budget and
+  counted in `includedOmitted`). A cursor needs the same `--max-records` as the first run; a cursor from an
   earlier version is refused as not matching the query (cursors expire after an hour).
 - **Behavior change. CLI `query`: errors are no longer read as "no data".** A rate-limit, server or
   auth error while fetching related records (for `include`, relationship filters, or an id
-  lookup), an expansion (`interactionDates`, `unreplied`, person names) or a list's field
-  definitions fails the query. Before,
+  lookup, or `include: interactions`), an expansion (`interactionDates`, `unreplied`, person
+  names) or a list's field definitions (when the query uses a list field) fails the query. Before,
   the record silently had no related records, an id-only stub or an empty expansion, so `none`,
   `all` and `_count eq 0` filters could match wrongly. Only a deleted or merged record counts as
   empty.
@@ -132,7 +134,9 @@ or a CLI exit code; each is marked **Behavior change**.
   Affinity has no boolean field type. A text field no longer stores `true` as `"true"`.
 - CLI `list entry field --unset-value` exits 1 when Affinity reports the delete failed, instead of
   reporting the value as deleted. When an `--unset-value` or `--append` step fails after something
-  was already changed, the error is `partial_write` naming every field written and value removed; `field delete` clears its caches only after a confirmed delete.
+  was already changed, the error is `partial_write` naming every field written and value removed;
+  a step that timed out or lost the connection is named as "may or may not have been applied"
+  (`details.uncertain`), and alone it is a `network_error` that says re-running is safe; `field delete` clears its caches only after a confirmed delete.
 - CLI: answering "n" to a confirmation under `--json` prints an error envelope (type `aborted`),
   still exit 1, instead of an empty stdout.
 - CLI `list ls --type`: warns when the first page has no list of that type but more pages exist.

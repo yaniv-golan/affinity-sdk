@@ -382,7 +382,7 @@ For `listEntries`, you can customize includes with parameters:
 
 In **table output**, included data appears as separate tables (e.g., "Included: companies").
 In **JSON output**, included data appears in a separate `included` section with deduplicated records.
-When `--max-output-bytes` splits the result into pages (JSON or TOON), each page's included records are those of its own rows.
+When `--max-output-bytes` splits the result into pages (JSON or TOON), each page's included records are those of its own rows, also when `select` leaves out `id`.
 
 A record that is gone (deleted, or merged into another) has nothing related. Any other error while fetching related records fails the query.
 

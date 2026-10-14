@@ -16,11 +16,7 @@ from collections.abc import AsyncIterator, Callable, Mapping
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol
 
-import httpx
-import pydantic
-
 from ...exceptions import (
-    AuthenticationError,
     AuthorizationError,
     MergedEntityError,
     NotFoundError,
@@ -118,21 +114,10 @@ async def _fetch_interactions_for_entity(
                     results.append(i.model_dump(mode="json", by_alias=True))
                     if len(results) >= limit:
                         break
-        except (AuthenticationError, AuthorizationError):
-            raise
-        except (
-            httpx.HTTPStatusError,
-            httpx.TimeoutException,
-            httpx.ConnectError,
-            pydantic.ValidationError,
-        ) as e:
-            logger.warning(
-                "Failed to fetch %s interactions for %s: %s",
-                itype.name,
-                entity_filter,
-                e,
-            )
-            continue
+        except _GONE_ERRORS:
+            # The entity is gone: it has no interactions. Any other error fails the query
+            # (an empty list would read as "no interactions" to a _count / none filter)
+            return []
     return results
 
 
@@ -527,6 +512,7 @@ class ExecutionContext:
             explicit_select=self.query.select,
             explicit_expand=self.query.expand,
             api_cursor=self.last_api_cursor,
+            row_ids=[record.get("id") for record in self.records],
         )
 
 
@@ -1448,17 +1434,12 @@ class QueryExecutor:
         # Extract ALL parent IDs from where clause (supports OR/IN conditions)
         parent_ids = self._extract_parent_ids(where_dict, schema.parent_filter_field)
 
-        # Store resolved where for use in filtering step
-        # NOTE: We store BEFORE field name→ID resolution because:
-        # - The normalized records have fields keyed by NAME (e.g., "Status")
-        # - Field ID resolution is only for the API call, not client-side filtering
+        # Store resolved where for the client-side filtering step. fields.* paths stay
+        # keyed by name: normalized records carry fields by name (e.g., "Status"); the
+        # where is not sent to the API.
         if where_dict is not None:
             ctx.resolved_where = where_dict
 
-        # Resolve field names to IDs for listEntries queries (after we know parent IDs)
-        # This is only used for the API call, NOT for client-side filtering
-        if where_dict is not None and parent_ids:
-            where_dict = await self._resolve_field_names_to_ids(where_dict, parent_ids, ctx)
         if not parent_ids:
             # Should never happen - parser validates this
             raise QueryExecutionError(
@@ -2301,73 +2282,6 @@ class QueryExecutor:
             result["and"] = [await self._resolve_list_names_to_ids(c) for c in where["and"]]
         if where.get("or"):
             result["or"] = [await self._resolve_list_names_to_ids(c) for c in where["or"]]
-
-        return result
-
-    async def _resolve_field_names_to_ids(
-        self,
-        where: dict[str, Any],
-        list_ids: list[int],
-        ctx: ExecutionContext,
-    ) -> dict[str, Any]:
-        """Resolve field name references to field IDs in fields.* paths.
-
-        Transforms:
-            {"path": "fields.Status", "op": "eq", "value": "Active"}
-        Into:
-            {"path": "fields.12345", "op": "eq", "value": "Active"}
-
-        Field names are resolved case-insensitively against the field definitions
-        for the specified list(s).
-
-        Args:
-            where: The where clause to transform
-            list_ids: List IDs to fetch field metadata from
-
-        Returns:
-            Transformed where clause with field names resolved to IDs
-        """
-        if not isinstance(where, dict) or not list_ids:
-            return where
-
-        # Build flat field name -> ID cache for all lists
-        if not hasattr(self, "_field_name_to_id_cache"):
-            from affinity.types import ListId
-
-            # Any error fails the query: an unresolved fields.* condition would read null values
-            name_to_id: dict[str, str] = {}
-            for list_id in list_ids:
-                fields = await self.client.lists.get_fields(ListId(list_id))
-                for field in fields:
-                    if field.name:
-                        # Map lowercase name to field ID
-                        name_to_id[field.name.lower()] = str(field.id)
-            self._field_name_to_id_cache: dict[str, str] = name_to_id
-
-        # Check if this is a fields.* condition
-        path = where.get("path", "")
-        if isinstance(path, str) and path.startswith("fields."):
-            field_ref = path[7:]  # Everything after "fields."
-
-            # Skip if already a field ID (numeric or "field-" prefix)
-            if not field_ref.isdigit() and not field_ref.startswith("field-"):
-                # Try to resolve by name (case-insensitive)
-                field_id = self._field_name_to_id_cache.get(field_ref.lower())
-                if field_id is not None:
-                    result = dict(where)
-                    result["path"] = f"fields.{field_id}"
-                    return result
-
-        # Recursively process compound conditions
-        result = dict(where)
-        if where.get("and"):
-            result["and"] = [
-                await self._resolve_field_names_to_ids(c, list_ids, ctx) for c in where["and"]
-            ]
-        if where.get("or"):
-            result["or"] = [
-                await self._resolve_field_names_to_ids(c, list_ids, ctx) for c in where["or"]
-            ]
 
         return result
 

@@ -999,3 +999,161 @@ def test_pre_include_reads_a_merged_record_as_no_relationships() -> None:
     executor = QueryExecutor(client)
     asyncio.run(executor._execute_pre_include(ctx, {"companies"}, SCHEMA_REGISTRY["persons"]))
     assert ctx.relationship_data["companies"] == {11: []}
+
+
+# --- third review: a listEntries query reads list fields only when it names one --------------
+
+
+def test_list_entries_without_fields_does_not_read_the_list_fields(
+    respx_mock: respx.MockRouter,
+) -> None:
+    fields = respx_mock.get(url__regex=rf"^{V2}/lists/12345/fields").mock(
+        return_value=Response(503, json={"errors": [{"code": "x", "message": "unavailable"}]})
+    )
+    respx_mock.get(url__regex=rf"^{V2}/lists/12345/list-entries").mock(
+        return_value=Response(
+            200,
+            json={
+                "data": [
+                    {
+                        "id": 1,
+                        "type": "person",
+                        "listId": 12345,
+                        "createdAt": "2024-01-01T00:00:00Z",
+                        "entity": {"id": 100, "type": "person", "firstName": "Jane"},
+                    }
+                ],
+                "pagination": {"nextUrl": None},
+            },
+        )
+    )
+    query = {"from": "listEntries", "where": {"path": "listId", "op": "eq", "value": 12345}}
+    code, out, _ = _run(query)
+    assert code == 0, out
+    assert [r["id"] for r in _envelope(out)["data"]] == [1]
+    assert not fields.called
+
+
+# --- third review: paging with include when select leaves id out ----------------------------
+
+
+def _id_less_include_setup(router: respx.MockRouter, ids: list[int]) -> None:
+    _mock_person_pages(router, ids, size=4)
+    router.get(url__regex=rf"^{V1}/persons/\d+").mock(
+        side_effect=lambda req: Response(
+            200,
+            json={
+                "id": int(req.url.path.rsplit("/", 1)[-1]),
+                "organization_ids": [int(req.url.path.rsplit("/", 1)[-1]) + 4000],
+            },
+        )
+    )
+    _mock_companies(router)
+
+
+@pytest.mark.parametrize("output", ["toon", "json"])
+def test_id_less_select_pages_carry_their_rows_included(
+    respx_mock: respx.MockRouter, output: str
+) -> None:
+    ids = list(range(3001, 3009))
+    _id_less_include_setup(respx_mock, ids)
+    query = {"from": "persons", "limit": 8, "select": ["lastName"], "include": ["companies"]}
+    budget = 450 if output == "toon" else 900  # a JSON company record is ~260 bytes
+
+    outputs = _page_through(query, budget, output=output)
+    seen: list[int] = []
+    page_sizes: list[int] = []
+    for out in outputs:
+        if output == "toon":
+            sections = _toon_sections(out)
+            page_ids = [int(row[0].rsplit(" ", 1)[-1]) for row in sections["data"]]
+            company_ids = {int(row[0]) for row in sections.get("included_companies", [])}
+            body = "\n".join(line for line in out.splitlines() if not line.startswith("  cursor:"))
+        else:
+            envelope = _envelope(out)
+            assert all("id" not in row for row in envelope["data"])
+            page_ids = [int(r["lastName"].rsplit(" ", 1)[-1]) for r in envelope["data"]]
+            company_ids = {c["id"] for c in envelope.get("included", {}).get("companies", [])}
+            body = out.strip()
+        seen.extend(page_ids)
+        page_sizes.append(len(page_ids))
+        # Each page carries the companies of its own rows, and stays within the budget
+        assert company_ids == {pid + 4000 for pid in page_ids}, out
+        assert len(body.encode()) <= budget, out
+    assert seen == ids
+    assert max(page_sizes) > 1
+    assert len(outputs) < len(ids)
+
+
+def test_toon_uncorrelated_included_is_trimmed_to_the_budget() -> None:
+    from affinity.cli.query.output import insert_cursor_in_toon_truncation, truncate_toon_result
+
+    # No per-parent mapping: the included records can't be matched to rows
+    result = QueryResult(
+        data=[{"name": f"Acme Corp {i}"} for i in range(1, 4)],
+        included={"companies": [{"id": 10 + i, "name": "Acme Corp " * 3} for i in range(20)]},
+    )
+    out, cut = truncate_toon_result(result, 400)
+    assert cut
+    assert len(out.encode()) <= 400
+    sections = _toon_sections(out)
+    assert len(sections["data"]) == 1
+    kept = len(sections.get("included_companies", []))
+    assert kept < 20
+    assert f"includedOmitted: {20 - kept}" in out
+    assert _count_rows_in_output(out, "toon") == 1
+    with_cursor = insert_cursor_in_toon_truncation(out, "abc")
+    assert "rowsOmitted: 2\n  cursor: abc\n  includedOmitted:" in with_cursor
+
+
+# --- third review: include interactions fails on any error but a gone entity -----------------
+
+
+def _interaction_service(error: Exception) -> MagicMock:
+    def iter_(**_kwargs: Any) -> Any:
+        async def records() -> Any:
+            raise error
+            yield  # pragma: no cover
+
+        return records()
+
+    service = MagicMock()
+    service.iter = iter_
+    return service
+
+
+def _pydantic_error() -> Exception:
+    import pydantic
+
+    class Model(pydantic.BaseModel):
+        id: int
+
+    try:
+        Model.model_validate({"id": "not a number"})
+    except pydantic.ValidationError as e:
+        return e
+    raise AssertionError("no validation error")  # pragma: no cover
+
+
+@pytest.mark.parametrize(
+    "error",
+    [ServerError("unavailable"), RateLimitError("slow down"), _pydantic_error()],
+    ids=["server", "rate-limit", "pydantic"],
+)
+def test_interactions_include_propagates_every_error_but_a_gone_entity(error: Exception) -> None:
+    from affinity.cli.query.executor import _fetch_interactions_for_entity
+
+    with pytest.raises(type(error)):
+        asyncio.run(_fetch_interactions_for_entity(_interaction_service(error), {"person_id": 5}))
+
+
+@pytest.mark.parametrize(
+    "error",
+    [NotFoundError("gone"), PersonMergedError("5 merged into 6", source_id=5, target_id=6)],
+    ids=["not-found", "merged"],
+)
+def test_interactions_include_reads_a_gone_entity_as_none(error: Exception) -> None:
+    from affinity.cli.query.executor import _fetch_interactions_for_entity
+
+    service = _interaction_service(error)
+    assert asyncio.run(_fetch_interactions_for_entity(service, {"person_id": 5})) == []

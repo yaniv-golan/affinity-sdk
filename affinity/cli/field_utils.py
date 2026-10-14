@@ -1433,6 +1433,14 @@ def check_append_targets(*, resolver: FieldResolver, append_ops: list[tuple[str,
         )
 
 
+def is_outcome_unknown(exc: BaseException) -> bool:
+    """A write that failed without an answer from Affinity (timeout, network error): it may
+    or may not have been applied. The same errors :func:`apply_field_updates` reports so."""
+    from affinity.exceptions import NetworkError, TimeoutError
+
+    return isinstance(exc, (TimeoutError, NetworkError))
+
+
 def execute_append_phase(
     *,
     entries: Any,
@@ -1441,6 +1449,7 @@ def execute_append_phase(
     existing_values_serialized: list[dict[str, Any]],
     resolver: FieldResolver,
     written_ids: list[str] | None = None,
+    uncertain: list[dict[str, Any]] | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """V2-only --append phase. Merges with existing values for multi-fields.
 
@@ -1458,7 +1467,10 @@ def execute_append_phase(
     pre-validation first to catch invalid values before any side-effect).
 
     ``written_ids``, when given, collects each field id as soon as its write succeeds, so a
-    caller can report what was already changed if a later step fails.
+    caller can report what was already changed if a later step fails. ``uncertain``, when
+    given, gets ``{"field", "action": "append", "value"}`` items for the values of a write
+    that failed with no answer from Affinity (:func:`is_outcome_unknown`): it may or may not
+    have been applied.
     """
     from collections import OrderedDict
 
@@ -1562,12 +1574,21 @@ def execute_append_phase(
                 error_type="usage_error",
             )
 
-        result = entries.update_field_value(
-            ListEntryId(list_entry_id),
-            parsed_field_id,
-            final_value,
-            value_type=value_type_str,
-        )
+        try:
+            result = entries.update_field_value(
+                ListEntryId(list_entry_id),
+                parsed_field_id,
+                final_value,
+                value_type=value_type_str,
+            )
+        except Exception as exc:
+            if uncertain is not None and is_outcome_unknown(exc):
+                name = resolver.get_field_name(field_id) or field_id
+                uncertain.extend(
+                    {"field": name, "action": "append", "value": value}
+                    for value in values_for_field
+                )
+            raise
         if written_ids is not None:
             written_ids.append(field_id)
         new_serialized = _serialize(result)
@@ -1716,7 +1737,7 @@ def apply_field_updates(
     names = ", ".join(resolver.get_field_name(f) or f for f in updates)
     try:
         write(updates, value_types)
-    except (TimeoutError, NetworkError) as exc:
+    except (TimeoutError, NetworkError) as exc:  # is_outcome_unknown()
         raise CLIError(
             f"The update of {names} may or may not have been applied (no response "
             f"from Affinity: {exc}). Re-running the command is safe.",

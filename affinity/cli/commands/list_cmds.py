@@ -3799,6 +3799,7 @@ def run_entry_field(
     from ..field_utils import (
         check_append_targets,
         execute_append_phase,
+        is_outcome_unknown,
         pre_validate_set_operations,
     )
 
@@ -3849,9 +3850,20 @@ def run_entry_field(
     # What this command already changed, for the partial_write error if a later step fails.
     appended: list[str] = []
     removed: list[tuple[str, str]] = []
+    # A step that failed with no answer from Affinity (timeout, network error): it may or may
+    # not have been applied
+    uncertain: list[dict[str, Any]] = []
 
     def _changed() -> bool:
         return bool(written or appended or removed)
+
+    def _uncertain_text() -> str:
+        steps = [
+            f"the {'append' if u['action'] == 'append' else 'removal'} of '{u['value']}' "
+            f"{'to' if u['action'] == 'append' else 'from'} {u['field']}"
+            for u in uncertain
+        ]
+        return f"{', '.join(steps)} may or may not have been applied"
 
     def _partial(exc: Exception) -> CLIError:
         names_written = [
@@ -3867,12 +3879,27 @@ def run_entry_field(
         details: dict[str, Any] = {"written": names_written}
         if removed:
             details["removed"] = [{"field": name, "value": value} for name, value in removed]
-        return CLIError(
-            f"Stopped part-way: {' and '.join(done)}, then {exc}",
-            exit_code=1,
-            error_type="partial_write",
-            details=details,
-        )
+        message = f"Stopped part-way: {' and '.join(done)}, then {exc}"
+        if uncertain:
+            details["uncertain"] = list(uncertain)
+            message += f"; {_uncertain_text()} (no response from Affinity)"
+        return CLIError(message, exit_code=1, error_type="partial_write", details=details)
+
+    def _write_failed(exc: Exception) -> CLIError | None:
+        """The error for a failed append/remove: partial_write once anything changed; a
+        network_error naming the step when only its outcome is unknown; else None."""
+        if _changed():
+            return _partial(exc)
+        if uncertain:
+            text = _uncertain_text()
+            return CLIError(
+                f"{text[:1].upper()}{text[1:]} (no response from Affinity: {exc}). "
+                "Re-running the command is safe.",
+                exit_code=1,
+                error_type="network_error",
+                details={"uncertain": list(uncertain)},
+            )
+        return None
 
     # Phase 3: --append (V2 multi-value merge logic lives in execute_append_phase).
     # Pre-validation already ran above for both set + append values together.
@@ -3885,6 +3912,7 @@ def run_entry_field(
                 existing_values_serialized=existing_values_serialized,
                 resolver=resolver,
                 written_ids=appended,
+                uncertain=uncertain,
             )
             created_values.extend(append_created)
 
@@ -3896,8 +3924,11 @@ def run_entry_field(
             existing_values_serialized = [serialize_model_for_cli(v) for v in existing_values_list]
     except Exception as exc:
         # A CLI error too: once anything changed, the caller must learn what did
-        if _changed() and not (isinstance(exc, CLIError) and exc.error_type == "partial_write"):
-            raise _partial(exc) from exc
+        if isinstance(exc, CLIError) and exc.error_type == "partial_write":
+            raise
+        failed = _write_failed(exc)
+        if failed is not None:
+            raise failed from exc
         raise
 
     # Phase 3b: Handle --unset-value (delete specific value)
@@ -3918,8 +3949,17 @@ def run_entry_field(
                     try:
                         deleted = client.field_values.delete(fv_id)
                     except Exception as exc:
-                        if _changed():
-                            raise _partial(exc) from exc
+                        if is_outcome_unknown(exc):
+                            uncertain.append(
+                                {
+                                    "field": resolved_name,
+                                    "action": "remove",
+                                    "value": value_to_remove,
+                                }
+                            )
+                        failed = _write_failed(exc)
+                        if failed is not None:
+                            raise failed from exc
                         raise
                     if deleted is False:
                         # Affinity answered {"success": false}: the value is still there.

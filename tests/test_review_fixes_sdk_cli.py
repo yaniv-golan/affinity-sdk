@@ -16,10 +16,12 @@ import pytest
 from affinity.clients.http import AsyncHTTPClient, ClientConfig, HTTPClient
 from affinity.exceptions import (
     AuthorizationError,
+    NetworkError,
     NotFoundError,
     RateLimitError,
     ServerError,
 )
+from affinity.exceptions import TimeoutError as AffinityTimeoutError
 from affinity.models.types import CompanyId, ListId, OpportunityId, PersonId
 from affinity.services.companies import AsyncCompanyService, CompanyService
 from affinity.services.lists import AsyncListService, ListService
@@ -799,3 +801,197 @@ def test_append_cli_error_after_a_set_is_a_partial_write(
     assert error["type"] == "partial_write"
     assert "Status were already updated" in error["message"]
     assert "too many values" in error["message"]
+
+
+# --- 10. a write with no answer from Affinity is named as uncertain ------------------------------
+
+
+def _append_resolver() -> Any:
+    from affinity.cli.field_utils import FieldResolver
+    from affinity.models.entities import FieldMetadata
+
+    return FieldResolver(
+        [
+            FieldMetadata.model_validate(
+                {"id": "field-103", "name": "Scores", "valueType": "number-multi"}
+            )
+        ]
+    )
+
+
+@pytest.mark.parametrize(
+    ("error", "uncertain"),
+    [
+        (
+            AffinityTimeoutError("timed out"),
+            [{"field": "Scores", "action": "append", "value": "5"}],
+        ),
+        (NetworkError("connection reset"), [{"field": "Scores", "action": "append", "value": "5"}]),
+        (ServerError("unavailable", status_code=503), []),
+    ],
+    ids=["timeout", "network", "server"],
+)
+def test_execute_append_phase_names_a_write_with_an_unknown_outcome(
+    error: Exception, uncertain: list[dict[str, Any]]
+) -> None:
+    from affinity.cli.field_utils import execute_append_phase
+
+    entries = MagicMock()
+    entries.update_field_value.side_effect = error
+    found: list[dict[str, Any]] = []
+    written: list[str] = []
+    with pytest.raises(type(error)):
+        execute_append_phase(
+            entries=entries,
+            list_entry_id=ENTRY_ID,
+            append_ops=[("field-103", "5")],
+            existing_values_serialized=[],
+            resolver=_append_resolver(),
+            written_ids=written,
+            uncertain=found,
+        )
+    assert found == uncertain
+    assert written == []
+
+
+def _set_then_unset_tag1() -> Any:
+    return CliRunner().invoke(
+        cli,
+        [
+            "--json",
+            "--max-retries",
+            "0",
+            "entry",
+            "field",
+            "Portfolio",
+            str(ENTRY_ID),
+            "--set",
+            "Status",
+            "Active",
+            "--unset-value",
+            "Tags",
+            "Tag1",
+        ],
+        env=ENV,
+    )
+
+
+def test_unset_value_timeout_after_a_set_names_the_removal_as_uncertain(
+    respx_mock: respx.MockRouter,
+) -> None:
+    _setup_list(respx_mock)
+    _two_tags(respx_mock)
+    respx_mock.delete("https://api.affinity.co/field-values/500").mock(
+        side_effect=httpx.ReadTimeout("timed out")
+    )
+    result = _set_then_unset_tag1()
+    assert result.exit_code == 1, result.output
+    error = json.loads(result.stdout)["error"]
+    assert error["type"] == "partial_write"
+    assert error["details"]["written"] == ["Status"]
+    assert error["details"]["uncertain"] == [{"field": "Tags", "action": "remove", "value": "Tag1"}]
+    assert "the removal of 'Tag1' from Tags may or may not have been applied" in error["message"]
+
+
+def test_unset_value_server_error_after_a_set_has_no_uncertain_step(
+    respx_mock: respx.MockRouter,
+) -> None:
+    _setup_list(respx_mock)
+    _two_tags(respx_mock)
+    respx_mock.delete("https://api.affinity.co/field-values/500").mock(
+        return_value=Response(500, json={"message": "boom"})
+    )
+    result = _set_then_unset_tag1()
+    assert result.exit_code == 1, result.output
+    error = json.loads(result.stdout)["error"]
+    assert error["type"] == "partial_write"
+    assert "uncertain" not in error["details"]
+    assert "may or may not" not in error["message"]
+
+
+def test_unset_value_timeout_with_nothing_changed_is_an_uncertain_network_error(
+    respx_mock: respx.MockRouter,
+) -> None:
+    _setup_list(respx_mock)
+    _two_tags(respx_mock)
+    respx_mock.delete("https://api.affinity.co/field-values/500").mock(
+        side_effect=httpx.ConnectError("connection refused")
+    )
+    result = CliRunner().invoke(
+        cli,
+        [
+            "--json",
+            "--max-retries",
+            "0",
+            "entry",
+            "field",
+            "Portfolio",
+            str(ENTRY_ID),
+            "--unset-value",
+            "Tags",
+            "Tag1",
+        ],
+        env=ENV,
+    )
+    assert result.exit_code == 1, result.output
+    error = json.loads(result.stdout)["error"]
+    assert error["type"] == "network_error"
+    assert error["details"]["uncertain"] == [{"field": "Tags", "action": "remove", "value": "Tag1"}]
+    assert error["message"].startswith("The removal of 'Tag1' from Tags may or may not")
+
+
+def test_append_timeout_after_a_set_names_the_append_as_uncertain(
+    respx_mock: respx.MockRouter, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from affinity.cli import field_utils
+
+    _setup_list(respx_mock)
+    _two_tags(respx_mock)
+    respx_mock.get(f"https://api.affinity.co/v2/lists/{LIST_ID}/fields").mock(
+        return_value=Response(
+            200,
+            json={
+                "data": [
+                    {"id": "field-100", "name": "Status", "valueType": "text"},
+                    {
+                        "id": "field-102",
+                        "name": "Tags",
+                        "valueType": "filterable-text-multi",
+                        "allowsMultiple": True,
+                    },
+                ],
+                "pagination": {},
+            },
+        )
+    )
+    real_append = field_utils.execute_append_phase
+
+    def timing_out(**kwargs: Any) -> Any:
+        entries = MagicMock()
+        entries.update_field_value.side_effect = AffinityTimeoutError("timed out")
+        return real_append(**{**kwargs, "entries": entries})
+
+    monkeypatch.setattr(field_utils, "execute_append_phase", timing_out)
+    result = CliRunner().invoke(
+        cli,
+        [
+            "--json",
+            "entry",
+            "field",
+            "Portfolio",
+            str(ENTRY_ID),
+            "--set",
+            "Status",
+            "Active",
+            "--append",
+            "Tags",
+            "Tag3",
+        ],
+        env=ENV,
+    )
+    assert result.exit_code == 1, result.output
+    error = json.loads(result.stdout)["error"]
+    assert error["type"] == "partial_write"
+    assert error["details"]["written"] == ["Status"]
+    assert error["details"]["uncertain"] == [{"field": "Tags", "action": "append", "value": "Tag3"}]
+    assert "the append of 'Tag3' to Tags may or may not have been applied" in error["message"]

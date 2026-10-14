@@ -440,6 +440,9 @@ def _query_cmd_impl(
             explicit_select=query.select,
             explicit_expand=query.expand,
             warnings=list(cached_payload.get("warnings") or []),
+            row_ids=cached_payload.get("rowIds")
+            if isinstance(cached_payload.get("rowIds"), list)
+            else None,
         )
     else:
         # Normal execution path
@@ -558,6 +561,12 @@ def _query_cmd_impl(
     resume_position = 0
     all_data_for_cache = result.data  # Keep original for cache writing
     all_included_for_cache = result.included
+    # Rows' ids by position (a select can leave id out): they match pages to included records
+    all_row_ids_for_cache = (
+        result.row_ids
+        if result.row_ids is not None and len(result.row_ids) == len(result.data or [])
+        else None
+    )
     if cursor is not None and result.data:
         resume_position, resume_warnings = find_resume_position(result.data, cursor)
         for warning in resume_warnings:
@@ -565,7 +574,12 @@ def _query_cmd_impl(
                 click.echo(f"[warning] {warning}", err=True)
         # Slice data to only include remaining records, and included records to theirs
         result.data = result.data[resume_position:]
-        result.included = included_for_rows(result.data, result.included, result.included_by_parent)
+        result.row_ids = (
+            all_row_ids_for_cache[resume_position:] if all_row_ids_for_cache is not None else None
+        )
+        result.included = included_for_rows(
+            result.data, result.included, result.included_by_parent, result.row_ids
+        )
         if not quiet and resume_position > 0:
             click.echo(f"[info] Resuming from position {resume_position}", err=True)
 
@@ -698,6 +712,7 @@ def _query_cmd_impl(
                         extra={
                             "included": all_included_for_cache,
                             "includedByParent": result.included_by_parent,
+                            "rowIds": all_row_ids_for_cache,
                             "warnings": list(result.warnings),
                             "truncated": bool(result.meta and result.meta.get("truncated")),
                         },

@@ -357,6 +357,9 @@ class QueryResult:
     explicit_expand: list[str] | None = None  # e.g., ["interactionDates"]
     # API cursor for streaming mode resumption (captured when pagination stops)
     api_cursor: str | None = None
+    # Each data row's ``id`` before select projection, by position (not output): correlates
+    # rows to included_by_parent when select leaves ``id`` out
+    row_ids: list[Any] | None = None
 
 
 # Enable forward references

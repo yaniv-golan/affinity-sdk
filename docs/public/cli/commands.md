@@ -256,7 +256,7 @@ xaffinity query --file query.json
 - `--csv` / `--json`: Output format
 - `--include-meta`: include execution metadata; `meta.serverFilter` shows which conditions Affinity's search applied (`pushed`), which ran locally and why (`local`), and whether Affinity sorted (`sort`)
 
-A related record that is gone (deleted, or merged into another) reads as empty in `include` and `expand`; any other lookup error, or failing to read a list's field definitions, fails the query with that error's exit code.
+A related record that is gone (deleted, or merged into another) reads as empty in `include` and `expand`; any other lookup error, or failing to read a list's field definitions when the query uses a list field, fails the query with that error's exit code.
 
 Conditions on fields go to Affinity's search where it can answer them; the full `where` still runs locally on what comes back. A `where` on `companies` or `persons` must include a condition on one of their fields (`fields.<name>`). `XAFFINITY_QUERY_SERVER_FILTER=0` turns server filtering off for list entries (`query` on listEntries and `list export`); company and person filters always use it.
 
@@ -971,6 +971,12 @@ xaffinity list entry field "Portfolio" 123 --append Tags "NewTag" --unset-value 
   something, the error is `partial_write` (exit 1), whose message and `details` name it:
   `written` lists fields set, unset or appended; `removed` lists `{field, value}` for each value
   an earlier `--unset-value` deleted
+- If the failing `--append` or `--unset-value` got no response from Affinity (a timeout or
+  network error), it may or may not have been applied: the message says so, and
+  `details.uncertain` lists `{field, action, value}` for it (`action` is `append` or `remove`).
+  With nothing else changed, the error is `network_error` (exit 1) with the same
+  `details.uncertain`. Re-running the command is safe: an append skips values already there
+  and removing a value that is gone succeeds
 
 ## Notes
 

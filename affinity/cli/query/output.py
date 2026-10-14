@@ -19,6 +19,7 @@ import io
 import json
 import logging
 import re
+from collections.abc import Callable
 from typing import Any, Literal
 
 from rich.console import Console
@@ -167,29 +168,54 @@ def included_for_rows(
     rows: list[dict[str, Any]],
     included: dict[str, list[dict[str, Any]]],
     included_by_parent: dict[str, dict[int, list[dict[str, Any]]]],
+    row_ids: list[Any] | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
     """The included records related to ``rows`` (a resumed page), by the per-parent mapping.
 
-    A relationship without a mapping, or rows without an ``id`` to correlate, keep every
-    included record.
+    ``row_ids`` are the rows' ids by position (``QueryResult.row_ids``, for rows whose select
+    left ``id`` out); without them the rows' own ``id`` is used. A relationship without a
+    mapping, or rows without an id to correlate, keep every included record.
     """
-    if not included or any("id" not in row for row in rows):
-        return included
-    row_ids = {row["id"] for row in rows}
+    return _included_for_rows(rows, included, included_by_parent, row_ids)[0]
+
+
+def _included_for_rows(
+    rows: list[dict[str, Any]],
+    included: dict[str, list[dict[str, Any]]],
+    included_by_parent: dict[str, dict[int, list[dict[str, Any]]]],
+    row_ids: list[Any] | None,
+) -> tuple[dict[str, list[dict[str, Any]]], bool]:
+    """included_for_rows(), and whether every relationship could be matched to the rows."""
+    if not included:
+        return included, True
+    ids = list(row_ids) if row_ids is not None else [row.get("id") for row in rows]
+    if len(ids) != len(rows) or any(i is None for i in ids):
+        return included, False
+    row_id_set = set(ids)
     result: dict[str, list[dict[str, Any]]] = {}
+    correlated = True
     for rel_name, records in included.items():
         parent_map = included_by_parent.get(rel_name)
         if not parent_map:
             result[rel_name] = records
+            correlated = correlated and not records
             continue
         wanted = {
             related.get("id")
             for parent_id, related_records in parent_map.items()
-            if parent_id in row_ids
+            if parent_id in row_id_set
             for related in related_records
         }
         result[rel_name] = [r for r in records if r.get("id") in wanted]
-    return result
+    return result, correlated
+
+
+def _row_ids(result: QueryResult) -> list[Any] | None:
+    """``result.row_ids`` when they line up with its rows."""
+    row_ids = result.row_ids
+    if row_ids is None or len(row_ids) != len(result.data or []):
+        return None
+    return row_ids
 
 
 # =============================================================================
@@ -952,10 +978,25 @@ def truncate_toon_result(result: QueryResult, max_bytes: int) -> tuple[str, bool
         # One row (with its included records), past the budget on its own: shown whole
         return content, False
 
-    def page(count: int) -> str:
+    row_ids = _row_ids(result)
+
+    def page_parts(count: int) -> tuple[list[dict[str, Any]], dict[str, Any], bool]:
         rows = data[:count]
-        included = included_for_rows(rows, result.included, result.included_by_parent)
-        return format_query_result(replace(result, data=rows, included=included), "toon")
+        ids = row_ids[:count] if row_ids is not None else None
+        included, correlated = _included_for_rows(
+            rows, result.included, result.included_by_parent, ids
+        )
+        return rows, included, correlated
+
+    def render(count: int, included: dict[str, list[dict[str, Any]]]) -> str:
+        ids = row_ids[:count] if row_ids is not None else None
+        return format_query_result(
+            replace(result, data=data[:count], included=included, row_ids=ids), "toon"
+        )
+
+    def page(count: int) -> str:
+        _rows, included, _correlated = page_parts(count)
+        return render(count, included)
 
     # Binary search for the most rows that fit with their included records and the
     # truncation section. The first row is kept even past the budget: a page with no row
@@ -968,7 +1009,21 @@ def truncate_toon_result(result: QueryResult, max_bytes: int) -> tuple[str, bool
         else:
             hi = mid - 1
 
-    lines = page(best).split("\n")
+    _rows, included, correlated = page_parts(best)
+    included_omitted = 0
+    if not correlated and len(render(best, included).encode()) + _TRUNCATION_SECTION_RESERVE > (
+        max_bytes
+    ):
+        # Included records that can't be matched to the rows (all of them come on every
+        # page): keep as many as fit rather than going past the budget
+        included, included_omitted = _trim_included(
+            included,
+            lambda kept: (
+                len(render(best, kept).encode()) + _TRUNCATION_SECTION_RESERVE <= max_bytes
+            ),
+        )
+
+    lines = render(best, included).split("\n")
     # The truncation section goes right after the data rows (before pagination/included)
     data_end = next(
         (i for i, line in enumerate(lines[1:], 1) if line and not line.startswith("  ")),
@@ -979,7 +1034,33 @@ def truncate_toon_result(result: QueryResult, max_bytes: int) -> tuple[str, bool
         f"  rowsShown: {best}",
         f"  rowsOmitted: {len(data) - best}",
     ]
+    if included_omitted:
+        truncation_section.append(f"  includedOmitted: {included_omitted}")
     return "\n".join([*lines[:data_end], *truncation_section, *lines[data_end:]]), True
+
+
+def _trim_included(
+    included: dict[str, list[dict[str, Any]]],
+    fits: Callable[[dict[str, list[dict[str, Any]]]], bool],
+) -> tuple[dict[str, list[dict[str, Any]]], int]:
+    """The most included records (in order, across relationships) that ``fits``, and how
+    many were left out."""
+    flat = [(rel_name, record) for rel_name, records in included.items() for record in records]
+
+    def first(count: int) -> dict[str, list[dict[str, Any]]]:
+        kept: dict[str, list[dict[str, Any]]] = {rel_name: [] for rel_name in included}
+        for rel_name, record in flat[:count]:
+            kept[rel_name].append(record)
+        return kept
+
+    lo, hi, best = 0, len(flat), 0
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if fits(first(mid)):
+            best, lo = mid, mid + 1
+        else:
+            hi = mid - 1
+    return first(best), len(flat) - best
 
 
 def truncate_markdown_output(
@@ -1191,13 +1272,19 @@ def truncate_json_result(
     original_data = result.data
     original_count = len(original_data)
     original_included = result.included
+    original_row_ids = _row_ids(result)
 
     def keep(count: int) -> None:
         # The kept rows, with the included records related to them
         result.data = original_data[:count]
+        result.row_ids = original_row_ids[:count] if original_row_ids is not None else None
         result.included = included_for_rows(
-            result.data, original_included, result.included_by_parent
+            result.data, original_included, result.included_by_parent, result.row_ids
         )
+
+    def restore() -> None:
+        result.data, result.included = original_data, original_included
+        result.row_ids = original_row_ids
 
     # Binary search for maximum items that fit
     lo, hi = 0, original_count
@@ -1216,12 +1303,12 @@ def truncate_json_result(
 
     # Edge case: can't fit even one item (envelope too large)
     if best_fit == 0:
-        result.data, result.included = original_data, original_included  # Restore
+        restore()
         return result, original_count, False  # Can't truncate
 
     # Edge case: all items fit (shouldn't happen since we checked above)
     if best_fit >= original_count:
-        result.data, result.included = original_data, original_included
+        restore()
         return result, original_count, False
 
     # Apply truncation

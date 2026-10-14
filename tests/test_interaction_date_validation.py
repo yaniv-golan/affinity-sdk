@@ -482,7 +482,9 @@ class TestExecutorInteractionFetch:
         assert len(results) == 10
 
     @pytest.mark.asyncio
-    async def test_fetch_interactions_for_entity_continues_on_transient_failure(self) -> None:
+    async def test_fetch_interactions_for_entity_propagates_a_failed_type(self) -> None:
+        """A failed interaction type fails the lookup: returning the other types' results
+        would make a _count / none filter match on missing data."""
         from affinity.cli.query.executor import _fetch_interactions_for_entity
 
         call_count = 0
@@ -490,7 +492,7 @@ class TestExecutorInteractionFetch:
         async def mock_list(**_kw):
             nonlocal call_count
             call_count += 1
-            if call_count == 1:
+            if call_count == 2:
                 raise httpx.ConnectError("connection refused")
             return PaginatedResponse[Interaction](
                 data=[Interaction.model_validate(_make_interaction(call_count))],
@@ -509,8 +511,8 @@ class TestExecutorInteractionFetch:
             return AsyncPageIterator(fetch_page)
 
         service.iter = mock_iter
-        results = await _fetch_interactions_for_entity(service, {"person_id": PersonId(1)}, days=30)
-        assert len(results) >= 1  # Got data from other types
+        with pytest.raises(httpx.ConnectError):
+            await _fetch_interactions_for_entity(service, {"person_id": PersonId(1)}, days=30)
 
     @pytest.mark.asyncio
     async def test_fetch_interactions_for_entity_propagates_auth_error(self) -> None:
