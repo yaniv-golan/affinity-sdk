@@ -1970,26 +1970,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../../reference/services/transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -1997,19 +1986,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2109,7 +2090,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2165,7 +2146,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2202,14 +2183,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2333,6 +2306,8 @@
 <span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">"your-api-key"</span><span class="p">,</span> <span class="n">on_event</span><span class="o">=</span><span class="n">on_event</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
 </code></pre></div>
+<p>The sync <code>Affinity</code> client never awaits a hook: an <code>async def</code> hook raises
+<code>ConfigurationError</code> when the client is created. Use <code>AsyncAffinity</code> for async hooks.</p>
 <h2 id="common-event-types">Common event types<a class="headerlink" href="#common-event-types" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Requests: <code>request_started</code>, <code>request_retrying</code>, <code>request_succeeded</code>, <code>request_failed</code></li>

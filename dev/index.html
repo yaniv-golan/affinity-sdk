@@ -1966,26 +1966,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="reference/services/transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -1993,19 +1982,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2105,7 +2086,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2161,7 +2142,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2198,14 +2179,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2317,7 +2290,15 @@
 
 
 <h1 id="affinity-python-sdk">Affinity Python SDK<a class="headerlink" href="#affinity-python-sdk" title="Permanent link">&para;</a></h1>
-<p>A modern, strongly-typed Python wrapper for the Affinity CRM API.</p>
+<p>A modern, strongly-typed Python wrapper for the Affinity CRM API, with a scriptable CLI
+(<code>xaffinity</code>), a local MCP server, and Claude Code plugins.</p>
+<p>It covers companies, persons, opportunities, lists and list entries, field values, notes,
+reminders, interactions, meetings, transcripts, files, relationship strengths, teams, users,
+webhooks and more, using Affinity's V2 API wherever it can and V1 where it can't
+(<a href="reference/api-coverage/">API coverage</a>). Use it for code, scripts and terminal work: bulk
+updates, exports, data pipelines, webhooks and integrations. Affinity also runs an official,
+hosted MCP server for working in a chat; see
+<a href="guides/affinity-official-mcp-comparison/">how the two compare</a>.</p>
 <p>Disclaimer: This is an unofficial community project and is not affiliated with, endorsed by, or sponsored by Affinity. “Affinity” and related marks are trademarks of their respective owners. Use of the Affinity API is subject to Affinity’s Terms of Service.</p>
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>affinity-sdk
@@ -2342,9 +2323,14 @@
 <h2 id="guides">Guides<a class="headerlink" href="#guides" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="guides/authentication/">Authentication</a> - API keys, env vars, context managers</li>
+<li><a href="guides/configuration/">Configuration</a> - Client options, timeouts, caching, policies</li>
+<li><a href="guides/migrating-to-2/">Migrating to 2.0</a> - What changed from 1.x</li>
+<li><a href="guides/api-versions/">API versions</a> and <a href="guides/api-versions-and-routing/">V1/V2 routing</a></li>
 <li><a href="guides/pagination/">Pagination</a> - Iterating large result sets</li>
 <li><a href="guides/filtering/">Filtering</a> - Filter query syntax</li>
-<li><a href="guides/field-values/">Field values</a> - Custom field data</li>
+<li><a href="guides/field-values/">Field values</a> - Reading and updating field values</li>
+<li><a href="guides/query-command/">Query command</a> - Structured queries from the CLI</li>
+<li><a href="guides/webhooks/">Webhooks</a> - Subscriptions and parsing events</li>
 <li><a href="guides/errors-and-retries/">Errors &amp; retries</a> - Exception handling</li>
 <li><a href="guides/rate-limits/">Rate limits</a> - Managing API quotas</li>
 <li><a href="guides/datetime-handling/">Datetime handling</a> - Timezone behavior</li>

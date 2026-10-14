@@ -2203,26 +2203,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../reference/services/transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -2230,19 +2219,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2342,7 +2323,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2398,7 +2379,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2435,14 +2416,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2821,7 +2794,7 @@
 <p><strong>Step 1</strong>: Check the CLI is installed:</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>--version
 </code></pre></div>
-<p><strong>Expected</strong>: Version number (e.g., <code>0.15.0</code>)</p>
+<p><strong>Expected</strong>: Version number (e.g., <code>xaffinity, version 2.0.3</code>)</p>
 <p><strong>Step 2</strong>: Verify API connectivity with your API key:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">AFFINITY_API_KEY</span><span class="o">=</span><span class="s2">"your-key-here"</span><span class="w"> </span>xaffinity<span class="w"> </span>whoami
 </code></pre></div>
@@ -2829,7 +2802,8 @@
 <p>If <code>whoami</code> hangs, check network connectivity (firewall, proxy, VPN). If it returns an authentication error, verify your API key is correct (Settings → API Keys in Affinity).</p>
 <p>Once verified, see <a href="#authentication">Authentication</a> for persistent API key configuration options.</p>
 <h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
-<p>The CLI never makes "background" requests. It only calls the API for commands that require it.</p>
+<p>The CLI calls the Affinity API only for commands that need it, never in the background. (The
+<a href="#update-notifications">update check</a> contacts the package index, not Affinity.)</p>
 <h3 id="quick-setup">Quick Setup<a class="headerlink" href="#quick-setup" title="Permanent link">&para;</a></h3>
 <p>Check if a key is already configured:</p>
 <div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>config<span class="w"> </span>check-key
@@ -2841,12 +2815,18 @@
 <h3 id="api-key-sources">API Key Sources<a class="headerlink" href="#api-key-sources" title="Permanent link">&para;</a></h3>
 <p>The CLI checks these sources in order (highest precedence first):</p>
 <ol>
-<li><code>--api-key-stdin</code> flag (reads from stdin)</li>
 <li><code>--api-key-file PATH</code> (reads from file, or <code>-</code> for stdin)</li>
-<li><code>AFFINITY_API_KEY</code> environment variable</li>
-<li><code>.env</code> file in current directory (requires <code>--dotenv</code> flag, or use <code>--env-file &lt;path&gt;</code> which implicitly enables dotenv)</li>
-<li><code>api_key</code> in user config file (<code>~/.config/xaffinity/config.toml</code>)</li>
+<li><code>--api-key-stdin</code> flag (reads from stdin)</li>
+<li><code>AFFINITY_API_KEY</code> environment variable. With <code>--dotenv</code> (or <code>--env-file &lt;path&gt;</code>, which
+   implies it), a <code>.env</code> file is loaded first and can set this variable.</li>
+<li><code>AFFINITY_API_KEY_FILE</code> — path to a file containing the key (or a <code>.env</code> file with an
+   <code>AFFINITY_API_KEY=</code> line)</li>
+<li><code>AFFINITY_API_KEY_COMMAND</code> — a command whose stdout is the key</li>
+<li><code>api_key</code> in the user config file (<code>xaffinity config path</code> prints its location)</li>
 </ol>
+<p>An empty value counts as unset. When a key flag is used while any of the three environment
+variables is set, the CLI warns that the variables are ignored. See <a href="../guides/authentication/">Authentication</a> for the
+file and command options.</p>
 <h3 id="reading-from-file-or-stdin">Reading from File or Stdin<a class="headerlink" href="#reading-from-file-or-stdin" title="Permanent link">&para;</a></h3>
 <p>For scripts or CI/CD pipelines, you can pass the API key via file or stdin:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Read from a secrets file</span>
@@ -2870,7 +2850,7 @@ xaffinity<span class="w"> </span>--dotenv<span class="w"> </span>--env-file<span
 <li>In <code>--json</code> mode, JSON is written to <strong>stdout</strong>. Progress/logging go to <strong>stderr</strong>.</li>
 <li>Human/table output goes to <strong>stdout</strong>; diagnostics go to <strong>stderr</strong>.</li>
 <li>Commands build a single structured result and then render it as either JSON or table output (no “double implementations”).</li>
-<li>In <code>--json</code> mode, <code>data</code> is an object keyed by section name (even for single-section commands), and pagination tokens/URLs live in <code>meta.pagination.&lt;section&gt;</code>.</li>
+<li>In <code>--json</code> mode, <code>data</code> is usually an object keyed by section name (even for single-section commands), and pagination tokens/URLs live in <code>meta.pagination.&lt;section&gt;</code>. Some list commands put the rows directly in <code>data</code> as an array instead, for example <code>person|company|opportunity files ls</code>, <code>note ls</code> and <code>interaction ls</code>: use <code>.data[]</code> for those.</li>
 <li>If <code>--max-results</code> truncates results mid-page, the CLI may omit <code>meta.pagination.&lt;section&gt;</code> to avoid producing an unsafe resume token.</li>
 </ul>
 <h2 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>

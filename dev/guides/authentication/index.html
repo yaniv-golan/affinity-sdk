@@ -2037,26 +2037,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../../reference/services/transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -2064,19 +2053,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2176,7 +2157,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2232,7 +2213,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2269,14 +2250,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2463,15 +2436,22 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">me</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="resolution-chain">Resolution chain<a class="headerlink" href="#resolution-chain" title="Permanent link">&para;</a></h2>
-<p>The SDK resolves the API key through the following chain (first non-empty value wins):</p>
+<p>The SDK and CLI resolve the API key through the following chain (first non-empty value wins):</p>
 <ol>
-<li><strong>Explicit constructor arg</strong> — <code>Affinity(api_key="…")</code> or <code>--api-key</code> CLI flag</li>
+<li><strong>The key you pass explicitly</strong> — <code>Affinity(api_key="…")</code> in the SDK; <code>--api-key-file &lt;path&gt;</code>
+   or <code>--api-key-stdin</code> in the CLI (the CLI has no <code>--api-key</code> flag)</li>
 <li><strong><code>AFFINITY_API_KEY</code></strong> — standard environment variable</li>
 <li><strong><code>AFFINITY_API_KEY_FILE</code></strong> — path to a file containing the key, or a <code>.env</code> file / named pipe with <code>AFFINITY_API_KEY=</code> (12-factor / Docker secrets / 1Password)</li>
 <li><strong><code>AFFINITY_API_KEY_COMMAND</code></strong> — shell command whose stdout is the key (credential-helper)</li>
-<li><strong><code>--api-key-file &lt;path&gt;</code></strong> or <strong><code>--api-key-stdin</code></strong> — CLI flags</li>
-<li><strong><code>xaffinity config setup-key</code></strong> — saved to the system keychain</li>
+<li><strong>User config file</strong> — <code>api_key</code> in <code>config.toml</code>, written by <code>xaffinity config setup-key --scope user</code>
+   (file mode <code>0600</code> on Unix; <code>xaffinity config path</code> prints the location). CLI only.</li>
 </ol>
+<p>The SDK uses steps 1–4; step 5 is CLI only. When the CLI uses a key flag while
+<code>AFFINITY_API_KEY</code>, <code>AFFINITY_API_KEY_FILE</code> or <code>AFFINITY_API_KEY_COMMAND</code> is also set, it warns
+that those are ignored (the file is not read and the command is not run). With <code>load_dotenv=True</code> (SDK) or <code>--dotenv</code> (CLI),
+a <code>.env</code> file is loaded into the environment before step 2, so its <code>AFFINITY_API_KEY</code> counts as
+step 2. That is how a key saved by <code>xaffinity config setup-key --scope project</code> (a <code>.env</code> in the
+current directory) is used: run commands with <code>--dotenv</code>.</p>
 <p>Empty string is treated as unset at every step (safe against stale <code>export AFFINITY_API_KEY=</code> lines).</p>
 <h2 id="environment-variables">Environment variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
 <p>If you prefer reading from the environment:</p>
@@ -2520,7 +2500,8 @@ how 1Password's locally mounted <code>.env</code> files work), so a short auto-l
 window.</p>
 <p>On Posix systems, a <code>UserWarning</code> is emitted if the file is group- or world-readable
 (mode <code>0644</code> or looser). Use <code>chmod 600</code> to silence it. The check is a no-op on Windows.
-An empty file or missing path raises <code>ConfigError</code>.</p>
+An empty file or missing path raises <code>ValueError</code> in the SDK (<code>Affinity.from_env()</code>); the CLI
+reports it as a usage error (exit code 2).</p>
 <h3 id="affinity_api_key_command-command-based-secrets"><code>AFFINITY_API_KEY_COMMAND</code> — command-based secrets<a class="headerlink" href="#affinity_api_key_command-command-based-secrets" title="Permanent link">&para;</a></h3>
 <p>Set this env var to a shell command. The SDK runs it at startup and uses its stdout as the key.
 Follows the same convention as <code>git credential.helper</code>, <code>gpg --passphrase-program</code>, and similar tools.</p>
@@ -2537,8 +2518,8 @@ Follows the same convention as <code>git credential.helper</code>, <code>gpg --p
 <span class="nb">export</span><span class="w"> </span><span class="nv">AFFINITY_API_KEY_COMMAND</span><span class="o">=</span><span class="s2">"vault kv get -field=api_key secret/affinity"</span>
 </code></pre></div>
 <p>The default timeout is 30 seconds; override with <code>AFFINITY_API_KEY_COMMAND_TIMEOUT=&lt;seconds&gt;</code>.
-A non-zero exit code, empty stdout, or timeout raises <code>ConfigError</code> (stderr is included in the
-error message, capped at 500 chars).</p>
+A non-zero exit code, empty stdout, or timeout raises <code>ValueError</code> in the SDK, or a usage error
+(exit code 2) in the CLI. stderr is included in the error message, capped at 500 chars.</p>
 <p>For defensive "no writes" usage (scripts, audits), disable writes via policy:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">affinity.policies</span><span class="w"> </span><span class="kn">import</span> <span class="n">Policies</span><span class="p">,</span> <span class="n">WritePolicy</span>

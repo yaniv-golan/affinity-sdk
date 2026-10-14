@@ -25,7 +25,7 @@
     
     
       
-        <title>Field values - Affinity Python SDK</title>
+        <title>Field values (V1) - Affinity Python SDK</title>
       
     
     
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Field values
+              Field values (V1)
             
           </span>
         </div>
@@ -1879,30 +1879,17 @@
                 
   
   
-    
   
   
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../../transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -1910,19 +1897,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2031,7 +2010,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2049,7 +2028,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2247,7 +2226,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2284,14 +2263,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2481,6 +2452,10 @@
 
 
 <h1 id="field-values-v1">Field values (V1)<a class="headerlink" href="#field-values-v1" title="Permanent link">&para;</a></h1>
+<p>This service calls V1's field-value endpoints directly. To read or change a company's, person's
+or list entry's field values, use <code>companies</code> / <code>persons</code> <code>get_field_values</code>,
+<code>update_field_value</code> and <code>batch_update_fields</code>, or the list-entry methods, which use V2. See
+<a href="../../../../guides/field-values/">Field values</a>.</p>
 
 
 <div class="doc doc-object doc-class">
@@ -2820,7 +2795,7 @@ Use this for global field values not tied to list entries.</p>
     <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_value_id</span><span class="p">:</span> <span class="n">FieldValueId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Delete a field value."""</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/field-values/</span><span class="si">{</span><span class="n">field_value_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_for_entity</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3040,7 +3015,7 @@ IDs are not supported.</p>
 <span class="normal">1370</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_value_id</span><span class="p">:</span> <span class="n">FieldValueId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Delete a field value."""</span>
     <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/field-values/</span><span class="si">{</span><span class="n">field_value_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

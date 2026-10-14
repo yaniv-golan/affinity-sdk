@@ -1196,6 +1196,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#reading-and-changing-a-companys-or-persons-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading and changing a company's or person's fields
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-v1-field_values-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The V1 field_values service
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#getting-field-values-for-an-entity" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2003,26 +2025,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../../reference/services/transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -2030,19 +2041,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2142,7 +2145,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2198,7 +2201,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2254,14 +2257,6 @@
     </li>
   
 
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
     
   </ul>
 </nav>
@@ -2288,6 +2283,28 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#reading-and-changing-a-companys-or-persons-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading and changing a company's or person's fields
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-v1-field_values-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The V1 field_values service
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#getting-field-values-for-an-entity" class="md-nav__link">
@@ -2388,6 +2405,35 @@
 
 <h1 id="field-values">Field Values<a class="headerlink" href="#field-values" title="Permanent link">&para;</a></h1>
 <p>Field values store custom data on entities (persons, companies, opportunities, list entries). This guide covers common patterns for working with field values.</p>
+<h2 id="reading-and-changing-a-companys-or-persons-fields">Reading and changing a company's or person's fields<a class="headerlink" href="#reading-and-changing-a-companys-or-persons-fields" title="Permanent link">&para;</a></h2>
+<p>The <code>companies</code> and <code>persons</code> services read and write field values through V2. This is the usual
+way to change a field such as a company's Stage:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">affinity.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompanyId</span>
+
+<span class="k">with</span> <span class="n">Affinity</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">"your-api-key"</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">get_field_values</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"field-456"</span><span class="p">))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">get_field_value</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span> <span class="s2">"field-456"</span><span class="p">))</span>
+
+    <span class="c1"># Replace one field's value</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">update_field_value</span><span class="p">(</span><span class="n">CompanyId</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span> <span class="s2">"field-456"</span><span class="p">,</span> <span class="s2">"Series A"</span><span class="p">)</span>
+
+    <span class="c1"># Several fields in one request (all or nothing)</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">companies</span><span class="o">.</span><span class="n">batch_update_fields</span><span class="p">(</span>
+        <span class="n">CompanyId</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span> <span class="p">{</span><span class="s2">"field-456"</span><span class="p">:</span> <span class="s2">"Series A"</span><span class="p">,</span> <span class="s2">"field-789"</span><span class="p">:</span> <span class="mi">5</span><span class="p">}</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p><code>persons</code> has the same methods. For fields on a list (including an opportunity's fields), use
+the list entry: <code>client.lists.entries(list_id).update_field_value(entry_id, field_id, value)</code>
+and <code>batch_update_fields</code>. Field names are resolved to ids with
+<a href="../../reference/models/#fieldresolver"><code>FieldResolver</code></a> or <code>fields.get_by_name()</code>; see
+<a href="../field-types-and-values/">Field types and values</a> for value types.</p>
+<h2 id="the-v1-field_values-service">The V1 <code>field_values</code> service<a class="headerlink" href="#the-v1-field_values-service" title="Permanent link">&para;</a></h2>
+<p>The rest of this guide covers <code>client.field_values</code>, which calls V1's field-value endpoints
+directly. It returns one <code>FieldValue</code> per value (with its id), across persons, companies,
+opportunities and list entries.</p>
 <h2 id="getting-field-values-for-an-entity">Getting field values for an entity<a class="headerlink" href="#getting-field-values-for-an-entity" title="Permanent link">&para;</a></h2>
 <p>Use <code>field_values.list()</code> to get all field values for a specific entity:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>

@@ -2093,26 +2093,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../../reference/services/transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -2120,19 +2109,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2232,7 +2213,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2288,7 +2269,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2325,14 +2306,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2567,7 +2540,7 @@
 
 
 <h1 id="claude-code-plugins-skills">Claude Code Plugins &amp; Skills<a class="headerlink" href="#claude-code-plugins-skills" title="Permanent link">&para;</a></h1>
-<p>Two <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a> plugins provide <strong>skills</strong> that teach Claude best practices for the Affinity SDK and CLI:</p>
+<p>Three <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a> plugins: two provide <strong>skills</strong> that teach Claude best practices for the Affinity SDK and CLI, and one installs the MCP server:</p>
 <table>
 <thead>
 <tr>
@@ -2586,6 +2559,11 @@
 <td><strong>cli</strong></td>
 <td>CLI power users</td>
 <td>CLI skill + API key guard hook</td>
+</tr>
+<tr>
+<td><strong>mcp</strong></td>
+<td>Agentic workflows</td>
+<td>The <a href="#mcp-server">MCP server</a> (tools and guided prompts)</td>
 </tr>
 </tbody>
 </table>
@@ -2608,8 +2586,11 @@
 
 <span class="c1"># For CLI usage + hooks</span>
 /plugin<span class="w"> </span>install<span class="w"> </span>affinity-crm-cli-xaffinity-unofficial@xaffinity
+
+<span class="c1"># For the MCP server</span>
+/plugin<span class="w"> </span>install<span class="w"> </span>affinity-crm-mcp-unofficial@xaffinity
 </code></pre></div>
-<p>You can install both plugins. They complement each other.</p>
+<p>You can install any combination. They complement each other.</p>
 <hr />
 <h2 id="sdk-plugin-affinity-python-sdk-skill">SDK Plugin (affinity-python-sdk skill)<a class="headerlink" href="#sdk-plugin-affinity-python-sdk-skill" title="Permanent link">&para;</a></h2>
 <p>Teaches Claude the correct patterns for writing Python scripts with the Affinity SDK.</p>
@@ -2629,7 +2610,7 @@
 <p><strong>Use read-only mode by default</strong></p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity.policies</span><span class="w"> </span><span class="kn">import</span> <span class="n">Policies</span><span class="p">,</span> <span class="n">WritePolicy</span>
 
-<span class="c1"># Default: read-only (prevents accidental data modification)</span>
+<span class="c1"># Read-only (prevents accidental data modification); the client allows writes unless you set this</span>
 <span class="k">with</span> <span class="n">Affinity</span><span class="o">.</span><span class="n">from_env</span><span class="p">(</span><span class="n">policies</span><span class="o">=</span><span class="n">Policies</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="n">WritePolicy</span><span class="o">.</span><span class="n">DENY</span><span class="p">))</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
@@ -2656,7 +2637,7 @@
 <li>Use <code>--json</code> for structured, parseable output</li>
 <li>Run <code>xaffinity config check-key --json</code> to verify API key configuration</li>
 <li>Use <code>--all</code> with caution (can be slow for large datasets)</li>
-<li>Filters only work on custom fields</li>
+<li><code>--filter</code> sends what Affinity's search can answer and re-checks the whole filter locally</li>
 </ul>
 <h3 id="example-prompts_1">Example prompts<a class="headerlink" href="#example-prompts_1" title="Permanent link">&para;</a></h3>
 <ul>
@@ -2678,10 +2659,12 @@
 <div class="highlight"><pre><span></span><code>/plugin<span class="w"> </span>marketplace<span class="w"> </span>update
 /plugin<span class="w"> </span>update<span class="w"> </span>affinity-crm-sdk-unofficial@xaffinity
 /plugin<span class="w"> </span>update<span class="w"> </span>affinity-crm-cli-xaffinity-unofficial@xaffinity
+/plugin<span class="w"> </span>update<span class="w"> </span>affinity-crm-mcp-unofficial@xaffinity
 </code></pre></div>
 <h3 id="uninstalling">Uninstalling<a class="headerlink" href="#uninstalling" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>/plugin<span class="w"> </span>uninstall<span class="w"> </span>affinity-crm-sdk-unofficial@xaffinity
 /plugin<span class="w"> </span>uninstall<span class="w"> </span>affinity-crm-cli-xaffinity-unofficial@xaffinity
+/plugin<span class="w"> </span>uninstall<span class="w"> </span>affinity-crm-mcp-unofficial@xaffinity
 </code></pre></div>
 <hr />
 <h2 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">&para;</a></h2>

@@ -2103,26 +2103,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../../reference/services/transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -2130,19 +2119,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2242,7 +2223,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2298,7 +2279,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2335,14 +2316,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2771,16 +2744,17 @@ disable writes via policy:</p>
 <span class="p">)</span>
 </code></pre></div>
 <h2 id="beta-endpoints-and-the-affinity-api-version">Beta endpoints and the Affinity API version<a class="headerlink" href="#beta-endpoints-and-the-affinity-api-version" title="Permanent link">&para;</a></h2>
-<p>Opt into beta endpoints, and pin the Affinity V2 API version (sent as <code>X-Affinity-Api-Version</code>
-on every V2 request; default: your API key's default version):</p>
+<p>Pin the Affinity V2 API version (sent as <code>X-Affinity-Api-Version</code> on every V2 request; default:
+your API key's default version):</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">affinity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affinity</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Affinity</span><span class="p">(</span>
     <span class="n">api_key</span><span class="o">=</span><span class="s2">"your-api-key"</span><span class="p">,</span>
-    <span class="n">enable_beta_endpoints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">affinity_api_version</span><span class="o">=</span><span class="s2">"2026-09-17"</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div>
+<p>Beta V2 endpoints need no opt-in: the SDK calls them like any other endpoint.
+<code>enable_beta_endpoints=True</code> is reserved for a beta endpoint that needs one; none does.</p>
 <p>See also:</p>
 <ul>
 <li><a href="../api-versions/">Affinity API versions</a></li>

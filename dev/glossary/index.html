@@ -2067,26 +2067,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../reference/services/transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -2094,19 +2083,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2206,7 +2187,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2262,7 +2243,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2299,14 +2280,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2527,14 +2500,14 @@
 </ul>
 <h2 id="api-generations-v1-vs-v2">API Generations (V1 vs V2)<a class="headerlink" href="#api-generations-v1-vs-v2" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>V1 API</strong>: Legacy Affinity endpoints at <code>https://api.affinity.co</code>. Used for writes and some read operations.</li>
-<li><strong>V2 API</strong>: Newer Affinity endpoints at <code>https://api.affinity.co/v2</code>. Used for most reads with better performance.</li>
+<li><strong>V1 API</strong>: Legacy Affinity endpoints at <code>https://api.affinity.co</code>. Used for operations V2 doesn't offer, such as company and person create/update and adding to a list.</li>
+<li><strong>V2 API</strong>: Newer Affinity endpoints at <code>https://api.affinity.co/v2</code>. Used for reads and for most writes V2 offers (notes, reminders, webhooks, field values).</li>
 </ul>
-<p>The SDK automatically routes requests to the appropriate API version.</p>
+<p>The SDK routes each operation to V2 where V2 can do the job, and to V1 otherwise. See <a href="../guides/api-versions-and-routing/">API versions &amp; SDK routing</a>.</p>
 <h2 id="v2-api-version">V2 API Version<a class="headerlink" href="#v2-api-version" title="Permanent link">&para;</a></h2>
 <p>V2 has dated versions (for example <code>2024-01-01</code>). In the Affinity dashboard, your API key has a "Default API Version" setting that selects the V2 version used for your requests.</p>
 <h2 id="beta-endpoints">Beta Endpoints<a class="headerlink" href="#beta-endpoints" title="Permanent link">&para;</a></h2>
-<p>Some V2 endpoints are opt-in and require <code>enable_beta_endpoints=True</code> in the SDK. None currently do: company and person merges were beta but became generally available in 2026 and no longer need it.</p>
+<p>Affinity marks some V2 endpoints as beta. The SDK calls them without an opt-in; the <a href="../reference/api-coverage/">API coverage</a> page marks each one. <code>enable_beta_endpoints=True</code> is reserved for a beta endpoint that needs an opt-in; none does.</p>
 <h2 id="typed-ids">Typed IDs<a class="headerlink" href="#typed-ids" title="Permanent link">&para;</a></h2>
 <p>The SDK uses typed ID classes to reduce accidental mixups:</p>
 <ul>
@@ -2589,11 +2562,11 @@
 <ul>
 <li><strong>AffinityError</strong>: Base class for all SDK errors</li>
 <li><strong>AuthenticationError</strong>: Invalid or missing API key (401)</li>
-<li><strong>PermissionError</strong>: Insufficient permissions for the operation (403)</li>
+<li><strong>AuthorizationError</strong>: Insufficient permissions for the operation (403)</li>
 <li><strong>NotFoundError</strong>: Requested resource does not exist (404)</li>
 <li><strong>RateLimitError</strong>: API rate limit exceeded (429); includes <code>retry_after</code> attribute</li>
 <li><strong>ValidationError</strong>: Invalid input data or request parameters</li>
-<li><strong>BetaEndpointDisabledError</strong>: Beta endpoint used without <code>enable_beta_endpoints=True</code></li>
+<li><strong>BetaEndpointDisabledError</strong>: Reserved for a beta endpoint that needs <code>enable_beta_endpoints=True</code> (none does)</li>
 <li><strong>VersionCompatibilityError</strong>: API version mismatch between client and server</li>
 </ul>
 <p>See <a href="../guides/errors-and-retries/">Errors &amp; retries</a> for handling strategies.</p>

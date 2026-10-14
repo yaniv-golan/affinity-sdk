@@ -2114,26 +2114,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../../reference/services/transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -2141,19 +2130,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2253,7 +2234,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2309,7 +2290,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2346,14 +2327,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2735,7 +2708,7 @@
 <p><code>MergedEntityError</code> is a subclass of <code>ValidationError</code>, so existing <code>except ValidationError</code> handlers continue to work. The entity-specific subclasses (<code>CompanyMergedError</code>, <code>PersonMergedError</code>) are auto-detected from the request URL.</p>
 <p><strong>CLI</strong>: The CLI surfaces this as <code>error.type: "entity_merged"</code> with <code>sourceId</code>, <code>targetId</code>, and <code>entityType</code> in <code>error.details</code>. Exit code is 4 (same as not-found — the entity is effectively gone from its original ID).</p>
 <h2 id="v1v2-eventual-consistency">V1→V2 eventual consistency<a class="headerlink" href="#v1v2-eventual-consistency" title="Permanent link">&para;</a></h2>
-<p>Some writes still go through the V1 API (company create and update, person create and update, opportunity create, interactions, field values on companies and persons, and the documented exceptions listed in <a href="../api-versions-and-routing/">API versions &amp; SDK routing</a>), while reads use V2. Due to eventual consistency between the V1 and V2 backends, a <code>get()</code> call <strong>immediately after</strong> such a <code>create()</code> may return a 404 <code>NotFoundError</code> even though the entity was successfully created. Writes that use V2 (notes, reminders, webhooks) don't have this delay before a V2 read.</p>
+<p>Some writes still go through the V1 API (company create and update, person create and update, opportunity create, adding to a list, interactions, the <code>field_values</code> service, and the documented exceptions listed in <a href="../api-versions-and-routing/">API versions &amp; SDK routing</a>), while reads use V2. Due to eventual consistency between the V1 and V2 backends, a <code>get()</code> call <strong>immediately after</strong> such a <code>create()</code> may return a 404 <code>NotFoundError</code> even though the entity was successfully created. Writes that use V2 (notes, reminders, webhooks, field values on companies, persons and list entries) don't have this delay before a V2 read.</p>
 <p>This typically resolves within 100-500ms, but under load the delay can be longer.</p>
 <h3 id="solutions">Solutions<a class="headerlink" href="#solutions" title="Permanent link">&para;</a></h3>
 <p><strong>Option 1: Use the returned object (recommended)</strong></p>

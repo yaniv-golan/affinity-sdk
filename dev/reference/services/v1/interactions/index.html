@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#interactions-v1" class="md-skip">
+        <a href="#interactions" class="md-skip">
           Skip to content
         </a>
       
@@ -1879,30 +1879,17 @@
                 
   
   
-    
   
   
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../../transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -1910,19 +1897,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2245,7 +2224,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2301,7 +2280,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2338,14 +2317,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2588,7 +2559,10 @@
   
 
 
-<h1 id="interactions-v1">Interactions (V1)<a class="headerlink" href="#interactions-v1" title="Permanent link">&para;</a></h1>
+<h1 id="interactions">Interactions<a class="headerlink" href="#interactions" title="Permanent link">&para;</a></h1>
+<p><code>list</code>, <code>get</code> and the writes (<code>create</code>, <code>update</code>, <code>delete</code>) use V1. The per-type reads
+(<code>list_emails</code>, <code>list_meetings</code>, <code>get_meeting</code>, <code>list_calls</code>, <code>list_chat_messages</code> and their
+<code>iter_*</code> forms) use V2.</p>
 
 
 <div class="doc doc-object doc-class">
@@ -3228,7 +3202,7 @@
             <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)},</span>
             <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">iter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3618,7 +3592,7 @@
         <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="nb">type</span><span class="p">)},</span>
         <span class="n">v1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"success"</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

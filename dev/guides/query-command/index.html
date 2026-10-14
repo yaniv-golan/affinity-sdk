@@ -2370,26 +2370,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../../reference/services/transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -2397,19 +2386,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2509,7 +2490,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2565,7 +2546,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2602,14 +2583,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -3241,7 +3214,7 @@ xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class=
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Field names are resolved case-insensitively. Any field can also be named by id (<code>fields.field-260415</code>, <code>fields.affinity-data-year-founded</code>). An unknown field name gives a warning listing the list's fields.</p>
+<p>Field names are resolved case-insensitively. Any field can also be named by id (<code>fields.field-260415</code>, <code>fields.affinity-data-year-founded</code>). An unknown field name gives a warning listing the list's fields. If the list's field definitions can't be read, the query fails (rather than reading every <code>fields.*</code> value as null).</p>
 <p>When two list fields share a name (e.g. Affinity's and Dealroom's "Year Founded"), <code>fields.&lt;name&gt;</code> is refused with an error listing the ids: name the one you want by id. Such fields come back keyed by id.</p>
 <p><strong><code>companies</code> and <code>persons</code></strong> are filtered by Affinity's search, so a <code>where</code> must include at least one condition on their fields (<code>fields.&lt;name&gt;</code>). Affinity applies what it can and the rest (e.g. <code>name contains</code>) runs on what comes back:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -3626,7 +3599,9 @@ Example: {"from": "persons", "include": ["interactions"]}
 </tbody>
 </table>
 <p>In <strong>table output</strong>, included data appears as separate tables (e.g., "Included: companies").
-In <strong>JSON output</strong>, included data appears in a separate <code>included</code> section with deduplicated records.</p>
+In <strong>JSON output</strong>, included data appears in a separate <code>included</code> section with deduplicated records.
+When <code>--max-output-bytes</code> splits the result into pages (JSON or TOON), each page's included records are those of its own rows, also when <code>select</code> leaves out <code>id</code>.</p>
+<p>A record that is gone (deleted, or merged into another) has nothing related. Any other error while fetching related records fails the query.</p>
 <h2 id="expanding-computed-data">Expanding Computed Data<a class="headerlink" href="#expanding-computed-data" title="Permanent link">&para;</a></h2>
 <p>Use <code>expand</code> to add computed data directly to each record (unlike <code>include</code> which fetches separate entities).</p>
 <h3 id="interaction-dates">Interaction Dates<a class="headerlink" href="#interaction-dates" title="Permanent link">&para;</a></h3>
@@ -3691,7 +3666,7 @@ In <strong>JSON output</strong>, included data appears in a separate <code>inclu
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Records without unreplied messages have <code>"unreplied": null</code>. For chat messages, <code>subject</code> is <code>null</code>.</p>
+<p>Records without unreplied messages have <code>"unreplied": null</code>, as do records that are gone (deleted, or merged into another); any other error from the check fails the query. For chat messages, <code>subject</code> is <code>null</code>.</p>
 <h3 id="expand-vs-include">Expand vs Include<a class="headerlink" href="#expand-vs-include" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -3857,7 +3832,7 @@ xaffinity<span class="w"> </span>query<span class="w"> </span>--file<span class=
 </tr>
 <tr>
 <td><code>--max-records</code></td>
-<td>Safety limit on total records (default: 10000)</td>
+<td>Safety limit on total records (default: 10000). Matches past it are dropped with a warning and <code>meta.truncated</code>; with <code>orderBy</code> or an aggregate, the cut comes after sorting and aggregating. A <code>--cursor</code> resumes only with the same <code>--max-records</code></td>
 </tr>
 <tr>
 <td><code>--timeout</code></td>

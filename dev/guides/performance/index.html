@@ -2175,26 +2175,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../../reference/services/transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -2202,19 +2191,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2314,7 +2295,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2370,7 +2351,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2407,14 +2388,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2839,7 +2812,7 @@ xaffinity<span class="w"> </span>session<span class="w"> </span>end
 <span class="c1"># Force fresh fetch (bypass cache) when accuracy is critical</span>
 <span class="n">count</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">lists</span><span class="o">.</span><span class="n">get_size</span><span class="p">(</span><span class="n">list_id</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
-<p>This uses the V1 API which returns accurate counts. Results are cached for 5 minutes per list. Use <code>force=True</code> to bypass the cache when you need the most up-to-date value.</p>
+<p>This uses the V1 API which returns accurate counts. Results are cached for 5 minutes per list. Adding or removing an entry, creating or deleting an opportunity, and deleting a person or company through the same client drop the cached sizes. Use <code>force=True</code> to bypass the cache when you need the most up-to-date value (e.g. after changes made elsewhere, or a merge).</p>
 <h3 id="global-personscompanies-no-direct-method">Global persons/companies (no direct method)<a class="headerlink" href="#global-personscompanies-no-direct-method" title="Permanent link">&para;</a></h3>
 <p>The Affinity API does not provide a count endpoint for global persons or companies. A <code>count()</code> method was intentionally omitted from the SDK because it would require paginating through all records—potentially hundreds of API calls for large databases.</p>
 <p><strong>Why this matters:</strong></p>

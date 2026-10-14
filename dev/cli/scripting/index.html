@@ -2081,26 +2081,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../../reference/services/transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -2108,19 +2097,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2220,7 +2201,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2276,7 +2257,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2313,14 +2294,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2598,7 +2571,8 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 </tbody>
 </table>
 <h3 id="extracting-entity-data">Extracting entity data<a class="headerlink" href="#extracting-entity-data" title="Permanent link">&para;</a></h3>
-<p>Entity data is nested under <code>.data.&lt;entityType&gt;</code>:</p>
+<p>Entity data is nested under <code>.data.&lt;entityType&gt;</code> (some list commands, such as <code>person files ls</code>,
+<code>note ls</code> and <code>interaction ls</code>, put the rows directly in <code>.data[]</code>):</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Get a person's name</span>
 xaffinity<span class="w"> </span>person<span class="w"> </span>get<span class="w"> </span><span class="m">123</span><span class="w"> </span>--json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data.person.firstName'</span>
 

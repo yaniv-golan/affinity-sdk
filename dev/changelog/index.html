@@ -1887,26 +1887,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../reference/services/transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -1914,19 +1903,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2026,7 +2007,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2082,7 +2063,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2119,14 +2100,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2190,12 +2163,184 @@
 <p>All notable changes to this project will be documented in this file.</p>
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
-<h2 id="unreleased">[Unreleased]<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h2 id="204-2026-10-14">[2.0.4] - 2026-10-14<a class="headerlink" href="#204-2026-10-14" title="Permanent link">&para;</a></h2>
+<p><strong>Exception to semantic versioning</strong> (the maintainer's call, as 2.0.2 and 2.0.3): which API key
+the CLI uses changes when a key flag and a key environment variable are both set. The
+<code>### Changed</code> entry says how. Some fixes below also change what a call returns or raises,
+or a CLI exit code; each is marked <strong>Behavior change</strong>.</p>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>CLI: <code>--api-key-file</code> and <code>--api-key-stdin</code> win over the environment.</strong> A key named on the
+  command line is used even when <code>AFFINITY_API_KEY</code>, <code>AFFINITY_API_KEY_FILE</code> or
+  <code>AFFINITY_API_KEY_COMMAND</code> is set, and the CLI warns that those are ignored (the file is not
+  read and the command is not run). Before, an environment key silently replaced the flag's key,
+  so a stale <code>export</code> could send reads and writes to another workspace. To keep using the
+  environment key, drop the flag. The SDK and the MCP server (which passes no key flag) are
+  unchanged.</li>
+</ul>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>config check-key</code> reports <code>source: "flag"</code> (and a <code>pattern</code> repeating the flag) when
+  <code>--api-key-file</code> or <code>--api-key-stdin</code> is given, as commands now use that key first. It
+  doesn't read stdin; a missing or empty key file counts as not configured.</li>
+<li>The missing-API-key error no longer says <code>config setup-key</code> saves to the system keychain: it
+  writes a config file, or a <code>.env</code> file with <code>--scope project</code>.</li>
+<li>Docs: one API-key resolution order across the README, guides, CLI page, MCP README and CLI
+  skill (there is no <code>--api-key</code> CLI flag).</li>
+<li>Docs: the README coverage table, routing guide, glossary and errors guide describe 2.0's
+  routing (company and person field values, <code>notes.get</code>, transcripts, teams, semantic search
+  and connections are V2); <code>api-versions.md</code> lists every call that sends a minimum version;
+  beta endpoints need no opt-in.</li>
+<li>Docs: the CLI command page documents <code>files ls</code>/<code>read</code>/<code>download</code> on persons, companies and
+  opportunities (not the old <code>files dump</code>), <code>relationship-strength ls</code> (not <code>get</code>),
+  <code>opportunity field</code>, <code>list entry get</code>, <code>file-url</code> and <code>config update-check</code>; the CLI page says
+  which list commands return a bare <code>data</code> array.</li>
+<li>Docs: the official-MCP comparison lists this project's transcript, meeting, team, user,
+  duplicate and connection reads; <code>VERSIONING.md</code> describes 2.x and its patch-release
+  exceptions; the MCP README asks for Python 3.10+.</li>
+<li>Docs: the docs home page introduces the project and links configuration, migration, API
+  versions, the query command and webhooks; a Transcripts reference page; the reference nav no
+  longer files V2 services under "V1 endpoints"; the <code>Affinity</code>/<code>AsyncAffinity</code> docstrings and
+  the sync/async table list every service; the field-values guide starts with the V2
+  company/person/list-entry methods; the plugins page covers all three plugins.</li>
+<li>Docs and <code>file-url</code> help: examples use placeholder ids and names.</li>
+<li><strong>Behavior change. SDK: an empty id list returns an empty page.</strong> <code>list(ids=[])</code> on companies,
+  persons, opportunities, webhooks, teams, users and reminders used to omit the filter and return
+  the whole collection; it now returns no rows without calling the API. <code>limit=0</code> (or less) raises
+  <code>ValueError</code> where it used to be dropped silently (companies, persons, opportunities, a
+  company's lists and list entries, saved-view entries).</li>
+<li><strong>Behavior change. SDK: field writes.</strong> A <code>bool</code> value raises <code>TypeError</code> (Affinity has no
+  boolean field type; it was sent as malformed text). Datetimes are sent as whole-second UTC with
+  <code>Z</code>, like every other write; a naive datetime is taken as UTC.</li>
+<li><strong>Behavior change. SDK: delete results.</strong> A delete whose response has no <code>success</code> key (an empty
+  body) returns <code>True</code>; only an explicit <code>"success": false</code> returns <code>False</code>.</li>
+<li>SDK: <code>get_all_pages</code> raises <code>AffinityError</code> when it stops at <code>max_pages</code> with pages left,
+  instead of returning (and caching) a cut-off result.</li>
+<li>SDK: company and person merges raise <code>AffinityError</code> when the response has no <code>taskUrl</code>,
+  instead of returning an empty URL.</li>
+<li>SDK: the sync client rejects an <code>async</code> hook with <code>ConfigurationError</code> at construction; under
+  <code>hook_error_policy="swallow"</code> it was logged and never ran.</li>
+<li>SDK: followed pagination URLs must match the exact host and port of the V1 or V2 base URL.</li>
+<li>SDK: the response cache key includes the per-call API version sent.</li>
+<li>SDK: <code>tasks.wait</code> no longer sleeps past its <code>timeout</code>.</li>
+<li>SDK: <code>lists.resolve</code> no longer remembers a name it didn't find, so a list created later is found.</li>
+<li>SDK: <code>lists.get_size</code> is shared by every list service on a client and dropped when an entry is
+  added or removed, an opportunity is created or deleted, or a person or company is deleted.</li>
+<li>SDK: paging stops when a cursor repeats, when a page says more follow but gives no cursor, or
+  after 1,000 empty pages in a row (with a <code>RuntimeWarning</code>), instead of looping. This covers the
+  page iterators (<code>iter()</code>, <code>all()</code>) and the <code>pages()</code> generators of companies, persons,
+  opportunities, lists, saved views and list entries (filtered reads included), sync and async.</li>
+<li>SDK: association paging tolerates <code>"pagination": null</code>.</li>
+<li>SDK filters: <code>in</code>, <code>has_any</code> and <code>has_all</code> compare values the way <code>=</code> does, so <code>score in [5, 6]</code>
+  matches the number 5.</li>
+<li>SDK models: <code>FieldId(True)</code>, <code>FieldValueType(True)</code> and fractional floats for open enums raise
+  <code>ValueError</code>; a fractional float no longer replaces a known enum member for the rest of the
+  process. <code>FieldValues.get</code> accepts bare-digit ids (<code>123</code>, <code>"123"</code>). Person and opportunity
+  company ids also read <code>companyIds</code> and <code>current_organization_ids</code>; <code>Location</code> reads
+  <code>streetAddress</code>; V2 list entries pick the entity model from <code>type</code>.</li>
+<li><strong>CLI <code>query</code>: resuming a cut-off result no longer skips rows.</strong> The resume cursor jumped to
+  the next API page, losing the rest of the current page and every fetched row that didn't fit in
+  <code>--max-output-bytes</code>. A cut-off result, with its included records, is now cached and the
+  cursor resumes from it without API calls; each page's <code>included</code> holds only the records related
+  to that page's rows, also when <code>select</code> leaves out <code>id</code> (TOON pages hold as many rows as fit,
+  with matching counts; related records that can't be matched to rows are cut to the budget and
+  counted in <code>includedOmitted</code>). A cursor needs the same <code>--max-records</code> as the first run; a cursor from an
+  earlier version is refused as not matching the query (cursors expire after an hour).</li>
+<li><strong>Behavior change. CLI <code>query</code>: errors are no longer read as "no data".</strong> A rate-limit, server or
+  auth error while fetching related records (for <code>include</code>, relationship filters, or an id
+  lookup, or <code>include: interactions</code>), an expansion (<code>interactionDates</code>, <code>unreplied</code>, person
+  names) or a list's field definitions (when the query uses a list field) fails the query. Before,
+  the record silently had no related records, an id-only stub or an empty expansion, so <code>none</code>,
+  <code>all</code> and <code>_count eq 0</code> filters could match wrongly. Only a deleted or merged record counts as
+  empty.</li>
+<li><strong>Behavior change. CLI <code>query</code>: <code>--max-records</code>.</strong> When results are cut at it, a warning says
+  so and <code>meta.truncated</code> is set, on every path (before, the cut was silent); with <code>orderBy</code> or
+  an aggregate the cut comes after sorting and aggregating (also when the query has no <code>where</code>), so counts, sums, groups and top-N use
+  every match. Before, they were computed on the first 10,000.</li>
+<li><strong>Behavior change. CLI <code>query</code>: Ctrl+C exits 130</strong> (exit 0 before). Rows that already went
+  through the query's filter, sort and aggregate are printed; when one of those hadn't run yet, no
+  rows are printed (before, unfiltered rows were) and the error type is <code>interrupted</code>. On Python
+  3.10, Ctrl+C prints no rows (it still exits 130); Python 3.11+ prints them.</li>
+<li><strong>Behavior change. CLI <code>query</code>:</strong> a <code>listName</code> that matches more than one list, or none, is a
+  validation error (exit 2) asking for the list id; before, the last list with that name was
+  used. An include's <code>list:</code> name that matches several lists fails (exit 2,
+  <code>ambiguous_resolution</code>) and one that matches none is not found (exit 4); before, the scope was
+  dropped. <code>min</code>/<code>max</code> over objects,
+  lists, or a mix of numbers and text is a validation error instead of a crash or a silent pick.</li>
+<li>CLI <code>query</code>: with <code>orderBy</code> or <code>limit</code>, <code>include</code> (and an <code>expand</code> the sort doesn't read) runs
+  on the rows kept after sorting, limiting and <code>--max-records</code>, not on every match, so a top-N
+  query makes one call per kept row.</li>
+<li>CLI <code>query</code>: an Affinity error exits with the CLI's documented code (3 auth, 4 not found, 5
+  rate limit or server error) and its usual error envelope, instead of exit 1 with "Query
+  execution failed".</li>
+<li>CLI <code>query</code>: CSV output with <code>--max-output-bytes</code> cuts on whole records (a note with a line
+  break could be split), has every row's columns, honors <code>--csv-bom</code> and can be resumed; JSONL
+  resume no longer skips rows whose data contains <code>"truncated"</code>. A row larger than
+  <code>--max-output-bytes</code> is printed whole (JSON too, which exited 1 partway through paging) instead
+  of giving an empty page whose cursor repeats.</li>
+<li>CLI <code>query</code>: <code>include</code> options are applied: <code>list</code>, <code>where</code>, <code>limit</code> and <code>days</code> on a
+  <code>listEntries</code> include, and <code>limit</code> and <code>days</code> on an <code>interactions</code> include. Before, they were
+  ignored, so related opportunities came from every list and interactions used the default 90-day
+  window and 100-record limit.</li>
+<li>CLI <code>query</code>: a relationship filter on <code>interactions</code> (<code>interactions._count</code>,
+  <code>exists</code>/<code>all</code>/<code>none</code>) no longer hangs when the query has at least as many records as the
+  concurrency limit (10).</li>
+<li>CLI <code>query</code>: when fetching related records for a <code>listEntries</code> include fails, the other fetches
+  are stopped instead of continuing to call the API and printing "Task exception was never
+  retrieved".</li>
+<li>CLI <code>query --output toon</code>: a cut-off page, its <code>cursor:</code> line included, stays within
+  <code>--max-output-bytes</code> (if the cursor alone, about 500 bytes, doesn't fit, one row is shown).</li>
+<li><strong>Behavior change. CLI <code>query --output csv</code>:</strong> without <code>--max-output-bytes</code>, execution warnings
+  (the <code>--max-records</code> cut, multi-value fields cut off) go to stderr as with the other formats,
+  and the CSV has the same shape as with a budget: columns in <code>select</code> order (first-seen order
+  without <code>select</code>; they were sorted alphabetically), selected <code>fields.*</code> and expanded
+  <code>interactionDates</code> flattened into columns, and every record ending with CRLF.</li>
+<li>CLI <code>query</code>: <code>groupBy</code> on object values (such as a location) works; formula fields filter and
+  sort as numbers.</li>
+<li><strong>Behavior change. CLI: a delete Affinity reports as failed exits 1</strong> (<code>api_error</code>) instead of
+  printing <code>"success": false</code> with exit 0.</li>
+<li><strong>Behavior change. CLI <code>field history-bulk</code>:</strong> when every entry fails it exits with the usual
+  code for that error (3 auth, 4 not found, 5 rate limit or server; 1 for mixed errors), and 3 on
+  any auth error (all exited 0). Partial failures still exit 0 with warnings and now set
+  <code>meta.truncated</code> with <code>truncationReason: "partialFailure"</code>.</li>
+<li><strong>Behavior change. CLI <code>list export</code> expansions:</strong> a failed interaction, opportunity or
+  unreplied-message lookup fails the export under the default <code>--expand-on-error raise</code> (it was
+  left empty silently), and warns under <code>skip</code>, keeping the entry's other expansions. An auth
+  error during any expansion fails the export; a deleted opportunity is left out. With <code>--csv</code>
+  these warnings, and the export's other warnings (such as "Filtering locally"), are printed to
+  stderr; they were dropped.</li>
+<li><strong>Behavior change. CLI <code>--page-size</code> below 1</strong> is a usage error (exit 2) on <code>company</code>,
+  <code>person</code>, <code>opportunity</code>, <code>list</code>, <code>note</code>, <code>interaction</code> and <code>reminder ls</code>, <code>list export</code> and
+  <code>files download</code>. With the SDK's new <code>limit</code> check it was an <code>internal_error</code> (exit 1) on most
+  of them, and <code>note ls</code> and <code>interaction ls</code> accepted it. <code>--help --json</code> (and the MCP command
+  registry) reports such range-checked options, including <code>search --max-results</code> and
+  <code>files ls --max-results</code>, as <code>int</code>; they were <code>string</code>.</li>
+<li><strong>Behavior change. CLI field writes:</strong> <code>true</code>/<code>false</code> anywhere in a <code>--set-json</code> value (including
+  list items and object values) is refused before any write (exit 2, <code>validation_error</code>);
+  Affinity has no boolean field type. A text field no longer stores <code>true</code> as <code>"true"</code>.</li>
+<li>CLI <code>list entry field --unset-value</code> exits 1 when Affinity reports the delete failed, instead of
+  reporting the value as deleted. When an <code>--unset-value</code> or <code>--append</code> step fails after something
+  was already changed, the error is <code>partial_write</code> naming every field written and value removed;
+  a step that timed out or lost the connection is named as "may or may not have been applied"
+  (<code>details.uncertain</code>), and alone it is a <code>network_error</code> that says re-running is safe; <code>field delete</code> clears its caches only after a confirmed delete.</li>
+<li>CLI: answering "n" to a confirmation under <code>--json</code> prints an error envelope (type <code>aborted</code>),
+  still exit 1, instead of an empty stdout.</li>
+<li>CLI <code>list ls --type</code>: warns when the first page has no list of that type but more pages exist.</li>
+</ul>
+<h3 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>CLI plugin</strong>: 2.0.2 → 2.0.3 — skill: the API-key resolution order (key flags first) and
+  where <code>config setup-key</code> stores the key. Installs pin the CLI version the plugin was written
+  for (<code>XAFFINITY_CLI_SPEC</code> overrides it); the Read hook also guards the CLI's <code>config.toml</code>;
+  the skill names the <code>partialFailure</code> truncation reason; the file download example uses <code>--out</code>
+  (there is no <code>--output-dir</code>).</li>
+<li><strong>SDK plugin</strong>: 2.0.3 → 2.0.4 — skill: the duplicate-company example uses a placeholder name.</li>
+</ul>
 <h2 id="203-2026-10-13">[2.0.3] - 2026-10-13<a class="headerlink" href="#203-2026-10-13" title="Permanent link">&para;</a></h2>
 <p><strong>Exception to semantic versioning</strong> (the maintainer's call, as 2.0.2): some results change
 (<code>list(filter=...)</code> pages, the local sort's order, date comparisons in filters). The
 <code>### Changed</code> entries say how.</p>
-<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>SDK list-entry filters go through Affinity's search:</strong>
   <code>lists.entries(id).list/pages/all/iter/get_first(filter=...)</code> send the part of the filter
@@ -2238,7 +2383,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   <code>team members &lt;id&gt;</code> and <code>team lists &lt;id&gt;</code> (<code>team get</code> shows only the first 10).</p>
 </li>
 </ul>
-<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Dates compare as dates in <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code> and between</strong>, everywhere filters run
   (<code>query</code>, <code>--filter</code>, <code>--expand-filter</code>, <code>company ls</code> / <code>person ls --filter</code>, and the SDK's
@@ -2351,7 +2496,7 @@ uses the same comparison rules as the CLI.</p>
   for confirmation: the text leaves your organization). The MCP registry has them; <code>feedback
   send</code> goes through the user-confirmation flow.</li>
 </ul>
-<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong><code>query --dry-run</code></strong> no longer claims a "server-side filter" for list entries that was never
   applied.</li>
@@ -2380,7 +2525,7 @@ said which Affinity API they used instead of what they do.</p>
 <li>CLI <code>files read</code> and <code>file-url</code> get the file's details and URL in one request where V2 can
   answer (V1's path otherwise).</li>
 </ul>
-<h3 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_1">Plugins<a class="headerlink" href="#plugins_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>SDK plugin</strong>: 2.0.0 → 2.0.1 — skill: the renamed note methods.</li>
 </ul>
@@ -2474,7 +2619,7 @@ guide.</p>
   go through the same user confirmation as deletes, and the confirmation says why (events sent
   to an outside URL).</li>
 </ul>
-<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>Person.company_ids</code> and <code>Opportunity.company_ids</code> are now read from V1 responses
   (<code>organization_ids</code>), e.g. from <code>persons.create()</code> with companies, <code>persons.update()</code>,
@@ -2494,7 +2639,7 @@ guide.</p>
   sync and async, against a recording HTTP layer and checks the method, path and API version it
   requests.</li>
 </ul>
-<h3 id="plugins_1">Plugins<a class="headerlink" href="#plugins_1" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_2">Plugins<a class="headerlink" href="#plugins_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>SDK plugin</strong>: 1.7.1 → 2.0.0 (matches SDK 2.0) — skill: note writes go through V2 (HTML, the
   allowed tags), and <code>add_opportunity()</code> is gone (create the opportunity on its list).</li>
@@ -2524,7 +2669,7 @@ field shown on a list) belong to the company or person, not to the list entry, s
 per entry returned nothing, with no warning. They are now read per company/person, or
 field-wide when the field's history is small, and each row carries the company's entry on the
 list.</p>
-<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>field history-bulk</code> on a global field returned no rows. It now reads per company or person
   (one call each; entries sharing one are read once, with a warning) and fills <code>listEntryId</code>
@@ -2540,13 +2685,13 @@ list.</p>
   <code>--env-file</code> with a Cowork connected folder, where each shell call starts above it), the
   suggested <code>pattern</code> names it with <code>--env-file &lt;path&gt;</code>, so later commands find it too.</li>
 </ul>
-<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
+<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>field history-bulk</code> reads field-wide 10,000 changes per call (was 500): fewer calls for list
   fields too. The dry run reports <code>fieldKind</code> (<code>list</code> / <code>global</code>) and, for a global field,
   <code>entities</code>.</li>
 </ul>
-<h3 id="plugins_2">Plugins<a class="headerlink" href="#plugins_2" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_3">Plugins<a class="headerlink" href="#plugins_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>CLI plugin</strong>: 1.13.2 → 1.13.3 — skill: <code>history-bulk</code> on global fields; Cowork keys in a
   connected folder need <code>--env-file /sessions/&lt;id&gt;/mnt/&lt;folder&gt;/.env</code> (each shell call starts
@@ -2568,13 +2713,13 @@ touches the disk.</p>
   Tested with a real 1Password Environments locally mounted <code>.env</code> file: approval and unlock prompts, repeated and
   concurrent reads.</li>
 </ul>
-<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
+<h3 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>field history-bulk --strategy field</code> never falls back to one call per entry: if the
   field-wide read (or reading the list's fields) fails, the command fails with a hint to retry
   or use <code>--strategy entries</code>. <code>--strategy auto</code> still falls back, with a warning.</li>
 </ul>
-<h3 id="plugins_3">Plugins<a class="headerlink" href="#plugins_3" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_4">Plugins<a class="headerlink" href="#plugins_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>CLI plugin</strong>: 1.12.0 → 1.13.0 — skill: field history without a selector, <code>field changes</code>,
   <code>history-bulk --strategy</code>; <code>interaction feed</code>, <code>note feed</code>, <code>note replies</code>; transcripts;
@@ -2599,7 +2744,7 @@ that belongs to the list, on lists of 100 or more entries, the history is now re
   <code>strategy</code> and, for <code>field</code>, <code>estimatedApiCallsNote</code>; <code>estimatedApiCalls</code> stays the per-entry
   worst case.</li>
 </ul>
-<h3 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h3>
+<h3 id="changed_4">Changed<a class="headerlink" href="#changed_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>field history-bulk</code> rows are sorted by <code>changedAt</code> (they came in no particular order). Changes
   on entries no longer on the list are counted in a warning when read field-wide. If the
@@ -2675,7 +2820,7 @@ AI Notetaker transcripts with their dialogue (<code>transcript ls</code>, <code>
 <li>HTTP client: <code>get()</code>, <code>get_all_pages()</code>, <code>get_url()</code>, <code>post()</code> and <code>delete()</code> accept
   <code>min_api_version</code>; <code>get_all_pages()</code> sends it on every page it follows.</li>
 </ul>
-<h3 id="changed_4">Changed<a class="headerlink" href="#changed_4" title="Permanent link">&para;</a></h3>
+<h3 id="changed_5">Changed<a class="headerlink" href="#changed_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>The CLI's dropdown lookups for field writes go through the new SDK methods (same requests,
   still without a version header, so clients pinned to 2024-01-01 keep working).</li>
@@ -2703,7 +2848,7 @@ the basis for delta sync and audits.</p>
   <code>--changer-id</code>, <code>--changed-after</code>, <code>--changed-before</code>, <code>--action-type</code>, <code>--order</code>, paging.</li>
 <li>CLI <code>field history</code>: <code>--changed-after</code> and <code>--order</code>; <code>--max-results</code> is also sent to the API.</li>
 </ul>
-<h3 id="changed_5">Changed<a class="headerlink" href="#changed_5" title="Permanent link">&para;</a></h3>
+<h3 id="changed_6">Changed<a class="headerlink" href="#changed_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>field history</code> / <code>field_value_changes.list()</code> accept no entity selector (previously exactly
   one was required). The CLI then requires <code>--changed-after</code> or <code>--max-results</code>.</li>
@@ -2723,7 +2868,7 @@ exception to the MAJOR-bump rule (VERSIONING.md): an irreversible command must n
 unconfirmed. If you use the MCP server, upgrade it to 1.25.1: MCP 1.25.0 cannot pass <code>--yes</code>
 to merges, so merges fail (safely) with CLI 1.22.0. This includes the Claude Desktop extension:
 update it to 1.25.1 or later together with the CLI.</p>
-<h3 id="changed_6">Changed<a class="headerlink" href="#changed_6" title="Permanent link">&para;</a></h3>
+<h3 id="changed_7">Changed<a class="headerlink" href="#changed_7" title="Permanent link">&para;</a></h3>
 <ul>
 <li>All delete commands and both merges share one confirmation path. The prompt is written to
   stderr (stdout stays clean for <code>--json</code>). A typed or piped <code>y</code> still confirms and <code>n</code> still
@@ -2762,7 +2907,7 @@ Affinity API version 2026-07-15 or newer: unpinned, the CLI sends it for the wri
   most 100 updates; sends API version 2026-07-15), sync and async. <code>Affinity.require_api_version(
   minimum, operation=...)</code>.</li>
 </ul>
-<h3 id="changed_7">Changed<a class="headerlink" href="#changed_7" title="Permanent link">&para;</a></h3>
+<h3 id="changed_8">Changed<a class="headerlink" href="#changed_8" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Breaking (CLI output):</strong> <code>company field</code> / <code>person field</code> write every field of a command in
   one V2 request (all or nothing) instead of one V1 request per value; output <code>created</code>
@@ -2789,14 +2934,14 @@ Affinity API version 2026-07-15 or newer: unpinned, the CLI sends it for the wri
 <li><strong>Breaking (SDK):</strong> <code>EnrichedFieldNotWritableError</code> — "Current Organization" and the other
   enriched fields are writable through V2, so nothing raises it any more.</li>
 </ul>
-<h3 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_5">Fixed<a class="headerlink" href="#fixed_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>list entry field</code> / <code>opportunity field</code> (and now company/person): setting a date with a time
   of day just after midnight UTC (e.g. <code>2024-04-02T03:00:00Z</code> when April 1 is stored) was skipped
   as "unchanged". Affinity keeps the <strong>UTC</strong> date of the value written (verified live), not the
   Pacific date of that instant.</li>
 </ul>
-<h3 id="plugins_4">Plugins<a class="headerlink" href="#plugins_4" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_5">Plugins<a class="headerlink" href="#plugins_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>SDK plugin</strong>: 1.6.1 → 1.7.0 — skill: <code>companies/persons.batch_update_fields()</code> and
   <code>get_field_values()</code> (one all-or-nothing write, API version 2026-07-15), <code>lists.pages(term=)</code>;
@@ -2874,7 +3019,7 @@ restricted opportunities (2026-07-15+) are flagged instead of looking empty.</p>
   <code>filterability</code> / <code>sortability</code>.</li>
 <li><code>ListSummary.creator_id</code>, <code>ListEntryWithEntity.creator_id</code>.</li>
 </ul>
-<h3 id="changed_8">Changed<a class="headerlink" href="#changed_8" title="Permanent link">&para;</a></h3>
+<h3 id="changed_9">Changed<a class="headerlink" href="#changed_9" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong><code>list entry field</code> / <code>opportunity field</code> output:</strong> <code>created</code> lists <code>{fieldId, name, value}</code>
   per field set (the batch request returns no rows); <code>cleared</code> lists the fields <code>--unset</code>
@@ -2903,7 +3048,7 @@ restricted opportunities (2026-07-15+) are flagged instead of looking empty.</p>
 <li><code>expected_v2_version</code>: it never selected a version. Use <code>affinity_api_version</code> and
   <code>affinity_api_versions_seen</code>.</li>
 </ul>
-<h3 id="fixed_5">Fixed<a class="headerlink" href="#fixed_5" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_6">Fixed<a class="headerlink" href="#fixed_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>EntityFile.company_id</code> was always <code>None</code> for files read through V1 (<code>files.list()</code>,
   <code>files.get()</code>).</li>
@@ -2919,7 +3064,7 @@ restricted opportunities (2026-07-15+) are flagged instead of looking empty.</p>
 <p><strong>Dropdown and status fields can be set from <code>company field</code>, <code>person field</code> and
 <code>opportunity field</code>.</strong> Every <code>--set</code> of a dropdown on these commands failed with "Dropdown
 option '…' not found", including <code>opportunity field --set Status &lt;stage&gt;</code>.</p>
-<h3 id="fixed_6">Fixed<a class="headerlink" href="#fixed_6" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_7">Fixed<a class="headerlink" href="#fixed_7" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI <code>company field</code>, <code>person field</code> and <code>opportunity field --set</code> on a dropdown, ranked
   dropdown or status field always exited 2 with "Dropdown option … not found": the field
@@ -2966,7 +3111,7 @@ instead of silently replacing the value; use <code>--set</code>.</p>
   webhook subscription type the V2 API now lists. Before, the event still parsed, but only as
   an unnamed <code>UNKNOWN_…</code> member.</li>
 </ul>
-<h3 id="changed_9">Changed<a class="headerlink" href="#changed_9" title="Permanent link">&para;</a></h3>
+<h3 id="changed_10">Changed<a class="headerlink" href="#changed_10" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Breaking (CLI):</strong> <code>list entry field --append</code> on a field that holds a single value exits 2
   ("use --set") before anything is written. It used to replace the value silently.</li>
@@ -2982,7 +3127,7 @@ instead of silently replacing the value; use <code>--set</code>.</p>
   Affinity rejects (dropdown-multi has no such limit). <code>batch_update_fields()</code> raises <code>ValueError</code> for more than 100 updates (the
   API's limit per request) and for list values, which it used to send as an invalid <code>text</code> value.</li>
 </ul>
-<h3 id="fixed_7">Fixed<a class="headerlink" href="#fixed_7" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_8">Fixed<a class="headerlink" href="#fixed_8" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Data loss in CLI field writes.</strong> <code>list entry field --set</code> / <code>--set-json</code> deleted every
   existing value of the field and then wrote the new one, so a write Affinity rejected (an
@@ -3044,7 +3189,7 @@ this year.</p>
   never reported as "not filterable". All are optional with safe defaults (V1 payloads lack
   them). CLI JSON output gains these keys where the models are serialized (additive).</li>
 </ul>
-<h3 id="changed_10">Changed<a class="headerlink" href="#changed_10" title="Permanent link">&para;</a></h3>
+<h3 id="changed_11">Changed<a class="headerlink" href="#changed_11" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Behavior change:</strong> <code>client.companies.merge()</code> / <code>client.persons.merge()</code> (sync and async)
   and the <code>company merge</code> / <code>person merge</code> CLI commands no longer require
@@ -3053,7 +3198,7 @@ this year.</p>
   run them. <code>enable_beta_endpoints</code>, <code>--beta</code> and <code>BetaEndpointDisabledError</code> remain for future
   beta endpoints; none currently requires them.</li>
 </ul>
-<h3 id="fixed_8">Fixed<a class="headerlink" href="#fixed_8" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_9">Fixed<a class="headerlink" href="#fixed_9" title="Permanent link">&para;</a></h3>
 <ul>
 <li>MCP <code>company merge</code> / <code>person merge</code> always failed with <code>BetaEndpointDisabledError</code>, because
   the MCP gateway never passes <code>--beta</code> and the flag cannot be set by config or environment.
@@ -3129,7 +3274,7 @@ appear until Anthropic enables the gate for an account. <strong>No plugin update
 be required when it flips.</strong> Until then, end-user behavior is unchanged: provide
 the key via <code>AFFINITY_API_KEY</code>, project <code>.env</code> + <code>--dotenv</code>, or
 <code>AFFINITY_API_KEY_FILE</code> / <code>_COMMAND</code> (see 1.14.0).</p>
-<h3 id="changed_11">Changed<a class="headerlink" href="#changed_11" title="Permanent link">&para;</a></h3>
+<h3 id="changed_12">Changed<a class="headerlink" href="#changed_12" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI plugin restructured to the standard Claude Code layout: <code>skills/</code> and
   <code>hooks/</code> moved out of <code>.claude-plugin/</code> to the plugin root, with
@@ -3149,7 +3294,7 @@ the key via <code>AFFINITY_API_KEY</code>, project <code>.env</code> + <code>--d
   were reading <code>fields: {"requested": false}</code> and a missing <code>listEntries</code> key as
   "no lists / empty fields".</li>
 </ul>
-<h3 id="fixed_9">Fixed<a class="headerlink" href="#fixed_9" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_10">Fixed<a class="headerlink" href="#fixed_10" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>company get</code> / <code>person get</code> help claimed <code>--json</code> returns "Full data"; it
   returns no field values or list entries unless requested. Help now says so and
@@ -3171,7 +3316,7 @@ the key via <code>AFFINITY_API_KEY</code>, project <code>.env</code> + <code>--d
   keyword-only <code>field_ids</code> and <code>field_types</code>, matching <code>list()</code> /
   <code>from_saved_view()</code>. Default behavior is unchanged.</li>
 </ul>
-<h3 id="plugins_5">Plugins<a class="headerlink" href="#plugins_5" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_6">Plugins<a class="headerlink" href="#plugins_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>CLI plugin</strong> (<code>affinity-crm-cli-xaffinity-unofficial</code>): 1.9.0 → 1.10.0 —
   added <code>clis.xaffinity</code> credential-broker manifest block (<code>env.api_key</code> →
@@ -3208,7 +3353,7 @@ DELETE and POST, so agent retries no longer pollute the audit log. Plus a
 duplicate-note stderr warning on <code>note create</code> when an identical note from
 the same author arrived within the last 5 minutes — informational only, the
 create still proceeds.</p>
-<h3 id="changed_12">Changed<a class="headerlink" href="#changed_12" title="Permanent link">&para;</a></h3>
+<h3 id="changed_13">Changed<a class="headerlink" href="#changed_13" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>BREAKING (strict-by-default)</strong>: <code>field --set</code> now performs upfront client-side
   validation across all four entity-field commands. Failures that the SDK can
@@ -3246,7 +3391,7 @@ create still proceeds.</p>
   <code>pre_validate_set_operations</code>, <code>value_equals_existing</code>,
   <code>execute_v1_set_phase</code>, <code>execute_v2_set_phase</code>, <code>execute_append_phase</code>.</li>
 </ul>
-<h3 id="fixed_10">Fixed<a class="headerlink" href="#fixed_10" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_11">Fixed<a class="headerlink" href="#fixed_11" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Opportunity field enriched-field writes (e.g. <code>--set "Source of Introduction" "..."</code>)
   now resolve to V1 numeric ids correctly. Previous code passed the enriched
@@ -3296,7 +3441,7 @@ v2.1.120 plugin/marketplace conventions).</p>
   <code>homepage</code>, <code>repository</code>, <code>license</code>, and <code>tags</code> fields (no new install commands;
   metadata only).</li>
 </ul>
-<h3 id="changed_13">Changed<a class="headerlink" href="#changed_13" title="Permanent link">&para;</a></h3>
+<h3 id="changed_14">Changed<a class="headerlink" href="#changed_14" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI "missing API key" error message now enumerates all resolution paths
   (env vars, file/stdin flags, profile config) rather than naming a subset.</li>
@@ -3324,7 +3469,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>Dead <code>mcp/.claude-plugin/.mcp.json</code> (inline <code>mcpServers</code> in <code>plugin.json</code>
   is the source of truth).</li>
 </ul>
-<h3 id="plugins_6">Plugins<a class="headerlink" href="#plugins_6" title="Permanent link">&para;</a></h3>
+<h3 id="plugins_7">Plugins<a class="headerlink" href="#plugins_7" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>SDK plugin</strong> (<code>affinity-crm-sdk-unofficial</code>): 1.6.0 → 1.6.1 — <code>plugin.json#name</code> alignment + skill frontmatter split.</li>
 <li><strong>CLI plugin</strong> (<code>affinity-crm-cli-xaffinity-unofficial</code>): 1.8.0 → 1.8.2 — <code>plugin.json#name</code> alignment + skill frontmatter split + new <code>AFFINITY_API_KEY_FILE</code> / <code>_COMMAND</code> documentation in the resolution-chain skill content.</li>
@@ -3333,7 +3478,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <h2 id="1131-2026-04-23">[1.13.1] - 2026-04-23<a class="headerlink" href="#1131-2026-04-23" title="Permanent link">&para;</a></h2>
 <h3 id="highlights_18">Highlights<a class="headerlink" href="#highlights_18" title="Permanent link">&para;</a></h3>
 <p>Documentation corrections only — no behaviour changes. Fixes two places that cited <code>"list-specific"</code> as a valid <code>fieldTypes</code> value (it isn't; the correct V2 enum values are <code>"enriched"</code>, <code>"list"</code>, <code>"global"</code>, and <code>"relationship-intelligence"</code>).</p>
-<h3 id="fixed_11">Fixed<a class="headerlink" href="#fixed_11" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_12">Fixed<a class="headerlink" href="#fixed_12" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>docs/public/cli-reference.md</code>: <code>fieldTypes</code> example corrected from <code>"list-specific"</code> to the complete valid set (<code>"global"</code>, <code>"list"</code>, <code>"enriched"</code>, <code>"relationship-intelligence"</code>).</li>
 <li><code>affinity/models/entities.py</code>: <code>FieldMetadata.type</code> inline comment corrected from <code>"list-specific"</code> to <code>"list"</code> to match the actual V2 API enum value.</li>
@@ -3355,7 +3500,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI: <code>list export --filter</code> now errors (exit code 2, <code>usage_error</code>) without one of <code>--all</code>, <code>--max-results</code>, or <code>--first-page-only</code>. Previous versions silently returned first-page-only results.</li>
 <li><strong>Migration:</strong> Add the intended scope flag. For "filter all list entries" → <code>--all</code>; for "filter the first N" → <code>--max-results N</code>; for "filter what fits on page 1" → <code>--first-page-only</code>. On very large lists prefer <code>--saved-view</code> (server-side) or the new <code>--company-id</code>/<code>--person-id</code> (entity-scoped).</li>
 </ul>
-<h3 id="fixed_12">Fixed<a class="headerlink" href="#fixed_12" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_13">Fixed<a class="headerlink" href="#fixed_13" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Agents redirecting stderr to <code>/dev/null</code> no longer silently lose the truncation signal — it's in the JSON envelope at <code>meta.truncated</code>.</li>
 <li><code>list export --filter 'entityName =~ "..."'</code> (and other row-level keys: <code>entityId</code>, <code>entityType</code>, <code>listEntryId</code>) no longer silently returns zero rows. These keys were previously absent from the filter dict.</li>
@@ -3383,7 +3528,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li><code>companies.create()</code> / <code>persons.create()</code> signature adds keyword-only <code>if_not_exists: bool = True</code>. Existing callers that expected duplicate-creation must pass <code>if_not_exists=False</code> explicitly.</li>
 <li>CLI <code>company create</code> / <code>person create</code> exit with code 6 (<code>duplicate_exists</code>) instead of creating duplicates, unless <code>--allow-duplicate</code> is passed.</li>
 </ul>
-<h3 id="fixed_13">Fixed<a class="headerlink" href="#fixed_13" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_14">Fixed<a class="headerlink" href="#fixed_14" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI <code>company ls</code> / <code>person ls</code> no longer forward the <code>--filter</code> argument to the SDK when it is <code>None</code>, avoiding false positives from the SDK-level rejection.</li>
 <li><code>query</code> CLI errors in <code>--json</code> mode now emit a structured error envelope on stdout (parseable by MCP and scripts) with <code>error.type</code>, <code>error.message</code>, <code>error.hint</code>, <code>error.details</code>.</li>
@@ -3397,7 +3542,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li><code>FieldService.list(skip_cache=True)</code> / <code>AsyncFieldService.list(skip_cache=True)</code> — bypass the field-metadata cache for fresh post-write reads</li>
 <li><code>FieldResolver.to_v1_numeric(client, field_id, entity_type)</code> on the CLI resolver — resolves field IDs to the numeric form the write path needs, handling enriched IDs transparently</li>
 </ul>
-<h3 id="fixed_14">Fixed<a class="headerlink" href="#fixed_14" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_15">Fixed<a class="headerlink" href="#fixed_15" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>person field --set</code> / <code>person field --unset</code> / <code>company field --set</code> / <code>company field --unset</code> now correctly handle enriched field IDs in addition to field names and numeric IDs</li>
 <li>Ambiguous enriched field names (e.g. company "Industry") are now disambiguated by enrichment provider instead of silently picking one of the matching fields</li>
@@ -3410,7 +3555,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li><code>FieldResolver.find_field(name)</code> method — resolves field names to <code>FieldMetadata</code> for write operations</li>
 <li><code>AmbiguousFieldError</code> exception — raised when <code>find_field()</code> encounters ambiguous field names; includes candidate IDs and disambiguation hints</li>
 </ul>
-<h3 id="changed_14">Changed<a class="headerlink" href="#changed_14" title="Permanent link">&para;</a></h3>
+<h3 id="changed_15">Changed<a class="headerlink" href="#changed_15" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Plugin skills:</strong> Clarified triggering boundaries across MCP, CLI, and SDK plugins — MCP workflows skill is now explicitly primary when MCP tools are available, CLI skill defers to MCP for general CRM tasks</li>
 <li><strong>Plugin skills:</strong> Pipeline-history skill rewritten with MCP tool examples (was raw bash), query-language skill no longer depends on workflows-guide resource</li>
@@ -3435,7 +3580,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <h2 id="181-2026-03-16">[1.8.1] - 2026-03-16<a class="headerlink" href="#181-2026-03-16" title="Permanent link">&para;</a></h2>
 <h3 id="highlights_25">Highlights<a class="headerlink" href="#highlights_25" title="Permanent link">&para;</a></h3>
 <p><code>InteractionDirection</code>, <code>InteractionLoggingType</code>, and <code>ListRole</code> are now available from <code>affinity.types</code> — previously they could only be imported from the internal <code>affinity.models.types</code> path. The <code>Interaction</code> model now also captures the <code>logging_type</code> field from the API instead of silently dropping it.</p>
-<h3 id="fixed_15">Fixed<a class="headerlink" href="#fixed_15" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_16">Fixed<a class="headerlink" href="#fixed_16" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Re-export <code>InteractionDirection</code>, <code>InteractionLoggingType</code>, and <code>ListRole</code> from <code>affinity.types</code> — these were the only public enums missing from the stable import path</li>
 <li>Add <code>logging_type</code> field to <code>Interaction</code> model — the API returns this field but it was silently discarded</li>
@@ -3449,12 +3594,12 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>Skill: documented file commands (<code>company files</code>, <code>person files</code>, <code>opportunity files</code>) with <code>ls</code>, <code>download</code>, <code>read</code>, <code>upload</code> subcommands — prevents unnecessary fallback to raw v1 API calls</li>
 <li>Skill: added file commands to Quick Reference table</li>
 </ul>
-<h3 id="changed_15">Changed<a class="headerlink" href="#changed_15" title="Permanent link">&para;</a></h3>
+<h3 id="changed_16">Changed<a class="headerlink" href="#changed_16" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Breaking:</strong> <code>entry field --get</code> output for person/company reference fields now returns resolved objects instead of raw integer IDs. Scripts that parse the integer ID should update to read from the resolved object.</li>
 <li><code>entry field --get</code> now uses the V2 API (<code>/v2/lists/{listId}/list-entries/{entryId}/fields</code>) instead of V1 <code>field_values.list()</code></li>
 </ul>
-<h3 id="fixed_16">Fixed<a class="headerlink" href="#fixed_16" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_17">Fixed<a class="headerlink" href="#fixed_17" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>ListEntryService.get_field_values()</code> (sync and async) now correctly parses V2 API list response format — previously returned empty results due to dict/list type mismatch</li>
 <li>Added <code>types</code> to <code>REPEATABLE_QUERY_PARAMS</code> so the V2 fields endpoint <code>types</code> filter parameter is correctly encoded</li>
@@ -3466,7 +3611,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <h2 id="173-2026-03-08">[1.7.3] - 2026-03-08<a class="headerlink" href="#173-2026-03-08" title="Permanent link">&para;</a></h2>
 <h3 id="highlights_27">Highlights<a class="headerlink" href="#highlights_27" title="Permanent link">&para;</a></h3>
 <p><code>UserId</code> is now a subtype of <code>PersonId</code>, reflecting that workspace users are internal persons in Affinity's data model. Code that receives a <code>UserId</code> (e.g., <code>Note.creator_id</code>) can now pass it directly to any API accepting <code>PersonId</code> — no casting required.</p>
-<h3 id="changed_16">Changed<a class="headerlink" href="#changed_16" title="Permanent link">&para;</a></h3>
+<h3 id="changed_17">Changed<a class="headerlink" href="#changed_17" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>UserId</code> now extends <code>PersonId</code> instead of <code>IntId</code> — <code>isinstance(UserId(1), PersonId)</code> is now <code>True</code>. This is an intentional runtime behavior change: workspace users are internal persons in Affinity's data model. Code that used <code>isinstance</code> to distinguish users from persons should use <code>person.type == PersonType.INTERNAL</code> instead.</li>
 <li>Simplified internal casts that previously converted <code>UserId</code> → <code>int</code> → <code>PersonId</code></li>
@@ -3485,13 +3630,13 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li><strong>PreToolUse hook</strong>: Install-failure detection via <code>$HOME/.xaffinity-install-status</code> marker — blocks commands with a clear error when pip install failed, instead of cryptic failures.</li>
 <li><strong>PreToolUse hook</strong>: Lazy session cache start — <code>xaffinity session start</code> is triggered on first xaffinity command instead of at session start, with <code>CLAUDE_ENV_FILE</code> persistence.</li>
 </ul>
-<h4 id="changed_17">Changed<a class="headerlink" href="#changed_17" title="Permanent link">&para;</a></h4>
+<h4 id="changed_18">Changed<a class="headerlink" href="#changed_18" title="Permanent link">&para;</a></h4>
 <ul>
 <li>SessionStart timeout reduced from 60s to 10s (hook is now lightweight)</li>
 <li>PreToolUse Bash timeout increased from 10s to 60s (accommodates pip install via wrapper on first use)</li>
 <li>SessionStart status message updated to "Preparing Affinity CLI environment..."</li>
 </ul>
-<h4 id="fixed_17">Fixed<a class="headerlink" href="#fixed_17" title="Permanent link">&para;</a></h4>
+<h4 id="fixed_18">Fixed<a class="headerlink" href="#fixed_18" title="Permanent link">&para;</a></h4>
 <ul>
 <li>Skill YAML frontmatter: replaced multi-line <code>&gt;</code> scalar with single-line description (Claude Code couldn't parse folded scalars, showing <code>&gt;</code> instead of the description)</li>
 <li>Skill: updated session cache documentation to reflect lazy initialization</li>
@@ -3502,7 +3647,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>Skill: documented that "Current Organization" is read-only via API and "Current Job Title" requires a separate <code>field update</code> after person creation</li>
 </ul>
 <h3 id="sdk-plugin-155">SDK Plugin 1.5.5<a class="headerlink" href="#sdk-plugin-155" title="Permanent link">&para;</a></h3>
-<h4 id="fixed_18">Fixed<a class="headerlink" href="#fixed_18" title="Permanent link">&para;</a></h4>
+<h4 id="fixed_19">Fixed<a class="headerlink" href="#fixed_19" title="Permanent link">&para;</a></h4>
 <ul>
 <li>Skill YAML frontmatter: replaced multi-line <code>&gt;</code> scalar with single-line description (same parsing fix as CLI plugin)</li>
 </ul>
@@ -3535,7 +3680,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li><strong>CLI</strong>: <code>--list</code> alias for <code>--list-id</code> on <code>field ls</code> and <code>field history-bulk</code> commands (LLM-friendly shorthand).</li>
 <li><strong>MCP Plugin</strong>: Pipeline history analysis skill (<code>pipeline-history</code>) with 5-step workflow: identify status field, export current state, dry-run estimate, fetch history, analyze transitions.</li>
 </ul>
-<h3 id="fixed_19">Fixed<a class="headerlink" href="#fixed_19" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_20">Fixed<a class="headerlink" href="#fixed_20" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>CLI</strong>: <code>--dotenv</code> now searches upward for <code>.env</code> files using <code>find_dotenv(usecwd=True)</code>, matching standard python-dotenv behavior. Previously only checked the current working directory, which failed in Cowork VM sessions where the working directory differs from the <code>.env</code> location.</li>
 <li><strong>CLI Plugin</strong>: PreToolUse hook (<code>pre-xaffinity.sh</code>) now uses three-tier API key detection: (1) <code>AFFINITY_API_KEY</code> env var, (2) <code>--dotenv</code> check-key, (3) plain check-key (config.toml). Previously only checked the env var, blocking commands when the key was configured via <code>.env</code> or config file.</li>
@@ -3547,7 +3692,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>Added field change history section to data model resource.</li>
 </ul>
 <h3 id="cli-plugin-155">CLI Plugin 1.5.5<a class="headerlink" href="#cli-plugin-155" title="Permanent link">&para;</a></h3>
-<h4 id="fixed_20">Fixed<a class="headerlink" href="#fixed_20" title="Permanent link">&para;</a></h4>
+<h4 id="fixed_21">Fixed<a class="headerlink" href="#fixed_21" title="Permanent link">&para;</a></h4>
 <ul>
 <li>PreToolUse hook: three-tier API key detection (env var → dotenv → config.toml)</li>
 </ul>
@@ -3559,7 +3704,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <h2 id="162-2026-02-17">[1.6.2] - 2026-02-17<a class="headerlink" href="#162-2026-02-17" title="Permanent link">&para;</a></h2>
 <h3 id="highlights_31">Highlights<a class="headerlink" href="#highlights_31" title="Permanent link">&para;</a></h3>
 <p>Update notifications now work reliably. Previously, having multiple Python environments (e.g., dev virtualenv + system install) could silently poison the update cache, and the first <code>config update-check</code> run always said "never checked" instead of just checking.</p>
-<h3 id="fixed_21">Fixed<a class="headerlink" href="#fixed_21" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_22">Fixed<a class="headerlink" href="#fixed_22" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>CLI</strong>: <code>config update-check</code> now checks PyPI inline when cache is missing or stale, instead of showing "never checked"</li>
 <li><strong>CLI</strong>: Background update worker now receives version from spawning process, fixing version mismatch when multiple Python environments share a cache</li>
@@ -3568,7 +3713,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <h2 id="161-2026-02-16">[1.6.1] - 2026-02-16<a class="headerlink" href="#161-2026-02-16" title="Permanent link">&para;</a></h2>
 <h3 id="highlights_32">Highlights<a class="headerlink" href="#highlights_32" title="Permanent link">&para;</a></h3>
 <p><code>config check-key --env-file &lt;path&gt;</code> now correctly reads the specified file instead of only looking in the current directory. Fixes key discovery in Cowork VM sessions where the <code>.env</code> is on a mounted path.</p>
-<h3 id="fixed_22">Fixed<a class="headerlink" href="#fixed_22" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_23">Fixed<a class="headerlink" href="#fixed_23" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>CLI</strong>: <code>config check-key</code> ignored <code>--env-file</code> flag — always checked <code>CWD/.env</code> instead of the user-provided path</li>
 </ul>
@@ -3580,12 +3725,12 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li><strong>CLI</strong>: <code>interaction create --include-me</code> flag to auto-include current user's person ID via whoami</li>
 <li><strong>CLI</strong>: Enhanced validation error hint for interaction person_ids constraint (internal/external requirement)</li>
 </ul>
-<h3 id="changed_18">Changed<a class="headerlink" href="#changed_18" title="Permanent link">&para;</a></h3>
+<h3 id="changed_19">Changed<a class="headerlink" href="#changed_19" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added interaction create guidance to CLI plugin skill</li>
 <li>Added interaction create examples to MCP data model resource</li>
 </ul>
-<h3 id="fixed_23">Fixed<a class="headerlink" href="#fixed_23" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_24">Fixed<a class="headerlink" href="#fixed_24" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>CLI</strong>: Person/company field writes (<code>--set</code>, <code>--append</code>) now correctly wrap entity IDs in <code>{"id": &lt;int&gt;}</code> for the V2 API. Previously sent raw integers, causing <code>validation_error: value at /value/data is not null</code>.</li>
 <li><strong>CLI</strong>: <code>--append</code> on <code>person-multi</code>/<code>company-multi</code> fields now merges with existing values instead of silently replacing them (same fix already existed for <code>dropdown-multi</code>).</li>
@@ -3596,21 +3741,21 @@ v2.1.120 plugin/marketplace conventions).</p>
 <h2 id="plugin-releases-2026-02-15">Plugin Releases — 2026-02-15<a class="headerlink" href="#plugin-releases-2026-02-15" title="Permanent link">&para;</a></h2>
 <p>Plugin versions are now independent from the SDK version (see <code>VERSIONING.md</code>).</p>
 <h3 id="cli-plugin-153">CLI Plugin 1.5.3<a class="headerlink" href="#cli-plugin-153" title="Permanent link">&para;</a></h3>
-<h4 id="changed_19">Changed<a class="headerlink" href="#changed_19" title="Permanent link">&para;</a></h4>
+<h4 id="changed_20">Changed<a class="headerlink" href="#changed_20" title="Permanent link">&para;</a></h4>
 <ul>
 <li>Plugin versions are now independent from SDK version</li>
 </ul>
-<h4 id="fixed_24">Fixed<a class="headerlink" href="#fixed_24" title="Permanent link">&para;</a></h4>
+<h4 id="fixed_25">Fixed<a class="headerlink" href="#fixed_25" title="Permanent link">&para;</a></h4>
 <ul>
 <li><strong>Security</strong>: SessionStart hook no longer exports <code>AFFINITY_API_KEY</code> to the environment. The key stays in <code>.env</code> and is read per-command via <code>--dotenv</code>, preventing the LLM from accessing it via <code>env</code> or <code>echo $AFFINITY_API_KEY</code>.</li>
 </ul>
 <h3 id="sdk-plugin-153">SDK Plugin 1.5.3<a class="headerlink" href="#sdk-plugin-153" title="Permanent link">&para;</a></h3>
-<h4 id="changed_20">Changed<a class="headerlink" href="#changed_20" title="Permanent link">&para;</a></h4>
+<h4 id="changed_21">Changed<a class="headerlink" href="#changed_21" title="Permanent link">&para;</a></h4>
 <ul>
 <li>Rewrote <code>affinity-python-sdk</code> skill description following Anthropic skills guide formula</li>
 </ul>
 <h3 id="mcp-plugin-1181">MCP Plugin 1.18.1<a class="headerlink" href="#mcp-plugin-1181" title="Permanent link">&para;</a></h3>
-<h4 id="changed_21">Changed<a class="headerlink" href="#changed_21" title="Permanent link">&para;</a></h4>
+<h4 id="changed_22">Changed<a class="headerlink" href="#changed_22" title="Permanent link">&para;</a></h4>
 <ul>
 <li>Rewrote <code>query-language</code> SKILL.md (861→293 lines) with progressive disclosure; extracted detail to 4 reference files</li>
 <li>Updated <code>affinity-mcp-workflows</code> skill description following guide formula</li>
@@ -3625,7 +3770,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI Plugin: Query command reference (<code>references/query-guide.md</code>)</li>
 <li>MCP Plugin: Query language reference files (<code>references/filter-operators.md</code>, <code>quantifiers.md</code>, <code>include-expand.md</code>, <code>output-formats.md</code>)</li>
 </ul>
-<h3 id="changed_22">Changed<a class="headerlink" href="#changed_22" title="Permanent link">&para;</a></h3>
+<h3 id="changed_23">Changed<a class="headerlink" href="#changed_23" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Marketplace: Renamed plugins from generic "sdk"/"cli"/"mcp" to "Affinity CRM SDK (unofficial)", "Affinity CRM CLI (xaffinity, unofficial)", "Affinity CRM MCP (unofficial)" for clarity in plugin lists.</li>
 <li>CLI Plugin: Rewrote skill description following Anthropic skills guide formula</li>
@@ -3637,7 +3782,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <ul>
 <li>CLI Plugin: Removed <code>/affinity-help</code> command (redundant — CLI skill auto-triggers on relevant prompts)</li>
 </ul>
-<h3 id="fixed_25">Fixed<a class="headerlink" href="#fixed_25" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_26">Fixed<a class="headerlink" href="#fixed_26" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI Plugin: <code>.env</code> parsing now handles quoted values and CRLF line endings</li>
 <li>CLI Plugin: SessionStart hook writes to <code>CLAUDE_ENV_FILE</code> are idempotent (no duplicate lines on re-run)</li>
@@ -3645,7 +3790,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <h2 id="151-2026-02-12">[1.5.1] - 2026-02-12<a class="headerlink" href="#151-2026-02-12" title="Permanent link">&para;</a></h2>
 <h3 id="highlights_35">Highlights<a class="headerlink" href="#highlights_35" title="Permanent link">&para;</a></h3>
 <p>Fixes writing to multi-select dropdown fields. <code>--set</code> and <code>--append</code> now correctly handle the array format required by the API, and <code>--append</code> properly merges with existing selections instead of replacing them.</p>
-<h3 id="fixed_26">Fixed<a class="headerlink" href="#fixed_26" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_27">Fixed<a class="headerlink" href="#fixed_27" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>--set</code> and <code>--append</code> now work correctly for dropdown-multi fields when V1 API returns <code>value_type="dropdown"</code> with <code>allows_multiple=True</code>. Previously, <code>resolve_dropdown_value</code> only checked <code>value_type</code> (not <code>allows_multiple</code>) to determine the payload format, sending <code>{"dropdownOptionId": ID}</code> instead of <code>[{"dropdownOptionId": ID}]</code>.</li>
 <li>CLI: <code>--append</code> for dropdown-multi fields now merges with existing values instead of replacing them. The V2 API replaces the entire option array on POST, so <code>--append</code> now reads existing selections, adds the new option (deduplicating), and sends the combined array.</li>
@@ -3653,7 +3798,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <h2 id="150-2026-02-11">[1.5.0] - 2026-02-11<a class="headerlink" href="#150-2026-02-11" title="Permanent link">&para;</a></h2>
 <h3 id="highlights_36">Highlights<a class="headerlink" href="#highlights_36" title="Permanent link">&para;</a></h3>
 <p>Interaction queries are now much more robust. Date ranges are validated up front, ranges over 1 year are auto-chunked seamlessly, and mixing naive/timezone-aware datetimes is caught with a clear error. <strong>Breaking:</strong> <code>InteractionService.list()</code> now requires <code>start_time</code>, <code>end_time</code>, and an entity ID -- callers already getting 422 errors will now get a clear SDK-level message instead.</p>
-<h3 id="changed_23">Changed<a class="headerlink" href="#changed_23" title="Permanent link">&para;</a></h3>
+<h3 id="changed_24">Changed<a class="headerlink" href="#changed_24" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Breaking:</strong> <code>InteractionService.list()</code> and <code>AsyncInteractionService.list()</code> now require <code>start_time</code>, <code>end_time</code>, and at least one entity ID (<code>person_id</code>, <code>company_id</code>, or <code>opportunity_id</code>). Previously these were optional, but the API always rejected calls without them (422). Callers that were passing <code>None</code> for these parameters were already getting API errors; this change surfaces the requirement at the SDK level with clear error messages.</li>
 <li><code>InteractionService.list()</code> now validates date ranges: <code>start_time</code> must be before <code>end_time</code>, and the range must not exceed 365 days.</li>
@@ -3666,14 +3811,14 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>SDK: <code>_chunk_date_range()</code> utility for splitting date ranges into API-compatible chunks.</li>
 <li>CLI: Query executor now properly fetches interactions for <code>include</code> and <code>expand</code> operations. Previously, these paths called <code>interactions.list()</code> without required <code>type</code>/date parameters and silently returned empty results.</li>
 </ul>
-<h3 id="fixed_27">Fixed<a class="headerlink" href="#fixed_27" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_28">Fixed<a class="headerlink" href="#fixed_28" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: Fixed falsy truthiness bugs in <code>InteractionService.list()</code> where <code>PersonId(0)</code>, <code>CompanyId(0)</code>, <code>page_size=0</code>, and empty <code>page_token=""</code> were incorrectly dropped. Changed <code>if x:</code> to <code>if x is not None:</code> for all optional parameters.</li>
 </ul>
 <h2 id="141-2026-02-11">[1.4.1] - 2026-02-11<a class="headerlink" href="#141-2026-02-11" title="Permanent link">&para;</a></h2>
 <h3 id="highlights_37">Highlights<a class="headerlink" href="#highlights_37" title="Permanent link">&para;</a></h3>
 <p>CLI errors from invalid commands or options now produce proper JSON error envelopes when <code>--json</code> is active, fixing broken downstream JSON parsers.</p>
-<h3 id="fixed_28">Fixed<a class="headerlink" href="#fixed_28" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_29">Fixed<a class="headerlink" href="#fixed_29" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Click-level errors (unknown commands, invalid options) now emit a proper JSON error envelope (<code>{"ok": false, "error": {...}}</code>) when <code>--json</code> or <code>--output json</code> is active. Previously, stdout was empty and only plain text went to stderr, breaking downstream JSON parsers.</li>
 <li>CLI: <code>normalize_exception()</code> now handles <code>click.UsageError</code> (→ <code>usage_error</code>, exit code 2) and <code>click.ClickException</code> (→ <code>error</code>, exit code from exception) instead of misclassifying them as <code>internal_error</code>.</li>
@@ -3681,7 +3826,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <h2 id="140-2026-02-10">[1.4.0] - 2026-02-10<a class="headerlink" href="#140-2026-02-10" title="Permanent link">&para;</a></h2>
 <h3 id="highlights_38">Highlights<a class="headerlink" href="#highlights_38" title="Permanent link">&para;</a></h3>
 <p><code>FieldResolver</code> now resolves all value types to human-readable text -- not just dropdowns, but also persons, companies, locations, and interactions. Dropdown fields return rich <code>DropdownOption</code> objects with <code>.text</code>, <code>.rank</code>, and <code>.color</code>. <strong>Breaking:</strong> <code>get_value()</code> returns <code>DropdownOption</code> instead of raw IDs, and <code>resolve_dropdowns</code> parameter is replaced by <code>ResolveMode</code>.</p>
-<h3 id="changed_24">Changed<a class="headerlink" href="#changed_24" title="Permanent link">&para;</a></h3>
+<h3 id="changed_25">Changed<a class="headerlink" href="#changed_25" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Breaking:</strong> <code>FieldValues.get_value()</code> now returns <code>DropdownOption</code> objects for dropdown/ranked-dropdown fields instead of raw <code>int</code> IDs. The <code>DropdownOption</code> has <code>.id</code>, <code>.text</code>, <code>.rank</code>, and <code>.color</code> attributes. This applies to all dropdown value types (<code>dropdown</code>, <code>ranked-dropdown</code>, <code>dropdown-multi</code>).</li>
 <li><strong>Breaking:</strong> Removed <code>FieldType.LIST_SPECIFIC</code>. Use <code>FieldType.LIST</code> instead. The V2 API uses <code>"list"</code> uniformly; <code>"list-specific"</code> was never a valid V2 value.</li>
@@ -3695,7 +3840,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>SDK: <code>validate_entity_field_types()</code> raises <code>ValueError</code> when <code>FieldType.LIST</code> is passed to company/person endpoints (which only accept <code>ENRICHED</code>, <code>GLOBAL</code>, <code>RELATIONSHIP_INTELLIGENCE</code>).</li>
 <li>SDK: <code>DropdownOption.color</code> now accepts both <code>int</code> (V1) and <code>str</code> (V2) values.</li>
 </ul>
-<h3 id="fixed_29">Fixed<a class="headerlink" href="#fixed_29" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_30">Fixed<a class="headerlink" href="#fixed_30" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>FieldValues._extract_value()</code> now correctly recurses through <code>{"data": {...}}</code> envelopes for dropdown values, fixing ranked-dropdown and dropdown-multi extraction that previously returned the raw envelope dict.</li>
 <li>SDK: Dropdown text resolution now works without V1 field metadata. Previously, <code>FieldResolver</code> built a lookup table from <code>FieldMetadata.dropdown_options</code> (V1-only; always empty on V2). Now text is read directly from the <code>DropdownOption</code> object extracted from the field value.</li>
@@ -3713,14 +3858,14 @@ v2.1.120 plugin/marketplace conventions).</p>
 <h2 id="132-2026-02-08">[1.3.2] - 2026-02-08<a class="headerlink" href="#132-2026-02-08" title="Permanent link">&para;</a></h2>
 <h3 id="highlights_39">Highlights<a class="headerlink" href="#highlights_39" title="Permanent link">&para;</a></h3>
 <p>Fixes writing to <code>dropdown-multi</code> fields via <code>--set</code> and <code>--append</code>. Previously all dropdown-multi writes failed with a type mismatch error.</p>
-<h3 id="fixed_30">Fixed<a class="headerlink" href="#fixed_30" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_31">Fixed<a class="headerlink" href="#fixed_31" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>--set</code> and <code>--append</code> now work for <code>dropdown-multi</code> fields. Previously, <code>resolve_dropdown_value()</code> only handled <code>dropdown</code> and <code>ranked-dropdown</code>, causing all dropdown-multi writes to fail with "Field value type should be dropdown-multi" errors. The fix resolves option text/IDs and wraps them in the array format required by the V2 API.</li>
 </ul>
 <h2 id="131-2026-02-06">[1.3.1] - 2026-02-06<a class="headerlink" href="#131-2026-02-06" title="Permanent link">&para;</a></h2>
 <h3 id="highlights_40">Highlights<a class="headerlink" href="#highlights_40" title="Permanent link">&para;</a></h3>
 <p><code>FieldResolver</code> now works correctly with list entry objects -- it auto-delegates to the inner entity when fields were fetched on the entity rather than the list entry directly.</p>
-<h3 id="fixed_31">Fixed<a class="headerlink" href="#fixed_31" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_32">Fixed<a class="headerlink" href="#fixed_32" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>FieldResolver.get()</code> and <code>get_by_id()</code> now automatically delegate to the inner entity when called with a <code>ListEntryWithEntity</code> whose fields were not directly requested. Previously warned and returned <code>None</code> even when <code>entry.entity.fields</code> were populated.</li>
 <li>SDK: <code>FieldResolver</code> duplicate field name warning now includes enrichment source (e.g., "dealroom" vs "affinity-data") instead of raw IDs, making enrichment provider collisions immediately clear.</li>
@@ -3740,7 +3885,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>SDK: <code>batch_get()</code> on <code>AsyncEntityFileService</code> for fetching file metadata concurrently with controlled concurrency. Supports <code>max_concurrent</code> and <code>on_error</code> ("raise"/"skip") parameters.</li>
 <li>SDK: <code>list_batch()</code> on <code>AsyncReminderService</code> for fetching reminders across multiple entities concurrently with auto-pagination. Accepts <code>person_ids</code>, <code>company_ids</code>, or <code>opportunity_ids</code> with common filters.</li>
 </ul>
-<h3 id="fixed_32">Fixed<a class="headerlink" href="#fixed_32" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_33">Fixed<a class="headerlink" href="#fixed_33" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: Fixed truthiness bugs in <code>ReminderService.list()</code>, <code>AsyncReminderService.list()</code>, <code>EntityFileService.list()</code>, and <code>AsyncEntityFileService.list()</code> where <code>PersonId(0)</code>, <code>CompanyId(0)</code>, and other falsy values were silently dropped from query parameters. Changed all <code>if &lt;param&gt;:</code> guards to <code>if &lt;param&gt; is not None:</code>.</li>
 <li>SDK: Fixed incorrect <code>ReminderStatus</code> docstrings that referenced non-existent "SNOOZED" and "COMPLETE" values. The actual enum values are <code>COMPLETED</code>, <code>ACTIVE</code>, and <code>OVERDUE</code>.</li>
@@ -3759,7 +3904,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>SDK: <code>FieldResolver</code> helper class for looking up field values by name instead of ID. Supports case-insensitive matching, batch extraction via <code>get_many()</code>, and dropdown option resolution.</li>
 <li>Docs: "Field Lookup Patterns" section in performance guide documenting <code>FieldResolver</code> usage, low-level access, and field metadata sources.</li>
 </ul>
-<h3 id="fixed_33">Fixed<a class="headerlink" href="#fixed_33" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_34">Fixed<a class="headerlink" href="#fixed_34" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>FieldService.list()</code> now caches results for 5 minutes (matching V2 field endpoints). Previously only V2 endpoints (<code>companies.get_fields()</code>, <code>persons.get_fields()</code>) were cached.</li>
 <li>SDK: <code>FieldService.list(list_id=ListId(0))</code> no longer skips the <code>list_id</code> parameter. The falsy ID guard (<code>if list_id:</code>) was changed to <code>if list_id is not None:</code>.</li>
@@ -3767,14 +3912,14 @@ v2.1.120 plugin/marketplace conventions).</p>
 <h2 id="103-2026-02-03">[1.0.3] - 2026-02-03<a class="headerlink" href="#103-2026-02-03" title="Permanent link">&para;</a></h2>
 <h3 id="highlights_44">Highlights<a class="headerlink" href="#highlights_44" title="Permanent link">&para;</a></h3>
 <p>Fixes MCP timeout failures during large query <code>include</code> operations by emitting incremental progress every 10 records instead of only at start/end.</p>
-<h3 id="fixed_34">Fixed<a class="headerlink" href="#fixed_34" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_35">Fixed<a class="headerlink" href="#fixed_35" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Query <code>include</code> operations now emit incremental progress every 10 records during N+1 API calls. Previously, progress was only emitted at the start and end of include steps, causing MCP timeout to expire during long-running N+1 operations (e.g., 100 records with <code>include: ["persons"]</code>). The fix changes from <code>asyncio.gather()</code> to <code>asyncio.as_completed()</code> for incremental progress emission.</li>
 </ul>
 <h2 id="102-2026-02-03">[1.0.2] - 2026-02-03<a class="headerlink" href="#102-2026-02-03" title="Permanent link">&para;</a></h2>
 <h3 id="highlights_45">Highlights<a class="headerlink" href="#highlights_45" title="Permanent link">&para;</a></h3>
 <p>Fixes descending sort for string fields in queries (dates, names were silently returning ascending order) and corrects API call estimates for sorted queries that could cause premature timeouts.</p>
-<h3 id="fixed_35">Fixed<a class="headerlink" href="#fixed_35" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_36">Fixed<a class="headerlink" href="#fixed_36" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Query <code>orderBy</code> with descending direction now works correctly for string values (dates, names, etc.). Previously, descending sort on non-numeric fields silently returned results in ascending order because string values cannot be negated. The fix uses a comparison-inverting wrapper class for proper descending sort.</li>
 <li>CLI: Query dry run now correctly estimates API calls when <code>orderBy</code> is present. Previously, <code>estimatedApiCalls</code> used the <code>limit</code> value even though sorting requires fetching all records first. A query with <code>limit: 200</code> and <code>orderBy</code> on a 9000-record list showed 4 API calls instead of ~90. This caused dynamic timeout calculations to be too short.</li>
@@ -3782,7 +3927,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <h2 id="101-2026-02-01">[1.0.1] - 2026-02-01<a class="headerlink" href="#101-2026-02-01" title="Permanent link">&para;</a></h2>
 <h3 id="highlights_46">Highlights<a class="headerlink" href="#highlights_46" title="Permanent link">&para;</a></h3>
 <p>Fixes unreplied email/chat detection (<code>--check-unreplied</code> and <code>expand: ["unreplied"]</code>) which was silently failing, and adds required <code>type</code> parameter validation to <code>InteractionService</code> with clear error messages instead of cryptic 422s.</p>
-<h3 id="fixed_36">Fixed<a class="headerlink" href="#fixed_36" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_37">Fixed<a class="headerlink" href="#fixed_37" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>InteractionService.list()</code> and <code>iter()</code> now validate that <code>type</code> parameter is required, raising <code>ValueError</code> with clear guidance instead of failing with cryptic API 422 errors. The Affinity V1 API has always required this parameter.</li>
 <li>CLI: <code>--check-unreplied</code> and <code>expand: ["unreplied"]</code> now work correctly. Previously, all unreplied checks silently failed (returning null) due to missing <code>type</code> parameter in interaction API calls.</li>
@@ -3795,7 +3940,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI: Auto-update notifications. The CLI now checks PyPI daily (in background) and displays a notification when a new version is available. Notifications are suppressed in non-interactive environments (<code>--quiet</code>, <code>--output json</code>, CI, no TTY). Disable with <code>XAFFINITY_NO_UPDATE_CHECK=1</code> or <code>update_check = false</code> in config.</li>
 <li>CLI: <code>xaffinity config update-check --background</code> flag for non-blocking update checks. Used by MCP server to trigger background updates without waiting for results.</li>
 </ul>
-<h3 id="fixed_37">Fixed<a class="headerlink" href="#fixed_37" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_38">Fixed<a class="headerlink" href="#fixed_38" title="Permanent link">&para;</a></h3>
 <ul>
 <li>MCP: Add <code>AFFINITY_API_KEY</code> to environment variable allowlist. API keys configured in Claude Desktop's MCP settings were being silently dropped, requiring manual config file creation as a workaround.</li>
 <li>MCP: Detect CLI in macOS Python framework path (<code>/Library/Frameworks/Python.framework/Versions/*/bin/</code>). Users who installed via <code>pip install</code> with python.org Python were getting "xaffinity: command not found" errors.</li>
@@ -3810,12 +3955,12 @@ v2.1.120 plugin/marketplace conventions).</p>
 <ul>
 <li>SDK: <code>Person.interactions</code> and <code>Company.interactions</code> attribute type changed from <code>dict[str, Any]</code> to typed <code>Interactions</code> model. Migration: change dict access (<code>person.interactions["last_event"]["person_ids"]</code>) to attribute access (<code>person.interactions.last_event.person_ids</code>). The <code>Interactions</code> model provides typed access to <code>first_email</code>, <code>last_email</code>, <code>first_event</code>, <code>last_event</code>, <code>next_event</code>, <code>last_chat_message</code>, and <code>last_interaction</code> fields, each containing an <code>InteractionEvent</code> with <code>date</code> and <code>person_ids</code> attributes.</li>
 </ul>
-<h3 id="fixed_38">Fixed<a class="headerlink" href="#fixed_38" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_39">Fixed<a class="headerlink" href="#fixed_39" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>PersonService.get()</code> field values are now properly validated as <code>FieldValue</code> models.</li>
 </ul>
 <h2 id="0151-2026-01-25">[0.15.1] - 2026-01-25<a class="headerlink" href="#0151-2026-01-25" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_39">Fixed<a class="headerlink" href="#fixed_39" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_40">Fixed<a class="headerlink" href="#fixed_40" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>query --output json</code> now supports cursor-based pagination when output is truncated. Previously, JSON truncation happened at the MCP layer after CLI execution, so no cursor was emitted. Now JSON truncation happens in the CLI layer (same as other formats), enabling proper resumption via <code>--cursor</code>.</li>
 </ul>
@@ -3824,7 +3969,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <ul>
 <li>CLI: <code>company files read</code>, <code>person files read</code>, <code>opportunity files read</code> commands to read file content with chunking support. Returns base64-encoded content with metadata (<code>size</code>, <code>offset</code>, <code>length</code>, <code>hasMore</code>, <code>nextOffset</code>). Use <code>--offset</code> and <code>--limit</code> to fetch large files in chunks. Default chunk size is 1MB.</li>
 </ul>
-<h3 id="fixed_40">Fixed<a class="headerlink" href="#fixed_40" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_41">Fixed<a class="headerlink" href="#fixed_41" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>--env-file</code> now implicitly enables dotenv loading when an explicit file path is provided (not the default <code>.env</code>). Previously, using <code>--env-file .sandbox.env</code> without <code>--dotenv</code> would silently ignore the file.</li>
 <li>CLI: Fixed dropdown field value resolution in <code>entry field --set</code> and <code>--append</code> commands. The V2 API requires <code>{"dropdownOptionId": ID}</code> format, but the CLI was sending raw values. Now dropdown text (e.g., "In Progress") or numeric IDs are properly resolved to the V2 API format.</li>
@@ -3839,11 +3984,11 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>SDK: <code>FilesService.get_download_url(file_id)</code> method to get presigned download URLs without downloading content. Returns <code>PresignedUrl</code> with URL, file metadata, and expiration info.</li>
 <li>SDK: <code>PresignedUrl</code> dataclass exported from <code>affinity</code> package with fields: <code>url</code>, <code>file_id</code>, <code>name</code>, <code>size</code>, <code>content_type</code>, <code>expires_in</code>, <code>expires_at</code>.</li>
 </ul>
-<h3 id="changed_25">Changed<a class="headerlink" href="#changed_25" title="Permanent link">&para;</a></h3>
+<h3 id="changed_26">Changed<a class="headerlink" href="#changed_26" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>files dump</code> renamed to <code>files download</code> for clarity.</li>
 </ul>
-<h3 id="fixed_41">Fixed<a class="headerlink" href="#fixed_41" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_42">Fixed<a class="headerlink" href="#fixed_42" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>CompanyService.get()</code> and <code>PersonService.get()</code> now automatically fall back to V1 API when V2 returns 404. This handles V1→V2 eventual consistency issues where a search (<code>company ls --query</code>, <code>person ls --query</code>) finds an entity via V1, but a subsequent <code>get</code> fails because V2 hasn't synced yet. The fallback is transparent and requires no code changes.</li>
 </ul>
@@ -3852,7 +3997,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>MCP: <code>get-file-url</code> tool returns valid presigned URLs, but Claude Desktop's WebFetch cannot access <code>userfiles.affinity.co</code> due to domain sandbox restrictions. This affects all Claude Desktop users - neither "Additional allowed domains" nor "All domains" settings work around this limitation (<a href="https://github.com/anthropics/claude-code/issues/19087">#19087</a>, <a href="https://github.com/anthropics/claude-code/issues/11897">#11897</a>). Workaround: Use <code>files read</code> command (returns content inline), copy URL to browser, or use CLI directly with <code>files download --file-id</code>.</li>
 </ul>
 <h2 id="0131-2026-01-21">0.13.1 - 2026-01-21<a class="headerlink" href="#0131-2026-01-21" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_42">Fixed<a class="headerlink" href="#fixed_42" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_43">Fixed<a class="headerlink" href="#fixed_43" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Query progress now emits <code>progress: 0</code> in <code>on_step_start</code> events, enabling mcp-bash timeout extension for slow first-page fetches</li>
 </ul>
@@ -3881,7 +4026,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <ul>
 <li>CLI: Full scan protection when running via MCP gateway. Commands with pagination (<code>list export</code>, <code>person ls</code>, <code>company ls</code>, etc.) now enforce limits: default 1000 records, max 10000 records. The <code>--all</code> flag is blocked with a clear error message guiding users to use explicit <code>--max-results</code> or cursor pagination instead.</li>
 </ul>
-<h3 id="changed_26">Changed<a class="headerlink" href="#changed_26" title="Permanent link">&para;</a></h3>
+<h3 id="changed_27">Changed<a class="headerlink" href="#changed_27" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>--csv</code> is now an alias for <code>--output csv</code> (consistent with <code>--json</code> being an alias for <code>--output json</code>)</li>
 <li>CLI: CSV sub-options (<code>--csv-bom</code>, <code>--csv-header</code>, <code>--csv-mode</code>) auto-enable CSV output when no format is specified</li>
@@ -3891,7 +4036,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <ul>
 <li><strong>Breaking</strong>: CLI: <code>--pretty</code> flag removed from <code>query</code> command (use <code>| jq .</code> for pretty JSON output)</li>
 </ul>
-<h3 id="fixed_43">Fixed<a class="headerlink" href="#fixed_43" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_44">Fixed<a class="headerlink" href="#fixed_44" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Query engine now correctly computes <code>entityName</code> for Person list entries. Previously, <code>entityName</code> was <code>null</code> for persons because the API returns <code>firstName</code>/<code>lastName</code> instead of <code>name</code>. Now uses the same display name logic as <code>list export</code>.</li>
 <li>CLI: Table/CSV formatters now correctly detect Person entities with real API types (<code>external</code>/<code>internal</code>) or no type field. Previously, formatters only checked for <code>type="person"</code> which the API never actually returns, causing Person data to display as "object (N keys)" instead of "John Smith (id=123)".</li>
@@ -3902,7 +4047,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI: Person and company field resolution now uses session cache, avoiding redundant field definition fetches.</li>
 </ul>
 <h2 id="0100-2026-01-19">0.10.0 - 2026-01-19<a class="headerlink" href="#0100-2026-01-19" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_44">Fixed<a class="headerlink" href="#fixed_44" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_45">Fixed<a class="headerlink" href="#fixed_45" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: Removed unsafe <code>asyncio.create_task()</code> in <code>AsyncAffinity.__del__</code> that could cause tasks to be garbage collected before completion. Users must now use context managers or call <code>close()</code> explicitly.</li>
 <li>SDK: Added thread-safe locking to <code>SimpleCache</code> for concurrent access.</li>
@@ -3934,7 +4079,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CSV columns renamed: <code>unrepliedEmailDate</code> → <code>unrepliedDate</code>, <code>unrepliedEmailDaysSince</code> → <code>unrepliedDaysSince</code>, <code>unrepliedEmailSubject</code> → <code>unrepliedSubject</code>, plus new <code>unrepliedType</code> column</li>
 </ul>
 <h2 id="0914-2026-01-19">0.9.14 - 2026-01-19<a class="headerlink" href="#0914-2026-01-19" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_45">Fixed<a class="headerlink" href="#fixed_45" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_46">Fixed<a class="headerlink" href="#fixed_46" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Query <code>select</code> clause now automatically includes <code>expand</code> fields. Previously, using <code>select</code> with <code>expand</code> would filter out the expansion data (e.g., <code>interactionDates</code>, <code>unreplied</code>), requiring users to explicitly list expansions in <code>select</code>.</li>
 </ul>
@@ -3948,7 +4093,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li><code>{include: {opportunities: {list: "Pipeline"}}}</code> - Scope to specific opportunity list</li>
 <li><code>{include: {persons: {where: {...}}}}</code> - Filter included entities</li>
 </ul>
-<h3 id="fixed_46">Fixed<a class="headerlink" href="#fixed_46" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_47">Fixed<a class="headerlink" href="#fixed_47" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Query TOON format now correctly flattens <code>fields.*</code> and <code>interactionDates</code> like markdown and CSV formats do. Previously, TOON was missing the <code>_apply_explicit_flattening()</code> call, causing nested fields to be truncated and interaction dates to be missing entirely.</li>
 <li>CLI: <code>list export --check-unreplied-emails</code> now works standalone without requiring <code>--expand</code>.</li>
@@ -3960,7 +4105,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI: Query <code>expand: ["interactionDates"]</code> is significantly faster with parallel person resolution, bounded concurrent fetches (semaphore=10), and parallelized section resolution. Default concurrency increased from 5 to 15 (tunable via <code>XAFFINITY_QUERY_CONCURRENCY</code>).</li>
 </ul>
 <h2 id="0912-2026-01-17">0.9.12 - 2026-01-17<a class="headerlink" href="#0912-2026-01-17" title="Permanent link">&para;</a></h2>
-<h3 id="changed_27">Changed<a class="headerlink" href="#changed_27" title="Permanent link">&para;</a></h3>
+<h3 id="changed_28">Changed<a class="headerlink" href="#changed_28" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Query <code>listEntries</code> now normalizes reference field values to display strings:</li>
 <li>Person fields: <code>{"firstName": "Jane", "lastName": "Doe"}</code> → <code>"Jane Doe"</code></li>
@@ -3999,7 +4144,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>Docs: V1→V2 eventual consistency guide covering 404 after create and stale data after update scenarios.</li>
 <li>Tests: Integration test suite for SDK write operations (<code>tests/integration/</code>).</li>
 </ul>
-<h3 id="changed_28">Changed<a class="headerlink" href="#changed_28" title="Permanent link">&para;</a></h3>
+<h3 id="changed_29">Changed<a class="headerlink" href="#changed_29" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>OpportunityService.get_associated_people()</code> and <code>get_associated_companies()</code> now use V2 batch lookup instead of individual V1 fetches, reducing N+1 API calls (e.g., 50 people now fetched in 2 calls instead of 51).</li>
 <li>SDK: Query executor <code>_batch_fetch_by_ids()</code> now uses V2 batch lookup for persons and companies, improving query performance on relationship includes.</li>
@@ -4010,7 +4155,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>MCP: Query tool default format changed from <code>json</code> to <code>toon</code> for better token efficiency (~40% fewer tokens).</li>
 <li>CLI: TOON query output now includes full envelope structure instead of data-only format. The <code>data</code> prefix is added to the array header: <code>data[N]{fields}:</code> instead of <code>[N]{fields}:</code>.</li>
 </ul>
-<h3 id="fixed_47">Fixed<a class="headerlink" href="#fixed_47" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_48">Fixed<a class="headerlink" href="#fixed_48" title="Permanent link">&para;</a></h3>
 <ul>
 <li>MCP: Query tool now honors the <code>format</code> parameter instead of always using JSON output.</li>
 <li>SDK: <code>ListEntryService.batch_update_fields()</code> now uses correct V2 API payload format. Previously failed with "Missing discriminator for property operation" error.</li>
@@ -4033,12 +4178,12 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI <code>--expand</code>: <code>xaffinity company get &lt;id&gt; --expand people</code> → use <code>--expand persons</code></li>
 <li>JSON output: <code>data.people</code> → <code>data.persons</code></li>
 </ul>
-<h3 id="fixed_48">Fixed<a class="headerlink" href="#fixed_48" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_49">Fixed<a class="headerlink" href="#fixed_49" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Query engine no longer silently passes all records for <code>all</code>, <code>none</code>, and <code>_count</code> filters. Previously these were placeholder implementations that returned <code>True</code> for all records, causing incorrect query results. (Bug #15)</li>
 </ul>
 <h2 id="098-2026-01-12">0.9.8 - 2026-01-12<a class="headerlink" href="#098-2026-01-12" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_49">Fixed<a class="headerlink" href="#fixed_49" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_50">Fixed<a class="headerlink" href="#fixed_50" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>query</code> command now correctly fetches all records before applying filter, sort, or aggregate operations. Previously, limits were applied during fetch which caused incorrect results:</li>
 <li>With filters: Empty results when matching records were beyond the limit position</li>
@@ -4046,7 +4191,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>With aggregate: Inaccurate counts/sums computed on partial data</li>
 </ul>
 <h2 id="097-2026-01-12">0.9.7 - 2026-01-12<a class="headerlink" href="#097-2026-01-12" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_50">Fixed<a class="headerlink" href="#fixed_50" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_51">Fixed<a class="headerlink" href="#fixed_51" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CI: Smoke test now correctly installs CLI extras before testing CLI import</li>
 </ul>
@@ -4056,7 +4201,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI: <code>listEntries</code> queries now include convenience aliases: <code>listEntryId</code>, <code>entityId</code>, <code>entityName</code>, <code>entityType</code>. These intuitive field names work in both <code>select</code> and <code>where</code> clauses.</li>
 <li>CLI: <code>listEntries</code> records now always include a <code>fields</code> key (defaults to <code>{}</code> if no custom fields).</li>
 </ul>
-<h3 id="changed_29">Changed<a class="headerlink" href="#changed_29" title="Permanent link">&para;</a></h3>
+<h3 id="changed_30">Changed<a class="headerlink" href="#changed_30" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Query projection now includes null values for explicitly selected fields. Previously, <code>select: ["entityName", "fields.Status"]</code> would return <code>{}</code> if Status was null; now returns <code>{"entityName": "Acme", "fields": {"Status": null}}</code>.</li>
 </ul>
@@ -4070,11 +4215,11 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>Example: <code>xaffinity person ls --output markdown</code>, <code>xaffinity query -o toon</code></li>
 <li>Existing <code>--csv</code> and <code>--json</code> flags continue to work as before.</li>
 </ul>
-<h3 id="changed_30">Changed<a class="headerlink" href="#changed_30" title="Permanent link">&para;</a></h3>
+<h3 id="changed_31">Changed<a class="headerlink" href="#changed_31" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>to_cell()</code> now extracts "text" from dropdown/multi-select fields instead of JSON-serializing the full dict. This makes CSV and other tabular outputs human-readable for dropdown values.</li>
 </ul>
-<h3 id="fixed_51">Fixed<a class="headerlink" href="#fixed_51" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_52">Fixed<a class="headerlink" href="#fixed_52" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>query</code> command with <code>limit</code> now correctly returns results when combined with client-side filters (like <code>has_any</code> on multi-select fields). Previously, the limit was applied during fetch before filtering, causing empty results when the first N records didn't match the filter criteria.</li>
 </ul>
@@ -4097,7 +4242,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li><code>= [A, B]</code> - set equality (array has exactly these elements)</li>
 <li><code>=~ [A, B]</code> - V2 API collection contains (array contains all elements)</li>
 </ul>
-<h3 id="fixed_52">Fixed<a class="headerlink" href="#fixed_52" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_53">Fixed<a class="headerlink" href="#fixed_53" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>query</code> command now correctly filters on multi-select dropdown fields (like "Team Member"). The <code>eq</code> operator checks array membership for scalar values and set equality for array values. Previously, these queries returned 0 results due to strict equality comparison.</li>
 <li>SDK/CLI: <code>list export --filter</code> now correctly matches multi-select dropdown fields. The <code>=</code>, <code>!=</code>, and <code>=~</code> operators now handle array values properly. Also fixes extraction of text values from multi-select dropdown API responses.</li>
@@ -4112,17 +4257,17 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>Double equals (<code>==</code>): suggests single <code>=</code></li>
 </ul>
 <h2 id="093-2026-01-11">0.9.3 - 2026-01-11<a class="headerlink" href="#093-2026-01-11" title="Permanent link">&para;</a></h2>
-<h3 id="changed_31">Changed<a class="headerlink" href="#changed_31" title="Permanent link">&para;</a></h3>
+<h3 id="changed_32">Changed<a class="headerlink" href="#changed_32" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CI: SDK releases now include MCPB bundle and plugin ZIP for convenience.</li>
 <li>CI: Enabled PyPI attestations via workflow_dispatch API trigger.</li>
 </ul>
 <h2 id="092-2026-01-11">0.9.2 - 2026-01-11<a class="headerlink" href="#092-2026-01-11" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_53">Fixed<a class="headerlink" href="#fixed_53" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_54">Fixed<a class="headerlink" href="#fixed_54" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>AsyncListEntryService.pages()</code> now supports <code>progress_callback</code> parameter (sync/async parity fix).</li>
 </ul>
-<h3 id="changed_32">Changed<a class="headerlink" href="#changed_32" title="Permanent link">&para;</a></h3>
+<h3 id="changed_33">Changed<a class="headerlink" href="#changed_33" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>BREAKING</strong>: CLI: <code>interaction ls</code> JSON output restructured for consistency:</li>
 <li><code>.data.interactions</code> → <code>.data</code> (direct array)</li>
@@ -4143,7 +4288,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI: <code>query</code> command now validates entity queryability and provides clear error messages for unsupported entities.</li>
 <li>CLI: <code>query</code> command resolves field names to IDs automatically (e.g., <code>"field": "Status"</code> works alongside <code>"fieldId": 123</code>).</li>
 </ul>
-<h3 id="fixed_54">Fixed<a class="headerlink" href="#fixed_54" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_55">Fixed<a class="headerlink" href="#fixed_55" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>query</code> for <code>listEntries</code> entity now correctly requires <code>listId</code> filter.</li>
 <li>CLI: <code>query</code> relationship definitions now correctly set <code>requires_n_plus_1</code> flag for proper query planning.</li>
@@ -4155,7 +4300,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>MCP: New <code>query</code> tool for complex data queries via JSON query language. Supports filtering (AND/OR/NOT), includes (related entities), aggregations (count/sum/avg/min/max), groupBy, and sorting.</li>
 <li>CLI: <code>--limit</code> alias for <code>--max-results</code> on <code>company get</code>, <code>person get</code>, and <code>opportunity get</code> commands (consistency with <code>ls</code> commands).</li>
 </ul>
-<h3 id="changed_33">Changed<a class="headerlink" href="#changed_33" title="Permanent link">&para;</a></h3>
+<h3 id="changed_34">Changed<a class="headerlink" href="#changed_34" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>--list</code>, <code>--list-entry-field</code>, and <code>--show-list-entry-fields</code> now auto-imply <code>--expand list-entries</code> on <code>company get</code> and <code>person get</code> commands (improved DX).</li>
 </ul>
@@ -4166,7 +4311,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>SDK: <code>CompanyService.get_associated_opportunity_ids()</code> method.</li>
 </ul>
 <h2 id="085-2026-01-10">0.8.5 - 2026-01-10<a class="headerlink" href="#085-2026-01-10" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_55">Fixed<a class="headerlink" href="#fixed_55" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_56">Fixed<a class="headerlink" href="#fixed_56" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI/SDK: <code>FilterParseError</code> now raised when filter expressions fail to parse (previously silently ignored). Common cause: unquoted multi-word values like <code>--filter 'Status=Intro Meeting'</code> must be quoted: <code>--filter 'Status="Intro Meeting"'</code>.</li>
 <li>CLI: Pre-commit hook now validates installed CLI version matches <code>pyproject.toml</code> before regenerating MCP registry.</li>
@@ -4187,7 +4332,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <h2 id="081-2026-01-10">0.8.1 - 2026-01-10<a class="headerlink" href="#081-2026-01-10" title="Permanent link">&para;</a></h2>
 <p><em>No user-facing changes. Version bump for PyPI release.</em></p>
 <h2 id="080-2026-01-10">0.8.0 - 2026-01-10<a class="headerlink" href="#080-2026-01-10" title="Permanent link">&para;</a></h2>
-<h3 id="changed_34">Changed<a class="headerlink" href="#changed_34" title="Permanent link">&para;</a></h3>
+<h3 id="changed_35">Changed<a class="headerlink" href="#changed_35" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Renamed <code>--json</code> to <code>--set-json</code> on <code>person field</code>, <code>company field</code>, <code>opportunity field</code> commands to avoid conflict with global <code>--json</code> output flag.</li>
 <li><strong>BREAKING</strong>: CLI: <code>--csv FILE</code> is now <code>--csv</code> flag that outputs CSV to stdout. Use shell redirection: <code>--csv &gt; file.csv</code>. Applies to <code>person ls</code>, <code>company ls</code>, <code>opportunity ls</code>, <code>list export</code>.</li>
@@ -4231,7 +4376,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI: <code>entry field --append FIELD VALUE</code> for adding to multi-value fields without replacing.</li>
 <li>CLI: <code>entry field --unset-value FIELD VALUE</code> for removing specific value from multi-value field.</li>
 </ul>
-<h3 id="fixed_56">Fixed<a class="headerlink" href="#fixed_56" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_57">Fixed<a class="headerlink" href="#fixed_57" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>FieldValues</code> now properly parses field arrays from API responses (previously showed <code>requested=False</code>).</li>
 </ul>
@@ -4253,7 +4398,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>SDK: <code>FilterStats</code> dataclass for tracking scanned/matched counts during filtered pagination.</li>
 <li>SDK: <code>PaginatedResponse.filter_stats</code> property exposes filter statistics.</li>
 </ul>
-<h3 id="fixed_57">Fixed<a class="headerlink" href="#fixed_57" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_58">Fixed<a class="headerlink" href="#fixed_58" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: JSON progress output no longer appears alongside Rich progress bar (mutual exclusivity enforced).</li>
 <li>SDK: Dropdown field filtering now extracts "text" property from dropdown dicts.</li>
@@ -4265,7 +4410,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI: Click.Choice values (<code>choices</code>) now included in <code>--help --json</code> output.</li>
 <li>CLI: Examples from docstrings now parsed and included in <code>--help --json</code> output.</li>
 </ul>
-<h3 id="changed_35">Changed<a class="headerlink" href="#changed_35" title="Permanent link">&para;</a></h3>
+<h3 id="changed_36">Changed<a class="headerlink" href="#changed_36" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Improved <code>--filter</code> help text with full operator list (<code>= != =~ =^ =$ &gt; &lt; &gt;= &lt;=</code>).</li>
 <li>CLI: Improved <code>--query</code> help text to clarify V1 fuzzy search vs V2 structured filtering.</li>
@@ -4286,12 +4431,12 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>MCP: CLI version check in <code>command_supports_progress</code> (disables progress for CLI &lt; 0.6.10).</li>
 <li>MCP: <code>XAFFINITY_CLI_VERSION</code> exported for tool scripts to access CLI version.</li>
 </ul>
-<h3 id="changed_36">Changed<a class="headerlink" href="#changed_36" title="Permanent link">&para;</a></h3>
+<h3 id="changed_37">Changed<a class="headerlink" href="#changed_37" title="Permanent link">&para;</a></h3>
 <ul>
 <li>MCP: Updated mcp-bash.lock to patched v0.9.3 (commit ee245a7) with progress passthrough fixes.</li>
 </ul>
 <h2 id="069-2026-01-06">0.6.9 - 2026-01-06<a class="headerlink" href="#069-2026-01-06" title="Permanent link">&para;</a></h2>
-<h3 id="changed_37">Changed<a class="headerlink" href="#changed_37" title="Permanent link">&para;</a></h3>
+<h3 id="changed_38">Changed<a class="headerlink" href="#changed_38" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI Plugin: Skill now documents destructive command confirmation flow (look up, ask, wait, execute with <code>--yes</code>).</li>
 <li>CLI Plugin: Skill lists all destructive commands requiring double confirmation.</li>
@@ -4304,12 +4449,12 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI: Commands now expose category (read/write/local) and destructive metadata.</li>
 </ul>
 <h2 id="067-2026-01-03">0.6.7 - 2026-01-03<a class="headerlink" href="#067-2026-01-03" title="Permanent link">&para;</a></h2>
-<h3 id="changed_38">Changed<a class="headerlink" href="#changed_38" title="Permanent link">&para;</a></h3>
+<h3 id="changed_39">Changed<a class="headerlink" href="#changed_39" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Docs: Updated all documentation links to use versioned <code>/latest/</code> URLs for reliable navigation.</li>
 </ul>
 <h2 id="066-2026-01-03">0.6.6 - 2026-01-03<a class="headerlink" href="#066-2026-01-03" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_58">Fixed<a class="headerlink" href="#fixed_58" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_59">Fixed<a class="headerlink" href="#fixed_59" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: Regex patterns in <code>lists.py</code> and <code>http.py</code> were double-escaped, matching literal <code>\d</code> instead of digits.</li>
 </ul>
@@ -4320,12 +4465,12 @@ v2.1.120 plugin/marketplace conventions).</p>
 <h2 id="063-2026-01-02">0.6.3 - 2026-01-02<a class="headerlink" href="#063-2026-01-02" title="Permanent link">&para;</a></h2>
 <p><em>No user-facing changes. Version bump for PyPI release.</em></p>
 <h2 id="062-2026-01-02">0.6.2 - 2026-01-02<a class="headerlink" href="#062-2026-01-02" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_59">Fixed<a class="headerlink" href="#fixed_59" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_60">Fixed<a class="headerlink" href="#fixed_60" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Added explicit <code>type=str</code> to Click arguments for Python 3.13 mypy compatibility.</li>
 </ul>
 <h2 id="061-2026-01-02">0.6.1 - 2026-01-02<a class="headerlink" href="#061-2026-01-02" title="Permanent link">&para;</a></h2>
-<h3 id="changed_39">Changed<a class="headerlink" href="#changed_39" title="Permanent link">&para;</a></h3>
+<h3 id="changed_40">Changed<a class="headerlink" href="#changed_40" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Docs: Separated MCP Server documentation from Claude Code plugins.</li>
 </ul>
@@ -4334,19 +4479,19 @@ v2.1.120 plugin/marketplace conventions).</p>
 <ul>
 <li>MCP: <code>read-xaffinity-resource</code> tool for clients with limited resource support.</li>
 </ul>
-<h3 id="changed_40">Changed<a class="headerlink" href="#changed_40" title="Permanent link">&para;</a></h3>
+<h3 id="changed_41">Changed<a class="headerlink" href="#changed_41" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Plugins: Restructured into 3-plugin marketplace architecture (affinity-sdk, xaffinity-cli, xaffinity-mcp).</li>
 <li>Docs: Restructured Claude integrations with consistent naming.</li>
 </ul>
-<h3 id="fixed_60">Fixed<a class="headerlink" href="#fixed_60" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_61">Fixed<a class="headerlink" href="#fixed_61" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Improved <code>setup-key</code> command UX with Rich styling.</li>
 <li>MCP: Source both <code>.zprofile</code> and <code>.zshrc</code> in environment wrapper.</li>
 <li>MCP: Parse JSON response correctly for <code>check-key</code> output.</li>
 </ul>
 <h2 id="051-2026-01-01">0.5.1 - 2026-01-01<a class="headerlink" href="#051-2026-01-01" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_61">Fixed<a class="headerlink" href="#fixed_61" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_62">Fixed<a class="headerlink" href="#fixed_62" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Plugins: Consolidated plugin structure and fixed relative paths.</li>
 </ul>
@@ -4366,7 +4511,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>SDK: Async versions of opportunity search methods in <code>AsyncOpportunityService</code>.</li>
 <li>SDK: <code>InteractionService.list()</code> now accepts <code>company_id</code> and <code>opportunity_id</code> parameters.</li>
 </ul>
-<h3 id="changed_41">Changed<a class="headerlink" href="#changed_41" title="Permanent link">&para;</a></h3>
+<h3 id="changed_42">Changed<a class="headerlink" href="#changed_42" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>list view</code> renamed to <code>list get</code> for consistency with other entity commands.</li>
 <li>CLI: <code>--completed/--not-completed</code> boolean flag pattern for <code>reminder update</code> (replaces separate flags).</li>
@@ -4381,7 +4526,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI: <code>company set-field</code>, <code>company set-fields</code>, <code>company unset-field</code> commands (use <code>company field</code> instead).</li>
 <li>CLI: <code>opportunity set-field</code>, <code>opportunity set-fields</code>, <code>opportunity unset-field</code> commands (use <code>opportunity field</code> instead).</li>
 </ul>
-<h3 id="fixed_62">Fixed<a class="headerlink" href="#fixed_62" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_63">Fixed<a class="headerlink" href="#fixed_63" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Help text formatting - added missing spaces in command examples (~78 instances).</li>
 <li>CLI: Improved <code>--cursor</code> help text explaining incompatibility with <code>--page-size</code>.</li>
@@ -4399,12 +4544,12 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>CLI: <code>config check-key --json</code> now includes <code>pattern</code> field showing key source.</li>
 <li>SDK: Client-side filtering for list entries (V2 API does not support server-side filtering).</li>
 </ul>
-<h3 id="changed_42">Changed<a class="headerlink" href="#changed_42" title="Permanent link">&para;</a></h3>
+<h3 id="changed_43">Changed<a class="headerlink" href="#changed_43" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: <code>--filter</code> on list entry commands now applies client-side with warning (V2 API limitation).</li>
 <li>CLI: Removed <code>--opportunity-id</code> from <code>list entry add</code> (opportunities are created atomically via <code>opportunity create --list-id</code>).</li>
 </ul>
-<h3 id="fixed_63">Fixed<a class="headerlink" href="#fixed_63" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_64">Fixed<a class="headerlink" href="#fixed_64" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: Client-side filter parsing handles whitespace-only and unparseable filters gracefully.</li>
 <li>CLI: <code>--filter</code> on list entries now returns proper field values (V2 API format).</li>
@@ -4420,12 +4565,12 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>SDK: <code>list_entries</code> field added to <code>Person</code> model.</li>
 <li>SDK: Unified filter parser with <code>parse()</code> function and <code>matches()</code> method for client-side filter evaluation.</li>
 </ul>
-<h3 id="changed_43">Changed<a class="headerlink" href="#changed_43" title="Permanent link">&para;</a></h3>
+<h3 id="changed_44">Changed<a class="headerlink" href="#changed_44" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Authentication error hints now reference <code>config check-key</code> and <code>config setup-key</code> commands.</li>
 <li>CLI: Authentication documentation updated with Quick Setup section.</li>
 </ul>
-<h3 id="fixed_64">Fixed<a class="headerlink" href="#fixed_64" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_65">Fixed<a class="headerlink" href="#fixed_65" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Default <code>--page-size</code> reduced from 200 to 100 to match Affinity API limit.</li>
 <li>SDK: Async <code>merge()</code> parameter names corrected (<code>primaryCompanyId</code>/<code>duplicateCompanyId</code>).</li>
@@ -4468,7 +4613,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li>Inbound webhook parsing helpers: <code>parse_webhook(...)</code>, <code>dispatch_webhook(...)</code>, and <code>BodyRegistry</code>.</li>
 <li>Claude Code plugin for SDK/CLI documentation and guidance.</li>
 </ul>
-<h3 id="changed_44">Changed<a class="headerlink" href="#changed_44" title="Permanent link">&para;</a></h3>
+<h3 id="changed_45">Changed<a class="headerlink" href="#changed_45" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CLI: Enum fields now display human-readable names instead of integers (type, status, direction, actionType).</li>
 <li>CLI: Datetimes render in local time with timezone info in column headers.</li>
@@ -4481,7 +4626,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li><code>ListEntry.entity</code> is now discriminated by <code>entity_type</code>.</li>
 <li>Rate limit API unified across sync and async clients.</li>
 </ul>
-<h3 id="fixed_65">Fixed<a class="headerlink" href="#fixed_65" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_66">Fixed<a class="headerlink" href="#fixed_66" title="Permanent link">&para;</a></h3>
 <ul>
 <li>SDK: <code>ListService.get()</code> now uses V1 API to return correct <code>list_size</code>.</li>
 <li>CLI: JSON serialization now handles datetime objects correctly.</li>
@@ -4496,7 +4641,7 @@ v2.1.120 plugin/marketplace conventions).</p>
 <li><code>client.files.upload_path(...)</code> and <code>client.files.upload_bytes(...)</code> for ergonomic uploads.</li>
 <li><code>client.files.all(...)</code> / <code>client.files.iter(...)</code> for auto-pagination over files.</li>
 </ul>
-<h3 id="changed_45">Changed<a class="headerlink" href="#changed_45" title="Permanent link">&para;</a></h3>
+<h3 id="changed_46">Changed<a class="headerlink" href="#changed_46" title="Permanent link">&para;</a></h3>
 <ul>
 <li>File downloads now follow redirects without forwarding credentials and use the standard retry/diagnostics policy.</li>
 <li><code>client.files.list(...)</code> and <code>client.files.upload(...)</code> now require exactly one of <code>person_id</code>, <code>organization_id</code>, or <code>opportunity_id</code> (per API contract).</li>

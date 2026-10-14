@@ -2009,26 +2009,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../../reference/services/transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -2036,19 +2025,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2148,7 +2129,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2204,7 +2185,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2241,14 +2222,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2406,18 +2379,23 @@
 <li><strong>V2 API</strong>: newer endpoints at <code>https://api.affinity.co/v2</code></li>
 <li><strong>V2 API version</strong>: dated versions like <code>2024-01-01</code> within V2 (configured in Affinity)</li>
 <li><strong>Default API Version</strong>: your Affinity setting that selects the V2 version</li>
-<li><strong>Beta endpoints</strong>: newer V2 endpoints that require opt-in</li>
+<li><strong>Beta endpoints</strong>: V2 endpoints Affinity marks as beta; the SDK calls them without an opt-in</li>
 </ul>
 </details>
-<p>The SDK uses V2 endpoints wherever V2 can do the job, and V1 where it can't.</p>
+<p>The SDK uses V2 endpoints wherever V2 can do the job, and V1 where it can't. This page covers
+which calls go where; dated V2 versions and pinning are in
+<a href="../api-versions/">Affinity API versions</a>, and every operation is listed in
+<a href="../../reference/api-coverage/">API coverage</a>.</p>
 <h2 id="what-this-means-in-practice">What this means in practice<a class="headerlink" href="#what-this-means-in-practice" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Reads</strong> (list/get/search) use <strong>V2</strong>, except notes <code>list</code>/<code>get</code>, interactions per entity,
-  files per entity, field values on companies and persons, and list sizes.</li>
-<li><strong>Writes</strong> use <strong>V2</strong> for webhooks, reminders, notes and list create. <strong>V1</strong> remains for
-  writes V2 doesn't offer: company create/update, person create/update/delete, opportunity
-  create/update/delete, adding to a list, interactions, entity files, and field values on
-  companies and persons. (Affinity's V2 spec also documents person create/delete, opportunity
+<li><strong>Reads</strong> (list/get/search) use <strong>V2</strong>, except <code>notes.list()</code> (one entity's notes),
+  <code>interactions.list()</code> / <code>get()</code>, files per entity, the <code>field_values</code> service, and list sizes.
+  Field values on companies, persons and list entries are read through V2.</li>
+<li><strong>Writes</strong> use <strong>V2</strong> for webhooks, reminders, notes, list create, and field values on
+  companies, persons and list entries. <strong>V1</strong> remains for writes V2 doesn't offer: company
+  create/update/delete, person create/update/delete, opportunity create/update/delete, adding
+  to or removing from a list, interactions, entity file uploads, fields, and the <code>field_values</code>
+  service. (Affinity's V2 spec also documents person create/delete, opportunity
   rename/delete and adding to a list, but the API didn't serve them when tested, 2026-10-12.)</li>
 </ul>
 <h3 id="documented-v1-exceptions">Documented V1 exceptions<a class="headerlink" href="#documented-v1-exceptions" title="Permanent link">&para;</a></h3>

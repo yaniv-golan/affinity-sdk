@@ -2082,26 +2082,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -2109,19 +2098,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2221,7 +2202,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2277,7 +2258,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2314,14 +2295,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2565,14 +2538,7 @@
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/services/webhooks.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 73</span>
-<span class="normal"> 74</span>
-<span class="normal"> 75</span>
-<span class="normal"> 76</span>
-<span class="normal"> 77</span>
-<span class="normal"> 78</span>
-<span class="normal"> 79</span>
-<span class="normal"> 80</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 80</span>
 <span class="normal"> 81</span>
 <span class="normal"> 82</span>
 <span class="normal"> 83</span>
@@ -2687,7 +2653,17 @@
 <span class="normal">192</span>
 <span class="normal">193</span>
 <span class="normal">194</span>
-<span class="normal">195</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookService</span><span class="p">:</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WebhookService</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Webhooks (V2, beta). Every call sends Affinity API version 2026-07-15 unless pinned newer."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">HTTPClient</span><span class="p">):</span>
@@ -2712,6 +2688,7 @@
 <span class="sd">        exclusive. ``limit`` is 1-100. Pass ``cursor`` (``pagination.next_cursor``) alone for the</span>
 <span class="sd">        next page; :meth:`iter` follows every page.</span>
 <span class="sd">        """</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">materialize_ids</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
         <span class="n">check_cursor_alone</span><span class="p">(</span>
             <span class="n">cursor</span><span class="p">,</span>
             <span class="n">ids</span><span class="p">,</span>
@@ -2735,6 +2712,8 @@
             <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span>
             <span class="n">total_count</span><span class="o">=</span><span class="n">total_count</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">if</span> <span class="n">no_ids</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">empty_page</span><span class="p">(</span><span class="n">Webhook</span><span class="p">,</span> <span class="n">total_count</span><span class="o">=</span><span class="n">total_count</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">page_of</span><span class="p">(</span>
             <span class="n">Webhook</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -2845,18 +2824,18 @@ the organization's webhook limit raises one too. <code>subscriptions=[]</code> =
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/webhooks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">WebhookCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Webhook</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">WebhookCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Webhook</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Create a webhook; the caller becomes its creator.</span>
 
 <span class="sd">    Affinity first sends a test delivery to ``data.url``. A URL that is unreachable, holds</span>
@@ -2891,12 +2870,12 @@ not visible to you (<code>NotFoundError</code>).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/webhooks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">webhook_id</span><span class="p">:</span> <span class="n">WebhookId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">webhook_id</span><span class="p">:</span> <span class="n">WebhookId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Delete a webhook. One you didn't create, without permission to manage all webhooks, is</span>
 <span class="sd">    not visible to you (``NotFoundError``)."""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span>
@@ -2924,13 +2903,13 @@ not visible to you (<code>NotFoundError</code>).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/webhooks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">webhook_id</span><span class="p">:</span> <span class="n">WebhookId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Webhook</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">webhook_id</span><span class="p">:</span> <span class="n">WebhookId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Webhook</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""One webhook. ``NotFoundError`` when it does not exist or is not visible to the caller."""</span>
     <span class="k">return</span> <span class="n">Webhook</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -2959,17 +2938,7 @@ not visible to you (<code>NotFoundError</code>).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/webhooks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">138</span>
 <span class="normal">139</span>
 <span class="normal">140</span>
 <span class="normal">141</span>
@@ -2983,7 +2952,17 @@ not visible to you (<code>NotFoundError</code>).</p>
 <span class="normal">149</span>
 <span class="normal">150</span>
 <span class="normal">151</span>
-<span class="normal">152</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter</span><span class="p">(</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">WebhookId</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3034,14 +3013,7 @@ next page; :meth:<code>iter</code> follows every page.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/webhooks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 79</span>
-<span class="normal"> 80</span>
-<span class="normal"> 81</span>
-<span class="normal"> 82</span>
-<span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 86</span>
 <span class="normal"> 87</span>
 <span class="normal"> 88</span>
 <span class="normal"> 89</span>
@@ -3081,7 +3053,17 @@ next page; :meth:<code>iter</code> follows every page.</p>
 <span class="normal">123</span>
 <span class="normal">124</span>
 <span class="normal">125</span>
-<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">WebhookId</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3100,6 +3082,7 @@ next page; :meth:<code>iter</code> follows every page.</p>
 <span class="sd">    exclusive. ``limit`` is 1-100. Pass ``cursor`` (``pagination.next_cursor``) alone for the</span>
 <span class="sd">    next page; :meth:`iter` follows every page.</span>
 <span class="sd">    """</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="n">materialize_ids</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
     <span class="n">check_cursor_alone</span><span class="p">(</span>
         <span class="n">cursor</span><span class="p">,</span>
         <span class="n">ids</span><span class="p">,</span>
@@ -3123,6 +3106,8 @@ next page; :meth:<code>iter</code> follows every page.</p>
         <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span>
         <span class="n">total_count</span><span class="o">=</span><span class="n">total_count</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="k">if</span> <span class="n">no_ids</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">empty_page</span><span class="p">(</span><span class="n">Webhook</span><span class="p">,</span> <span class="n">total_count</span><span class="o">=</span><span class="n">total_count</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">page_of</span><span class="p">(</span>
         <span class="n">Webhook</span><span class="p">,</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -3155,20 +3140,20 @@ is not visible to you (<code>NotFoundError</code>).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/webhooks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">185</span>
 <span class="normal">186</span>
 <span class="normal">187</span>
-<span class="normal">188</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">webhook_id</span><span class="p">:</span> <span class="n">WebhookId</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">WebhookUpdate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Webhook</span><span class="p">:</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">webhook_id</span><span class="p">:</span> <span class="n">WebhookId</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">WebhookUpdate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Webhook</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Change a webhook (only the fields set in ``data``) and return it as read back.</span>
 
 <span class="sd">    Two requests: the update answers with no body, so the webhook is fetched afterwards.</span>
@@ -3216,17 +3201,7 @@ is not visible to you (<code>NotFoundError</code>).</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/services/webhooks.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">208</span>
 <span class="normal">209</span>
 <span class="normal">210</span>
 <span class="normal">211</span>
@@ -3322,7 +3297,20 @@ is not visible to you (<code>NotFoundError</code>).</p>
 <span class="normal">301</span>
 <span class="normal">302</span>
 <span class="normal">303</span>
-<span class="normal">304</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AsyncWebhookService</span><span class="p">:</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AsyncWebhookService</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Async webhooks (V2, beta); same behavior as :class:`WebhookService`."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">AsyncHTTPClient</span><span class="p">):</span>
@@ -3341,6 +3329,7 @@ is not visible to you (<code>NotFoundError</code>).</p>
         <span class="n">cursor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">Webhook</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""One page of webhooks; see :meth:`WebhookService.list`."""</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">materialize_ids</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
         <span class="n">check_cursor_alone</span><span class="p">(</span>
             <span class="n">cursor</span><span class="p">,</span>
             <span class="n">ids</span><span class="p">,</span>
@@ -3365,6 +3354,8 @@ is not visible to you (<code>NotFoundError</code>).</p>
             <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span>
             <span class="n">total_count</span><span class="o">=</span><span class="n">total_count</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">if</span> <span class="n">no_ids</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">empty_page</span><span class="p">(</span><span class="n">Webhook</span><span class="p">,</span> <span class="n">total_count</span><span class="o">=</span><span class="n">total_count</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">page_of</span><span class="p">(</span>
             <span class="n">Webhook</span><span class="p">,</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -3465,13 +3456,13 @@ is not visible to you (<code>NotFoundError</code>).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/webhooks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">282</span>
-<span class="normal">283</span>
-<span class="normal">284</span>
-<span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span>
-<span class="normal">288</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">WebhookCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Webhook</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">WebhookCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Webhook</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Create a webhook; see :meth:`WebhookService.create`."""</span>
     <span class="k">return</span> <span class="n">Webhook</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
@@ -3504,11 +3495,11 @@ is not visible to you (<code>NotFoundError</code>).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/webhooks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">300</span>
-<span class="normal">301</span>
-<span class="normal">302</span>
-<span class="normal">303</span>
-<span class="normal">304</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">webhook_id</span><span class="p">:</span> <span class="n">WebhookId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">webhook_id</span><span class="p">:</span> <span class="n">WebhookId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Delete a webhook; see :meth:`WebhookService.delete`."""</span>
     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">"/webhooks/</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">webhook_id</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">min_api_version</span><span class="o">=</span><span class="n">WEBHOOKS_MIN_API_VERSION</span>
@@ -3539,13 +3530,13 @@ is not visible to you (<code>NotFoundError</code>).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/webhooks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">webhook_id</span><span class="p">:</span> <span class="n">WebhookId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Webhook</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">webhook_id</span><span class="p">:</span> <span class="n">WebhookId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Webhook</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""One webhook; see :meth:`WebhookService.get`."""</span>
     <span class="k">return</span> <span class="n">Webhook</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -3574,20 +3565,7 @@ is not visible to you (<code>NotFoundError</code>).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/webhooks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">261</span>
 <span class="normal">262</span>
 <span class="normal">263</span>
 <span class="normal">264</span>
@@ -3598,7 +3576,20 @@ is not visible to you (<code>NotFoundError</code>).</p>
 <span class="normal">269</span>
 <span class="normal">270</span>
 <span class="normal">271</span>
-<span class="normal">272</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter</span><span class="p">(</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">WebhookId</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3649,17 +3640,7 @@ is not visible to you (<code>NotFoundError</code>).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/webhooks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">214</span>
 <span class="normal">215</span>
 <span class="normal">216</span>
 <span class="normal">217</span>
@@ -3691,7 +3672,20 @@ is not visible to you (<code>NotFoundError</code>).</p>
 <span class="normal">243</span>
 <span class="normal">244</span>
 <span class="normal">245</span>
-<span class="normal">246</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">WebhookId</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3704,6 +3698,7 @@ is not visible to you (<code>NotFoundError</code>).</p>
     <span class="n">cursor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">[</span><span class="n">Webhook</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""One page of webhooks; see :meth:`WebhookService.list`."""</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="n">materialize_ids</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
     <span class="n">check_cursor_alone</span><span class="p">(</span>
         <span class="n">cursor</span><span class="p">,</span>
         <span class="n">ids</span><span class="p">,</span>
@@ -3728,6 +3723,8 @@ is not visible to you (<code>NotFoundError</code>).</p>
         <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span>
         <span class="n">total_count</span><span class="o">=</span><span class="n">total_count</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="k">if</span> <span class="n">no_ids</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">empty_page</span><span class="p">(</span><span class="n">Webhook</span><span class="p">,</span> <span class="n">total_count</span><span class="o">=</span><span class="n">total_count</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">page_of</span><span class="p">(</span>
         <span class="n">Webhook</span><span class="p">,</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -3761,15 +3758,15 @@ is not visible to you (<code>NotFoundError</code>).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/webhooks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">290</span>
-<span class="normal">291</span>
-<span class="normal">292</span>
-<span class="normal">293</span>
-<span class="normal">294</span>
-<span class="normal">295</span>
-<span class="normal">296</span>
-<span class="normal">297</span>
-<span class="normal">298</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">webhook_id</span><span class="p">:</span> <span class="n">WebhookId</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">WebhookUpdate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Webhook</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">webhook_id</span><span class="p">:</span> <span class="n">WebhookId</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">WebhookUpdate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Webhook</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Change a webhook and return it as read back (two requests); see</span>
 <span class="sd">    :meth:`WebhookService.update`."""</span>
     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>

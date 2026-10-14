@@ -2064,26 +2064,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../../reference/services/transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -2091,19 +2080,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2203,7 +2184,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2259,7 +2240,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2296,14 +2277,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2509,6 +2482,9 @@
 
 
 <h1 id="affinity-api-versions">Affinity API versions<a class="headerlink" href="#affinity-api-versions" title="Permanent link">&para;</a></h1>
+<p>This page is about Affinity's dated V2 versions and pinning one. Which calls go to V1 or V2 is
+in <a href="../api-versions-and-routing/">API versions &amp; SDK routing</a>; what changed between SDK 1.x and
+2.0 is in <a href="../migrating-to-2/">Migrating to 2.0</a>.</p>
 <p>Affinity versions its <strong>V2</strong> API by date. Three versions exist today:</p>
 <table>
 <thead>
@@ -2538,8 +2514,9 @@ A request can override it with the <code>X-Affinity-Api-Version</code> header, a
 reports the version that answered. V1 endpoints are not versioned.</p>
 <h2 id="what-the-sdk-and-cli-do-by-default">What the SDK and CLI do by default<a class="headerlink" href="#what-the-sdk-and-cli-do-by-default" title="Permanent link">&para;</a></h2>
 <p>Nothing changes unless you ask: the SDK sends <strong>no</strong> version header, so your API key's default
-version applies — exactly as before. To find out what that default is:</p>
-<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>whoami<span class="w">            </span><span class="c1"># "Key default API version: 2024-01-01" (with -v)</span>
+version applies — except for the few calls that need a newer version (see
+<a href="#calls-that-need-a-newer-version">Calls that need a newer version</a>). To find out what that default is:</p>
+<div class="highlight"><pre><span></span><code>xaffinity<span class="w"> </span>-v<span class="w"> </span>whoami<span class="w">         </span><span class="c1"># "Key default API version: 2024-01-01"</span>
 xaffinity<span class="w"> </span>--json<span class="w"> </span>whoami<span class="w">     </span><span class="c1"># data.keyDefaultApiVersion</span>
 xaffinity<span class="w"> </span>--json<span class="w"> </span>config<span class="w"> </span>check-key<span class="w">   </span><span class="c1"># data.keyDefaultApiVersion (best-effort)</span>
 </code></pre></div>
@@ -2607,9 +2584,28 @@ sends a minimum version for that one request:</p>
 </ul>
 <p>Versions that answered such calls are listed in <code>client.affinity_api_versions_per_operation</code>
 (a subset of <code>affinity_api_versions_seen</code>) and in the CLI's <code>meta.affinityApiVersionPerOperation</code>.
-They don't trigger the "more than one version" warning. Today the only such calls are company
-and person field writes; <code>meta.affinityApiVersionPerOperation</code> covers the CLI's main client, which
-is the one those commands use.</p>
+They don't trigger the "more than one version" warning. <code>meta.affinityApiVersionPerOperation</code>
+covers the CLI's main client.</p>
+<p>The calls that send a minimum version today:</p>
+<table>
+<thead>
+<tr>
+<th>Minimum version</th>
+<th>Calls</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2026-07-15</code></td>
+<td>webhooks; reminder get and delete; company and person field writes (<code>update_field_value</code>, <code>batch_update_fields</code>); company notes; company and person relationships; duplicate suggestions; meeting get; the rate-limit endpoint; dropdown-option writes, and dropdown-option reads with status types</td>
+</tr>
+<tr>
+<td><code>2026-09-17</code></td>
+<td>reminder update; teams; V2 file feed and download URL; field-value item lists (<code>list_field_value_items</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>The <a href="../../reference/api-coverage/">API coverage</a> page shows the minimum for each operation.</p>
 <h2 id="caching">Caching<a class="headerlink" href="#caching" title="Permanent link">&para;</a></h2>
 <p>Response shapes differ between versions, so both caches are keyed by the configured version:
 the SDK's in-memory cache and the CLI session cache (<code>AFFINITY_SESSION_CACHE</code>) never serve an

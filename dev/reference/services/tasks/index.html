@@ -2082,26 +2082,15 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
+    <li class="md-nav__item">
+      <a href="../transcripts/" class="md-nav__link">
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_10_8_9" id="__nav_10_8_9_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    V1 endpoints
+    Transcripts
   
 
     
@@ -2109,19 +2098,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    V1 endpoints
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -2221,7 +2202,7 @@
   <span class="md-ellipsis">
     
   
-    Field values
+    Field values (V1)
   
 
     
@@ -2277,7 +2258,7 @@
   <span class="md-ellipsis">
     
   
-    Relationships
+    Relationship strength (V1)
   
 
     
@@ -2314,14 +2295,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2691,7 +2664,8 @@ if task.status == "success":
 <span class="normal">146</span>
 <span class="normal">147</span>
 <span class="normal">148</span>
-<span class="normal">149</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskService</span><span class="p">:</span>
+<span class="normal">149</span>
+<span class="normal">150</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskService</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Service for managing long-running operations (tasks).</span>
 
@@ -2797,13 +2771,14 @@ if task.status == "success":
                 <span class="k">return</span> <span class="n">task</span>
 
             <span class="c1"># Check timeout</span>
-            <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
-            <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&gt;=</span> <span class="n">timeout</span><span class="p">:</span>
+            <span class="n">remaining</span> <span class="o">=</span> <span class="n">timeout</span> <span class="o">-</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">remaining</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">AffinityTimeoutError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Task did not complete within </span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s2">s: </span><span class="si">{</span><span class="n">task_url</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-            <span class="c1"># Wait with jitter before next poll</span>
+            <span class="c1"># Wait with jitter before next poll, never past the deadline (the poll after that</span>
+            <span class="c1"># last sleep is the final one)</span>
             <span class="n">jitter</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">current_interval</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">)</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">current_interval</span> <span class="o">+</span> <span class="n">jitter</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">current_interval</span> <span class="o">+</span> <span class="n">jitter</span><span class="p">,</span> <span class="n">remaining</span><span class="p">))</span>
 
             <span class="c1"># Exponential backoff, capped at max</span>
             <span class="n">current_interval</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">current_interval</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">max_poll_interval</span><span class="p">)</span>
@@ -3230,7 +3205,8 @@ duplicates" permission and the organization admin role.</p>
 <span class="normal">146</span>
 <span class="normal">147</span>
 <span class="normal">148</span>
-<span class="normal">149</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wait</span><span class="p">(</span>
+<span class="normal">149</span>
+<span class="normal">150</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wait</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">task_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -3270,13 +3246,14 @@ duplicates" permission and the organization admin role.</p>
             <span class="k">return</span> <span class="n">task</span>
 
         <span class="c1"># Check timeout</span>
-        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
-        <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&gt;=</span> <span class="n">timeout</span><span class="p">:</span>
+        <span class="n">remaining</span> <span class="o">=</span> <span class="n">timeout</span> <span class="o">-</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">remaining</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">AffinityTimeoutError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Task did not complete within </span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s2">s: </span><span class="si">{</span><span class="n">task_url</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="c1"># Wait with jitter before next poll</span>
+        <span class="c1"># Wait with jitter before next poll, never past the deadline (the poll after that</span>
+        <span class="c1"># last sleep is the final one)</span>
         <span class="n">jitter</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">current_interval</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">)</span>
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">current_interval</span> <span class="o">+</span> <span class="n">jitter</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">current_interval</span> <span class="o">+</span> <span class="n">jitter</span><span class="p">,</span> <span class="n">remaining</span><span class="p">))</span>
 
         <span class="c1"># Exponential backoff, capped at max</span>
         <span class="n">current_interval</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">current_interval</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">max_poll_interval</span><span class="p">)</span>
@@ -3322,8 +3299,7 @@ duplicates" permission and the organization admin role.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>affinity/services/tasks.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">152</span>
-<span class="normal">153</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">153</span>
 <span class="normal">154</span>
 <span class="normal">155</span>
 <span class="normal">156</span>
@@ -3434,7 +3410,9 @@ duplicates" permission and the organization admin role.</p>
 <span class="normal">261</span>
 <span class="normal">262</span>
 <span class="normal">263</span>
-<span class="normal">264</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AsyncTaskService</span><span class="p">:</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AsyncTaskService</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Async version of TaskService.</span>
 
@@ -3537,13 +3515,14 @@ duplicates" permission and the organization admin role.</p>
                 <span class="k">return</span> <span class="n">task</span>
 
             <span class="c1"># Check timeout</span>
-            <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
-            <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&gt;=</span> <span class="n">timeout</span><span class="p">:</span>
+            <span class="n">remaining</span> <span class="o">=</span> <span class="n">timeout</span> <span class="o">-</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">remaining</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">AffinityTimeoutError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Task did not complete within </span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s2">s: </span><span class="si">{</span><span class="n">task_url</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-            <span class="c1"># Wait with jitter before next poll</span>
+            <span class="c1"># Wait with jitter before next poll, never past the deadline (the poll after that</span>
+            <span class="c1"># last sleep is the final one)</span>
             <span class="n">jitter</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">current_interval</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">)</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">current_interval</span> <span class="o">+</span> <span class="n">jitter</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">current_interval</span> <span class="o">+</span> <span class="n">jitter</span><span class="p">,</span> <span class="n">remaining</span><span class="p">))</span>
 
             <span class="c1"># Exponential backoff, capped at max</span>
             <span class="n">current_interval</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">current_interval</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">max_poll_interval</span><span class="p">)</span>
@@ -3637,8 +3616,7 @@ duplicates" permission and the organization admin role.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/tasks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">167</span>
-<span class="normal">168</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">168</span>
 <span class="normal">169</span>
 <span class="normal">170</span>
 <span class="normal">171</span>
@@ -3648,7 +3626,8 @@ duplicates" permission and the organization admin role.</p>
 <span class="normal">175</span>
 <span class="normal">176</span>
 <span class="normal">177</span>
-<span class="normal">178</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MergeTask</span><span class="p">:</span>
+<span class="normal">178</span>
+<span class="normal">179</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MergeTask</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get the current status of a task.</span>
 
@@ -3682,8 +3661,7 @@ duplicates" permission and the organization admin role.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/tasks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">203</span>
-<span class="normal">204</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">204</span>
 <span class="normal">205</span>
 <span class="normal">206</span>
 <span class="normal">207</span>
@@ -3692,7 +3670,8 @@ duplicates" permission and the organization admin role.</p>
 <span class="normal">210</span>
 <span class="normal">211</span>
 <span class="normal">212</span>
-<span class="normal">213</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter_merge_tasks</span><span class="p">(</span>
+<span class="normal">213</span>
+<span class="normal">214</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">iter_merge_tasks</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"company"</span><span class="p">,</span> <span class="s2">"person"</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">MergeTask</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""All company or person merge tasks (every page); see :meth:`list_merge_tasks`."""</span>
@@ -3731,8 +3710,7 @@ duplicates" permission and the organization admin role.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/tasks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">180</span>
-<span class="normal">181</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">181</span>
 <span class="normal">182</span>
 <span class="normal">183</span>
 <span class="normal">184</span>
@@ -3752,7 +3730,8 @@ duplicates" permission and the organization admin role.</p>
 <span class="normal">198</span>
 <span class="normal">199</span>
 <span class="normal">200</span>
-<span class="normal">201</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_merge_tasks</span><span class="p">(</span>
+<span class="normal">201</span>
+<span class="normal">202</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_merge_tasks</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">kind</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"company"</span><span class="p">,</span> <span class="s2">"person"</span><span class="p">],</span>
     <span class="o">*</span><span class="p">,</span>
@@ -3935,8 +3914,7 @@ duplicates" permission and the organization admin role.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>affinity/services/tasks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">215</span>
-<span class="normal">216</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">216</span>
 <span class="normal">217</span>
 <span class="normal">218</span>
 <span class="normal">219</span>
@@ -3984,7 +3962,9 @@ duplicates" permission and the organization admin role.</p>
 <span class="normal">261</span>
 <span class="normal">262</span>
 <span class="normal">263</span>
-<span class="normal">264</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wait</span><span class="p">(</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wait</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">task_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -4024,13 +4004,14 @@ duplicates" permission and the organization admin role.</p>
             <span class="k">return</span> <span class="n">task</span>
 
         <span class="c1"># Check timeout</span>
-        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
-        <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&gt;=</span> <span class="n">timeout</span><span class="p">:</span>
+        <span class="n">remaining</span> <span class="o">=</span> <span class="n">timeout</span> <span class="o">-</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">remaining</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">AffinityTimeoutError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Task did not complete within </span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s2">s: </span><span class="si">{</span><span class="n">task_url</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="c1"># Wait with jitter before next poll</span>
+        <span class="c1"># Wait with jitter before next poll, never past the deadline (the poll after that</span>
+        <span class="c1"># last sleep is the final one)</span>
         <span class="n">jitter</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">current_interval</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">)</span>
-        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">current_interval</span> <span class="o">+</span> <span class="n">jitter</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">current_interval</span> <span class="o">+</span> <span class="n">jitter</span><span class="p">,</span> <span class="n">remaining</span><span class="p">))</span>
 
         <span class="c1"># Exponential backoff, capped at max</span>
         <span class="n">current_interval</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">current_interval</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">max_poll_interval</span><span class="p">)</span>
