@@ -5,6 +5,19 @@ All notable changes to the xaffinity MCP server will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.7] - 2026-10-14
+
+Requires CLI 2.0.5 (no new CLI requirements).
+
+### Security
+
+- On mcp-bash 1.9.6 (was 1.9.5): a `server.d/policy.sh` that fails while loading (a failing
+  top-level command, a syntax error in a file it sources, a top-level `exit`) now refuses every
+  tool call with a reason. Before, a tool the policy blocks (e.g. the write tool in read-only
+  mode) could run on bash 4+, or the call got no answer. Calls are also refused if a file the
+  policy sources breaks while the server runs. The server test-loads `policy.sh` in a separate
+  process at each start; this server's policy only sets variables, so start-up is unchanged.
+
 ## [2.0.6] - 2026-10-14
 
 Requires CLI 2.0.5.

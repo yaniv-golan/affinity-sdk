@@ -4,6 +4,8 @@
 CLI_MIN_VERSION="2.0.5"
 CLI_MAX_VERSION="2.0.5"
 
+# MCP 2.0.7: no new CLI requirements (mcp-bash 1.9.6).
+
 # MCP 2.0.6 requires CLI 2.0.5 for:
 # - `field history` / `field history-bulk`: a deleted dropdown option as
 #   {"id": null, "text": ..., "deleted": true} (was a bare string); the pipeline-history skill
