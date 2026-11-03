@@ -5,7 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.7] - 2026-11-03
+
+**Exception to semantic versioning** (as 2.0.2–2.0.6): two fixes change which rows a filter
+returns. Each is marked **Behavior change**.
+
+### Highlights
+
+A repeated `--filter` now combines its conditions instead of keeping only the last one, and a
+person or company field filtered by id (`Owner = 26229794`) matches that person instead of
+nothing.
 
 ### Changed
 

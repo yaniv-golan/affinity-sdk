@@ -1,10 +1,10 @@
 # mcp/COMPATIBILITY - CLI version requirements for this MCP server
 # Usage: source "${SCRIPT_DIR}/COMPATIBILITY"
 
-CLI_MIN_VERSION="2.0.5"
-CLI_MAX_VERSION="2.0.5"
+CLI_MIN_VERSION="2.0.7"
+CLI_MAX_VERSION="2.0.7"
 
-# MCP (next) requires CLI 2.0.7 for:
+# MCP 2.0.8 requires CLI 2.0.7 for:
 # - Repeated `--filter` on `list export`, `company ls`, `person ls` and repeated
 #   `list export --expand-filter` (ANDed; the registry marks them repeatable). With an older CLI
 #   the gateway refuses the repeat.

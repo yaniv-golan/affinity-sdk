@@ -5,10 +5,15 @@ All notable changes to the xaffinity MCP server will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.8] - 2026-11-03
 
 Requires CLI 2.0.7 for repeated `--filter` / `--expand-filter` and for person and company fields
 matching by id.
+
+### Highlights
+
+`--filter` can be repeated (the conditions are ANDed), and person and company fields match by id;
+with an older CLI a repeated `--filter` is refused rather than silently narrowed to the last one.
 
 ### Changed
 
