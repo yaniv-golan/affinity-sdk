@@ -82,7 +82,7 @@ opportunity get "Big Deal Q1"
 ```bash
 list export Dealflow --filter 'Status="New"'
 ```
-Use when you know the field name and value. Affinity's search applies the conditions on list fields it can answer, so only matching entries are downloaded; the whole filter is then checked again locally.
+Use when you know the field name and value. Affinity's search applies the conditions on list fields it can answer, so only matching entries are downloaded; the whole filter is then checked again locally. Repeat `--filter` to add conditions (the values are ANDed); for OR use `|` inside one value.
 
 ### --saved-view (Pre-Configured Views)
 ```bash

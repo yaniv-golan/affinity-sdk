@@ -273,7 +273,7 @@ Options:
 - `--query <term>` / `-q <term>`: free-text search (name or email)
 - `--field <id-or-name>` (repeatable): field ID or name to include
 - `--field-type <type>` (repeatable): field type to include (global, enriched, relationship-intelligence)
-- `--filter <expression>`: filter expression; must include a condition on a person field (Affinity's search applies it)
+- `--filter <expression>` (repeatable, values ANDed): filter expression; must include a condition on a person field (Affinity's search applies it)
 - `--page-size`, `--cursor`, `--max-results`, `--all`: pagination options
 - `--csv`: output as CSV (to stdout)
 - `--csv-bom`: add UTF-8 BOM for Excel compatibility
@@ -456,7 +456,7 @@ Options:
 - `--query <term>` / `-q <term>`: free-text search (name or domain)
 - `--field <id-or-name>` (repeatable): field ID or name to include
 - `--field-type <type>` (repeatable): field type to include (global, enriched, relationship-intelligence)
-- `--filter <expression>`: filter expression; must include a condition on a company field (Affinity's search applies it)
+- `--filter <expression>` (repeatable, values ANDed): filter expression; must include a condition on a company field (Affinity's search applies it)
 - `--page-size`, `--cursor`, `--max-results`, `--all`: pagination options
 - `--csv`: output as CSV (to stdout)
 - `--csv-bom`: add UTF-8 BOM for Excel compatibility
@@ -838,7 +838,7 @@ Options:
 - `--csv-bom`: add UTF-8 BOM for Excel compatibility
 - `--field <id-or-name>` (repeatable): include specific fields
 - `--saved-view <name>`: use a saved view's field selection (server-side filtering)
-- `--filter <expression>`: filter expression; Affinity's search applies what it can, the rest runs locally (see below)
+- `--filter <expression>` (repeatable, values ANDed): filter expression; Affinity's search applies what it can, the rest runs locally (see below)
 - `--company-id <id>` (repeatable): entity-scoped export — return only rows where the entry is for this company
 - `--person-id <id>` (repeatable): entity-scoped export — return only rows where the entry is for this person
 - `--first-page-only`: fetch a single page of results; output includes `meta.truncated=true` and `meta.truncationReason="firstPageOnly"` when there are more pages

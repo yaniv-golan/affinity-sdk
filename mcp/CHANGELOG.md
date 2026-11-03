@@ -5,6 +5,22 @@ All notable changes to the xaffinity MCP server will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Requires CLI 2.0.7 for repeated `--filter` / `--expand-filter`.
+
+### Changed
+
+- `list export`, `company ls` and `person ls` take a repeated `--filter` (and `list export` a
+  repeated `--expand-filter`); the CLI ANDs the values. With a CLI older than 2.0.7, which keeps
+  only the last one, a repeated `--filter` / `--expand-filter` is refused with a hint to combine the
+  conditions with `&` or upgrade.
+
+### Fixed
+
+- The `execute-read-command` description gave the filtered-cursor prefix as `xsearch1:`; it is
+  `xsearch2:`.
+
 ## [2.0.7] - 2026-10-14
 
 Requires CLI 2.0.5 (no new CLI requirements).

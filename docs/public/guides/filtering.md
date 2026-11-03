@@ -120,6 +120,10 @@ multi_region = entries.list(
 For CLI or advanced SDK use, you can use raw filter strings: the `--filter` text of
 `list export`, `company ls` and `person ls`, and `affinity.filters.parse()` in the SDK.
 
+`--filter` (and `--expand-filter`) can be repeated: the values are ANDed, so
+`--filter 'Status = "Active"' --filter 'Region = "US"'` is `(Status = "Active") & (Region = "US")`.
+Each value must be a complete expression; for OR, use `|` inside one value.
+
 ### Standard Operators
 
 These operators work in every `--filter` and in `affinity.filters`:

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **Behavior change (correctness fix). CLI: repeated `--filter` values are ANDed** on
+  `list export`, `company ls` and `person ls`, and so are repeated `list export --expand-filter`
+  values. Only the last one used to apply, and the others were dropped without a warning, so such
+  runs returned rows that didn't match the earlier conditions: re-run them. `--filter A --filter B`
+  is `(A) & (B)`; for OR, use `|` inside one value. Each repeated value must be a complete
+  expression on its own. (The MCP server refused a repeated `--filter`, so MCP calls weren't
+  affected.)
+
 ## [2.0.6] - 2026-10-14
 
 ### Fixed

@@ -72,6 +72,7 @@ the conditions on fields that Affinity can answer are applied on its side and th
 checked again locally. When part of it runs locally, `--all`, `--max-results` (or, on `list
 export`, `--first-page-only`) is required; the error's `details.local` names those conditions.
 `company ls` / `person ls --filter` need a condition on a company/person field (names: `--query`).
+Repeating `--filter` ANDs the values; for OR use `|` inside one value.
 Details: `references/filtering.md`.
 
 **3. Duplicate checks: use `--company-id` / `--person-id`, not `--filter`.**

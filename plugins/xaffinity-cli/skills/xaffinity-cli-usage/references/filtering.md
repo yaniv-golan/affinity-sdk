@@ -75,6 +75,9 @@ starts_word                'Owner starts_word "Jan"'
 |    OR                    'Status = "New" | Status = "Pending"'
 ```
 
+- Repeat `--filter` to add conditions: the values are ANDed (`--filter 'Status = "Active"'
+  --filter 'Region = "US"'`). Each value must be a complete expression; for OR use `|` inside one.
+
 - `starts_word`: a word in the value starts with the text, case-insensitive, the way Affinity's
   search matches names ("Jan" matches "Jane Doe" and "Mary-Jane"; "ane" doesn't).
 - Person and company field values are compared by name. `=~` (contains) on a person or company
