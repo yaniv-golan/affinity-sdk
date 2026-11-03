@@ -327,6 +327,31 @@ def test_repeated_alias_of_a_multiple_flag_is_allowed(tmp_path: Path) -> None:
     assert len(calls) == 1
 
 
+REPEATED_FILTER = {
+    "command": "list export",
+    "argv": ["9", "--filter", "A = 1", "--filter", "B = 2", "--max-results", "10"],
+}
+
+
+def test_repeated_filter_is_passed_through(tmp_path: Path) -> None:
+    result, calls = _run(
+        tmp_path, "execute-read-command", REPEATED_FILTER, {"FAKE_VERSION": "2.0.7"}
+    )
+    assert result.get("isError") is not True, result
+    assert len(calls) == 1
+    assert calls[0].count("--filter") == 2
+
+
+def test_repeated_filter_refused_on_an_old_cli(tmp_path: Path) -> None:
+    # Below the requirements minimum: such a CLI keeps only the last --filter
+    result, calls = _run(
+        tmp_path, "execute-read-command", REPEATED_FILTER, {"FAKE_VERSION": "2.0.0"}
+    )
+    assert result.get("isError") is True, result
+    assert "2.0.7" in json.dumps(result)
+    assert calls == []
+
+
 def test_alias_and_primary_of_a_single_flag_are_a_duplicate(tmp_path: Path) -> None:
     result, calls = _run(
         tmp_path,

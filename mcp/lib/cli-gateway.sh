@@ -356,6 +356,16 @@ validate_argv() {
                         --hint "Remove duplicate $flag_name from argv"
                     return 1
                 fi
+                # A CLI older than 2.0.7 keeps only the last --filter / --expand-filter. Gated on
+                # the requirements minimum (2.0.7 or later), so a newer minimum still lets 2.0.7+ in.
+                if [[ "$primary_flag" == "--filter" || "$primary_flag" == "--expand-filter" ]] \
+                    && ! _xaffinity_cli_too_old reads \
+                    && ! version_gte "$_XAFFINITY_CLI_VERSION" "2.0.7"; then
+                    mcp_error "validation_error" \
+                        "Repeating $flag_name needs xaffinity CLI 2.0.7 or newer (this CLI uses only the last one)" \
+                        --hint "Combine the conditions with & in one $flag_name, or upgrade: $_XAFFINITY_CLI_UPGRADE"
+                    return 1
+                fi
             fi
             provided_flags="$provided_flags $primary_flag"
 
