@@ -519,7 +519,7 @@ CLI commands use `--filter 'field op "value"'` syntax:
 Common operators: `=` `!=` `=~` (contains) `=^` (starts) `=$` (ends) `>` `<` `>=` `<=` `starts_word`
 
 - `starts_word`: a word in the value starts with the text, case-insensitive, the way Affinity's search matches names ("Jan" matches "Jane Doe" and "Mary-Jane"; "ane" doesn't).
-- Person and company field values are compared by name ("Jane Doe", "Acme"); `contains` on them is refused, use `starts_word`.
+- Person and company field values are compared by name ("Jane Doe", "Acme"), or by id when the value is a number (`Owner = 26229794`); `contains` on them is refused, use `starts_word`.
 - An empty multi-value field counts as empty: `is null` matches it, `is not null` doesn't.
 
 For the `query` tool, use JSON operators (`eq`, `contains`, `starts_word`, `in`, etc.) - see `xaffinity://query-guide` for complete reference. The `--filter` text and the `query` `where` are the same filter language; every condition means the same in both.

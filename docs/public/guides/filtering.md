@@ -188,7 +188,8 @@ Human/LLM-friendly aliases for official operators:
 - **`starts_word`**: a word in the value starts with the text, case-insensitive, the way
   Affinity's search matches names. `"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"`
   doesn't. JSON spelling in `query`: `{"path": "fields.Owner", "op": "starts_word", "value": "Jan"}`.
-- **Person and company fields** are compared by name ("Jane Doe", "Acme"). In `--filter`
+- **Person and company fields** are compared by name ("Jane Doe", "Acme"), or by id when the value is a number
+  (`Owner = 26229794`: that person's id; a value with no name can't match by id). In `--filter`
   and `query`, `contains` (and `contains_any` / `contains_all`) on a person or company
   field is refused: use `starts_word`.
 - **Empty multi-value fields**: a multi-value field with no items counts as empty.
@@ -231,6 +232,9 @@ xaffinity list export Pipeline --filter 'Region = "US" | Region = "Canada"'
 
 # A person field by name
 xaffinity list export Pipeline --filter 'Owner starts_word "Jan"'
+
+# A person field by id
+xaffinity list export Pipeline --filter 'Owner = 26229794' --all
 
 # Null check
 xaffinity list export Pipeline --filter 'Owner != *'

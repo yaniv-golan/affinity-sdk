@@ -185,7 +185,7 @@ Example: {"from": "persons", "include": ["interactions"]}
 | `has_any` | Array contains any of the values | `["LB", "MA"]` |
 | `has_all` | Array contains all of the values | `["LB", "MA"]` |
 
-`starts_word` matches the way Affinity's search matches names: `"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"` doesn't. Person and company field values are compared by name ("Jane Doe", "Acme"), and `contains` / `contains_any` / `contains_all` on a person or company field is refused: use `starts_word`. An empty multi-value field (no items) counts as empty: `is_null` matches it, `is_not_null` doesn't.
+`starts_word` matches the way Affinity's search matches names: `"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"` doesn't. Person and company field values are compared by name ("Jane Doe", "Acme"), or by id when the value is a number (`{"path": "fields.Owner", "op": "eq", "value": 26229794}`), and `contains` / `contains_any` / `contains_all` on a person or company field is refused: use `starts_word`. An empty multi-value field (no items) counts as empty: `is_null` matches it, `is_not_null` doesn't.
 
 The `--filter` text of `list export`, `company ls` and `person ls` is the same filter language: every condition means the same in both spellings.
 

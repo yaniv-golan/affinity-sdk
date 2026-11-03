@@ -94,7 +94,8 @@ def _paths(where: WhereClause) -> set[str]:
 
 def entity_filter_dict(entity: Any) -> dict[str, Any]:
     """What a ``--filter`` on companies or persons sees: field values by name (dropdowns as
-    text, persons and companies as names) plus the record's own attributes."""
+    text, persons and companies as names that also match their id) plus the record's own
+    attributes."""
     result: dict[str, Any] = {}
     by_id: dict[str, Any] = {}
     for item in getattr(entity, "fields_raw", None) or []:

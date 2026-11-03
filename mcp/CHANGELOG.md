@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Requires CLI 2.0.7 for repeated `--filter` / `--expand-filter`.
+Requires CLI 2.0.7 for repeated `--filter` / `--expand-filter` and for person and company fields
+matching by id.
 
 ### Changed
 
@@ -15,6 +16,8 @@ Requires CLI 2.0.7 for repeated `--filter` / `--expand-filter`.
   repeated `--expand-filter`); the CLI ANDs the values. With a CLI older than 2.0.7, which keeps
   only the last one, a repeated `--filter` / `--expand-filter` is refused with a hint to combine the
   conditions with `&` or upgrade.
+- The tool descriptions, data model and query-language skill say person and company field values
+  match by name, or by id when the value is a number (`Owner = 26229794`).
 
 ### Fixed
 

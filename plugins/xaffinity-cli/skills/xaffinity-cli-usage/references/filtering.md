@@ -80,7 +80,8 @@ starts_word                'Owner starts_word "Jan"'
 
 - `starts_word`: a word in the value starts with the text, case-insensitive, the way Affinity's
   search matches names ("Jan" matches "Jane Doe" and "Mary-Jane"; "ane" doesn't).
-- Person and company field values are compared by name. `=~` (contains) on a person or company
+- Person and company field values are compared by name, or by id when the value is a number (`Owner = 26229794`).
+  `=~` (contains) on a person or company
   field is refused: use `starts_word`.
 - An empty multi-value field counts as empty: `Field != *` (is null) matches it.
 - The same language is the JSON `where` of `xaffinity query`; every condition means the same.

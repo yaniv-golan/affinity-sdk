@@ -106,7 +106,7 @@ Structured query language for the `query` MCP tool. For simple lookups, prefer `
 Common operators: `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `contains`, `starts_with`, `starts_word`, `in`, `between`, `is_null`, `is_not_null`, `has_any`, `has_all`
 
 - `starts_word`: a word in the value starts with the text, case-insensitive, the way Affinity's search matches names (`"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"` doesn't).
-- Person and company field values are compared by name ("Jane Doe", "Acme"). `contains` / `contains_any` / `contains_all` on them is refused: use `starts_word`.
+- Person and company field values are compared by name ("Jane Doe", "Acme"), or by id when the value is a number. `contains` / `contains_any` / `contains_all` on them is refused: use `starts_word`.
 - An empty multi-value field counts as empty: `is_null` matches it, `is_not_null` doesn't.
 - Name any field by id with `fields.<field id>` (e.g. `fields.affinity-data-year-founded`). When two list fields share a name (e.g. Affinity's and Dealroom's "Year Founded"), `fields.<name>` is refused with an error listing the ids; use the id. Such fields come back keyed by id.
 

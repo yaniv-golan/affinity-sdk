@@ -61,7 +61,8 @@ name/email search use `company ls --query TERM` / `person ls --query TERM`.
 - `starts_word` — a word in the value starts with the text, case-insensitive, as Affinity's search
   matches names (`"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"` doesn't)
 
-Person and company field values are compared by name ("Jane Doe", "Acme"); `contains`,
+Person and company field values are compared by name ("Jane Doe", "Acme"), or by id when the value is a number;
+`contains`,
 `contains_any` and `contains_all` on them are refused, use `starts_word`.
 
 ### Collection

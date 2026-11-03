@@ -146,7 +146,7 @@ Example: {"from": "persons", "include": ["interactions"]}
 | `starts_with` | Starts with prefix (case-insensitive) | string |
 | `starts_word` | A word in the value starts with the text (case-insensitive) | string |
 
-`starts_word` matches the way Affinity's search matches names: `"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"` doesn't. Person and company field values are compared by name ("Jane Doe", "Acme"); `contains`, `contains_any` and `contains_all` on a person or company field are refused (use `starts_word`).
+`starts_word` matches the way Affinity's search matches names: `"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"` doesn't. Person and company field values are compared by name ("Jane Doe", "Acme"), or by id when the value is a number (`{"path": "fields.Owner", "op": "eq", "value": 26229794}`); `contains`, `contains_any` and `contains_all` on a person or company field are refused (use `starts_word`).
 
 #### Collection
 

@@ -7,7 +7,10 @@ CLI_MAX_VERSION="2.0.5"
 # MCP (next) requires CLI 2.0.7 for:
 # - Repeated `--filter` on `list export`, `company ls`, `person ls` and repeated
 #   `list export --expand-filter` (ANDed; the registry marks them repeatable). With an older CLI
-#   the gateway refuses the repeat. Version numbers are set at release.
+#   the gateway refuses the repeat.
+# - Person and company fields matching by id in `--filter` and `query` (the tool descriptions say
+#   so). This one can't be gated: an older CLI silently matches names only, so `Owner = <id>`
+#   returns no rows there.
 
 # MCP 2.0.7: no new CLI requirements (mcp-bash 1.9.6).
 

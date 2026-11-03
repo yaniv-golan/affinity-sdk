@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is `(A) & (B)`; for OR, use `|` inside one value. Each repeated value must be a complete
   expression on its own. (The MCP server refused a repeated `--filter`, so MCP calls weren't
   affected.)
+- **Behavior change (correctness fix). CLI and SDK: a person or company field compared with a
+  number matches the record's id.** `Owner = 26229794` (and `in`, `has_any`, `has_all`) in
+  `--filter`, `query` and `affinity.filters` compared the name with "26229794" and matched nothing,
+  without a warning (`!=` matched every row). It now matches that person's id, and names still
+  match as before. Other record references, such as lists, match their id too. Re-run filters that
+  used ids. A reference with no name (a person without a first and last name, a company with an
+  empty name) still can't be matched by id.
 
 ## [2.0.6] - 2026-10-14
 
