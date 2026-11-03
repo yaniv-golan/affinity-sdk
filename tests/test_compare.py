@@ -59,7 +59,8 @@ class TestNormalizeValue:
         assert normalize_value(value) == value
 
     def test_persons_and_companies_become_names(self) -> None:
-        """Person and company values compare by name, as in query."""
+        """Person and company values compare by name (or by id when the value is a number), as in
+        query."""
         assert normalize_value({"firstName": "Jane", "lastName": "Doe", "id": 1}) == "Jane Doe"
         assert normalize_value({"name": "Acme", "domain": "acme.com", "id": 7}) == "Acme"
         assert normalize_value([{"firstName": "Jane", "lastName": None}, {"name": "Acme"}]) == [

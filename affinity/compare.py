@@ -16,6 +16,51 @@ from typing import Any
 from ._filtering.dates import as_utc, parse_date_value, parse_iso_datetime
 
 
+class EntityName(str):
+    """A person's or company's name (or another record reference's) that also carries the
+    record's id, so a filter can match either: ``Owner = "Jane Doe"`` or ``Owner = 123``.
+
+    It is a ``str`` everywhere else (output, sorting, text operators)."""
+
+    __slots__ = ("entity_id",)
+    entity_id: int | None
+
+    def __new__(cls, value: str, entity_id: int | None = None) -> EntityName:
+        self = super().__new__(cls, value)
+        self.entity_id = entity_id
+        return self
+
+    def __reduce__(self) -> tuple[Any, ...]:
+        # Keeps the id through copy, deepcopy and every pickle protocol
+        return (type(self), (str(self), self.entity_id))
+
+
+def entity_name(value: Any, entity_id: Any) -> Any:
+    """``value`` as an :class:`EntityName` when it is a non-empty name and ``entity_id`` an
+    integer id; anything else (no name, no id) is returned unchanged."""
+    if (
+        isinstance(value, str)
+        and value
+        and isinstance(entity_id, int)
+        and not isinstance(entity_id, bool)
+    ):
+        return EntityName(value, entity_id)
+    return value
+
+
+def _as_entity_id(value: Any) -> int | None:
+    """A filter value read as a record id: an int, or a string of ASCII digits."""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if text and text.isascii() and text.isdigit() and len(text) <= 20:
+            return int(text)
+    return None
+
+
 def normalize_value(value: Any) -> Any:
     """Normalize a value for comparison.
 
@@ -23,6 +68,7 @@ def normalize_value(value: Any) -> Any:
     - Dropdowns become their text: {"text": "Active"} -> "Active"
     - Persons become their name: {"firstName": "Jane", "lastName": "Doe"} -> "Jane Doe"
     - Companies become their name: {"name": "Acme", "domain": ...} -> "Acme"
+      (as :class:`EntityName`, carrying the record id, so a number matches the id)
     - Multi-value arrays become lists of those: [{"text": "A"}, {"text": "B"}] -> ["A", "B"]
     - Scalars pass through unchanged
 
@@ -46,9 +92,9 @@ def _normalize_item(item: dict[str, Any]) -> Any:
         parts = [
             p.strip() for p in (item.get("firstName"), item.get("lastName")) if isinstance(p, str)
         ]
-        return " ".join(p for p in parts if p) or None
+        return entity_name(" ".join(p for p in parts if p) or None, item.get("id"))
     if "name" in item:
-        return item["name"]
+        return entity_name(item["name"], item.get("id"))
     return item
 
 
@@ -163,6 +209,8 @@ def _eq(a: Any, b: Any) -> bool:
     if isinstance(a, list):
         # If comparing list to list, check set equality (order-insensitive)
         if isinstance(b, list):
+            if any(isinstance(x, EntityName) for x in a):
+                return _same_members(a, b)
             try:
                 return set(a) == set(b)
             except TypeError:
@@ -178,12 +226,17 @@ def _eq(a: Any, b: Any) -> bool:
 
 def _scalar_eq(a: Any, b: Any) -> bool:
     """Scalar equality as ``eq`` uses it, and ``in`` / ``has_any`` / ``has_all`` per element:
-    direct, then ``"true"``/``"false"`` against a bool, then by string (``5`` matches ``"5"``)."""
+    direct, then an :class:`EntityName` against its id, then ``"true"``/``"false"`` against a
+    bool, then by string (``5`` matches ``"5"``). ``a`` is the field value."""
     if a is None or b is None:
         return a is b
 
     # Try direct comparison first
     if a == b:
+        return True
+
+    # A person or company also matches its id (Owner = 123)
+    if isinstance(a, EntityName) and a.entity_id is not None and _as_entity_id(b) == a.entity_id:
         return True
 
     # Handle boolean coercion: filter string "true"/"false" should match Python bool
@@ -198,6 +251,14 @@ def _scalar_eq(a: Any, b: Any) -> bool:
     return str(a) == str(b)
 
 
+def _same_members(a: list[Any], b: list[Any]) -> bool:
+    """Set equality through :func:`_scalar_eq` (field elements first), for lists of record
+    references: every target matches some element and every element matches some target."""
+    return all(any(_scalar_eq(x, y) for x in a) for y in b) and all(
+        any(_scalar_eq(x, y) for y in b) for x in a
+    )
+
+
 def _neq(a: Any, b: Any) -> bool:
     """Not equal operator with array membership support."""
     if a is None:
@@ -205,6 +266,8 @@ def _neq(a: Any, b: Any) -> bool:
 
     if isinstance(a, list):
         if isinstance(b, list):
+            if any(isinstance(x, EntityName) for x in a):
+                return not _same_members(a, b)
             try:
                 return set(a) != set(b)
             except TypeError:
