@@ -44,7 +44,12 @@ from ..decorators import category, destructive
 from ..errors import CLIError
 from ..list_search import ListSearch, decode_cursor, encode_cursor, plan_list_search
 from ..mcp_limits import apply_mcp_limits
-from ..options import csv_output_options, csv_suboption_callback, output_options
+from ..options import (
+    csv_output_options,
+    csv_suboption_callback,
+    join_filters_callback,
+    output_options,
+)
 from ..render import format_duration
 from ..resolve import (
     list_all_saved_views,
@@ -452,9 +457,10 @@ ExpandOnError = Literal["raise", "skip"]
     "--filter",
     "filter_expr",
     type=str,
-    default=None,
+    multiple=True,
+    callback=join_filters_callback,
     help="Filter (field op value): Affinity's search applies what it can, the rest is checked "
-    'locally. Quote multi-word: Status="Intro Meeting".',
+    'locally. Quote multi-word: Status="Intro Meeting". Repeatable: repeated values are ANDed.',
 )
 @click.option(
     "--page-size",
@@ -570,8 +576,10 @@ ExpandOnError = Literal["raise", "skip"]
     "--expand-filter",
     "expand_filter",
     type=str,
-    default=None,
-    help="Filter expanded entities (e.g., 'field=value' or 'field!=value').",
+    multiple=True,
+    callback=join_filters_callback,
+    help="Filter expanded entities (e.g., 'field=value' or 'field!=value'). "
+    "Repeatable: repeated values are ANDed.",
 )
 @click.option(
     "--expand-opportunities-list",

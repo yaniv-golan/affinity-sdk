@@ -27,7 +27,12 @@ from ..entity_search import PERSON_KEYS, filtered_ls
 from ..errors import CLIError
 from ..list_search import is_filter_cursor
 from ..mcp_limits import apply_mcp_limits
-from ..options import csv_output_options, csv_suboption_callback, output_options
+from ..options import (
+    csv_output_options,
+    csv_suboption_callback,
+    join_filters_callback,
+    output_options,
+)
 from ..progress import ProgressManager, ProgressSettings
 from ..resolve import get_person_fields, resolve_list_selector
 from ..resolvers import ResolvedEntity
@@ -207,9 +212,11 @@ def _parse_field_types(values: tuple[str, ...]) -> list[FieldType] | None:
     "--filter",
     "filter_expr",
     type=str,
-    default=None,
+    multiple=True,
+    callback=join_filters_callback,
     help="Filter on person fields, applied by Affinity's search: 'field op value'. Ops: = != "
-    "=~ =^ =$ > < >= <= starts_word. E.g., 'Deals > 5'. Name/email search: --query.",
+    "=~ =^ =$ > < >= <= starts_word. E.g., 'Deals > 5'. Name/email search: --query. "
+    "Repeatable: repeated values are ANDed.",
 )
 @click.option(
     "--query",

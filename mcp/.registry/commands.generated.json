@@ -598,7 +598,8 @@
         "--filter": {
           "type": "string",
           "required": false,
-          "help": "Filter on company fields, applied by Affinity's search: 'field op value'. Ops: = != =~ =^ =$ > < >= <= starts_word. E.g., 'Stage = \"Seed\"'. Name search: --query."
+          "help": "Filter on company fields, applied by Affinity's search: 'field op value'. Ops: = != =~ =^ =$ > < >= <= starts_word. E.g., 'Stage = \"Seed\"'. Name search: --query. Repeatable: repeated values are ANDed.",
+          "multiple": true
         },
         "--max-results": {
           "type": "int",
@@ -2492,7 +2493,8 @@
         "--expand-filter": {
           "type": "string",
           "required": false,
-          "help": "Filter expanded entities (e.g., 'field=value' or 'field!=value')."
+          "help": "Filter expanded entities (e.g., 'field=value' or 'field!=value'). Repeatable: repeated values are ANDed.",
+          "multiple": true
         },
         "--expand-max-results": {
           "type": "int",
@@ -2522,7 +2524,8 @@
         "--filter": {
           "type": "string",
           "required": false,
-          "help": "Filter (field op value): Affinity's search applies what it can, the rest is checked locally. Quote multi-word: Status=\"Intro Meeting\"."
+          "help": "Filter (field op value): Affinity's search applies what it can, the rest is checked locally. Quote multi-word: Status=\"Intro Meeting\". Repeatable: repeated values are ANDed.",
+          "multiple": true
         },
         "--first-page-only": {
           "type": "flag",
@@ -4206,7 +4209,8 @@
         "--filter": {
           "type": "string",
           "required": false,
-          "help": "Filter on person fields, applied by Affinity's search: 'field op value'. Ops: = != =~ =^ =$ > < >= <= starts_word. E.g., 'Deals > 5'. Name/email search: --query."
+          "help": "Filter on person fields, applied by Affinity's search: 'field op value'. Ops: = != =~ =^ =$ > < >= <= starts_word. E.g., 'Deals > 5'. Name/email search: --query. Repeatable: repeated values are ANDed.",
+          "multiple": true
         },
         "--max-results": {
           "type": "int",

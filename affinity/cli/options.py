@@ -4,6 +4,8 @@ import functools
 from collections.abc import Callable
 from typing import Any, TypeVar, cast
 
+from affinity.filters import parse
+
 from .click_compat import click
 from .context import CLIContext, OutputFormat
 from .errors import CLIError
@@ -141,6 +143,28 @@ def _emit_validation_error(ctx: CLIContext, err: CLIError) -> None:
         sys.stderr.write(f"Error: {err.message}\n")
         if err.hint:
             sys.stderr.write(f"Hint: {err.hint}\n")
+
+
+def join_filters_callback(
+    _ctx: click.Context, _param: click.Parameter, value: tuple[str, ...]
+) -> str | None:
+    """Callback for a repeatable filter option (--filter, --expand-filter): AND the values.
+
+    One value is passed on unchanged. Repeated values are each parsed on their own first, so a
+    value can't close the parentheses it is wrapped in, and its error names it.
+    """
+    if not value:
+        return None
+    if len(value) == 1:
+        return value[0]
+    for i, text in enumerate(value, 1):
+        if not text.strip():
+            raise click.BadParameter(f"value {i} is empty; each repeated value needs an expression")
+        try:
+            parse(text)
+        except ValueError as e:
+            raise click.BadParameter(f"value {i} ({text!r}): {e}") from e
+    return " & ".join(f"({text})" for text in value)
 
 
 def csv_suboption_callback(ctx: click.Context, param: click.Parameter, value: Any) -> Any:
