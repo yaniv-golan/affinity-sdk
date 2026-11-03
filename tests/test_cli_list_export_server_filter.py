@@ -276,3 +276,61 @@ def test_repeated_expand_filters_are_anded(monkeypatch: pytest.MonkeyPatch) -> N
         "--all",
     )  # fmt: skip
     assert seen == ['(name =~ "a") & (name =~ "b")']
+
+
+# --- person fields match by name, or by id when the value is a number --------------------------
+
+OWNER = {
+    **FIELDS[0],
+    "id": "field-2",
+    "name": "Owner",
+    "valueType": "person",
+    "filterability": None,  # stays local
+}
+
+
+def _owned(entry_id: int, person_id: int, first: str, last: str) -> dict[str, Any]:
+    entry = _entry(entry_id, "Won")
+    entry["entity"]["fields"].append(
+        {
+            "id": "field-2",
+            "name": "Owner",
+            "type": "list",
+            "value": {
+                "type": "person",
+                "data": {
+                    "id": person_id,
+                    "firstName": first,
+                    "lastName": last,
+                    "primaryEmailAddress": None,
+                    "type": "internal",
+                },
+            },
+        }
+    )
+    return entry
+
+
+@pytest.mark.parametrize(
+    ("expression", "expected"),
+    [
+        ("Owner = 5", [1]),
+        ("Owner != 5", [2]),
+        ("Owner in [5, 7]", [1]),
+        ('Owner = "Dana Levi"', [1]),
+    ],
+)
+def test_a_person_field_matches_its_id(
+    router: respx.MockRouter, expression: str, expected: list[int]
+) -> None:
+    router.get(f"{V2}/lists/9/fields").mock(
+        return_value=Response(200, json=_page([*FIELDS, OWNER]))
+    )
+    router.get(url__regex=r".*/lists/9/list-entries.*").mock(
+        return_value=Response(
+            200, json=_page([_owned(1, 5, "Dana", "Levi"), _owned(2, 6, "Ron", "Cohen")])
+        )
+    )
+    code, out = _export("--all", "--field", "Owner", "--filter", expression)
+    assert code == 0, out
+    assert _ids(out) == expected

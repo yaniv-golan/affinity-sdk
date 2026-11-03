@@ -335,3 +335,45 @@ def test_person_ls_repeated_filters(respx_mock: respx.MockRouter) -> None:
     )
     assert code == 0, out
     assert [p["id"] for p in out["data"]["persons"]] == [5]
+
+
+def test_person_ls_person_field_matches_its_id(respx_mock: respx.MockRouter) -> None:
+    mentor_field = {**FIELDS[0], "id": "field-9", "name": "Mentor", "valueType": "person"}
+    respx_mock.get(f"{V2}/persons/fields").mock(
+        return_value=Response(200, json=_page([FIELDS[0], mentor_field]))
+    )
+
+    def person(pid: int, mentor_id: int) -> dict[str, Any]:
+        return {
+            "id": pid,
+            "firstName": f"P{pid}",
+            "lastName": "X",
+            "primaryEmailAddress": None,
+            "emailAddresses": [],
+            "type": "external",
+            "fields": [
+                {
+                    "id": "field-1",
+                    "name": "Deals",
+                    "type": "global",
+                    "value": {"type": "number", "data": 9},
+                },
+                {
+                    "id": "field-9",
+                    "name": "Mentor",
+                    "type": "global",
+                    "value": {
+                        "type": "person",
+                        "data": {"id": mentor_id, "firstName": "M", "lastName": str(mentor_id)},
+                    },
+                },
+            ],
+        }
+
+    route = respx_mock.post(f"{V2}/persons/search").mock(
+        return_value=Response(201, json=_page([person(1, 9), person(2, 10)]))
+    )
+    code, out = _run("person", "ls", "--filter", "Deals > 5 & Mentor = 9", "--all")
+    assert code == 0, out
+    assert [p["id"] for p in out["data"]["persons"]] == [1]
+    assert "field-9" in route.calls[0].request.url.params.get_list("fieldIds")
