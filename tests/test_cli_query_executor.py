@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, ClassVar
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -4420,3 +4420,83 @@ class TestListEntryDirectLookupFields:
         assert result.data == [
             {"id": 456, "entityName": "Acme", "fields": {"Status": "Intro Meeting"}}
         ]
+
+
+class TestQueryMatchesPersonAndCompanyIds:
+    """In ``query``, person and company field values match by name, or by id when the value is a
+    number; output is unchanged."""
+
+    RECORD: ClassVar[dict[str, Any]] = {
+        "id": 1,
+        "entity": {
+            "id": 101,
+            "name": "Deal 1",
+            "fields": {
+                "requested": True,
+                "data": {
+                    "f1": {
+                        "name": "Owner",
+                        "value": {"data": {"id": 5, "firstName": "Dana", "lastName": "Levi"}},
+                    },
+                    "f2": {
+                        "name": "Team",
+                        "value": {
+                            "data": [
+                                {"id": 5, "firstName": "Dana", "lastName": "Levi"},
+                                {"id": 6, "firstName": "Ron", "lastName": "Cohen"},
+                                {"id": 7, "firstName": None, "lastName": None},
+                            ]
+                        },
+                    },
+                    "f3": {"name": "Co", "value": {"data": {"id": 9, "name": "Acme"}}},
+                    "f4": {"name": "Blank", "value": {"data": {"id": 8, "name": ""}}},
+                },
+            },
+        },
+    }
+
+    def _normalized(self) -> dict[str, Any]:
+        import copy
+
+        return _normalize_list_entry_fields(copy.deepcopy(self.RECORD))
+
+    @pytest.mark.parametrize(
+        ("path", "op", "value", "expected"),
+        [
+            ("fields.Owner", "eq", 5, True),
+            ("fields.Owner", "eq", "Dana Levi", True),
+            ("fields.Owner", "eq", 6, False),
+            ("fields.Owner", "in", [6, 5], True),
+            ("fields.Owner", "neq", 5, False),
+            ("fields.Team", "eq", 6, True),
+            ("fields.Team", "eq", [5, 6], True),
+            ("fields.Co", "eq", 9, True),
+            ("fields.Co", "eq", "Acme", True),
+        ],
+    )
+    def test_where_matches_by_id_or_name(
+        self, path: str, op: str, value: Any, expected: bool
+    ) -> None:
+        from affinity.cli.query.filters import compile_filter
+
+        where = WhereClause.model_validate({"path": path, "op": op, "value": value})
+        assert compile_filter(where)(self._normalized()) is expected
+
+    def test_nameless_values_are_unchanged(self) -> None:
+        fields = self._normalized()["fields"]
+        assert fields["Team"] == ["Dana Levi", "Ron Cohen"]  # the nameless person is skipped
+        assert fields["Blank"] == "" and type(fields["Blank"]) is str
+
+    @pytest.mark.parametrize("fmt", ["json", "jsonl", "toon", "csv", "markdown", "table"])
+    def test_output_is_unchanged(self, fmt: Any) -> None:
+        import json
+
+        from affinity.cli.query.models import QueryResult
+        from affinity.cli.query.output import format_query_result
+
+        record = self._normalized()
+        plain = json.loads(json.dumps(record))
+        for kwargs in ({}, {"pretty": True, "include_meta": True}):
+            assert format_query_result(
+                QueryResult(data=[record]), fmt, **kwargs
+            ) == format_query_result(QueryResult(data=[plain]), fmt, **kwargs)

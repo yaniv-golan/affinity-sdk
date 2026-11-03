@@ -16,6 +16,7 @@ from collections.abc import AsyncIterator, Awaitable, Callable, Mapping
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar
 
+from ...compare import entity_name
 from ...exceptions import (
     AuthorizationError,
     MergedEntityError,
@@ -262,19 +263,24 @@ def _normalize_list_entry_fields(
                                     # Person reference in multi-select
                                     name = _extract_person_display_name(item)
                                     if name:
-                                        extracted.append(name)
+                                        extracted.append(entity_name(name, item.get("id")))
                                 elif isinstance(item, dict) and "name" in item:
                                     # Company reference in multi-select
-                                    extracted.append(item["name"])
+                                    extracted.append(entity_name(item["name"], item.get("id")))
                                 else:
                                     extracted.append(item)
                             normalized_fields[field_name] = extracted
                         # Handle person reference: {"firstName": "Jane", "lastName": "Doe"}
+                        # (names carry the record id: a filter on the id matches too)
                         elif isinstance(data, dict) and ("firstName" in data or "lastName" in data):
-                            normalized_fields[field_name] = _extract_person_display_name(data)
+                            normalized_fields[field_name] = entity_name(
+                                _extract_person_display_name(data), data.get("id")
+                            )
                         # Handle company reference: {"name": "Acme", "domain": "acme.com"}
                         elif isinstance(data, dict) and "name" in data:
-                            normalized_fields[field_name] = data["name"]
+                            normalized_fields[field_name] = entity_name(
+                                data["name"], data.get("id")
+                            )
                         else:
                             normalized_fields[field_name] = data
                     else:
