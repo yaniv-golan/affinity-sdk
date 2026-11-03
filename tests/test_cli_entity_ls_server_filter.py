@@ -277,3 +277,61 @@ def test_quantifier_guard_returns_count_check() -> None:
     query = parse_query(QUANTIFIER).query
     assert validate_quantifier_query(query, 10000, False, count_check_possible=True) is True
     assert validate_quantifier_query(query, 10000, True, count_check_possible=True) is False
+
+
+# --- repeated --filter: the values are ANDed ---------------------------------------------------
+
+
+def test_company_ls_repeated_filters(respx_mock: respx.MockRouter) -> None:
+    respx_mock.get(f"{V2}/companies/fields").mock(return_value=Response(200, json=_page(FIELDS)))
+    route = respx_mock.post(SEARCH).mock(
+        return_value=Response(201, json=_page([_company(1, 7), _company(2, 3), _company(3, 10)]))
+    )
+    code, out = _run("company", "ls", "--filter", "Deals > 5", "--filter", "Deals < 9")
+    assert code == 0, out
+    assert [c["id"] for c in out["data"]["companies"]] == [1]
+    body = json.loads(route.calls[0].request.content)
+    assert len(body["filters"]["filters"]) == 2
+    assert out["meta"]["serverFilter"]["pushed"] == ["fields.Deals gt '5'", "fields.Deals lt '9'"]
+
+
+@pytest.mark.usefixtures("respx_mock")
+def test_query_and_repeated_filter_conflict() -> None:
+    code, _ = _run(
+        "company", "ls", "--query", "x", "--filter", "Deals > 5", "--filter", "Deals < 9"
+    )
+    assert code == 2
+
+
+def test_person_ls_repeated_filters(respx_mock: respx.MockRouter) -> None:
+    respx_mock.get(f"{V2}/persons/fields").mock(return_value=Response(200, json=_page([FIELDS[0]])))
+    person: dict[str, Any] = {
+        "id": 5,
+        "firstName": "Dana",
+        "lastName": "Levi",
+        "primaryEmailAddress": "d@a.co",
+        "emailAddresses": ["d@a.co"],
+        "type": "external",
+        "fields": [
+            {
+                "id": "field-1",
+                "name": "Deals",
+                "type": "global",
+                "value": {"type": "number", "data": 9},
+            }
+        ],
+    }
+    # Another Levi with too few deals: only "Deals > 5" AND "lastName = Levi" drops them
+    other = {
+        **person,
+        "id": 6,
+        "fields": [{**person["fields"][0], "value": {"type": "number", "data": 3}}],
+    }
+    respx_mock.post(f"{V2}/persons/search").mock(
+        return_value=Response(201, json=_page([person, other]))
+    )
+    code, out = _run(
+        "person", "ls", "--filter", "Deals > 5", "--filter", 'lastName = "Levi"', "--all"
+    )
+    assert code == 0, out
+    assert [p["id"] for p in out["data"]["persons"]] == [5]

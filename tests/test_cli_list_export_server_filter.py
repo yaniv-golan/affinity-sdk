@@ -214,3 +214,65 @@ def test_the_filters_fields_are_fetched_even_when_not_exported(
     assert code == 0, out
     assert _ids(out) == [1]  # the local re-check saw Status (it was fetched)
     assert sorted(route.calls[0].request.url.params.get_list("fieldIds")) == ["field-1", "field-2"]
+
+
+# --- repeated --filter: the values are ANDed ---------------------------------------------------
+
+REPEATED = ("--filter", 'Status = "Won"', "--filter", 'entityName =~ "Deal"')
+
+
+@pytest.mark.usefixtures("router")
+def test_repeated_filters_are_anded() -> None:
+    code, out = _export(*REPEATED, "--all", "--dry-run")
+    assert code == 0, out
+    assert out["command"]["modifiers"]["filter"] == '(Status = "Won") & (entityName =~ "Deal")'
+    split = out["data"]["serverFilter"]
+    assert split["pushed"] and split["local"]
+
+
+@pytest.mark.usefixtures("router")
+def test_repeated_partly_local_filter_needs_a_scope_flag() -> None:
+    code, out = _export(*REPEATED)
+    assert code == 2
+    details = out["error"]["details"]
+    assert details["rejected_filter"] == '(Status = "Won") & (entityName =~ "Deal")'
+    assert details["local"]
+
+
+def test_repeated_filter_cursor_resumes(router: respx.MockRouter) -> None:
+    second = router.post(SEARCH, params={"cursor": "p2"}).mock(
+        return_value=Response(201, json=_page([_entry(3, "Won"), _entry(4, "Lead")]))
+    )
+    first = router.post(SEARCH).mock(
+        return_value=Response(201, json=_page([_entry(1, "Won")], f"{SEARCH}?cursor=p2"))
+    )
+    # Both conditions go to Affinity, so no scope flag is needed
+    code, out = _export("--filter", 'Status = "Won"', "--filter", 'Status != "Lead"')
+    assert code == 0, out
+    assert _ids(out) == [1]
+    cursor = out["meta"]["pagination"]["rows"]["nextCursor"]
+    code, out = _export("--cursor", cursor)
+    assert code == 0, out
+    assert _ids(out) == [3]
+    assert json.loads(second.calls[0].request.content) == json.loads(first.calls[0].request.content)
+
+
+@pytest.mark.usefixtures("respx_mock")
+def test_repeated_expand_filters_are_anded(monkeypatch: pytest.MonkeyPatch) -> None:
+    # The expand filter is parsed while the options are checked, before any request
+    from affinity.filters import parse
+
+    seen: list[str] = []
+
+    def spy(text: str) -> Any:
+        seen.append(text)
+        return parse(text)
+
+    monkeypatch.setattr("affinity.cli.commands.list_cmds.parse_filter", spy)
+    _export(
+        "--expand", "persons",
+        "--expand-filter", 'name =~ "a"',
+        "--expand-filter", 'name =~ "b"',
+        "--all",
+    )  # fmt: skip
+    assert seen == ['(name =~ "a") & (name =~ "b")']
