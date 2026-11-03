@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
       
 
@@ -2738,6 +2738,9 @@ don't take <code>filter=</code> (they raise <code>ValueError</code>).</p>
 <h2 id="raw-filter-strings">Raw Filter Strings<a class="headerlink" href="#raw-filter-strings" title="Permanent link">&para;</a></h2>
 <p>For CLI or advanced SDK use, you can use raw filter strings: the <code>--filter</code> text of
 <code>list export</code>, <code>company ls</code> and <code>person ls</code>, and <code>affinity.filters.parse()</code> in the SDK.</p>
+<p><code>--filter</code> (and <code>--expand-filter</code>) can be repeated: the values are ANDed, so
+<code>--filter 'Status = "Active"' --filter 'Region = "US"'</code> is <code>(Status = "Active") &amp; (Region = "US")</code>.
+Each value must be a complete expression; for OR, use <code>|</code> inside one value.</p>
 <h3 id="standard-operators">Standard Operators<a class="headerlink" href="#standard-operators" title="Permanent link">&para;</a></h3>
 <p>These operators work in every <code>--filter</code> and in <code>affinity.filters</code>:</p>
 <table>
@@ -2959,7 +2962,8 @@ don't take <code>filter=</code> (they raise <code>ValueError</code>).</p>
 <li><strong><code>starts_word</code></strong>: a word in the value starts with the text, case-insensitive, the way
   Affinity's search matches names. <code>"Jan"</code> matches "Jane Doe" and "Mary-Jane"; <code>"ane"</code>
   doesn't. JSON spelling in <code>query</code>: <code>{"path": "fields.Owner", "op": "starts_word", "value": "Jan"}</code>.</li>
-<li><strong>Person and company fields</strong> are compared by name ("Jane Doe", "Acme"). In <code>--filter</code>
+<li><strong>Person and company fields</strong> are compared by name ("Jane Doe", "Acme"), or by id when the value is a number
+  (<code>Owner = 26229794</code>: that person's id; a value with no name can't match by id). In <code>--filter</code>
   and <code>query</code>, <code>contains</code> (and <code>contains_any</code> / <code>contains_all</code>) on a person or company
   field is refused: use <code>starts_word</code>.</li>
 <li><strong>Empty multi-value fields</strong>: a multi-value field with no items counts as empty.
@@ -2997,6 +3001,9 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 
 <span class="c1"># A person field by name</span>
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span>Pipeline<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Owner starts_word "Jan"'</span>
+
+<span class="c1"># A person field by id</span>
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span>Pipeline<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Owner = 26229794'</span><span class="w"> </span>--all
 
 <span class="c1"># Null check</span>
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span>Pipeline<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Owner != *'</span>
@@ -3288,10 +3295,10 @@ search endpoints instead:</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>
