@@ -17,14 +17,15 @@ from affinity.exceptions import (
     AuthorizationError,
     ClientSideFilterWarning,
     NotFoundError,
+    UnsupportedOperationError,
 )
 from affinity.exceptions import ValidationError as SDKValidationError
 from affinity.filters import FilterExpression
 from affinity.filters import parse as parse_filter
 from affinity.models.entities import FieldMetadata, ListCreate, ListEntryWithEntity
-from affinity.models.pagination import FilterStats
+from affinity.models.pagination import FilterStats, PaginatedResponse
 from affinity.models.types import InteractionType, ListType
-from affinity.services.lists import _entry_to_filter_dict
+from affinity.services.lists import ListEntryService, _entry_to_filter_dict
 from affinity.types import (
     AnyFieldId,
     CompanyId,
@@ -1149,6 +1150,33 @@ def list_export(
                 api_called=True,
             )
 
+        # Open Affinity's search here, before any output: a refusal must not surface halfway
+        # through a CSV (its header is already written) or leave a silent first page.
+        search_body: dict[str, Any] | None = list_search.body if list_search else None
+        opened_page: PaginatedResponse[ListEntryWithEntity] | None = None
+        if search_body is not None and filter_expr and not saved_view and cursor is None:
+            try:
+                opened_page = _open_search(
+                    client.lists.entries(list_id),
+                    search_body,
+                    list(dict.fromkeys([*selected_field_ids, *filter_field_ids])),
+                    page_size,
+                )
+            except (
+                AuthorizationError,
+                NotFoundError,
+                SDKValidationError,
+                UnsupportedOperationError,
+            ) as e:
+                if not (all_pages or max_results is not None or first_page_only):
+                    raise _filter_scope_error(
+                        filter_expr, list_search.local if list_search else [], reason=str(e)
+                    ) from e
+                warnings.append(f"Affinity's search refused the filter, filtering locally: {e}")
+                if server_filter is not None:
+                    server_filter["fallback"] = e.message
+                search_body = None
+
         # Build expand field data structures from parsed_expand_fields
         # - expand_field_ids: list of field IDs for API calls
         # - field_id_to_display: dict mapping field ID (str) -> display name (original spec)
@@ -1338,7 +1366,8 @@ def list_export(
                         state=csv_iter_state,
                         cache=cache,
                         filter_progress_callback=filter_callback,
-                        search=list_search.body if list_search else None,
+                        search=search_body,
+                        opened_page=opened_page,
                         filter_field_ids=filter_field_ids,
                     ):
                         next_cursor = page_next_cursor
@@ -1664,7 +1693,6 @@ def list_export(
                 # only reach the JSON envelope, which CSV never builds.
                 for msg in [
                     *warnings,
-                    *csv_iter_state.get("warnings", []),
                     *truncation_warnings(
                         csv_iter_state.get("truncatedFields", []), filtered=bool(filter_expr)
                     ),
@@ -1776,7 +1804,8 @@ def list_export(
                 state=table_iter_state,
                 cache=cache,
                 filter_progress_callback=json_filter_callback,
-                search=list_search.body if list_search else None,
+                search=search_body,
+                opened_page=opened_page,
                 filter_field_ids=filter_field_ids,
             ):
                 next_cursor = page_next_cursor
@@ -1919,9 +1948,6 @@ def list_export(
                 warnings.append("Results limited by --max-results. Use --all to fetch all results.")
             from ..field_utils import truncation_warnings
 
-            warnings.extend(table_iter_state.get("warnings", []))
-            if server_filter is not None and table_iter_state.get("searchFallback"):
-                server_filter["fallback"] = table_iter_state["searchFallback"]
             warnings.extend(
                 truncation_warnings(
                     table_iter_state.get("truncatedFields", []), filtered=bool(filter_expr)
@@ -2115,6 +2141,7 @@ def _iterate_list_entries(
     cache: Any = None,
     filter_progress_callback: Callable[[FilterStats], None] | None = None,
     search: dict[str, Any] | None = None,
+    opened_page: PaginatedResponse[ListEntryWithEntity] | None = None,
     filter_field_ids: list[str] | None = None,
 ) -> Any:
     """
@@ -2196,38 +2223,27 @@ def _iterate_list_entries(
         else None
     )
     if decoded is not None or (search is not None and filter_expr):
-        try:
-            if decoded is not None:
-                assert decoded.body is not None
-                body, local_filter = decoded.body, decoded.filter
-                first = entries.find_body(body, cursor=decoded.url)
-            else:
-                assert search is not None and filter_expr
-                body, local_filter = search, parse_filter(filter_expr)
-                first = entries.find_body(body, field_ids=fetch_ids, limit=page_size)
-        except (AuthorizationError, NotFoundError, SDKValidationError) as e:
-            if decoded is not None:
-                raise
-            if state is not None:
-                state.setdefault("warnings", []).append(
-                    f"Affinity's search refused the filter, filtering locally: {e}"
-                )
-                state["searchFallback"] = getattr(e, "message", None) or str(e)
+        if decoded is not None:
+            assert decoded.body is not None
+            body, local_filter = decoded.body, decoded.filter
+            first = entries.find_body(body, cursor=decoded.url)
         else:
-            yield from _search_rows(
-                entries,
-                first,
-                body=body,
-                local_filter=local_filter,
-                selected_field_ids=selected_field_ids,
-                field_by_id=field_by_id,
-                key_mode=key_mode,
-                max_results=max_results,
-                all_pages=all_pages,
-                state=state,
-                filter_progress_callback=filter_progress_callback,
-            )
-            return
+            assert search is not None and filter_expr and opened_page is not None
+            body, local_filter, first = search, parse_filter(filter_expr), opened_page
+        yield from _search_rows(
+            entries,
+            first,
+            body=body,
+            local_filter=local_filter,
+            selected_field_ids=selected_field_ids,
+            field_by_id=field_by_id,
+            key_mode=key_mode,
+            max_results=max_results,
+            all_pages=all_pages,
+            state=state,
+            filter_progress_callback=filter_progress_callback,
+        )
+        return
 
     pages = (
         entries.pages(cursor=cursor)
@@ -2300,17 +2316,39 @@ def _filter_names_list_fields(filter_expr: str) -> bool:
         return False
 
 
-def _filter_scope_error(filter_expr: str, local: list[str]) -> CLIError:
-    return CLIError(
-        "Part of this --filter runs locally on fetched pages, so without a scope flag the "
-        "export would silently return only first-page matches. Add --all to scan everything, "
-        "--max-results N to cap, or --first-page-only to opt in.",
-        exit_code=2,
-        error_type="usage_error",
-        hint="details.local names the conditions Affinity's search can't apply; --saved-view "
-        "filters large lists on Affinity's side.",
-        details={"rejected_filter": str(filter_expr), "local": local},
+def _open_search(
+    entries: ListEntryService,
+    body: dict[str, Any],
+    field_ids: list[str],
+    page_size: int,
+) -> PaginatedResponse[ListEntryWithEntity]:
+    """First page of Affinity's list entry search (raises when Affinity refuses the filter)."""
+    return entries.find_body(body, field_ids=field_ids, limit=page_size)
+
+
+def _filter_scope_error(filter_expr: str, local: list[str], reason: str | None = None) -> CLIError:
+    scope_flags = (
+        "Add --all to scan everything, --max-results N to cap, or --first-page-only to opt in."
     )
+    if reason is None:
+        message = (
+            "Part of this --filter runs locally on fetched pages, so without a scope flag the "
+            f"export would silently return only first-page matches. {scope_flags}"
+        )
+        hint = (
+            "details.local names the conditions Affinity's search can't apply; --saved-view "
+            "filters large lists on Affinity's side."
+        )
+        details: dict[str, Any] = {"rejected_filter": str(filter_expr), "local": local}
+    else:
+        message = (
+            f"Affinity's search refused this --filter ({reason}), so it would run locally on "
+            "fetched pages, and without a scope flag the export would silently return only "
+            f"first-page matches. {scope_flags}"
+        )
+        hint = "Affinity refused the search; add --all or --max-results to filter locally."
+        details = {"rejected_filter": str(filter_expr), "local": local, "refused": reason}
+    return CLIError(message, exit_code=2, error_type="usage_error", hint=hint, details=details)
 
 
 def _search_rows(

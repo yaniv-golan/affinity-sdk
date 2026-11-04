@@ -334,3 +334,71 @@ def test_a_person_field_matches_its_id(
     code, out = _export("--all", "--field", "Owner", "--filter", expression)
     assert code == 0, out
     assert _ids(out) == expected
+
+
+# --- a search Affinity refuses is caught before any output ---------------------------------------
+
+REFUSAL = {"errors": [{"code": "bad_request", "message": "Cannot filter on that"}]}
+
+
+def _refuse_search(router: respx.MockRouter, status: int = 400) -> tuple[Any, Any]:
+    search = router.post(SEARCH).mock(return_value=Response(status, json=REFUSAL))
+    plain = router.get(f"{V2}/lists/9/list-entries").mock(
+        return_value=Response(200, json=_page([_entry(1, "Won"), _entry(2, "Lead")]))
+    )
+    return search, plain
+
+
+@pytest.mark.parametrize("status", [400, 403])
+def test_refused_search_without_scope_flag_exits_2(router: respx.MockRouter, status: int) -> None:
+    search, plain = _refuse_search(router, status)
+    code, out = _export("--filter", 'Status = "Won"')
+    assert code == 2, out
+    assert out["error"]["type"] == "usage_error"
+    assert out["error"]["message"].startswith("Affinity's search refused this --filter")
+    assert out["error"]["details"]["refused"].startswith(f"[{status}]")
+    assert "--all" in out["error"]["hint"]
+    assert search.call_count == 1
+    assert not plain.called
+
+
+def test_refused_search_csv_writes_nothing(router: respx.MockRouter) -> None:
+    _, plain = _refuse_search(router)
+    result = CliRunner().invoke(
+        cli, ["list", "export", "9", "--csv", "--filter", 'Status = "Won"'], env=ENV
+    )
+    assert result.exit_code == 2, result.output
+    assert "listEntryId" not in result.stdout
+    assert not plain.called
+
+
+def test_refused_search_with_all_falls_back(router: respx.MockRouter) -> None:
+    _refuse_search(router)
+    code, out = _export("--filter", 'Status = "Won"', "--all")
+    assert code == 0, out
+    assert _ids(out) == [1]
+    assert any(
+        "Affinity's search refused the filter, filtering locally" in w for w in out["warnings"]
+    )
+    assert out["meta"]["serverFilter"]["fallback"]
+
+
+def test_refused_search_csv_with_all_falls_back(router: respx.MockRouter) -> None:
+    _refuse_search(router)
+    result = CliRunner().invoke(
+        cli, ["list", "export", "9", "--csv", "--filter", 'Status = "Won"', "--all"], env=ENV
+    )
+    assert result.exit_code == 0, result.output
+    assert "Affinity's search refused the filter, filtering locally" in result.output
+    assert len(result.stdout.strip().splitlines()) == 2  # header + the one match
+
+
+@pytest.mark.parametrize("csv", [False, True])
+def test_search_first_page_not_fetched_twice(router: respx.MockRouter, csv: bool) -> None:
+    search = router.post(SEARCH).mock(return_value=Response(201, json=_page([_entry(1, "Won")])))
+    args = ["list", "export", "9", "--filter", 'Status = "Won"']
+    if csv:
+        args.append("--csv")
+    result = CliRunner().invoke(cli, args if csv else ["--json", *args], env=ENV)
+    assert result.exit_code == 0, result.output
+    assert search.call_count == 1

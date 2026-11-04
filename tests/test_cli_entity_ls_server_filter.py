@@ -377,3 +377,14 @@ def test_person_ls_person_field_matches_its_id(respx_mock: respx.MockRouter) -> 
     assert code == 0, out
     assert [p["id"] for p in out["data"]["persons"]] == [1]
     assert "field-9" in route.calls[0].request.url.params.get_list("fieldIds")
+
+
+def test_company_ls_refused_search_errors(respx_mock: respx.MockRouter) -> None:
+    respx_mock.get(f"{V2}/companies/fields").mock(return_value=Response(200, json=_page(FIELDS)))
+    respx_mock.post(SEARCH).mock(
+        return_value=Response(400, json={"errors": [{"code": "bad_request", "message": "No"}]})
+    )
+    code, out = _run("company", "ls", "--filter", "Deals > 5", "--max-results", "5")
+    assert code != 0, out
+    assert out["error"] is not None
+    assert not (out.get("data") or {}).get("companies")
