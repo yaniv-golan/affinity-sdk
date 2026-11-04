@@ -530,17 +530,20 @@ def test_a_person_name_filter_still_needs_a_scope_flag(router: respx.MockRouter)
 
 def test_a_number_never_matches_a_company_named_with_digits(router: respx.MockRouter) -> None:
     _fields(router, ACCOUNT)
-    # A single-company field's id condition isn't verified against Affinity yet, so it runs
-    # locally on the whole list; the id rule applies there too
+    # The id goes to Affinity's search; the local filter (run on what comes back) applies the
+    # id rule too, so a company named "360" is not a match for 360
     entry = _with_fields(_entry(1, "Won"), _company_value(77, "360"))
-    router.get(f"{V2}/lists/9/list-entries").mock(return_value=Response(200, json=_page([entry])))
-    search = router.post(SEARCH)
-    code, out = _export("--filter", "Account = 360", "--all")
+    plain = router.get(f"{V2}/lists/9/list-entries")
+    search = router.post(SEARCH).mock(return_value=Response(201, json=_page([entry])))
+    code, out = _export("--filter", "Account = 360")
     assert code == 0, out
     assert _ids(out) == []
-    code, out = _export("--filter", "Account = 77", "--all")
+    code, out = _export("--filter", "Account = 77")
+    assert code == 0, out
     assert _ids(out) == [1]
-    assert not search.called
+    sent = json.loads(search.calls[-1].request.content)["filters"]["filters"][0]
+    assert (sent["operator"], sent["value"]) == ("is-any-of", [{"id": 77}])
+    assert not plain.called
 
 
 def test_a_digit_starts_word_needs_a_scope_flag(router: respx.MockRouter) -> None:

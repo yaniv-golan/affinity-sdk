@@ -88,12 +88,12 @@ comes back, so results are the same as a local filter.
 
 - Sent: dropdown / multi-select / ranked-dropdown values, numbers, dates (incl. `"-30d"`), text
   (as a case-insensitive contains), `is_null` / `is_not_null`, on `listEntries` `eq` / `in` with
-  record ids (up to 2147483647) on person fields and multi-person / multi-company fields (multi
+  record ids (up to 2147483647) on person and company fields (multi
   fields also `has_any`, `has_all`, `eq` with a list), and `starts_word` (3+ characters including a letter) on one person or company field at
   the top level of the `where`.
 - Local: `all` / `none` / `exists` / `_count`, non-field paths (`entityName`, `createdAt`, ...),
   `expr`, `contains_any` / `contains_all`, an OR with a branch Affinity can't answer, and on
-  person and company fields names, `neq`, enriched fields, ids on a single-company field, these conditions on `companies` /
+  person and company fields names, `neq`, enriched fields, ids above 2147483647, these conditions on `companies` /
   `persons`, and a name search of only digits.
 - Enriched fields (`affinity-data-*`) are exact on `listEntries` (enriched person and company
   fields stay local); on `companies` / `persons` the result warns that a few records may be

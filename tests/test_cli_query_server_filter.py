@@ -545,18 +545,17 @@ def test_a_number_never_matches_a_company_named_with_digits(
 ) -> None:
     _reference_metadata(respx_mock)
     company = {"id": 77, "name": "360", "domain": None}
-    # A single-company field's id condition isn't verified against Affinity yet, so it runs
-    # locally on the whole list; the id rule applies there too
-    respx_mock.get(f"{V2}/lists/9/list-entries").mock(
-        return_value=Response(200, json=_page([_referenced(1, None, company)]))
+    # The id goes to Affinity's search; the local filter applies the id rule to what comes
+    # back, so a company named "360" is not a match for 360
+    search = respx_mock.post(f"{V2}/lists/9/list-entries/search").mock(
+        return_value=Response(201, json=_page([_referenced(1, None, company)]))
     )
-    search = respx_mock.post(f"{V2}/lists/9/list-entries/search")
     code, out = _query(_where({"path": "fields.Account", "op": "eq", "value": 360}))
     assert code == 0, out
     assert out["data"] == []
     code, out = _query(_where({"path": "fields.Account", "op": "eq", "value": 77}))
     assert [row["id"] for row in out["data"]] == [1]
-    assert not search.called
+    assert search.call_count == 2
 
 
 def test_a_dry_run_makes_no_search_for_an_id_filter(respx_mock: respx.MockRouter) -> None:

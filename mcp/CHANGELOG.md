@@ -7,9 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Requires CLI 2.0.8 for id filters on person fields and multi-person / multi-company fields to run
-on Affinity's side, and for
-a digit-only name to need `starts_word`.
+Requires CLI 2.0.8 for id filters on person and company fields to run on Affinity's side, and
+for a digit-only name to need `starts_word`.
 
 ### Changed
 

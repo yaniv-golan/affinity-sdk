@@ -584,9 +584,8 @@ def test_field_without_operator_stays_local() -> None:
 def test_reference_pairs_are_emittable_and_verified_matches_the_record() -> None:
     assert REFERENCE_MAPPINGS <= ALL_MAPPINGS
     assert len(REFERENCE_MAPPINGS) == 6
-    # The golden run of 2026-11-04 (see the VERIFIED comment) passed every pair except the
-    # single-company one, which no list it ran on could exercise
-    assert REFERENCE_MAPPINGS - {("company", "is-any-of")} == REFERENCE_MAPPINGS & VERIFIED
+    # The golden run of 2026-11-04 (see the VERIFIED comment) passed every pair
+    assert REFERENCE_MAPPINGS <= VERIFIED
     assert VERIFIED - REFERENCE_MAPPINGS == ENTITY_VERIFIED
 
 

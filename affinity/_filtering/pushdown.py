@@ -100,10 +100,10 @@ VERIFIED: frozenset[tuple[str, str]] = frozenset(
         ("location", "is-not-empty"),
         ("location-multi", "is-empty"),
         ("location-multi", "is-not-empty"),
-        # Fifth run (person and company ids on list entries, 5 lists, about 12,000 entries),
-        # 2026-11-04: no record missing from the server's answer. ("company", "is-any-of")
-        # isn't here: none of those lists has a single-company field, so it wasn't exercised.
-        *(REFERENCE_MAPPINGS - {("company", "is-any-of")}),
+        # Fifth run (person and company ids on list entries, 6 lists, about 12,300 entries,
+        # 2026-11-04; the single-company field on a list of its own, 12 cases): no record
+        # missing from the server's answer.
+        *REFERENCE_MAPPINGS,
     }
 )
 # What goes to the company and person search endpoints: the golden run can only check list

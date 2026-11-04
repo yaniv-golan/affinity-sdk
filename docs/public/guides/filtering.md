@@ -287,14 +287,14 @@ What Affinity's search answers:
 | Date | `>`, `>=`, `<`, `<=`, `=`, `between`, also relative dates like `-30d` |
 | Text | `=`, `contains`, `starts_with`, `ends_with`, `starts_word` (sent as Affinity's case-insensitive contains; the exact check runs locally) |
 | Most field types | `is null`, `is not null` |
-| Person field, or multi-person / multi-company field (list entries) | `=` and `in` with record ids (ids up to 2147483647); on a multi field also membership `=`, `= [ids]`, `has_any` and `has_all` with ids |
+| Person or company field, or multi-person / multi-company field (list entries) | `=` and `in` with record ids (ids up to 2147483647); on a multi field also membership `=`, `= [ids]`, `has_any` and `has_all` with ids |
 | Person or company field | `starts_word` with plain text of 3+ characters with at least one letter, one per query, at the top level (sent as Affinity's name search) |
 
 What stays local: conditions on record attributes (`name`, `entityName`, `createdAt`, ...),
 related-record conditions in `query` (`all`, `none`, `exists`, `_count`), `expr`,
 `contains_any` / `contains_all`, and an OR with any branch Affinity can't answer. On person and
 company fields: names (`Owner = "Jane Doe"`; use the id to filter on Affinity's side), `!=`,
-enriched person and company fields, id conditions on a single-company field (not yet checked against Affinity), a number that isn't a valid record id (or is above 2147483647), these conditions on
+enriched person and company fields, a number that isn't a valid record id (or is above 2147483647), these conditions on
 `company ls`, `person ls` and `query` from companies or persons, and a name search made only of
 digits (`starts_word "360"`).
 
