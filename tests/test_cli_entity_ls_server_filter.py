@@ -388,3 +388,79 @@ def test_company_ls_refused_search_errors(respx_mock: respx.MockRouter) -> None:
     assert code != 0, out
     assert out["error"] is not None
     assert not (out.get("data") or {}).get("companies")
+
+
+# --- person ids stay local on the company and person searches ------------------------------------
+
+INDUSTRY = _field("field-5", "Industry", "global", "dropdown", ["is-any-of", "is-empty"])
+MENTOR = _field("field-6", "Mentor", "global", "person", ["is-any-of", "is-empty"])
+INDUSTRY_OPTIONS = [{"id": 31, "text": "Software"}, {"id": 32, "text": "Retail"}]
+
+
+def _industry_company(cid: int, mentor_id: int) -> dict[str, Any]:
+    company = _company(cid, None)
+    company["fields"] = [
+        {
+            "id": "field-5",
+            "name": "Industry",
+            "type": "global",
+            "value": {"type": "dropdown", "data": {"dropdownOptionId": 31, "text": "Software"}},
+        },
+        {
+            "id": "field-6",
+            "name": "Mentor",
+            "type": "global",
+            "value": {
+                "type": "person",
+                "data": {"id": mentor_id, "firstName": "Ann", "lastName": "Lee"},
+            },
+        },
+    ]
+    return company
+
+
+def _industry_setup(router: respx.MockRouter) -> respx.Route:
+    router.get(f"{V2}/companies/fields").mock(
+        return_value=Response(200, json=_page([INDUSTRY, MENTOR]))
+    )
+    router.get(url__regex=r".*/companies/fields/field-5/dropdown-options.*").mock(
+        return_value=Response(200, json=_page(INDUSTRY_OPTIONS))
+    )
+    return router.post(SEARCH).mock(
+        return_value=Response(201, json=_page([_industry_company(1, 9), _industry_company(2, 4)]))
+    )
+
+
+def test_company_ls_keeps_person_ids_local(respx_mock: respx.MockRouter) -> None:
+    search = _industry_setup(respx_mock)
+    code, out = _run(
+        "company", "ls", "--filter", 'Industry = "Software" & Mentor = 9', "--max-results", "5"
+    )
+    assert code == 0, out
+    assert [c["id"] for c in out["data"]["companies"]] == [1]  # Mentor = 9 checked locally
+    conditions = json.loads(search.calls[0].request.content)["filters"]["filters"]
+    assert [c["fieldId"] for c in conditions] == ["field-5"]  # no Mentor condition
+    local = out["meta"]["serverFilter"]["local"]
+    assert any("not verified against the API yet" in reason for reason in local)
+
+
+def test_company_ls_person_id_without_a_scope_flag_is_refused(
+    respx_mock: respx.MockRouter,
+) -> None:
+    _industry_setup(respx_mock)
+    code, out = _run("company", "ls", "--filter", 'Industry = "Software" & Mentor = 9')
+    assert code == 2, out
+    assert any("not verified" in r for r in out["error"]["details"]["local"])
+
+
+def test_company_ls_a_digit_starts_word_alone_has_nothing_for_the_server(
+    respx_mock: respx.MockRouter,
+) -> None:
+    search = _industry_setup(respx_mock)
+    code, out = _run("company", "ls", "--filter", 'Mentor starts_word "360"', "--max-results", "5")
+    assert code == 2, out
+    assert out["error"]["type"] == "unsupported_filter"
+    assert any(
+        "a number isn't sent as a name search" in r for r in out["error"]["details"]["local"]
+    )
+    assert not search.called

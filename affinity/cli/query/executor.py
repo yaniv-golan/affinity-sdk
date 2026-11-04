@@ -271,7 +271,7 @@ def _normalize_list_entry_fields(
                                     extracted.append(item)
                             normalized_fields[field_name] = extracted
                         # Handle person reference: {"firstName": "Jane", "lastName": "Doe"}
-                        # (names carry the record id: a filter on the id matches too)
+                        # (names carry the record id: a number in a filter matches the id only)
                         elif isinstance(data, dict) and ("firstName" in data or "lastName" in data):
                             normalized_fields[field_name] = entity_name(
                                 _extract_person_display_name(data), data.get("id")
@@ -1887,7 +1887,7 @@ class QueryExecutor:
         would mean reading Affinity's whole directory."""
         from affinity.services._search import SEARCH_INCLUDES
 
-        from .pushdown import fields_index, split_where
+        from .pushdown import ENTITY_VERIFIED, fields_index, split_where
 
         where = ctx.query.where
         if entity not in ("companies", "persons"):
@@ -1915,7 +1915,13 @@ class QueryExecutor:
                 if meta is not None:
                     field_ids.add(str(meta.id))
         self._search_field_ids = sorted(field_ids)
-        split = split_where(where, fields, lambda m: options.get(str(m.id), []), enriched="as-is")
+        split = split_where(
+            where,
+            fields,
+            lambda m: options.get(str(m.id), []),
+            verified=ENTITY_VERIFIED,
+            enriched="as-is",
+        )
         if split.errors:
             raise QueryValidationError("; ".join(split.errors), field="where")
         if names and not split.server_side:

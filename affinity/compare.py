@@ -18,7 +18,8 @@ from ._filtering.dates import as_utc, parse_date_value, parse_iso_datetime
 
 class EntityName(str):
     """A person's or company's name (or another record reference's) that also carries the
-    record's id, so a filter can match either: ``Owner = "Jane Doe"`` or ``Owner = 123``.
+    record's id: ``Owner = "Jane Doe"`` matches the name, ``Owner = 123`` the id (a number is
+    the id only; it never matches a name made of digits).
 
     It is a ``str`` everywhere else (output, sorting, text operators)."""
 
@@ -49,7 +50,8 @@ def entity_name(value: Any, entity_id: Any) -> Any:
 
 
 def _as_entity_id(value: Any) -> int | None:
-    """A filter value read as a record id: an int, or a string of ASCII digits."""
+    """A filter value read as a record id: an int, or a string of 1-20 ASCII digits (surrounding
+    spaces ignored)."""
     if isinstance(value, bool):
         return None
     if isinstance(value, int):
@@ -68,7 +70,7 @@ def normalize_value(value: Any) -> Any:
     - Dropdowns become their text: {"text": "Active"} -> "Active"
     - Persons become their name: {"firstName": "Jane", "lastName": "Doe"} -> "Jane Doe"
     - Companies become their name: {"name": "Acme", "domain": ...} -> "Acme"
-      (as :class:`EntityName`, carrying the record id, so a number matches the id)
+      (as :class:`EntityName`, carrying the record id, so a number matches the id only)
     - Multi-value arrays become lists of those: [{"text": "A"}, {"text": "B"}] -> ["A", "B"]
     - Scalars pass through unchanged
 
@@ -226,17 +228,21 @@ def _eq(a: Any, b: Any) -> bool:
 
 def _scalar_eq(a: Any, b: Any) -> bool:
     """Scalar equality as ``eq`` uses it, and ``in`` / ``has_any`` / ``has_all`` per element:
-    direct, then an :class:`EntityName` against its id, then ``"true"``/``"false"`` against a
-    bool, then by string (``5`` matches ``"5"``). ``a`` is the field value."""
+    an :class:`EntityName` against an id-shaped value is an id comparison only; otherwise
+    direct, then ``"true"``/``"false"`` against a bool, then by string (``5`` matches ``"5"``).
+    ``a`` is the field value."""
     if a is None or b is None:
         return a is b
 
+    # A record reference (person, company, list...) against a number or digit string is its
+    # id, never a name made of digits (Owner = 123 does not match a person named "123")
+    if isinstance(a, EntityName) and a.entity_id is not None:
+        record_id = _as_entity_id(b)
+        if record_id is not None:
+            return record_id == a.entity_id
+
     # Try direct comparison first
     if a == b:
-        return True
-
-    # A person or company also matches its id (Owner = 123)
-    if isinstance(a, EntityName) and a.entity_id is not None and _as_entity_id(b) == a.entity_id:
         return True
 
     # Handle boolean coercion: filter string "true"/"false" should match Python bool

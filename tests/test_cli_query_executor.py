@@ -4423,8 +4423,8 @@ class TestListEntryDirectLookupFields:
 
 
 class TestQueryMatchesPersonAndCompanyIds:
-    """In ``query``, person and company field values match by name, or by id when the value is a
-    number; output is unchanged."""
+    """In ``query``, person and company field values match by name; a number is the record's id
+    only. Output is unchanged."""
 
     RECORD: ClassVar[dict[str, Any]] = {
         "id": 1,
@@ -4450,6 +4450,7 @@ class TestQueryMatchesPersonAndCompanyIds:
                     },
                     "f3": {"name": "Co", "value": {"data": {"id": 9, "name": "Acme"}}},
                     "f4": {"name": "Blank", "value": {"data": {"id": 8, "name": ""}}},
+                    "f5": {"name": "Digits", "value": {"data": {"id": 4, "name": "360"}}},
                 },
             },
         },
@@ -4472,6 +4473,11 @@ class TestQueryMatchesPersonAndCompanyIds:
             ("fields.Team", "eq", [5, 6], True),
             ("fields.Co", "eq", 9, True),
             ("fields.Co", "eq", "Acme", True),
+            ("fields.Digits", "eq", 360, False),
+            ("fields.Digits", "eq", "360", False),
+            ("fields.Digits", "neq", 360, True),
+            ("fields.Digits", "in", ["360"], False),
+            ("fields.Digits", "eq", 4, True),
         ],
     )
     def test_where_matches_by_id_or_name(

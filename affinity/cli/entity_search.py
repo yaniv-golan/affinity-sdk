@@ -21,7 +21,7 @@ from affinity.filters import FilterExpression
 from affinity.services._search import SEARCH_INCLUDES
 
 from .query.models import WhereClause
-from .query.pushdown import fields_index, split_where
+from .query.pushdown import ENTITY_VERIFIED, fields_index, split_where
 
 # Record attributes (not fields) a company or person filter can test.
 COMPANY_KEYS = frozenset({"id", "name", "domain", "domains"})
@@ -57,7 +57,7 @@ def plan_entity_search(service: Any, where: WhereClause) -> EntitySearch:
             options[key] = list(service.get_field_dropdown_options(meta.id))
         return options[key]
 
-    split = split_where(where, fields, options_for, enriched="as-is")
+    split = split_where(where, fields, options_for, verified=ENTITY_VERIFIED, enriched="as-is")
     index = fields_index(fields)
     field_ids = sorted(
         {
@@ -94,8 +94,8 @@ def _paths(where: WhereClause) -> set[str]:
 
 def entity_filter_dict(entity: Any) -> dict[str, Any]:
     """What a ``--filter`` on companies or persons sees: field values by name (dropdowns as
-    text, persons and companies as names that also match their id) plus the record's own
-    attributes."""
+    text, persons and companies as names; a number in a filter matches their id) plus the
+    record's own attributes."""
     result: dict[str, Any] = {}
     by_id: dict[str, Any] = {}
     for item in getattr(entity, "fields_raw", None) or []:

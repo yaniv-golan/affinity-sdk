@@ -17,7 +17,7 @@ except ModuleNotFoundError:  # pragma: no cover
 from httpx import Response
 
 from affinity import Affinity, AsyncAffinity, ClientSideFilterWarning, F
-from affinity.filters import AndExpression, RawFilter
+from affinity.filters import AndExpression, RawFilter, parse
 from affinity.types import ListId
 
 if respx is None:  # pragma: no cover
@@ -309,3 +309,83 @@ async def test_async_search_pages_stop_on_a_cursor_cycle() -> None:
         pages = [p async for p in entries.pages(filter=WON, limit=10)]
     assert [[e.id for e in p.data] for p in pages] == [[1, 2, 3]]
     assert calls == [None, "A", "B"]
+
+
+# --- person and company ids go to the search -----------------------------------------------------
+
+OWNER_ID = 12345
+OWNER_FIELD = {
+    "id": "field-2",
+    "name": "Owner",
+    "type": "list",
+    "valueType": "person",
+    "enrichmentSource": None,
+    "filterability": {
+        "filterableFieldType": "field-only",
+        "operators": [
+            {"id": o, "name": o, "numberOfValuesRequired": "multi"}
+            for o in ("is-any-of", "is-empty")
+        ],
+    },
+    "sortability": None,
+}
+
+
+def _owned(entry_id: int, person_id: int) -> dict[str, Any]:
+    entry = _entry(entry_id, "Won")
+    entry["entity"]["fields"].append(
+        {
+            "id": "field-2",
+            "name": "Owner",
+            "type": "list",
+            "value": {
+                "type": "person",
+                "data": {
+                    "id": person_id,
+                    "firstName": "Jane",
+                    "lastName": "Doe",
+                    "primaryEmailAddress": None,
+                    "type": "internal",
+                },
+            },
+        }
+    )
+    return entry
+
+
+def _owner_metadata(router: respx.MockRouter) -> None:
+    router.get(f"{V2}/lists/9/fields").mock(
+        return_value=Response(200, json=_page([*FIELDS, OWNER_FIELD]))
+    )
+
+
+@respx.mock
+def test_a_person_id_filter_is_sent_to_the_search() -> None:
+    _owner_metadata(respx.mock)
+    search = respx.post(SEARCH).mock(
+        return_value=Response(201, json=_page([_owned(1, OWNER_ID), _owned(2, 7)]))
+    )
+    with Affinity(api_key="k", max_retries=0) as client, warnings.catch_warnings():
+        warnings.simplefilter("error", ClientSideFilterWarning)  # nothing runs locally
+        page = client.lists.entries(ListId(9)).list(filter=parse(f"Owner = {OWNER_ID}"))
+    assert [e.id for e in page.data] == [1]  # the local re-check trims the extra entry
+    condition = json.loads(search.calls[0].request.content)["filters"]["filters"][0]
+    assert condition == {
+        "valueType": "person",
+        "fieldId": "field-2",
+        "operator": "is-any-of",
+        "value": [{"id": OWNER_ID}],
+    }
+
+
+@respx.mock
+async def test_a_person_id_filter_is_sent_to_the_search_async() -> None:
+    _owner_metadata(respx.mock)
+    search = respx.post(SEARCH).mock(
+        return_value=Response(201, json=_page([_owned(1, OWNER_ID), _owned(2, 7)]))
+    )
+    async with AsyncAffinity(api_key="k", max_retries=0) as client:
+        page = await client.lists.entries(ListId(9)).list(filter=parse(f"Owner = {OWNER_ID}"))
+    assert [e.id for e in page.data] == [1]
+    condition = json.loads(search.calls[0].request.content)["filters"]["filters"][0]
+    assert condition["operator"] == "is-any-of" and condition["value"] == [{"id": OWNER_ID}]

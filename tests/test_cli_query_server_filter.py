@@ -250,11 +250,19 @@ def test_fields_by_id(respx_mock: respx.MockRouter) -> None:
     respx_mock.get(f"{V2}/lists/9/fields").mock(return_value=Response(200, json=_page(TWINS)))
     entry = _entry(1, None)
     entry["entity"]["fields"] = [
-        {"id": "field-8", "name": "Year Founded", "type": "global",
-         "value": {"type": "number", "data": 1999}},
-        {"id": "affinity-data-year-founded", "name": "Year Founded", "type": "enriched",
-         "value": {"type": "number", "data": 2005}},
-    ]  # fmt: skip
+        {
+            "id": "field-8",
+            "name": "Year Founded",
+            "type": "global",
+            "value": {"type": "number", "data": 1999},
+        },
+        {
+            "id": "affinity-data-year-founded",
+            "name": "Year Founded",
+            "type": "enriched",
+            "value": {"type": "number", "data": 2005},
+        },
+    ]
     respx_mock.get(f"{V2}/lists/9/list-entries").mock(
         return_value=Response(200, json=_page([entry]))
     )
@@ -422,3 +430,182 @@ def test_local_sort_multi_value_by_first_item_case_insensitive(
     )
     ids, _ = _local_sort(respx_mock, entries, [{"field": "fields.Tags", "direction": "asc"}])
     assert ids == [2, 4, 1, 3]  # first item, case-insensitive, ties by id, empty last
+
+
+# --- person and company ids go to Affinity's search ---------------------------------------------
+
+REF_OPS = ["is-any-of", "is-none-of", "is-empty", "is-not-empty"]
+OWNER_FIELD = {
+    "id": "field-2",
+    "name": "Owner",
+    "type": "list",
+    "valueType": "person",
+    "enrichmentSource": None,
+    "filterability": {
+        "filterableFieldType": "field-only",
+        "operators": [{"id": o, "name": o, "numberOfValuesRequired": "multi"} for o in REF_OPS],
+    },
+    "sortability": None,
+}
+ACCOUNT_FIELD = {**OWNER_FIELD, "id": "field-3", "name": "Account", "valueType": "company"}
+
+
+def _referenced(
+    entry_id: int, owner: dict[str, Any] | None, account: dict[str, Any] | None = None
+) -> dict[str, Any]:
+    entry = _entry(entry_id, "Won")
+    if owner is not None:
+        entry["entity"]["fields"].append(
+            {
+                "id": "field-2",
+                "name": "Owner",
+                "type": "list",
+                "value": {"type": "person", "data": owner},
+            }
+        )
+    if account is not None:
+        entry["entity"]["fields"].append(
+            {
+                "id": "field-3",
+                "name": "Account",
+                "type": "list",
+                "value": {"type": "company", "data": account},
+            }
+        )
+    return entry
+
+
+def _dana(person_id: int) -> dict[str, Any]:
+    return {"id": person_id, "firstName": "Dana", "lastName": "Levi", "type": "internal"}
+
+
+def _where(*conditions: dict[str, Any]) -> dict[str, Any]:
+    return {"and": [{"path": "listId", "op": "eq", "value": 9}, *conditions]}
+
+
+def _reference_metadata(router: respx.MockRouter) -> None:
+    router.get(f"{V2}/lists/9/fields").mock(
+        return_value=Response(200, json=_page([*FIELDS, OWNER_FIELD, ACCOUNT_FIELD]))
+    )
+    router.get(url__regex=r".*/lists/9/fields/field-1/dropdown-options.*").mock(
+        return_value=Response(200, json=_page(OPTIONS))
+    )
+
+
+def test_query_sends_a_person_id_to_affinity(respx_mock: respx.MockRouter) -> None:
+    _reference_metadata(respx_mock)
+    plain = respx_mock.get(f"{V2}/lists/9/list-entries")
+    search = respx_mock.post(f"{V2}/lists/9/list-entries/search").mock(
+        return_value=Response(201, json=_page([_referenced(1, _dana(5)), _referenced(2, _dana(6))]))
+    )
+    code, out = _query(_where({"path": "fields.Owner", "op": "eq", "value": 5}))
+    assert code == 0, out
+    assert [row["id"] for row in out["data"]] == [1]
+    condition = json.loads(search.calls[0].request.content)["filters"]["filters"][0]
+    assert condition["operator"] == "is-any-of" and condition["value"] == [{"id": 5}]
+    assert not plain.called
+
+
+def test_eq_null_is_refused_by_the_parser_before_any_request(
+    respx_mock: respx.MockRouter,
+) -> None:
+    _reference_metadata(respx_mock)
+    search = respx_mock.post(f"{V2}/lists/9/list-entries/search")
+    plain = respx_mock.get(f"{V2}/lists/9/list-entries")
+    for where in (
+        {"path": "fields.Owner", "op": "eq", "value": None},
+        {
+            "or": [
+                {"path": "fields.Owner", "op": "eq", "value": None},
+                {"path": "fields.Owner", "op": "eq", "value": 5},
+            ]
+        },
+    ):
+        code, out = _query(_where(where))
+        assert code == 2, out
+        assert "requires a 'value' field" in json.dumps(out)
+    assert not search.called and not plain.called
+
+
+def test_is_null_on_a_person_field_is_sent_as_is_empty(respx_mock: respx.MockRouter) -> None:
+    _reference_metadata(respx_mock)
+    search = respx_mock.post(f"{V2}/lists/9/list-entries/search").mock(
+        return_value=Response(201, json=_page([_referenced(2, None)]))
+    )
+    code, out = _query(_where({"path": "fields.Owner", "op": "is_null"}))
+    assert code == 0, out
+    assert [row["id"] for row in out["data"]] == [2]
+    assert json.loads(search.calls[0].request.content)["filters"]["filters"][0]["operator"] == (
+        "is-empty"
+    )
+
+
+def test_a_number_never_matches_a_company_named_with_digits(
+    respx_mock: respx.MockRouter,
+) -> None:
+    _reference_metadata(respx_mock)
+    company = {"id": 77, "name": "360", "domain": None}
+    # A single-company field's id condition isn't verified against Affinity yet, so it runs
+    # locally on the whole list; the id rule applies there too
+    respx_mock.get(f"{V2}/lists/9/list-entries").mock(
+        return_value=Response(200, json=_page([_referenced(1, None, company)]))
+    )
+    search = respx_mock.post(f"{V2}/lists/9/list-entries/search")
+    code, out = _query(_where({"path": "fields.Account", "op": "eq", "value": 360}))
+    assert code == 0, out
+    assert out["data"] == []
+    code, out = _query(_where({"path": "fields.Account", "op": "eq", "value": 77}))
+    assert [row["id"] for row in out["data"]] == [1]
+    assert not search.called
+
+
+def test_a_dry_run_makes_no_search_for_an_id_filter(respx_mock: respx.MockRouter) -> None:
+    _reference_metadata(respx_mock)
+    search = respx_mock.post(f"{V2}/lists/9/list-entries/search")
+    query = {
+        "from": "listEntries",
+        "where": _where({"path": "fields.Owner", "op": "eq", "value": 5}),
+        "select": ["id"],
+    }
+    result = CliRunner().invoke(
+        cli, ["--json", "query", "--dry-run", "--query", json.dumps(query)], env=ENV
+    )
+    assert result.exit_code == 0, result.output
+    assert not search.called  # a dry run reads nothing, so it shows the plan only
+
+
+def test_a_multi_field_with_a_nameless_person_in_query(respx_mock: respx.MockRouter) -> None:
+    # Team = [5]: query skips a member without a name (id 7), so the set is {5}; the
+    # `--filter` text matcher keeps the member and the sets differ (see the export tests).
+    team = {
+        **OWNER_FIELD,
+        "id": "field-4",
+        "name": "Team",
+        "valueType": "person-multi",
+        "filterability": {
+            "filterableFieldType": "field-only",
+            "operators": [
+                {"id": o, "name": o, "numberOfValuesRequired": "multi"}
+                for o in ("has-any-of", "has-all-of", "is-empty")
+            ],
+        },
+    }
+    respx_mock.get(f"{V2}/lists/9/fields").mock(
+        return_value=Response(200, json=_page([*FIELDS, team]))
+    )
+    nameless = {"id": 7, "firstName": None, "lastName": None, "type": "internal"}
+    entry = _entry(1, "Won")
+    entry["entity"]["fields"].append(
+        {
+            "id": "field-4",
+            "name": "Team",
+            "type": "list",
+            "value": {"type": "person-multi", "data": [_dana(5), nameless]},
+        }
+    )
+    respx_mock.post(f"{V2}/lists/9/list-entries/search").mock(
+        return_value=Response(201, json=_page([entry]))
+    )
+    code, out = _query(_where({"path": "fields.Team", "op": "eq", "value": [5]}))
+    assert code == 0, out
+    assert [row["id"] for row in out["data"]] == [1]

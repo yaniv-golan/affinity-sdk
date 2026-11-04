@@ -21,11 +21,27 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from typing import Any
 
-from ..compare import compare_values
+from ..compare import _as_entity_id, compare_values
 from ..criteria import Condition, FilterGroup, filter_value_type
 from ..models.entities import DropdownOption, FieldMetadata
 from .dates import parse_date_value
 from .where import WhereClause
+
+# Person and company id conditions (list entries only): ``=`` / ``in`` on a single field,
+# membership and set conditions on a multi field. Always in ALL_MAPPINGS, so the golden keeps
+# testing them; only the pairs that passed it are in VERIFIED.
+REFERENCE_MAPPINGS: frozenset[tuple[str, str]] = frozenset(
+    {
+        ("person", "is-any-of"),
+        ("company", "is-any-of"),
+        ("person-multi", "has-any-of"),
+        ("person-multi", "has-all-of"),
+        ("company-multi", "has-any-of"),
+        ("company-multi", "has-all-of"),
+    }
+)
+# Largest record id sent. Affinity's search refused ids above this in the golden run.
+ID_MAX = 2**31 - 1
 
 # (filter value type, server operator) pairs confirmed by tools/search_golden.py: no record the
 # local filter keeps was missing from the server's answer (5 lists, about 3,750 entries,
@@ -84,8 +100,16 @@ VERIFIED: frozenset[tuple[str, str]] = frozenset(
         ("location", "is-not-empty"),
         ("location-multi", "is-empty"),
         ("location-multi", "is-not-empty"),
+        # Fifth run (person and company ids on list entries, 5 lists, about 12,000 entries),
+        # 2026-11-04: no record missing from the server's answer. ("company", "is-any-of")
+        # isn't here: none of those lists has a single-company field, so it wasn't exercised.
+        *(REFERENCE_MAPPINGS - {("company", "is-any-of")}),
     }
 )
+# What goes to the company and person search endpoints: the golden run can only check list
+# entries (the company directory can't be downloaded to compute an independent local set), so
+# id conditions on person and company fields stay local there.
+ENTITY_VERIFIED: frozenset[tuple[str, str]] = VERIFIED - REFERENCE_MAPPINGS
 
 _NUMBER_OPS = {
     "eq": "is-equal-to",
@@ -125,6 +149,7 @@ ALL_MAPPINGS: frozenset[tuple[str, str]] = frozenset(
         for op in ("has-any-of", "has-all-of", "has-none-of")
     }
     | {("number", "is-not-equal-to")}
+    | REFERENCE_MAPPINGS
 )
 
 _DROPDOWN = {"dropdown", "ranked-dropdown"}
@@ -232,12 +257,14 @@ def split_where(
 
 def _plain_term(value: Any) -> bool:
     """A name search term Affinity's search matches like ``starts_word``: letters, digits and
-    spaces, 3+ characters (a term with punctuation, e.g. a placeholder name "- -", can match
-    differently; golden test, 2026-10-13)."""
+    spaces, 3+ characters with at least one letter (a term with punctuation, e.g. a placeholder
+    name "- -", can match differently; golden test, 2026-10-13. A number is never sent: the
+    search may read it as a phone number or an id)."""
     return (
         isinstance(value, str)
         and re.fullmatch(r"[^\W_]+(?: [^\W_]+)*", value.strip()) is not None
         and len(value.strip()) >= 3
+        and any(c.isalpha() for c in value)
     )
 
 
@@ -338,17 +365,24 @@ def _field(w: WhereClause, ctx: _Ctx) -> tuple[FieldMetadata, str] | None:
     return meta, vt
 
 
-def _emit(
-    w: WhereClause, meta: FieldMetadata, vt: str, op: str, value: Any, ctx: _Ctx
-) -> Condition | None:
+def _refused(w: WhereClause, meta: FieldMetadata, vt: str, op: str, ctx: _Ctx) -> bool:
+    """True (with the reason noted) when the pair isn't verified or the field doesn't take it."""
     if (vt, op) not in ctx.verified:
         ctx.local.append(f"{_describe(w)}: {vt} {op} not verified against the API yet")
-        return None
+        return True
     allowed = [
         str(o.get("id")) for o in (meta.filterability or {}).get("operators") or [] if o.get("id")
     ]
     if "filterability" in meta.model_fields_set and allowed and op not in allowed:
         ctx.local.append(f"{_describe(w)}: the field doesn't take {op}")
+        return True
+    return False
+
+
+def _emit(
+    w: WhereClause, meta: FieldMetadata, vt: str, op: str, value: Any, ctx: _Ctx
+) -> Condition | None:
+    if _refused(w, meta, vt, op, ctx):
         return None
     if isinstance(value, list) and not 1 <= len(value) <= MAX_VALUES:
         ctx.local.append(f"{_describe(w)}: needs 1 to {MAX_VALUES} values on the server")
@@ -399,8 +433,13 @@ def _condition(w: WhereClause, ctx: _Ctx) -> Condition | None:
         )
         return None
     if vt in _NAMED and op == "starts_word":
-        ctx.local.append(f"{_describe(w)}: one name search per query (the rest stay local)")
+        if isinstance(value, str) and re.fullmatch(r"[0-9 ]+", value.strip()):
+            ctx.local.append(f"{_describe(w)}: a number isn't sent as a name search")
+        else:
+            ctx.local.append(f"{_describe(w)}: one name search per query (the rest stay local)")
         return None
+    if vt in _NAMED and op in ("eq", "in", "has_any", "has_all"):
+        return _reference(w, meta, vt, ctx)
     if vt in _DROPDOWN:
         return _dropdown(w, meta, vt, ctx)
     if vt in ("dropdown-multi", "filterable-text-multi"):
@@ -421,6 +460,63 @@ def _condition(w: WhereClause, ctx: _Ctx) -> Condition | None:
             return _emit(w, meta, vt, "is-any-of", texts, ctx)
     ctx.local.append(f"{_describe(w)}: no server mapping for {vt} {op}")
     return None
+
+
+_NAMES_REASON = "names are matched locally (use the id to filter on Affinity's side)"
+
+
+def _valid_ids(value: list[Any]) -> list[int] | str:
+    """The deduplicated record ids in ``value`` (order kept), or the reason they stay local:
+    any value that isn't id-shaped (a name) first, then any id outside ``1..ID_MAX``."""
+    ids = [_as_entity_id(v) for v in value]
+    if any(i is None for i in ids):
+        return _NAMES_REASON
+    valid = [i for i in ids if i is not None]
+    if any(not 1 <= i <= ID_MAX for i in valid):
+        return "not a valid record id"
+    return list(dict.fromkeys(valid))
+
+
+def _reference_operator(op: str, value: Any, multi: bool) -> str | None:
+    """The server operator for a person or company condition, or ``None`` when none answers it
+    (locally ``in`` / ``has_any`` / ``has_all`` on a single field or with a scalar are False,
+    so pushing them would make the filter complete and return nothing)."""
+    as_list = isinstance(value, list)
+    if multi:
+        if (op in ("in", "has_any") and as_list) or (op == "eq" and not as_list):
+            return "has-any-of"
+        if op in ("has_all", "eq") and as_list:
+            return "has-all-of"
+        return None
+    if (op == "eq" and not as_list) or (op == "in" and as_list):
+        return "is-any-of"
+    return None
+
+
+def _reference(w: WhereClause, meta: FieldMetadata, vt: str, ctx: _Ctx) -> Condition | None:
+    """Record ids on a person or company field: the server matches the id, the local filter
+    (which runs afterwards on every record) matches the id too (a number is an id only)."""
+    op, value = w.op or "", w.value
+    if meta.type == "enriched":
+        # Enriched values were never checked with these mappings, and search reads them
+        # differently from the entries API
+        ctx.local.append(f"{_describe(w)}: Affinity enriched fields stay local")
+        return None
+    server_op = None if value is None else _reference_operator(op, value, vt.endswith("-multi"))
+    if server_op is None:
+        ctx.local.append(f"{_describe(w)}: no server mapping for {vt} {op}")
+        return None
+    if _refused(w, meta, vt, server_op, ctx):
+        return None
+    items = value if isinstance(value, list) else [value]
+    if any(item is None for item in items):
+        ctx.local.append(f"{_describe(w)}: no server mapping for {vt} {op}")
+        return None
+    ids = _valid_ids(items)
+    if isinstance(ids, str):
+        ctx.local.append(f"{_describe(w)}: {ids}")
+        return None
+    return _emit(w, meta, vt, server_op, ids, ctx)
 
 
 def _dropdown(w: WhereClause, meta: FieldMetadata, vt: str, ctx: _Ctx) -> Condition | None:

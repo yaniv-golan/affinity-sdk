@@ -8,7 +8,14 @@ from typing import Any
 import pytest
 
 from affinity.cli.query.models import WhereClause
-from affinity.cli.query.pushdown import ALL_MAPPINGS, VERIFIED, split_where
+from affinity.cli.query.pushdown import (
+    ALL_MAPPINGS,
+    ENTITY_VERIFIED,
+    ID_MAX,
+    REFERENCE_MAPPINGS,
+    VERIFIED,
+    split_where,
+)
 from affinity.criteria import Condition, FilterGroup, SearchCriteria
 from affinity.models.entities import DropdownOption, FieldMetadata
 
@@ -374,3 +381,216 @@ def test_number_not_equal() -> None:
         "operator": "is-not-equal-to",
         "value": 5,
     }
+
+
+# --- person and company fields: ids go to the search (D1, D4, D6, D7) ----------------------------
+
+REF_FIELDS = [
+    _field("field-11", "Owner", "person", ["is-any-of", "is-none-of", "is-empty", "is-not-empty"]),
+    _field("field-12", "Team", "person-multi", ["has-any-of", "has-all-of", "has-none-of"]),
+    _field("field-13", "Account", "company", ["is-any-of", "is-none-of", "is-empty"]),
+    _field("field-14", "Portfolio", "company-multi", ["has-any-of", "has-all-of", "has-none-of"]),
+    _field("field-15", "Mentor", "person", ["is-empty", "is-not-empty"]),  # takes no is-any-of
+]
+ENRICHED_COMPANY = FieldMetadata.model_validate(
+    {
+        "id": "affinity-data-current-organization",
+        "name": "Current Organization",
+        "type": "enriched",
+        "valueType": "company",
+        "enrichmentSource": "affinity-data",
+        "filterability": {
+            "filterableFieldType": "field-only",
+            "operators": [{"id": "is-any-of", "name": "is", "numberOfValuesRequired": "multi"}],
+        },
+    }
+)
+OWNER_ID = 12345
+NAMES_REASON = "names are matched locally (use the id to filter on Affinity's side)"
+
+
+def _ref(
+    where: dict[str, Any], verified: frozenset[tuple[str, str]] = ALL_MAPPINGS, **kw: Any
+) -> Any:
+    return split_where(
+        WhereClause.model_validate(where),
+        [*FIELDS, *REF_FIELDS, ENRICHED_COMPANY],
+        lambda meta: OPTIONS.get(str(meta.id), []),
+        verified=verified,
+        **kw,
+    )
+
+
+def _cond(path: str, op: str, value: Any) -> dict[str, Any]:
+    return {"path": f"fields.{path}", "op": op, "value": value}
+
+
+def _ids_sent(split: Any) -> tuple[str, list[int]]:
+    (cond,) = split.where.items
+    assert isinstance(cond, Condition)
+    return cond.operator, list(cond.value)
+
+
+def test_person_eq_id_is_pushed() -> None:
+    split = _ref(_cond("Owner", "eq", OWNER_ID))
+    assert split.where == FilterGroup(
+        "and", (Condition("field-11", "is-any-of", [OWNER_ID], "person"),)
+    )
+    assert split.pushed == [f"fields.Owner eq {OWNER_ID}"]
+    assert split.local == [] and split.complete
+    text = _ref(_cond("Owner", "eq", str(OWNER_ID)))
+    assert _ids_sent(text) == ("is-any-of", [OWNER_ID])
+    assert text.pushed == [f"fields.Owner eq '{OWNER_ID}'"]
+
+
+def test_body_wraps_ids() -> None:
+    split = _ref(_cond("Owner", "eq", OWNER_ID))
+    assert _only(split)["value"] == [{"id": OWNER_ID}]
+
+
+def test_null_stays_local() -> None:
+    split = _ref(_cond("Owner", "eq", None))
+    assert split.where is None and "no server mapping for person eq" in split.local[0]
+    either = _ref({"or": [_cond("Owner", "eq", None), _cond("Owner", "eq", 5)]})
+    assert either.where is None
+    assert either.local == ["an OR with a branch the server can't answer"]
+    assert _ref(_cond("Team", "in", [None])).where is None
+    assert _ref(_cond("Team", "in", [5, None])).where is None
+
+
+def test_in_dedupes_before_counting() -> None:
+    assert _ids_sent(_ref(_cond("Owner", "in", [5] * 150))) == ("is-any-of", [5])
+    assert _ids_sent(_ref(_cond("Owner", "in", [5, 5, 6]))) == ("is-any-of", [5, 6])
+
+
+def test_digit_strings_are_ids() -> None:
+    assert _ids_sent(_ref(_cond("Owner", "eq", f" {OWNER_ID} "))) == ("is-any-of", [OWNER_ID])
+    assert _ids_sent(_ref(_cond("Owner", "eq", "012"))) == ("is-any-of", [12])
+
+
+@pytest.mark.parametrize("value", [0, -5, ID_MAX + 1, "99999999999999999999"])
+def test_ids_out_of_range_stay_local(value: Any) -> None:
+    split = _ref(_cond("Owner", "eq", value))
+    assert split.where is None and split.local[0].endswith(": not a valid record id")
+
+
+@pytest.mark.parametrize("value", [True, 1.0, "12a", "\u0663", "9" * 5000, "-5", "Jan"])
+def test_values_that_are_not_ids_stay_local(value: Any) -> None:
+    split = _ref(_cond("Owner", "eq", value))
+    assert split.where is None and split.local[0].endswith(f": {NAMES_REASON}")
+
+
+def test_shape_is_checked_before_range() -> None:
+    split = _ref(_cond("Owner", "in", [0, "Jan"]))
+    assert split.local[0].endswith(f": {NAMES_REASON}")
+    assert _ref(_cond("Owner", "in", [0, 5])).local[0].endswith(": not a valid record id")
+
+
+def test_names_stay_local() -> None:
+    assert _ref(_cond("Owner", "eq", "Jane Doe")).where is None
+    mixed = _ref(_cond("Owner", "in", [1, "Jane Doe"]))
+    assert mixed.where is None and mixed.local[0].endswith(f": {NAMES_REASON}")
+
+
+def test_empty_list_reason() -> None:
+    split = _ref(_cond("Owner", "in", []))
+    assert split.where is None and "needs 1 to 100 values" in split.local[0]
+
+
+def test_single_field_list_eq_and_has_stay_local() -> None:
+    for op, value in (("eq", [5, 6]), ("has_any", [5]), ("has_all", [5]), ("in", 5)):
+        split = _ref(_cond("Owner", op, value))
+        assert split.where is None, op
+        assert f"no server mapping for person {op}" in split.local[0]
+
+
+def test_negations_stay_local() -> None:
+    assert _ref(_cond("Owner", "neq", 5)).where is None
+    assert _ref({"not": _cond("Owner", "eq", 5)}).where is None
+    negated = _ref({"not": _cond("Owner", "in", [5])})
+    assert negated.where is None and "stays local" in negated.local[0]
+
+
+@pytest.mark.parametrize(
+    ("op", "value", "operator", "ids"),
+    [
+        ("eq", 5, "has-any-of", [5]),
+        ("in", [5, 6], "has-any-of", [5, 6]),
+        ("has_any", [5, 6], "has-any-of", [5, 6]),
+        ("has_all", [5, 6], "has-all-of", [5, 6]),
+        ("eq", [5, 6], "has-all-of", [5, 6]),
+    ],
+)
+def test_multi_ops(op: str, value: Any, operator: str, ids: list[int]) -> None:
+    assert _ids_sent(_ref(_cond("Team", op, value))) == (operator, ids)
+
+
+def test_multi_in_with_a_scalar_stays_local() -> None:
+    for op in ("in", "has_any", "has_all"):
+        assert _ref(_cond("Team", op, 5)).where is None, op
+    assert _ref(_cond("Team", "neq", 5)).where is None
+
+
+def test_company_fields() -> None:
+    assert _ids_sent(_ref(_cond("Account", "eq", 7))) == ("is-any-of", [7])
+    assert _ids_sent(_ref(_cond("Portfolio", "in", [7, 8]))) == ("has-any-of", [7, 8])
+
+
+@pytest.mark.parametrize("enriched", ["local", "or-empty", "as-is"])
+def test_enriched_reference_stays_local(enriched: str) -> None:
+    split = _ref(_cond("Current Organization", "eq", 7), enriched=enriched)
+    assert split.where is None
+    assert split.local[0].endswith(": Affinity enriched fields stay local")
+
+
+def test_entity_verified_keeps_references_local() -> None:
+    assert not ENTITY_VERIFIED & REFERENCE_MAPPINGS
+    split = _ref(_cond("Owner", "eq", OWNER_ID), verified=ENTITY_VERIFIED)
+    assert split.where is None and "person is-any-of not verified" in split.local[0]
+    # No "use the id" advice on the endpoints that never take these conditions
+    named = _ref(_cond("Owner", "eq", "Jane Doe"), verified=ENTITY_VERIFIED)
+    assert "not verified against the API yet" in named.local[0]
+    assert "use the id" not in named.local[0]
+
+
+def test_or_of_ids_pushes_and_mixed_or_stays_local() -> None:
+    both = _ref({"or": [_cond("Owner", "eq", 1), _cond("Owner", "eq", 2)]})
+    assert _body(both.where)["operator"] == "or" and both.complete
+    mixed = _ref({"or": [_cond("Owner", "eq", 1), _cond("Owner", "eq", "Jane Doe")]})
+    assert mixed.where is None and mixed.pushed == []
+
+
+def test_unverified_pair_stays_local() -> None:
+    split = _ref(_cond("Owner", "eq", 5), verified=frozenset())
+    assert split.where is None and "person is-any-of not verified" in split.local[0]
+
+
+def test_field_without_operator_stays_local() -> None:
+    split = _ref(_cond("Mentor", "eq", 5))
+    assert split.where is None and "the field doesn't take is-any-of" in split.local[0]
+
+
+def test_reference_pairs_are_emittable_and_verified_matches_the_record() -> None:
+    assert REFERENCE_MAPPINGS <= ALL_MAPPINGS
+    assert len(REFERENCE_MAPPINGS) == 6
+    # The golden run of 2026-11-04 (see the VERIFIED comment) passed every pair except the
+    # single-company one, which no list it ran on could exercise
+    assert REFERENCE_MAPPINGS - {("company", "is-any-of")} == REFERENCE_MAPPINGS & VERIFIED
+    assert VERIFIED - REFERENCE_MAPPINGS == ENTITY_VERIFIED
+
+
+def test_digit_term_stays_local() -> None:
+    owners = "fields.Owners"
+    split = _named({"path": owners, "op": "starts_word", "value": "360"})
+    assert split.term is None and split.local == [
+        f"{owners} starts_word '360': a number isn't sent as a name search"
+    ]
+    spaced = _named({"path": owners, "op": "starts_word", "value": "3 6 0"})
+    assert spaced.term is None and "a number isn't sent" in spaced.local[0]
+    as_int = _named({"path": owners, "op": "starts_word", "value": 360})
+    assert as_int.term is None and "one name search per query" in as_int.local[0]
+    for value in ("- -", "\u0663\u0663\u0663"):
+        other = _named({"path": owners, "op": "starts_word", "value": value})
+        assert other.term is None and "one name search per query" in other.local[0]
+    for value in ("Jan", "Jan 3", "3M Co"):
+        assert _named({"path": owners, "op": "starts_word", "value": value}).term == value

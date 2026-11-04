@@ -278,7 +278,7 @@ def test_repeated_expand_filters_are_anded(monkeypatch: pytest.MonkeyPatch) -> N
     assert seen == ['(name =~ "a") & (name =~ "b")']
 
 
-# --- person fields match by name, or by id when the value is a number --------------------------
+# --- person fields match by name; a number is the record's id ----------------------------------
 
 OWNER = {
     **FIELDS[0],
@@ -402,3 +402,227 @@ def test_search_first_page_not_fetched_twice(router: respx.MockRouter, csv: bool
     result = CliRunner().invoke(cli, args if csv else ["--json", *args], env=ENV)
     assert result.exit_code == 0, result.output
     assert search.call_count == 1
+
+
+# --- person and company ids go to Affinity's search ----------------------------------------
+
+PERSON_OPS = ["is-any-of", "is-none-of", "is-empty", "is-not-empty"]
+OWNER_FILTERABLE = {
+    **OWNER,
+    "filterability": {
+        "filterableFieldType": "field-only",
+        "operators": [{"id": o, "name": o, "numberOfValuesRequired": "multi"} for o in PERSON_OPS],
+    },
+}
+ACCOUNT = {**OWNER_FILTERABLE, "id": "field-3", "name": "Account", "valueType": "company"}
+TEAM = {
+    **OWNER_FILTERABLE,
+    "id": "field-4",
+    "name": "Team",
+    "valueType": "person-multi",
+    "filterability": {
+        "filterableFieldType": "field-only",
+        "operators": [
+            {"id": o, "name": o, "numberOfValuesRequired": "multi"}
+            for o in ("has-any-of", "has-all-of", "has-none-of", "is-empty")
+        ],
+    },
+}
+
+
+def _with_fields(entry: dict[str, Any], *values: dict[str, Any]) -> dict[str, Any]:
+    entry["entity"]["fields"].extend(values)
+    return entry
+
+
+def _person_value(fid: str, name: str, data: Any) -> dict[str, Any]:
+    kind = "person-multi" if isinstance(data, list) else "person"
+    return {"id": fid, "name": name, "type": "list", "value": {"type": kind, "data": data}}
+
+
+def _dana(person_id: int) -> dict[str, Any]:
+    return {
+        "id": person_id,
+        "firstName": "Dana",
+        "lastName": "Levi",
+        "primaryEmailAddress": None,
+        "type": "internal",
+    }
+
+
+def _company_value(company_id: int, name: str) -> dict[str, Any]:
+    data = {"id": company_id, "name": name, "domain": None}
+    return {
+        "id": "field-3",
+        "name": "Account",
+        "type": "list",
+        "value": {"type": "company", "data": data},
+    }
+
+
+def _fields(router: respx.MockRouter, *extra: dict[str, Any]) -> None:
+    router.get(f"{V2}/lists/9/fields").mock(
+        return_value=Response(200, json=_page([*FIELDS, *extra]))
+    )
+
+
+def test_a_person_id_filter_needs_no_scope_flag(router: respx.MockRouter) -> None:
+    _fields(router, OWNER_FILTERABLE)
+    plain = router.get(f"{V2}/lists/9/list-entries")
+    search = router.post(SEARCH).mock(
+        return_value=Response(
+            201,
+            json=_page(
+                [
+                    _with_fields(_entry(1, "Won"), _person_value("field-2", "Owner", _dana(5))),
+                    _with_fields(_entry(2, "Won"), _person_value("field-2", "Owner", _dana(6))),
+                ]
+            ),
+        )
+    )
+    code, out = _export("--filter", 'Status = "Won" & Owner = 5')
+    assert code == 0, out
+    assert _ids(out) == [1]  # the local re-check trims what Affinity returned extra
+    assert not plain.called
+    conditions = json.loads(search.calls[0].request.content)["filters"]["filters"]
+    assert {c["operator"] for c in conditions} == {"is-any-of"}
+    assert {"valueType": "person", "fieldId": "field-2", "operator": "is-any-of",
+            "value": [{"id": 5}]} in conditions  # fmt: skip
+    assert out["meta"]["serverFilter"]["local"] == []
+
+
+def test_a_person_name_filter_still_needs_a_scope_flag(router: respx.MockRouter) -> None:
+    _fields(router, OWNER_FILTERABLE)
+    code, out = _export("--filter", 'Owner = "Dana Levi"')
+    assert code == 2, out
+    assert any("names are matched locally" in r for r in out["error"]["details"]["local"])
+
+
+def test_a_number_never_matches_a_company_named_with_digits(router: respx.MockRouter) -> None:
+    _fields(router, ACCOUNT)
+    # A single-company field's id condition isn't verified against Affinity yet, so it runs
+    # locally on the whole list; the id rule applies there too
+    entry = _with_fields(_entry(1, "Won"), _company_value(77, "360"))
+    router.get(f"{V2}/lists/9/list-entries").mock(return_value=Response(200, json=_page([entry])))
+    search = router.post(SEARCH)
+    code, out = _export("--filter", "Account = 360", "--all")
+    assert code == 0, out
+    assert _ids(out) == []
+    code, out = _export("--filter", "Account = 77", "--all")
+    assert _ids(out) == [1]
+    assert not search.called
+
+
+def test_a_digit_starts_word_needs_a_scope_flag(router: respx.MockRouter) -> None:
+    _fields(router, ACCOUNT)
+    search = router.post(SEARCH)
+    code, out = _export("--filter", 'Account starts_word "360"')
+    assert code == 2, out
+    assert any(
+        "a number isn't sent as a name search" in r for r in out["error"]["details"]["local"]
+    )
+    assert not search.called
+
+
+def test_a_person_id_search_cursor_carries_the_condition(router: respx.MockRouter) -> None:
+    _fields(router, OWNER_FILTERABLE)
+    owned = _with_fields(_entry(1, "Won"), _person_value("field-2", "Owner", _dana(5)))
+    second = router.post(SEARCH, params={"cursor": "p2"}).mock(
+        return_value=Response(201, json=_page([owned]))
+    )
+    first = router.post(SEARCH).mock(
+        return_value=Response(201, json=_page([owned], f"{SEARCH}?cursor=p2"))
+    )
+    code, out = _export("--filter", "Owner = 5")
+    assert code == 0, out
+    cursor = out["meta"]["pagination"]["rows"]["nextCursor"]
+    assert cursor.startswith("xsearch2:")
+    code, out = _export("--cursor", cursor)
+    assert code == 0, out
+    assert json.loads(second.calls[0].request.content) == json.loads(first.calls[0].request.content)
+
+
+def test_a_multi_field_with_a_nameless_person_in_the_filter_dict(router: respx.MockRouter) -> None:
+    # Team = [5]: pushed as has-all-of; the local filter decides. A nameless member (id 7)
+    # breaks set equality here, while query skips nameless members (see the query tests).
+    _fields(router, TEAM)
+    nameless = {"id": 7, "firstName": None, "lastName": None, "type": "internal"}
+    router.post(SEARCH).mock(
+        return_value=Response(
+            201,
+            json=_page(
+                [
+                    _with_fields(
+                        _entry(1, "Won"), _person_value("field-4", "Team", [_dana(5), nameless])
+                    ),
+                    _with_fields(_entry(2, "Won"), _person_value("field-4", "Team", [_dana(5)])),
+                ]
+            ),
+        )
+    )
+    code, out = _export("--filter", "Team = [5]")
+    assert code == 0, out
+    assert _ids(out) == [2]
+
+
+@pytest.mark.parametrize(
+    ("expression", "expected"),
+    [
+        ("Owner = 5", [1]),
+        ("Owner in [5, 7]", [1]),
+        ("Owner in [8, 9]", []),
+    ],
+)
+def test_a_person_field_id_matches_without_a_scope_flag(
+    router: respx.MockRouter, expression: str, expected: list[int]
+) -> None:
+    _fields(router, OWNER_FILTERABLE)
+    router.post(SEARCH).mock(
+        return_value=Response(
+            201,
+            json=_page(
+                [
+                    _with_fields(_entry(1, "Won"), _person_value("field-2", "Owner", _dana(5))),
+                    _with_fields(_entry(2, "Won"), _person_value("field-2", "Owner", _dana(6))),
+                ]
+            ),
+        )
+    )
+    code, out = _export("--field", "Owner", "--filter", expression)
+    assert code == 0, out
+    assert _ids(out) == expected
+
+
+def test_a_person_id_negation_stays_local(router: respx.MockRouter) -> None:
+    _fields(router, OWNER_FILTERABLE)
+    code, out = _export("--filter", "Owner != 5")
+    assert code == 2, out
+    assert any("stays local" in r for r in out["error"]["details"]["local"])
+
+
+def test_expand_filter_matches_a_person_field_by_id_only() -> None:
+    from types import SimpleNamespace
+
+    from affinity.cli.commands.list_cmds import _person_to_expand_dict
+    from affinity.filters import parse
+
+    def expanded(person_id: int, mentor: dict[str, Any]) -> dict[str, Any]:
+        person = SimpleNamespace(
+            id=person_id,
+            full_name=f"Person {person_id}",
+            primary_email=None,
+            emails=[],
+            fields=SimpleNamespace(requested=True),
+            fields_raw=[{"id": "field-9", "value": {"type": "person", "data": mentor}}],
+        )
+        return _person_to_expand_dict(
+            person,
+            field_ids=["field-9"],  # type: ignore[list-item]
+            field_id_to_display={"field-9": "Mentor"},
+            prefix_fields=False,
+        )
+
+    by_id = expanded(1, {"id": 9, "firstName": "Ann", "lastName": "Lee"})
+    digit_name = expanded(2, {"id": 4, "firstName": "9", "lastName": None})
+    flt = parse("Mentor = 9")
+    assert [d["id"] for d in (by_id, digit_name) if flt.matches(d)] == [1]
