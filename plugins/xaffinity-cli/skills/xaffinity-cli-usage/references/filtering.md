@@ -48,13 +48,13 @@ xaffinity --readonly list export "Pipeline" --filter 'Status = "Active" & entity
 - Affinity applies: dropdown and multi-select dropdown values (`=`, `!=`, `in`, `has_any`,
   `has_all`, contains/starts on the option text), numbers and dates (`=`, `!=`, `>`, `>=`, `<`,
   `<=`, `between`, relative dates like `-30d`), text (`=`, `=~`, `=^`, `=$`, `starts_word`),
-  `is null` / `is not null`, on list entries `=` / `in` on person and company fields with record
-  ids (on multi fields also membership `=`, `= [ids]`, `has_any`, `has_all`), and `starts_word`
+  `is null` / `is not null`, on list entries `=` / `in` on person fields and multi-person /
+  multi-company fields with record ids up to 2147483647 (on multi fields also membership `=`, `= [ids]`, `has_any`, `has_all`), and `starts_word`
   with 3+ characters including a letter on one person or company field.
 - Stays local: record attributes (`entityName`, `name`, `createdAt`, ...), `contains_any` /
   `contains_all`, an OR with a branch Affinity can't answer, and on person and company fields
-  names, `!=`, enriched fields, these conditions on `company ls` / `person ls`, and a name search
-  of only digits (`starts_word "360"`).
+  names, `!=`, enriched fields, ids on a single-company field, ids above 2147483647, these
+  conditions on `company ls` / `person ls`, and a name search of only digits (`starts_word "360"`).
 - A filtered run's next-page cursor starts with `xsearch2:`; `--cursor` alone resumes it.
 - `--json` output carries the split in `meta.serverFilter`: `pushed` (Affinity applied),
   `local` (checked locally, with reasons), and on `list export` `fallback` when the search was

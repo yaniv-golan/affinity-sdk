@@ -349,6 +349,9 @@ def _refuse_search(router: respx.MockRouter, status: int = 400) -> tuple[Any, An
     return search, plain
 
 
+# A 403 here becomes a usage error (exit 2) like a 400: list export reports the refusal with the
+# scope flags that make it read the list instead. company ls / person ls pass the raw
+# AuthorizationError through (accepted).
 @pytest.mark.parametrize("status", [400, 403])
 def test_refused_search_without_scope_flag_exits_2(router: respx.MockRouter, status: int) -> None:
     search, plain = _refuse_search(router, status)
@@ -369,18 +372,43 @@ def test_refused_search_csv_writes_nothing(router: respx.MockRouter) -> None:
     )
     assert result.exit_code == 2, result.output
     assert "listEntryId" not in result.stdout
+    assert not [line for line in result.stdout.splitlines() if line[:1].isdigit()]  # no CSV rows
     assert not plain.called
 
 
-def test_refused_search_with_all_falls_back(router: respx.MockRouter) -> None:
+@pytest.mark.parametrize(
+    "scope", [["--all"], ["--max-results", "5"], ["--first-page-only"]], ids=lambda s: s[0]
+)
+def test_refused_search_with_all_falls_back(router: respx.MockRouter, scope: list[str]) -> None:
     _refuse_search(router)
-    code, out = _export("--filter", 'Status = "Won"', "--all")
+    code, out = _export("--filter", 'Status = "Won"', *scope)
     assert code == 0, out
     assert _ids(out) == [1]
     assert any(
         "Affinity's search refused the filter, filtering locally" in w for w in out["warnings"]
     )
     assert out["meta"]["serverFilter"]["fallback"]
+
+
+def test_unsupported_search_is_a_refusal(
+    router: respx.MockRouter, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from affinity.cli.commands import list_cmds
+    from affinity.exceptions import UnsupportedOperationError
+
+    def refuse(*_args: Any, **_kwargs: Any) -> Any:
+        raise UnsupportedOperationError("search is not available for this list")
+
+    monkeypatch.setattr(list_cmds, "_open_search", refuse)
+    _, plain = _refuse_search(router)
+    code, out = _export("--filter", 'Status = "Won"')
+    assert code == 2, out
+    assert out["error"]["details"]["refused"] == "search is not available for this list"
+    assert not plain.called
+    code, out = _export("--filter", 'Status = "Won"', "--all")
+    assert code == 0, out
+    assert _ids(out) == [1]
+    assert out["meta"]["serverFilter"]["fallback"] == "search is not available for this list"
 
 
 def test_refused_search_csv_with_all_falls_back(router: respx.MockRouter) -> None:
@@ -390,7 +418,9 @@ def test_refused_search_csv_with_all_falls_back(router: respx.MockRouter) -> Non
     )
     assert result.exit_code == 0, result.output
     assert "Affinity's search refused the filter, filtering locally" in result.output
-    assert len(result.stdout.strip().splitlines()) == 2  # header + the one match
+    # header + the one match (older click mixes stderr into stdout, so count CSV rows only)
+    rows = [line for line in result.stdout.splitlines() if line.startswith(("listEntryId,", "1,"))]
+    assert len(rows) == 2, result.stdout
 
 
 @pytest.mark.parametrize("csv", [False, True])

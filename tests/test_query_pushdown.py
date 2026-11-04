@@ -463,6 +463,17 @@ def test_in_dedupes_before_counting() -> None:
     assert _ids_sent(_ref(_cond("Owner", "in", [5, 5, 6]))) == ("is-any-of", [5, 6])
 
 
+def test_more_than_100_distinct_ids_stay_local() -> None:
+    assert _ids_sent(_ref(_cond("Owner", "in", list(range(1, 101)))))[1] == list(range(1, 101))
+    split = _ref(_cond("Owner", "in", list(range(1, 102))))
+    assert split.where is None
+    assert split.local[0].endswith(": needs 1 to 100 values on the server")
+
+
+def test_largest_id_is_sent() -> None:
+    assert _ids_sent(_ref(_cond("Owner", "eq", ID_MAX))) == ("is-any-of", [ID_MAX])
+
+
 def test_digit_strings_are_ids() -> None:
     assert _ids_sent(_ref(_cond("Owner", "eq", f" {OWNER_ID} "))) == ("is-any-of", [OWNER_ID])
     assert _ids_sent(_ref(_cond("Owner", "eq", "012"))) == ("is-any-of", [12])

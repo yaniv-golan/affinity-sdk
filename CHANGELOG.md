@@ -12,8 +12,8 @@ returns. It is marked **Behavior change**.
 
 ### Highlights
 
-Filters on a person or company field by id (`Owner = 12345`) now run on Affinity's side for list
-entries, so `list export` needs no `--all` and downloads only the matching rows. A number on a
+Filters by id on a person field or a multi-person / multi-company field (`Owner = 12345`) now run
+on Affinity's side for list entries, so `list export` needs no `--all` and downloads only the matching rows. A number on a
 record reference is its id only.
 
 ### Changed
