@@ -5,10 +5,15 @@ All notable changes to the xaffinity MCP server will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.9] - 2026-11-05
 
 Requires CLI 2.0.8 for id filters on person and company fields to run on Affinity's side, and
 for a digit-only name to need `starts_word`.
+
+### Highlights
+
+Filters on a person or company field by id (`Owner = 12345`) now run on Affinity's side for list
+entries, so `list export` returns the matching rows without scanning the whole list.
 
 ### Changed
 
