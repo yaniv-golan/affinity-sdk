@@ -2962,10 +2962,13 @@ Each value must be a complete expression; for OR, use <code>|</code> inside one 
 <li><strong><code>starts_word</code></strong>: a word in the value starts with the text, case-insensitive, the way
   Affinity's search matches names. <code>"Jan"</code> matches "Jane Doe" and "Mary-Jane"; <code>"ane"</code>
   doesn't. JSON spelling in <code>query</code>: <code>{"path": "fields.Owner", "op": "starts_word", "value": "Jan"}</code>.</li>
-<li><strong>Person and company fields</strong> are compared by name ("Jane Doe", "Acme"), or by id when the value is a number
-  (<code>Owner = 26229794</code>: that person's id; a value with no name can't match by id). In <code>--filter</code>
-  and <code>query</code>, <code>contains</code> (and <code>contains_any</code> / <code>contains_all</code>) on a person or company
-  field is refused: use <code>starts_word</code>.</li>
+<li><strong>Person and company fields</strong> are compared by name ("Jane Doe", "Acme"); with <code>=</code>, <code>!=</code>,
+  <code>in</code>, <code>has_any</code> and <code>has_all</code>, an integer or 1-20 digits is the record's id and never matches a
+  name (<code>Owner = 12345</code>: that person's id; a value with no name can't match by id). To find a
+  record whose name is digits, use <code>starts_word</code> (checked locally; on <code>company ls</code> / <code>person ls</code>
+  combine it with another field condition, or use <code>--query</code>). In <code>--filter</code> and <code>query</code>,
+  <code>contains</code> (and <code>contains_any</code> / <code>contains_all</code>) on a person or company field is refused:
+  use <code>starts_word</code>.</li>
 <li><strong>Empty multi-value fields</strong>: a multi-value field with no items counts as empty.
   <code>is null</code> (<code>!= *</code>) matches it and <code>is not null</code> (<code>= *</code>) doesn't.</li>
 </ul>
@@ -3003,7 +3006,7 @@ xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">ex
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span>Pipeline<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Owner starts_word "Jan"'</span>
 
 <span class="c1"># A person field by id</span>
-xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span>Pipeline<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Owner = 26229794'</span><span class="w"> </span>--all
+xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span>Pipeline<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Owner = 12345'</span>
 
 <span class="c1"># Null check</span>
 xaffinity<span class="w"> </span>list<span class="w"> </span><span class="nb">export</span><span class="w"> </span>Pipeline<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'Owner != *'</span>
@@ -3068,17 +3071,26 @@ back, so the result is the same as a local filter.</p>
 <td><code>is null</code>, <code>is not null</code></td>
 </tr>
 <tr>
+<td>Person or company field, or multi-person / multi-company field (list entries)</td>
+<td><code>=</code> and <code>in</code> with record ids (ids up to 2147483647); on a multi field also membership <code>=</code>, <code>= [ids]</code>, <code>has_any</code> and <code>has_all</code> with ids</td>
+</tr>
+<tr>
 <td>Person or company field</td>
-<td><code>starts_word</code> with plain text of 3+ letters or digits, one per query, at the top level (sent as Affinity's name search)</td>
+<td><code>starts_word</code> with plain text of 3+ characters with at least one letter, one per query, at the top level (sent as Affinity's name search)</td>
 </tr>
 </tbody>
 </table>
 <p>What stays local: conditions on record attributes (<code>name</code>, <code>entityName</code>, <code>createdAt</code>, ...),
 related-record conditions in <code>query</code> (<code>all</code>, <code>none</code>, <code>exists</code>, <code>_count</code>), <code>expr</code>,
-<code>contains_any</code> / <code>contains_all</code>, and an OR with any branch Affinity can't answer.</p>
-<p><strong>Enriched fields</strong> (<code>affinity-data-*</code>, e.g. funding and headcount): on list entries they're
-sent as "condition OR field is empty", because Affinity's search reads a few records' enriched
-values as empty; results stay exact. On <code>company ls</code>, <code>person ls</code> and <code>query</code> on companies or
+<code>contains_any</code> / <code>contains_all</code>, and an OR with any branch Affinity can't answer. On person and
+company fields: names (<code>Owner = "Jane Doe"</code>; use the id to filter on Affinity's side), <code>!=</code>,
+enriched person and company fields, a number that isn't a valid record id (or is above 2147483647), these conditions on
+<code>company ls</code>, <code>person ls</code> and <code>query</code> from companies or persons, and a name search made only of
+digits (<code>starts_word "360"</code>).</p>
+<p><strong>Enriched fields</strong> (<code>affinity-data-*</code>, e.g. funding and headcount): on list entries (except
+enriched person and company fields, which stay local) they're sent as "condition OR field is
+empty", because Affinity's search reads a few records' enriched values as empty; results stay
+exact. On <code>company ls</code>, <code>person ls</code> and <code>query</code> on companies or
 persons they're sent as they are, and the result carries a warning that a few records may be
 missed.</p>
 <p><strong>Scope flags and paging:</strong></p>
@@ -3095,9 +3107,10 @@ missed.</p>
   <code>local</code> (checked only on your machine, with reasons) and, on <code>list export</code> when the search
   was refused or turned off, <code>fallback</code> (why; the whole filter then ran locally).
   <code>list export --dry-run</code> shows it under <code>data.serverFilter</code>; a <code>--cursor</code> resume doesn't.</li>
-<li>If Affinity refuses the search on <code>list export</code> or a <code>listEntries</code> query (e.g. the API key
-  lacks the "Export data from Lists" permission), the command reads the whole list and filters
-  locally, with a warning.</li>
+<li>If Affinity refuses the search (e.g. the API key lacks the "Export data from Lists"
+  permission), a <code>listEntries</code> query reads the whole list and filters locally, with a warning.
+  <code>list export</code> does the same only with <code>--all</code>, <code>--max-results</code> or <code>--first-page-only</code>;
+  without one it exits 2 before any output.</li>
 <li><code>XAFFINITY_QUERY_SERVER_FILTER=0</code> turns this off for list entries (<code>listEntries</code> queries and
   <code>list export</code>), to compare results or debug. Company and person filters always go through
   Affinity's search.</li>
