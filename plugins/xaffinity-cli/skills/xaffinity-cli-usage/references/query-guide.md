@@ -61,9 +61,11 @@ name/email search use `company ls --query TERM` / `person ls --query TERM`.
 - `starts_word` — a word in the value starts with the text, case-insensitive, as Affinity's search
   matches names (`"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"` doesn't)
 
-Person and company field values are compared by name ("Jane Doe", "Acme"), or by id when the value is a number;
-`contains`,
-`contains_any` and `contains_all` on them are refused, use `starts_word`.
+Person and company field values are compared by name ("Jane Doe", "Acme"); with `eq`, `neq`, `in`,
+`has_any`, `has_all`, an integer or 1-20 digits is the record's id and never matches a name. To find
+a record whose name is digits, use `starts_word` (checked locally; on `companies` / `persons`
+combine it with another field condition). `contains`, `contains_any` and `contains_all` on them are
+refused, use `starts_word`.
 
 ### Collection
 - `in` — value in list: `{"op": "in", "value": ["A", "B"]}`
@@ -85,12 +87,17 @@ to Affinity, so only matching records are downloaded; the full `where` then runs
 comes back, so results are the same as a local filter.
 
 - Sent: dropdown / multi-select / ranked-dropdown values, numbers, dates (incl. `"-30d"`), text
-  (as a case-insensitive contains), `is_null` / `is_not_null`, and `starts_word` on one person or
-  company field at the top level of the `where`.
+  (as a case-insensitive contains), `is_null` / `is_not_null`, on `listEntries` `eq` / `in` with
+  record ids (up to 2147483647) on person fields and multi-person / multi-company fields (multi
+  fields also `has_any`, `has_all`, `eq` with a list), and `starts_word` (3+ characters including a letter) on one person or company field at
+  the top level of the `where`.
 - Local: `all` / `none` / `exists` / `_count`, non-field paths (`entityName`, `createdAt`, ...),
-  `expr`, `contains_any` / `contains_all`, an OR with a branch Affinity can't answer.
-- Enriched fields (`affinity-data-*`) are exact on `listEntries`; on `companies` / `persons` the
-  result warns that a few records may be missed.
+  `expr`, `contains_any` / `contains_all`, an OR with a branch Affinity can't answer, and on
+  person and company fields names, `neq`, enriched fields, ids on a single-company field, these conditions on `companies` /
+  `persons`, and a name search of only digits.
+- Enriched fields (`affinity-data-*`) are exact on `listEntries` (enriched person and company
+  fields stay local); on `companies` / `persons` the result warns that a few records may be
+  missed.
 - If Affinity refuses the search on `listEntries` (key without "Export data from Lists"), the
   query reads the whole list and filters locally, with a warning.
 - `--include-meta` shows `meta.serverFilter`: `pushed`, `local` (with reasons), `sort`.

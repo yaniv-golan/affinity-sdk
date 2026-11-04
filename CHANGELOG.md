@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+**Exception to semantic versioning** (as 2.0.2–2.0.7): one fix changes which rows a filter
+returns. It is marked **Behavior change**.
+
+### Highlights
+
+Filters on a person or company field by id (`Owner = 12345`) now run on Affinity's side for list
+entries, so `list export` needs no `--all` and downloads only the matching rows. A number on a
+record reference is its id only.
+
+### Changed
+
+- **Behavior change (correctness fix). CLI and SDK (`--filter`, `query`, `affinity.filters`,
+  `list(filter=...)`): an integer or 1–20 digits on a person, company or other record-reference
+  field matches the record's id only.** It no longer matches a record whose name is those digits;
+  use `starts_word` to find such a name. (As before, a reference with no name, such as a person
+  without a first and last name or a company with an empty name, can't be matched by id.)
+- CLI and SDK: on list entries, `=` and `in` with record ids on a person field, and `=`, `in`,
+  `has_any` and `has_all` with ids on a multi-person or multi-company field, go to Affinity's
+  search. Such filters need no `--all` / `--max-results` and download only matching rows. Ids
+  above 2147483647, names, `!=`, ids on a single-company field, enriched person and company
+  fields, and filters on `company ls` / `person ls` / `query` from companies or persons are still
+  checked locally.
+- CLI: a `starts_word` with no letter (`starts_word "360"`) is checked locally instead of being
+  sent as Affinity's name search. On `list export` it needs a scope flag; on `company ls`,
+  `person ls` and `query` from companies or persons it needs another field condition (or use
+  `--query`).
+
+### Fixed
+
+- CLI: `list export --filter` with a filter Affinity's search refuses (for example a key without
+  the "Export data from Lists" permission), run without `--all`, `--max-results` or
+  `--first-page-only`, exits 2 before any output. It used to print only the first page, as if it
+  were the whole result. `details.refused` carries Affinity's reason.
+
 ## [2.0.7] - 2026-11-03
 
 **Exception to semantic versioning** (as 2.0.2–2.0.6): two fixes change which rows a filter

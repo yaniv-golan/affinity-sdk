@@ -146,7 +146,7 @@ Example: {"from": "persons", "include": ["interactions"]}
 | `starts_with` | Starts with prefix (case-insensitive) | string |
 | `starts_word` | A word in the value starts with the text (case-insensitive) | string |
 
-`starts_word` matches the way Affinity's search matches names: `"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"` doesn't. Person and company field values are compared by name ("Jane Doe", "Acme"), or by id when the value is a number (`{"path": "fields.Owner", "op": "eq", "value": 26229794}`); `contains`, `contains_any` and `contains_all` on a person or company field are refused (use `starts_word`).
+`starts_word` matches the way Affinity's search matches names: `"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"` doesn't. Person and company field values are compared by name ("Jane Doe", "Acme"); with `eq`, `neq`, `in`, `has_any` and `has_all`, an integer or 1-20 digits is the record's id and never matches a name (`{"path": "fields.Owner", "op": "eq", "value": 12345}`). To find a record whose name is digits, use `starts_word` (checked locally; on `companies` / `persons` combine it with another field condition). `contains`, `contains_any` and `contains_all` on a person or company field are refused (use `starts_word`).
 
 #### Collection
 
@@ -172,7 +172,7 @@ The `--filter` text of `list export`, `company ls` and `person ls` is the same f
 
 ### Filtering on Affinity's Side
 
-On `listEntries`, `companies` and `persons`, the conditions on fields that Affinity's search can answer are sent to Affinity, so only matching records are downloaded. The full `where` still runs locally on what comes back, so results are the same as a local filter. Related-record quantifiers, non-field paths (`entityName`, `createdAt`, ...), `expr`, `contains_any` / `contains_all` and an OR with a branch Affinity can't answer stay local. `--include-meta` reports the split in `meta.serverFilter` (`pushed`, `local`, `sort`). Details: [Query command guide](../guides/query-command.md#filtering-on-affinitys-side).
+On `listEntries`, `companies` and `persons`, the conditions on fields that Affinity's search can answer are sent to Affinity, so only matching records are downloaded. The full `where` still runs locally on what comes back, so results are the same as a local filter. Related-record quantifiers, non-field paths (`entityName`, `createdAt`, ...), `expr`, `contains_any` / `contains_all` and an OR with a branch Affinity can't answer stay local. On `listEntries`, `eq` / `in` (and, on multi-value fields, `has_any` / `has_all`) with record ids (up to 2147483647) on a person field or a multi-person / multi-company field go to Affinity; names, `neq`, enriched person and company fields, ids on a single-company field, these conditions on `companies` / `persons`, and a name search made only of digits stay local. `--include-meta` reports the split in `meta.serverFilter` (`pushed`, `local`, `sort`). Details: [Query command guide](../guides/query-command.md#filtering-on-affinitys-side).
 
 ### Compound Conditions
 

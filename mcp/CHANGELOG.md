@@ -5,6 +5,18 @@ All notable changes to the xaffinity MCP server will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Requires CLI 2.0.8 for id filters on person and company fields to run on Affinity's side, and for
+a digit-only name to need `starts_word`.
+
+### Changed
+
+- The tool descriptions, data model and query-language skill say that a number on a person or
+  company field is the record's id only (`Owner = 12345`), that id filters on list entries go to
+  Affinity's search, and that a refused search on `list export` needs `--max-results` or
+  `--first-page-only` (the gateway blocks `--all`).
+
 ## [2.0.8] - 2026-11-03
 
 Requires CLI 2.0.7 for repeated `--filter` / `--expand-filter` and for person and company fields

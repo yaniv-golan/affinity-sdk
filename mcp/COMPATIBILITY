@@ -4,6 +4,12 @@
 CLI_MIN_VERSION="2.0.7"
 CLI_MAX_VERSION="2.0.7"
 
+# MCP (next) requires CLI (next) for:
+# - Person and company id filters on list entries running on Affinity's side, and a number being
+#   a record's id only. Reads don't gate on it: on CLI 2.0.7 an id filter on `list export` needs
+#   a scope flag (the command asks for one), and a number can also match a record named with
+#   those digits.
+
 # MCP 2.0.8 requires CLI 2.0.7 for:
 # - Repeated `--filter` on `list export`, `company ls`, `person ls` and repeated
 #   `list export --expand-filter` (ANDed; the registry marks them repeatable). With an older CLI

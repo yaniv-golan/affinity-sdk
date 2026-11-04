@@ -331,7 +331,7 @@ unambiguous from one call.
 
 - `--json` emits a single JSON object, not NDJSON. Parse the whole blob and read `data.rows`.
 - Never redirect stderr to `/dev/null` — truncation, unknown-option, and filtering warnings all go there.
-- `list export --filter`: when Affinity's search applies the whole filter, no scope flag is needed. When part of it runs locally, pass `--max-results` or `--first-page-only` (`--all` is blocked here); otherwise it exits 2 and `details.local` names the conditions that stay local.
+- `list export --filter`: when Affinity's search applies the whole filter, no scope flag is needed. When part of it runs locally, or Affinity refuses the search, pass `--max-results` or `--first-page-only` (`--all` is blocked here); otherwise it exits 2 and `details.local` names the conditions that stay local (`details.refused` carries a refusal). Person and company fields filter on Affinity's side by record id (`Owner = 12345`); names stay local.
 - For duplicate checks, use `list export --company-id <id>` / `--person-id <id>` instead of `--filter`. Entity-scoped, cheap, unambiguous.
 - Check `meta.truncated` on every JSON response; `meta.truncationReason` names the cause (`firstPageOnly`, or `partialFailure` from `field history-bulk`).
 - A plain `company get` / `person get` / `opportunity get` fetches no field values or list entries. `fields: {"requested": false}` or a missing `listEntries` means *not fetched*, not *empty*; `meta.notRequested` lists what was skipped and the flag that fetches it (e.g. `--expand list-entries`, read from `data.listEntries`).
@@ -519,7 +519,7 @@ CLI commands use `--filter 'field op "value"'` syntax:
 Common operators: `=` `!=` `=~` (contains) `=^` (starts) `=$` (ends) `>` `<` `>=` `<=` `starts_word`
 
 - `starts_word`: a word in the value starts with the text, case-insensitive, the way Affinity's search matches names ("Jan" matches "Jane Doe" and "Mary-Jane"; "ane" doesn't).
-- Person and company field values are compared by name ("Jane Doe", "Acme"), or by id when the value is a number (`Owner = 26229794`); `contains` on them is refused, use `starts_word`.
+- Person and company field values are compared by name ("Jane Doe", "Acme"); with `=`, `!=`, `in`, `has_any`, `has_all`, an integer or 1-20 digits is the record's id and never matches a name (`Owner = 12345`). To find a record whose name is digits, use `starts_word` (checked locally; on `company ls` / `person ls` combine it with another field condition, or use `--query`). `contains` on them is refused, use `starts_word`.
 - An empty multi-value field counts as empty: `is null` matches it, `is not null` doesn't.
 
 For the `query` tool, use JSON operators (`eq`, `contains`, `starts_word`, `in`, etc.) - see `xaffinity://query-guide` for complete reference. The `--filter` text and the `query` `where` are the same filter language; every condition means the same in both.
@@ -528,9 +528,9 @@ For the `query` tool, use JSON operators (`eq`, `contains`, `starts_word`, `in`,
 
 `--filter` and `query` send the conditions on **fields** that Affinity's search can answer to Affinity, so only matching records are downloaded. The whole filter is then checked again locally, so results are the same as a local filter. Conditions on record attributes (name, domain, email, entityName, createdAt) run locally on what comes back.
 
-- `company ls --filter` / `person ls --filter` → must include a condition on a company/person field (e.g. `Industry = "Software"`); a filter on name/domain/email alone is refused (it would mean reading Affinity's whole company directory). Partly-local filters need `--max-results`. Enriched-field filters warn that a few records may be missed.
+- `company ls --filter` / `person ls --filter` → must include a condition on a company/person field (e.g. `Industry = "Software"`); a filter on name/domain/email alone is refused (it would mean reading Affinity's whole company directory). Partly-local filters need `--max-results`. Enriched-field filters warn that a few records may be missed. Id conditions on person and company fields stay local here, and a name search of only digits (`starts_word "360"`) needs another field condition.
 - `opportunity ls` → no filter support (opportunities are list-scoped; use `list export` instead)
-- `list export <LIST> --filter` → Affinity applies what it can; partly-local filters need `--max-results` or `--first-page-only`
+- `list export <LIST> --filter` → Affinity applies what it can (including person and company field ids); partly-local filters, or a search Affinity refuses, need `--max-results` or `--first-page-only`
 - A filtered run's `nextCursor` starts with `xsearch2:` and `--cursor` alone resumes it.
 - `meta.serverFilter` shows the split: `pushed` (conditions Affinity applied), `local` (checked locally, with reasons) and, on `list export` when the search was refused or turned off, `fallback` (why; the whole filter then ran locally). `list export --dry-run` shows it as `data.serverFilter`; a `--cursor` resume doesn't report it.
 

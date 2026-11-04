@@ -21,7 +21,7 @@ On `company ls` / `person ls`, a `--filter` must include a condition on a compan
 field. Attribute conditions (`name`, `domain`, `primaryEmail`, ...) run on what Affinity's search
 returns. A filter with only attribute conditions (e.g. `name =~ "Acme"`) is refused with a hint
 to use `--query`. Filters on enriched fields (funding, headcount, ...) warn that a few records may
-be missed.
+be missed. Id conditions on person and company fields (`Owner = 12345`) stay local there.
 
 `--query` and `--filter` are mutually exclusive.
 
@@ -35,6 +35,9 @@ locally on what comes back, so results are exact.
 # Affinity applies the whole filter: no scope flag needed, page one is the first page of matches
 xaffinity --readonly list export "Pipeline" --filter 'Status = "Active"' --json
 
+# A person field by id is answered by Affinity too (no scope flag)
+xaffinity --readonly list export "Pipeline" --filter 'Status = "Active" & Owner = 12345' --json
+
 # Part runs locally (entityName is not a field): --all, --max-results or --first-page-only required
 xaffinity --readonly list export "Pipeline" --filter 'Status = "Active" & entityName =~ "Labs"' --max-results 50 --json
 ```
@@ -45,16 +48,21 @@ xaffinity --readonly list export "Pipeline" --filter 'Status = "Active" & entity
 - Affinity applies: dropdown and multi-select dropdown values (`=`, `!=`, `in`, `has_any`,
   `has_all`, contains/starts on the option text), numbers and dates (`=`, `!=`, `>`, `>=`, `<`,
   `<=`, `between`, relative dates like `-30d`), text (`=`, `=~`, `=^`, `=$`, `starts_word`),
-  `is null` / `is not null`, and `starts_word` on one person or company field.
+  `is null` / `is not null`, on list entries `=` / `in` on person and company fields with record
+  ids (on multi fields also membership `=`, `= [ids]`, `has_any`, `has_all`), and `starts_word`
+  with 3+ characters including a letter on one person or company field.
 - Stays local: record attributes (`entityName`, `name`, `createdAt`, ...), `contains_any` /
-  `contains_all`, and an OR with a branch Affinity can't answer.
+  `contains_all`, an OR with a branch Affinity can't answer, and on person and company fields
+  names, `!=`, enriched fields, these conditions on `company ls` / `person ls`, and a name search
+  of only digits (`starts_word "360"`).
 - A filtered run's next-page cursor starts with `xsearch2:`; `--cursor` alone resumes it.
 - `--json` output carries the split in `meta.serverFilter`: `pushed` (Affinity applied),
   `local` (checked locally, with reasons), and on `list export` `fallback` when the search was
   refused or turned off (then the whole filter ran locally). `list export --dry-run` shows it
   as `data.serverFilter` before any rows are read. A `--cursor` resume doesn't report it.
 - If Affinity refuses the search on `list export` (key without the "Export data from Lists"
-  permission), the export reads the whole list and filters locally, with a warning on stderr.
+  permission): with `--all`, `--max-results` or `--first-page-only` the export reads the list
+  and filters locally, with a warning on stderr; without one it exits 2 before any output.
 - `--saved-view` also filters on Affinity's side, by the view's own criteria.
 - For one known company/person, use `--company-id` / `--person-id` instead of any filter.
 
@@ -80,8 +88,7 @@ starts_word                'Owner starts_word "Jan"'
 
 - `starts_word`: a word in the value starts with the text, case-insensitive, the way Affinity's
   search matches names ("Jan" matches "Jane Doe" and "Mary-Jane"; "ane" doesn't).
-- Person and company field values are compared by name, or by id when the value is a number (`Owner = 26229794`).
-  `=~` (contains) on a person or company
-  field is refused: use `starts_word`.
+- Person and company field values are compared by name; with `=`, `!=`, `in`, `has_any`, `has_all`, an integer or 1-20 digits is the record's id and never matches a name (`Owner = 12345`). To find a record whose name is digits, use `starts_word` (checked locally; on `company ls` / `person ls` combine it with another field condition, or use `--query`).
+  `=~` (contains) on a person or company field is refused: use `starts_word`.
 - An empty multi-value field counts as empty: `Field != *` (is null) matches it.
 - The same language is the JSON `where` of `xaffinity query`; every condition means the same.

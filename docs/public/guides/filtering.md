@@ -188,10 +188,13 @@ Human/LLM-friendly aliases for official operators:
 - **`starts_word`**: a word in the value starts with the text, case-insensitive, the way
   Affinity's search matches names. `"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"`
   doesn't. JSON spelling in `query`: `{"path": "fields.Owner", "op": "starts_word", "value": "Jan"}`.
-- **Person and company fields** are compared by name ("Jane Doe", "Acme"), or by id when the value is a number
-  (`Owner = 26229794`: that person's id; a value with no name can't match by id). In `--filter`
-  and `query`, `contains` (and `contains_any` / `contains_all`) on a person or company
-  field is refused: use `starts_word`.
+- **Person and company fields** are compared by name ("Jane Doe", "Acme"); with `=`, `!=`,
+  `in`, `has_any` and `has_all`, an integer or 1-20 digits is the record's id and never matches a
+  name (`Owner = 12345`: that person's id; a value with no name can't match by id). To find a
+  record whose name is digits, use `starts_word` (checked locally; on `company ls` / `person ls`
+  combine it with another field condition, or use `--query`). In `--filter` and `query`,
+  `contains` (and `contains_any` / `contains_all`) on a person or company field is refused:
+  use `starts_word`.
 - **Empty multi-value fields**: a multi-value field with no items counts as empty.
   `is null` (`!= *`) matches it and `is not null` (`= *`) doesn't.
 
@@ -234,7 +237,7 @@ xaffinity list export Pipeline --filter 'Region = "US" | Region = "Canada"'
 xaffinity list export Pipeline --filter 'Owner starts_word "Jan"'
 
 # A person field by id
-xaffinity list export Pipeline --filter 'Owner = 26229794' --all
+xaffinity list export Pipeline --filter 'Owner = 12345'
 
 # Null check
 xaffinity list export Pipeline --filter 'Owner != *'
@@ -284,15 +287,21 @@ What Affinity's search answers:
 | Date | `>`, `>=`, `<`, `<=`, `=`, `between`, also relative dates like `-30d` |
 | Text | `=`, `contains`, `starts_with`, `ends_with`, `starts_word` (sent as Affinity's case-insensitive contains; the exact check runs locally) |
 | Most field types | `is null`, `is not null` |
-| Person or company field | `starts_word` with plain text of 3+ letters or digits, one per query, at the top level (sent as Affinity's name search) |
+| Person field, or multi-person / multi-company field (list entries) | `=` and `in` with record ids (ids up to 2147483647); on a multi field also membership `=`, `= [ids]`, `has_any` and `has_all` with ids |
+| Person or company field | `starts_word` with plain text of 3+ characters with at least one letter, one per query, at the top level (sent as Affinity's name search) |
 
 What stays local: conditions on record attributes (`name`, `entityName`, `createdAt`, ...),
 related-record conditions in `query` (`all`, `none`, `exists`, `_count`), `expr`,
-`contains_any` / `contains_all`, and an OR with any branch Affinity can't answer.
+`contains_any` / `contains_all`, and an OR with any branch Affinity can't answer. On person and
+company fields: names (`Owner = "Jane Doe"`; use the id to filter on Affinity's side), `!=`,
+enriched person and company fields, id conditions on a single-company field (not yet checked against Affinity), a number that isn't a valid record id (or is above 2147483647), these conditions on
+`company ls`, `person ls` and `query` from companies or persons, and a name search made only of
+digits (`starts_word "360"`).
 
-**Enriched fields** (`affinity-data-*`, e.g. funding and headcount): on list entries they're
-sent as "condition OR field is empty", because Affinity's search reads a few records' enriched
-values as empty; results stay exact. On `company ls`, `person ls` and `query` on companies or
+**Enriched fields** (`affinity-data-*`, e.g. funding and headcount): on list entries (except
+enriched person and company fields, which stay local) they're sent as "condition OR field is
+empty", because Affinity's search reads a few records' enriched values as empty; results stay
+exact. On `company ls`, `person ls` and `query` on companies or
 persons they're sent as they are, and the result carries a warning that a few records may be
 missed.
 
@@ -310,9 +319,10 @@ missed.
   `local` (checked only on your machine, with reasons) and, on `list export` when the search
   was refused or turned off, `fallback` (why; the whole filter then ran locally).
   `list export --dry-run` shows it under `data.serverFilter`; a `--cursor` resume doesn't.
-- If Affinity refuses the search on `list export` or a `listEntries` query (e.g. the API key
-  lacks the "Export data from Lists" permission), the command reads the whole list and filters
-  locally, with a warning.
+- If Affinity refuses the search (e.g. the API key lacks the "Export data from Lists"
+  permission), a `listEntries` query reads the whole list and filters locally, with a warning.
+  `list export` does the same only with `--all`, `--max-results` or `--first-page-only`;
+  without one it exits 2 before any output.
 - `XAFFINITY_QUERY_SERVER_FILTER=0` turns this off for list entries (`listEntries` queries and
   `list export`), to compare results or debug. Company and person filters always go through
   Affinity's search.

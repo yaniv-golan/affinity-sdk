@@ -23,7 +23,7 @@ Complete reference for all filter operators in the Affinity query language.
 
 `starts_word` matches the way Affinity's search matches names: `"Jan"` matches "Jane Doe" and "Mary-Jane"; `"ane"` doesn't.
 
-Person and company field values are compared by name ("Jane Doe", "Acme"), or by id when the value is a number. `contains`, `contains_any` and `contains_all` on a person or company field are refused: use `starts_word`.
+Person and company field values are compared by name ("Jane Doe", "Acme"); with `eq`, `neq`, `in`, `has_any`, `has_all`, an integer or 1-20 digits is the record's id and never matches a name. To find a record whose name is digits, use `starts_word` (checked locally; on `companies` / `persons` combine it with another field condition). `contains`, `contains_any` and `contains_all` on a person or company field are refused: use `starts_word`.
 
 ## Collection Operators
 
